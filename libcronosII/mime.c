@@ -82,7 +82,10 @@ no_mime_information:
 		/* This is most likely to be a plain/text message in standard rfc822 encoding */
 		*head = c2_mime_new (NULL);
 		(*head)->start = c2_message_get_message_body (message);
-		(*head)->length = strlen ((*head)->start);
+		if((*head)->start) /* sanity check */
+			(*head)->length = strlen ((*head)->start);
+		else
+			(*head)->length = 0;
 		(*head)->part = NULL;
 		(*head)->type = g_strdup ("text");
 		(*head)->subtype = g_strdup ("plain");
