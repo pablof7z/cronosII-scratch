@@ -61,6 +61,9 @@ AC_CHECK_FUNCS(gethostname socket strstr setsockopt)
 
 FEATURES=""
 
+dnl ## Get the date ##
+BUILDTIME=`date +%s`
+
 GNOME_X_CHECKS
 
 dnl ## Check for Gnome 1.0 or better ##
@@ -375,6 +378,7 @@ AC_SUBST(FEATURES)
 AC_SUBST(LIBOBJS)
 AC_SUBST(LIBGLADE_CFLAGS)
 AC_SUBST(LIBGLADE_LIBS)
+AC_SUBST(BUILDTIME)
 
 AC_OUTPUT([
 doc/Makefile
@@ -389,6 +393,10 @@ test-suite/Makefile
 pixmaps/Makefile
 plugins/Makefile
 po/Makefile.in
+default/Makefile
+default/cronosII.gnome
+default/default.elm
+default/default.index
 src/Makefile
 Makefile
 about.html
@@ -411,5 +419,3 @@ echo  Building with Bonobo support.....: $bonobo_ver
 echo  Building with Editor type........: $editor
 echo
 echo  Run \'make\' to start compiling this software.
-echo  CronosII $version
-
