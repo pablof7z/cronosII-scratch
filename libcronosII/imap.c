@@ -93,7 +93,7 @@ c2_imap_get_mailbox_level (gchar *name);
 static gchar *
 c2_imap_get_mailbox_heirarchy (gchar *name, guint level);
 
-gchar *
+static gchar *
 c2_imap_get_full_mailbox_name (C2IMAP *imap, C2Mailbox *mailbox);
 
 /* Misc. functions */
@@ -708,7 +708,7 @@ c2_imap_get_mailbox_heirarchy (gchar *name, guint level)
  * Return Value:
  * A freeable string of the full name of the mailbox
  **/
-gchar *
+static gchar *
 c2_imap_get_full_mailbox_name (C2IMAP *imap, C2Mailbox *mailbox)
 {
 	C2Mailbox *temp;

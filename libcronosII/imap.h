@@ -143,9 +143,6 @@ c2_imap_rename_mailbox					(C2IMAP *imap, C2Mailbox *mailbox, gchar *name);
 	
 gboolean
 c2_imap_load_mailbox						(C2IMAP *imap, C2Mailbox *mailbox);
-
-gchar *
-c2_imap_get_full_folder_name (C2IMAP *imap, C2Mailbox *mailbox);	
 	
 #ifdef __cplusplus
 }
