@@ -2206,7 +2206,7 @@ on_index_unselect_message (C2Index *index, C2Db *node, C2WindowMain *wmain)
 	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_forward");
 	if (GTK_IS_WIDGET (widget))
 		gtk_widget_set_sensitive (widget, FALSE);
-L}
+}
 
 static gint
 on_mlist_object_selected_pthread (C2WindowMain *wmain)

@@ -739,6 +739,11 @@ add_message (C2Mailbox *mailbox, C2Message *message)
 	gboolean marked = FALSE;
 	gchar *subject, *from, *account;
 	time_t date;
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Adding a DB to the DB list\n");
+#endif
 	
 	buf = c2_message_get_header_field (message, "X-Priority:");
 	if (c2_streq (buf, "highest") || c2_streq (buf, "high"))
@@ -820,6 +825,11 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 	GList *l;
 	gboolean thaw = FALSE;
 
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "There's a list of %d mails to add to the list\n", g_list_length (list));
+#endif
+
 	if (!mailbox->freezed)
 	{
 		c2_db_freeze (mailbox);
@@ -865,14 +875,31 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 
 		gtk_object_unref (GTK_OBJECT (message));
 	}
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "List added to the database\n");
+#endif
 	
 	mailbox->db_is_loaded = 1;
 
 	if (thaw)
 	{
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Thawing the database\n");
+#endif
 		c2_db_thaw (mailbox);
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Informing the application that the mailbox has changed\n");
+#endif
 		gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
 								 C2_MAILBOX_CHANGE_ADD, db->prev);
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Application informed.\n");
+#endif
 	} else
 	{
 		/* I don't own the freezing, so I have to
@@ -947,6 +974,11 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 	gint retval, first_position = -1;
 	gboolean thaw = FALSE;
 
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "There's a list of %d mails to be removed from the mailbox %s\n", g_list_length (list), mailbox->name);
+#endif
+
 	if (!mailbox->freezed)
 	{
 		c2_db_freeze (mailbox);
@@ -970,6 +1002,11 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 	if ((retval = func (mailbox, list)))
 		/*return FALSE*/;
 
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Mails removed (retval = %d)\n", retval);
+#endif
+
 	/* Remove from the loaded db list */
 	for (l = list; l; l = g_list_next (l))
 	{
@@ -991,9 +1028,21 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 
 	if (thaw)
 	{
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Mailbox will be thawed\n");
+#endif
 		c2_db_thaw (mailbox);
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Application will be informed\n");
+#endif
 		gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
 								 C2_MAILBOX_CHANGE_REMOVE, db);
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Application informed\n");
+#endif
 	} else
 	{
 		/* I don't own the freezing, so I have to
@@ -1047,10 +1096,23 @@ c2_db_message_set_state (C2Db *db, C2MessageState state)
 			break;
 	}
 
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Informing the application about the change of state of a mail\n");
+#endif
+
 	gtk_signal_emit_by_name (GTK_OBJECT (db->mailbox), "changed_mailbox",
 							C2_MAILBOX_CHANGE_STATE, db);
 
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "App informed. Setting the state of a mail\n");
+#endif
 	func (db, state);
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "State set\n");
+#endif
 }
 
 /**
@@ -1084,10 +1146,25 @@ c2_db_message_set_mark (C2Db *db, gboolean mark)
 			break;
 	}
 
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Informing the application about the change of mark of a mail\n");
+#endif
+
 	gtk_signal_emit_by_name (GTK_OBJECT (db->mailbox), "changed_mailbox",
 							C2_MAILBOX_CHANGE_STATE, db);
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "App informed. Setting the mark of a mail\n");
+#endif
 	
 	func (db, mark);
+	
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Mark set\n");
+#endif
 }
 
 /**
@@ -1106,8 +1183,24 @@ c2_db_load_message (C2Db *db)
 
 	c2_return_val_if_fail (C2_IS_DB (db), FALSE, C2EDATA);
 
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Loading a message\n");
+#endif
+
 	if (C2_IS_MESSAGE (db->message))
 	{
+#ifdef USE_DEBUG
+	if (_debug_db)
+	{
+		C2_PRINTD (MOD, "The message was already cached\n");
+#ifdef USE_MESSAGE_CACHE
+		C2_PRINTD (MOD, "Cronos II was built with message caching enabled\n");
+#else
+		C2_PRINTD (MOD, "Cronos II was built with message caching disabled! (ERROR!)\n");
+#endif
+	}
+#endif
 		return TRUE;
 	}
 
@@ -1125,11 +1218,27 @@ c2_db_load_message (C2Db *db)
 	}
 
 	c2_db_set_message (db, func (db));
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Message loaded\n");
+#endif
+	
 	if (db->message)
 	{
 		db->message->mime = c2_mime_new (db->message);
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "MIME parsed\n");
+#endif
 		return TRUE;
 	}
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Message loading failed!\n");
+#endif
 	
 	return FALSE;
 }

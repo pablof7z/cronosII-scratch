@@ -33,6 +33,13 @@
 #define MAILBOX_TYPE_IMAP					"IMAP"
 #define MAILBOX_TYPE_SPOOL					_("Spool (local)")
 
+#define MOD "Widget Application (utils)"
+#ifdef USE_DEBUG
+#	define DMOD TRUE
+#else
+#	define DMOD FALSE
+#endif
+
 /* TODO
  * 20011208 There's still a lack for the c2_application_dialog_select_file_get
  */
@@ -499,10 +506,6 @@ c2_application_dialog_add_mailbox (C2Application *application)
 	gtk_menu_append (GTK_MENU (menu), menuitem);
 	gtk_widget_show (menuitem);
 
-	menuitem = gtk_menu_item_new_with_label (MAILBOX_TYPE_IMAP);
-	gtk_menu_append (GTK_MENU (menu), menuitem);
-	gtk_widget_show (menuitem);
-
 	gtk_option_menu_set_menu (option_menu, menu);
 	gtk_option_menu_set_history (option_menu, 0);
 
@@ -652,6 +655,11 @@ re_run_add_mailbox_dialog:
 				/* Get parent mailbox */
 				parent = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (mlist));
 
+#ifdef USE_DEBUG
+				if (_debug_widget_application)
+					C2_PRINTD (MOD, "About to create the new mailbox\n");
+#endif
+
 				switch (type)
 				{
 					case C2_MAILBOX_CRONOSII:
@@ -681,6 +689,11 @@ re_run_add_mailbox_dialog:
 						break;
 				}
 
+#ifdef USE_DEBUG
+				if (_debug_widget_application)
+					C2_PRINTD (MOD, "New mailbox created\n");
+#endif
+
 				if (!mailbox)
 				{
 					c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
@@ -697,8 +710,18 @@ re_run_add_mailbox_dialog:
 					return;
 				}
 
+#ifdef USE_DEBUG
+				if (_debug_widget_application)
+					C2_PRINTD (MOD, "About to load the mailbox\n");
+#endif
+
 				if (c2_preferences_get_general_options_start_load ())
 					c2_mailbox_load_db (mailbox);
+
+#ifdef USE_DEBUG
+				if (_debug_widget_application)
+					C2_PRINTD (MOD, "Mailbox loaded\n");
+#endif
 
 				/* If this is the first mailbox we need
 				 * to connect the application to the
@@ -734,6 +757,10 @@ re_run_add_mailbox_dialog:
 				
 				gnome_config_set_int ("/"PACKAGE"/Mailboxes/quantity", config_id);
 				gnome_config_sync ();
+#ifdef USE_DEBUG
+				if (_debug_widget_application)
+					C2_PRINTD (MOD, "New mailbox saved in configuration\n");
+#endif
 			}
 		case 2:
 			gtk_window_set_modal (GTK_WINDOW (dialog), FALSE);

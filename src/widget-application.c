@@ -1376,7 +1376,6 @@ _copy (C2Application *application, GList *list, C2Window *window)
 	data->v1 = mailbox;
 	data->v2 = g_list_copy (list);
 	data->v3 = window;
-	printf ("About to copy %d mails\n", g_list_length (list));
 	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (_copy_thread), data);
 }
 

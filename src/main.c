@@ -329,7 +329,24 @@ main (gint argc, gchar **argv)
 			"\n"
 			"This is a list of the available debug-modules symbols:\n"
 			"\n"
-			""));
+			"db\n"
+			"db-cronosII\n"
+			"db-imap\n"
+			"db-spool\n"
+			"imap\n"
+			"mailbox\n"
+			"message\n"
+			"mime\n"
+			"net-object\n"
+			"pop3\n"
+			"request\n"
+			"smtp\n"
+			"widget-application\n"
+			"widget-composer\n"
+			"widget-mailbox-list\n"
+			"widget-mail\n"
+			"widget-part\n"
+			"widget-transfer-item\n"));
 		exit (0);
 	}
 
