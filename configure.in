@@ -16,7 +16,7 @@ define([AC_INIT_BINSH],
 [[#! /bin/sh
 echo
 echo Welcome to Cronos II configure script.
-echo Check http://cronosII.sourceforge.net for the latest
+echo Check http://www.cronosII.net/ for the latest
 echo version of this software.
 echo
 echo ============================= Configuring =============================
@@ -33,6 +33,7 @@ AM_CONFIG_HEADER(config.h)
 dnl Don't forget to update the FEATURES variable when changing
 dnl version.
 AM_INIT_AUTOMAKE(cronosII, 0.0.5)
+AC_DEFINE_UNQUOTED(URL, "http://www.cronosII.net/")
 
 dnl #######################################################
 dnl   Command, paths and libraries checks

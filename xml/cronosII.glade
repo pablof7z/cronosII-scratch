@@ -90,7 +90,6 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_new_message</name>
-		  <sensitive>False</sensitive>
 		  <tooltip>Compose a new E-Mail</tooltip>
 		  <accelerator>
 		    <modifiers>0</modifiers>
@@ -165,7 +164,7 @@
 	      <name>file_check_mail</name>
 	      <label>_Check Mail</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_MAIL_RCV</stock_icon>
+	      <icon>receive16.xpm</icon>
 
 	      <widget>
 		<class>GtkMenu</class>
@@ -174,7 +173,6 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_check_mail_all_accounts</name>
-		  <sensitive>False</sensitive>
 		  <tooltip>Check all accounts for new mail</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_CONTROL_MASK</modifiers>
@@ -188,7 +186,7 @@
 		  </signal>
 		  <label>All Accounts</label>
 		  <right_justify>False</right_justify>
-		  <stock_icon>GNOME_STOCK_MENU_MAIL</stock_icon>
+		  <icon>mail16.xpm</icon>
 		</widget>
 
 		<widget>
@@ -202,10 +200,9 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_send_unsent_mails</name>
-	      <sensitive>False</sensitive>
 	      <accelerator>
-		<modifiers>0</modifiers>
-		<key>GDK_S</key>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
+		<key>GDK_Return</key>
 		<signal>activate</signal>
 	      </accelerator>
 	      <signal>
@@ -213,9 +210,9 @@
 		<handler>on_send_unsent_messages_activate</handler>
 		<last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
 	      </signal>
-	      <label>_Send Unsent Mails</label>
+	      <label>_Send unsent mails</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_MAIL_SND</stock_icon>
+	      <icon>send16.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -253,25 +250,37 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_save</name>
-	      <sensitive>False</sensitive>
+	      <accelerator>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
+		<key>GDK_S</key>
+		<signal>activate</signal>
+	      </accelerator>
 	      <signal>
 		<name>activate</name>
-		<handler>on_save_activate</handler>
+		<handler>on_file_save_activate</handler>
 		<last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
 	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_SAVE_ITEM</stock_item>
+	      <label>_Save</label>
+	      <right_justify>False</right_justify>
+	      <icon>save16.xpm</icon>
 	    </widget>
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_print</name>
-	      <sensitive>False</sensitive>
+	      <accelerator>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
+		<key>GDK_P</key>
+		<signal>activate</signal>
+	      </accelerator>
 	      <signal>
 		<name>activate</name>
-		<handler>on_print_activate</handler>
+		<handler>on_file_print_activate</handler>
 		<last_modification_time>Wed, 08 Aug 2001 18:25:47 GMT</last_modification_time>
 	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_PRINT_ITEM</stock_item>
+	      <label>_Print</label>
+	      <right_justify>False</right_justify>
+	      <icon>print16.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -284,7 +293,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_exit</name>
-	      <sensitive>False</sensitive>
 	      <stock_item>GNOMEUIINFO_MENU_EXIT_ITEM</stock_item>
 	    </widget>
 	  </widget>
@@ -466,7 +474,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_reply</name>
-	      <sensitive>False</sensitive>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_R</key>
@@ -474,13 +481,12 @@
 	      </accelerator>
 	      <label>_Reply</label>
 	      <right_justify>False</right_justify>
-	      <icon>reply.xpm</icon>
+	      <icon>mail-reply16.xpm</icon>
 	    </widget>
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_reply_all</name>
-	      <sensitive>False</sensitive>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_A</key>
@@ -488,13 +494,12 @@
 	      </accelerator>
 	      <label>Reply _all</label>
 	      <right_justify>False</right_justify>
-	      <icon>reply.xpm</icon>
+	      <icon>mail-reply-all16.xpm</icon>
 	    </widget>
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_forward</name>
-	      <sensitive>False</sensitive>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_F</key>
@@ -502,7 +507,7 @@
 	      </accelerator>
 	      <label>_Forward</label>
 	      <right_justify>False</right_justify>
-	      <icon>forward.xpm</icon>
+	      <icon>mail-forward16.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -514,7 +519,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_copy</name>
-	      <sensitive>False</sensitive>
 	      <tooltip>Copy selected messages</tooltip>
 	      <accelerator>
 		<modifiers>GDK_MOD1_MASK</modifiers>
@@ -523,13 +527,12 @@
 	      </accelerator>
 	      <label>_Copy</label>
 	      <right_justify>False</right_justify>
-	      <icon>copy.xpm</icon>
+	      <icon>copy-message16.xpm</icon>
 	    </widget>
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_move</name>
-	      <sensitive>False</sensitive>
 	      <tooltip>Move selected messages</tooltip>
 	      <accelerator>
 		<modifiers>GDK_MOD1_MASK</modifiers>
@@ -538,7 +541,7 @@
 	      </accelerator>
 	      <label>_Move</label>
 	      <right_justify>False</right_justify>
-	      <icon>move.xpm</icon>
+	      <icon>move-message16.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -550,7 +553,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_delete</name>
-	      <sensitive>False</sensitive>
 	      <tooltip>Delete selected messages</tooltip>
 	      <accelerator>
 		<modifiers>0</modifiers>
@@ -559,7 +561,7 @@
 	      </accelerator>
 	      <label>_Delete</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_TRASH</stock_icon>
+	      <icon>delete16.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -686,7 +688,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_previous</name>
-	      <sensitive>False</sensitive>
 	      <tooltip>Select previous message</tooltip>
 	      <accelerator>
 		<modifiers>0</modifiers>
@@ -695,13 +696,12 @@
 	      </accelerator>
 	      <label>_Previous</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_BACK</stock_icon>
+	      <icon>prev16.xpm</icon>
 	    </widget>
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_next</name>
-	      <sensitive>False</sensitive>
 	      <tooltip>Select next message</tooltip>
 	      <accelerator>
 		<modifiers>0</modifiers>
@@ -710,7 +710,7 @@
 	      </accelerator>
 	      <label>_Next</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_FORWARD</stock_icon>
+	      <icon>next16.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -4034,6 +4034,89 @@ expunge the selected mails?</message>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
+      </widget>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeDialog</class>
+  <name>dlg_about</name>
+  <width>440</width>
+  <height>410</height>
+  <visible>False</visible>
+  <title>About</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>False</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <wmclass_name>about</wmclass_name>
+  <wmclass_class>cronosII</wmclass_class>
+  <auto_close>False</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox24</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area24</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button113</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<label>Web Site</label>
+	<stock_pixmap>GNOME_STOCK_PIXMAP_HOME</stock_pixmap>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button115</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_CLOSE</stock_button>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkVBox</class>
+      <name>contents_box</name>
+      <homogeneous>False</homogeneous>
+      <spacing>0</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>Placeholder</class>
       </widget>
     </widget>
   </widget>

@@ -27,6 +27,7 @@
 
 #include "main.h"
 #include "preferences.h"
+#include "widget-application-utils.h"
 #include "widget-composer.h"
 #include "widget-dialog-preferences.h"
 #include "widget-mailbox-list.h"
@@ -110,6 +111,36 @@ on_size_allocate							(C2WindowMain *wmain, GtkAllocation *alloc);
 
 static void
 on_docktoolbar_button_press_event			(GtkWidget *widget, GdkEventButton *event, C2WindowMain *wmain);
+
+static void
+on_menubar_file_send_unsent_mails_activate	(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_file_save_activate				(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_file_print_activate				(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_file_exit_activate				(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_message_reply_activate			(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_message_reply_all_activate		(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_message_forward_activate			(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_message_copy_activate			(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_message_move_activate			(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_message_delete_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_toolbar_changed							(GtkWidget *widget, C2WindowMain *wmain);
@@ -591,10 +622,33 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_new_mailbox")), "activate",
 							GTK_SIGNAL_FUNC (on_file_new_mailbox_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_send_unsent_mails")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_file_send_unsent_mails_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_save")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_file_save_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_print")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_file_print_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_exit")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_file_exit_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_egg_separator")), "activate",
 							GTK_SIGNAL_FUNC (on_eastern_egg_separator_activate), wmain);
+
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_reply")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_message_reply_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_reply_all")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_message_reply_all_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_forward")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_message_forward_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_copy")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_message_copy_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_move")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_message_move_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_delete")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_message_delete_activate), wmain);
+	
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "settings_preferences")), "activate",
 							GTK_SIGNAL_FUNC (on_settings_preferences_activate), wmain);
+	
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "help_about")), "activate",
 							GTK_SIGNAL_FUNC (on_about_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "help_release_information")), "activate",
@@ -1381,6 +1435,67 @@ on_docktoolbar_button_press_event (GtkWidget *widget, GdkEventButton *event, C2W
 }
 
 static void
+on_menubar_file_send_unsent_mails_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->send (wmain);
+}
+
+static void
+on_menubar_file_save_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->save (wmain);
+}
+
+static void
+on_menubar_file_print_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->print (wmain);
+}
+
+static void
+on_menubar_file_exit_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->exit (wmain);
+}
+
+
+static void
+on_menubar_message_reply_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->reply (wmain);
+}
+
+static void
+on_menubar_message_reply_all_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->reply_all (wmain);
+}
+
+static void
+on_menubar_message_forward_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->forward (wmain);
+}
+
+static void
+on_menubar_message_copy_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->copy (wmain);
+}
+
+static void
+on_menubar_message_move_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->move (wmain);
+}
+
+static void
+on_menubar_message_delete_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->delete (wmain);
+}
+
+static void
 on_toolbar_changed (GtkWidget *widget, C2WindowMain *wmain)
 {
 	gtk_widget_queue_resize (GTK_WIDGET (wmain));
@@ -1685,18 +1800,7 @@ on_settings_preferences_activate (GtkWidget *widget, C2WindowMain *wmain)
 static void
 on_about_activate (GtkWidget *widget, C2WindowMain *wmain)
 {
-	C2HTML *html = C2_HTML (C2_MAIL (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail"))->body);
-	gchar *string;
-
-	if (c2_get_file (PKGDATADIR G_DIR_SEPARATOR_S "about.html", &string) < 0)
-	{
-		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-							_("Unable to open about file"));
-		return;
-	}
-
-	c2_html_set_content_from_string (html, string);
-	g_free (string);
+	c2_application_dialog_about (C2_WINDOW (wmain)->application);
 }
 
 static void

@@ -61,6 +61,8 @@ typedef enum _C2HTMLProxyType C2HTMLProxyType;
 typedef void (*C2HTMLLinkManager)			(C2HTML *html, const gchar *url, GtkHTMLStream *stream);
 #elif defined (USE_GTKXMHTML)
 typedef void (*C2HTMLLinkManager)			(C2HTML *html, const gchar *url, C2Pthread2 *data);
+#else
+typedef void (*C2HTMLLinkManager)			(C2HTML *html, const gchar *url);
 #endif
 
 enum _C2HTMLProxyType

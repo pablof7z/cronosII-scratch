@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Cronos II 0.0.5\n"
-"POT-Creation-Date: 2001-11-20 21:03-0300\n"
+"POT-Creation-Date: 2001-11-23 19:50-0300\n"
 "PO-Revision-Date: 2001-11-09 22:35-0300\n"
 "Last-Translator: Pablo Fernández Navarro <cronosII@users.sourceforge.net>\n"
 "Language-Team: Cronos II Hackers Team "
@@ -64,14 +64,19 @@ msgstr "Proceso ocupado"
 msgid "Unknown hostname"
 msgstr ""
 
-#. C2INTERNAL
+#. C2USRCNCL
 #: libcronosII/error.c:30
+msgid "Action cancelled by user"
+msgstr ""
+
+#. C2INTERNAL
+#: libcronosII/error.c:31
 #, fuzzy
 msgid "Internal error"
 msgstr "Utilizar editor interno."
 
 #. C2NOBJ
-#: libcronosII/error.c:31
+#: libcronosII/error.c:32
 msgid "Internal error: Net Object has reached its maximal allocated buffer"
 msgstr ""
 
@@ -108,7 +113,7 @@ msgstr ""
 msgid "This message claims to be multipart but it seems to be broken."
 msgstr ""
 
-#: libcronosII/pop3.c:402
+#: libcronosII/pop3.c:401
 msgid "Server does not support APOP"
 msgstr ""
 
@@ -264,92 +269,105 @@ msgstr ""
 msgid "Failed to create mailbox «%s»: %s."
 msgstr "Imposible crear buzón"
 
-#: src/main.c:40
+#: src/main.c:39
+#, fuzzy, c-format
+msgid "Failed to save file: %s."
+msgstr "Imposible crear buzón"
+
+#: src/main.c:41
 msgid "Message saved successfully."
 msgstr ""
 
 #: src/main.c:42
-msgid "Action cancelled by user."
-msgstr ""
-
-#: src/main.c:43
-msgid "There is no selected mailbox."
+msgid "File saved successfully."
 msgstr ""
 
 #: src/main.c:44
+msgid "Action cancelled by user."
+msgstr ""
+
+#: src/main.c:45
+msgid "There is no selected mailbox."
+msgstr ""
+
+#: src/main.c:46
 msgid "Unknown reason"
 msgstr ""
 
-#: src/main.c:89
+#: src/main.c:91
 msgid "Compose a new email."
 msgstr ""
 
-#: src/main.c:94
+#: src/main.c:96
 msgid "Set the Account field."
 msgstr ""
 
-#: src/main.c:95 src/widget-index.c:208
+#: src/main.c:97 src/widget-index.c:208
 msgid "Account"
 msgstr "Cuenta"
 
-#: src/main.c:100
+#: src/main.c:102
 msgid "Set the To field."
 msgstr ""
 
-#: src/main.c:101 src/main.c:107 src/main.c:113
+#: src/main.c:103 src/main.c:109 src/main.c:115
 msgid "Address"
 msgstr ""
 
-#: src/main.c:106
+#: src/main.c:108
 msgid "Set the CC field."
 msgstr ""
 
-#: src/main.c:112
+#: src/main.c:114
 msgid "Set the BCC field."
 msgstr ""
 
-#: src/main.c:118
+#: src/main.c:120
 msgid "Set the Subject field."
 msgstr ""
 
-#: src/main.c:119 src/widget-index.c:202
+#: src/main.c:121 src/widget-index.c:202
 msgid "Subject"
 msgstr ""
 
-#: src/main.c:124
+#: src/main.c:126
 msgid "Set the Body."
 msgstr ""
 
-#: src/main.c:125
+#: src/main.c:127
 msgid "Text"
 msgstr ""
 
-#: src/main.c:130
+#: src/main.c:132
 msgid "Compose a new email decoding the argument as a mailto: link"
 msgstr ""
 
-#: src/main.c:136
+#: src/main.c:138
 msgid "Set the active mailbox at start (default=Inbox)"
 msgstr ""
 
-#: src/main.c:137
+#: src/main.c:139
 msgid "Inbox"
 msgstr ""
 
-#: src/main.c:142
+#: src/main.c:144
 msgid "Check account for mail."
 msgstr ""
 
-#: src/main.c:147
+#: src/main.c:149
 msgid "Open the main window (default)"
 msgstr ""
 
-#: src/widget-composer.c:405 src/widget-composer.c:699
+#: src/widget-composer.c:344
+msgid "Unable to find the proper mailbox"
+msgstr ""
+
+#: src/widget-composer.c:509 src/widget-composer.c:806
 #, fuzzy
 msgid "Composer: Untitled"
 msgstr "Interface/Compositor"
 
-#: src/widget-composer.c:510
+#: src/widget-composer.c:614
 msgid ""
 "You have choosen to use an external editor instead of the built-in with "
 "Cronos II.\n"
@@ -363,52 +381,52 @@ msgid ""
 "window.\n"
 msgstr ""
 
-#: src/widget-composer.c:695
+#: src/widget-composer.c:802
 #, fuzzy, c-format
 msgid "Composer: %s"
 msgstr "Interface/Compositor"
 
-#: src/widget-composer.c:749
+#: src/widget-composer.c:856
 #, fuzzy, c-format
 msgid "Run external editor: %s"
 msgstr "Utilizar editor externo."
 
 #. Set more info about the mime object
-#: src/widget-composer.c:826 src/widget-composer.c:1735
+#: src/widget-composer.c:945 src/widget-composer.c:1854
 msgid "unknown"
 msgstr ""
 
-#: src/widget-composer.c:1011
+#: src/widget-composer.c:1130
 #, c-format
 msgid "The account specified does not longer exist: %s"
 msgstr ""
 
-#: src/widget-composer.c:1016
+#: src/widget-composer.c:1135
 msgid ""
 "The message is not asociated to an account, default account will be used."
 msgstr ""
 
-#: src/widget-composer.c:1196
+#: src/widget-composer.c:1315
 #, c-format
 msgid "Unable to open temporal file for writing to external editor: %s"
 msgstr ""
 
-#: src/widget-composer.c:1290
+#: src/widget-composer.c:1409
 #, c-format
 msgid "On %s, %s wrote:\n"
 msgstr ""
 
-#: src/widget-composer.c:1713
+#: src/widget-composer.c:1832
 #, c-format
 msgid "Failed to open %s: %s"
 msgstr ""
 
-#: src/widget-composer.c:1723
+#: src/widget-composer.c:1842
 #, c-format
 msgid "Failed to stat %s: %s"
 msgstr ""
 
-#: src/widget-composer.c:1811
+#: src/widget-composer.c:1930
 #, c-format
 msgid "The account specified does not exist: %s"
 msgstr ""
@@ -774,6 +792,7 @@ msgstr ""
 #: src/preferences-trans.h:12 src/preferences-trans.h:16
 #: src/preferences-trans.h:20 src/preferences-trans.h:23
 #: src/preferences-trans.h:229 src/trans.h:73 src/trans.h:165 src/trans.h:172
+#: src/trans.h:204
 msgid "Error"
 msgstr ""
 
@@ -2098,6 +2117,10 @@ msgstr ""
 #, fuzzy
 msgid "Select Mailbox"
 msgstr "Buzón"
+
+#: src/trans.h:203
+msgid "You selected a directory."
+msgstr ""
 
 #~ msgid "The mailbox '%s' couldn't be loaded"
 #~ msgstr "El buzón '%s' no ha sido cargado"

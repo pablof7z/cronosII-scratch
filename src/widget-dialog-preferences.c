@@ -591,6 +591,7 @@ set_values (C2DialogPreferences *preferences)
 	g_free (charv);
 	
 	charv = c2_preferences_get_interface_fonts_message_body ();
+	C2_DEBUG (charv);
 	widgetv = preferences->interface_fonts_message_body;
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 	gtk_entry_set_text (GTK_ENTRY (widgetv), charv);
@@ -781,9 +782,24 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 	preferences->interface_fonts_message_body = gtk_entry_new ();
 #else
 	preferences->interface_fonts_message_body = gnome_font_picker_new ();
+	gnome_font_picker_set_mode (GNOME_FONT_PICKER (
+							preferences->interface_fonts_message_body), GNOME_FONT_PICKER_MODE_FONT_INFO);
+	gnome_font_picker_fi_set_use_font_in_label (GNOME_FONT_PICKER (
+							preferences->interface_fonts_message_body), TRUE, 14);
+	gnome_font_picker_fi_set_show_size (GNOME_FONT_PICKER (
+							preferences->interface_fonts_message_body), FALSE);
 #endif
 	gtk_box_pack_start (GTK_BOX (widget), preferences->interface_fonts_message_body, TRUE, TRUE, 0);
 	gtk_widget_show (preferences->interface_fonts_message_body);
+
+
+
+#if !(defined (USE_GTKHTML) || defined (USE_GTKXMHTML))
+	widget = glade_xml_get_widget (xml, "interface_html_interpret_text_plain");
+	gtk_widget_set_sensitive (widget, FALSE);
+#endif
+
+
 
 	/* Sidebar */
 	sidebar = glade_xml_get_widget (xml, "sidebar");

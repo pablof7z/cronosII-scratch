@@ -110,23 +110,31 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 		}
 	}
 
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 	if (text_plain && mime)
 		string = interpret_text_plain_symbols (mime->part);
 	else if (text_plain && !mime)
 		string = interpret_text_plain_symbols (message->mime ?
 											c2_mime_get_part (message->mime) :
 											message->body);
+#else
+	string = mime->part;
+#endif
 
 	gtk_object_set_data (GTK_OBJECT (mail->body), "message", message);
 	
 	buf = c2_str_wrap (string, 75);
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 	g_free (string);
+#endif
 	string = buf;
 
 	c2_html_set_content_from_string (C2_HTML (mail->body), string);
 
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 	if (text_plain)
 		g_free (string);
+#endif
 }
 
 C2Message *
