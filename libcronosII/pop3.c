@@ -628,6 +628,7 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 	gchar *tmp;
 	FILE *fd;
 	GSList *l;
+	gboolean getting_header;
 	
 	for (l = download_list; l; l = g_slist_next (l))
 	{
@@ -670,6 +671,7 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 			return -1;
 		}
 
+		getting_header = TRUE;
 		for (length = 0;;)
 		{
 			c2_net_object_read (C2_NET_OBJECT (pop3), &string);
@@ -678,8 +680,16 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 				break;
 			
 			len = strlen (string);
+			if (len == 2 && getting_header)
+			{
+				getting_header = FALSE;
+				fprintf (fd, "X-CronosII-Account: %s\n", account->name);
+				fprintf (fd, "X-CronosII-State: %c\n", C2_MESSAGE_UNREADED);
+			}
+			
 			string[len-2] = '\n';
 			fwrite (string, sizeof (gchar), len-1, fd);
+
 			g_free (string);
 
 			length += len;
@@ -693,8 +703,6 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 		/* Load the mail */
 		if ((message = c2_db_message_get_from_file (tmp)))
 		{
-			C2_DEBUG (message->header);
-			C2_DEBUG (message->body);
 			c2_db_message_add (inbox, message);
 		} else
 			L

@@ -27,6 +27,10 @@
 #include "mailbox.h"
 #include "utils.h"
 
+/* [TODO]
+ * 010916 - Make a function that returns the last MID of a Mailbox.
+ */
+
 gboolean
 c2_db_cronosII_create_structure (C2Mailbox *mailbox)
 {
@@ -181,42 +185,40 @@ c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 	gchar *buf;
 	FILE *fd;
 
-	C2_DEBUG (db->message->header);
-	C2_DEBUG (db->message->body);
-L
+
 	if (mailbox->db)
 		mid = mailbox->db->prev->mid+1;
 	else
 		mid = 1;
-L	printf ("New mid: %d\n", mid);
+	printf ("New mid: %d\n", mid);
 
-L	db->mid = mid;
+	db->mid = mid;
 	
-L	buf = g_strconcat (g_get_home_dir (), C2_HOME,	mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
+	buf = g_strconcat (g_get_home_dir (), C2_HOME,	mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
 	if (!(fd = fopen (buf, "at")))
 	{
 		c2_error_set (-errno);
 		return FALSE;
 	}
-L	fprintf (fd, "%c\r\r%d\r%s\r%s\r%d\r%s\r%d\n",
+	fprintf (fd, "%c\r\r%d\r%s\r%s\r%d\r%s\r%d\n",
 				db->state, db->mark, db->subject, db->from, db->date, db->account, db->mid);
 	fclose (fd);
 	g_free (buf);
-L
-L	buf = g_strdup_printf ("%s" C2_HOME "%s.mbx/%d", g_get_home_dir (), mailbox->name, mid);
-L	if (!(fd = fopen (buf, "wt")))
+
+	buf = g_strdup_printf ("%s" C2_HOME "%s.mbx/%d", g_get_home_dir (), mailbox->name, mid);
+	if (!(fd = fopen (buf, "wt")))
 	{
-L		c2_error_set (-errno);
+		c2_error_set (-errno);
 		return FALSE;
 	}
-	if (!db->message)
-		L
-L	fprintf (fd, "%s\n%s", db->message->header, db->message->body);
-L	fclose (fd);
+
+	fprintf (fd, "%s\n%s", db->message->header, db->message->body);
+	fclose (fd);
 	g_free (buf);
 
 	return TRUE;
 }
+
 
 void
 c2_db_cronosII_message_remove (C2Mailbox *mailbox, C2Db *db, gint n)

@@ -432,18 +432,19 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 
 	if ((buf = c2_message_get_header_field (message, "Date:")))
 	{
-L		date = c2_date_parse (buf);
+		date = c2_date_parse (buf);
 		g_free (buf);
 	} else
 		date = time (NULL);
 
-	printf ("Date is %d\n", date);
-	
 	db = c2_db_new (mailbox, marked, c2_message_get_header_field (message, "Subject:"),
 					c2_message_get_header_field (message, "From:"),
 					c2_message_get_header_field (message, "X-CronosII-Account:"),
 					date, 0, 0);
 	db->message = message;
+	db->state = *(c2_message_get_header_field (message, "X-CronosII-State:"));
+	if (!db->state)
+		db->state = C2_MESSAGE_UNREADED;
 	
 	switch (mailbox->type)
 	{
@@ -461,12 +462,12 @@ L		date = c2_date_parse (buf);
 	if (!mailbox->db)
 		c2_mailbox_load_db (mailbox);
 
-L	if (!func (mailbox, db))
+	if (!func (mailbox, db))
 		return;
-	gtk_object_destroy (message);
+	gtk_object_destroy (GTK_OBJECT (message));
 	db->message = NULL;
-L
-L
+
+
 	if (mailbox->db)
 	{
 		l = mailbox->db->prev;

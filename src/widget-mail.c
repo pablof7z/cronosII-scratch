@@ -98,10 +98,7 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 	}
 
 	if (text_plain)
-	{
 		string = interpret_text_plain_symbols (mime->part);
-//		string = g_strdup_printf ("<HTML><BODY BGCOLOR=#ffffff><TT>%s</TT></BODY></HTML>", mime->part);
-	}
 
 	gtk_object_set_data (GTK_OBJECT (mail->body), "message", message);
 	
@@ -302,7 +299,7 @@ html_link_manager_cid (C2HTML *html, const gchar *url, C2Pthread2 *data)
 static gchar *
 interpret_text_plain_symbols (const gchar *plain)
 {
-	GString *string = g_string_new ("<HTML><BODY BGCOLOR=#ffffff><TABLE BORDER=0><TR><TD><PRE>");
+	GString *string = g_string_new ("<html><body bgcolor=#ffffff><table border=0><tr><td><pre>");
 	const gchar *ptr;
 	gchar *word, *extra, *buf;
 	gboolean quoted = FALSE, quote_line = FALSE, new_line;
@@ -357,7 +354,7 @@ interpret_text_plain_symbols (const gchar *plain)
 						goto avoid_interpret;
 				}
 				
-				buf = g_strdup ("<HR NOSHADE=NOSHADE>");
+				buf = g_strdup ("<hr noshade=noshade>");
 			} else if (word[0] == '>' && new_line)
 			/* > Quote */
 			{
@@ -379,12 +376,12 @@ interpret_text_plain_symbols (const gchar *plain)
 					quote_level = rec;
 
 					if (quote_line)
-						g_string_append (string, "</FONT>\n");
+						g_string_append (string, "</font>\n");
 					else
 						quote_line = TRUE;
 
 					make_quote_color (rec, &red, &green, &blue);
-					buf = g_strdup_printf ("<FONT COLOR=#%02x%02x%02x>%s", red, green, blue, word);
+					buf = g_strdup_printf ("<font color=#%02x%02x%02x>%s", red, green, blue, word);
 				}
 			}
 			/* Italic: What's the text/plain symbol???
@@ -393,7 +390,7 @@ interpret_text_plain_symbols (const gchar *plain)
 			{
 avoid_interpret:
 				if (quote_line && new_line)
-					g_string_append (string, "</FONT>");
+					g_string_append (string, "</font>");
 				buf = g_strdup (word);
 			}
 			
@@ -402,15 +399,17 @@ avoid_interpret:
 		} else
 		{
 			if (c2_streq (word, ":)"))
-				g_string_append (string, "<IMG SRC=\"c2dist://html-icons/:).png\" WIDTH=10 HEIGHT=10>");
+				g_string_append (string, "<img src=\"c2dist://html-icons/:).png\" width=10 height=10 alt=\":)\">");
 			else if (c2_streq (word, ":D"))
-				g_string_append (string, "<IMG SRC=\"c2dist://html-icons/:D.png\" WIDTH=10 HEIGHT=10>");
+				g_string_append (string, "<img src=\"c2dist://html-icons/:D.png\" width=10 height=10 alt=\":D\">");
+			else if (c2_streq (word, ":P"))
+				g_string_append (string, "<img src=\"c2dist://html-icons/:P.png\" width=10 height=10 alt=\":P\">");
 			else if (c2_strneq (word, "http://", 7) ||
 					 c2_strneq (word, "ftp://", 6) ||
 					 c2_strneq (word, "file://", 7) ||
 					 c2_strneq (word, "mailto:", 7))
 			{
-				buf = g_strdup_printf ("<A HREF=\"%s\">%s</A>", word, word);
+				buf = g_strdup_printf ("<a href=\"%s\">%s</a>", word, word);
 				g_string_append (string, buf);
 				g_free (buf);
 			}
@@ -421,7 +420,7 @@ avoid_interpret:
 		g_free (word);
 	}
 
-	g_string_append (string, "</PRE></TD></TR></TABLE></BODY></HTML>");
+	g_string_append (string, "</pre></td></tr></table></body></html>");
 
 	buf = string->str;
 	g_string_free (string, FALSE);
@@ -449,7 +448,7 @@ get_word (const gchar *cptr, gchar **extra, gboolean *new_line)
 							end[0] != ','); end++)
 		if (*end == '\n')
 		{
-L			*new_line = TRUE;
+			*new_line = TRUE;
 			break;
 		}
 	
@@ -496,45 +495,45 @@ get_word (const gchar *cptr, gchar **extra)
 static void
 make_quote_color (gint level, gshort *red, gshort *green, gshort *blue)
 {
-	gshort r = 0x55, g = 0x55, b = 0x55;
-	gshort offset;
+	gshort vect[3];
+	gshort a[3] = { 0x55, 0x77, 0x99};
+	gshort i, ii, iii;
+	gint j = 0;
 
-	if (!level)
+	switch (level)
 	{
-		*red = *green = *blue = 0;
-		return;
+		case 1:
+			*red = *blue = *green = 0x55;
+			return;
+		case 2:
+			*red = *blue = *green = 0x77;
+			return;
+		case 3:
+			*red = *blue = *green = 0x99;
+			return;
 	}
 
 	level--;
 
-	offset = level - 3;
-
-	if (offset > 0)
+	for (i = 0; i < 3; i++)
 	{
-		gint i;
-L
-		for (i = offset; i > 0; i--)
+		vect[0] = a[i];
+		
+		for (ii = 0; ii < 3; ii++)
 		{
-			if (b < 0xaa)
-				b += 0x22;
-			else if (g < 0xaa)
-				g += 0x22;
-			else if (r < 0xaa)
-				r += 0x22;
-			else
-#ifdef USE_DEBUG
-			{
-				g_print ("%s has reached its limit with level %d\n", __PRETTY_FUNCTION__, level);
-#endif
-				r = g = b = 0xbb;
-#ifdef USE_DEBUG
-			}
-#endif
-		}
-	} else
-		r = g = b += level*0x22;
+			vect[1] = a[ii];
 
-	*red = r;
-	*green = g;
-	*blue = b;
+			for (iii = 0; iii < 3; iii++)
+			{
+				vect[2] = a[iii];
+				if (++j > level)
+					goto out;
+			}
+		}
+	}
+out:
+
+	*red = vect[0];
+	*green = vect[1];
+	*blue = vect[2];
 }
