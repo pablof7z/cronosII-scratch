@@ -1,3 +1,8 @@
+Wed Oct 3 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Added emoticon-wink.png 
+	* Updated emoticon-angry1.png, -laugh.png, and -suprise.png for possible
+	  consideration.
+
 Mon Oct 1 15:15:00 	petergozz <gossner@arcom.com.au>
 	*	Removed all emoticon xpm files. (these were never loaded to CVS !!)
 
