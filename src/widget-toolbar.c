@@ -45,6 +45,7 @@ create_item_space							(C2Toolbar *toolbar);
 
 enum
 {
+	CHANGED,
 	LAST_SIGNAL
 };
 
@@ -108,8 +109,15 @@ class_init (C2ToolbarClass *klass)
 	GtkObjectClass *object_class = (GtkObjectClass *) klass;
 	
 	parent_class = gtk_type_class (gtk_hbox_get_type ());
-
+	signals[CHANGED] =
+		gtk_signal_new ("changed",
+						GTK_RUN_FIRST,
+						object_class->type,
+						GTK_SIGNAL_OFFSET (C2ToolbarClass, changed),
+						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
+
+	klass->changed = NULL;
 }
 
 static void
@@ -119,7 +127,8 @@ init (C2Toolbar *toolbar)
 	toolbar->items = NULL;
 	toolbar->space_size = 4;
 	toolbar->space_style = GTK_TOOLBAR_SPACE_LINE;
-	toolbar->tooltips = NULL;
+	toolbar->tooltips = 1;
+	toolbar->gtktooltips = NULL;
 	toolbar->freezed = 0;
 }
 
@@ -156,16 +165,29 @@ c2_toolbar_clear (C2Toolbar *toolbar)
 	clear_toolbar (toolbar);
 	g_list_free (toolbar->items);
 	toolbar->items = NULL;
+
+	if (!toolbar->freezed)
+		gtk_signal_emit (GTK_OBJECT (toolbar), signals[CHANGED]);
 }
 
 void
 c2_toolbar_set_style (C2Toolbar *toolbar, C2ToolbarStyle style)
 {
 	toolbar->style = style;
-	printf ("Setting style to %d\n", style);
 
-	create_toolbar (toolbar);
-	gtk_widget_queue_resize (GTK_WIDGET (toolbar));
+	if (!toolbar->freezed)
+		create_toolbar (toolbar);
+}
+
+void
+c2_toolbar_set_tooltips (C2Toolbar *toolbar, gboolean active)
+{
+	toolbar->tooltips = active ? 1 : 0;
+
+	if (active)
+		gtk_tooltips_enable (toolbar->gtktooltips);
+	else
+		gtk_tooltips_disable (toolbar->gtktooltips);
 }
 
 GtkWidget *
@@ -184,13 +206,18 @@ c2_toolbar_append_button (C2Toolbar *toolbar, gchar *pixmap, gchar *label,
 	toolbar->items = g_list_append (toolbar->items, item);
 
 	item->inf.button.widget = create_item_button (toolbar, NULL, pixmap, label, tooltip, force_label);
+	
+	if (!toolbar->freezed)
+		gtk_signal_emit (GTK_OBJECT (toolbar), signals[CHANGED]);
+	
 	return item->inf.button.widget;
 }
 
 void
 c2_toolbar_append_widget (C2Toolbar *toolbar, GtkWidget *widget, gchar *tooltip)
 {
-	
+	if (!toolbar->freezed)
+		gtk_signal_emit (GTK_OBJECT (toolbar), signals[CHANGED]);
 }
 
 void
@@ -215,6 +242,9 @@ clear_toolbar (C2Toolbar *toolbar)
 	/* Remove content */
 	for (l = gtk_container_children (GTK_CONTAINER (toolbar)); l; l = g_list_next (l))
 		gtk_container_remove (GTK_CONTAINER (toolbar), GTK_WIDGET (l->data));
+
+	if (!toolbar->freezed)
+		gtk_signal_emit (GTK_OBJECT (toolbar), signals[CHANGED]);
 }
 
 static void
@@ -251,6 +281,9 @@ create_toolbar (C2Toolbar *toolbar)
 				break;
 		}
 	}
+
+	if (!toolbar->freezed)
+		gtk_signal_emit (GTK_OBJECT (toolbar), signals[CHANGED]);
 }
 
 static GtkWidget *
@@ -269,9 +302,9 @@ create_item_button (C2Toolbar *toolbar, GtkWidget *button, const gchar *pixmap,
 			gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
 		gtk_widget_ref (button);
 
-		if (!toolbar->tooltips)
-			toolbar->tooltips = gtk_tooltips_new ();
-		gtk_tooltips_set_tip (toolbar->tooltips, button, tooltip, NULL);
+		if (!toolbar->gtktooltips)
+			toolbar->gtktooltips = gtk_tooltips_new ();
+		gtk_tooltips_set_tip (toolbar->gtktooltips, button, tooltip, NULL);
 	} else
 	{
 		GList *l;
@@ -306,22 +339,22 @@ create_item_button_content (C2Toolbar *toolbar, const gchar *pixmap, const gchar
 		case C2_TOOLBAR_JUST_TEXT:
 			text = TRUE;
 			icon = FALSE;
-L			box = gtk_vbox_new (FALSE, 0);
+			box = gtk_vbox_new (FALSE, 0);
 			break;
 		case C2_TOOLBAR_JUST_ICON:
 			text = FALSE;
 			icon = TRUE;
-L			box = gtk_vbox_new (FALSE, 0);
+			box = gtk_vbox_new (FALSE, 0);
 			break;
 		case C2_TOOLBAR_TEXT_UNDER_ICON:
 			text = TRUE;
 			icon = TRUE;
-L			box = gtk_vbox_new (FALSE, 0);
+			box = gtk_vbox_new (FALSE, 0);
 			break;
 		case C2_TOOLBAR_TEXT_BESIDE_ICON:
 			text = force_label;
 			icon = TRUE;
-L			box = gtk_hbox_new (FALSE, 2);
+			box = gtk_hbox_new (FALSE, 2);
 			break;
 	}
 

@@ -52,6 +52,9 @@ static void
 on_docktoolbar_button_press_event			(GtkWidget *widget, GdkEventButton *event, C2WindowMain *wmain);
 
 static void
+on_toolbar_changed							(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_toolbar_check_clicked					(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
@@ -103,7 +106,10 @@ static void
 on_mnu_toolbar_text_only_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
-on_mnu_toolbar_edit_toolbar_activate					(GtkWidget *widget, C2WindowMain *wmain);
+on_mnu_toolbar_tooltips_toggled				(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_mnu_toolbar_edit_toolbar_activate		(GtkWidget *widget, C2WindowMain *wmain);
 
 /* in widget-application.c */
 extern void
@@ -377,20 +383,14 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 
 	/* Toolbar */
 	widget = glade_xml_get_widget (xml, "docktoolbar");
-	toolbar_style = gnome_config_get_int_with_default ("/"PACKAGE"/Toolbar::Window Main/type=-1", NULL);
-	if (toolbar_style < 0)
-	{
-		if ((toolbar_style = gnome_config_get_int_with_default ("/"PACKAGE"/Toolbar::All/type=-1", NULL)) < 0)
-		{
-			if (!gnome_preferences_get_toolbar_labels ())
-				toolbar_style = C2_TOOLBAR_TEXT_BESIDE_ICON;
-			else
-				toolbar_style = C2_TOOLBAR_JUST_ICON;
-		}
-	}
+	i = gnome_config_get_bool_with_default ("/"PACKAGE"/Toolbar::Window Main/tooltips=true", NULL);
+	toolbar_style = gnome_config_get_int_with_default ("/"PACKAGE"/Toolbar::Window Main/type=0", NULL);
 	wmain->toolbar = c2_toolbar_new (toolbar_style);
+	c2_toolbar_set_tooltips (C2_TOOLBAR (wmain->toolbar), i);
 	gtk_container_add (GTK_CONTAINER (widget), wmain->toolbar);
-	gtk_widget_show (wmain->toolbar);
+	
+	gtk_signal_connect (GTK_OBJECT (wmain->toolbar), "changed",
+						GTK_SIGNAL_FUNC (on_toolbar_changed), wmain);
 
 	/* Set the buttons of the toolbar */
 	c2_toolbar_freeze (C2_TOOLBAR (wmain->toolbar));
@@ -429,6 +429,7 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 		}
 	}
 	c2_toolbar_thaw (C2_TOOLBAR (wmain->toolbar));
+	gtk_widget_show (wmain->toolbar);
 
 	/* Vpaned */
 	vpaned = glade_xml_get_widget (xml, "vpaned");
@@ -475,6 +476,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_mnu_toolbar_text_only_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (wmain->toolbar_menu, "icons_only")), "activate",
 							GTK_SIGNAL_FUNC (on_mnu_toolbar_icons_only_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (wmain->toolbar_menu, "tooltips")), "toggled",
+							GTK_SIGNAL_FUNC (on_mnu_toolbar_tooltips_toggled), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (wmain->toolbar_menu, "edit_toolbar")), "activate",
 							GTK_SIGNAL_FUNC (on_mnu_toolbar_edit_toolbar_activate), wmain);
 	
@@ -509,37 +512,40 @@ on_delete_event (GtkWidget *widget, GdkEventAny *event, gpointer data)
 static void
 on_docktoolbar_button_press_event (GtkWidget *widget, GdkEventButton *event, C2WindowMain *wmain)
 {
-	C2Application *application;
-	GtkWidget *toolbar;
+	C2ToolbarStyle style;
+	gboolean tooltips;
+	GtkWidget *widgetb;
+	GladeXML *xml;
+
 	c2_return_if_fail (event, C2EDATA);
 	
-	switch (event->button)
+	if (event->button == 3)
 	{
-		case 3:
-			application = C2_WINDOW (wmain)->application;
-			switch (application->interface_toolbar)
-			{
-				case GTK_TOOLBAR_BOTH:
-					toolbar = glade_xml_get_widget (wmain->toolbar_menu, "text");
-					gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (toolbar), FALSE);
-					toolbar = glade_xml_get_widget (wmain->toolbar_menu, "both");
-					gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (toolbar), TRUE);
-					toolbar = glade_xml_get_widget (wmain->toolbar_menu, "icons");
-					gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (toolbar), FALSE);
-					break;
-				case GTK_TOOLBAR_ICONS:
-					toolbar = glade_xml_get_widget (wmain->toolbar_menu, "icons");
-					gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (toolbar), TRUE);
-					break;
-				case GTK_TOOLBAR_TEXT:
-					toolbar = glade_xml_get_widget (wmain->toolbar_menu, "text");
-					gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (toolbar), TRUE);
-					break;
-			}
-			gnome_popup_menu_do_popup (glade_xml_get_widget (wmain->toolbar_menu, "mnu_toolbar"),
+		xml = wmain->toolbar_menu;
+		style = gnome_config_get_int_with_default ("/"PACKAGE"/Toolbar::Window Main/type=0", NULL);
+		tooltips = gnome_config_get_bool_with_default ("/"PACKAGE"/Toolbar::Window Main/tooltips=true", NULL);
+
+		widgetb = glade_xml_get_widget (xml, "text_beside_icons");
+		GTK_CHECK_MENU_ITEM (widgetb)->active = style == C2_TOOLBAR_TEXT_BESIDE_ICON ? 1 : 0;
+		widgetb = glade_xml_get_widget (xml, "text_under_icons");
+		GTK_CHECK_MENU_ITEM (widgetb)->active = style == C2_TOOLBAR_TEXT_UNDER_ICON ? 1 : 0;
+		widgetb = glade_xml_get_widget (xml, "text_only");
+		GTK_CHECK_MENU_ITEM (widgetb)->active = style == C2_TOOLBAR_JUST_TEXT ? 1 : 0;
+		widgetb = glade_xml_get_widget (xml, "icons_only");
+		GTK_CHECK_MENU_ITEM (widgetb)->active = style == C2_TOOLBAR_JUST_ICON ? 1 : 0;
+		
+		widgetb = glade_xml_get_widget (xml, "tooltips");
+		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (widgetb), tooltips);
+		
+		gnome_popup_menu_do_popup (glade_xml_get_widget (wmain->toolbar_menu, "mnu_toolbar"),
 								NULL, NULL, event, NULL);
-			break;
 	}
+}
+
+static void
+on_toolbar_changed (GtkWidget *widget, C2WindowMain *wmain)
+{
+	gtk_widget_queue_resize (GTK_WIDGET (wmain));
 }
 
 static void
@@ -842,7 +848,6 @@ on_mnu_toolbar_text_beside_icons_activate (GtkWidget *widget, C2WindowMain *wmai
 	GtkWidget *toolbar;
 
 	toolbar = wmain->toolbar;
-	printf ("Setting to %d\n", C2_TOOLBAR_TEXT_BESIDE_ICON);
 	c2_toolbar_set_style (C2_TOOLBAR (toolbar), C2_TOOLBAR_TEXT_BESIDE_ICON);
 	gnome_config_set_int ("/"PACKAGE"/Toolbar::Window Main/type", C2_TOOLBAR_TEXT_BESIDE_ICON);
 	gnome_config_sync ();
@@ -854,7 +859,6 @@ on_mnu_toolbar_text_under_icons_activate (GtkWidget *widget, C2WindowMain *wmain
 	GtkWidget *toolbar;
 
 	toolbar = wmain->toolbar;
-	printf ("Setting to %d\n", C2_TOOLBAR_TEXT_UNDER_ICON);
 	c2_toolbar_set_style (C2_TOOLBAR (toolbar), C2_TOOLBAR_TEXT_UNDER_ICON);
 	gnome_config_set_int ("/"PACKAGE"/Toolbar::Window Main/type", C2_TOOLBAR_TEXT_UNDER_ICON);
 	gnome_config_sync ();
@@ -879,6 +883,19 @@ on_mnu_toolbar_text_only_activate (GtkWidget *widget, C2WindowMain *wmain)
 	toolbar = wmain->toolbar;
 	c2_toolbar_set_style (C2_TOOLBAR (toolbar), C2_TOOLBAR_JUST_TEXT);
 	gnome_config_set_int ("/"PACKAGE"/Toolbar::Window Main/type", C2_TOOLBAR_JUST_TEXT);
+	gnome_config_sync ();
+}
+
+static void
+on_mnu_toolbar_tooltips_toggled (GtkWidget *widget, C2WindowMain *wmain)
+{
+	GtkWidget *toolbar;
+	gboolean active;
+
+	toolbar = wmain->toolbar;
+	active = GTK_CHECK_MENU_ITEM (widget)->active;
+	c2_toolbar_set_tooltips (C2_TOOLBAR (toolbar), active);
+	gnome_config_set_int ("/"PACKAGE"/Toolbar::Window Main/tooltips", active);
 	gnome_config_sync ();
 }
 

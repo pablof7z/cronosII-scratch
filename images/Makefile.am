@@ -2,10 +2,12 @@ pixmapdir = $(pkgdatadir)/pixmaps
 pixmap_DATA = \
 	advanced_misc.png	\
 	blue_arrow.png		\
+	close.png			\
 	contacts.png		\
 	copy-message.png	\
 	delete.png			\
 	drafts.png			\
+	exit.png			\
 	find.png			\
 	folder-closed.png	\
 	folder-opened.png	\

@@ -11,6 +11,7 @@ widget-mail:
 
 supports:
 			o MH mailbox.
+			o Themes.
 
 backends:
 			o An efficient hash object for IMAP (must be faster/lighter than Gtk's).

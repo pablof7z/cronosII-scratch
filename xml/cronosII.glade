@@ -3004,7 +3004,7 @@ and try again.</message>
       <last_modification_time>Thu, 04 Oct 2001 21:26:01 GMT</last_modification_time>
     </signal>
     <label>Text _beside icons</label>
-    <active>True</active>
+    <active>False</active>
     <always_show_toggle>True</always_show_toggle>
     <group>type</group>
   </widget>
@@ -3046,53 +3046,33 @@ and try again.</message>
       <last_modification_time>Thu, 04 Oct 2001 21:26:01 GMT</last_modification_time>
     </signal>
     <label>_Icons only</label>
-    <active>False</active>
+    <active>True</active>
     <always_show_toggle>True</always_show_toggle>
     <group>type</group>
   </widget>
 
   <widget>
     <class>GtkMenuItem</class>
-    <name>separator17</name>
+    <name>separator20</name>
     <right_justify>False</right_justify>
   </widget>
 
   <widget>
-    <class>GtkRadioMenuItem</class>
-    <name>default_theme</name>
+    <class>GtkCheckMenuItem</class>
+    <name>tooltips</name>
     <signal>
       <name>activate</name>
-      <handler>on_default_theme_activate</handler>
-      <last_modification_time>Sat, 06 Oct 2001 10:16:05 GMT</last_modification_time>
+      <handler>on_tooltips_activate</handler>
+      <last_modification_time>Sat, 06 Oct 2001 17:50:52 GMT</last_modification_time>
     </signal>
-    <label>_Default Theme</label>
+    <label>_Tooltips</label>
     <active>True</active>
     <always_show_toggle>True</always_show_toggle>
-    <group>themes</group>
   </widget>
 
   <widget>
     <class>GtkMenuItem</class>
-    <name>separator18</name>
-    <right_justify>False</right_justify>
-  </widget>
-
-  <widget>
-    <class>GtkPixmapMenuItem</class>
-    <name>download_themes</name>
-    <signal>
-      <name>activate</name>
-      <handler>on_download_themes_activate</handler>
-      <last_modification_time>Sat, 06 Oct 2001 10:16:05 GMT</last_modification_time>
-    </signal>
-    <label>Do_wnload themes</label>
-    <right_justify>False</right_justify>
-    <stock_icon>GNOME_STOCK_MENU_PROP</stock_icon>
-  </widget>
-
-  <widget>
-    <class>GtkMenuItem</class>
-    <name>separator16</name>
+    <name>separator17</name>
     <right_justify>False</right_justify>
   </widget>
 

@@ -70,14 +70,17 @@ struct _C2Toolbar
 	C2ToolbarStyle style;
 	gint space_size;
 	GtkToolbarSpaceStyle space_style;
-	GtkTooltips *tooltips;
+	GtkTooltips *gtktooltips;
 
+	gint tooltips: 1;
 	gint freezed : 1;
 };
 
 struct _C2ToolbarClass
 {
 	GtkHBoxClass parent_class;
+
+	void (*changed) (C2Toolbar *toolbar);
 };
 
 GtkType
@@ -94,6 +97,9 @@ c2_toolbar_thaw								(C2Toolbar *toolbar);
 
 void
 c2_toolbar_set_style						(C2Toolbar *toolbar, C2ToolbarStyle style);
+
+void
+c2_toolbar_set_tooltips						(C2Toolbar *toolbar, gboolean active);
 
 GtkWidget *
 c2_toolbar_append_button					(C2Toolbar *toolbar, gchar *pixmap, gchar *label,
