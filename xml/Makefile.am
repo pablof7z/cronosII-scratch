@@ -23,7 +23,6 @@ Pmap_DATA = \
 	paste16.xpm		\
 	prev.xpm		\
 	print.xpm		\
-	read.xpm		\
 	receive.xpm		\
 	reply.xpm		\
 	reply-all-big.xpm	\
