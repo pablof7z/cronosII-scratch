@@ -141,13 +141,25 @@ extern "C" {
 #define c2_preferences_set_interface_fonts_unreaded_mailbox(val) \
 	gnome_config_set_string ("/"PACKAGE"/"INTERFACE"-"FONTS"/unreaded_mailbox", val)
 
+#ifdef USE_ADVANCED_EDITOR
 #define c2_preferences_get_interface_fonts_composer_body() \
 	gnome_config_get_string_with_default ("/"PACKAGE"/"INTERFACE"-"FONTS"/composer_body=Helvetica", NULL)
+#else
+#define c2_preferences_get_interface_fonts_composer_body() \
+	gnome_config_get_string_with_default ("/"PACKAGE"/"INTERFACE"-"FONTS"/composer_body=" \
+										"-adobe-helvetica-medium-r-normal-*-*-120-*-*-p-*-iso8859-1", NULL)
+#endif
 #define c2_preferences_set_interface_fonts_composer_body(val) \
 	gnome_config_set_string ("/"PACKAGE"/"INTERFACE"-"FONTS"/composer_body", val)
 	
+#if defined(USE_GTKHTML) || defined (USE_GTKXMHTML)
 #define c2_preferences_get_interface_fonts_message_body() \
 	gnome_config_get_string_with_default ("/"PACKAGE"/"INTERFACE"-"FONTS"/message_body=Helvetica", NULL)
+#else
+#define c2_preferences_get_interface_fonts_message_body() \
+	gnome_config_get_string_with_default ("/"PACKAGE"/"INTERFACE"-"FONTS"/message_body=" \
+										"-adobe-helvetica-medium-r-normal-*-*-120-*-*-p-*-iso8859-1", NULL)
+#endif
 #define c2_preferences_set_interface_fonts_message_body(val) \
 	gnome_config_set_string ("/"PACKAGE"/"INTERFACE"-"FONTS"/message_body", val)
 	

@@ -1,3 +1,6 @@
+Thu Nov 22 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Fixed the damn preferences crash.
+
 Wed Nov 21 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed the bug that caused that mails marked to be send now
 	  didn't got send until you pressed the "Send" button in the

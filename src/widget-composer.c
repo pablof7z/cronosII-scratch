@@ -336,6 +336,10 @@ save_as (C2Composer *composer)
 	gint button;
 	FILE *fd;
 
+/*	if (!(fd = c2_application_dialog_get_filename_to_save (C2_WINDOW (composer)->application, &error)))
+	{
+	}*/
+
 	dialog = gtk_file_selection_new (_("Save as"));
 	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
 	gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (composer));
@@ -371,7 +375,6 @@ save_as (C2Composer *composer)
 	gtk_widget_destroy (dialog);
 
 	message = create_message (composer);
-
 }
 
 static void

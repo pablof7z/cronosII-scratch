@@ -443,7 +443,7 @@ c2_transfer_item_start (C2TransferItem *ti)
 			data->v1 = (gpointer) pop3;
 			data->v2 = (gpointer) ti->account;
 			data->v3 = (gpointer) inbox;
-L			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_transfer_item_start_pop3_thread), data);
+			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_transfer_item_start_pop3_thread), data);
 		} else if (ti->account->type == C2_ACCOUNT_IMAP)
 		{
 			/* Nothing to do since IMAP accounts are not
