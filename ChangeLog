@@ -1,3 +1,8 @@
+Sun Oct 28 Bosko Blagojevic <falling@users.sourceforge.net>
+	* More IMAP work...
+	* Update the POP3 Module to use C2Mutex's for portability.
+	* Added a small destroy feature to C2Mutex.
+
 Sat Oct 27 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed the bug that caused a crash when trying to create
 	  dependent mailboxes.
@@ -12,6 +17,10 @@ Fri Oct 26 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 Wed Oct 24 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Added a dialog to write information about the current
 	  release, known bugs and missing features.
+
+Tue Oct 23 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Finsihed light and very portable blocking mutex implementation
+	  for Cronos II to allow easier portability for the application.
 
 Tue Oct 23 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* A lot of work that I just don't want to remember (around the
