@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,8 +25,6 @@
 #include "widget-mail.h"
 #include "widget-part.h"
 
-#include "c2-app.h"
-
 static void
 on_body_button_press_event					(GtkWidget *widget, GdkEventButton *event);
 
@@ -39,6 +37,12 @@ c2_mail_init								(C2Mail *mail);
 void
 html_link_manager_cid						(C2Html *html, const gchar *url, GtkHTMLStream *stream);
 
+static gchar *
+interpret_text_plain_symbols				(const gchar *plain);
+
+static gchar *
+get_word									(const gchar *cptr, gchar **extra);
+
 enum
 {
 	LAST_SIGNAL
@@ -50,33 +54,61 @@ void
 c2_mail_set_message (C2Mail *mail, C2Message *message)
 {
 	C2Mime *mime;
+	gboolean text_plain = TRUE;
+	gchar *string;
 
 	c2_return_if_fail (message, C2EDATA);
 
 	/* Get the part that should be displayed */
-	switch (c2_app.options_default_mime)
+	mail->application->options_default_mime = 1;
+	string = message->body;
+	
+	switch (mail->application->options_default_mime)
 	{
 		case C2_DEFAULT_MIME_PLAIN:
-			mime = c2_mime_get_part_by_content_type (message->mime, "text/plain");
+			if ((mime = c2_mime_get_part_by_content_type (message->mime, "text/plain")))
+				string = mime->part;
 			break;
 		case C2_DEFAULT_MIME_HTML:
-			if (!(mime = c2_mime_get_part_by_content_type (message->mime, "text/html")))
-				mime = c2_mime_get_part_by_content_type (message->mime, "text/plain");
+			if (!(mime = c2_mime_get_part_by_content_type (message->mime, "text/htm")))
+			{
+				if ((mime = c2_mime_get_part_by_content_type (message->mime, "text/plain")))
+					string = mime->part;
+			} else
+			{
+				string = mime->part;
+				text_plain = FALSE;
+			}
+						
+
 			break;
 		default:
-			mime = c2_mime_get_part_by_content_type (message->mime, "text/plain");
+			if ((mime = c2_mime_get_part_by_content_type (message->mime, "text/plain")))
+				string = mime->part;
 			break;
 	}
 
+	if (text_plain)
+	{
+		string = interpret_text_plain_symbols (mime->part);
+//		string = g_strdup_printf ("<HTML><BODY BGCOLOR=#ffffff><TT>%s</TT></BODY></HTML>", mime->part);
+	}
+
 	gtk_object_set_data (GTK_OBJECT (mail->body), "message", message);
-	c2_html_set_content_from_string (C2_HTML (mail->body), mime->part);
+	
+	c2_html_set_content_from_string (C2_HTML (mail->body), string);
+
+	if (text_plain)
+		g_free (string);
 }
 
 void
-c2_mail_construct (C2Mail *mail)
+c2_mail_construct (C2Mail *mail, C2Application *application)
 {
 	GtkWidget *parent;
 	GtkWidget *scroll;
+
+	mail->application = application;
 
 	mail->table = gtk_table_new (5, 4, GNOME_PAD_SMALL);
 	gtk_box_pack_start (GTK_BOX (mail), mail->table, FALSE, FALSE, 0);
@@ -110,11 +142,11 @@ c2_mail_construct (C2Mail *mail)
 }
 
 GtkWidget *
-c2_mail_new (void)
+c2_mail_new (C2Application *application)
 {
 	C2Mail *mail;
 	mail = gtk_type_new (c2_mail_get_type ());
-	c2_mail_construct (mail);
+	c2_mail_construct (mail, application);
 	return GTK_WIDGET (mail);
 }
 
@@ -211,4 +243,102 @@ html_link_manager_cid (C2Html *html, const gchar *url, GtkHTMLStream *stream)
 	}
 	
 	gtk_html_stream_write (stream, c2_mime_get_part (mime), mime->length);
+}
+
+/* [TODO]
+ * Can this be optimized as we usually do?
+ */
+static gchar *
+interpret_text_plain_symbols (const gchar *plain)
+{
+	GString *string = g_string_new ("<HTML><BODY BGCOLOR=#ffffff><PRE>");
+	const gchar *ptr;
+	gchar *word, *extra, *buf;
+	gboolean quoted = FALSE;
+	gint length;
+	
+	for (ptr = plain;;)
+	{
+		word = get_word (ptr, &extra);
+		if (!strlen (word) && !strlen (extra))
+			break;
+		
+		g_string_append (string, extra);
+		length = strlen (word);
+		ptr += length+strlen (extra);
+		g_free (extra);
+
+		/* First do a simple check if we have to act in this word. */
+		if (word[0] == word[length-1])
+		{
+			if (word[0] == '_')
+			{
+				gchar *buf2 = c2_str_strip_enclosed (word, '_', '_');
+				
+				buf = g_strdup_printf ("<u>%s</u>", buf2);
+				g_free (buf2);
+			} else if (word[0] == '*')
+			{
+				gchar *buf2 = c2_str_strip_enclosed (word, '*', '*');
+				
+				buf = g_strdup_printf ("<b>%s</b>", buf2);
+				g_free (buf2);
+			}
+			/* Italic: What's the text/plain symbol???
+			 * [TODO] Ask Pete, he probably knows... */
+			else
+				buf = g_strdup (word);
+			
+			g_string_append (string, buf);
+			g_free (buf);
+		} else
+		{
+			if (c2_streq (word, ":)"))
+				g_string_append (string, "<IMG SRC=\"c2dist://html-icons/:).png\" WIDTH=10 HEIGHT=10>");
+			else if (c2_streq (word, ":D"))
+				g_string_append (string, "<IMG SRC=\"c2dist://html-icons/:D.png\" WIDTH=10 HEIGHT=10>");
+			else
+				g_string_append (string, word);
+		}
+
+		g_free (word);
+	}
+
+	g_string_append (string, "</PRE></BODY></HTML>");
+
+	buf = string->str;
+	g_string_free (string, FALSE);
+
+	return buf;
+}
+
+static gchar *
+get_word (const gchar *cptr, gchar **extra)
+{
+	GString *sextra = g_string_new (NULL);
+	const gchar *ptr, *end;
+	gchar *word;
+
+	for (ptr = cptr; ptr &&
+				(ptr[0] == ' ' ||
+				 ptr[0] == '\t' ||
+				 ptr[0] == '\n'); ptr++)
+		g_string_append_c (sextra, ptr[0]);
+	
+	for (end = ptr; end &&
+				(end[0] != ' ' &&
+				 end[0] != '\t' &&
+				 end[0] != '\n'); end++)
+		;
+
+	if (end)
+		word = g_strndup (ptr, end-ptr);
+	else
+		word = g_strdup (ptr);
+
+	*extra = sextra->str;
+	
+	g_string_free (sextra, FALSE);
+
+	return word;
 }

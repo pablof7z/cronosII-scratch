@@ -15,32 +15,34 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __CRONOSII_C2_MAIN_WINDOW_H__
-#define __CRONOSII_C2_MAIN_WINDOW_H__
+#include "widget-application.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <glib.h>
+/**
+ * c2_application_check_account_exists
+ * @application: C2Application where to act.
+ * 
+ * This function checks if theres an account configured.
+ *
+ * Return Value:
+ * %TRUE if there's an account, %FALSE if not.
+ **/
+gboolean
+c2_application_check_account_exists (C2Application *application)
+{
+	GladeXML *xml;
+	GtkWidget *window;
 	
-#if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
-#	include <libcronosII/mailbox.h>
-#else
-#	include <cronosII.h>
-#endif
+	if (application->account)
+		return TRUE;
 
-void
-c2_main_window_set_sensitivity					(void);
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_no_accounts");
+	window = glade_xml_get_widget (xml, "dlg_no_accounts");
 
-void
-c2_main_window_build_dynamic_menu_accounts		(void);
+	switch (gnome_dialog_run_and_close (GNOME_DIALOG (window)))
+	{
+		case 0:
+			c2_preferences_new ();
+	}
 
-void
-c2_main_window_build_dynamic_menu_windows		(void);
-	
-#ifdef __cplusplus
+	return FALSE;
 }
-#endif
-
-#endif

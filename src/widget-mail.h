@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /src/widget-mail.h
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -27,12 +27,12 @@ extern "C" {
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <libcronosII/message.h>
 #	include <config.h>
+#	include "widget-part.h"
+#	include "widget-application.h"
 #else
 #	include <cronosII.h>
 #endif
 
-#include "widget-part.h"
-	
 #define C2_MAIL(obj)							GTK_CHECK_CAST (obj, c2_mail_get_type (), C2Mail)
 #define C2_MAIL_CLASS(klass)					GTK_CHECK_CLASS_CAST (klass, c2_mail_get_type (), C2MailClass)
 #define C2_IS_MAIL(obj)							GTK_CHECK_TYPE (obj, c2_mail_get_type ())
@@ -43,6 +43,8 @@ typedef struct _C2MailClass C2MailClass;
 struct _C2Mail
 {
 	GtkVBox vbox;
+
+	C2Application *application;
 
 	C2Message *message;
 	
@@ -82,10 +84,10 @@ guint
 c2_mail_get_type								(void);
 
 GtkWidget *
-c2_mail_new										(void);
+c2_mail_new										(C2Application *application);
 
 void
-c2_mail_construct								(C2Mail *mail);
+c2_mail_construct								(C2Mail *mail, C2Application *application);
 
 void
 c2_mail_set_message								(C2Mail *mail, C2Message *message);
@@ -101,7 +103,6 @@ c2_mail_get_show_field							(C2Mail *mail, const gchar *field);
 
 void
 c2_mail_install_hints							(C2Mail *mail, GtkWidget *appbar, pthread_mutex_t *lock);
-
 
 #ifdef __cplusplus
 }

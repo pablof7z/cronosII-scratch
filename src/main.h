@@ -15,30 +15,22 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __CRONOSII_C2_MAIN_WINDOW_H__
-#define __CRONOSII_C2_MAIN_WINDOW_H__
+#ifndef __MAIN_H__
+#define __MAIN_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <glib.h>
-	
-#if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
-#	include <libcronosII/mailbox.h>
+#ifdef BUILDING_C2
+#	include "widget-application.h"
 #else
 #	include <cronosII.h>
 #endif
 
-void
-c2_main_window_set_sensitivity					(void);
+/* Global variables */
+C2Application *application;
 
-void
-c2_main_window_build_dynamic_menu_accounts		(void);
-
-void
-c2_main_window_build_dynamic_menu_windows		(void);
-	
 #ifdef __cplusplus
 }
 #endif

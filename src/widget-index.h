@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /src/widget-index.h
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@ extern "C" {
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <libcronosII/mailbox.h>
 #	include <libcronosII/db.h>
+#	include "widget-application.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -41,6 +42,8 @@ typedef struct
 	GtkWidget *clist_titles_arrow[C2_MAILBOX_SORT_LAST];
 	gint unreaded_messages;
 	gint total_messages;
+
+	C2Application *application;
 
 	C2Mailbox *mbox;
 } C2Index;
@@ -71,7 +74,7 @@ guint
 c2_index_get_type								(void);
 
 GtkWidget *
-c2_index_new									(void);
+c2_index_new									(C2Application *application);
 
 void
 c2_index_add_mailbox							(C2Index *index, C2Mailbox *mbox);

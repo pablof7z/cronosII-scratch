@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,9 +23,6 @@
 #include <libcronosII/smtp.h>
 #include <libcronosII/utils.h>
 
-#include "c2-app.h"
-#include "main-window.h"
-
 #define OPTIONS_DEFAULT_MIME_STRING_PLAIN_TEXT _("Plain text")
 #define OPTIONS_DEFAULT_MIME_STRING_HTML_TEXT _("HTML formatted")
 #define OPTIONS_MT_MODE_MULTITHREAD _("Multithread")
@@ -39,6 +36,12 @@
 #define ACCOUNTS_NEW_SIGNATURE_TYPE_STRING_STATIC _("Static Signature")
 #define ACCOUNTS_NEW_SIGNATURE_TYPE_STRING_DYNAMIC _("Dynamic Signature (output of commands)")
 
+void
+c2_preferences_new (void)
+{
+}
+
+#if 0
 static void
 on_ok_btn_clicked								(void);
 
@@ -1723,3 +1726,4 @@ on_ctree_tree_select_row (GtkCTree *ctree, GtkCTreeNode *node)
 	
 	gtk_notebook_set_page (GTK_NOTEBOOK (notebook), page);
 }
+#endif

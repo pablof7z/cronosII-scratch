@@ -32,7 +32,6 @@
 #include <libcronosII/db.h>
 #include <libcronosII/utils-date.h>
 
-#include "c2-app.h"
 #if FALSE /* TODO */
 #include "xpm/mini_about.xpm"
 #include "xpm/mini_error.xpm"
@@ -65,6 +64,7 @@
 #define REPORT_RESULT(x, status)
 #endif
 
+#if 0
 static void
 on_close (void);
 
@@ -912,4 +912,5 @@ on_close (void)
 	gtk_widget_destroy (window);
 	gtk_main_quit ();
 }
+#endif
 #endif

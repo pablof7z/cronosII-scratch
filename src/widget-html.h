@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -104,6 +104,9 @@ c2_html_get_type							(void);
 
 GtkWidget *
 c2_html_new									(void);
+
+void
+c2_html_set_editable						(C2Html *html);
 
 void
 c2_html_set_link_manager					(C2Html *html, const gchar *prefix, C2HtmlLinkManager lm);

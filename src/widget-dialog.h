@@ -15,30 +15,50 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __CRONOSII_C2_MAIN_WINDOW_H__
-#define __CRONOSII_C2_MAIN_WINDOW_H__
+#ifndef __CRONOSII_WIDGET_DIALOG_H__
+#define __CRONOSII_WIDGET_DIALOG_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <glib.h>
 	
-#if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
-#	include <libcronosII/mailbox.h>
+#include <gnome.h>
+#include <pthread.h>
+#include <glade/glade.h>
+
+#define C2_DIALOG_TYPE						(c2_dialog_get_type ())
+#define C2_DIALOG(obj)						(GTK_CHECK_CAST (obj, c2_dialog_get_type (), C2Dialog))
+#define C2_DIALOG_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, C2_DIALOG_TYPE, C2DialogClass))
+
+typedef struct _C2Dialog C2Dialog;
+typedef struct _C2DialogClass C2DialogClass;
+
+#ifdef BUILDING_C2
+#	include "widget-application.h"
 #else
 #	include <cronosII.h>
 #endif
 
-void
-c2_main_window_set_sensitivity					(void);
+struct _C2Dialog
+{
+	GnomeDialog dialog;
+
+	C2Application *application;
+	GladeXML *xml;
+};
+
+struct _C2DialogClass
+{
+	GnomeDialogClass parent_class;
+};
+
+GtkWidget *
+c2_dialog_new								(C2Application *application, const gchar *title, ...);
 
 void
-c2_main_window_build_dynamic_menu_accounts		(void);
+c2_dialog_construct							(C2Dialog *dialog, C2Application *application,
+											const gchar *title, const gchar **buttons);
 
-void
-c2_main_window_build_dynamic_menu_windows		(void);
-	
 #ifdef __cplusplus
 }
 #endif

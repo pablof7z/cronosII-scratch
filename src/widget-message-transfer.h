@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /src/widget-message-transfer.h
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -33,10 +33,10 @@ extern "C" {
 #	include <cronosII.h>
 #endif
 
-#define C2_TYPE_MESSAGE_TRANSFER				(c2_message_transfer_get_type ())
+#define C2_TYPE_MESSAGE_TRANSFER			(c2_message_transfer_get_type ())
 #define C2_MESSAGE_TRANSFER(obj)			(GTK_CHECK_CAST (obj, C2_TYPE_MESSAGE_TRANSFER, C2MessageTransfer))
-#define C2_MESSAGE_TRANSFER_CLASS(klass)		(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_MESSAGE_TRANSFER, C2MessageTransferClass))
-#define C2_IS_MESSAGE_TRANSFER(obj)				(GTK_CHECK_TYPE (obj, C2_TYPE_MESSAGE_TRANSFER))
+#define C2_MESSAGE_TRANSFER_CLASS(klass)	(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_MESSAGE_TRANSFER, C2MessageTransferClass))
+#define C2_IS_MESSAGE_TRANSFER(obj)			(GTK_CHECK_TYPE (obj, C2_TYPE_MESSAGE_TRANSFER))
 
 typedef struct _C2MessageTransfer C2MessageTransfer;
 typedef struct _C2MessageTransferClass C2MessageTransferClass;
@@ -44,6 +44,10 @@ typedef struct _C2MessageTransferQueue C2MessageTransferQueue;
 typedef enum _C2MessageTransferAction C2MessageTransferAction;
 typedef enum _C2MessageTransferType C2MessageTransferType;
 typedef enum _C2MessageTransferMode C2MessageTransferMode;
+
+#ifdef BUILDING_C2
+#	include "widget-dialog.h"
+#endif
 
 enum _C2MessageTransferAction
 {
@@ -85,12 +89,10 @@ struct _C2MessageTransferQueue
 
 struct _C2MessageTransfer
 {
-	GnomeDialog dialog;
+	C2Dialog dialog;
 
 	C2MessageTransferQueue *queue;
 	pthread_mutex_t queue_lock;
-
-	GladeXML *xml;
 
 	gint selected_task;
 
@@ -101,32 +103,32 @@ struct _C2MessageTransfer
 
 struct _C2MessageTransferClass
 {
-	GnomeDialogClass parent_class;
+	C2DialogClass parent_class;
 
 	void (*append) (C2MessageTransfer *mt, C2MessageTransferAction action, C2Account *account);
 	void (*task_done) (C2MessageTransfer *mt, gint number);
 };
 
 GtkType
-c2_message_transfer_get_type					(void);
+c2_message_transfer_get_type				(void);
 
 GtkWidget *
-c2_message_transfer_new							(void);
+c2_message_transfer_new						(C2Application *application);
 
 void
-c2_message_transfer_freeze						(C2MessageTransfer *mt);
+c2_message_transfer_freeze					(C2MessageTransfer *mt);
 
 void
-c2_message_transfer_thaw						(C2MessageTransfer *mt);
+c2_message_transfer_thaw					(C2MessageTransfer *mt);
 
 void
-c2_message_transfer_append						(C2MessageTransfer *mt, const C2Account *account,
-												 C2MessageTransferType type,
-												 C2MessageTransferAction action, ...);
+c2_message_transfer_append					(C2MessageTransfer *mt, const C2Account *account,
+											 C2MessageTransferType type,
+											 C2MessageTransferAction action, ...);
 
 void
-c2_message_transfer_get_info					(C2MessageTransfer *mt, gint i, C2Account **account,
-												 C2MessageTransferAction *action, gint messages);
+c2_message_transfer_get_info				(C2MessageTransfer *mt, gint i, C2Account **account,
+											 C2MessageTransferAction *action, gint messages);
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /src/widget-message-transfer.c
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
-#include "c2-app.h"
 #include "widget-message-transfer.h"
 
 typedef enum _C2MessageTransferState C2MessageTransferState;
@@ -35,66 +34,66 @@ enum _C2MessageTransferState
 };
 
 static void
-class_init										(C2MessageTransferClass *klass);
+class_init									(C2MessageTransferClass *klass);
 
 static void
-init											(C2MessageTransfer *obj);
+init										(C2MessageTransfer *obj);
 
 static void
-destroy											(GtkObject *obj);
+destroy										(GtkObject *obj);
 
 static C2MessageTransferQueue *
-queue_new										(const C2Account *account, C2MessageTransferType type, 
-												 C2MessageTransferAction action, ...);
+queue_new									(const C2Account *account, C2MessageTransferType type, 
+											 C2MessageTransferAction action, ...);
 
 static C2MessageTransferQueue *
-queue_append									(C2MessageTransferQueue *head, C2MessageTransferQueue *obj);
+queue_append								(C2MessageTransferQueue *head, C2MessageTransferQueue *obj);
 
 static void
-queue_free										(C2MessageTransferQueue *head);
+queue_free									(C2MessageTransferQueue *head);
 
 static gint
-run												(C2MessageTransfer *mt);
+run											(C2MessageTransfer *mt);
 
 static void
-reset											(C2MessageTransfer *mt);
+reset										(C2MessageTransfer *mt);
 
 static void
-change_state_of_queue							(C2MessageTransfer *mt, C2MessageTransferQueue *queue,
-												 gint row, C2MessageTransferState state, const gchar *string);
+change_state_of_queue						(C2MessageTransfer *mt, C2MessageTransferQueue *queue,
+											 gint row, C2MessageTransferState state, const gchar *string);
 
 static gint
-check											(C2Pthread3 *data);
+check										(C2Pthread3 *data);
 
 static void
-check_connect									(C2NetObject *nobj, C2Pthread3 *data);
+check_connect								(C2NetObject *nobj, C2Pthread3 *data);
 
 static void
-check_status									(C2Pop3 *pop3, gint mails, C2Pthread3 *data);
+check_status								(C2Pop3 *pop3, gint mails, C2Pthread3 *data);
 
 static void
-check_retrieve									(C2Pop3 *pop3, gint16 nth, gint32 received,
-												 gint32 total, C2Pthread3 *data);
+check_retrieve								(C2Pop3 *pop3, gint16 nth, gint32 received,
+											 gint32 total, C2Pthread3 *data);
 
 static void
-check_disconnect								(C2NetObject *object, gboolean success, C2Pthread2 *data);
+check_disconnect							(C2NetObject *object, gboolean success, C2Pthread2 *data);
 
 static void
-auto_close_btn_toggled							(GtkToggleButton *toggle, C2MessageTransfer *mt);
+auto_close_btn_toggled						(GtkToggleButton *toggle, C2MessageTransfer *mt);
 
 static void
-clist_select_row								(GtkCList *clist, gint row, gint column,
-												 GdkEvent *event, C2MessageTransfer *mt);
+clist_select_row							(GtkCList *clist, gint row, gint column,
+											 GdkEvent *event, C2MessageTransfer *mt);
 
 static void
-clist_unselect_row								(GtkCList *clist, gint row, gint column,
-												 GdkEvent *event, C2MessageTransfer *mt);
+clist_unselect_row							(GtkCList *clist, gint row, gint column,
+											 GdkEvent *event, C2MessageTransfer *mt);
 
 static void
-ok_btn_clicked									(GtkWidget *button, C2MessageTransfer *mt);
+ok_btn_clicked								(GtkWidget *button, C2MessageTransfer *mt);
 
 static void
-cancel_btn_clicked								(GtkWidget *button, C2MessageTransfer *mt);
+cancel_btn_clicked							(GtkWidget *button, C2MessageTransfer *mt);
 
 enum
 {
@@ -105,28 +104,39 @@ enum
 
 static guint signals[LAST_SIGNAL] = { 0 };
 
-static GnomeDialogClass *parent_class = NULL;
+static C2DialogClass *parent_class = NULL;
 
 GtkWidget *
-c2_message_transfer_new (void)
+c2_message_transfer_new (C2Application *application)
 {
 	C2MessageTransfer *mt = gtk_type_new (c2_message_transfer_get_type ());
 	GtkWidget *box;
+	GladeXML *xml;
+	gchar *buttons[] =
+	{
+		GNOME_STOCK_BUTTON_OK,
+		GNOME_STOCK_BUTTON_CANCEL,
+		NULL
+	};
 
-	mt->xml = glade_xml_new (C2_APP_GLADE_FILE ("cronosII"), "dlg_message_transfer_box");
-	box = glade_xml_get_widget (mt->xml, "dlg_message_transfer_box");
+	c2_dialog_construct (C2_DIALOG (mt), application, _("Message Transfer"),
+						(const gchar **) buttons);
+
+	C2_DIALOG (mt)->xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_message_transfer_box");
+	xml = C2_DIALOG (mt)->xml;
+	box = glade_xml_get_widget (xml, "dlg_message_transfer_box");
 
 	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (mt)->vbox), box, TRUE, TRUE, 0);
 
 	gtk_widget_set_usize (GTK_WIDGET (mt), -1, 420);
 
-	box = glade_xml_get_widget (mt->xml, "auto_close_btn");
+	box = glade_xml_get_widget (xml, "auto_close_btn");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (box),
 					gnome_config_get_bool_with_default ("/Cronos II/Rc/message_transfer_auto_close=0", NULL));
 	gtk_signal_connect (GTK_OBJECT (box), "toggled",
 						GTK_SIGNAL_FUNC (auto_close_btn_toggled), mt);
 	
-	box = glade_xml_get_widget (mt->xml, "task_clist");
+	box = glade_xml_get_widget (xml, "task_clist");
 	gtk_signal_connect (GTK_OBJECT (box), "select_row",
 							GTK_SIGNAL_FUNC (clist_select_row), mt);
 	gtk_signal_connect (GTK_OBJECT (box), "unselect_row",
@@ -228,7 +238,7 @@ static gint
 run (C2MessageTransfer *mt)
 {
 	C2MessageTransferQueue *s;
-	GtkCList *clist = GTK_CLIST (glade_xml_get_widget (mt->xml, "task_clist"));
+	GtkCList *clist = GTK_CLIST (glade_xml_get_widget (C2_DIALOG (mt)->xml, "task_clist"));
 	GnomePixmap *pixmap = NULL;
 	gchar *info = NULL;
 	gboolean success = TRUE;
@@ -280,7 +290,7 @@ run (C2MessageTransfer *mt)
 			data->v3 = (gpointer) row;
 			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (check), data);
 			
-			if (c2_app.options_mt_mode == C2_MESSAGE_TRANSFER_MONOTHREAD)
+			if (C2_DIALOG (mt)->application->options_mt_mode == C2_MESSAGE_TRANSFER_MONOTHREAD)
 			{
 				gdk_threads_enter ();
 				if (clist->selection)
@@ -312,7 +322,7 @@ run (C2MessageTransfer *mt)
 
 	mt->active = FALSE;
 
-	if (GTK_TOGGLE_BUTTON (glade_xml_get_widget (mt->xml, "auto_close_btn"))->active)
+	if (GTK_TOGGLE_BUTTON (glade_xml_get_widget (C2_DIALOG (mt)->xml, "auto_close_btn"))->active)
 	{
 		/*gdk_threads_enter ();
 		gtk_widget_hide (GTK_WIDGET (mt));
@@ -331,11 +341,12 @@ static void
 reset (C2MessageTransfer *mt)
 {
 	static C2MessageTransferQueue *queue = NULL;
+	GladeXML *xml = C2_DIALOG (mt)->xml;
 
-	gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "subtasks_progress")), 0, 0, 0);
-	gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "subtask_progress")), 0, 0, 0);
-	gtk_widget_hide (glade_xml_get_widget (mt->xml, "subtask_progress"));
-	gtk_clist_clear (GTK_CLIST (glade_xml_get_widget (mt->xml, "task_clist")));
+	gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (xml, "subtasks_progress")), 0, 0, 0);
+	gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (xml, "subtask_progress")), 0, 0, 0);
+	gtk_widget_hide (glade_xml_get_widget (xml, "subtask_progress"));
+	gtk_clist_clear (GTK_CLIST (glade_xml_get_widget (xml, "task_clist")));
 
 	if (queue)
 		queue_free (queue);
@@ -347,7 +358,8 @@ static void
 change_state_of_queue (C2MessageTransfer *mt, C2MessageTransferQueue *queue, gint row,
 						C2MessageTransferState state, const gchar *string)
 {
-	GtkCList *clist = GTK_CLIST (glade_xml_get_widget (mt->xml, "task_clist"));
+	GladeXML *xml = C2_DIALOG (mt)->xml;
+	GtkCList *clist = GTK_CLIST (glade_xml_get_widget (xml, "task_clist"));
 	GnomePixmap *pixmap;
 
 	gdk_threads_enter ();
@@ -378,6 +390,8 @@ static void
 change_mails_of_queue (C2MessageTransfer *mt, C2MessageTransferQueue *queue, gint row,
 						gint16 done_messages, gint16 total_messages)
 {
+	GladeXML *xml = C2_DIALOG (mt)->xml;
+
 	if (total_messages < done_messages)
 		total_messages = done_messages;
 	
@@ -387,9 +401,9 @@ change_mails_of_queue (C2MessageTransfer *mt, C2MessageTransferQueue *queue, gin
 	if (mt->selected_task == row)
 	{
 		gdk_threads_enter ();
-		gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "subtasks_progress")),
+		gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (xml, "subtasks_progress")),
 								done_messages, 0, total_messages);
-		gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "subtask_progress")), 0, 0, 0);
+		gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (xml, "subtask_progress")), 0, 0, 0);
 		gdk_threads_leave ();
 	}
 }
@@ -398,6 +412,8 @@ static void
 change_mail_of_queue (C2MessageTransfer *mt, C2MessageTransferQueue *queue, gint row,
 						gint32 done, gint32 total)
 {
+	GladeXML *xml = C2_DIALOG (mt)->xml;
+	
 	if (total < done)
 		total = done;
 
@@ -407,7 +423,7 @@ change_mail_of_queue (C2MessageTransfer *mt, C2MessageTransferQueue *queue, gint
 	if (mt->selected_task == row)
 	{
 		gdk_threads_enter ();
-		gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "subtask_progress")),
+		gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (xml, "subtask_progress")),
 				done, 0, total);
 		gdk_threads_leave ();
 	}
@@ -419,8 +435,9 @@ check (C2Pthread3 *data)
 	C2MessageTransfer *mt = data->v1;
 	C2MessageTransferQueue *queue = data->v2;
 	gint row = GPOINTER_TO_INT (data->v3);
+	GladeXML *xml = C2_DIALOG (mt)->xml;
 	gint signal[4];
-	GtkCList *clist = GTK_CLIST (glade_xml_get_widget (mt->xml, "account_clist"));
+	GtkCList *clist = GTK_CLIST (glade_xml_get_widget (xml, "account_clist"));
 
 	if (queue->account->type == C2_ACCOUNT_POP3)
 	{
@@ -447,7 +464,7 @@ check (C2Pthread3 *data)
 	gtk_clist_set_row_data (clist, row, NULL);
 	queue_free (queue);
 
-	if (GTK_TOGGLE_BUTTON (glade_xml_get_widget (mt->xml, "auto_close_btn"))->active)
+	if (GTK_TOGGLE_BUTTON (glade_xml_get_widget (xml, "auto_close_btn"))->active)
 	{
 		/* Check if all the other transfering had ended */
 		gint i;
@@ -534,13 +551,14 @@ auto_close_btn_toggled (GtkToggleButton *toggle, C2MessageTransfer *mt)
 static void
 clist_select_row (GtkCList *clist, gint row, gint column, GdkEvent *event, C2MessageTransfer *mt)
 {
-	GtkWidget *info_box = glade_xml_get_widget (mt->xml, "info_box");
-	GtkWidget *subtasks_frame = glade_xml_get_widget (mt->xml, "subtasks_frame");
-	GtkWidget *subtasks_progress = glade_xml_get_widget (mt->xml, "subtasks_progress");
-	GtkWidget *subtask_frame = glade_xml_get_widget (mt->xml, "subtask_frame");
-	GtkWidget *subtask_progress = glade_xml_get_widget (mt->xml, "subtask_progress");
+	GladeXML *xml = C2_DIALOG (mt)->xml;
+	GtkWidget *info_box = glade_xml_get_widget (xml, "info_box");
+	GtkWidget *subtasks_frame = glade_xml_get_widget (xml, "subtasks_frame");
+	GtkWidget *subtasks_progress = glade_xml_get_widget (xml, "subtasks_progress");
+	GtkWidget *subtask_frame = glade_xml_get_widget (xml, "subtask_frame");
+	GtkWidget *subtask_progress = glade_xml_get_widget (xml, "subtask_progress");
 	C2MessageTransferQueue *queue = (C2MessageTransferQueue *) gtk_clist_get_row_data (
-									GTK_CLIST (glade_xml_get_widget (mt->xml, "task_clist")), row);
+									GTK_CLIST (glade_xml_get_widget (xml, "task_clist")), row);
 
 
 	mt->selected_task = row;
@@ -560,7 +578,8 @@ clist_select_row (GtkCList *clist, gint row, gint column, GdkEvent *event, C2Mes
 static void
 clist_unselect_row (GtkCList *clist, gint row, gint column, GdkEvent *event, C2MessageTransfer *mt)
 {
-	GtkWidget *info_box = glade_xml_get_widget (mt->xml, "info_box");
+	GladeXML *xml = C2_DIALOG (mt)->xml;
+	GtkWidget *info_box = glade_xml_get_widget (xml, "info_box");
 
 	mt->selected_task = -1;
 	gtk_widget_hide (info_box);
@@ -639,23 +658,13 @@ class_init (C2MessageTransferClass *klass)
 static void
 init (C2MessageTransfer *obj)
 {
-	gchar *buttons[] =
-	{
-		GNOME_STOCK_BUTTON_OK,
-		GNOME_STOCK_BUTTON_CANCEL,
-		NULL
-	};
-	
 	obj->selected_task = -1;
 
 	obj->queue = NULL;
-	obj->xml = NULL;
 	obj->close = FALSE;
 	obj->cancel = FALSE;
 
 	pthread_mutex_init (&obj->queue_lock, NULL);
-
-	gnome_dialog_constructv (GNOME_DIALOG (obj), _("Message Transfer"), (const gchar **) buttons);
 }
 
 static void
@@ -665,5 +674,5 @@ destroy (GtkObject *obj)
 
 	queue_free (mt->queue);
 
-	gtk_object_destroy (GTK_OBJECT (mt->xml));
+	gtk_object_destroy (GTK_OBJECT (C2_DIALOG (mt)->xml));
 }

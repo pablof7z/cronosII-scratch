@@ -10,29 +10,35 @@ else
 UI_TEXT_EDITOR=
 endif
 
-bin_PROGRAMS = cronos $(UI_TEXT_EDITOR)
+bin_PROGRAMS = cronosII-scratch $(UI_TEXT_EDITOR)
 
-cronos_SOURCES = \
-	c2-app.c					c2-app.h					\
+cronosII_scratch_SOURCES = \
 	c2-main-window.c			c2-main-window.h			\
 	install-wizard.c										\
-	main-window.c				main-window.h				\
-	main.c													\
-	preferences.c											\
+	main.c						main.h						\
 	object-ui-data.c			object-ui-data.h			\
+	preferences.c											\
+	utils-application.c			utils-application.h			\
+	widget-application.c		widget-application.h		\
 	widget-composer.c			widget-composer.h			\
+	widget-dialog.c				widget-dialog.h				\
+	widget-dialog-preferences.c	widget-dialog-preferences.h	\
 	widget-index.c				widget-index.h				\
 	widget-html.c				widget-html.h				\
 	widget-mail.c				widget-mail.h				\
+	widget-mailbox-list.c		widget-mailbox-list.h		\
 	widget-message-transfer.c	widget-message-transfer.h	\
-	widget-part.c				widget-part.h
+	widget-part.c				widget-part.h				\
+	widget-sidebar.c			widget-sidebar.h			\
+	widget-window-main.c		widget-window-main.h		\
+	widget-window.c				widget-window.h
 	
 
-cronos_LDADD = \
+cronosII_scratch_LDADD = \
 	./$(top_builddir)/libcronosII/libcronosII.a \
 	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
 
-cronos_LDFLAGS = \
+cronosII_scratch_LDFLAGS = \
 	./././$(top_builddir)/libcronosII/libcronosII.a \
 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) \
 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)

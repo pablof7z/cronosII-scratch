@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /src/c2-main-window.c
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,13 +26,13 @@
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
-#include "main-window.h"
 #include "c2-main-window.h"
-#include "c2-app.h"
 
 #define CRONOSII_TYPE_STRING		"Cronos II"
 #define IMAP_TYPE_STRING			"IMAP"
 #define SPOOL_TYPE_STRING			_("Spool (local)")
+
+#if 0
 
 void
 c2_main_window_set_sensitivity (void)
@@ -202,7 +202,7 @@ c2_main_window_build_dynamic_menu_windows (void)
 
 /* Defined in main-window.c */
 extern void
-on_ctree_changed_mailboxes						(C2Mailbox *mailbox);
+on_mailbox_changed_mailboxes				(C2Mailbox *mailbox);
 
 static void
 on_properties_mailbox_dlg_type_menu_selection_done (GtkWidget *widget, GladeXML *xml)
@@ -355,6 +355,7 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 
 	gtk_signal_connect (GTK_OBJECT (retval), "db_loaded",
 						GTK_SIGNAL_FUNC (on_mailbox_db_loaded), NULL);
+//	gtk_signal_connect (GTK_
 	
 	/* Since this is the first mailbox we will connect to the signal
 	 * and emit it again.
@@ -362,7 +363,7 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 	if (first_mailbox)
 	{
 		gtk_signal_connect (GTK_OBJECT (retval), "changed_mailboxes",
-				GTK_SIGNAL_FUNC (on_ctree_changed_mailboxes), NULL);
+				GTK_SIGNAL_FUNC (on_mailbox_changed_mailboxes), NULL);
 		gtk_signal_emit_by_name (GTK_OBJECT (retval), "changed_mailboxes");
 	}
 
@@ -703,3 +704,4 @@ on_delete_mailbox_dlg (void)
 			c2_mailbox_remove (mailbox, FALSE); /* <---- This is just for testing!!!!!! XXX XXX XXX XXX XXX */
 	}
 }
+#endif

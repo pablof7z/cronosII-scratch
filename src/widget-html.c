@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME Mail Client
+/*  Cronos II - The GNOME Mail Client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,7 @@
 
 #ifdef USE_GTKHTML
 #	include <gtkhtml/gtkhtml.h>
+#	include <gtkhtml/htmlengine.h>
 #elif defined (USE_GTKXMTML)
 #	include <gtk-xmhtml/gtk-xmhtml.h>
 #else
@@ -142,7 +143,7 @@ c2_html_new (void)
 
 	html = gtk_type_new (c2_html_get_type ());
 	gtk_html_construct (html);
-	gtk_html_load_from_string (GTK_HTML (html), "<BODY BGCOLOR=#ff0000></BODY>", -1);
+	c2_html_set_content_from_url (C2_HTML (html), "file://" PKGDATADIR G_DIR_SEPARATOR_S "about.html");
 
 	return html;
 #elif defined (USE_GTKXMHTML)
@@ -156,6 +157,14 @@ c2_html_new (void)
 	
 	html = gtk_widget_new (C2_TYPE_HTML, "hadjustment", NULL, "vadjustment", NULL,	 NULL);
 	return html;
+#endif
+}
+
+void
+c2_html_set_editable (C2Html *html)
+{
+#ifdef USE_GTKHTML
+	html_engine_set_editable (html_engine_new (GTK_WIDGET (html)), TRUE);
 #endif
 }
 
@@ -329,10 +338,12 @@ on_html_http_url_requested_exchange (C2Request *request, C2NetObjectExchangeType
 {
 	GtkHTMLStream *stream = data->v2;
 	const gchar *ptr;
-	
+
 	if (type == C2_NET_OBJECT_EXCHANGE_SEND)
 		return;
 
+	printf ("length: %d\n", length);
+	printf ("<%d, %d>\n", request->got_size, length);
 	ptr = (request->source+request->got_size)-length;
 
 	gtk_html_stream_write (stream, ptr, length);
@@ -356,8 +367,28 @@ on_html_http_url_requested (C2Pthread2 *data)
 							GTK_SIGNAL_FUNC (on_html_http_url_requested_exchange), data);	
 	gtk_signal_connect (GTK_OBJECT (request), "disconnect",
 							GTK_SIGNAL_FUNC (on_html_http_url_requested_disconnect), data);
+	c2_request_run (request);
 }
 
+static void
+on_html_c2dist_url_requested (C2Pthread2 *data)
+{
+	GtkHTMLStream *stream;
+	gchar *file, *path;
+	gint length;
+
+	path = g_strdup_printf (PKGDATADIR G_DIR_SEPARATOR_S "%s", ((gchar *) data->v1)+9);
+	length = c2_get_file (path, &file);
+	g_free (path);
+
+	if (length < 0)
+		return;
+
+	stream = (GtkHTMLStream *) data->v2;
+
+	gtk_html_stream_write (stream, file, length);
+	g_free (file);
+}
 	
 static void
 on_html_url_requested (GtkWidget *widget, const gchar *url, GtkHTMLStream *handle, gpointer data)
@@ -374,19 +405,20 @@ on_html_url_requested (GtkWidget *widget, const gchar *url, GtkHTMLStream *handl
 		lm_func (html, url, handle);
 	else
 	{
+		C2Pthread2 *data;
+		pthread_t thread;
+
+		data = g_new0 (C2Pthread2, 1);
+		data->v1 = (gpointer) url;
+		data->v2 = handle;
+		
 		/* Try now for built-in supported links */
 		if (c2_streq (prefix, "http"))
-		{
-			C2Pthread2 *data;
-			pthread_t thread;
-
-			data = g_new0 (C2Pthread2, 1);
-			data->v1 = url;
-			data->v2 = handle;
-
 			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_html_http_url_requested), data);
-		} else if (c2_streq (prefix, "ftp"))
+		else if (c2_streq (prefix, "ftp"))
 			L
+		else if (c2_streq (prefix, "c2dist"))
+			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_html_c2dist_url_requested), data);
 
 	}
 	g_free (prefix);

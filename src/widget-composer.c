@@ -17,11 +17,23 @@
  */
 #include <glade/glade.h>
 
-#include "c2-app.h"
 #include "widget-composer.h"
 
 #define XML_FILE "cronosII-composer"
 
+GtkWidget *
+c2_composer_new (GtkToolbarStyle style)
+{
+	return NULL;
+}
+
+GtkType
+c2_composer_get_type (void)
+{
+	return 0;
+}
+
+#if 0
 static void
 class_init									(C2ComposerClass *klass);
 
@@ -212,3 +224,4 @@ c2_composer_get_window (C2Composer *composer)
 {
 	return glade_xml_get_widget (composer->xml, "wnd_composer");
 }
+#endif
