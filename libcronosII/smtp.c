@@ -165,7 +165,6 @@ init (C2SMTP *smtp)
 	smtp->pass = NULL;
 	smtp->smtp_local_cmd = NULL;
 	smtp->flags = DEFAULT_FLAGS;
-	smtp->error = NULL;
 
 	pthread_mutex_init (&smtp->lock, NULL);
 }
@@ -199,8 +198,7 @@ destroy (GtkObject *object)
 #endif
 	}
 
-	if (smtp->error)
-		g_free(smtp->error);
+	c2_smtp_set_error(smtp, NULL);
 	
 	if (smtp->host)
 		g_free(smtp->host);
@@ -227,7 +225,7 @@ c2_smtp_new (C2SMTPType type, ...)
 	smtp = gtk_type_new (C2_TYPE_SMTP);
 	
 	smtp->type = type;
-	smtp->error = NULL;
+	c2_smtp_set_error(smtp, NULL);
 	
 	switch (type)
 	{
@@ -1076,7 +1074,13 @@ c2_smtp_send_rcpt (C2SMTP *smtp, gchar *to)
 static void
 c2_smtp_set_error(C2SMTP *smtp, const gchar *error) 
 {
-	if(smtp->error) g_free(smtp->error);
-	smtp->error = g_strdup(error);
+	GtkObject *object = GTK_OBJECT(smtp);
+	gchar *buf;
+	
+	if((buf = gtk_object_get_data(object, "error")))
+		g_free(buf);
+	
+	buf = g_strdup(error);
+	gtk_object_set_data(object, "error", buf);
 }
 

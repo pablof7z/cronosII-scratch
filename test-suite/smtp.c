@@ -48,7 +48,7 @@ main (gint argc, gchar **argv)
 		printf("Sending mail via SMTP worked! Check your email\n");
 	else {
 		printf("Sending message via SMTP failed... back to the drawing board\n");
-		printf("the error was: %s\n", smtp->error);
+		printf("the error was: %s\n", gtk_object_get_data(GTK_OBJECT(smtp), "error"));
 	}
 	
 	c2_smtp_free(smtp);
@@ -59,7 +59,7 @@ main (gint argc, gchar **argv)
 		printf("Sending mail via local SMTP program worked! Check your email\n");
 	else {
 		printf("Sending message via local SMTP failed... back to the drawing board\n");
-		printf("the error was: %s\n", smtp->error);
+		printf("the error was: %s\n", gtk_object_get_data(GTK_OBJECT(smtp), "error"));
 	}
 	
 	c2_smtp_free(smtp);
