@@ -523,6 +523,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 			{
 				if(*(ptr+1) == '\0') ptr++;
 				buf = g_strndup(start, ptr - start);
+				printf("About to send: %s\n", buf);
 				if(c2_net_send(smtp->sock, "%s\r\n", buf) < 0)
 				{
 					c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
@@ -654,6 +655,8 @@ c2_smtp_mime_make_message_boundry (void)
 static gint
 c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundry)
 {
+	gint i, x;
+	gchar *buf;
 	C2Mime *mime;
 	
 	if(!message->mime)
@@ -670,17 +673,41 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundry)
 	for(mime = message->mime; mime; mime = mime->next)
 	{
 		if(c2_net_send(smtp->sock, "Content-Type: %s\r\nContent-Transfer-"
-									"Encoding: %s\r\nContent-Disposition: %s; filename=\"%s\"\r\n\r\n%s%s",
-									mime->type, mime->encoding, mime->disposition, mime->id, mime->part, boundry) < 0)
+									"Encoding: %s\r\nContent-Disposition: %s; filename=\"%s\"\r\n\r\n",
+									mime->type, mime->encoding, mime->disposition, mime->id) < 0)
 		{
 			c2_smtp_set_error(smtp, /*SOCK_WRITE_FAILED*/"Ass Failure");
 			smtp_disconnect(smtp);
 			pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
+		for(i = 0; i < mime->length; i += 1024)
+		{
+			/* send one kilobyte at a time */
+			if(i > mime->length)
+			{
+				i -= 1024;
+				i += mime->length - i;
+			}
+			if(mime->length - i < 1024)
+				x = mime->length - i;
+			else
+				x = 1024;
+			buf = g_new0(gchar, x+1);
+			memcpy(buf, mime->start+i, x);
+			if(c2_net_send(smtp->sock, "%s", buf) < 0)
+			{
+				c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+				smtp_disconnect(smtp);
+				g_free(buf);
+				pthread_mutex_unlock(&smtp->lock);
+				return -1;
+			}
+			g_free(buf);
+		}
 		if(!mime->next)
 		{
-			if(c2_net_send(smtp->sock, "--\r\n") < 0)
+			if(c2_net_send(smtp->sock, "%s--\r\n", boundry) < 0)
 		  {
 				c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 				smtp_disconnect(smtp);
@@ -690,7 +717,7 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundry)
 		}
 		else
 		{
-			if(c2_net_send(smtp->sock, "\r\n") < 0)
+			if(c2_net_send(smtp->sock, "%s\r\n", boundry) < 0)
 		  {
 				c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 				smtp_disconnect(smtp);
