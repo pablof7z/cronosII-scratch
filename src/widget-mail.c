@@ -424,7 +424,7 @@ set_headers (C2Mail *mail, C2Message *message)
 
 	/* CC */
 	buf = c2_message_get_header_field (message, "CC:");
-	if (buf)
+	if (buf && strlen (buf))
 	{
 		gchar *buf2 = c2_str_get_sender (buf);
 
@@ -433,10 +433,16 @@ set_headers (C2Mail *mail, C2Message *message)
 			g_free (buf);
 			buf = buf2;
 		}
-		
+
+		gtk_widget_show (mail->cc_label[0]);
+		gtk_widget_show (mail->cc_label[1]);
 		gtk_label_set_text (GTK_LABEL (mail->cc_label[1]), buf);
 	} else
+	{
 		gtk_label_set_text (GTK_LABEL (mail->cc_label[1]), "");
+		gtk_widget_hide (mail->cc_label[0]);
+		gtk_widget_hide (mail->cc_label[1]);
+	}
 	g_free (buf);
 
 	/* Attachments */

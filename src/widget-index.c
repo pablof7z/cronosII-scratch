@@ -805,10 +805,12 @@ add_message (C2Application *application, GtkCList *clist, C2Db *db, const gchar 
 {
 	struct tm *tm;
 	gchar *row[COLUMN_LAST];
+	gchar *from;
 	
+	from = c2_str_get_sender (db->from);
 	tm = localtime (&db->date);
 	row[COLUMN_SUBJECT] = db->subject;
-	row[COLUMN_FROM] = db->from;
+	row[COLUMN_FROM] = from;
 	row[COLUMN_ACCOUNT] = db->account;
 	row[COLUMN_DATE] = g_new (gchar, 128);
 	strftime (row[COLUMN_DATE], 128, date_fmt, tm);
@@ -1355,14 +1357,15 @@ on_application_preferences_changed (C2Application *application, gint key, gpoint
 	 C2Index *index)
 {
 	if (key == C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_UNREADED_MAILS ||
-		key == C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_READED_MAILS)
+		key == C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_READED_MAILS ||
+		key == C2_DIALOG_PREFERENCES_KEY_INTERFACE_MISC_DATE)
 		reload (index);
 }
 
 static void
 on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *db_node, C2Index *index)
 {
-L	/* TODO This is a temp fix */
+	/* TODO This is a temp fix */
 	/* WARN This function assumes it is being called
 	 * by a separated thread since all DB action is
 	 * supposed to run in other thread.

@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -107,27 +107,27 @@ struct C2InstallAction
 	},
 	{
 		C2_INSTALL_ACTION_MAILBOX_MK,
-		C2_MAILBOX_N_INBOX, NULL, NULL,
+		C2_MAILBOX_N_INBOX, "1", NULL,
 		TRUE
 	},
 	{
 		C2_INSTALL_ACTION_MAILBOX_MK,
-		C2_MAILBOX_N_OUTBOX, NULL, NULL,
+		C2_MAILBOX_N_OUTBOX, "2", NULL,
 		TRUE
 	},
 	{
 		C2_INSTALL_ACTION_MAILBOX_MK,
-		C2_MAILBOX_N_SENT_ITEMS, NULL, NULL,
+		C2_MAILBOX_N_SENT_ITEMS, "4", NULL,
 		TRUE
 	},
 	{
 		C2_INSTALL_ACTION_MAILBOX_MK,
-		C2_MAILBOX_N_TRASH, NULL, NULL,
+		C2_MAILBOX_N_TRASH, "8", NULL,
 		TRUE
 	},
 	{
 		C2_INSTALL_ACTION_MAILBOX_MK,
-		C2_MAILBOX_N_DRAFTS, NULL, NULL,
+		C2_MAILBOX_N_DRAFTS, "16", NULL,
 		TRUE
 	},
 	{
@@ -285,7 +285,7 @@ dir_mk (const gchar *directory)
 }
 
 static gint
-mailbox_mk (const gchar *name, C2Mailbox **head)
+mailbox_mk (const gchar *name, const gchar *use_as_code, C2Mailbox **head)
 {
 	C2Mailbox *mailbox;
 	gint config_id;
@@ -294,6 +294,7 @@ mailbox_mk (const gchar *name, C2Mailbox **head)
 	if (!(mailbox = c2_mailbox_new_with_parent (head, name, NULL,
 								C2_MAILBOX_CRONOSII, C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING)))
 		return -1;
+	c2_mailbox_set_use_as (*head, mailbox, atoi (use_as_code));
 
 	config_id = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL)+1;
 	query = g_strdup_printf ("/"PACKAGE"/Mailbox %d/", config_id);
@@ -304,6 +305,7 @@ mailbox_mk (const gchar *name, C2Mailbox **head)
 	gnome_config_set_int ("type", mailbox->type);
 	gnome_config_set_int ("sort_by", mailbox->sort_by);
 	gnome_config_set_int ("sort_type", mailbox->sort_type);
+	gnome_config_set_int ("use_as", mailbox->use_as);
 	gnome_config_pop_prefix ();
 	g_free (query);
 				
@@ -450,7 +452,7 @@ on_start_btn_clicked_thread (GladeXML *xml)
 									0, action_str);
 				gtk_label_set_text (GTK_LABEL (status_label), action_str);
 				
-				retval = mailbox_mk (argv1, &head);
+				retval = mailbox_mk (argv1, argv2, &head);
 				if (retval < 0)
 				{
 					/* Some error occur */

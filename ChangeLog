@@ -5,6 +5,9 @@ Mon Apr 29 Pablo Fernández <sandokan at pablossite dot net>
 	  it is it will show a dialog which gives the option
 	  to fix it automatically and which tells you how to
 	  fix it manually).
+	* Fixed some issues with the installation.
+	* Many changes to make the UI nicer.
+	* Fixed a bug with i18n in the preferences dialog.
 
 Sat Apr 27 Pablo Fernández <sandokan at pablossite dot net>
 	* Work in IMAP and in UI~IMAP: login fail supported.

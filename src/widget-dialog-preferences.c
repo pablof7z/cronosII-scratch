@@ -611,37 +611,53 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 	
 	static C2SidebarSubSection general_icons[] =
 	{
-		{ N_(GENERAL_OPTIONS), PKGDATADIR "/pixmaps/general_options.png" },
-		{ N_(GENERAL_ACCOUNTS), PKGDATADIR "/pixmaps/general_accounts.png" },
-		{ N_(GENERAL_PATHS), PKGDATADIR "/pixmaps/general_paths.png" },
-		{ N_(GENERAL_PLUGINS),	PKGDATADIR "/pixmaps/general_plugins.png" },
+		{ NULL, PKGDATADIR "/pixmaps/general_options.png" },
+		{ NULL, PKGDATADIR "/pixmaps/general_accounts.png" },
+		{ NULL, PKGDATADIR "/pixmaps/general_paths.png" },
+		{ NULL,	PKGDATADIR "/pixmaps/general_plugins.png" },
 		{ NULL, NULL }
 	};
 
 	static C2SidebarSubSection interface_icons[] =
 	{
-		{ N_(INTERFACE_FONTS), PKGDATADIR "/pixmaps/interface_fonts.png" },
-		{ N_(INTERFACE_HTML), PKGDATADIR "/pixmaps/interface_html.png" },
-		{ N_(INTERFACE_COMPOSER), PKGDATADIR "/pixmaps/interface_composer.png" },
-		{ N_(INTERFACE_MISC),	PKGDATADIR "/pixmaps/interface_misc.png" },
+		{ NULL, PKGDATADIR "/pixmaps/interface_fonts.png" },
+		{ NULL, PKGDATADIR "/pixmaps/interface_html.png" },
+		{ NULL, PKGDATADIR "/pixmaps/interface_composer.png" },
+		{ NULL,	PKGDATADIR "/pixmaps/interface_misc.png" },
 		{ NULL, NULL }
 	};
 
 	static C2SidebarSubSection advanced_icons[] =
 	{
-		{ N_(ADVANCED_MISC), PKGDATADIR "/pixmaps/advanced_misc.png" },
+		{ NULL, PKGDATADIR "/pixmaps/advanced_misc.png" },
 		{ NULL, NULL }
 	};
 
 	static C2SidebarSection sidebar_info[] =
 	{
-		{ N_("General"), general_icons, NULL },
-		{ N_("Interface"), interface_icons, NULL },
-		{ N_("Advanced"), advanced_icons, NULL },
+		{ NULL, general_icons, NULL },
+		{ NULL, interface_icons, NULL },
+		{ NULL, advanced_icons, NULL },
 		{ NULL, NULL, NULL }
 	};
 	GtkWidget *sidebar, *widget, *container;
 
+	general_icons[0].name = _(GENERAL_OPTIONS);
+	general_icons[1].name = _(GENERAL_ACCOUNTS);
+	general_icons[2].name = _(GENERAL_PATHS);
+	general_icons[3].name = _(GENERAL_PLUGINS);
+
+	interface_icons[0].name = _(INTERFACE_FONTS);
+	interface_icons[1].name = _(INTERFACE_HTML);
+	interface_icons[2].name = _(INTERFACE_COMPOSER);
+	interface_icons[3].name = _(INTERFACE_MISC);
+
+	advanced_icons[0].name = _(ADVANCED_MISC);
+
+	sidebar_info[0].name = _("General");
+	sidebar_info[1].name = _("Interface");
+	sidebar_info[2].name = _("Advanced");
+	
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"), "dlg_preferences_contents");
 	
 	c2_dialog_construct (C2_DIALOG (preferences), application, _("Preferences"), "preferences", NULL, buttons);
@@ -749,6 +765,8 @@ on_sidebar_subsection_selected (C2Sidebar *sidebar, const gchar *section, const 
 	
 	if (c2_streq (section, _("General")))
 	{
+		printf ("subsection = '%s' options = '%s' Noptions = '%s'\n", subsection, _(GENERAL_OPTIONS),
+							N_(GENERAL_OPTIONS));
 		if (c2_streq (subsection, _(GENERAL_OPTIONS)))
 			page = C2_DIALOG_PREFERENCES_SUBSECTION_GENERAL_OPTIONS;
 		else if (c2_streq (subsection, _(GENERAL_ACCOUNTS)))

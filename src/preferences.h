@@ -40,7 +40,7 @@ extern "C" {
 	gnome_config_set_string ("/"PACKAGE"/Application/Version", val)
 
 #define c2_preferences_get_general_options_start_check() \
-	gnome_config_get_bool_with_default ("/"PACKAGE"/"GENERAL"-"OPTIONS"/start_check=true", NULL)
+	gnome_config_get_bool_with_default ("/"PACKAGE"/"GENERAL"-"OPTIONS"/start_check=false", NULL)
 #define c2_preferences_set_general_options_start_check(val) \
 	gnome_config_set_bool ("/"PACKAGE"/"GENERAL"-"OPTIONS"/start_check", val)
 	

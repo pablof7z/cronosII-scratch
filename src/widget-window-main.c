@@ -120,7 +120,11 @@ on_application_window_changed				(C2Application *application, GSList *list, C2Wi
 
 static void
 on_application_application_preferences_changed	(C2Application *application, gint key, gpointer value,
-											C2WindowMain *wmain);
+													C2WindowMain *wmain);
+
+static void
+on_outbox_mailbox_changed_mailbox			(C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *db_node,
+												C2WindowMain *wmain);
 
 static void
 on_docktoolbar_button_press_event			(GtkWidget *widget, GdkEventButton *event, C2WindowMain *wmain);
@@ -779,6 +783,9 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	/* Connect all signals: menues, toolbar, buttons, etc. */
 	gtk_signal_connect (GTK_OBJECT (application), "application_preferences_changed",
 							GTK_SIGNAL_FUNC (on_application_application_preferences_changed), wmain);
+	gtk_signal_connect (GTK_OBJECT (c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_OUTBOX)),
+													"changed_mailbox",
+							GTK_SIGNAL_FUNC (on_outbox_mailbox_changed_mailbox), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "dockitem_toolbar")), "button_press_event",
 							GTK_SIGNAL_FUNC (on_docktoolbar_button_press_event), wmain);
 	
@@ -880,6 +887,11 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	/* Build the menu Accounts */
 	on_application_application_preferences_changed (application, C2_DIALOG_PREFERENCES_KEY_GENERAL_ACCOUNTS,
 													application->account, wmain);
+
+	/* Set the sensitivity of the Send button */
+	on_outbox_mailbox_changed_mailbox (c2_mailbox_get_by_usage (
+									application->mailbox, C2_MAILBOX_USE_AS_OUTBOX), C2_MAILBOX_CHANGE_ANY,
+									NULL, wmain);
 }
 
 static void
@@ -1449,6 +1461,17 @@ on_application_application_preferences_changed (C2Application *application, gint
 	}
 }
 
+static void
+on_outbox_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *db_node,
+									C2WindowMain *wmain)
+{
+	GtkWidget *widget;
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_send");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, c2_db_length (mailbox));
+}
+
 /**
  * c2_window_main_set_mailbox
  * @wmain: Object where to act.
@@ -2003,7 +2026,7 @@ on_index_open_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 	if (!C2_IS_MAILBOX (mailbox))
 		g_assert_not_reached ();
 
-	if (c2_streq (mailbox->name, C2_MAILBOX_DRAFTS))
+	if (mailbox->use_as & C2_MAILBOX_USE_AS_DRAFTS)
 	{
 		GtkWidget *composer;
 
@@ -2034,14 +2057,14 @@ on_index_select_message_thread (C2Pthread3 *data)
 	C2WindowMain *wmain = C2_WINDOW_MAIN (data->v3);
 	GtkWidget *widget;
 	GladeXML *xml;
-L
+
 	g_free (data);
 
 	if (!C2_IS_MESSAGE (node->message))
 	{
 		/* [TODO] This should be in a separated thread */
-L		c2_db_load_message (node);
-L
+		c2_db_load_message (node);
+
 		if (!C2_IS_MESSAGE (node->message))
 		{
 			/* Something went wrong */
@@ -2062,12 +2085,12 @@ L
 		}
 	}
 
-L	gdk_threads_enter ();
+	gdk_threads_enter ();
 	
 	c2_mail_set_message (C2_MAIL (wmain->mail), node->message);
 
 	/* Set some widgets sensivity */
-L	xml = C2_WINDOW (wmain)->xml;
+	xml = C2_WINDOW (wmain)->xml;
 	
 	widget = glade_xml_get_widget (xml, "message_previous");
 	gtk_widget_set_sensitive (widget, !c2_db_is_first (node));
