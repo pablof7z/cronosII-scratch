@@ -24,6 +24,7 @@ extern "C" {
 
 #include <glib.h>
 #include <stdio.h>
+#include <pthread.h>
 #include <gtk/gtk.h>
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <config.h>
@@ -68,6 +69,21 @@ typedef struct
 #	define C2_DEBUG_(x)							;
 #endif
 
+gint
+c2_mutex_init (pthread_mutex_t *mutex);
+	
+gint
+c2_mutex_lock (pthread_mutex_t *mutex);
+	
+gint
+c2_mutex_trylock (pthread_mutex_t *mutex);
+	
+gint
+c2_mutex_unlock (pthread_mutex_t *mutex);
+
+gint
+c2_mutex_destroy (pthread_mutex_t *mutex);
+	
 gboolean
 c2_strcaseeq									(const gchar *fst, const gchar *snd);
 
