@@ -20,6 +20,7 @@ all: cronosII/index.html
 
 distclean: distclean-am
 	-rm -rf cronosII
+	-rm -rf cronosII.junk
 
 cronosII/index.html: $(SGML_FILES)
 	-db2html cronosII.sgml
