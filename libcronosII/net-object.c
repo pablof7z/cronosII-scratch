@@ -32,6 +32,13 @@
 
 #define AVAILABLE_BUFFER	-1
 
+#define MOD "Net Object"
+#ifdef USE_DEBUG
+#	define DMOD TRUE
+#else
+#	define DMOD FALSE
+#endif
+
 static void
 class_init									(C2NetObjectClass *klass);
 
@@ -255,9 +262,10 @@ c2_net_object_run (C2NetObject *nobj)
 	if (c2_net_resolve (nobj->host, &ip) < 0)
 	{
 #ifdef USE_DEBUG
-		g_warning ("Unable to resolve hostname: %s\n", c2_error_get ());
+		if (_debug_net_object)
+			C2_PRINTD (MOD, "Unable to resolve hostname: %s\n", c2_error_get ());
 #endif
-		c2_error_object_set (GTK_OBJECT (nobj), -errno);
+		c2_error_object_set (GTK_OBJECT (nobj), c2_errno);
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, FALSE);
 		return NULL;
 	}

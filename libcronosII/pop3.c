@@ -371,7 +371,7 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 
 #ifdef USE_DEBUG
 	if (_debug_pop3)
-		C2_PRINTD (MOD, "%d maails to download (%s)\n", g_slist_length (download_list), account->name);
+		C2_PRINTD (MOD, "%d mails to download (%s)\n", g_slist_length (download_list), account->name);
 #endif
 
 	if (retrieve (pop3, account, inbox, download_list) < 0)
