@@ -159,22 +159,30 @@ c2_db_destroy (GtkObject *object)
 gint
 c2_db_load (C2Mailbox *mailbox)
 {
+	gint (*func) (C2Mailbox *mailbox);
+	
 	c2_return_val_if_fail (mailbox, -1, C2EDATA);
 
 	switch (mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
-			return c2_db_cronosII_load (mailbox);
+			func = c2_db_cronosII_load;
+			break;
 		case C2_MAILBOX_IMAP:
-			return c2_db_imap_load (mailbox);
+			func = c2_db_imap_load;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_load;
+			break;
 #ifdef USE_DEBUG
 		default:
 			g_print ("Request for unsupported mailbox in %s:%s:%d: %d\n",
 							__PRETTY_FUNCTION__, __FILE__, __LINE__, mailbox->type);
+			return -1;
 #endif
 	}
 
-	return -1;
+	return func (mailbox);
 }
 
 /**
@@ -292,5 +300,64 @@ c2_db_message_search_by_mid (const C2Db *db_d, gint mid)
 	return 0;
 }
 
+/**
+ * c2_db_archive
+ * @mailbox: Mailbox to archive.
+ *
+ * This function will remove a db and
+ * archive all mails in ~/.c2/archive
+ **/
+void
+c2_db_archive (C2Mailbox *mailbox)
+{
+	/* 1. Make sure the Db is loaded */
+	/* 2. Go in a loop from the first message to the last one
+	 *    calling c2_db_spool_add_message.
+	 * 3. Call c2_db_remove_structure.
+	 */
+}
 
+gint
+c2_db_create_structure (C2Mailbox *mailbox)
+{
+	gint (*func) (C2Mailbox *mailbox);
+	
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_create_structure;
+			break;
+		case C2_MAILBOX_IMAP:
+			/* TODO */
+			return 0;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_create_structure;
+			break;
+	}
 
+	return func (mailbox);
+}
+
+void
+c2_db_remove_structure (C2Mailbox *mailbox)
+{
+	void (*func) (C2Mailbox *mailbox);
+
+	C2_DEBUG (mailbox->name);
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_remove_structure;
+			break;
+		case C2_MAILBOX_IMAP:
+			/* TODO */
+			return;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_remove_structure;
+			break;
+	}
+
+	func (mailbox);
+}

@@ -107,6 +107,9 @@ gboolean
 c2_file_exists									(const gchar *file);
 
 gboolean
+c2_file_is_directory							(const gchar *file);
+
+gboolean
 c2_fd_move_to									(FILE *fp, gchar c, guint8 cant,
 										 		 gboolean forward, gboolean next);
 

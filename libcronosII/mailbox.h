@@ -61,7 +61,8 @@ enum _C2MailboxSortBy
 enum _C2MailboxType
 {
 	C2_MAILBOX_CRONOSII,
-	C2_MAILBOX_IMAP
+	C2_MAILBOX_IMAP,
+	C2_MAILBOX_SPOOL
 };
 
 struct _C2Mailbox
@@ -78,9 +79,11 @@ struct _C2Mailbox
 	 */
 	union
 	{
-		struct {
+		struct
+		{
 		} cronosII;
-		struct {
+		struct
+		{
 			gchar *host;
 			gint port;
 			gchar *user;
@@ -89,6 +92,10 @@ struct _C2Mailbox
 			gint sock;
 			gint cmnd_n;
 		} imap;
+		struct
+		{
+			gchar *path;
+		} spool;
 	} protocol;
 	
 	C2MailboxSortBy sort_by;
@@ -131,7 +138,7 @@ c2_mailbox_update								(C2Mailbox *mailbox, const gchar *name, const gchar *id
 												 C2MailboxType type, ...);
 
 void
-c2_mailbox_remove								(C2Mailbox *mailbox);
+c2_mailbox_remove								(C2Mailbox *mailbox, gboolean archive);
 
 #define c2_mailbox_get_parent_id(x)				c2_mailbox_get_complete_id (x, c2_mailbox_get_level (x)-1)
 

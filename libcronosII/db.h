@@ -38,6 +38,7 @@ typedef struct _C2DbClass C2DbClass;
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include "db-cronosII.h"
 #	include "db-imap.h"
+#	include "db-spool.h"
 #	include "mailbox.h"
 #	include "message.h"
 #else
@@ -77,6 +78,17 @@ c2_db_get_type									(void);
 /* This function will alloc a C2Db object */
 C2Db *
 c2_db_new										(C2Mailbox *mailbox);
+
+/* Virtual function */
+gint
+c2_db_create_structure							(C2Mailbox *mailbox);
+
+/* Virtual function */
+void
+c2_db_remove_structure							(C2Mailbox *mailbox);
+
+void
+c2_db_archive									(C2Mailbox *mailbox);
 
 /* This function will load the Db */
 gint

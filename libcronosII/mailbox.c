@@ -160,6 +160,9 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 			g_free (mailbox->protocol.imap.pass);
 			g_free (mailbox->protocol.imap.path);
 			break;
+		case C2_MAILBOX_SPOOL:
+			g_free (mailbox->protocol.spool.path);
+			break;
 	}
 
 	g_free (mailbox->name);
@@ -178,6 +181,7 @@ c2_mailbox_destroy (GtkObject *object)
 	c2_return_if_fail (C2_IS_MAILBOX (object), C2EDATA);
 
 	mailbox = C2_MAILBOX (object);
+	
 	if (c2_mailbox_get_head () == mailbox)
 		c2_mailbox_set_head (mailbox->next);
 	
@@ -201,6 +205,7 @@ c2_mailbox_destroy (GtkObject *object)
  * 		of mailbox.
  * 		Cronos II Mailbox's type: Null.
  * 		IMAP Mailbox's type: gchar *server, gint port, gchar *user, gchar *pass, gchar *path.
+ * 		Spool Mailbox's type: gchar *path.
  *
  * This function will allocate a new C2Mailbox object
  * and fill it with required information.
@@ -252,6 +257,11 @@ c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
 			mailbox->protocol.imap.cmnd_n = 1;
 			va_end (edata);
 			break;
+		case C2_MAILBOX_SPOOL:
+			va_start (edata, sort_type);
+			mailbox->protocol.spool.path = g_strdup (va_arg (edata, gchar *));
+			va_end (edata);
+			break;
 #ifdef USE_DEBUG
 		default:
 			g_print ("Unknown mailbox type in %s (%s:%d): %d\n",
@@ -298,7 +308,6 @@ c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2Mailbox
 		{
 			for (; parent->next; parent = parent->next);
 			id = g_strdup_printf ("%d", atoi (parent->id)+1);
-			C2_DEBUG (id);
 		} else
 		{
 			id = g_strdup ("0");
@@ -317,8 +326,15 @@ c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2Mailbox
 			user = va_arg (edata, gchar *);
 			pass = va_arg (edata, gchar *);
 			path = va_arg (edata, gchar *);
-			
+	
 			value = c2_mailbox_new (name, id, type, sort_by, sort_type, host, port, user, pass, path);
+			va_end (edata);
+			break;
+		case C2_MAILBOX_SPOOL:
+			va_start (edata, sort_type);
+			path = va_arg (edata, gchar *);
+		
+			value = c2_mailbox_new (name, id, type, sort_by, sort_type, path);
 			va_end (edata);
 			break;
 	}
@@ -357,8 +373,6 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
 	{
 		/* Get the ID of the parent */
 		id = c2_mailbox_get_parent_id (mailbox->id);
-		C2_DEBUG (id);
-		C2_DEBUG (mailbox->id);
 		l = c2_mailbox_search_by_id (head, id);
 		g_free (id);
 		
@@ -392,8 +406,8 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
  * ...: Specific information about the mailbox according to the type
  * 		of mailbox.
  * 		Cronos II Mailbox's type: Null.
- * 		IMAP Mailbox's type: gchar *server, gint port, gchar *user, gchar *pass.
- * 		MySQL Mailbox's type: gchar *server, gint port, gchar *db, gchar *user, gchar *pass.
+ * 		IMAP Mailbox's type: gchar *server, gint port, gchar *user, gchar *pass, *gchar *path.
+ * 		Spool Mailbox's type: gchar *path.
  * 
  * This function will update a C2Mailbox object.
  **/
@@ -419,6 +433,10 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
 			g_free (mailbox->protocol.imap.path);
 			mailbox->protocol.imap.path = NULL;
 			break;
+		case C2_MAILBOX_SPOOL:
+			g_free (mailbox->protocol.spool.path);
+			mailbox->protocol.spool.path = NULL;
+			break;
 	}
 
 	switch (type)
@@ -434,6 +452,13 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
 			mailbox->protocol.imap.user = g_strdup (va_arg (edata, gchar *));
 			mailbox->protocol.imap.pass = g_strdup (va_arg (edata, gchar *));
 			mailbox->protocol.imap.path = g_strdup (va_arg (edata, gchar *));
+			va_end (edata);
+			break;
+		case C2_MAILBOX_SPOOL:
+			va_start (edata, type);
+			mailbox->type = C2_MAILBOX_SPOOL;
+			mailbox->protocol.spool.path = g_strdup (va_arg (edata, gchar *));
+			va_end (edata);
 			break;
 	}
 
@@ -449,7 +474,7 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
  * TODO: Ability to delete the mailbox with ID "0".
  **/
 void
-c2_mailbox_remove (C2Mailbox *mailbox)
+c2_mailbox_remove (C2Mailbox *mailbox, gboolean archive)
 {
 	C2Mailbox *parent = NULL, *previous = NULL, *next;
 	gchar *parent_id, *previous_id, *next_id;
@@ -498,6 +523,12 @@ c2_mailbox_remove (C2Mailbox *mailbox)
 	c2_mailbox_recreate_tree_ids (parent);
 
 	gtk_signal_emit (GTK_OBJECT (c2_mailbox_get_head ()), c2_mailbox_signals[CHANGED_MAILBOXES]);
+
+	/* Remove the structure */
+	if (archive)
+		c2_db_archive (mailbox);
+	else
+		c2_db_remove_structure (mailbox);
 
 	gtk_object_unref (GTK_OBJECT (mailbox));
 }

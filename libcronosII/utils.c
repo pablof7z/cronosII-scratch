@@ -640,6 +640,26 @@ c2_file_exists (const gchar *file)
 }
 
 /**
+ * c2_file_is_directory
+ * @file: A pointer to a character object containing the file path.
+ *
+ * Checks if the file is a directory.
+ *
+ * Return Value:
+ * Return TRUE if the files is a directory or FALSE if it isn't.
+ **/
+gboolean
+c2_file_is_directory (const gchar *file)
+{
+	struct stat st;
+	
+	c2_return_val_if_fail (file, FALSE, C2EDATA);
+	
+	if (stat (file, &st) < 0) return FALSE;
+	return S_ISDIR (st.st_mode);
+}
+
+/**
  * c2_fd_move_to
  * @fp: File descriptor.
  * @c: Character to look for.

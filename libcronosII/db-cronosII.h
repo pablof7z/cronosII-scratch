@@ -35,6 +35,12 @@ extern "C" {
 gint
 c2_db_cronosII_load								(C2Mailbox *mailbox);
 
+gint
+c2_db_cronosII_create_structure					(C2Mailbox *mailbox);
+
+void
+c2_db_cronosII_remove_structure					(C2Mailbox *mailbox);
+
 #ifdef __cplusplus
 }
 #endif

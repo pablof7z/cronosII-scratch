@@ -18,11 +18,16 @@
 #include <glib.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <dirent.h>
 
+#include "i18n.h"
 #include "db.h"
 #include "error.h"
 #include "mailbox.h"
 #include "utils.h"
+
+#define PATH ".c2"
 
 gint
 c2_db_cronosII_load (C2Mailbox *mailbox)
@@ -35,7 +40,7 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 	c2_return_val_if_fail (mailbox, -1, C2EDATA);
 
 	/* Calculate the path */
-	path = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S ".CronosII" G_DIR_SEPARATOR_S,
+	path = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S PATH G_DIR_SEPARATOR_S,
 						mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
 	
 	/* Open the file */
@@ -118,7 +123,7 @@ c2_db_cronosII_message_get (C2Db *db, gint mid)
 	if (!home)
 		home = g_get_home_dir ();
 
-	path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S ".CronosII/%s.mbx/%d",
+	path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S PATH G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "%d",
 							home, db->mailbox->name, mid);
 	
 	if (stat (path, &stat_buf) < 0)
@@ -148,5 +153,55 @@ c2_db_cronosII_message_get (C2Db *db, gint mid)
 	return message;
 }
 
+gint
+c2_db_cronosII_create_structure (C2Mailbox *mailbox)
+{
+	gchar *path = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S PATH G_DIR_SEPARATOR_S, mailbox->name,
+								".mbx" G_DIR_SEPARATOR_S, NULL);
+	FILE *fd;
 
+	if (mkdir (path, 0700) < 0)
+	{
+		c2_error_set (-errno);
+		g_warning (_("Unable to create structure for Cronos II Db: %s\n"), c2_error_get (c2_errno));
+		g_free (path);
+		return -1;
+	}
 
+	path = g_realloc (path, strlen (path)+6);
+	memcpy (path+strlen (path), "index\0", 6);
+	
+	fclose (fopen (path, "w"));
+
+	return 0;
+}
+
+void
+c2_db_cronosII_remove_structure (C2Mailbox *mailbox)
+{
+	gchar *directory = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S PATH G_DIR_SEPARATOR_S,
+									mailbox->name, ".mbx" G_DIR_SEPARATOR_S, NULL);
+	gchar *path;
+	DIR *dir;
+	struct dirent *dentry;	
+
+	if (!(dir = opendir (directory)))
+	{
+		c2_error_set (-errno);
+		g_warning ("Unable to open directory for removing: %s\n", c2_error_get (c2_errno));
+		return;
+	}
+
+	for (; (dentry = readdir (dir)); )
+	{
+		path = g_strconcat (directory, dentry->d_name, NULL);
+		
+		if (!c2_file_is_directory (path))
+			unlink (path);
+		g_free (path);
+	}
+
+	closedir (dir);
+	rmdir (directory);
+	g_free (directory);
+}

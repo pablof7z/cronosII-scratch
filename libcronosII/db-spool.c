@@ -19,12 +19,27 @@
 #include <config.h>
 
 #include "error.h"
+#include "db-spool.h"
 /*hmmm this is almost beautifull in its minimalism -pete ;)*/
+/*yeah, is the shortest module I ever see! but it doesn't have any bugs! :) -pablo */
 
+gint
+c2_db_spool_load (C2Mailbox *mailbox)
+{
+	return 0;
+}
 
+gint
+c2_db_spool_create_structure (C2Mailbox *mailbox)
+{
+	/* This is already done, this function doesn't needs to do anything but
+	 * return an ok status.
+	 */
+	return 0;
+}
 
-
-
-
-
-
+void
+c2_db_spool_remove_structure (C2Mailbox *mailbox)
+{
+	unlink (mailbox->protocol.spool.path);
+}

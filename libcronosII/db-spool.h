@@ -22,6 +22,21 @@
 extern "C" {
 #endif
 
+#ifdef BUILDING_C2
+#	include "mailbox.h"
+#else
+#	include <cronosII.h>
+#endif
+
+gint
+c2_db_spool_load								(C2Mailbox *mailbox);
+
+gint
+c2_db_spool_create_structure					(C2Mailbox *mailbox);
+
+void
+c2_db_spool_remove_structure					(C2Mailbox *mailbox);
+
 #ifdef __cplusplus
 }
 #endif

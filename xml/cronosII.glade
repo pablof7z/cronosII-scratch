@@ -1430,7 +1430,7 @@ is already taken.</message>
 
 	  <widget>
 	    <class>GtkLabel</class>
-	    <name>label47</name>
+	    <name>port_label</name>
 	    <label>Port:</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
@@ -1538,7 +1538,7 @@ is already taken.</message>
 
 	  <widget>
 	    <class>GtkLabel</class>
-	    <name>label48</name>
+	    <name>hostname_label</name>
 	    <label>Hostname:</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
@@ -1564,7 +1564,7 @@ is already taken.</message>
 
 	  <widget>
 	    <class>GtkLabel</class>
-	    <name>label49</name>
+	    <name>username_label</name>
 	    <label>Username:</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
@@ -1590,7 +1590,7 @@ is already taken.</message>
 
 	  <widget>
 	    <class>GtkLabel</class>
-	    <name>label50</name>
+	    <name>password_label</name>
 	    <label>Password:</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
@@ -1703,8 +1703,9 @@ is already taken.</message>
   <authors>Pablo Fernández Navarro
 Bosko Blagojevic
 André Casteliano
-Yves Mettier
 Peter Gossner
+Marc Zaritsky
+Yves Mettier
 See the 'AUTHORS' file for more...
 </authors>
   <comments>Cronos II is a fast, light, user friendly and powerful mail client for the Gnome Desktop.

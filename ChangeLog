@@ -1,3 +1,10 @@
+2001-06-16 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Cronos II Db: The path has changed from ~/.Cronos II to ~/.c2 since
+			the new version has differences in the format of the index file.
+	* Mailbox management: Improves and added UI soport for the Spool mailbox.
+	  
+
 2001-06-14 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
 	* Request module: Using gnome-download due to problems with http images downloading
