@@ -97,7 +97,7 @@ c2_mutex_lock (C2Mutex *mutex)
 			return -1;
 		}
 		mutex->queue = g_list_prepend(mutex->queue, GINT_TO_POINTER(pipes[1]));
-		if(read(pipes[0], c, 5) < 0)
+		if(read(pipes[0], c, 1) < 0)
 		{
 			g_warning(_("Critical Internal Error: Using Mutex Pipe\n"));
 			mutex->queue = g_list_remove(mutex->queue, GINT_TO_POINTER(pipes[1]));
@@ -168,7 +168,7 @@ c2_mutex_unlock (C2Mutex *mutex)
 
 
 /**
- * c2_mutex_unlock
+ * c2_mutex_trylock
  * @mutex: A pointer to the mutex
  * 
  * Attempts to lock a mutex. Fails if 
