@@ -1,0 +1,27 @@
+<!--From: Cronos II Developers Team
+To: User
+Subject: About Cronos II
+-->
+<HTML>
+<HEAD>
+<TITLE>Cronos II @VERSION@</TITLE>
+</HEAD>
+
+<BODY BGCOLOR=#ffffff>
+<FONT FACE="Helvetica" SIZE=-1>
+<H1 ALIGN="CENTER">Cronos II @VERSION@</H1>
+<HR NOSHADE="NOSHADE" ALIGN="CENTER" WIDTH=80%>
+<TABLE BORDER=0 WIDTH=80% ALIGN="CENTER">
+<TR><TD><FONT FACE="Helvetica" SIZE=-1>
+<P>Copyright &copy; 2000-2001 Pablo Fernández Navarro, All rights reserverd.</P>
+
+This software is subject to the <A HREF="http://www.gnu.org">GPL</A> license. Please
+read and agree to all terms before using this software.</P>
+
+Cronos II is <I>free software</I> and you are welcome to distribute copies
+of it under certain conditions. There is <I>absolute no warranty</I> for Cronos II;
+see the GPL license, distributed with this software, for more information.
+</FONT></TD></TR></TABLE>
+</FONT>
+</BODY>
+</HTML>

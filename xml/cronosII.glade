@@ -2371,7 +2371,7 @@ permanently delete all mails stored
 in it and all mailboxes pending from it.
 
 Are you sure you want to delete it?</message>
-  <title>Information</title>
+  <title>Question</title>
   <position>GTK_WIN_POS_CENTER</position>
   <modal>True</modal>
   <allow_shrink>False</allow_shrink>

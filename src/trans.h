@@ -137,7 +137,7 @@ gchar *s = N_("The deletion of a mailbox will\n"
               "in it and all mailboxes pending from it.\n"
               "\n"
               "Are you sure you want to delete it?");
-gchar *s = N_("Information");
+gchar *s = N_("Question");
 gchar *s = N_("Archive mails (recommended).");
 gchar *s = N_("Cronos II : Composer");
 gchar *s = N_("_Insert");
