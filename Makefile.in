@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4-p4 from Makefile.am
+# Makefile.in generated automatically by automake 1.4 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -61,6 +61,7 @@ host_alias = @host_alias@
 host_triplet = @host@
 AS = @AS@
 BONOBOLIBS = @BONOBOLIBS@
+BUILDTIME = @BUILDTIME@
 CATALOGS = @CATALOGS@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
@@ -134,7 +135,7 @@ l = @l@
 @USE_TEST_SUITE_TRUE@test_suite = test-suite
 @USE_TEST_SUITE_FALSE@test_suite = 
 
-SUBDIRS = intl po libcronosII src $(test_suite) macros images pixmaps doc man plugins xml
+SUBDIRS = intl po libcronosII src $(test_suite) macros default images pixmaps doc man plugins xml
 
 bin_SCRIPTS = cronosII-config
 
@@ -172,8 +173,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DIST_SUBDIRS =  intl po libcronosII src test-suite macros images pixmaps \
-doc man plugins xml
+DIST_SUBDIRS =  intl po libcronosII src test-suite macros default images \
+pixmaps doc man plugins xml
 all: all-redirect
 .SUFFIXES:
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
@@ -186,7 +187,7 @@ Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ configure.in  acinclude.m4
 	cd $(srcdir) && $(ACLOCAL)
 
-config.status: $(srcdir)/configure.in $(CONFIG_STATUS_DEPENDENCIES)
+config.status: $(srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
 $(srcdir)/configure: @MAINTAINER_MODE_TRUE@$(srcdir)/configure.in $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
 	cd $(srcdir) && $(AUTOCONF)
