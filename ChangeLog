@@ -1,3 +1,7 @@
+Sat Sep 08 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Implemented sending of MIME attachments in SMTP module.
+	  (but it still needs testing)
+
 Fri Sep 07 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work in the Account, POP3, SMTP object and in the main source.
 
