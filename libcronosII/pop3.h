@@ -42,6 +42,7 @@ typedef enum _C2POP3Flags C2POP3Flags;
 #	include <config.h>
 #	include "account.h"
 #	include "net-object.h"
+# include "utils-mutex.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -76,7 +77,7 @@ struct _C2POP3
 
 	C2POP3AuthenticationMethod auth_method;
 
-	pthread_mutex_t run_lock;
+	C2Mutex run_lock;
 };
 
 struct _C2POP3Class
@@ -85,7 +86,7 @@ struct _C2POP3Class
 
 	void (*login) (C2POP3 *pop3);
 	gboolean (*login_failed) (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pass,
-							  pthread_mutex_t *lock);
+						 C2Mutex *lock);
 	void (*uidl) (C2POP3 *pop3, gint nth, gint mails);
 	void (*status) (C2POP3 *pop3, gint mails);
 	void (*retrieve) (C2POP3 *pop3, gint16 nth, gint32 received, gint32 total);

@@ -26,6 +26,7 @@
 #include "pop3.h"
 #include "utils.h"
 #include "md5.h"
+#include "utils-mutex.h"
 
 /*
  * [TODO] Add support for CRAM-MD5 authentication.
@@ -178,7 +179,7 @@ init (C2POP3 *pop3)
 {
 	pop3->user = pop3->pass = NULL;
 	pop3->flags = DEFAULT_FLAGS;
-	pthread_mutex_init (&pop3->run_lock, NULL);
+	c2_mutex_init (&pop3->run_lock);
 }
 
 static void
@@ -198,7 +199,7 @@ destroy (GtkObject *object)
 #endif
 	g_free (pop3->user);
 	g_free (pop3->pass);
-	pthread_mutex_destroy (&pop3->run_lock);
+	c2_mutex_destroy (&pop3->run_lock);
 }
 
 /**
@@ -297,7 +298,7 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 	c2_return_val_if_fail (pop3, -1, C2EDATA);
 
 	/* Lock the mutex */
-	pthread_mutex_lock (&pop3->run_lock);
+	c2_mutex_lock (&pop3->run_lock);
 	
 	gtk_object_set_data (GTK_OBJECT (pop3), "account", account);
 
@@ -363,7 +364,7 @@ shutdown:
 
 	/* Unlock the mutex */
 	gtk_object_remove_data (GTK_OBJECT (pop3), "account");
-	pthread_mutex_unlock (&pop3->run_lock);
+	c2_mutex_unlock (&pop3->run_lock);
 
 	return retval;
 }
@@ -447,15 +448,15 @@ login (C2POP3 *pop3)
 			newpass = NULL;
 			if (C2_POP3_CLASS_FW (pop3)->login_failed)
 			{
-				pthread_mutex_t lock;
+				C2Mutex lock;
 				gint cont;
 				
-				pthread_mutex_init (&lock, NULL);
-				pthread_mutex_lock (&lock);
+				c2_mutex_init (&lock);
+				c2_mutex_lock (&lock);
 				cont = C2_POP3_CLASS_FW (pop3)->login_failed (pop3, error, &newuser, &newpass, &lock);
-				pthread_mutex_lock (&lock);
-				pthread_mutex_unlock (&lock);
-				pthread_mutex_destroy (&lock);
+				c2_mutex_lock (&lock);
+				c2_mutex_unlock (&lock);
+				c2_mutex_destroy (&lock);
 				if (cont)
 				{
 					pop3->user = newuser;
