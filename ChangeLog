@@ -1,3 +1,7 @@
+Sat Dec 08 Bosko Blaogjevic <falling@users.sourceforge.net>
+	* Added function c2_mailbox_get_by_id().
+	* Working on ironing out folder managment in the IMAP object.
+
 Thu Dec 06 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed a bug in the composer (attachments).
 	* Work in the mail widget.
