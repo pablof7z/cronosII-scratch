@@ -137,6 +137,8 @@ init (C2NetObject *nobj)
 	nobj->host = NULL;
 	nobj->port = 0;
 	nobj->max = 1;
+	
+	c2_mutex_init(&nobj->lock);
 }
 
 static void
@@ -163,6 +165,7 @@ destroy (GtkObject *object)
 
 	g_list_free (nobj->bytes);
 	g_free (nobj->host);
+	c2_mutex_destroy(&nobj->lock);
 }
 
 C2NetObject *
@@ -235,7 +238,9 @@ c2_net_object_run (C2NetObject *nobj)
 		return NULL;
 	}
 	
+	c2_mutex_lock(&nobj->lock);
 	nobj->bytes = g_list_append (nobj->bytes, (gpointer) byte);
+	c2_mutex_unlock(&nobj->lock);
 	
 	/* Fire "resolve" signal */
 	byte->state = C2_NET_OBJECT_RESOLVE;
@@ -270,6 +275,7 @@ c2_net_object_run (C2NetObject *nobj)
 	 * to send and receive data through this object! :)
 	 * 			Pablo Fernández Navarro.
 	 */
+	
 	return byte;
 }
 

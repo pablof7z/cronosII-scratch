@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include "error.h"
 #include "utils.h"
@@ -42,7 +43,8 @@ gint
 c2_mutex_init (pthread_mutex_t *mutex)
 {
 	gint return_val;
-#ifdef PTHREAD_MUTEX_NORMAL	
+
+#ifdef MUTEX_TYPE_FAST
 	pthread_mutexattr_t attr;
 	
 	pthread_mutexattr_init (&attr);

@@ -27,10 +27,11 @@ extern "C" {
 #ifdef BUILDING_C2
 #	include <config.h>
 #	include "utils-net.h"
+# include "utils.h"
 #else
 #	include <cronosII.h>
 #endif
-
+	
 #define C2_TYPE_NET_OBJECT					c2_net_object_get_type ()
 #define C2_NET_OBJECT(obj)					GTK_CHECK_CAST (obj, C2_TYPE_NET_OBJECT, C2NetObject)
 #define C2_NET_OBJECT_CLASS(klass)			GTK_CHECK_CLASS_CAST (klass, C2_TYPE_NET_OBJECT, C2NetObjectClass)
@@ -90,6 +91,8 @@ struct _C2NetObject
 
 	guint elements;
 	guint max;
+	
+	pthread_mutex_t lock;
 };
 
 struct _C2NetObjectClass
