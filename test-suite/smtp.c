@@ -66,7 +66,7 @@ main (gint argc, gchar **argv)
 	
 	gtk_signal_connect(GTK_OBJECT(smtp), "smtp_update", GTK_SIGNAL_FUNC(on_smtp_update), NULL);
 	
-	msg = g_new0(C2Message, 1);
+	msg = c2_message_new();
 	msg->header = g_strdup("From: testing <testing@cronosii.net>\n"
 													"To: c2-test@ciudad.com.ar\n"
 													"Subject: Testing C2 smtp module!");
