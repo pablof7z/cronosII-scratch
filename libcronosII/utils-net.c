@@ -90,29 +90,24 @@ c2_net_resolve (const gchar *hostname, gchar **ip)
  * 0 if success or -1.
  **/
 gint
-c2_net_connect (const gchar *ip, guint port, guint sock)
+c2_net_connect (const gchar *ip, guint port, gint sock)
 {
 	struct sockaddr_in server;
 	
 	c2_return_val_if_fail (ip, -1, C2EDATA);
-
-	/* Create the socket */
-	if ((*sock = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-	{
-		c2_error_set (-errno);
-		return -1;
-	}
 
 	/* Setup the information */
 	server.sin_family = AF_INET;
 	server.sin_port = htons (port);
 	server.sin_addr.s_addr = inet_addr (ip);
 
-	if (connect (*sock, (struct sockaddr *)&server, sizeof (server)) < 0)
+	if (connect (sock, (struct sockaddr *)&server, sizeof (server)) < 0)
 	{
 		c2_error_set (-errno);
 		return -1;
 	}
+
+	return 0;
 }
 
 /**

@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-28 16:56-0300\n"
+"POT-Creation-Date: 2001-10-03 07:07-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,15 +62,25 @@ msgstr ""
 msgid "Unknown hostname"
 msgstr ""
 
-#: libcronosII/imap.c:204
+#. C2INTERNAL
+#: libcronosII/error.c:30
+msgid "Internal error"
+msgstr ""
+
+#. C2NOBJ
+#: libcronosII/error.c:31
+msgid "Internal error: Net Object has reached its maximal allocated buffer"
+msgstr ""
+
+#: libcronosII/imap.c:252
 msgid "Error connecting to IMAP server."
 msgstr ""
 
-#: libcronosII/imap.c:211
+#: libcronosII/imap.c:259
 msgid "Failed to login to IMAP server."
 msgstr ""
 
-#: libcronosII/imap.c:242
+#: libcronosII/imap.c:289
 #, c-format
 msgid "Error reading from socket on IMAP host %s! Reader thread aborting!\n"
 msgstr ""
@@ -87,60 +97,60 @@ msgstr ""
 msgid "Server does not support APOP"
 msgstr ""
 
-#: libcronosII/smtp.c:313
+#: libcronosII/smtp.c:304
 msgid "SMTP server did not respond to our sent messaage in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:331
+#: libcronosII/smtp.c:322
 msgid "System Error: Unable to write message to disk for local SMTP command"
 msgstr ""
 
-#: libcronosII/smtp.c:340
+#: libcronosII/smtp.c:331
 msgid "Internal C2 Error: Unable to fetch headers in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:364
+#: libcronosII/smtp.c:355
 msgid ""
 "Problem running local SMTP command to send messages -- Check SMTP settings"
 msgstr ""
 
-#: libcronosII/smtp.c:394
+#: libcronosII/smtp.c:385
 msgid "Unable to connect to SMTP server"
 msgstr ""
 
-#: libcronosII/smtp.c:408
+#: libcronosII/smtp.c:399
 msgid "SMTP server was not friendly on our connect! May not be RFC compliant"
 msgstr ""
 
-#: libcronosII/smtp.c:470
+#: libcronosII/smtp.c:461
 msgid "SMTP server did not respond to 'EHLO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:499
+#: libcronosII/smtp.c:490
 msgid "SMTP server did not respond to HELO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:522
+#: libcronosII/smtp.c:513
 msgid "Internal C2 Error: Unable to fetch \"From:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:538
+#: libcronosII/smtp.c:529
 msgid "Internal C2 Error: Unable to fetch \"To:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:551
+#: libcronosII/smtp.c:542
 msgid "SMTP server did not reply to 'MAIL FROM:' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:593
+#: libcronosII/smtp.c:584
 msgid "SMTP server did not reply to 'DATA' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:1062
+#: libcronosII/smtp.c:1052
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
 msgstr ""
 
-#: libcronosII/utils.c:572
+#: libcronosII/utils.c:621
 msgid "Bad syntaxes, quotes aren't closed.\n"
 msgstr ""
 
@@ -459,14 +469,14 @@ msgstr ""
 msgid "Open the main window (default)"
 msgstr ""
 
-#: src/widget-composer.c:168
+#: src/widget-composer.c:190
 msgid "Composer"
 msgstr ""
 
-#: src/widget-composer.c:259
+#: src/widget-composer.c:285
 msgid ""
-"You selected to use an external editor instead of the built-in with Cronos "
-"II.\n"
+"You have choosen to use an external editor instead of the built-in with "
+"Cronos II.\n"
 "\n"
 "Click the button below to run the editor you selected in the Preferences "
 "dialog.\n"
@@ -477,9 +487,13 @@ msgid ""
 "window.\n"
 msgstr ""
 
-#: src/widget-composer.c:349
+#: src/widget-composer.c:474
 #, c-format
 msgid "Run external editor: %s"
+msgstr ""
+
+#: src/widget-composer.c:555
+msgid "unknown"
 msgstr ""
 
 #: src/widget-dialog-preferences.c:396
@@ -509,30 +523,30 @@ msgid "Account Editor"
 msgstr ""
 
 #: src/preferences-trans.h:166 src/widget-dialog-preferences.c:1337
-#: src/widget-dialog-preferences.c:1348 src/widget-dialog-preferences.c:1658
+#: src/widget-dialog-preferences.c:1348 src/widget-dialog-preferences.c:1662
 msgid "Post Office Protocol 3 (POP3)"
 msgstr ""
 
 #: src/preferences-trans.h:167 src/widget-dialog-preferences.c:1337
-#: src/widget-dialog-preferences.c:1357 src/widget-dialog-preferences.c:1660
+#: src/widget-dialog-preferences.c:1357 src/widget-dialog-preferences.c:1664
 msgid "Internet Message Access Protocol 4 (IMAP)"
 msgstr ""
 
 #: src/preferences-trans.h:186 src/widget-dialog-preferences.c:1394
-#: src/widget-dialog-preferences.c:1453 src/widget-dialog-preferences.c:1800
+#: src/widget-dialog-preferences.c:1453 src/widget-dialog-preferences.c:1803
 msgid "SMTP"
 msgstr ""
 
 #: src/preferences-trans.h:187 src/widget-dialog-preferences.c:1459
-#: src/widget-dialog-preferences.c:1804
+#: src/widget-dialog-preferences.c:1807
 msgid "Sendmail"
 msgstr ""
 
-#: src/preferences-trans.h:178 src/widget-dialog-preferences.c:1727
+#: src/preferences-trans.h:178 src/widget-dialog-preferences.c:1730
 msgid "Plain"
 msgstr ""
 
-#: src/preferences-trans.h:179 src/widget-dialog-preferences.c:1731
+#: src/preferences-trans.h:179 src/widget-dialog-preferences.c:1734
 msgid "APOP"
 msgstr ""
 
@@ -562,52 +576,52 @@ msgstr ""
 msgid "Cancel the transfer"
 msgstr ""
 
-#: src/widget-transfer-item.c:305
+#: src/widget-transfer-item.c:306
 msgid "No Inbox mailbox"
 msgstr ""
 
-#: src/widget-transfer-item.c:337
+#: src/widget-transfer-item.c:338
 msgid "Resolving"
 msgstr ""
 
-#: src/widget-transfer-item.c:363
+#: src/widget-transfer-item.c:364
 msgid "Connecting"
 msgstr ""
 
 #. [FIXME]
 #. * Action to login? Loggining?
 #.
-#: src/widget-transfer-item.c:374
+#: src/widget-transfer-item.c:375
 msgid "Loggining"
 msgstr ""
 
-#: src/widget-transfer-item.c:433
+#: src/widget-transfer-item.c:434
 msgid "Login failed"
 msgstr ""
 
-#: src/widget-transfer-item.c:505
+#: src/widget-transfer-item.c:506
 msgid "Getting mail list"
 msgstr ""
 
-#: src/widget-transfer-item.c:523
+#: src/widget-transfer-item.c:524
 #, c-format
 msgid "%u message."
 msgstr ""
 
-#: src/widget-transfer-item.c:525
+#: src/widget-transfer-item.c:526
 #, c-format
 msgid "%u messages."
 msgstr ""
 
-#: src/widget-transfer-item.c:540
+#: src/widget-transfer-item.c:541
 msgid "Receiving %v of %u"
 msgstr ""
 
-#: src/widget-transfer-item.c:559
+#: src/widget-transfer-item.c:560
 msgid "Synchronizing"
 msgstr ""
 
-#: src/widget-transfer-item.c:570
+#: src/widget-transfer-item.c:571
 msgid "Completed"
 msgstr ""
 
@@ -627,39 +641,39 @@ msgstr ""
 msgid "Cancelled."
 msgstr ""
 
-#: src/widget-window-main.c:189
+#: src/widget-window-main.c:192
 msgid ""
 "Cronos II was not able to load the UI, you should check your installation.\n"
 "Aborting.\n"
 msgstr ""
 
-#: src/widget-window-main.c:439
+#: src/widget-window-main.c:485
 #, c-format
 msgid "The mailbox '%s' couldn't be loaded"
 msgstr ""
 
-#: src/widget-window-main.c:463
+#: src/widget-window-main.c:509
 #, c-format
 msgid "%d messages, %d new."
 msgstr ""
 
-#: src/trans.h:192 src/widget-window-main.c:542
+#: src/trans.h:192 src/widget-window-main.c:588
 msgid "You found the Eastern Egg!"
 msgstr ""
 
-#: src/trans.h:193 src/widget-window-main.c:543
+#: src/trans.h:193 src/widget-window-main.c:589
 msgid "Neat, baby!"
 msgstr ""
 
-#: src/widget-window-main.c:579
+#: src/widget-window-main.c:625
 msgid "Unable to open about file"
 msgstr ""
 
-#: src/widget-window-main.c:747
+#: src/widget-window-main.c:764
 msgid "New mailbox"
 msgstr ""
 
-#: src/widget-window-main.c:918
+#: src/widget-window-main.c:941
 msgid "Unable to create mailbox"
 msgstr ""
 
@@ -1395,9 +1409,9 @@ msgid ""
 msgstr ""
 
 #.
-#. * Translatable strings file generated by Glade.
-#. * Add this file to your project's POTFILES.in.
-#. * DO NOT compile it as part of your application.
+#. * Archivo de cadenas traducibles generado por Glade.
+#. * Añada este archivo a su POTFILES.in de su proyecto.
+#. * NO lo compile como parte de su aplicación.
 #.
 #: src/trans.h:7
 msgid "Cronos II"
@@ -1560,11 +1574,11 @@ msgid "Mar_k"
 msgstr ""
 
 #: src/trans.h:47
-msgid "Mark selected message"
+msgid "Mark selected message as important"
 msgstr ""
 
 #: src/trans.h:48
-msgid "_Mark"
+msgid "_Important"
 msgstr ""
 
 #: src/trans.h:49
