@@ -111,6 +111,8 @@ init (C2HTML *obj)
 #if defined (USE_GTKHTML)
 	gtk_signal_connect (GTK_OBJECT (obj), "url_requested",
 							GTK_SIGNAL_FUNC (c2_html_gtkhtml_url_requested), obj);
+	gtk_signal_connect (GTK_OBJECT (obj), "submit",
+							GTK_SIGNAL_FUNC (c2_html_gtkhtml_submit), obj);
 #elif defined (USE_GTKXMHTML)
 	gtk_xmhtml_set_anchor_underline_type (GTK_XMHTML (obj), GTK_ANCHOR_SINGLE_LINE);
 	gtk_xmhtml_set_anchor_buttons (GTK_XMHTML (obj), FALSE);

@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-13 23:49-0300\n"
+"POT-Creation-Date: 2001-09-14 15:47-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -410,7 +410,7 @@ msgstr ""
 msgid "Set the Account field."
 msgstr ""
 
-#: src/main.c:80 src/trans.h:157 src/widget-index.c:244
+#: src/main.c:80 src/trans.h:155 src/widget-index.c:244
 msgid "Account"
 msgstr ""
 
@@ -497,7 +497,7 @@ msgstr ""
 msgid "Advanced"
 msgstr ""
 
-#: src/preferences-trans.h:29 src/trans.h:206
+#: src/preferences-trans.h:29 src/trans.h:204
 #: src/widget-dialog-preferences.c:588
 msgid "Preferences"
 msgstr ""
@@ -599,11 +599,11 @@ msgstr ""
 msgid "%d messages, %d new."
 msgstr ""
 
-#: src/trans.h:207 src/widget-window-main.c:531
+#: src/trans.h:205 src/widget-window-main.c:531
 msgid "You found the Eastern Egg!"
 msgstr ""
 
-#: src/trans.h:208 src/widget-window-main.c:532
+#: src/trans.h:206 src/widget-window-main.c:532
 msgid "Neat, baby!"
 msgstr ""
 
@@ -631,7 +631,7 @@ msgstr ""
 
 #: src/preferences-trans.h:12 src/preferences-trans.h:16
 #: src/preferences-trans.h:20 src/preferences-trans.h:23
-#: src/preferences-trans.h:214 src/trans.h:100 src/trans.h:205 src/trans.h:212
+#: src/preferences-trans.h:214 src/trans.h:98 src/trans.h:203 src/trans.h:210
 msgid "Error"
 msgstr ""
 
@@ -664,11 +664,11 @@ msgid ""
 "Are you sure you want this?"
 msgstr ""
 
-#: src/preferences-trans.h:28 src/preferences-trans.h:142 src/trans.h:148
+#: src/preferences-trans.h:28 src/preferences-trans.h:142 src/trans.h:146
 msgid "Confirmation"
 msgstr ""
 
-#: src/preferences-trans.h:30 src/trans.h:158
+#: src/preferences-trans.h:30 src/trans.h:156
 msgid "Information"
 msgstr ""
 
@@ -740,7 +740,7 @@ msgstr ""
 msgid "General/Options"
 msgstr ""
 
-#: src/preferences-trans.h:48 src/trans.h:133
+#: src/preferences-trans.h:48 src/trans.h:131
 msgid "Name"
 msgstr ""
 
@@ -1163,11 +1163,11 @@ msgstr ""
 msgid "Server information"
 msgstr ""
 
-#: src/preferences-trans.h:170 src/preferences-trans.h:187 src/trans.h:115
+#: src/preferences-trans.h:170 src/preferences-trans.h:187 src/trans.h:113
 msgid "Hostname:"
 msgstr ""
 
-#: src/preferences-trans.h:171 src/preferences-trans.h:188 src/trans.h:112
+#: src/preferences-trans.h:171 src/preferences-trans.h:188 src/trans.h:110
 msgid "Port:"
 msgstr ""
 
@@ -1175,8 +1175,8 @@ msgstr ""
 msgid "Use Secure Server Layer (SSL)."
 msgstr ""
 
-#: src/preferences-trans.h:173 src/preferences-trans.h:189 src/trans.h:116
-#: src/trans.h:170 src/trans.h:214
+#: src/preferences-trans.h:173 src/preferences-trans.h:189 src/trans.h:114
+#: src/trans.h:168 src/trans.h:212
 msgid "Username:"
 msgstr ""
 
@@ -1188,7 +1188,7 @@ msgstr ""
 msgid "Authentication method:"
 msgstr ""
 
-#: src/preferences-trans.h:178 src/preferences-trans.h:195 src/trans.h:216
+#: src/preferences-trans.h:178 src/preferences-trans.h:195 src/trans.h:214
 msgid "Remember password."
 msgstr ""
 
@@ -1211,7 +1211,7 @@ msgstr ""
 msgid "Account Information"
 msgstr ""
 
-#: src/preferences-trans.h:198 src/trans.h:109
+#: src/preferences-trans.h:198 src/trans.h:107
 msgid "Name:"
 msgstr ""
 
@@ -1282,7 +1282,7 @@ msgstr ""
 msgid "_E-Mail"
 msgstr ""
 
-#: src/trans.h:10 src/trans.h:138
+#: src/trans.h:10 src/trans.h:136
 msgid "Create a new mailbox"
 msgstr ""
 
@@ -1311,450 +1311,442 @@ msgid "All Accounts"
 msgstr ""
 
 #: src/trans.h:17
-msgid "Persistent _SMTP"
-msgstr ""
-
-#: src/trans.h:18
-msgid "_Connect"
-msgstr ""
-
-#: src/trans.h:19
-msgid "_Disconnect"
-msgstr ""
-
-#: src/trans.h:20
 msgid "_Send Unsent Mails"
 msgstr ""
 
-#: src/trans.h:21 src/trans.h:92
+#: src/trans.h:18 src/trans.h:90
 msgid "Open the Address Book"
 msgstr ""
 
-#: src/trans.h:22
+#: src/trans.h:19
 msgid "_Address Book"
 msgstr ""
 
-#: src/trans.h:23
+#: src/trans.h:20
 msgid "mmmm, I smell a nice egg coming from the east..."
 msgstr ""
 
-#: src/trans.h:24
+#: src/trans.h:21
 msgid "_From"
 msgstr ""
 
-#: src/trans.h:25
+#: src/trans.h:22
 msgid "_Account"
 msgstr ""
 
-#: src/trans.h:26
+#: src/trans.h:23
 msgid "_To"
 msgstr ""
 
-#: src/trans.h:27
+#: src/trans.h:24
 msgid "_Carbon Copy"
 msgstr ""
 
-#: src/trans.h:28
+#: src/trans.h:25
 msgid "_Blind Carbon Copy"
 msgstr ""
 
-#: src/trans.h:29
+#: src/trans.h:26
 msgid "_Date"
 msgstr ""
 
-#: src/trans.h:30
+#: src/trans.h:27
 msgid "_Subject"
 msgstr ""
 
-#: src/trans.h:31
+#: src/trans.h:28
 msgid "_Priority"
 msgstr ""
 
-#: src/trans.h:32
+#: src/trans.h:29
 msgid "_Mailbox"
 msgstr ""
 
-#: src/trans.h:33
+#: src/trans.h:30
 msgid "_Speed Up"
 msgstr ""
 
-#: src/trans.h:34
+#: src/trans.h:31
 msgid "_Import"
 msgstr ""
 
-#: src/trans.h:35
+#: src/trans.h:32
 msgid "_Export"
 msgstr ""
 
-#: src/trans.h:36
+#: src/trans.h:33
 msgid "Empty _Garbage"
 msgstr ""
 
-#: src/trans.h:37
+#: src/trans.h:34
 msgid "Mess_age"
 msgstr ""
 
-#: src/trans.h:38
+#: src/trans.h:35
 msgid "_Reply"
 msgstr ""
 
-#: src/trans.h:39
+#: src/trans.h:36
 msgid "Reply _all"
 msgstr ""
 
-#: src/trans.h:40 src/trans.h:59
+#: src/trans.h:37 src/trans.h:56
 msgid "_Forward"
 msgstr ""
 
-#: src/trans.h:41
+#: src/trans.h:38
 msgid "Copy selected messages"
 msgstr ""
 
-#: src/trans.h:42
+#: src/trans.h:39
 msgid "_Copy"
 msgstr ""
 
-#: src/trans.h:43
+#: src/trans.h:40
 msgid "Move selected messages"
 msgstr ""
 
-#: src/trans.h:44
+#: src/trans.h:41
 msgid "_Move"
 msgstr ""
 
-#: src/trans.h:45 src/trans.h:78
+#: src/trans.h:42 src/trans.h:76
 msgid "Delete selected messages"
 msgstr ""
 
-#: src/trans.h:46
+#: src/trans.h:43
 msgid "_Delete"
 msgstr ""
 
-#: src/trans.h:47
+#: src/trans.h:44
 msgid "Expunge selected messages"
 msgstr ""
 
-#: src/trans.h:48
+#: src/trans.h:45
 msgid "_Expunge"
 msgstr ""
 
-#: src/trans.h:49
+#: src/trans.h:46
 msgid "Mar_k"
 msgstr ""
 
-#: src/trans.h:50
+#: src/trans.h:47
 msgid "Mark selected message"
 msgstr ""
 
-#: src/trans.h:51
+#: src/trans.h:48
 msgid "_Mark"
 msgstr ""
 
-#: src/trans.h:52
+#: src/trans.h:49
 msgid "Mark selected messages as unreaded"
 msgstr ""
 
-#: src/trans.h:53
+#: src/trans.h:50
 msgid "_Unread"
 msgstr ""
 
-#: src/trans.h:54
+#: src/trans.h:51
 msgid "Mark selected messages as readed"
 msgstr ""
 
-#: src/trans.h:55
+#: src/trans.h:52
 msgid "_Read"
 msgstr ""
 
-#: src/trans.h:56
+#: src/trans.h:53
 msgid "Mark selected messages as replied"
 msgstr ""
 
-#: src/trans.h:57
+#: src/trans.h:54
 msgid "Repl_ied"
 msgstr ""
 
-#: src/trans.h:58
+#: src/trans.h:55
 msgid "Mark selected messages as forwarded"
 msgstr ""
 
-#: src/trans.h:60 src/trans.h:88
+#: src/trans.h:57 src/trans.h:86
 msgid "Select previous message"
 msgstr ""
 
-#: src/trans.h:61
+#: src/trans.h:58
 msgid "_Previous"
 msgstr ""
 
-#: src/trans.h:62 src/trans.h:90
+#: src/trans.h:59 src/trans.h:88
 msgid "Select next message"
 msgstr ""
 
-#: src/trans.h:63
+#: src/trans.h:60
 msgid "_Next"
 msgstr ""
 
-#: src/trans.h:64
+#: src/trans.h:61
 msgid "Try to recover an expunged message"
 msgstr ""
 
-#: src/trans.h:65
+#: src/trans.h:62
 msgid "Reco_very"
 msgstr ""
 
-#: src/trans.h:66
+#: src/trans.h:63
 msgid "_User Manual"
 msgstr ""
 
-#: src/trans.h:67
+#: src/trans.h:64
 msgid "_Quick Tips"
 msgstr ""
 
-#: src/trans.h:68
+#: src/trans.h:65
 msgid "_Getting in Touch"
 msgstr ""
 
-#: src/trans.h:69
+#: src/trans.h:66
+msgid "About _Plugins"
+msgstr ""
+
+#: src/trans.h:67
 msgid "Icon Menu Bar"
 msgstr ""
 
-#: src/trans.h:70
+#: src/trans.h:68
 msgid "Check all accounts for new mail."
 msgstr ""
 
-#: src/trans.h:71
+#: src/trans.h:69
 msgid "Check"
 msgstr ""
 
-#: src/trans.h:72
+#: src/trans.h:70
 msgid "Send unsent messages from the mail queue"
 msgstr ""
 
-#: src/trans.h:73
+#: src/trans.h:71
 msgid "Send"
 msgstr ""
 
-#: src/trans.h:74
+#: src/trans.h:72
 msgid "Save current message to file."
 msgstr ""
 
-#: src/trans.h:75 src/trans.h:130
+#: src/trans.h:73 src/trans.h:128
 msgid "Save"
 msgstr ""
 
-#: src/trans.h:76
+#: src/trans.h:74
 msgid "Print current message"
 msgstr ""
 
-#: src/trans.h:77
+#: src/trans.h:75
 msgid "Print"
 msgstr ""
 
-#: src/trans.h:79
+#: src/trans.h:77
 msgid "Delete"
 msgstr ""
 
-#: src/trans.h:80
+#: src/trans.h:78
 msgid "Compose a new message"
 msgstr ""
 
-#: src/trans.h:81
+#: src/trans.h:79
 msgid "Compose"
 msgstr ""
 
-#: src/trans.h:82
+#: src/trans.h:80
 msgid "Reply to the selected message"
 msgstr ""
 
-#: src/trans.h:83
+#: src/trans.h:81
 msgid "Reply"
 msgstr ""
 
-#: src/trans.h:84
+#: src/trans.h:82
 msgid "Reply to all recipients of the selected message"
 msgstr ""
 
-#: src/trans.h:85
+#: src/trans.h:83
 msgid "Reply All"
 msgstr ""
 
-#: src/trans.h:86
+#: src/trans.h:84
 msgid "Forward selected message"
 msgstr ""
 
-#: src/trans.h:87
+#: src/trans.h:85
 msgid "Forward"
 msgstr ""
 
-#: src/trans.h:89
+#: src/trans.h:87
 msgid "Previous"
 msgstr ""
 
-#: src/trans.h:91
+#: src/trans.h:89
 msgid "Next"
 msgstr ""
 
-#: src/trans.h:93
+#: src/trans.h:91
 msgid "Contacts"
 msgstr ""
 
-#: src/trans.h:94
+#: src/trans.h:92
 msgid "Close Cronos II"
 msgstr ""
 
-#: src/trans.h:95
+#: src/trans.h:93
 msgid "Exit"
 msgstr ""
 
-#: src/trans.h:96
+#: src/trans.h:94
 msgid "View Message Pane"
 msgstr ""
 
-#: src/trans.h:97
+#: src/trans.h:95
 msgid "Show the Message Transfer dialog"
 msgstr ""
 
-#: src/trans.h:98
+#: src/trans.h:96
 msgid ""
 "The mailbox name you\n"
 "entered is invalid."
 msgstr ""
 
-#: src/trans.h:101
+#: src/trans.h:99
 msgid "close this dialog"
 msgstr ""
 
-#: src/trans.h:102
+#: src/trans.h:100
 msgid "Mailbox properties"
 msgstr ""
 
-#: src/trans.h:103
+#: src/trans.h:101
 msgid "finished"
 msgstr ""
 
-#: src/trans.h:104
+#: src/trans.h:102
 msgid "Warning"
 msgstr ""
 
-#: src/trans.h:105
+#: src/trans.h:103
 msgid ""
 "Editing mailbox properties might\n"
 "result in the lost of all mails in it."
 msgstr ""
 
-#: src/trans.h:107
+#: src/trans.h:105
 msgid "Type here the name of the new mailbox"
 msgstr ""
 
-#: src/trans.h:108
+#: src/trans.h:106
 msgid "Type:"
 msgstr ""
 
-#: src/trans.h:110
+#: src/trans.h:108
 msgid "Select the type of access you want for this mailbox"
 msgstr ""
 
-#: src/trans.h:111
+#: src/trans.h:109
 msgid "Extra data"
 msgstr ""
 
-#: src/trans.h:113
+#: src/trans.h:111
 msgid "Type here the port where this mailbox is stored"
 msgstr ""
 
-#: src/trans.h:114
+#: src/trans.h:112
 msgid "Type here the hostname where this mailbox is stored"
 msgstr ""
 
-#: src/trans.h:117 src/trans.h:169 src/trans.h:215
+#: src/trans.h:115 src/trans.h:167 src/trans.h:213
 msgid "Password:"
 msgstr ""
 
-#: src/trans.h:118
+#: src/trans.h:116
 msgid "Path:"
 msgstr ""
 
-#: src/trans.h:119
+#: src/trans.h:117
 msgid "Select file"
 msgstr ""
 
-#: src/trans.h:120
+#: src/trans.h:118
 msgid "C2 Addressbook"
 msgstr ""
 
-#: src/trans.h:121
+#: src/trans.h:119
 msgid "Cronos II Addressbook"
 msgstr ""
 
-#: src/trans.h:122
+#: src/trans.h:120
 msgid "_New File"
 msgstr ""
 
-#: src/trans.h:123
+#: src/trans.h:121
 msgid "Open Addressbook file"
 msgstr ""
 
-#: src/trans.h:124
+#: src/trans.h:122
 msgid "close addressbook"
 msgstr ""
 
-#: src/trans.h:125
+#: src/trans.h:123
 msgid "New File"
 msgstr ""
 
-#: src/trans.h:126
+#: src/trans.h:124
 msgid "New"
 msgstr ""
 
-#: src/trans.h:127
+#: src/trans.h:125
 msgid "Open Address Book File"
 msgstr ""
 
-#: src/trans.h:128
+#: src/trans.h:126
 msgid "Open"
 msgstr ""
 
-#: src/trans.h:129
+#: src/trans.h:127
 msgid "Save Address Book File"
 msgstr ""
 
-#: src/trans.h:131
+#: src/trans.h:129
 msgid "Search:"
 msgstr ""
 
-#: src/trans.h:132
+#: src/trans.h:130
 msgid "Groups:"
 msgstr ""
 
-#: src/trans.h:134
+#: src/trans.h:132
 msgid "E-Mail"
 msgstr ""
 
-#: src/trans.h:135
+#: src/trans.h:133
 msgid "Comments"
 msgstr ""
 
-#: src/trans.h:136
+#: src/trans.h:134
 msgid "Address Book vCard"
 msgstr ""
 
-#: src/trans.h:137
+#: src/trans.h:135
 msgid "close card"
 msgstr ""
 
-#: src/trans.h:139
+#: src/trans.h:137
 msgid "_New Mailbox"
 msgstr ""
 
-#: src/trans.h:140
+#: src/trans.h:138
 msgid "Delete selected mailbox"
 msgstr ""
 
-#: src/trans.h:141
+#: src/trans.h:139
 msgid "_Delete Mailbox"
 msgstr ""
 
-#: src/trans.h:142
+#: src/trans.h:140
 msgid ""
 "Removal of a mailbox will permanently\n"
 "delete all mail stored in it and any\n"
@@ -1764,79 +1756,79 @@ msgid ""
 "this mailbox?"
 msgstr ""
 
-#: src/trans.h:149
+#: src/trans.h:147
 msgid "Remove this Mailbox"
 msgstr ""
 
-#: src/trans.h:150
+#: src/trans.h:148
 msgid "Don't do anything. Close this dialog."
 msgstr ""
 
-#: src/trans.h:151
+#: src/trans.h:149
 msgid "Make a backup copy"
 msgstr ""
 
-#: src/trans.h:152
+#: src/trans.h:150
 msgid "Archive mails (recommended)."
 msgstr ""
 
-#: src/trans.h:153
+#: src/trans.h:151
 msgid "Message Tranfer"
 msgstr ""
 
-#: src/trans.h:154
+#: src/trans.h:152
 msgid "Finished. Close this dialog."
 msgstr ""
 
-#: src/trans.h:155 src/trans.h:168
+#: src/trans.h:153 src/trans.h:166
 msgid "Close"
 msgstr ""
 
-#: src/trans.h:156
+#: src/trans.h:154
 msgid "Task list"
 msgstr ""
 
-#: src/trans.h:159
+#: src/trans.h:157
 msgid "Subtasks"
 msgstr ""
 
-#: src/trans.h:160
+#: src/trans.h:158
 msgid "This bar shows how many subtasks there are for the current task"
 msgstr ""
 
-#: src/trans.h:161
+#: src/trans.h:159
 msgid "%v of %u [%P%%]"
 msgstr ""
 
-#: src/trans.h:162
+#: src/trans.h:160
 msgid "Progress of subtask"
 msgstr ""
 
-#: src/trans.h:163
+#: src/trans.h:161
 msgid "%u bytes [%P%%]"
 msgstr ""
 
-#: src/trans.h:164
+#: src/trans.h:162
 msgid "Close this dialog when task completes."
 msgstr ""
 
-#: src/trans.h:165
+#: src/trans.h:163
 msgid "Automatically close when finished."
 msgstr ""
 
-#: src/trans.h:166
+#: src/trans.h:164
 msgid "Incorrect Password"
 msgstr ""
 
-#: src/trans.h:167
+#: src/trans.h:165
 msgid "Try this new information"
 msgstr ""
 
-#: src/trans.h:171
+#: src/trans.h:169
 msgid "Account:"
 msgstr ""
 
-#: src/trans.h:172
+#: src/trans.h:170
 msgid ""
 "The server has rejected the username/password\n"
 "combination: 'invalid username/password'.\n"
@@ -1845,15 +1837,15 @@ msgid ""
 "in the following fields."
 msgstr ""
 
-#: src/trans.h:177
+#: src/trans.h:175
 msgid "Getting in Touch"
 msgstr ""
 
-#: src/trans.h:178
+#: src/trans.h:176
 msgid "Close this dialog"
 msgstr ""
 
-#: src/trans.h:179
+#: src/trans.h:177
 msgid ""
 "Getting in Touch:\n"
 "\n"
@@ -1883,52 +1875,52 @@ msgid ""
 "_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 and the channel _#_c_r_o_n_o_s_I_I."
 msgstr ""
 
-#: src/trans.h:202
+#: src/trans.h:200
 msgid ""
 "There is no account configured yet.\n"
 "You need to do this before being\n"
 "able to compose mails."
 msgstr ""
 
-#: src/trans.h:209
+#: src/trans.h:207
 msgid ""
 "Not enough data was filled in,\n"
 "complete the missing data\n"
 "and try again."
 msgstr ""
 
-#: src/trans.h:213
+#: src/trans.h:211
 msgid "Login problem"
 msgstr ""
 
-#: src/trans.h:217
+#: src/trans.h:215
 msgid "Show both icons and text in the buttons"
 msgstr ""
 
-#: src/trans.h:218
+#: src/trans.h:216
 msgid "_Both"
 msgstr ""
 
-#: src/trans.h:219
+#: src/trans.h:217
 msgid "Show only the icons in the buttons"
 msgstr ""
 
-#: src/trans.h:220
+#: src/trans.h:218
 msgid "_Icons"
 msgstr ""
 
-#: src/trans.h:221
+#: src/trans.h:219
 msgid "Show just text in the buttons"
 msgstr ""
 
-#: src/trans.h:222
+#: src/trans.h:220
 msgid "_Text"
 msgstr ""
 
-#: src/trans.h:223
+#: src/trans.h:221
 msgid "Show tooltips of buttons"
 msgstr ""
 
-#: src/trans.h:224
+#: src/trans.h:222
 msgid "_Tooltips"
 msgstr ""

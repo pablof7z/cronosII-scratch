@@ -19,6 +19,8 @@
 
 #ifdef USE_GTKHTML
 
+#include <gtkhtml/htmlform.h>
+
 #include "widget-HTML.h"
 #include <libcronosII/request.h>
 #include <libcronosII/net-object.h>
@@ -113,6 +115,24 @@ c2_html_gtkhtml_url_requested (GtkWidget *widget, const gchar *url, GtkHTMLStrea
 
 	}
 	g_free (prefix);
+}
+
+void
+c2_html_gtkhtml_submit (GtkHTML *gtkhtml, const gchar *method, const gchar *url, const gchar *encoding,
+gpointer data)
+{
+	HTMLEngine *engine = gtkhtml->engine;
+	HTMLForm *form;
+
+	if (!g_list_length (engine->formList))
+	{
+		L
+		return;
+	}
+	printf ("%d--\n", g_list_length (engine->formList));
+	form = engine->form;
+	if (!form)
+		L
 }
 
 #endif

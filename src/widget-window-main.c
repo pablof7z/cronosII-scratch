@@ -410,12 +410,12 @@ on_mlist_mailbox_selected_pthread (C2WindowMain *wmain)
 	gchar *buf;
 	
 	gdk_threads_enter ();
-	c2_window_set_activity (C2_WINDOW (wmain), TRUE);
+L	c2_window_set_activity (C2_WINDOW (wmain), TRUE);
 	gdk_threads_leave ();
 	
 	if (!mailbox->db)
 	{
-		if (!c2_mailbox_load_db (mailbox))
+L		if (!c2_mailbox_load_db (mailbox))
 		{
 			/* Something went wrong... */
 			c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,

@@ -1,5 +1,6 @@
 Fri Sep 14 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Some work in the UI with Glade.
+	* Fixed a bug in the DB module (c2_db_length_type).
 
 Tue Sep 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work in the Window Main widget.

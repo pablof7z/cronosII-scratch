@@ -225,9 +225,18 @@ c2_db_length_type (C2Mailbox *mailbox, gint state)
 	c2_return_val_if_fail (mailbox, 0, C2EDATA);
 
 	if (mailbox->db)
-		for (l = mailbox->db; l; c2_db_lineal_next (l))
+	{
+		l = mailbox->db;
+
+		do
+		{
+			printf ("state = %d\n", l->state);
 			if (l->state == state)
+			{
 				i++;
+			}
+		} while (c2_db_lineal_next (l));
+	}
 
 	return i;
 }

@@ -37,6 +37,10 @@ void
 c2_html_gtkhtml_url_requested				(GtkWidget *widget, const gchar *url,
 											 GtkHTMLStream *handle, gpointer data);
 
+void
+c2_html_gtkhtml_submit						(GtkHTML *gtkhtml, const gchar *method,
+											 const gchar *url, const gchar *encoding, gpointer data);
+
 #endif
 
 #ifdef __cplusplus
