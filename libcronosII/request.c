@@ -227,16 +227,13 @@ static void
 c2_request_construct (C2Request *request)
 {
 	gchar *cmnd = g_strconcat (GNOME_DOWNLOAD_PATH " ", request->url, NULL);
-	gchar *buffer;
+	gchar buffer[1024], *ptr;
 	FILE *fd;
 	gint bytes, total_bytes = 0;
 
-	C2_DEBUG (cmnd);
-	
 	/* We will emit a fake signal (connect), is fake because
 	 * we don't even know if it will be able to connect and
-	 * even if it does connect, an exchange signal won't
-	 * be emitted caus we don't know when to emit it.
+	 * even if it does connect.
 	 * This should change when gnome-download stops being
 	 * used.
 	 */
@@ -259,25 +256,39 @@ c2_request_construct (C2Request *request)
 	 * but save to a file, so we use don't eat all the memory
 	 * when downloading linux 2.4.
 	 */
-	while ((buffer = c2_fd_get_line (fd)))
+	while ((bytes = fread (buffer, sizeof (gchar), sizeof (buffer), fd)))
 	{
+		gtk_signal_emit_by_name (GTK_OBJECT (request), "exchange", bytes);
+		
+		buffer[bytes] = 0;
 		/* If this is the first line and starts with Content-Type, fuck it and the next one too */
 		if (!total_bytes)
 		{
 			if (c2_strneq (buffer, "Content-Type:", 13))
 			{
-				g_free (buffer);
-				g_free (c2_fd_get_line (fd));
-				continue;
-			}
-		}
+				/* Ignore this line and the next one */
+				for (ptr = buffer; *ptr != '\0' && *ptr != '\n'; ptr++);
+				ptr+=2;
+			} else
+				ptr = buffer;
+		} else
+			ptr = buffer;
 
-		bytes = strlen (buffer);
-		
+		bytes = strlen (ptr);
+
+		/* This f*cking sh*t is still giving problems downloading
+		 * the f*cking images through the motherf*cker http, the only
+		 * code we share with the other s*cking implementation is
+		 * the code that follows, so I guess this is the damn sh*t that's
+		 * giving problems, somehow, but I'm sick of this sh*t, should
+		 * get back later with it (or other could do it, I don't want
+		 * to see any http crap any more! (sh*t, I'm really pissed!)
+		 */
 		request->source = g_realloc (request->source, total_bytes+bytes);
-		memcpy (request->source + total_bytes, buffer, bytes);
+		memcpy (request->source + total_bytes, ptr, bytes);
 		total_bytes += bytes;
 	}
+	request->source[total_bytes] = 0;
 	
 	pclose (fd);
 
