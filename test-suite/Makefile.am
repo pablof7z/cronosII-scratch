@@ -46,3 +46,7 @@ smtp_LDFLAGS = $(LDFLAGS)
 utils_SOURCES = utils.c
 utils_LDADD = $(LDADD)
 utils_LDFLAGS = $(LDFLAGS)
+
+imap_SOURCES = imap.c
+imap_LDADD = $(LDADD)
+imap_LDFLAGS = $(LDFLAGS)
