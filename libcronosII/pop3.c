@@ -302,6 +302,7 @@ status (C2Pop3 *pop3)
 static gint
 retrieve (C2Pop3 *pop3, gint mails)
 {
+	C2Message *message;
 	gchar *string;
 	gint i, len;
 	gint32 length, total_length = 0;
@@ -333,9 +334,6 @@ L			/* TODO */
 		}
 
 		sscanf (string, "+OK %d octets\r\n", &total_length);
-
-		C2_DEBUG (string);
-		printf ("%d: %d\n", __LINE__, total_length);
 
 		gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], i, 0, total_length);
 
@@ -371,6 +369,13 @@ L			/* TODO */
 		}
 
 		fclose (fd);
+
+		/* Load the mail */
+		if (message = c2_db_message_get_from_file (tmp))
+		{
+
+		}
+		
 		g_free (tmp);
 	}
 

@@ -22,6 +22,8 @@ gchar *s = N_("Check for mail every");
 gchar *s = N_("minutes.");
 gchar *s = N_("Wait");
 gchar *s = N_("seconds before marking a mail as readed.");
+gchar *s = N_("Wrap outgoing text at");
+gchar *s = N_("characters.");
 gchar *s = N_("Prepend");
 gchar *s = N_("> \n"
               "::> \n"
