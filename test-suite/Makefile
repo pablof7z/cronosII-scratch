@@ -127,6 +127,7 @@ VERSION = 0.0.1
 XPM_LIBS = -lXpm
 ZVT_LIBS = -rdynamic -lzvt -lutil -lSM -lICE -lgtk -lgdk -lgmodule -lglib -ldl -lXext -lX11 -lm
 cronosIIpath = /usr/bin/cronosII-config
+gnomedownload = /usr/bin/gnome-download
 l = 
 
 bin_PROGRAMS = db mailbox date request

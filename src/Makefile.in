@@ -127,6 +127,7 @@ VERSION = @VERSION@
 XPM_LIBS = @XPM_LIBS@
 ZVT_LIBS = @ZVT_LIBS@
 cronosIIpath = @cronosIIpath@
+gnomedownload = @gnomedownload@
 l = @l@
 
 DEFS = @DEFS@ -DLOCALEDIR=\"${localedir}\"
@@ -135,7 +136,7 @@ INCLUDES = -DBUILDING_C2 -I$(top_srcdir) -I$(includedir) 	`gnome-config --cflags
 
 bin_PROGRAMS = cronos
 
-cronos_SOURCES =  	c2-app.c					c2-app.h						c2-main-window.c			c2-main-window.h				install-wizard.c											main-window.c				main-window.h					main.c														preferences.c												widget-index.c				widget-index.h					widget-html.c				widget-html.h					widget-mail.c				widget-mail.h					widget-part.c				widget-part.h					widget-xtext.c				widget-xtext.h
+cronos_SOURCES =  	c2-app.c					c2-app.h						c2-main-window.c			c2-main-window.h				install-wizard.c											main-window.c				main-window.h					main.c														preferences.c												widget-index.c				widget-index.h					widget-html.c				widget-html.h					widget-mail.c				widget-mail.h					widget-message-transfer.c	widget-message-transfer.h		widget-part.c				widget-part.h					widget-xtext.c				widget-xtext.h
 
 
 cronos_LDADD =  	$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
@@ -155,7 +156,7 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 cronos_OBJECTS =  c2-app.o c2-main-window.o install-wizard.o \
 main-window.o main.o preferences.o widget-index.o widget-html.o \
-widget-mail.o widget-part.o widget-xtext.o
+widget-mail.o widget-message-transfer.o widget-part.o widget-xtext.o
 cronos_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -171,7 +172,8 @@ GZIP_ENV = --best
 DEP_FILES =  .deps/c2-app.P .deps/c2-main-window.P \
 .deps/install-wizard.P .deps/main-window.P .deps/main.P \
 .deps/preferences.P .deps/widget-html.P .deps/widget-index.P \
-.deps/widget-mail.P .deps/widget-part.P .deps/widget-xtext.P
+.deps/widget-mail.P .deps/widget-message-transfer.P .deps/widget-part.P \
+.deps/widget-xtext.P
 SOURCES = $(cronos_SOURCES)
 OBJECTS = $(cronos_OBJECTS)
 

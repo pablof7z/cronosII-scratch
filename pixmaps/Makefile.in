@@ -127,6 +127,7 @@ VERSION = @VERSION@
 XPM_LIBS = @XPM_LIBS@
 ZVT_LIBS = @ZVT_LIBS@
 cronosIIpath = @cronosIIpath@
+gnomedownload = @gnomedownload@
 l = @l@
 
 pixmapdir = $(datadir)/pixmaps

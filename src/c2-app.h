@@ -33,7 +33,7 @@ extern "C" {
 #include <gnome.h>
 
 #ifdef BUILDING_C2
-#	define C2_APP_GLADE_FILE(x)					(PKGDATADIR "/" x ".glade")
+#	define C2_APP_GLADE_FILE(x)					(PKGDATADIR G_DIR_SEPARATOR_S x ".glade")
 #endif
 
 #define MAILBOX_INBOX		_("Inbox"	)
@@ -128,14 +128,14 @@ typedef enum
 
 typedef enum
 {
-	C2_SHOWABLE_HEADER_FIELD_TO			= 1 << 0,
-	C2_SHOWABLE_HEADER_FIELD_DATE		= 1 << 1,
-	C2_SHOWABLE_HEADER_FIELD_FROM		= 1 << 2,
-	C2_SHOWABLE_HEADER_FIELD_SUBJECT	= 1 << 3,
-	C2_SHOWABLE_HEADER_FIELD_ACCOUNT	= 1 << 4,
-	C2_SHOWABLE_HEADER_FIELD_CC			= 1 << 5,
-	C2_SHOWABLE_HEADER_FIELD_BCC		= 1 << 6,
-	C2_SHOWABLE_HEADER_FIELD_PRIORITY	= 1 << 7
+	C2_SHOWABLE_HEADER_FIELD_TO			= 1 << 1,
+	C2_SHOWABLE_HEADER_FIELD_DATE		= 1 << 2,
+	C2_SHOWABLE_HEADER_FIELD_FROM		= 1 << 3,
+	C2_SHOWABLE_HEADER_FIELD_SUBJECT	= 1 << 4,
+	C2_SHOWABLE_HEADER_FIELD_ACCOUNT	= 1 << 5,
+	C2_SHOWABLE_HEADER_FIELD_CC			= 1 << 6,
+	C2_SHOWABLE_HEADER_FIELD_BCC		= 1 << 7,
+	C2_SHOWABLE_HEADER_FIELD_PRIORITY	= 1 << 8
 } C2ShowableHeaderField;
 
 enum
@@ -168,6 +168,8 @@ typedef struct
 struct C2Application
 {
 	GtkTooltips *tooltips;
+
+	guint check_timeout;
 	GList *open_windows;
 	GList *tmp_files;
 

@@ -2387,6 +2387,20 @@ Are you sure you want to delete it?</message>
 	<stock_button>GNOME_STOCK_BUTTON_NO</stock_button>
       </widget>
     </widget>
+
+    <widget>
+      <class>GtkCheckButton</class>
+      <name>archive</name>
+      <can_focus>True</can_focus>
+      <label>Archive mails (recommended).</label>
+      <active>True</active>
+      <draw_indicator>True</draw_indicator>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>False</fill>
+      </child>
+    </widget>
   </widget>
 </widget>
 
@@ -2840,13 +2854,11 @@ Are you sure you want to delete it?</message>
 
 <widget>
   <class>GnomeDialog</class>
-  <name>dlg_msg_transfer</name>
+  <name>dlg_message_transfer</name>
   <title>Message Tranfer</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_CENTER</position>
   <modal>False</modal>
-  <default_width>400</default_width>
-  <default_height>360</default_height>
   <allow_shrink>True</allow_shrink>
   <allow_grow>True</allow_grow>
   <auto_shrink>True</auto_shrink>
@@ -2903,7 +2915,8 @@ Are you sure you want to delete it?</message>
 
     <widget>
       <class>GtkVBox</class>
-      <name>vbox12</name>
+      <name>dlg_message_transfer_box</name>
+      <width>367</width>
       <homogeneous>False</homogeneous>
       <spacing>3</spacing>
       <child>
@@ -3059,7 +3072,7 @@ Are you sure you want to delete it?</message>
 
 	  <widget>
 	    <class>GtkCList</class>
-	    <name></name>
+	    <name>task_clist</name>
 	    <can_focus>True</can_focus>
 	    <columns>4</columns>
 	    <column_widths>23,52,88,80</column_widths>

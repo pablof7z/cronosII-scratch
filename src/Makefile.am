@@ -16,6 +16,7 @@ cronos_SOURCES = \
 	widget-index.c				widget-index.h				\
 	widget-html.c				widget-html.h				\
 	widget-mail.c				widget-mail.h				\
+	widget-message-transfer.c	widget-message-transfer.h	\
 	widget-part.c				widget-part.h				\
 	widget-xtext.c				widget-xtext.h
 	
