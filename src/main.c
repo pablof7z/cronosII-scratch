@@ -251,7 +251,8 @@ main (gint argc, gchar **argv)
 
 	gdk_threads_enter ();
 
-	c2_font_bold = "-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1";
+	c2_font_bold	= "-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1";
+	c2_font_italic	= "-adobe-helvetica-medium-o-normal-*-*-120-*-*-p-*-iso8859-1";
 
 	/* Get the Version of the Application */
 	version = c2_preferences_get_application_version ();

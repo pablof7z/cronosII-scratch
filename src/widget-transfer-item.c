@@ -26,6 +26,7 @@
 #include <libcronosII/pop3.h>
 #include <libcronosII/error.h>
 
+#include "main.h"
 #include "preferences.h"
 #include "widget-transfer-item.h"
 #include "widget-transfer-list.h"
@@ -82,7 +83,7 @@ static void
 on_pop3_synchronize							(GtkObject *object, gint nth, gint mails, C2TransferItem *ti);
 
 static void
-on_pop3_disconnect							(GtkObject *object, gboolean success, C2NetObjectByte *byte,
+on_pop3_disconnect							(GtkObject *object, C2NetObjectByte *byte, gboolean success,
 											 C2TransferItem *ti);
 
 static void
@@ -168,6 +169,11 @@ init (C2TransferItem *ti)
 {
 	ti->state = 0;
 	ti->tooltip = NULL;
+	ti->popup = NULL;
+	ti->popup_label = NULL;
+	ti->popup_progress = NULL;
+	ti->popup_label_content = NULL;
+	ti->mouse_is_in_popup = 0;
 	ti->account = NULL;
 	ti->application = NULL;
 	ti->finished = 0;
@@ -255,7 +261,7 @@ C2TransferItemType type, va_list args)
 		if (ti->type_info.send.db->message)
 			subject = c2_message_get_header_field (ti->type_info.send.db->message, "Subject:");
 		else
-			subject = NULL;
+			subject = g_strdup ("");
 		buffer = g_strdup_printf (_("Send «%s»"), subject);
 		g_free (subject);
 	}
@@ -307,27 +313,180 @@ C2TransferItemType type, va_list args)
 }
 
 static void
-on_popup_motion_notify_event (GtkWidget *popup, GdkEventMotion *e, C2TransferItem *ti)
+popup_set_label (C2TransferItem *ti, const gchar *label)
 {
-	printf ("%fx%f\n", e->x, e->y);
-	gtk_window_reposition (GTK_WINDOW (popup), e->x, e->y);
+	gchar *buf;
+
+	buf = c2_str_wrap (label, 45);
+	label = buf;
+
+	ti->popup_label_content = label;
+
+	if (GTK_IS_LABEL (ti->popup_label))
+		gtk_label_set_text (GTK_LABEL (ti->popup_label), label);
+}
+
+static void
+on_popup_enter_notify_event (GtkWidget *popup, GdkEventCrossing *e, C2TransferItem *ti)
+{
+	ti->mouse_is_in_popup = 1;
+}
+
+static void
+on_popup_leave_notify_event (GtkWidget *popup, GdkEventCrossing *e, C2TransferItem *ti)
+{
+	ti->mouse_is_in_popup = 0;
 }
 
 static void
 on_enter_notify_event (GtkWidget *table, GdkEventCrossing *e, C2TransferItem *ti)
 {
+	GtkWidget *viewport;
+	GtkWidget *table;
+	GtkWidget *pixmap;
+	GtkWidget *label;
+	GtkWidget *tl;
+	GtkWidget *event;
+	gint x, y;
+	gint mx, my;
+	gchar *buffer, *subject;
+	GtkStyle *style;
+	gfloat min, max, val;
+
+	/* Check if we already have the popup */
+	if (GTK_IS_WINDOW (ti->popup) && ti->popup->window)
+		return;
+
 	ti->popup = gtk_window_new (GTK_WINDOW_POPUP);
 	gtk_widget_set_events (ti->popup, GDK_POINTER_MOTION_MASK);
 	gtk_widget_set_extension_events (ti->popup, GDK_EXTENSION_EVENTS_CURSOR);
-	gtk_signal_connect (GTK_OBJECT (ti->popup), "motion_notify_event",
-						GTK_SIGNAL_FUNC (on_popup_motion_notify_event), ti);
-	gtk_widget_popup (ti->popup, e->x, e->y);
+	gtk_signal_connect (GTK_OBJECT (ti->popup), "enter_notify_event",
+							GTK_SIGNAL_FUNC (on_popup_enter_notify_event), ti);
+	gtk_signal_connect (GTK_OBJECT (ti->popup), "leave_notify_event",
+							GTK_SIGNAL_FUNC (on_popup_leave_notify_event), ti);
+	style = gtk_style_copy (gtk_widget_get_style (ti->popup));
+	style->bg[GTK_STATE_NORMAL] = style->black;
+	gtk_widget_set_style (ti->popup, style);
+	gtk_container_set_border_width (GTK_CONTAINER (ti->popup), 1);
+
+	event = gtk_event_box_new ();
+	gtk_container_add (GTK_CONTAINER (ti->popup), event);
+	gtk_widget_show (event);
+
+	viewport = gtk_frame_new (NULL);
+	gtk_container_add (GTK_CONTAINER (event), viewport);
+	gtk_widget_show (viewport);
+	gtk_frame_set_shadow_type (GTK_FRAME (viewport), GTK_SHADOW_ETCHED_OUT);
+
+	table = gtk_table_new (2, 3, FALSE);
+	gtk_container_add (GTK_CONTAINER (viewport), table);
+	gtk_widget_show (table);
+	gtk_container_set_border_width (GTK_CONTAINER (table), 3);
+
+	/* Create the first line */
+	if (ti->type == C2_TRANSFER_ITEM_RECEIVE)
+	{
+		pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/receive.png");
+		buffer = g_strdup_printf (_("Receive mails for account %s"), ti->account->name);
+	} else
+	{
+		pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/send.png");
+
+		if (ti->type_info.send.db->message)
+		{
+			subject = c2_message_get_header_field (ti->type_info.send.db->message, "Subject:");
+			buffer = g_strdup_printf (_("Send mail \"%s\" with account %s"), subject, ti->account->name);
+		} else
+		{
+			subject = g_strdup ("");
+			buffer = g_strdup_printf (_("Send mail with account %s"), ti->account->name);
+		}
+		
+		g_free (subject);
+	}
+
+	gtk_table_attach_defaults (GTK_TABLE (table), pixmap, 0, 1, 0, 1);
+	gtk_widget_show (pixmap);
+
+	label = gtk_label_new (buffer);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 1, 2, 0, 1);
+	gtk_widget_show (label);
+	style = gtk_style_copy (gtk_widget_get_style (label));
+	style->font = gdk_font_load (c2_font_bold);
+	gtk_widget_set_style (label, style);
+
+	/* Create the progress bar */
+	ti->popup_progress = gtk_progress_bar_new ();
+	gtk_table_attach_defaults (GTK_TABLE (table), ti->popup_progress, 0, 2, 1, 2);
+	gtk_widget_show (ti->popup_progress);
+	gtk_progress_set_show_text (GTK_PROGRESS (ti->popup_progress), TRUE);
+	
+	buffer = gtk_progress_get_current_text (GTK_PROGRESS (ti->progress_mail));
+	gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), buffer);
+	g_free (buffer);
+
+	min = GTK_PROGRESS (ti->progress_mail)->adjustment->lower;
+	max = GTK_PROGRESS (ti->progress_mail)->adjustment->upper;
+	val = GTK_PROGRESS (ti->progress_mail)->adjustment->value;
+	gtk_progress_configure (GTK_PROGRESS (ti->popup_progress), val, min, max);
+
+	/* Create the label */
+	event = gtk_event_box_new ();
+	gtk_table_attach_defaults (GTK_TABLE (table), event, 0, 2, 2, 3);
+	gtk_widget_show (event);
+	style = gtk_style_copy (gtk_widget_get_style (event));
+	style->bg[GTK_STATE_NORMAL] = style->black;
+	gtk_widget_set_style (event, style);
+	gtk_container_set_border_width (GTK_CONTAINER (event), 2);
+	
+	label = gtk_event_box_new ();
+	gtk_container_add (GTK_CONTAINER (event), label);
+	event = label;
+	gtk_widget_show (event);
+	style = gtk_style_copy (gtk_widget_get_style (event));
+	style->bg[GTK_STATE_NORMAL] = style->white;
+	gtk_widget_set_style (event, style);
+	gtk_container_set_border_width (GTK_CONTAINER (event), 1);
+
+	ti->popup_label = gtk_label_new (ti->popup_label_content ? ti->popup_label_content : "");
+	gtk_container_add (GTK_CONTAINER (event), ti->popup_label);
+	gtk_widget_show (ti->popup_label);
+	style = gtk_style_copy (gtk_widget_get_style (ti->popup_label));
+	style->font = gdk_font_load (c2_font_italic);
+	gtk_widget_set_style (ti->popup_label, style);
+	
+	tl = GTK_WIDGET (gtk_object_get_data (GTK_OBJECT (ti), "transfer list"));
+	gdk_window_get_position (tl->window, &x, &y);
+	gtk_widget_get_pointer (tl, &mx, &my);
+	gtk_widget_realize (ti->popup);
+
+	if (x-ti->popup->allocation.width+5 < 0)
+		x = ti->popup->allocation.width-5;
+	gtk_widget_popup (ti->popup, x-ti->popup->allocation.width+5, y+my);
+}
+
+static gint
+on_leave_notify_event_timeout (C2TransferItem *ti)
+{
+	if (ti->mouse_is_in_popup)
+	{
+		gtk_timeout_add (500, on_leave_notify_event_timeout, ti);
+		return FALSE;
+	}
+
+	gtk_widget_destroy (ti->popup);
+	ti->popup = NULL;
+
+	return FALSE;
 }
 
 static void
 on_leave_notify_event (GtkWidget *table, GdkEventCrossing *e, C2TransferItem *ti)
 {
-	gtk_widget_destroy (ti->popup);
+	/* We have to give some time so the enter_notify_event of the popup
+	 * might be emitted if needed.
+	 */
+	gtk_timeout_add (10, on_leave_notify_event_timeout, ti);
 }
 
 static void
@@ -338,14 +497,21 @@ on_cancel_clicked (GtkWidget *button, C2TransferItem *ti)
 	ti->finished = 1;
 	gtk_signal_emit (GTK_OBJECT (ti), signals[CANCEL], account);
 
-	/* [XXX] This won't be here, I'm testing */
-	
-	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
-
-#if 0
 	if (account->type == C2_ACCOUNT_POP3)
-		c2_pop3_cancel (account->protocol.pop3);
-#endif
+	{
+		C2POP3 *pop3;
+
+		pop3 = C2_POP3 (c2_account_get_extra_data (account, C2_ACCOUNT_KEY_INCOMING, NULL));
+		c2_pop3_cancel (pop3);
+	}
+
+	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Cancelling"));
+	if (GTK_IS_PROGRESS (ti->popup_progress))
+	{
+		gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("Cancelling"));
+	}
+
+	popup_set_label (ti, _("The action is being cancelled by your petission, hold on..."));
 }
 
 static void
@@ -441,6 +607,16 @@ c2_transfer_item_start (C2TransferItem *ti)
 					gtk_progress_set_show_text (GTK_PROGRESS (ti->progress_mail), TRUE);
 					gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail),
 									_("No Inbox mailbox"));
+					if (GTK_IS_PROGRESS (ti->popup_progress))
+					{
+						gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("No Inbox mailbox"));
+					}
+					popup_set_label (ti, _("There is no mailbox marked to be use as Inbox, thus "
+											   "there is no place where to save mails downloaded.\n"
+											   "The action will be cancelled now.\n"
+											   "Before checking again make sure you mark mailbox as Inbox.\n"
+											   "\n"
+											   "For more information read the Cronos II User Manual."));
 					on_pop3_disconnect (NULL, FALSE, NULL, ti);
 					return;
 				}
@@ -473,6 +649,12 @@ c2_transfer_item_start (C2TransferItem *ti)
 
 			gtk_progress_set_show_text (GTK_PROGRESS (ti->progress_mail), TRUE);
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Resolving"));
+			if (GTK_IS_PROGRESS (ti->popup_progress))
+			{
+				gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("Resolving"));
+			}
+			popup_set_label (ti, _("Cronos II is looking up for the server that this account "
+									   "is associated to."));
 
 			data = g_new0 (C2Pthread3, 1);
 			data->v1 = (gpointer) pop3;
@@ -504,6 +686,12 @@ c2_transfer_item_start (C2TransferItem *ti)
 
 		gtk_progress_set_show_text (GTK_PROGRESS (ti->progress_mail), TRUE);
 		gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Resolving"));
+		if (GTK_IS_PROGRESS (ti->popup_progress))
+		{
+			gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("Resolving"));
+		}
+		popup_set_label (ti, _("Cronos II is looking up for the server that this account "
+									   "is associated to."));
 		
 		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_transfer_item_start_smtp_thread), ti);
 	} else
@@ -515,6 +703,12 @@ on_pop3_resolve (GtkObject *object, C2NetObjectByte *byte, C2TransferItem *ti)
 {
 	gdk_threads_enter ();
 	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Connecting"));
+	if (GTK_IS_PROGRESS (ti->popup_progress))
+	{
+		gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("Connecting"));
+	}
+	popup_set_label (ti, _("Cronos II is trying to connect to the server in order to initialize "
+							   "the transaction of e-mails."));
 	gdk_threads_leave ();
 }
 
@@ -526,6 +720,11 @@ on_pop3_login (GtkObject *object, C2TransferItem *ti)
 	 * Action to login? Loggining?
 	 */
 	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Loggining"));
+	if (GTK_IS_PROGRESS (ti->popup_progress))
+	{
+		gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("Loggining"));
+	}
+	popup_set_label (ti, _("Cronos II is logging into your account in the server."));
 	gdk_threads_leave ();
 }
 
@@ -653,30 +852,61 @@ on_pop3_uidl (GtkObject *object, gint nth, gint mails, C2TransferItem *ti)
 	{
 		gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
 		gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Getting mail list"));
+		if (GTK_IS_PROGRESS (ti->popup_progress))
+		{
+			gtk_progress_configure (GTK_PROGRESS (ti->popup_progress), 0, 0, mails);
+			gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("Getting mail list"));
+		}
+		popup_set_label (ti, _("Cronos II is retrieving a list of e-mails from the server "
+								   "to learn the mails that should be downloaded from it."));
 	}
 
 	gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), nth);
+	if (GTK_IS_PROGRESS (ti->popup_progress))
+		gtk_progress_set_value (GTK_PROGRESS (ti->popup_progress), nth);
 	gdk_threads_leave ();
 }
 
 static void
 on_pop3_status (GtkObject *object, gint mails, C2TransferItem *ti)
 {
+	gchar *buf, *buf2;
+
 	gdk_threads_enter ();
 	gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
+	if (GTK_IS_PROGRESS (ti->popup_progress))
+		gtk_progress_configure (GTK_PROGRESS (ti->popup_progress), 0, 0, mails);
 	
 	ti->type_info.receive.mails_r = mails;
 
 	if (!mails)
+	{
 		gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
-	else
+		if (GTK_IS_PROGRESS (ti->popup_progress))
+			gtk_progress_set_percentage (GTK_PROGRESS (ti->popup_progress), 1.0);
+	} else
 	{
 		if (mails == 1)
+		{
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("%u message."));
-		else
+			if (GTK_IS_PROGRESS (ti->popup_progress))
+				gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("%u message."));
+			popup_set_label (ti, _("There is one new message to download."));
+		} else
+		{
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("%u messages."));
+			if (GTK_IS_PROGRESS (ti->popup_progress))
+				gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("%u messages."));
+			
+			buf = c2_application_str_number_to_string (mails);
+			buf2 = g_strdup_printf (("There are %s new messages to download."), buf);
+			popup_set_label (ti, buf2);
+			g_free (buf);
+		}
 	
 		gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
+		if (GTK_IS_PROGRESS (ti->popup_progress))
+			gtk_progress_configure (GTK_PROGRESS (ti->popup_progress), 0, 0, mails);
 	}
 	gdk_threads_leave ();
 }
@@ -684,20 +914,40 @@ on_pop3_status (GtkObject *object, gint mails, C2TransferItem *ti)
 static void
 on_pop3_retrieve (GtkObject *object, gint16 nth, gint32 received, gint32 total, C2TransferItem *ti)
 {
+	gchar *buf;
+
 	gdk_threads_enter ();
 	
 	if (!received)
 	{
 		if (nth == 1)
+		{
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Receiving %v of %u"));
+			if (GTK_IS_PROGRESS (ti->popup_progress))
+				gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("Receiving %v of %u"));
+		}
 		gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), nth);
+		if (GTK_IS_PROGRESS (ti->popup_progress))
+			gtk_progress_set_value (GTK_PROGRESS (ti->popup_progress), nth);
 		
 		gtk_widget_show (ti->progress_byte);
 		gtk_progress_configure (GTK_PROGRESS (ti->progress_byte), 0, 0, total);
+		buf = g_strdup_printf (_("The message %d is being downloaded"), nth);
+		popup_set_label (ti, buf);
+		g_free (buf);
 	} else if (total)
+	{
 		gtk_progress_set_value (GTK_PROGRESS (ti->progress_byte), received);
-	else
+		buf = g_strdup_printf (_("The message %d is being downloaded (%.2f%%"), nth, (received*100)/total);
+		popup_set_label (ti, buf);
+		g_free (buf);
+	} else
+	{
 		gtk_widget_hide (ti->progress_byte);
+		buf = g_strdup_printf (_("The message %d is been downloaded."), nth);
+		popup_set_label (ti, buf);
+		g_free (buf);
+	}
 	gdk_threads_leave ();
 }
 
@@ -709,18 +959,31 @@ on_pop3_synchronize (GtkObject *object, gint nth, gint mails, C2TransferItem *ti
 	{
 		gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
 		gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Synchronizing"));
+
+		if (GTK_IS_PROGRESS (ti->popup_progress))
+		{
+			gtk_progress_configure (GTK_PROGRESS (ti->popup_progress), 0, 0, mails);
+			gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("Synchronizing"));
+		}
+
+		popup_set_label (ti, _("Cronos II is synchronizing the local information with the server information."));
 	}
 
 	gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), nth);
+
+	if (GTK_IS_PROGRESS (ti->popup_progress))
+		gtk_progress_set_value (GTK_PROGRESS (ti->popup_progress), nth);
+	
 	gdk_threads_leave ();
 }
 
 static void
-on_pop3_disconnect (GtkObject *object, gboolean success, C2NetObjectByte *byte, C2TransferItem *ti)
+on_pop3_disconnect (GtkObject *object, C2NetObjectByte *byte, gboolean success, C2TransferItem *ti)
 {
 	C2Account *account = ti->account;
 	C2POP3 *pop3 = C2_POP3 (c2_account_get_extra_data (account, C2_ACCOUNT_KEY_INCOMING, NULL));
 	gchar *str = NULL;
+	gchar *estr = NULL;
 	
 	gdk_threads_enter ();
 	if (success)
@@ -728,20 +991,51 @@ on_pop3_disconnect (GtkObject *object, gboolean success, C2NetObjectByte *byte, 
 		/* In mail%s the %s is an s in case of plural (translators can change it). There is
 		 * one more %s in case some language (like Spanish) need it. */
 		if (ti->type_info.receive.mails_r)
+		{
 			str = g_strdup_printf (_("Received %d new mail%s"), ti->type_info.receive.mails_r,
 					(ti->type_info.receive.mails_r>1)?_("s"):"", (ti->type_info.receive.mails_r>1)?_("s"):"");
-		else
+			estr = g_strdup_printf (_("%d new mail%s have been downloaded from this account."),
+									ti->type_info.receive.mails_r,
+					(ti->type_info.receive.mails_r>1)?_("s"):"", (ti->type_info.receive.mails_r>1)?_("s"):"");
+		
+		} else
+		{
 			str = g_strdup_printf (_("No new mails available"), ti->type_info.receive.mails_r,
 					(ti->type_info.receive.mails_r>1)?_("s"):"");
+			estr = g_strdup_printf (_("There are no new mails in this account.\n"
+									  "\n"
+									  "This means that you didn't received any new mail "
+									  "since the last time you've checked."));
+		}
 	} else
 	{
 		if (c2_error_object_get_id (object))
+		{
 			str = g_strdup_printf (_("Failure: %s"), c2_error_object_get (object));
-		else
+			estr = g_strdup_printf (_("The retrieve of new mails has failed due to the following reason:\n%s"),
+									c2_error_object_get (object));
+		} else if (pop3->canceled)
+		{
+			str = g_strdup_printf (_("Failure: %s"), error_list[C2_CANCEL_USER]);
+			estr = g_strdup_printf (_("The retrieve didn't complete because you cancelled it."));
+		} else
+		{
 			str = g_strdup (_("Failure"));
+			estr = g_strdup_printf (_("An unknown fail has occurred. Try again. If this problem persist "
+									  "get in touch with the Cronos II Hackers Team."));
+		}
 	}
 	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), str);
 	gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
+	
+	if (GTK_IS_PROGRESS (ti->popup_progress))
+	{
+		gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), str);
+		gtk_progress_set_percentage (GTK_PROGRESS (ti->popup_progress), 1.0);
+	}
+	popup_set_label (ti, estr);
+	g_free (estr);
+	
 	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
 	g_free (str);
 
@@ -792,11 +1086,19 @@ on_smtp_smtp_update (C2SMTP *smtp, gint id, guint length, guint bytes, C2Transfe
 	if (!bytes)
 	{
 		gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, length);
-		
 		gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Sending"));
+
+		if (GTK_IS_PROGRESS (ti->popup_progress))
+		{
+			gtk_progress_configure (GTK_PROGRESS (ti->popup_progress), 0, 0, length);
+			gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("Sending"));
+		}
 	}
 
 	gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), bytes);
+
+	if (GTK_IS_PROGRESS (ti->popup_progress))
+		gtk_progress_set_value (GTK_PROGRESS (ti->popup_progress), bytes);
 
 	gdk_threads_leave ();
 }
@@ -822,6 +1124,14 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail),
 									success ? _("Message Sent") : _("Failed"));
 	gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
+
+	if (GTK_IS_PROGRESS (ti->popup_progress))
+	{
+		gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress),
+									success ? _("Message Sent") : _("Failed"));
+		gtk_progress_set_percentage (GTK_PROGRESS (ti->popup_progress), 1.0);
+	}
+	
 	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
 
 	ti->finished = 1;

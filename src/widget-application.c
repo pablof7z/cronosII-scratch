@@ -87,6 +87,9 @@ static void
 _delete										(C2Application *application, GList *list, C2Window *window);
 
 static void
+_empty_trash								(C2Application *application, C2Window *window);
+
+static void
 _expunge									(C2Application *application, GList *list, C2Window *window);
 
 static void
@@ -128,7 +131,7 @@ on_preferences_changed						(C2DialogPreferences *preferences,
 											 C2DialogPreferencesKey key, gpointer value);
 
 static gboolean
-dlg_confirm_delete_message					(C2Application *application, GtkWindow *window);
+dlg_confirm_delete_message					(C2Application *application, GtkWindow *window, gboolean expunge);
 
 static void
 command_wmain_new							(C2Application *application, va_list args);
@@ -292,6 +295,7 @@ class_init (C2ApplicationClass *klass)
 	klass->compact_mailboxes = _compact_mailboxes;
 	klass->copy = _copy;
 	klass->delete = _delete;
+	klass->empty_trash = _empty_trash;
 	klass->expunge = _expunge;
 	klass->forward = _forward;
 	klass->move = _move;
@@ -1411,7 +1415,7 @@ _delete (C2Application *application, GList *list, C2Window *window)
 		/* Ask for confirmation (if we are supposed to) */
 		if (c2_preferences_get_general_options_delete_confirmation ())
 		{
-			if (!dlg_confirm_delete_message (application, (GtkWindow*) window))
+			if (!dlg_confirm_delete_message (application, (GtkWindow*) window, FALSE))
 			{
 				if (window)
 					c2_window_report (window, C2_WINDOW_REPORT_MESSAGE,
@@ -1447,6 +1451,132 @@ _delete (C2Application *application, GList *list, C2Window *window)
 expunge:
 		C2_APPLICATION_CLASS_FW (application)->expunge (application, list, window);
 	}
+}
+
+static void
+_empty_trash_thread (C2Pthread2 *data)
+{
+	C2Window *window = (C2Window *) data->v1;
+	C2Mailbox *mailbox = C2_MAILBOX (data->v2);
+	C2Db *db;
+	GtkWidget *widget;
+	GtkProgress *progress = NULL;
+	gint length, off;
+	gboolean progress_ownership = FALSE,
+			 status_ownership = FALSE;
+
+	/* Get the length */
+	length = c2_db_length (mailbox);
+	printf ("length = %d\n", length);
+
+	/* Get the appbar */
+	if (window)
+	{
+		widget = glade_xml_get_widget (window->xml, "appbar");
+
+		if (GNOME_IS_APPBAR (widget))
+		{
+			/* Try to reserve ownership over the progress bar */
+			if (!c2_mutex_trylock (&window->progress_lock))
+				progress_ownership = TRUE;
+
+			/* Try to reserve ownership over the status bar */
+			if (!c2_mutex_trylock (&window->status_lock))
+				status_ownership = TRUE;
+		}
+	}
+
+	gdk_threads_enter ();
+
+	if (progress_ownership)
+	{
+		/* Configure the progressbar */
+		progress = (GtkProgress*) ((GnomeAppBar*) widget)->progress;
+		gtk_progress_configure (progress, 0, 0, length);
+	}
+	
+	if (status_ownership)
+	{
+		/* Configure the statusbar */
+		gnome_appbar_push (GNOME_APPBAR (widget), _("Cleaning..."));
+	}
+
+	gdk_threads_leave ();
+
+	c2_db_freeze (mailbox);
+	for (db = mailbox->db;;)
+	{
+		C2Db *db;
+
+		c2_db_message_remove (mailbox, db);
+
+		if (progress_ownership)
+		{
+			gdk_threads_enter ();
+			gtk_progress_set_value (progress, off);
+			gdk_threads_leave ();
+		}
+		
+		if (c2_db_is_last (db))
+			break;
+		
+		c2_db_lineal_next (db);
+	}
+	c2_db_thaw (mailbox);
+
+	gdk_threads_enter ();
+	if (status_ownership)
+	{
+		gnome_appbar_pop (GNOME_APPBAR (widget));
+		c2_mutex_unlock (&window->status_lock);
+	}
+	gdk_threads_leave ();
+}
+
+static void
+_empty_trash (C2Application *application, C2Window *window)
+{
+	GladeXML *xml;
+	GtkWidget *dialog;
+	gboolean empty_trash;
+	C2Mailbox *mailbox;
+	C2Pthread2 *data;
+	pthread_t thread;
+	
+	/* Confirm */
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_empty_trash");
+	dialog = glade_xml_get_widget (xml, "dlg_empty_trash");
+
+	c2_application_window_add (application, GTK_WINDOW (dialog));
+	switch (gnome_dialog_run (GNOME_DIALOG (dialog)))
+	{
+		case 0:
+			empty_trash = TRUE;
+			break;
+		default:
+		case 1:
+			empty_trash = FALSE;
+	}
+	c2_application_window_remove (application, GTK_WINDOW (dialog));
+	gtk_widget_destroy (dialog);
+	gtk_object_destroy (GTK_OBJECT (xml));
+
+	if (!empty_trash)
+		return;
+
+	mailbox = c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_TRASH);
+	if (!C2_IS_MAILBOX (mailbox))
+	{
+		dialog = gnome_error_dialog (_("There is no mailbox marked to be used as Trash!"));
+		gnome_dialog_run_and_close (GNOME_DIALOG (dialog));
+		return;
+	}
+
+	data = g_new0 (C2Pthread2, 1);
+	data->v1 = (gpointer) window;
+	data->v2 = (gpointer) mailbox;
+
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (_empty_trash_thread), data);
 }
 
 static void
@@ -1504,13 +1634,12 @@ _expunge_thread (C2Pthread2 *data)
 
 	gdk_threads_leave ();
 
-	/* Start moving */
+L	/* Start deleting */
 	c2_db_freeze (fmailbox);
 	for (l = list, off = 0; l; l = g_list_next (l), off++)
 	{
 		C2Db *db;
 		
-		/* Now do the actual copy */
 		db = C2_DB (l->data);
 
 		c2_db_message_remove (fmailbox, db);
@@ -1524,10 +1653,10 @@ _expunge_thread (C2Pthread2 *data)
 	}
 	c2_db_thaw (fmailbox);
 
-	g_list_free (list);
+L	g_list_free (list);
 
 	gdk_threads_enter ();
-	
+L	
 	if (status_ownership)
 	{
 		gnome_appbar_pop (GNOME_APPBAR (widget));
@@ -1553,7 +1682,7 @@ _expunge (C2Application *application, GList *list, C2Window *window)
 	c2_return_if_fail (list, C2EDATA);
 
 	/* Ask for confirmation */
-	if (!dlg_confirm_delete_message (application, (GtkWindow*) window))
+	if (!dlg_confirm_delete_message (application, (GtkWindow*) window, TRUE))
 	{
 		if (window)
 			c2_window_report (window, C2_WINDOW_REPORT_MESSAGE,
@@ -1707,6 +1836,7 @@ _move (C2Application *application, GList *list, C2Window *window)
 	}
 
 	/* Fire the thread */
+	printf ("MOVE %d MAILS\n", g_list_length (list));
 	data = g_new0 (C2Pthread3, 1);
 	data->v1 = mailbox;
 	data->v2 = g_list_copy (list);
@@ -1939,8 +2069,6 @@ c2_application_new (const gchar *name, gboolean running_as_server)
 	if (application->acting_as_server)
 	{
 		timeout_check = c2_preferences_get_general_options_timeout_check ();
-	
-		printf ("Setting timeout to %d\n", timeout_check * 60000);
 		
 		/* Check at start */
 		if (!running_as_server && c2_preferences_get_general_options_start_check () &&
@@ -2422,7 +2550,7 @@ dlg_confirm_delete_message_confirmation_btn_toggled (GtkWidget *widget)
 }
 
 static gboolean
-dlg_confirm_delete_message (C2Application *application, GtkWindow *window)
+dlg_confirm_delete_message (C2Application *application, GtkWindow *window, gboolean expunge)
 {
 	GtkWidget *dialog;
 	GtkWidget *pixmap;
@@ -2445,6 +2573,9 @@ dlg_confirm_delete_message (C2Application *application, GtkWindow *window)
 	toggle = glade_xml_get_widget (xml, "confirmation_btn");
 	gtk_signal_connect (GTK_OBJECT (toggle), "toggled",
 						GTK_SIGNAL_FUNC (dlg_confirm_delete_message_confirmation_btn_toggled), NULL);
+
+	if (expunge)
+		gtk_widget_hide (toggle);
 
 	gtk_window_set_position (GTK_WINDOW (dialog),
 					gnome_preferences_get_dialog_position ());

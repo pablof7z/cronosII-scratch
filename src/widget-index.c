@@ -1045,7 +1045,8 @@ on_clist_button_press_event (C2Index *index, GdkEvent *e)
 	if (row < 0)
 		return;
 
-	select_row ((GtkCList*) index, row, col);
+	if (g_list_length (c2_index_selection (index)) == 1)
+		select_row ((GtkCList*) index, row, col);
 	
 	switch (button->button)
 	{
@@ -1315,12 +1316,8 @@ static void
 on_mnu_move_activate (GtkWidget *widget, C2Index *index)
 {
 	C2Application *application = index->application;
-	C2Db *db = c2_index_selection_main (index);
-
-	if (!db)
-		return;
 	
-	C2_APPLICATION_CLASS_FW (application)->move (application, g_list_prepend (NULL, db), NULL);
+	C2_APPLICATION_CLASS_FW (application)->move (application, c2_index_selection (index), NULL);
 }
 
 static void

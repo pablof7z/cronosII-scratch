@@ -23,6 +23,9 @@ extern "C" {
 #endif
 
 #include <libcronosII/message.h>
+	
+gchar *
+c2_application_str_number_to_string			(gint number);
 
 gboolean
 c2_application_check_account_exists		(C2Application *application);

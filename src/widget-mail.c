@@ -242,7 +242,6 @@ c2_mail_construct (C2Mail *mail, C2Application *application)
 	gtk_box_pack_start (GTK_BOX (hbox), mail->cc_label[0], FALSE, FALSE, 0);
 	style->font = gdk_font_load (c2_font_bold);
 	gtk_widget_set_style (mail->cc_label[0], style);
-	gtk_widget_show (mail->cc_label[0]);
 
 	mail->cc_label[1] = gtk_label_new ("");
 	gtk_box_pack_start (GTK_BOX (hbox), mail->cc_label[1], TRUE, TRUE, 0);

@@ -32,7 +32,7 @@ gchar *s = N_("_Mailbox");
 gchar *s = N_("_Compact/Speed Up...");
 gchar *s = N_("_Import...");
 gchar *s = N_("_Export...");
-gchar *s = N_("Empty _Garbage");
+gchar *s = N_("Empty _Trash");
 gchar *s = N_("Mess_age");
 gchar *s = N_("_Reply");
 gchar *s = N_("Reply to _all");
@@ -254,3 +254,8 @@ gchar *s = N_("_Save to disk");
 gchar *s = N_("_Open with:");
 gchar *s = N_("Configure");
 gchar *s = N_("Note: %f will be replaced with the file name.");
+gchar *s = N_("If you confirm this action you will not be able\n"
+              "to recover your mails stored in the «Trash» mailbox.\n"
+              "\n"
+              "Are you sure you want to do this?");
+gchar *s = N_("Confirmation");

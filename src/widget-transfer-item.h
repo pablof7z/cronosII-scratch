@@ -88,8 +88,13 @@ struct _C2TransferItem
 	} type_info;
 
 	GtkWidget *popup;
+	GtkWidget *popup_label;
+	gchar *popup_label_content;
+	GtkWidget *popup_progress;
 	GtkWidget *event;
 	GtkWidget *table;
+
+	gint mouse_is_in_popup : 1;
 
 	GtkWidget *progress_mail;
 	GtkWidget *progress_byte;

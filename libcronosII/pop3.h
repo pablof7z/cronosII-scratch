@@ -82,6 +82,8 @@ struct _C2POP3
 
 	C2POP3AuthenticationMethod auth_method;
 
+	gint canceled : 1;
+
 	C2Mutex run_lock;
 };
 

@@ -179,6 +179,9 @@ static void
 on_menubar_mailbox_speed_up_activate		(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
+on_menubar_mailbox_empty_trash_activate		(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_menubar_message_reply_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
@@ -822,6 +825,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "mailbox_speed_up")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_mailbox_speed_up_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "mailbox_empty_trash")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_mailbox_empty_trash_activate), wmain);
 
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_reply")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_message_reply_activate), wmain);
@@ -1583,6 +1588,14 @@ on_menubar_mailbox_speed_up_activate (GtkWidget *widget, C2WindowMain *wmain)
 {
 	C2_APPLICATION_CLASS_FW (C2_WINDOW (wmain)->application)->compact_mailboxes (
 								C2_WINDOW (wmain)->application);
+}
+
+static void
+on_menubar_mailbox_empty_trash_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2Application *application = C2_WINDOW (wmain)->application;
+	
+	C2_APPLICATION_CLASS_FW (application)->empty_trash (application, C2_WINDOW (wmain));
 }
 
 static void

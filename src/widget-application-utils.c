@@ -41,6 +41,37 @@
 extern void
 on_mailbox_changed_mailboxes				(C2Mailbox *mailbox, C2Application *application);
 
+gchar *
+c2_application_str_number_to_string (gint number)
+{
+	switch (number)
+	{
+		case   0: return _("zero");
+		case   1: return _("one");
+		case   2: return _("two");
+		case   3: return _("three");
+		case   4: return _("four");
+		case   5: return _("five");
+		case   6: return _("six");
+		case   7: return _("seven");
+		case   8: return _("eight");
+		case   9: return _("nine");
+		case  10: return _("ten");
+		case  11: return _("eleven");
+		case  12: return _("twelve");
+		case  13: return _("thirteen");
+		case  14: return _("fourteen");
+		case  15: return _("fifteen");
+		case  16: return _("sixteen");
+		case  17: return _("seventeen");
+		case  18: return _("eighteen");
+		case  19: return _("nineteen");
+		case  20: return _("twenty");
+	}
+
+	return g_strdup_printf ("%d", number);
+}
+
 /**
  * c2_application_check_account_exists
  * @application: C2Application where to act.

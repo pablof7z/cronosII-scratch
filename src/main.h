@@ -51,6 +51,9 @@ enum
 const gchar *
 c2_font_bold;
 
+const gchar *
+c2_font_italic;
+
 #ifdef __cplusplus
 }
 #endif

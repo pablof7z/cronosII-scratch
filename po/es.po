@@ -110,7 +110,7 @@ msgstr ""
 
 #: libcronosII/pop3.c:444
 msgid "No password was entered"
-msgstr ""
+msgstr "No se ha ingresado ninguna contraseña"
 
 #: libcronosII/smtp.c:323
 msgid "SMTP server did not respond to our sent messaage in a friendly way"
@@ -206,53 +206,53 @@ msgstr ""
 #: src/install.c:395
 #, c-format
 msgid "Remove directory %s"
-msgstr ""
+msgstr "Remover directorio %s"
 
 #: src/install.c:404 src/install.c:431 src/install.c:460 src/install.c:488
 #: src/install.c:516
 #, fuzzy, c-format
 msgid "Failed: %s\n"
-msgstr "Fallo."
+msgstr "Falló: %s\n"
 
 #: src/install.c:406 src/install.c:433 src/install.c:462 src/install.c:490
 #: src/install.c:518 src/widget-transfer-item.c:827
 #, fuzzy
 msgid "Failed"
-msgstr "Fallo."
+msgstr "Fallo"
 
 #: src/install.c:422
 #, c-format
 msgid "Create directory %s"
-msgstr ""
+msgstr "Crear directorio %s"
 
 #: src/install.c:450
 #, fuzzy, c-format
 msgid "Create mailbox «%s»"
-msgstr "Cargar buzones"
+msgstr "Crear buzón «%s»"
 
 #: src/install.c:479
 #, c-format
 msgid "Remove file %s"
-msgstr ""
+msgstr "Remover archivo %s"
 
 #: src/install.c:507
 #, c-format
 msgid "Copy %s to %s"
-msgstr ""
+msgstr "Copiar %s a %s"
 
 #: src/install.c:535
 msgid "Done."
-msgstr ""
+msgstr "Hecho."
 
 #: src/main.c:45
 #, c-format
 msgid "Failed to load message: %s."
-msgstr ""
+msgstr "Fallo al cargar el mensaje: %s."
 
 #: src/main.c:46
 #, c-format
 msgid "Failed to save message: %s."
-msgstr ""
+msgstr "Fallo al guardar el mensaje: %s."
 
 #: src/main.c:47
 #, c-format
@@ -334,7 +334,7 @@ msgstr ""
 
 #: src/main.c:158 src/trans.h:83 src/widget-index.c:554
 msgid "Subject"
-msgstr ""
+msgstr "Asunto"
 
 #: src/main.c:163
 msgid "Set the Body."
@@ -342,7 +342,7 @@ msgstr ""
 
 #: src/main.c:164
 msgid "Text"
-msgstr ""
+msgstr "Texto"
 
 #: src/main.c:169
 msgid "Compose a new email decoding the argument as a mailto: link"
@@ -377,12 +377,12 @@ msgstr ""
 #: src/main.c:197
 #, fuzzy
 msgid "Hides the main window."
-msgstr "Abrir una nueva ventana"
+msgstr "Esconder la ventana principal"
 
 #: src/main.c:202
 #, fuzzy
 msgid "Shows the main window."
-msgstr "Abrir una nueva ventana"
+msgstr "Mostrar la ventana principal"
 
 #: src/main.c:207
 msgid "Finishes Cronos II and its multisession server"
@@ -391,16 +391,16 @@ msgstr ""
 #: src/widget-composer.c:442
 #, fuzzy
 msgid "Select a message"
-msgstr "Seleccionar mensaje siguiente"
+msgstr "Seleccionar un mensaje"
 
 #: src/widget-composer.c:516
 #, fuzzy
 msgid "Unable to find the proper mailbox"
-msgstr "Seleccionar mensaje siguiente"
+msgstr "Imposible encontrar el buzón correcto"
 
 #: src/widget-composer.c:703 src/widget-composer.c:1012
 msgid "Composer: Untitled"
-msgstr ""
+msgstr "Compositor: Sin Título"
 
 #: src/widget-composer.c:808
 msgid ""
@@ -419,7 +419,7 @@ msgstr ""
 #: src/widget-composer.c:1008
 #, c-format
 msgid "Composer: %s"
-msgstr ""
+msgstr "Compositor: %s"
 
 #: src/widget-composer.c:1088
 #, fuzzy, c-format
@@ -429,17 +429,18 @@ msgstr "Utilizar el editor externo:"
 #. Set more info about the mime object
 #: src/widget-composer.c:1183 src/widget-composer.c:2136
 msgid "unknown"
-msgstr ""
+msgstr "desconocido"
 
 #: src/widget-composer.c:1374
 #, c-format
 msgid "The account specified does not longer exist: %s"
-msgstr ""
+msgstr "La cuenta especificada ya no existe: %s"
 
 #: src/widget-composer.c:1379
 msgid ""
 "The message is not asociated to an account, default account will be used."
 msgstr ""
+"Este mensaje no tiene una cuenta asociada, utilizando la cuenta por defecto."
 
 #: src/widget-composer.c:1593
 #, c-format
@@ -449,7 +450,7 @@ msgstr ""
 #: src/widget-composer.c:1687
 #, c-format
 msgid "On %s, %s wrote:\n"
-msgstr ""
+msgstr "El %s, %s escribió:\n"
 
 #: src/widget-composer.c:2114
 #, c-format
@@ -469,7 +470,7 @@ msgstr ""
 #: src/widget-dialog-preferences.c:459
 #, fuzzy, c-format
 msgid "%s (default)"
-msgstr "por defecto."
+msgstr "%s (predeterminada)"
 
 #: src/widget-dialog-preferences.c:696 src/widget-dialog-preferences.c:805
 msgid "General"
@@ -490,19 +491,19 @@ msgstr "Preferencias"
 
 #: src/preferences-trans.h:139 src/widget-dialog-preferences.c:1368
 msgid "Top left of the screen"
-msgstr ""
+msgstr "Parte superior izquierda de la pantalla"
 
 #: src/preferences-trans.h:140 src/widget-dialog-preferences.c:1375
 msgid "Top right of the screen"
-msgstr ""
+msgstr "Parte superior derecha de la pantalla"
 
 #: src/preferences-trans.h:141 src/widget-dialog-preferences.c:1381
 msgid "Bottom left of the screen"
-msgstr ""
+msgstr "Parte inferior izquierda de la pantalla"
 
 #: src/preferences-trans.h:142 src/widget-dialog-preferences.c:1387
 msgid "Bottom right of the screen"
-msgstr ""
+msgstr "Parte inferior derecha de la pantalla"
 
 #: src/preferences-trans.h:155 src/widget-dialog-preferences.c:1604
 msgid "Account Editor"
@@ -511,12 +512,12 @@ msgstr "Editor de cuenta"
 #: src/preferences-trans.h:179 src/widget-dialog-preferences.c:2029
 #: src/widget-dialog-preferences.c:2040 src/widget-dialog-preferences.c:2386
 msgid "Post Office Protocol 3 (POP3)"
-msgstr ""
+msgstr "Protocolo de Oficina Postal 3 (POP3)"
 
 #: src/preferences-trans.h:180 src/widget-dialog-preferences.c:2029
 #: src/widget-dialog-preferences.c:2049 src/widget-dialog-preferences.c:2388
 msgid "Internet Message Access Protocol 4 (IMAP)"
-msgstr ""
+msgstr "Protocolo de Acceso de Mensaje de Internet 4 (IMAP)"
 
 #: src/preferences-trans.h:200 src/widget-dialog-preferences.c:2086
 #: src/widget-dialog-preferences.c:2144 src/widget-dialog-preferences.c:2550
@@ -531,7 +532,7 @@ msgstr "Sendmail"
 #: src/preferences-trans.h:192 src/widget-dialog-preferences.c:2465
 #, fuzzy
 msgid "Plain"
-msgstr "Im_primir"
+msgstr "Plano"
 
 #: src/preferences-trans.h:193 src/widget-dialog-preferences.c:2469
 msgid "APOP"
@@ -562,130 +563,130 @@ msgstr ""
 #: src/widget-transfer-item.c:250
 #, c-format
 msgid "Receive «%s»"
-msgstr ""
+msgstr "Recibir «%s»"
 
 #: src/widget-transfer-item.c:259
 #, c-format
 msgid "Send «%s»"
-msgstr ""
+msgstr "Enviar «%s»"
 
 #: src/widget-transfer-item.c:297
 msgid "Cancel the transfer"
-msgstr ""
+msgstr "Cancelar la transferencia"
 
 #: src/widget-transfer-item.c:447
 #, fuzzy
 msgid "No Inbox mailbox"
-msgstr "Nuevo buzón"
+msgstr "NO hay un buzón de entrada"
 
 #: src/widget-transfer-item.c:479 src/widget-transfer-item.c:510
 msgid "Resolving"
-msgstr ""
+msgstr "Resolviendo"
 
 #: src/widget-transfer-item.c:521
 msgid "Connecting"
-msgstr ""
+msgstr "Conectando"
 
 #. [FIXME]
 #. * Action to login? Loggining?
 #.
 #: src/widget-transfer-item.c:532
 msgid "Loggining"
-msgstr ""
+msgstr "Entrando"
 
 #: src/widget-transfer-item.c:659
 #, fuzzy
 msgid "Getting mail list"
-msgstr "Correo saliente"
+msgstr "Obteniendo lista de mensajes"
 
 #: src/widget-transfer-item.c:679
 #, fuzzy, c-format
 msgid "%u message."
-msgstr "Ese mensaje no existe"
+msgstr "%u mensaje."
 
 #: src/widget-transfer-item.c:681
 #, fuzzy, c-format
 msgid "%u messages."
-msgstr "Ese mensaje no existe"
+msgstr "%u mensajes."
 
 #: src/widget-transfer-item.c:696
 msgid "Receiving %v of %u"
-msgstr ""
+msgstr "Recibiendo %v de %u"
 
 #: src/widget-transfer-item.c:715
 msgid "Synchronizing"
-msgstr ""
+msgstr "Sincronizando"
 
 #: src/widget-transfer-item.c:735
 #, c-format
 msgid "Received %d new mail%s"
-msgstr ""
+msgstr "%d nuevos correo%s"
 
 #: src/widget-transfer-item.c:736 src/widget-transfer-item.c:739
 msgid "s"
-msgstr ""
+msgstr "s"
 
 #: src/widget-transfer-item.c:738
 msgid "No new mails available"
-msgstr ""
+msgstr "No hay nuevos correos"
 
 #: src/widget-transfer-item.c:743
 #, fuzzy, c-format
 msgid "Failure: %s"
-msgstr "Fallo."
+msgstr "Fallo: %s"
 
 #: src/widget-transfer-item.c:745
 #, fuzzy
 msgid "Failure"
-msgstr "Fallo."
+msgstr "Fallo"
 
 #: src/widget-transfer-item.c:800
 #, fuzzy
 msgid "Sending"
-msgstr "Sendmail"
+msgstr "Enviando"
 
 #: src/widget-transfer-item.c:827
 msgid "Message Sent"
-msgstr ""
+msgstr "Mensaje enviado"
 
 #: src/widget-transfer-item.c:837 src/widget-transfer-item.c:848
 #, c-format
 msgid "There's no mailbox marked as %s!\n"
-msgstr ""
+msgstr "No hay ningún buzón marcado como %s!\n"
 
 #: src/widget-transfer-list.c:146
 msgid "Stop all"
-msgstr ""
+msgstr "Detener todas"
 
 #: src/widget-transfer-list.c:160
 msgid "Close when finished."
-msgstr ""
+msgstr "Cerrar al finalizar."
 
 #: src/widget-transfer-list.c:169
 msgid "Send & Receive"
-msgstr ""
+msgstr "Enviar y Recibir"
 
 #: src/widget-window-main.c:348
 msgid "Check"
-msgstr ""
+msgstr "Chequear"
 
 #: src/widget-window-main.c:349
 #, fuzzy
 msgid "Check for incoming mails"
-msgstr "Correo entrante"
+msgstr "Chequear por correo entrante"
 
 #: src/widget-window-main.c:356
 msgid "Send"
-msgstr ""
+msgstr "Enviar"
 
 #: src/widget-window-main.c:357
 #, fuzzy
 msgid "Send outgoing mails"
-msgstr "Correo saliente"
+msgstr "Enviar correos salientes"
 
 #: src/widget-window-main.c:364
 msgid "Search"
-msgstr ""
+msgstr "Buscar"
 
 #: src/widget-window-main.c:365
 msgid "Search a message in existent mailboxes"
@@ -710,7 +711,7 @@ msgstr ""
 
 #: src/widget-window-main.c:388
 msgid "Delete"
-msgstr ""
+msgstr "Borrar"
 
 #: src/widget-window-main.c:389
 msgid "Delete selected mails"
@@ -718,7 +719,7 @@ msgstr ""
 
 #: src/widget-window-main.c:396
 msgid "Copy"
-msgstr ""
+msgstr "Copiar"
 
 #: src/widget-window-main.c:397
 msgid "Copy selected mails"
@@ -726,7 +727,7 @@ msgstr ""
 
 #: src/widget-window-main.c:404
 msgid "Move"
-msgstr ""
+msgstr "Mover"
 
 #: src/widget-window-main.c:405
 msgid "Move selected mails"
@@ -734,7 +735,7 @@ msgstr ""
 
 #: src/widget-window-main.c:412
 msgid "Compose"
-msgstr ""
+msgstr "Componer"
 
 #: src/widget-window-main.c:413
 msgid "Compose a new message"
@@ -742,7 +743,7 @@ msgstr ""
 
 #: src/widget-window-main.c:420
 msgid "Reply"
-msgstr ""
+msgstr "Responder"
 
 #: src/widget-window-main.c:421
 msgid "Reply selected message"
@@ -750,7 +751,7 @@ msgstr ""
 
 #: src/widget-window-main.c:428
 msgid "Reply All"
-msgstr ""
+msgstr "Responder a Todos"
 
 #: src/widget-window-main.c:429
 msgid "Reply selected message to all recipients"
@@ -758,7 +759,7 @@ msgstr ""
 
 #: src/widget-window-main.c:436
 msgid "Forward"
-msgstr ""
+msgstr "Reenviar"
 
 #: src/widget-window-main.c:437
 msgid "Forward selected message"
@@ -790,7 +791,7 @@ msgstr ""
 
 #: src/trans.h:156 src/widget-window-main.c:468
 msgid "Close"
-msgstr ""
+msgstr "Cerrar"
 
 #: src/widget-window-main.c:470
 msgid "Close the main window of Cronos II"
@@ -823,6 +824,8 @@ msgid ""
 "This folder is the parent of all the local mailboxes that <b>Cronos II</b> "
 "handles for you."
 msgstr ""
+"Esta carpeta es el padre de todas las carpetas locales que <b>Cronos II</b> "
+"maneja para ti."
 
 #: src/widget-window-main.c:2318
 #, fuzzy
@@ -949,7 +952,7 @@ msgstr "Correo entrante"
 
 #: src/preferences-trans.h:42
 msgid "Show a warning dialog."
-msgstr ""
+msgstr "Mostrar una advertencia."
 
 #: src/preferences-trans.h:43 src/preferences-trans.h:195
 msgid "Outgoing mail"
@@ -958,25 +961,25 @@ msgstr "Correo saliente"
 #: src/preferences-trans.h:44
 #, fuzzy
 msgid "Save copy in «Sent Items» mailbox."
-msgstr "Guardar copia en buzón 'Saliente'"
+msgstr "Guardar copia en buzón «Saliente»"
 
 #: src/preferences-trans.h:45
 #, fuzzy
 msgid "Deleting mails"
-msgstr "Correo saliente"
+msgstr "Borrar correos"
 
 #: src/preferences-trans.h:46
 msgid "Store deleted mails in «Trash»."
-msgstr "Guardar mensajes eliminados en «Basura»"
+msgstr "Guardar mensajes eliminados en «Eliminados»"
 
 #: src/preferences-trans.h:47
 #, fuzzy
 msgid "Ask for confirmation when deleting."
-msgstr "Pedir por confirmación antes de actuar."
+msgstr "Pedir por confirmación al eliminar."
 
 #: src/preferences-trans.h:48
 msgid "Archive expunged mails."
-msgstr ""
+msgstr "Archivar mensajes expungados."
 
 #: src/preferences-trans.h:49
 msgid "General/Options"
@@ -1004,7 +1007,7 @@ msgstr ""
 
 #: src/preferences-trans.h:55
 msgid "_Edit"
-msgstr ""
+msgstr "_Editar"
 
 #: src/preferences-trans.h:56
 msgid "Press this button to remove the selected account of the list."
@@ -1012,7 +1015,7 @@ msgstr ""
 
 #: src/preferences-trans.h:57
 msgid "_Remove"
-msgstr ""
+msgstr "_Remover"
 
 #: src/preferences-trans.h:58
 msgid "Press this button to move up the selected account in the priority list"
@@ -1029,7 +1032,7 @@ msgstr ""
 
 #: src/preferences-trans.h:61
 msgid "_Down"
-msgstr ""
+msgstr "Abajo"
 
 #: src/preferences-trans.h:62
 msgid "General/Accounts"
@@ -1156,7 +1159,7 @@ msgstr "Cargar buzones"
 #: src/preferences-trans.h:91
 #, fuzzy
 msgid "Pablo is in Madrid."
-msgstr "Pablo estuvo en París."
+msgstr "Pablo esta en Madrid."
 
 #: src/preferences-trans.h:92
 #, fuzzy
@@ -1171,7 +1174,7 @@ msgstr "Cargar buzones"
 #: src/preferences-trans.h:94
 #, fuzzy
 msgid "Pablo was in Sydney ?."
-msgstr "Pablo estuvo en Roma."
+msgstr "Pablo estuvo en Sydney ?"
 
 #: src/preferences-trans.h:95
 msgid "Interface/Fonts"
@@ -1549,7 +1552,7 @@ msgstr ""
 
 #: src/preferences-trans.h:221
 msgid "Signature"
-msgstr ""
+msgstr "Firma"
 
 #: src/preferences-trans.h:222
 msgid "Signature file (plain):"
@@ -1589,7 +1592,7 @@ msgstr ""
 
 #: src/preferences-trans.h:230
 msgid "Remove messages older than"
-msgstr ""
+msgstr "Remover mensajes al transcurrir"
 
 #: src/preferences-trans.h:231
 msgid ""
@@ -1599,7 +1602,7 @@ msgstr ""
 
 #: src/preferences-trans.h:232
 msgid "days."
-msgstr ""
+msgstr "días de su llegada."
 
 #: src/preferences-trans.h:233
 msgid ""
@@ -1609,11 +1612,11 @@ msgstr ""
 
 #: src/preferences-trans.h:234
 msgid "Automatically check this account."
-msgstr ""
+msgstr "Chequear automaticamente esta cuenta."
 
 #: src/preferences-trans.h:235
 msgid "Finished"
-msgstr ""
+msgstr "Terminado"
 
 #: src/preferences-trans.h:236
 msgid ""
@@ -1622,12 +1625,18 @@ msgid ""
 "\n"
 "Press «Finish» to store the new configuration."
 msgstr ""
+"Felicitaciones, has configurado exitosamente\n"
+"tu cuenta para utilizarla con Cronos II.\n"
+"\n"
+"Presiona «Terminar» para guardar la nueva configuración."
 
 #: src/preferences-trans.h:240
 msgid ""
 "The name you entered is\n"
 "not valid."
 msgstr ""
+"El nombre que has ingresado\n"
+"no es válido."
 
 #.
 #. * Archivo de cadenas traducibles generado por Glade.

@@ -137,6 +137,7 @@ struct _C2ApplicationClass
 	void (*compact_mailboxes) (C2Application *application);
 	void (*copy) (C2Application *application, GList *list, C2Window *window);
 	void (*delete) (C2Application *application, GList *list, C2Window *window);
+	void (*empty_trash) (C2Application *application, C2Window *window);
 	void (*expunge) (C2Application *application, GList *list, C2Window *window);
 	void (*forward) (C2Application *application, C2Db *db, C2Message *message);
 	void (*move) (C2Application *application, GList *list, C2Window *window);

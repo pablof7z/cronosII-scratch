@@ -226,9 +226,9 @@ extern "C" {
 	gnome_config_set_string ("/"PACKAGE"/"INTERFACE"-"COMPOSER"/quote_character", val)
 	
 #define c2_preferences_get_interface_composer_quote_color(r,g,b) \
-	r = gnome_config_get_int_with_default ("/"PACKAGE"/"INTERFACE"-"COMPOSER"/quote_color_red=55535", NULL); \
-	g = gnome_config_get_int_with_default ("/"PACKAGE"/"INTERFACE"-"COMPOSER"/quote_color_green=55535", NULL);\
-	b = gnome_config_get_int_with_default ("/"PACKAGE"/"INTERFACE"-"COMPOSER"/quote_color_blue=55535", NULL)
+	r = gnome_config_get_int_with_default ("/"PACKAGE"/"INTERFACE"-"COMPOSER"/quote_color_red=15969", NULL); \
+	g = gnome_config_get_int_with_default ("/"PACKAGE"/"INTERFACE"-"COMPOSER"/quote_color_green=15414", NULL);\
+	b = gnome_config_get_int_with_default ("/"PACKAGE"/"INTERFACE"-"COMPOSER"/quote_color_blue=37236", NULL)
 #define c2_preferences_set_interface_composer_quote_color(r,g,b) \
 	gnome_config_set_int ("/"PACKAGE"/"INTERFACE"-"COMPOSER"/quote_color_red", r); \
 	gnome_config_set_int ("/"PACKAGE"/"INTERFACE"-"COMPOSER"/quote_color_green", g); \

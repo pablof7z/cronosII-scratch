@@ -39,6 +39,8 @@
 /*
  * [TODO] Add support for CRAM-MD5 authentication.
  */
+#define MOD "POP3"
+#define DMOD TRUE
 
 #define DEFAULT_FLAGS C2_POP3_DO_NOT_KEEP_COPY
 
@@ -186,6 +188,7 @@ init (C2POP3 *pop3)
 {
 	pop3->user = pop3->pass = NULL;
 	pop3->flags = DEFAULT_FLAGS;
+	pop3->canceled = 0;
 	c2_mutex_init (&pop3->run_lock);
 }
 
@@ -383,6 +386,9 @@ shutdown:
 	/* Unlock the mutex */
 	gtk_object_remove_data (GTK_OBJECT (pop3), "account");
 	c2_mutex_unlock (&pop3->run_lock);
+
+	/* Set the cancel flag to 0 */
+	pop3->canceled = 0;
 
 	return retval;
 }
@@ -808,7 +814,15 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 	
 	for (l = download_list, i = 1; l; l = g_slist_next (l), i++)
 	{
+		/* Check if the user has canceled */
+		if (pop3->canceled)
+		{
+			return -1;
+		}
+		
 		nth = atoi ((gchar*)l->data);
+		
+		C2_PRINTD (MOD, "Downloading mail number %d\n", nth);
 		
 		if (pop3->flags & C2_POP3_DO_KEEP_COPY)
 		{
@@ -1049,4 +1063,10 @@ static void
 quit (C2POP3 *pop3)
 {
 	c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "QUIT\r\n");
+}
+
+void
+c2_pop3_cancel (C2POP3 *pop3)
+{
+	pop3->canceled = 1;
 }
