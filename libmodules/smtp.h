@@ -15,52 +15,43 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __LIBMODULES_UTILS_H__
-#define __LIBMODULES_UTILS_H__
+#ifndef __LIBMODULES_SMTP_H__
+#define __LIBMODULES_SMTP_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <glib.h>
-#include <stdio.h>
 
-#define CHAR(x)								((gchar*)x)
+#if HAVE_CONFIG_H
+#	include "db.h"
+#else
+#	include <cronosII.h>
+#endif
 
-gboolean
-c2_strcaseeq							(const gchar *fst, const gchar *snd);
+typedef struct
+{
+	gchar *address;
+	gint port;
 
-gboolean
-c2_strncaseeq							(const gchar *fst, const gchar *snd, gint length);
+	gint sock;
+} C2Smtp;
 
-gboolean
-c2_streq								(const gchar *fst, const gchar *snd);
+C2Smtp *
+c2_smtp_new (const gchar *address, gint port);
 
-gboolean
-c2_strneq								(const gchar *fst, const gchar *snd, gint length);
+void
+c2_smtp_new (C2Smtp *smtp);
 
-gchar *
-c2_str_replace_all						(const gchar *or_string, const gchar *se_string,
-										 const gchar *re_string);
+gint
+c2_smtp_connect (C2Smtp *smtp);
 
-gchar *
-c2_str_get_line							(const gchar *str);
+gint
+c2_smtp_send_message (C2Smtp *smtp, C2Message *message);
 
-gchar *
-c2_str_get_word							(guint8 word_n, const gchar *str, gchar ch);
-
-gchar *
-c2_fd_get_line							(FILE *fd);
-
-gchar *
-c2_fd_get_word							(FILE *fd);
-
-gboolean
-c2_file_exists							(const gchar *file);
-
-gboolean
-c2_fd_move_to							(FILE *fp, gchar c, guint8 cant,
-										 gboolean forward, gboolean next);
+gint
+c2_smtp_disconnect (C2Smtp *smtp);
 
 #ifdef __cplusplus
 }

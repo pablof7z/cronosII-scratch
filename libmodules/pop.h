@@ -15,52 +15,33 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __LIBMODULES_UTILS_H__
-#define __LIBMODULES_UTILS_H__
+#ifndef __LIBMODULES_POP_H__
+#define __LIBMODULES_POP_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <glib.h>
-#include <stdio.h>
 
-#define CHAR(x)								((gchar*)x)
+typedef struct
+{
+	gchar *host;
+	gint port;
 
-gboolean
-c2_strcaseeq							(const gchar *fst, const gchar *snd);
+	gboolean keep_copy;
 
-gboolean
-c2_strncaseeq							(const gchar *fst, const gchar *snd, gint length);
+	gint sock;
+} C2Pop;
 
-gboolean
-c2_streq								(const gchar *fst, const gchar *snd);
+C2Pop *
+c2_pop_new (const gchar *host, gint port);
 
-gboolean
-c2_strneq								(const gchar *fst, const gchar *snd, gint length);
+void
+c2_pop_free (C2Pop *pop);
 
-gchar *
-c2_str_replace_all						(const gchar *or_string, const gchar *se_string,
-										 const gchar *re_string);
-
-gchar *
-c2_str_get_line							(const gchar *str);
-
-gchar *
-c2_str_get_word							(guint8 word_n, const gchar *str, gchar ch);
-
-gchar *
-c2_fd_get_line							(FILE *fd);
-
-gchar *
-c2_fd_get_word							(FILE *fd);
-
-gboolean
-c2_file_exists							(const gchar *file);
-
-gboolean
-c2_fd_move_to							(FILE *fp, gchar c, guint8 cant,
-										 gboolean forward, gboolean next);
+gint
+c2_pop_fetchmail (C2Pop *pop);
 
 #ifdef __cplusplus
 }

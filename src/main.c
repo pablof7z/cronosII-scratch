@@ -1,3 +1,20 @@
+/*  Cronos II
+ *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 #include <config.h>
 #include <gnome.h>
 
@@ -10,7 +27,8 @@ static gint
 c2_config_init											(void);
 
 static void
-c2_init (gint argc, gchar **argv) {
+c2_init (gint argc, gchar **argv)
+{
 	static struct poptOption options[] = {
 		{"checkmail", 'c', POPT_ARG_NONE,
 			NULL, 0,
@@ -23,7 +41,8 @@ c2_init (gint argc, gchar **argv) {
 }
 
 gint
-main (gint argc, gchar **argv) {
+main (gint argc, gchar **argv)
+{
 	g_thread_init (NULL);
 	
 	/* Language bindings */
@@ -63,15 +82,15 @@ load_mailboxes								(void);
  * 0 if success or 1.
  **/
 static gint
-c2_config_init (void) {
-	gboolean def;
+c2_config_init (void)
+{
 	gchar *tmp;
 	
 	c2_app.tooltips = gtk_tooltips_new ();
 
 	/* Check if the configuration exists */
-	tmp = gnome_config_get_string_with_default ("/cronosII/Version=" VERSION, &def);
-	if (def)
+	tmp = gnome_config_get_string ("/cronosII/CronosII/Version");
+	if (!tmp)
 	{
 		gdk_threads_enter ();
 		c2_install_new ();
@@ -85,41 +104,42 @@ c2_config_init (void) {
 	c2_app.wm_vpan = gnome_config_get_int_with_default ("/cronosII/Appareance/vpan=170", NULL);
 	c2_app.wm_width = gnome_config_get_int_with_default ("/cronosII/Appareance/width=600", NULL);
 	c2_app.wm_height = gnome_config_get_int_with_default ("/cronosII/Appareance/height=440", NULL);
-	c2_app.wm_clist[0] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist[0]=40", NULL);
-	c2_app.wm_clist[1] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist[1]=200", NULL);
-	c2_app.wm_clist[2] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist[2]=180", NULL);
-	c2_app.wm_clist[3] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist[3]=70", NULL);
-	c2_app.wm_clist[4] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist[4]=70", NULL);
-	c2_app.wm_clist[5] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist[5]=70", NULL);
-	c2_app.wm_clist[6] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist[6]=70", NULL);
-	c2_app.wm_clist[7] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist[7]=70", NULL);
+	c2_app.wm_clist[0] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist::0=40", NULL);
+	c2_app.wm_clist[1] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist::1=200", NULL);
+	c2_app.wm_clist[2] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist::2=180", NULL);
+	c2_app.wm_clist[3] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist::3=70", NULL);
+	c2_app.wm_clist[4] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist::4=70", NULL);
+	c2_app.wm_clist[5] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist::5=70", NULL);
+	c2_app.wm_clist[6] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist::6=70", NULL);
+	c2_app.wm_clist[7] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist::7=70", NULL);
 
 	return 0;
 }
 
 static void
-load_mailboxes (void) {
+load_mailboxes (void)
+{
 	int i;
 
 	for (c2_app.mailboxes = NULL, i = 0;; i++)
 	{
+		C2Mailbox *mbox = g_new0 (C2Mailbox, 1);
 		gchar *query = g_strdup_printf ("/cronosII/Mailboxes/%d", i);
 		gchar *tmp = gnome_config_get_string (query);
-		gchar *name;
-		gint id, parent_id;
-		if (!tmp) break;
-		g_free (query);
-		
-		query = g_strdup_printf ("/cronosII/Mailboxes/%d::Name", i);
-		name = gnome_config_get_string (query);
+		if (!tmp)
+		{
+			g_free (query);
+			g_free (mbox);
+			break;
+		}
+
+		gnome_config_push_prefix (query);
+		mbox->name = gnome_config_get_string ("::Name");
+		mbox->id = gnome_config_get_int ("::Id");
+		mbox->parent_id = gnome_config_get_int ("::Parent Id");
+		gnome_config_pop_prefix ();
 		g_free (query);
 
-		query = g_strdup_printf ("/cronosII/Mailboxes/%d::Id", i);
-		id = gnome_config_get_int (query);
-		g_free (query);
-
-		query = g_strdup_printf ("/cronosII/Mailboxes/%d::Parent Id", i);
-		parent_id = gnome_config_get_int (query);
-		g_free (query);
+		c2_app.mailboxes = c2_mailbox_append (c2_app.mailboxes, mbox);
 	}
 }

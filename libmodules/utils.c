@@ -1,3 +1,20 @@
+/*  Cronos II
+ *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 #include <glib.h>
 #include <gnome.h>
 #include <stdio.h>
@@ -23,7 +40,8 @@
  * equal.
  **/
 gboolean
-c2_strcaseeq (const gchar *fst, const gchar *snd) {
+c2_strcaseeq (const gchar *fst, const gchar *snd)
+{
 	const gchar *ptr[2];
 	
 	for (ptr[0] = fst, ptr[1] = snd; ptr[0] || ptr[1]; ptr[0]++, ptr[1]++)
@@ -58,7 +76,8 @@ c2_strcaseeq (const gchar *fst, const gchar *snd) {
  * equal.
  **/
 gboolean
-c2_strncaseeq (const gchar *fst, const gchar *snd, gint length) {
+c2_strncaseeq (const gchar *fst, const gchar *snd, gint length)
+{
 	const gchar *ptr[2];
 	gint i;
 	
@@ -91,7 +110,8 @@ c2_strncaseeq (const gchar *fst, const gchar *snd, gint length) {
  * equal.
  **/
 gboolean
-c2_streq (const gchar *fst, const gchar *snd) {
+c2_streq (const gchar *fst, const gchar *snd)
+{
 	const gchar *ptr[2];
 	gchar *_fst;
 	gchar *_snd;
@@ -138,7 +158,8 @@ c2_streq (const gchar *fst, const gchar *snd) {
  * equal.
  **/
 gboolean
-c2_strneq (const gchar *fst, const gchar *snd, gint length) {
+c2_strneq (const gchar *fst, const gchar *snd, gint length)
+{
 	const gchar *ptr[2];
 	gchar *_fst;
 	gchar *_snd;
@@ -183,7 +204,8 @@ c2_strneq (const gchar *fst, const gchar *snd, gint length) {
  * longer needed.
  **/
 gchar *
-c2_str_replace_all (const gchar *or_string, const gchar *se_string, const gchar *re_string) {
+c2_str_replace_all (const gchar *or_string, const gchar *se_string, const gchar *re_string)
+{
 	gchar *ptr;
 	gchar *str, *strptr;
 	gint length = 0;
@@ -241,7 +263,8 @@ c2_str_replace_all (const gchar *or_string, const gchar *se_string, const gchar 
  * A freeable string containing the next line of the string @str.
  **/
 gchar *
-c2_str_get_line (const gchar *str) {
+c2_str_get_line (const gchar *str)
+{
 	gint len=0;
 	gint i;
 	gchar *string;
@@ -289,7 +312,8 @@ c2_str_get_line (const gchar *str) {
  * NULL in case it doesn't exists.
  **/
 gchar *
-c2_str_get_word (guint8 word_n, const gchar *str, gchar ch) {
+c2_str_get_word (guint8 word_n, const gchar *str, gchar ch)
+{
   guint8 Ai=0;
   gchar *c = NULL;
   gboolean record = FALSE;
@@ -333,7 +357,8 @@ c2_str_get_word (guint8 word_n, const gchar *str, gchar ch) {
  * The line readed or NULL in case of error.
  **/
 gchar *
-c2_fd_get_line (FILE *fd) {
+c2_fd_get_line (FILE *fd)
+{
 	glong pos = ftell (fd);
 	gint len = 1;
 	gint i;
@@ -382,7 +407,8 @@ c2_fd_get_line (FILE *fd) {
  * A freeable string with the word or NULL.
  **/
 gchar *
-c2_fd_get_word (FILE *fd) {
+c2_fd_get_word (FILE *fd)
+{
 	GString *str;
 	gboolean inside_quotes = FALSE;
 	gchar buf;
@@ -445,7 +471,8 @@ c2_fd_get_word (FILE *fd) {
  * Return TRUE if the files exists or FALSE if it doesn't.
  **/
 gboolean
-c2_file_exists (const gchar *file) {
+c2_file_exists (const gchar *file)
+{
 	struct stat st;
 	
 	c2_return_val_if_fail (file, FALSE, C2EDATA);
@@ -471,7 +498,8 @@ c2_file_exists (const gchar *file) {
  * TRUE if the search was succesfully or FALSE.
  **/
 gboolean
-c2_fd_move_to (FILE *fp, gchar c, guint8 cant, gboolean forward, gboolean next) {
+c2_fd_move_to (FILE *fp, gchar c, guint8 cant, gboolean forward, gboolean next)
+{
 	gchar s=' ';
 	int ia;
 	guint8 go;

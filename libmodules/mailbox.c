@@ -1,3 +1,20 @@
+/*  Cronos II
+ *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 #include <glib.h>
 #include <stdlib.h>
 
@@ -20,7 +37,8 @@
  * The new mailbox.
  **/
 C2Mailbox *
-c2_mailbox_new (C2Mailbox *head, const gchar *name, gint parent_id) {
+c2_mailbox_new (C2Mailbox *head, const gchar *name, gint parent_id)
+{
 	C2Mailbox *mbox;
 	
 	c2_return_val_if_fail (name, NULL, C2EDATA);
@@ -47,7 +65,8 @@ c2_mailbox_new (C2Mailbox *head, const gchar *name, gint parent_id) {
  * The C2Mailbox object.
  **/
 C2Mailbox *
-c2_mailbox_parse (const gchar *info) {
+c2_mailbox_parse (const gchar *info)
+{
 	C2Mailbox *mbox;
 	gchar *buf;
 
@@ -86,7 +105,8 @@ c2_mailbox_parse (const gchar *info) {
  * The list with the new entry.
  **/
 C2Mailbox *
-c2_mailbox_append (C2Mailbox *head, C2Mailbox *mailbox) {
+c2_mailbox_append (C2Mailbox *head, C2Mailbox *mailbox)
+{
 	C2Mailbox *l;
 	
 	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
@@ -131,7 +151,8 @@ c2_mailbox_append (C2Mailbox *head, C2Mailbox *mailbox) {
  * A gint with the next available mailbox ID.
  **/
 gint
-c2_mailboxes_next_id (C2Mailbox *head) {
+c2_mailboxes_next_id (C2Mailbox *head)
+{
 	C2Mailbox *l;
 	gint next = 0;
 	gint tmp;
@@ -160,7 +181,8 @@ c2_mailboxes_next_id (C2Mailbox *head) {
  * A pointer to the C2Mailbox with ID @id.
  **/
 C2Mailbox *
-c2_mailbox_search_id (C2Mailbox *head, gint id) {
+c2_mailbox_search_id (C2Mailbox *head, gint id)
+{
 	C2Mailbox *l, *s;
 	gint i = 0;
 
@@ -187,7 +209,8 @@ c2_mailbox_search_id (C2Mailbox *head, gint id) {
  * A pointer to the C2Mailbox with name @name.
  **/
 C2Mailbox *
-c2_mailbox_search_name (C2Mailbox *head, const gchar *name) {
+c2_mailbox_search_name (C2Mailbox *head, const gchar *name)
+{
 	C2Mailbox *l, *s;
 	gint i = 0;
 
@@ -204,7 +227,8 @@ c2_mailbox_search_name (C2Mailbox *head, const gchar *name) {
 }
 
 void
-c2_mailbox_free (C2Mailbox *mbox) {
+c2_mailbox_free (C2Mailbox *mbox)
+{
 	c2_return_if_fail (mbox, C2EDATA);
 
 	if (mbox->db)

@@ -1,3 +1,20 @@
+/*  Cronos II
+ *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +27,7 @@
 #include "utils.h"
 
 static gchar *
-c2_db_path_mail							(const gchar *mbox, mid_t mid);
+c2_db_path_mail								(const gchar *mbox, mid_t mid);
 
 static gchar *
 c2_db_path									(const gchar *mbox);
@@ -27,7 +44,8 @@ c2_db_path									(const gchar *mbox);
  * (c2_errno will take the proper value)
  **/
 C2DB *
-c2_db_load (const gchar *db_name) {
+c2_db_load (const gchar *db_name)
+{
 	gchar *path, *line, *buf;
 	FILE *fd;
 	
@@ -108,7 +126,8 @@ c2_db_load (const gchar *db_name) {
  * Unloads a database.
  **/
 void
-c2_db_unload (C2DB *db_d) {
+c2_db_unload (C2DB *db_d)
+{
 	GList *l;
 	C2DBNode *node;
 
@@ -132,7 +151,7 @@ c2_db_unload (C2DB *db_d) {
 
 /**
  * c2_db_message_add
- * @db_d: Pointer to a DB Descriptor.
+ * @db_d: DB Descriptor.
  * @message: Message to be added.
  * @row: Row where to insert the message (-1 for the last one).
  * 
@@ -143,13 +162,14 @@ c2_db_unload (C2DB *db_d) {
  * c2_errno will be set the error.
  **/
 gint
-c2_db_message_add (C2DB **db_d, const gchar *message, gint row) {
+c2_db_message_add (C2DB *db_d, const gchar *message, gint row)
+{
 	return 0;
 }
 
 /**
  * c2_db_message_remove
- * @db_d: Pointer to a DB Descriptor.
+ * @db_d: DB Descriptor.
  * @row: Row to remove from the DB (-1 for all).
  * 
  * Will remove the row of the specified database.
@@ -159,8 +179,9 @@ c2_db_message_add (C2DB **db_d, const gchar *message, gint row) {
  * c2_errno will be set the error.
  **/
 gint
-c2_db_message_remove	(C2DB **db_d, gint row) {
-	c2_return_val_if_fail (*db_d, 1, C2EDATA);
+c2_db_message_remove (C2DB *db_d, gint row)
+{
+	c2_return_val_if_fail (db_d, 1, C2EDATA);
 	return 0;
 }
 
@@ -172,14 +193,15 @@ c2_db_message_remove	(C2DB **db_d, gint row) {
  * Will get a message from the specified database.
  * 
  * Return Value:
- * A C2DBMessage object with the message or
+ * A C2Message object with the message or
  * NULL in case of error.
  **/
-C2DBMessage *
-c2_db_message_get (C2DB *db_d, int row) {
+C2Message *
+c2_db_message_get (C2DB *db_d, int row)
+{
 	GList *l;
 	C2DBNode *node;
-	C2DBMessage *message = NULL;
+	C2Message *message = NULL;
 	gchar *path;
 	
 	c2_return_val_if_fail (db_d, NULL, C2EDATA);
@@ -207,10 +229,11 @@ c2_db_message_get (C2DB *db_d, int row) {
  * Return Value:
  * The Message object with the message or NULL in case of error.
  **/
-C2DBMessage *
-c2_db_message_get_from_file (const gchar *filename) {
+C2Message *
+c2_db_message_get_from_file (const gchar *filename)
+{
 	const gchar *path;
-	C2DBMessage *message;
+	C2Message *message;
 	struct stat *stat_buf;
 	gint len;
 	FILE *fd;
@@ -228,7 +251,7 @@ c2_db_message_get_from_file (const gchar *filename) {
 	len = ((gint) stat_buf->st_size * sizeof (gchar));
 	g_free (stat_buf);
 	
-	message = g_new0 (C2DBMessage, 1);
+	message = g_new0 (C2Message, 1);
 	message->mbox = NULL;
 	message->mid = 0;
 	message->message = g_new0 (gchar, len+1);
@@ -259,7 +282,8 @@ c2_db_message_get_from_file (const gchar *filename) {
  * The row where @mid was found.
  **/
 gint
-c2_db_message_search_by_mid (const C2DB *db_d, mid_t mid) {
+c2_db_message_search_by_mid (const C2DB *db_d, mid_t mid)
+{
 	C2DBNode *node;
 	GList *l;
 	int i = 0;
@@ -275,7 +299,8 @@ c2_db_message_search_by_mid (const C2DB *db_d, mid_t mid) {
 }
 
 static gchar *
-c2_db_path_mail (const gchar *mbox, mid_t mid) {
+c2_db_path_mail (const gchar *mbox, mid_t mid)
+{
 	static gchar *home = NULL;
 	
 	c2_return_val_if_fail (mbox, NULL, C2EDATA);
@@ -290,7 +315,8 @@ c2_db_path_mail (const gchar *mbox, mid_t mid) {
 }
 
 static gchar *
-c2_db_path (const gchar *mbox) {
+c2_db_path (const gchar *mbox)
+{
 	static gchar *home = NULL;
 	
 	c2_return_val_if_fail (mbox, NULL, C2EDATA);

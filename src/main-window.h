@@ -1,3 +1,20 @@
+/*  Cronos II
+ *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 #ifndef __MAIN_WINDOW_H__
 #define __MAIN_WINDOW_H__
 
@@ -7,8 +24,15 @@ extern "C" {
 
 #include <gnome.h>
 #include <pthread.h>
+
+#ifdef HAVE_CONFIG_H
+#	include <libmodules/mailbox.h>
+#else
+#	include <cronosII.h>
+#endif
 	
-enum {
+enum
+{
 	C2_HEADER_TITLES_FROM,
 	C2_HEADER_TITLES_TO,
 	C2_HEADER_TITLES_CC,
@@ -20,7 +44,8 @@ enum {
 	C2_HEADER_TITLES_LAST
 };
 
-typedef struct {
+typedef struct
+{
 	GtkWidget *get_new_mail;
 	GtkWidget *sendqueue;
 	GtkWidget *compose;
@@ -39,7 +64,8 @@ typedef struct {
 	GtkWidget *quit;
 } WindowMainToolbar;
 
-typedef struct {
+typedef struct
+{
 	GtkWidget *file_menu;
 	GtkWidget *get_new_mail;
 	GtkWidget *get_new_mail_sep;
@@ -72,7 +98,8 @@ typedef struct {
 	GtkWidget *attach_menu_sep;
 } WindowMainMenubar;
 
-typedef struct {
+typedef struct
+{
 	GtkWidget *window;
 	GtkWidget *hpaned;
 	GtkWidget *toolbar;
@@ -93,7 +120,7 @@ typedef struct {
 	WindowMainToolbar tb_w;
 	WindowMainMenubar mb_w;
 
-	gchar *selected_mbox;
+	C2Mailbox *selected_mbox;
 	gint selected_row;
 } C2WindowMain;
 

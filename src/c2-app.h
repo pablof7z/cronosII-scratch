@@ -1,3 +1,20 @@
+/*  Cronos II
+ *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 #ifndef __C2_APP_H__
 #define __C2_APP_H__
 
@@ -6,7 +23,6 @@ extern "C" {
 #endif
 
 #ifdef HAVE_CONFIG_H
-#	include <config.h>
 #	include <libmodules/mailbox.h>
 #else
 #	include <cronosII.h>
@@ -24,34 +40,39 @@ extern "C" {
 #	define DEBUG(x)			g_print ("%s:%d:%s:%s: '%s'\n", __FILE__, __LINE__, __PRETTY_FUNCTION__, #x, x);
 #endif
 
-typedef enum {
+typedef enum
+{
 	C2_DEFAULT_MIME_PLAIN,
 	C2_DEFAULT_MIME_HTML
 } C2DefaultMimeType;
 
-typedef enum {
+typedef enum
+{
 	C2_INIT_ADDRBOOK_AT_START,
 	C2_INIT_ADDRBOOK_AT_REQ,
 	C2_INIT_ADDRBOOK_AT_OPEN
 } C2InitAddrbookTime;
 
-typedef enum {
+typedef enum
+{
 	C2_MIME_WINDOW_STICKY,
 	C2_MIME_WINDOW_AUTOMATIC
 } C2MimeWindowMode;
 
-typedef enum {
-	SHOWABLE_HEADER_FIELD_TO	= 1 << 0,
-	SHOWABLE_HEADER_FIELD_DATE	= 1 << 1,
-	SHOWABLE_HEADER_FIELD_FROM	= 1 << 2,
-	SHOWABLE_HEADER_FIELD_SUBJECT	= 1 << 3,
-	SHOWABLE_HEADER_FIELD_ACCOUNT	= 1 << 4,
-	SHOWABLE_HEADER_FIELD_CC	= 1 << 5,
-	SHOWABLE_HEADER_FIELD_BCC	= 1 << 6,
-	SHOWABLE_HEADER_FIELD_PRIORITY	= 1 << 7
+typedef enum
+{
+	C2_SHOWABLE_HEADER_FIELD_TO			= 1 << 0,
+	C2_SHOWABLE_HEADER_FIELD_DATE		= 1 << 1,
+	C2_SHOWABLE_HEADER_FIELD_FROM		= 1 << 2,
+	C2_SHOWABLE_HEADER_FIELD_SUBJECT	= 1 << 3,
+	C2_SHOWABLE_HEADER_FIELD_ACCOUNT	= 1 << 4,
+	C2_SHOWABLE_HEADER_FIELD_CC			= 1 << 5,
+	C2_SHOWABLE_HEADER_FIELD_BCC		= 1 << 6,
+	C2_SHOWABLE_HEADER_FIELD_PRIORITY	= 1 << 7
 } C2ShowableHeaderField;
 
-enum {
+enum
+{
 	C2_SHOWABLE_HEADERS_PREVIEW,
 	C2_SHOWABLE_HEADERS_MESSAGE,
 	C2_SHOWABLE_HEADERS_COMPOSE,
@@ -60,8 +81,18 @@ enum {
 	C2_SHOWABLE_HEADERS_LAST
 };
 
-struct C2Application {
+typedef enum
+{
+	C2_REPORT_MESSAGE,
+	C2_REPORT_WARNING,
+	C2_REPORT_ERROR,
+	C2_REPORT_CRITICAL	/* Will finish the application */
+} C2ReportSeverity;
+
+struct C2Application
+{
 	GtkTooltips *tooltips;
+	GList *open_windows;
 
 	GdkBitmap *mask_unread, *mask_read, *mask_reply, *mask_forward;
 	GdkPixmap *pixmap_unread, *pixmap_read, *pixmap_reply, *pixmap_forward;
@@ -117,6 +148,15 @@ struct C2Application {
 
 gint
 c2_app_init											(void);
+
+void
+c2_app_register_window								(GtkWindow *window);
+
+void
+c2_app_unregister_window							(GtkWindow *window);
+
+void
+c2_app_report										(const gchar *msg, C2ReportSeverity severity);
 
 void
 c2_install_new										(void);

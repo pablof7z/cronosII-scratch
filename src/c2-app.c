@@ -1,3 +1,20 @@
+/*  Cronos II
+ *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 #include <config.h>
 #include <gnome.h>
 #include <stdio.h>
@@ -8,6 +25,7 @@
 #include <libmodules/utils.h>
 
 #include "c2-app.h"
+#include "main-window.h"
 
 #include "xpm/drafts.xpm"
 #include "xpm/inbox.xpm"
@@ -26,12 +44,87 @@
  * 0 if success, 1 if there's an error.
  **/
 gint
-c2_app_init (void) {
+c2_app_init (void)
+{
+	c2_app.open_windows = NULL;
+	return 0;
+}
 
+/**
+ * c2_app_register_window
+ * @window: A GtkWindow object.
+ * 
+ * This function will register a window
+ * in the c2 internals.
+ * This function MUST be called everytime a window
+ * is created.
+ **/
+void
+c2_app_register_window (GtkWindow *window)
+{
+	c2_return_if_fail (GTK_IS_WINDOW (window), C2EDATA);
+
+	c2_app.open_windows = g_list_append (c2_app.open_windows, window);
+
+	/* TODO Now we should update the Windows menu TODO */
+}
+
+/**
+ * c2_app_unregister_window
+ * @window: A GtkWindow object.
+ * 
+ * This function will unregister a window
+ * in the c2 internals.
+ * This function MUST be called everytime a window
+ * is about to be destroied.
+ **/
+void
+c2_app_unregister_window (GtkWindow *window)
+{
+	c2_return_if_fail (GTK_IS_WINDOW (window), C2EDATA);
+
+	c2_app.open_windows = g_list_remove (c2_app.open_windows, window);
+
+	/* TODO Now we should update the Windows menu TODO */
+}
+
+static gint
+on_report_expirate (gpointer data)
+{
+	if (!pthread_mutex_trylock (&WMain.appbar_lock))
+	{
+		gnome_appbar_pop (GNOME_APPBAR (WMain.appbar));
+		pthread_mutex_unlock (&WMain.appbar_lock);
+	}
+
+	return FALSE;
+}
+/**
+ * c2_app_report
+ * @msg: Message to display.
+ * @severity: Severity of the report.
+ *
+ * This function reports the user of something
+ * that happend. i.e. errors, warnings, etc.
+ **/
+void
+c2_app_report (const gchar *msg, C2ReportSeverity severity)
+{
+	c2_return_if_fail (msg, C2EDATA);
+
+	/* TODO Here we should ask which way to make a report: Statusbar, dialog, etc. TODO 
+	 * We assume statusbar */
+	if (!pthread_mutex_trylock (&WMain.appbar_lock))
+	{
+		gnome_appbar_push (GNOME_APPBAR (WMain.appbar), msg);
+		gtk_timeout_add (5000, on_report_expirate, NULL);
+		pthread_mutex_unlock (&WMain.appbar_lock);
+	}
 }
 
 void
-c2_mailbox_tree_fill (C2Mailbox *head, GtkCTreeNode *node, GtkWidget *ctree, GtkWidget *window) {
+c2_mailbox_tree_fill (C2Mailbox *head, GtkCTreeNode *node, GtkWidget *ctree, GtkWidget *window)
+{
 	C2Mailbox *current;
 	GdkPixmap *xpm;
 	GdkBitmap *msk;

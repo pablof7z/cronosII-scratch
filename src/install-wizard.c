@@ -1,5 +1,23 @@
+/*  Cronos II
+ *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 #include <gnome.h>
 #include <glib.h>
+#include <config.h>
 
 #include <libmodules/utils.h>
 #include <libmodules/error.h>
@@ -53,7 +71,8 @@ static gboolean
 import_old_configuration (void);
 
 static void
-on_page1_next_clicked (void) {
+on_page1_next_clicked (void)
+{
 	if (process_done)
 	{
 		gnome_druid_set_page (GNOME_DRUID (druid), GNOME_DRUID_PAGE (druidpage2));
@@ -83,7 +102,8 @@ import_failed:
 }
 
 static gboolean
-detect_old_configuration (void) {
+detect_old_configuration (void)
+{
 	gchar *home = g_get_home_dir ();
 	gchar *path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S ".CronosII" G_DIR_SEPARATOR_S "cronos.conf", home);
 	gboolean val = FALSE;
@@ -99,7 +119,8 @@ detect_old_configuration (void) {
 }
 
 static gboolean
-import_old_configuration (void) {
+import_old_configuration (void)
+{
 	gchar *home = g_get_home_dir ();
 	gchar *path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S ".CronosII" G_DIR_SEPARATOR_S "cronos.conf", home);
 	gchar *key, *val;
@@ -118,6 +139,10 @@ import_old_configuration (void) {
 	}
 	RESULT (TRUE);
 	g_free (path);
+
+	REPORT (N_("Registering in the new configuration 'Version'"));
+	gnome_config_set_string ("/cronosII/CronosII/Version", VERSION);
+	REPORT_RESULT (N_("Success."), TRUE);
 
 	for (;;)
 	{
@@ -288,9 +313,9 @@ import_old_configuration (void) {
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_strneq (key, "clist_", 6))
 		{
-			gnome_config_push_prefix ("/cronosII/Appareance/wm_");
+			gnome_config_push_prefix ("/cronosII/Appareance/wm_clist::");
 			REPORT (N_("Registering in the new configuration 'wm_clist'"));
-			gnome_config_set_int (key, atoi (val));
+			gnome_config_set_int (key+6, atoi (val));
 			REPORT_RESULT (N_("Success."), TRUE);
 			gnome_config_pop_prefix ();
 			g_free (val);
@@ -372,7 +397,8 @@ import_old_configuration (void) {
 }
 
 void
-c2_install_new (void) {
+c2_install_new (void)
+{
 	GtkWidget *vbox, *scroll;
 	GtkStyle *style;
 	GdkColor druidpage1_bg_color = { 0, 0, 0, 257 };
@@ -474,7 +500,21 @@ c2_install_new (void) {
 }
 
 static void
-on_close (void) {
+on_close (void)
+{
+	if (!process_done)
+	{
+		GtkWidget *_window = gnome_question_dialog (_(
+					"The configuration wasn't generated.\n"
+					"Quit anyway?"), NULL, NULL);
+		if (gnome_dialog_run_and_close (GNOME_DIALOG (_window)) == 0)
+		{
+			gtk_widget_destroy (window);
+			gtk_main_quit ();
+			exit (0);
+		} else
+			return;
+	}
 	gtk_widget_destroy (window);
 	gtk_main_quit ();
 }
