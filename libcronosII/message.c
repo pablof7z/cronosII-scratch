@@ -144,7 +144,9 @@ destroy (GtkObject *object)
 	C2Message *message;
 	
 	c2_return_if_fail (C2_IS_MESSAGE (object), C2EDATA);
-	
+
+	printf ("A message is being murded! aaaaaaaaaaaaaaahhhhhhhh!!!!\n");
+
 	message = C2_MESSAGE (object);
 
 	if (message->body)

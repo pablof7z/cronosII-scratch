@@ -1,6 +1,10 @@
 Sun Oct 21 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Changed the MIME_UNCAPABLE_WARNING constant to something more
 	  friendly and less agresive than "Your mail client sucks".
+	* Work in the Widget Transfer Item.
+	* Work in the composer.
+	* Work in the Makefile stuff for Bosko (for compatibility with
+	  FreeBSD)
 
 Sat Oct 20 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* A LOT of work in the message module, in the mime module and

@@ -413,8 +413,14 @@ c2_transfer_item_start (C2TransferItem *ti)
 	{
 		pthread_t thread;
 
+		/*gtk_signal_connect (GTK_OBJECT (ti->type_info.send.smtp), "resolve",
+							GTK_SIGNAL_FUNC (on_smtp_resolve), ti);*/
 		gtk_signal_connect (GTK_OBJECT (ti->type_info.send.smtp), "smtp_update",
 							GTK_SIGNAL_FUNC (on_smtp_smtp_update), ti);
+
+		gtk_progress_set_show_text (GTK_PROGRESS (ti->progress_mail), TRUE);
+		gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Resolving"));
+		
 		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_transfer_item_start_smtp_thread), ti);
 	} else
 		g_assert_not_reached ();
@@ -652,9 +658,15 @@ on_smtp_smtp_update (C2SMTP *smtp, gint id, guint length, guint bytes, C2Transfe
 	if (!bytes)
 	{
 		gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, length);
+		
 		gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Sending"));
 	}
 
 	gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), bytes);
+
+	if (bytes == length)
+	{
+		gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Completed"));
+	}
 	gdk_threads_leave ();
 }

@@ -186,7 +186,7 @@ gchar *s = N_("There is a file by that name already.\n"
               "\n"
               "Do you want to overwrite it?");
 gchar *s = N_("Confirmation");
-gchar *s = N_("Are you sure you want to\n"
-              "delete the selected mails.");
 gchar *s = N_("Confirmation");
+gchar *s = N_("Are you sure you want to\n"
+              "delete the selected mails?");
 gchar *s = N_("Do not ask again.");

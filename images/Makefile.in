@@ -136,11 +136,15 @@ pixmapdir = $(pkgdatadir)/pixmaps
 pixmap_DATA =  	advanced_misc.png		blue_arrow.png			close.png				contacts.png			copy-message.png		delete.png				drafts.png				exit.png				find.png				folder-closed.png		folder-opened.png		forward.png				garbage.png				general_accounts.png 	general_options.png		general_paths.png		general_plugins.png		green_arrow.png			inbox.png				interface_composer.png		interface_fonts.png		interface_html.png		interface_misc.png		loading-image.png		mailbox.png				mail-write.png			mails.png				mark-forward.png		mark-reply.png			mark.png				mcard-edit.png			mcard-edit_menu.png		mcard.png				mcard-menu.png			move-message.png		next.png				no-image.png			prev.png				print.png				outbox.png				queue_mbox.png			read.png				receive.png				red_arrow.png			save.png				send.png				send-receive.png		splash.png				reply-all.png			reply.png				unknown-file.png		unread.png				yellow_arrow.png
 
 
-EXTRA_DIST = $(pixmap_DATA)
+emoticonsdir = $(pixmapdir)/emoticons
+emoticons_DATA =  	emoticon-smiley.png		emoticon-sad.png		emoticon-surprise.png		emoticon-laugh.png		emoticon-angry.png
+
+
+EXTRA_DIST = $(pixmap_DATA) $(emoticons_DATA)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
-DATA =  $(pixmap_DATA)
+DATA =  $(emoticons_DATA) $(pixmap_DATA)
 
 DIST_COMMON =  ChangeLog Makefile.am Makefile.in
 
@@ -158,6 +162,25 @@ Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
+
+install-emoticonsDATA: $(emoticons_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(emoticonsdir)
+	@list='$(emoticons_DATA)'; for p in $$list; do \
+	  if test -f $(srcdir)/$$p; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(emoticonsdir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(emoticonsdir)/$$p; \
+	  else if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(emoticonsdir)/$$p"; \
+	    $(INSTALL_DATA) $$p $(DESTDIR)$(emoticonsdir)/$$p; \
+	  fi; fi; \
+	done
+
+uninstall-emoticonsDATA:
+	@$(NORMAL_UNINSTALL)
+	list='$(emoticons_DATA)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(emoticonsdir)/$$p; \
+	done
 
 install-pixmapDATA: $(pixmap_DATA)
 	@$(NORMAL_INSTALL)
@@ -212,20 +235,20 @@ installcheck: installcheck-am
 install-exec-am:
 install-exec: install-exec-am
 
-install-data-am: install-pixmapDATA
+install-data-am: install-emoticonsDATA install-pixmapDATA
 install-data: install-data-am
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am: uninstall-pixmapDATA
+uninstall-am: uninstall-emoticonsDATA uninstall-pixmapDATA
 uninstall: uninstall-am
 all-am: Makefile $(DATA)
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(pixmapdir)
+	$(mkinstalldirs)  $(DESTDIR)$(emoticonsdir) $(DESTDIR)$(pixmapdir)
 
 
 mostlyclean-generic:
@@ -256,10 +279,11 @@ maintainer-clean-am:  maintainer-clean-generic distclean-am
 
 maintainer-clean: maintainer-clean-am
 
-.PHONY: uninstall-pixmapDATA install-pixmapDATA tags distdir info-am \
-info dvi-am dvi check check-am installcheck-am installcheck \
-install-exec-am install-exec install-data-am install-data install-am \
-install uninstall-am uninstall all-redirect all-am all installdirs \
+.PHONY: uninstall-emoticonsDATA install-emoticonsDATA \
+uninstall-pixmapDATA install-pixmapDATA tags distdir info-am info \
+dvi-am dvi check check-am installcheck-am installcheck install-exec-am \
+install-exec install-data-am install-data install-am install \
+uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 

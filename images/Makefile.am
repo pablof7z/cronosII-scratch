@@ -54,4 +54,12 @@ pixmap_DATA = \
 	unread.png			\
 	yellow_arrow.png
 
-EXTRA_DIST = $(pixmap_DATA)
+emoticonsdir = $(pixmapdir)/emoticons
+emoticons_DATA = \
+	emoticon-smiley.png	\
+	emoticon-sad.png	\
+	emoticon-surprise.png	\
+	emoticon-laugh.png	\
+	emoticon-angry.png
+
+EXTRA_DIST = $(pixmap_DATA) $(emoticons_DATA)

@@ -25,6 +25,7 @@
 #include <libcronosII/mime.h>
 #include <libcronosII/utils.h>
 
+#include "preferences.h"
 #include "widget-composer.h"
 #include "widget-dialog-preferences.h"
 #include "widget-mailbox-list.h"
@@ -65,6 +66,9 @@ delete										(C2WindowMain *wmain);
 
 static void
 exit_										(C2WindowMain *wmain);
+
+static void
+expunge										(C2WindowMain *wmain);
 
 static void
 forward										(C2WindowMain *wmain);
@@ -197,6 +201,9 @@ on_mnu_toolbar_tooltips_toggled				(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_mnu_toolbar_edit_toolbar_activate		(GtkWidget *widget, C2WindowMain *wmain);
+
+static gint
+dlg_confirm_delete_message					(C2WindowMain *wmain);
 
 /* in widget-application.c */
 extern void
@@ -373,6 +380,7 @@ class_init (C2WindowMainClass *klass)
 	klass->copy = copy;
 	klass->delete = delete;
 	klass->exit = exit_;
+	klass->expunge = expunge;
 	klass->forward = forward;
 	klass->move = move;
 	klass->next = next;
@@ -645,41 +653,43 @@ copy (C2WindowMain *wmain)
 }
 
 static void
-on_delete_thread (C2WindowMain *wmain)
+delete (C2WindowMain *wmain)
 {
 	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
-	C2Mailbox *trash = c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox,
-												C2_MAILBOX_GARBAGE);
 	GList *list;
 
 	list = GTK_CLIST (wmain->index)->selection;
 
-	if (gnome_config_get_bool_with_default ("/"PACKAGE"/General-Options/delete_use_trash=true", NULL))
-	{
-		/* Ask for confirmation (if we should) */
-		if (gnome_config_get_bool_with_default ("/"PACKAGE"/General-Options/delete_confirmation", NULL))
+	if (c2_preferences_get_general_options_delete_use_trash ())
+	{ /* We have to save in «Trash» */
+		C2Mailbox *trash = c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox,
+												C2_MAILBOX_GARBAGE);
+		
+		if (trash == mailbox)
+			/* This is already «Trash», we have to expunge */
+			goto expunge;
+		
+		/* Ask for confirmation (if we are supposed to) */
+		if (c2_preferences_get_general_options_delete_confirmation ())
 		{
-/*			if (!dlg_confirm_delete_message (GTK_WINDOW (wmain)))
-				return;*/
+			if (!dlg_confirm_delete_message (wmain))
+			{
+				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
+									_("Deletion cancelled by user"));
+				return;
+			}
 		}
+
+		/* Ok, we are ready to move everything to «Trash» */
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
+							"And now we move everything to «%s»", trash->name);
 		
 //		cd_db_message_move (mailbox, trash, list);
 	} else
-	{
-		/* Ask for confirmation */
-/*		if (!dlg_confirm_permanently_delete_message (GTK_WINDOW (wmain)))
-			return;*/
-
-		c2_db_message_remove (mailbox, list);
+	{ /* We have to expunge */
+expunge:
+		C2_WINDOW_MAIN_CLASS_FW (wmain)->expunge (wmain);
 	}
-}
-
-static void
-delete (C2WindowMain *wmain)
-{
-	pthread_t thread;
-
-	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_delete_thread), wmain);
 }
 
 static void
@@ -687,6 +697,11 @@ exit_ (C2WindowMain *wmain)
 {
 /* TODO	c2_application_finish (C2_WINDOW (wmain)->application); */
 	gtk_object_destroy (GTK_OBJECT (wmain));
+}
+
+static void
+expunge (C2WindowMain *wmain)
+{
 }
 
 static void
@@ -1624,8 +1639,65 @@ re_run_add_mailbox_dialog:
 
 
 
-#if 1 /* Toolbar configuration */
+#if 1 /* Delete Mails Confirmation Dialog */
+static void
+dlg_confirm_delete_message_confirmation_btn_toggled (GtkWidget *widget)
+{
+	c2_preferences_set_general_options_delete_confirmation (
+						!GTK_TOGGLE_BUTTON (widget)->active);
+	c2_preferences_commit ();
+}
 
+static gboolean
+dlg_confirm_delete_message (C2WindowMain *wmain)
+{
+	C2Application *application;
+	GtkWidget *dialog;
+	GtkWidget *pixmap;
+	GtkWidget *toggle;
+	GladeXML *xml;
+	gboolean retval;
+	
+	c2_return_val_if_fail (C2_IS_WINDOW_MAIN (wmain), 0, C2EDATA);
+
+	application = C2_WINDOW (wmain)->application;
+
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_confirm_delete_message");
+
+	dialog = glade_xml_get_widget (xml, "dlg_confirm_delete_message");
+	c2_application_window_add (application, GTK_WINDOW (dialog));
+
+	pixmap = glade_xml_get_widget (xml, "pixmap");
+	gnome_pixmap_load_file (GNOME_PIXMAP (pixmap), gnome_pixmap_file ("gnome-question.png"));
+
+	toggle = glade_xml_get_widget (xml, "confirmation_btn");
+	gtk_signal_connect (GTK_OBJECT (toggle), "toggled",
+						GTK_SIGNAL_FUNC (dlg_confirm_delete_message_confirmation_btn_toggled), NULL);
+
+	gtk_window_set_position (GTK_WINDOW (dialog),
+					gnome_preferences_get_dialog_position ());
+	gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (wmain));
+	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
+	gnome_dialog_close_hides (GNOME_DIALOG (dialog), TRUE);
+	if (gnome_dialog_run (GNOME_DIALOG (dialog)) == 0)
+		retval = TRUE;
+	else
+		retval = FALSE;
+
+	c2_application_window_remove (application, GTK_WINDOW (dialog));
+	gtk_widget_destroy (dialog);
+	gtk_object_destroy (GTK_OBJECT (xml));
+
+	return retval;
+}
+#endif /* Delete Mails Confirmation Dialog */
+
+
+
+
+
+
+#if 1 /* Toolbar configuration */
 #define APPEND_SEPARATOR(__widget__, n)	\
 	{ \
 		gchar *__text [] = { "---", N_("Separator") }; \

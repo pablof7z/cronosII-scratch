@@ -88,6 +88,7 @@ struct _C2WindowMainClass
 	void (*copy) (C2WindowMain *wmain);
 	void (*delete) (C2WindowMain *wmain);
 	void (*exit) (C2WindowMain *wmain);
+	void (*expunge) (C2WindowMain *wmain);
 	void (*forward) (C2WindowMain *wmain);
 	void (*move) (C2WindowMain *wmain);
 	void (*next) (C2WindowMain *wmain);

@@ -146,7 +146,7 @@ cronosII_SOURCES =  	install-wizard.c											main.c						main.h							object-
 cronosII_LDADD =  	./$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
 
 
-cronosII_LDFLAGS =  	./././$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
+cronosII_LDFLAGS =  	./././$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS) -pthread
 
 
 ui_text_editor_SOURCES =  	object-ui-data.c			object-ui-data.h				ui-text-editor.c
@@ -155,7 +155,7 @@ ui_text_editor_SOURCES =  	object-ui-data.c			object-ui-data.h				ui-text-editor
 ui_text_editor_LDADD =  	./$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
 
 
-ui_text_editor_LDFLAGS =  	./././$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
+ui_text_editor_LDFLAGS =  	./././$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS) -pthread
 
 
 EXTRA_DIST =  	README.FAQ				preferences-trans.h		trans.h

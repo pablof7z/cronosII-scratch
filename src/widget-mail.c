@@ -438,12 +438,20 @@ avoid_interpret:
 			g_free (buf);
 		} else
 		{
-			if (c2_streq (word, ":)"))
-				g_string_append (string, "<img src=\"c2dist://html-icons/:).png\" width=10 height=10 alt=\":)\">");
-			else if (c2_streq (word, ":D"))
-				g_string_append (string, "<img src=\"c2dist://html-icons/:D.png\" width=10 height=10 alt=\":D\">");
+			if (c2_streq (word, ":)") ||
+				c2_streq (word, ":-)"))
+				g_string_append (string, "<img src=\"c2dist://pixmaps/emoticons/emoticon-smiley.png\" width=16 height=16 alt=\":)\">");
+			else if (c2_streq (word, ":D") ||
+					 c2_streq (word, ":-D"))
+				g_string_append (string, "<img src=\"c2dist://pixmaps/emoticons/emoticon-laugh.png\" width=16 height=16 alt=\":D\">");
 			else if (c2_streq (word, ":P"))
-				g_string_append (string, "<img src=\"c2dist://html-icons/:P.png\" width=10 height=10 alt=\":P\">");
+				g_string_append (string, "<img src=\"c2dist://pixmaps/emoticons/emoticon-tounge.png\" width=16 height=16 alt=\":P\">");
+			else if (c2_streq (word, ":(") ||
+					 c2_streq (word, ":-("))
+				g_string_append (string, "<img src=\"c2dist://pixmaps/emoticons/emoticon-sad.png\" width=16 height=16 alt=\":(\">");
+			else if (c2_streq (word, ":0") ||
+					 c2_streq (word, ":-0"))
+				g_string_append (string, "<img src=\"c2dist://pixmaps/emoticons/emoticon-surprise.png\" width=16 height=16 alt=\":0\">");
 			else if (c2_strneq (word, "http://", 7)		||
 					 c2_strneq (word, "https://", 8)	||
 					 c2_strneq (word, "ftp://", 6)		||

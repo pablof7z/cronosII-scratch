@@ -137,7 +137,7 @@ bin_PROGRAMS = account date db hash imap mailbox message pop3 request smtp utils
 INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules -I$(top_srcdir)/src $(GNOME_INCLUDEDIR)
 
 LDADD = $(top_builddir)/libcronosII/libcronosII.a
-LDFLAGS = $(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(GTK_LIBS) $(HTMLLIBS) $(GCONFLIBS)
+LDFLAGS = $(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(GTK_LIBS) $(HTMLLIBS) $(GCONFLIBS) -pthread
 
 
 account_SOURCES = account.c
