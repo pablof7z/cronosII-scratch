@@ -101,8 +101,10 @@ struct _C2SMTP
 
 	C2NetObjectByte *persistent; /* for persistent connections */
 	gint flags;
+	gint uses;
 	
 	C2Mutex lock;
+	C2Mutex in_use;
 };
 	
 struct _C2SMTPClass

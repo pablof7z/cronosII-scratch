@@ -170,8 +170,10 @@ init (C2SMTP *smtp)
 	smtp->pass = NULL;
 	smtp->smtp_local_cmd = NULL;
 	smtp->flags = DEFAULT_FLAGS;
-
+	smtp->uses = 0;
+	
 	c2_mutex_init (&smtp->lock);
+	c2_mutex_init (&smtp->in_use);
 }
 
 static void
@@ -180,30 +182,8 @@ destroy (GtkObject *object)
 	C2SMTP *smtp = C2_SMTP(object);
 
 	c2_mutex_lock(&smtp->lock);
+	c2_mutex_lock(&smtp->in_use);
 	
-	/* [TODO] (Note by Pablo)
-	 * Hey, Bosko, this will give you troubles
-	 * with C2_SMTP_LOCAL since the C2NetObject
-	 * it uses is not using specified states
-	 * like offline, maybe you should put
-	 * in the c2_smtp_new, if type == C2_SMTP_LOCAL
-	 * that the net object must start with the
-	 * offline state, and it would be nice that
-	 * even thogh you are using a C2_SMTP_LOCAL the
-	 * other states are handled by this module
-	 * (not by the C2NetObject since you
-	 * will not be using its function but a external
-	 * cmnd.
-	 */
-/*	if(!c2_net_object_is_offline(C2_NET_OBJECT(smtp)))
-	{
-		c2_net_object_disconnect(C2_NET_OBJECT(smtp));
-		c2_net_object_destroy_byte (C2_NET_OBJECT (smtp));
-#ifdef USE_DEBUG
-		g_warning ("Destroying a C2SMTP object which was not offline\n");
-#endif
-	}*/
-
 	c2_smtp_set_error(smtp, NULL);
 	
 	if (smtp->host)
@@ -219,7 +199,9 @@ destroy (GtkObject *object)
 		g_free(smtp->smtp_local_cmd);
 	
 	c2_mutex_unlock(&smtp->lock);
+	c2_mutex_unlock(&smtp->in_use);
 	c2_mutex_destroy(&smtp->lock);
+	c2_mutex_destroy(&smtp->in_use);
 }
 
 C2SMTP *
@@ -297,6 +279,8 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 			smtp->persistent = byte;
 		else
 			smtp->persistent = NULL;
+		smtp->uses++;
+		if(!smtp->in_use.lock) c2_mutex_lock(&smtp->in_use);
 		if(smtp->flags & C2_SMTP_DO_NOT_PERSIST) c2_mutex_unlock(&smtp->lock);
 		if(c2_smtp_send_headers(smtp, byte, message) < 0)
 		{	
@@ -339,12 +323,16 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 	else if(smtp->type == C2_SMTP_LOCAL) 
 	{
 		gchar *file_name, *from, *to, *temp, *cmd;
-
+		
+		smtp->uses++;
+		if(!smtp->in_use.lock) c2_mutex_lock(&smtp->in_use);
 		file_name = c2_get_tmp_file (NULL);
 		if(c2_smtp_local_write_msg(message, file_name) < 0) 
 		{
 			g_free(file_name);
 			c2_smtp_set_error(smtp, _("System Error: Unable to write message to disk for local SMTP command"));
+			smtp->uses--;
+			if(!smtp->uses) c2_mutex_unlock(&smtp->in_use);
 			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
@@ -357,6 +345,8 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 			unlink(file_name);
 			if(from) g_free(from);
 			g_free(file_name);
+			smtp->uses--;
+			if(!smtp->uses) c2_mutex_unlock(&smtp->in_use);
 			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
@@ -381,6 +371,8 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 			unlink(file_name);
 			g_free(file_name);
 			g_free(cmd);
+			smtp->uses--;
+			if(!smtp->uses) c2_mutex_unlock(&smtp->in_use);
 			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
@@ -392,6 +384,8 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 
 	gtk_object_unref (GTK_OBJECT (message));
 	
+	smtp->uses--;
+	if(!smtp->uses) c2_mutex_unlock(&smtp->in_use);
 	gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, 1);
 	return 0;
 }
@@ -691,6 +685,9 @@ smtp_disconnect(C2SMTP *smtp, C2NetObjectByte *byte)
 	
 	if(smtp->persistent == byte)
 		smtp->persistent = NULL;
+	smtp->uses--;
+	if(!smtp->uses)
+		c2_mutex_unlock(&smtp->in_use);
 }
 
 static gint
