@@ -1,3 +1,7 @@
+Mon Oct 15 Peter William Gossner <gossner@arcom.com.au>
+	* Added a few new file to further "modularise" the manual.
+	* Brought all manual files up to my system level.
+	
 Sun Oct 14 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* New function to wrap strings.
 	* Wrapping in mail rendering is working.
