@@ -152,19 +152,63 @@ typedef gpointer (*C2CommandFunc)			(C2Application *application, va_list args);
 
 #define C2_COMMAND_FUNC(f)					(C2CommandFunc) f
 
+#define AVAILABLE_ARGS 8
 struct {
 	const gchar *cmnd;
 	C2CommandFunc func;
 	size_t params;
+	GtkFundamentalType arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8;
 } commands[] =
 {
-	{ C2_COMMAND_WINDOW_MAIN_NEW, C2_COMMAND_FUNC (command_wmain_new), 1*sizeof (gchar)},
-	{ C2_COMMAND_WINDOW_MAIN_RAISE, C2_COMMAND_FUNC (command_wmain_raise), 1*sizeof (gchar) },
-	{ C2_COMMAND_WINDOW_MAIN_HIDE, C2_COMMAND_FUNC (command_wmain_hide), 0 },
-	{ C2_COMMAND_COMPOSER_NEW, C2_COMMAND_FUNC (command_composer_new), 1*sizeof(gboolean)+2*sizeof(gchar) },
-	{ C2_COMMAND_CHECK_MAIL, C2_COMMAND_FUNC (command_check_mail), 0 },
-	{ C2_COMMAND_EXIT, C2_COMMAND_FUNC (command_exit), 0 },
-	{ NULL, NULL, 0 }
+	{
+		C2_COMMAND_WINDOW_MAIN_NEW,
+		C2_COMMAND_FUNC (command_wmain_new),
+		1*sizeof (gchar),
+		GTK_TYPE_STRING, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE,
+		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE
+	},
+	{
+		C2_COMMAND_WINDOW_MAIN_RAISE,
+		C2_COMMAND_FUNC (command_wmain_raise),
+		0,
+		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE,
+		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE
+	},
+	{
+		C2_COMMAND_WINDOW_MAIN_HIDE,
+		C2_COMMAND_FUNC (command_wmain_hide),
+		0,
+		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE,
+		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE
+	},
+	{
+		C2_COMMAND_COMPOSER_NEW,
+		C2_COMMAND_FUNC (command_composer_new),
+		1*sizeof(gboolean)+2*sizeof(gchar),
+		GTK_TYPE_BOOL, GTK_TYPE_STRING, GTK_TYPE_STRING, GTK_TYPE_NONE,
+		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE
+	},
+	{
+		C2_COMMAND_CHECK_MAIL,
+		C2_COMMAND_FUNC (command_check_mail),
+		0,
+		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE,
+		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE
+	},
+	{
+		C2_COMMAND_EXIT,
+		C2_COMMAND_FUNC (command_exit),
+		0,
+		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE,
+		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE
+	},
+	{
+		NULL,
+		NULL,
+		0,
+		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE,
+		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE
+	}
 };
 
 enum
@@ -294,6 +338,7 @@ init (C2Application *application)
 	
 	if (connect (application->server_socket, (struct sockaddr*) &sa, sizeof (sa)) < 0)
 	{
+		perror ("connect");
 		/* We couldn't connect, we'll act as server */
 		unlink (path);
 
@@ -306,6 +351,7 @@ init (C2Application *application)
 
 		if (listen (application->server_socket, 10) < 0)
 		{
+			printf ("Not acting as server\n");
 			application->acting_as_server = 0;
 			perror ("listen");
 			goto _init;
@@ -315,8 +361,10 @@ init (C2Application *application)
 		c2_mutex_init (application->server_lock);
 		gdk_input_add (application->server_socket, GDK_INPUT_READ, on_server_read, application);
 		application->acting_as_server = 1;
+		printf ("Acting as server\n");
 	} else
 	{
+		printf ("Not acting as server\n");
 		application->acting_as_server = 0;
 		return;
 	}
@@ -639,6 +687,18 @@ destroy (GtkObject *object)
 	C2Application *application = C2_APPLICATION (object);
 	GSList *l;
 
+	close (application->server_socket);
+
+	if (application->acting_as_server)
+	{
+		gchar *path;
+
+		path = g_strdup_printf ("%s" C2_HOME, g_get_home_dir ());
+		chdir (path);
+
+		unlink (C2_UNIX_SOCKET);
+	}
+
 	g_free (application->name);
 
 	for (l = application->open_windows; l; l = g_slist_next (l))
@@ -750,12 +810,33 @@ start:
 				c2_application_command (application, C2_COMMAND_WINDOW_MAIN_NEW, arg1);
 			} else if (c2_streq (commands[i].cmnd, C2_COMMAND_COMPOSER_NEW))
 			{
-				gboolean is_link;
-				gchar *headers = NULL;
-				gchar *values = NULL;
-				gchar *buf;
-
 //				buf = c2_str_get_word (1, buffer, 
+			} else if (c2_streq (commands[i].cmnd, C2_COMMAND_CHECK_MAIL))
+			{
+				c2_application_command (application, C2_COMMAND_CHECK_MAIL);
+			} else if (c2_streq (commands[i].cmnd, C2_COMMAND_WINDOW_MAIN_RAISE))
+			{
+				gchar *arg1;
+
+				arg1 = c2_str_get_word (1, buffer, ' ');
+				if (c2_streq (arg1, "(MTAnull)"))
+				{
+					g_free (arg1);
+					arg1 = NULL;
+				}
+				
+				c2_application_command (application, C2_COMMAND_WINDOW_MAIN_RAISE, arg1);
+				
+				g_free (arg1);
+			} else if (c2_streq (commands[i].cmnd, C2_COMMAND_WINDOW_MAIN_HIDE))
+			{
+				c2_application_command (application, C2_COMMAND_WINDOW_MAIN_HIDE);
+			} else if (c2_streq (commands[i].cmnd, C2_COMMAND_EXIT))
+			{
+				c2_application_command (application, C2_COMMAND_EXIT);
+			} else
+			{
+				g_warning (_("Recived unknown command: '%s'\n"), buffer);
 			}
 		}
 	}
@@ -886,7 +967,9 @@ compact_mailboxes_on_timeout (GtkWidget *progress)
 {
 	gfloat value;
 
+	gdk_threads_enter ();
 	value = gtk_progress_get_current_percentage (GTK_PROGRESS (progress));
+	gdk_threads_leave ();
 	
 	if (value < 0.50)
 		value += 0.03;
@@ -964,7 +1047,7 @@ compact_mailboxes_thread (GladeXML *xml)
 		iwidget = glade_xml_get_widget (ixml, "mailboxes_label");
 		gtk_label_get (GTK_LABEL (iwidget), &ibuf);
 		ibuf2 = g_strdup_printf ("%d", i);
-		ibuf3 = c2_str_replace_all (ibuf, "%MAILBOXES%", ibuf2);
+		ibuf3 = c2_str_replace_all (ibuf, _("%MAILBOXES%"), ibuf2);
 		g_free (ibuf);
 		g_free (ibuf2);
 		ibuf = ibuf3;
@@ -979,7 +1062,7 @@ compact_mailboxes_thread (GladeXML *xml)
 		else
 			ibuf2 = g_strdup_printf ("%.1f Mb", (*cbytes)/1024);
 
-		ibuf3 = c2_str_replace_all (ibuf, "%CSPACE%", ibuf2);
+		ibuf3 = c2_str_replace_all (ibuf, _("%CSPACE%"), ibuf2);
 		g_free (ibuf);
 		g_free (ibuf2);
 		ibuf = ibuf3;
@@ -994,7 +1077,7 @@ compact_mailboxes_thread (GladeXML *xml)
 		else
 			ibuf2 = g_strdup_printf ("%.1f Mb", (*tbytes)/1024);
 
-		ibuf3 = c2_str_replace_all (ibuf, "%TSPACE%", ibuf2);
+		ibuf3 = c2_str_replace_all (ibuf, _("%TSPACE%"), ibuf2);
 		g_free (ibuf);
 		g_free (ibuf2);
 		ibuf = ibuf3;
@@ -1645,31 +1728,6 @@ on_mailbox_changed_mailboxes (C2Mailbox *mailbox, C2Application *application)
 	gtk_signal_emit (GTK_OBJECT (application), signals[RELOAD_MAILBOXES]);
 }
 
-/**
- * This function works for the tracking of the network
- * speed.
- **/
-static void
-on_net_speed_timeout (C2Application *application)
-{
-	
-}
-
-static gboolean
-on_application_timeout_check (C2Application *application)
-{
-	printf ("Ejecutando on_application_timeout_check\n");
-	/* If there's no account configured we will wait for the next timeout */
-	if (!c2_application_check_checkeable_account_exists (application))
-		return TRUE;
-	
-	gtk_object_set_data (GTK_OBJECT (application), "check::silent", 1);
-	C2_APPLICATION_CLASS_FW (application)->check (application);
-	gtk_object_set_data (GTK_OBJECT (application), "check::silent", NULL);
-
-	return FALSE;
-}
-
 static void
 on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db *db,
 							C2Application *application)
@@ -1692,7 +1750,7 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 	db = db->next;
 
 	c2_db_load_message (db);
-L
+
 	buf = c2_message_get_header_field (db->message, "X-CronosII-Send-Type:");
 	if (((C2ComposerSendType) atoi (buf)) != C2_COMPOSER_SEND_NOW)
 	{
@@ -1722,7 +1780,32 @@ L
 	gtk_widget_show (tl);
 	gdk_window_raise (tl->window);
 	gdk_threads_leave ();
-L}
+}
+
+/**
+ * This function works for the tracking of the network
+ * speed.
+ **/
+static void
+on_net_speed_timeout (C2Application *application)
+{
+	
+}
+
+static gboolean
+on_application_timeout_check (C2Application *application)
+{
+	printf ("Ejecutando on_application_timeout_check\n");
+	/* If there's no account configured we will wait for the next timeout */
+	if (!c2_application_check_checkeable_account_exists (application))
+		return TRUE;
+	
+	gtk_object_set_data (GTK_OBJECT (application), "check::silent", 1);
+	C2_APPLICATION_CLASS_FW (application)->check (application);
+	gtk_object_set_data (GTK_OBJECT (application), "check::silent", NULL);
+
+	return FALSE;
+}
 
 C2Application *
 c2_application_new (const gchar *name, gboolean running_as_server)
@@ -1736,21 +1819,24 @@ c2_application_new (const gchar *name, gboolean running_as_server)
 	application->name = g_strdup (name);
 	application->running_as_server = running_as_server;
 
-	timeout_check = c2_preferences_get_general_options_timeout_check ();
-
-	printf ("Setting timeout to %d\n", timeout_check * 60000);
+	if (application->acting_as_server)
+	{
+		timeout_check = c2_preferences_get_general_options_timeout_check ();
 	
-	/* Check at start */
-	if (!running_as_server && c2_preferences_get_general_options_start_check () &&
-			c2_application_check_checkeable_account_exists (application))
-	{
-		gtk_object_set_data (GTK_OBJECT (application), "check::wait_idle", 1);
-		C2_APPLICATION_CLASS_FW (application)->check (application);
-		gtk_object_set_data (GTK_OBJECT (application), "check::wait_idle", NULL);
-	} else if (timeout_check)
-	{
-L		application->check_timeout = gtk_timeout_add (timeout_check * 6000, /* 60000 = 60 (seconds) * 1000 */
-							(GtkFunction) on_application_timeout_check, application);
+		printf ("Setting timeout to %d\n", timeout_check * 60000);
+		
+		/* Check at start */
+		if (!running_as_server && c2_preferences_get_general_options_start_check () &&
+				c2_application_check_checkeable_account_exists (application))
+		{
+			gtk_object_set_data (GTK_OBJECT (application), "check::wait_idle", 1);
+			C2_APPLICATION_CLASS_FW (application)->check (application);
+			gtk_object_set_data (GTK_OBJECT (application), "check::wait_idle", NULL);
+		} else if (timeout_check)
+		{
+			application->check_timeout = gtk_timeout_add (timeout_check * 6000, /* 60000 = 60 (seconds) * 1000 */
+								(GtkFunction) on_application_timeout_check, application);
+		}
 	}
 
 	gtk_signal_connect (GTK_OBJECT (application), "destroy",
@@ -1890,16 +1976,117 @@ c2_application_command (C2Application *application, const gchar *cmnd, ...)
 {
 	gint i;
 	va_list args;
+	gchar *rcmnd = NULL;
 
 	va_start (args, cmnd);
 
-	for (i = 0; commands[i].func; i++)
-		if (c2_streq (commands[i].cmnd, cmnd))
+	if (application->acting_as_server)
+	{
+		for (i = 0; commands[i].func; i++)
+			if (c2_streq (commands[i].cmnd, cmnd))
+			{
+				printf ("Executing command %s\n", commands[i].cmnd);
+				commands[i].func (application, args);
+				break;
+			}
+	} else
+	{
+		for (i = 0; commands[i].func; i++)
 		{
-			printf ("Executing command %s\n", commands[i].cmnd);
-			commands[i].func (application, args);
-			break;
+			if (c2_streq (commands[i].cmnd, cmnd))
+			{
+				gint l;
+
+				for (l = 0; l < AVAILABLE_ARGS; l++)
+				{
+					gchar *buf, *buf2;
+					GtkFundamentalType type;
+
+					switch (l)
+					{
+						case 0:
+							type = commands[i].arg1;
+							break;
+						case 1:
+							type = commands[i].arg2;
+							break;
+						case 2:
+							type = commands[i].arg3;
+							break;
+						case 3:
+							type = commands[i].arg4;
+							break;
+						case 4:
+							type = commands[i].arg5;
+							break;
+						case 5:
+							type = commands[i].arg6;
+							break;
+						case 6:
+							type = commands[i].arg7;
+							break;
+						case 7:
+							type = commands[i].arg8;
+							break;
+						default:
+							type = GTK_TYPE_NONE;
+					}
+
+					switch (type)
+					{
+						case GTK_TYPE_UCHAR:
+						case GTK_TYPE_CHAR:
+							buf = g_strdup_printf ("%c", va_arg (args, gchar));
+							break;
+						case GTK_TYPE_BOOL:
+							buf = g_strdup_printf ("%d", va_arg (args, gboolean));
+							break;
+						case GTK_TYPE_ENUM:
+						case GTK_TYPE_UINT:
+						case GTK_TYPE_INT:
+							buf = g_strdup_printf ("%d", va_arg (args, gint));
+							break;
+						case GTK_TYPE_ULONG:
+						case GTK_TYPE_LONG:
+							buf = g_strdup_printf ("%ld", va_arg (args, glong));
+							break;
+						case GTK_TYPE_FLOAT:
+							buf = g_strdup_printf ("%f", va_arg (args, gfloat));
+							break;
+						case GTK_TYPE_DOUBLE:
+							buf = g_strdup_printf ("%lf", va_arg (args, gdouble));
+							break;
+						case GTK_TYPE_STRING:
+							buf = g_strdup_printf ("%s", va_arg (args, gchar*));
+							break;
+					}
+
+					if (type == GTK_TYPE_NONE)
+						break;
+
+					if (rcmnd)
+					{
+						buf2 = g_strdup_printf ("%s %s", rcmnd, buf);
+						g_free (rcmnd);
+						rcmnd = buf2;
+					} else
+					{
+						rcmnd = g_strdup_printf ("%s %s", cmnd, buf);
+					}
+					g_free (buf);
+				}
+
+				break;
+			}
 		}
+
+		if (!rcmnd)
+			rcmnd = g_strdup (cmnd);
+
+		printf ("Sending '%s'\n", rcmnd);
+		c2_net_send (application->server_socket, "%s\n", rcmnd);
+		g_free (rcmnd);
+	}
 
 	va_end (args);
 }
@@ -1949,6 +2136,16 @@ command_wmain_new (C2Application *application, va_list args)
 }
 
 static void
+command_wmain_raise_new (C2Application *application, ...)
+{
+	va_list args;
+
+	va_start (args, application);
+	command_wmain_new (application, args);
+	va_end (args);
+}
+
+static void
 command_wmain_raise (C2Application *application, va_list args)
 {
 	GtkWidget *widget;
@@ -1956,7 +2153,7 @@ command_wmain_raise (C2Application *application, va_list args)
 	widget = c2_application_window_get (application, "wmain");
 
 	if (!C2_IS_WINDOW_MAIN (widget))
-		command_wmain_new (application, args);
+		command_wmain_raise_new (application, NULL);
 	else
 	{
 		gtk_widget_show (widget);

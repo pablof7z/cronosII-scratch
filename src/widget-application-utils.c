@@ -161,8 +161,6 @@ on_dialog_missing_mailbox_inform_fix_clicked (GtkWidget *widget, GtkWidget *dial
 
 	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
 
-	C2_DEBUG (name);
-
 	if (c2_streq (name, C2_MAILBOX_INBOX))
 		use_as = C2_MAILBOX_USE_AS_INBOX;
 	else if (c2_streq (name, C2_MAILBOX_OUTBOX))

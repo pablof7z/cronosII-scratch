@@ -800,19 +800,19 @@ on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *
 	GtkCTree *ctree = GTK_CTREE (data->v1);
 	GtkCTreeNode *cnode = GTK_CTREE_NODE (data->v2);
 	gint unreaded;
-L
+
 	switch (type)
 	{
 		case C2_MAILBOX_CHANGE_ANY:
 		case C2_MAILBOX_CHANGE_ADD:
 		case C2_MAILBOX_CHANGE_REMOVE:
 		case C2_MAILBOX_CHANGE_STATE:
-L			gdk_threads_enter ();
+			gdk_threads_enter ();
 			mailbox_node_fill (ctree, cnode, mailbox, NULL, &unreaded);
 			gdk_threads_leave ();
 			break;
 	}
-L}
+}
 
 static void
 account_node_fill (GtkCTree *ctree, GtkCTreeNode *cnode, C2Account *account)

@@ -2351,7 +2351,6 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 		widget = glade_xml_get_widget (xml, "incoming_server_username");
 		user = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 		gnome_config_set_string ("incoming_server_username", user);
-		C2_DEBUG (user);
 
 		widget = glade_xml_get_widget (xml, "incoming_auth_remember");
 		rem = GTK_TOGGLE_BUTTON (widget)->active;

@@ -69,6 +69,11 @@ static struct {
 	gboolean check;
 	gboolean open_main_window;
 	gboolean be_server;
+	
+	gboolean hide_wmain;
+	gboolean raise_wmain;
+
+	gboolean exit;
 } flags =
 {
 	FALSE,
@@ -84,6 +89,9 @@ static struct {
 
 	NULL,
 
+	FALSE,
+	FALSE,
+	FALSE,
 	FALSE,
 	FALSE,
 	FALSE
@@ -138,7 +146,7 @@ c2_init (gint argc, gchar **argv)
 			"link", 'l', POPT_ARG_STRING,
 			&(flags.mailto), 0,
 			N_("Compose a new email decoding the argument as a mailto: link"),
-			"mailto:email@somewhere."
+			N_("mailto:email@somewhere.")
 		},
 		{
 			"mailbox", 'm', POPT_ARG_STRING,
@@ -160,6 +168,22 @@ c2_init (gint argc, gchar **argv)
 			"server", 's', POPT_ARG_NONE,
 			&(flags.be_server), 0,
 			N_("Don't open any windows; instead act as a server for quick startup of new Cronos II instances"),
+			NULL
+		},
+		{
+			"hide_wmain", 0, POPT_ARG_NONE,
+			&(flags.hide_wmain), 0,
+			N_("Hides the main window."), NULL
+		},
+		{
+			"raise_wmain", 0, POPT_ARG_NONE,
+			&(flags.raise_wmain), 0,
+			N_("Shows the main window."), NULL
+		},
+		{
+			"exit", 0, POPT_ARG_NONE,
+			&(flags.exit), 0,
+			N_("Finishes Cronos II and its multisession server"),
 			NULL
 		}
 	};
@@ -215,15 +239,19 @@ main (gint argc, gchar **argv)
 	}
 
 	/* Create the Application object */
-	if (!(application = c2_application_new (PACKAGE, flags.be_server)))
+	if (!(application = c2_application_new (PACKAGE, flags.be_server)))			
 		return 1;
 
 	if (flags.be_server)
+	{
 		something_opened = TRUE;
+	}
 	
 	/* Open specified windows */
 	if (flags.open_main_window)
+	{
 		CREATE_WINDOW_MAIN;
+	}
 	
 	/* Composer */
 	if (flags.open_composer || flags.account || flags.to || flags.cc ||
@@ -367,20 +395,43 @@ main (gint argc, gchar **argv)
 		c2_application_command (application, C2_COMMAND_CHECK_MAIL);
 		something_opened = TRUE;
 	}
+
+	if (flags.hide_wmain)
+	{
+		c2_application_command (application, C2_COMMAND_WINDOW_MAIN_HIDE);
+		something_opened = TRUE;
+	}
+
+	if (flags.raise_wmain)
+	{
+		c2_application_command (application, C2_COMMAND_WINDOW_MAIN_RAISE);
+		something_opened = TRUE;
+	}
+
+	if (flags.exit)
+	{
+		c2_application_command (application, C2_COMMAND_EXIT);
+		something_opened = TRUE;
+	}
 	
 	/* If nothing opened we will open the defaults window */
 	if (!something_opened)
+	{
 		CREATE_WINDOW_MAIN;
+	}
 
-	/* Release Information Dialog */
-	if (c2_preferences_get_extra_release_information_show ())
-		gtk_idle_add (on_release_information_idle, application);
-
-	gtk_main ();
-	gdk_threads_leave ();
+	if (application->acting_as_server)
+	{
+		/* Release Information Dialog */
+		if (c2_preferences_get_extra_release_information_show ())
+			gtk_idle_add (on_release_information_idle, application);
 	
-	gnome_config_sync ();
-	c2_hash_destroy ();
+		gtk_main ();
+		gdk_threads_leave ();
+	
+		gnome_config_sync ();
+		c2_hash_destroy ();
+	}
 
 	return 0;
 }

@@ -1,6 +1,19 @@
+Sun May  5 Pablo Fernández <sandokan at pablossite dot net>
+	* Fixed the bug that caused GTK+ to work weird after
+	  sending an email.
+
+Sat May  4 Pablo Fernández <sandokan at pablossite dot net>
+	* Work on the multisession code.
+	* Fixed the bug that caused GTK+ to work weird after
+	  downloading a mail with POP3.
+
+Fri May  3 Pablo Fernández <sandokan at pablossite dot net>
+	* Work on the spanish translation of Cronos II.
+
 Thu May  2 Pablo Fernández <sandokan at pablossite dot net>
 	* Fixed a bug in the c2_str_get_senders.
 	* Fixed the crash when deleting mails.
+	* Making release of Cronos II 0.3.0-pre2
 
 Tue Apr 30 Pablo Fernández <sandokan at pablossite dot net>
 	* Fixed an important bug in c2_message_str_get_header_field.

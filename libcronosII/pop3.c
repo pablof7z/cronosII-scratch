@@ -530,7 +530,6 @@ login_plain (C2POP3 *pop3)
 
 	if (c2_strnne (string, "+OK", 3))
 	{
-		C2_DEBUG (string);
 		string = strstr (string, " ");
 		if (string)
 			string++;

@@ -839,9 +839,6 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 			break;
 	}
 
-	printf ("[ DB ] Request to remove %d mails from %s (starting with %d)\n",
-						g_list_length (list), mailbox->name, C2_DB (list->data)->mid);
-
 	/* Remove from the db */
 	if ((retval = func (mailbox, list)))
 		/*return FALSE*/;

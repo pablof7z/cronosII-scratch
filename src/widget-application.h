@@ -59,7 +59,7 @@ extern "C" {
 #define C2_UNIX_SOCKET						"server"
 
 #define C2_COMMAND_WINDOW_MAIN_NEW		"wmain::new"/* (gchar *select_mailbox¦NULL) */
-#define C2_COMMAND_WINDOW_MAIN_RAISE	"wmain::raise"/* (gchar *select_mailbox|NULL) */
+#define C2_COMMAND_WINDOW_MAIN_RAISE	"wmain::raise"/* () */
 #define C2_COMMAND_WINDOW_MAIN_HIDE		"wmain::hide"/* () */
 #define C2_COMMAND_COMPOSER_NEW			"composer::new"/* (gboolean is_link, gchar *headers, gchar *values) */
 #define C2_COMMAND_CHECK_MAIL			"check_mail"/* () */

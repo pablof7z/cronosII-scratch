@@ -889,9 +889,11 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 													application->account, wmain);
 
 	/* Set the sensitivity of the Send button */
+	gdk_threads_leave ();
 	on_outbox_mailbox_changed_mailbox (c2_mailbox_get_by_usage (
 									application->mailbox, C2_MAILBOX_USE_AS_OUTBOX), C2_MAILBOX_CHANGE_ANY,
 									NULL, wmain);
+	gdk_threads_enter ();
 }
 
 static void
@@ -1146,20 +1148,33 @@ search (C2WindowMain *wmain)
 {
 }
 
+on_send_ti_finish (C2TransferItem *ti, C2Mutex *mutex)
+{
+	c2_mutex_unlock (mutex);
+}
+
 static void
-send_ (C2WindowMain *wmain)
+send_thread (C2WindowMain *wmain)
 {
 	C2Mailbox *outbox;
 	C2Db *db;
+	C2Mutex mutex;
+
+	c2_mutex_init (&mutex);
 
 	outbox = c2_mailbox_get_by_usage (C2_WINDOW (wmain)->application->mailbox, C2_MAILBOX_USE_AS_OUTBOX);
 	if (!C2_IS_MAILBOX (outbox))
+	{
+		c2_mutex_destroy (&mutex);
 		return;
+	}
 
 	db = outbox->db;
 	if (db)
 	{
 		GtkWidget *tl;
+
+		gdk_threads_enter ();
 		
 		tl = c2_application_window_get (application, C2_WIDGET_TRANSFER_LIST_TYPE);
 		if (!tl || !C2_IS_TRANSFER_LIST (tl))
@@ -1167,6 +1182,8 @@ send_ (C2WindowMain *wmain)
 
 		gtk_widget_show (tl);
 		gdk_window_raise (tl->window);
+
+		gdk_threads_leave ();
 		
 		do
 		{
@@ -1185,11 +1202,27 @@ send_ (C2WindowMain *wmain)
 
 			smtp = (C2SMTP*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, NULL);
 
+			c2_mutex_lock (&mutex);
+			
+			gdk_threads_enter ();
+
 			ti = c2_transfer_item_new (application, account, C2_TRANSFER_ITEM_SEND, smtp, db);
+			gtk_signal_connect (GTK_OBJECT (ti), "finish",
+								GTK_SIGNAL_FUNC (on_send_ti_finish), &mutex);
 			c2_transfer_list_add_item (C2_TRANSFER_LIST (tl), ti);
 			c2_transfer_item_start (ti);
+			
+			gdk_threads_leave ();
 		} while (c2_db_lineal_next (db));
 	}
+
+	c2_mutex_destroy (&mutex);
+}
+
+static void
+send_ (C2WindowMain *wmain)
+{
+	
 }
 
 static gint
@@ -1359,9 +1392,11 @@ on_outbox_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type,
 {
 	GtkWidget *widget;
 	
+	gdk_threads_enter ();
 	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_send");
 	if (GTK_IS_WIDGET (widget))
 		gtk_widget_set_sensitive (widget, c2_db_length (mailbox));
+	gdk_threads_leave ();
 }
 
 /**

@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -617,6 +617,20 @@ send_ (C2Composer *composer, C2ComposerSendType type)
 		gdk_threads_enter ();
 		gtk_widget_destroy (GTK_WIDGET (composer));
 		gdk_threads_leave ();
+
+		/* Check if we have to mark a mail as replied or forwarded or if we
+		 * have to delete a mail from the draft mailbox */
+		if (C2_IS_DB (composer->db))
+		{
+			if (composer->action == C2_COMPOSER_ACTION_REPLY ||
+				composer->action == C2_COMPOSER_ACTION_REPLY_ALL)
+			{
+				c2_db_message_set_state (composer->db, C2_MESSAGE_REPLIED);
+			} else if (composer->action == C2_COMPOSER_ACTION_FORWARD)
+				c2_db_message_set_state (composer->db, C2_MESSAGE_FORWARDED);
+			else if (composer->action == C2_COMPOSER_ACTION_DRAFT)
+				c2_db_message_remove (composer->db->mailbox, composer->db);
+		}
 	} else
 	{
 		c2_db_thaw (mailbox);

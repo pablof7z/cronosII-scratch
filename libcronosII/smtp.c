@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Löpez
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -648,7 +648,6 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte,
 					buf = g_strdup (start);
 				else
 					buf = g_strndup (start, ptr - start);
-				C2_DEBUG (buf);
 				if (c2_net_object_send (C2_NET_OBJECT(smtp), byte, "%s\r\n", buf) < 0)
 				{
 					c2_smtp_set_error (smtp, SOCK_WRITE_FAILED);

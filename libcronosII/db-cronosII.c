@@ -521,8 +521,9 @@ c2_db_cronosII_compact (C2Mailbox *mailbox, size_t *cbytes, size_t *tbytes)
 	fclose (tfd);
 
 	/* Move the temporary file */
-	printf ("Temp file is '%s'\n", tpath);
-	system (g_strdup_printf ("gvim \"%s\"", tpath));
+	c2_file_binary_move (tpath, ipath);
+	g_free (tpath);
+	g_free (ipath);
 
 	/* Unlock the mailbox */
 	_unlock (mailbox);

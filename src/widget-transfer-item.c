@@ -373,6 +373,8 @@ smtp_get_id_from_ti (C2TransferItem *ti)
 	GSList *l;
 	gint id = 1;
 
+	printf ("Haciendo %s\n", __PRETTY_FUNCTION__);
+
 	tl = C2_TRANSFER_LIST (gtk_object_get_data (GTK_OBJECT (ti), "transfer list"));
 
 	for (l = tl->list; l; l = g_slist_next (l))
@@ -410,6 +412,8 @@ c2_transfer_item_start_smtp_thread (C2TransferItem *ti)
 {
 	gint id;
 
+	printf ("Haciendo %s\n", __PRETTY_FUNCTION__);
+
 	id = smtp_get_id_from_ti (ti);
 	ti->type_info.send.id = id;
 	c2_smtp_send_message (ti->type_info.send.smtp, ti->type_info.send.db->message, id);
@@ -420,7 +424,7 @@ c2_transfer_item_start (C2TransferItem *ti)
 {
 	pthread_t thread;
 
-	C2_PRINTD (MOD, "Account = '%s'\n", ti->account->name);
+	printf ("Haciendo %s\n", __PRETTY_FUNCTION__);
 
 	if (ti->type == C2_TRANSFER_ITEM_RECEIVE)
 	{
@@ -743,7 +747,6 @@ on_pop3_disconnect (GtkObject *object, gboolean success, C2NetObjectByte *byte, 
 	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), str);
 	gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
 	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
-	gdk_threads_leave ();
 	g_free (str);
 
 	ti->finished = 1;
@@ -774,6 +777,8 @@ on_pop3_disconnect (GtkObject *object, gboolean success, C2NetObjectByte *byte, 
 									GTK_SIGNAL_FUNC (on_pop3_disconnect), ti);
 
 	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
+
+	gdk_threads_leave ();
 }
 
 static void
@@ -807,12 +812,12 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 	C2Mailbox *outbox;
 	C2Mailbox *sent_items;
 	C2SMTP *smtp = ti->type_info.send.smtp;
-	
+
 	gdk_threads_enter ();
 
 	gtk_signal_disconnect_by_func (GTK_OBJECT (smtp), GTK_SIGNAL_FUNC (on_smtp_smtp_update), ti);
 	gtk_signal_disconnect_by_func (GTK_OBJECT (smtp), GTK_SIGNAL_FUNC (on_smtp_finished), ti);
-	
+
 	if (!(_ti = smtp_get_ti_from_id (ti, id)))
 	{
 		gdk_threads_leave ();
@@ -827,12 +832,11 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 	ti->finished = 1;
 	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
 
-	gdk_threads_leave ();
-
 	if (!(outbox = c2_mailbox_get_by_usage (ti->application->mailbox,
 											C2_MAILBOX_USE_AS_OUTBOX)))
 	{
-		g_warning (("There's no mailbox marked as %s!\n"), C2_MAILBOX_OUTBOX);
+		g_warning (_("There's no mailbox marked as %s!\n"), C2_MAILBOX_OUTBOX);
+		gdk_threads_leave ();
 		return;
 	}
 
@@ -843,18 +847,24 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 													C2_MAILBOX_USE_AS_SENT_ITEMS)))
 		{
 			g_warning (_("There's no mailbox marked as %s!\n"), C2_MAILBOX_SENT_ITEMS);
+
+			gdk_threads_leave ();
 			return;
 		}
 
 		gtk_object_set_data (GTK_OBJECT (ti->type_info.send.db->message), "state",
 											(gpointer) C2_MESSAGE_READED);
-		gtk_object_set_data (GTK_OBJECT (ti->type_info.send.db->message), "state", C2_MESSAGE_READED);
+		gdk_threads_leave ();
 		c2_db_message_add (sent_items, ti->type_info.send.db->message);
+		gdk_threads_enter ();
 	}
 
-	C2_PRINTD (MOD, "remove '%d'\n", ti->type_info.send.db->position-1);
+	gdk_threads_leave ();
 	c2_db_message_remove (outbox, ti->type_info.send.db);
+	gdk_threads_enter ();
 
 
 	gtk_object_unref (GTK_OBJECT (ti->type_info.send.db->message));
+
+	gdk_threads_leave ();
 }
