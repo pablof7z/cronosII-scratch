@@ -839,6 +839,7 @@ Quote#
 		    <key>GDK_A</key>
 		    <signal>clicked</signal>
 		  </accelerator>
+		  <relief>GTK_RELIEF_NORMAL</relief>
 		  <child>
 		    <padding>0</padding>
 		    <expand>False</expand>
@@ -923,6 +924,7 @@ Quote#
 		    <key>GDK_M</key>
 		    <signal>clicked</signal>
 		  </accelerator>
+		  <relief>GTK_RELIEF_NORMAL</relief>
 		  <child>
 		    <padding>0</padding>
 		    <expand>False</expand>
@@ -1005,6 +1007,7 @@ Quote#
 		    <key>GDK_R</key>
 		    <signal>clicked</signal>
 		  </accelerator>
+		  <relief>GTK_RELIEF_NORMAL</relief>
 		  <child>
 		    <padding>0</padding>
 		    <expand>False</expand>
@@ -1088,6 +1091,7 @@ Quote#
 		    <key>GDK_U</key>
 		    <signal>clicked</signal>
 		  </accelerator>
+		  <relief>GTK_RELIEF_NORMAL</relief>
 		  <child>
 		    <padding>0</padding>
 		    <expand>False</expand>
@@ -1161,6 +1165,7 @@ Quote#
 		    <key>GDK_D</key>
 		    <signal>clicked</signal>
 		  </accelerator>
+		  <relief>GTK_RELIEF_NORMAL</relief>
 		  <child>
 		    <padding>0</padding>
 		    <expand>False</expand>
@@ -1418,6 +1423,7 @@ Icons &amp; Text
 		<name>interface_help_btn</name>
 		<can_focus>True</can_focus>
 		<stock_button>GNOME_STOCK_BUTTON_HELP</stock_button>
+		<relief>GTK_RELIEF_NORMAL</relief>
 		<child>
 		  <padding>0</padding>
 		  <expand>False</expand>
@@ -1967,6 +1973,7 @@ Always use my colors.
 		  <name>paths_saving_btn</name>
 		  <can_focus>True</can_focus>
 		  <label>Browse...</label>
+		  <relief>GTK_RELIEF_NORMAL</relief>
 		  <child>
 		    <padding>0</padding>
 		    <expand>False</expand>
@@ -2015,6 +2022,7 @@ Always use my colors.
 		  <name>paths_download_btn</name>
 		  <can_focus>True</can_focus>
 		  <label>Browse...</label>
+		  <relief>GTK_RELIEF_NORMAL</relief>
 		  <child>
 		    <padding>0</padding>
 		    <expand>False</expand>
@@ -2063,6 +2071,7 @@ Always use my colors.
 		  <name>paths_get_btn</name>
 		  <can_focus>True</can_focus>
 		  <label>Browse...</label>
+		  <relief>GTK_RELIEF_NORMAL</relief>
 		  <child>
 		    <padding>0</padding>
 		    <expand>False</expand>
@@ -2849,6 +2858,7 @@ users.</text>
 	      <sensitive>False</sensitive>
 	      <can_focus>True</can_focus>
 	      <label>Select Card</label>
+	      <relief>GTK_RELIEF_NORMAL</relief>
 	      <child>
 		<padding>0</padding>
 		<expand>False</expand>
@@ -3300,6 +3310,7 @@ users.</text>
 		<name>smtp_remote_information_btn</name>
 		<can_focus>True</can_focus>
 		<label>Set Information</label>
+		<relief>GTK_RELIEF_NORMAL</relief>
 		<child>
 		  <left_attach>6</left_attach>
 		  <right_attach>7</right_attach>
@@ -3323,6 +3334,7 @@ users.</text>
 		<visible>False</visible>
 		<can_focus>True</can_focus>
 		<label></label>
+		<relief>GTK_RELIEF_NORMAL</relief>
 		<active>False</active>
 		<child>
 		  <left_attach>3</left_attach>

@@ -33,7 +33,7 @@ Navarro) <cronosII@users.sourceforge.net>
 %setup -q
 
 %build
-%configure --disable-debug
+%configure --disable-debug --disable-gtkxmhtml
 make
 
 %install
@@ -49,6 +49,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/cronos
 %{_datadir}/gnome/apps/Internet/cronosII.desktop
 %{_datadir}/pixmaps/cronosII.png
-%{_datadir}/locale/*/LC_MESSAGES/cronosII.mo
+#%{_datadir}/locale/*/LC_MESSAGES/cronosII.mo
 %{_mandir}/*
 %{_datadir}/gnome/help/cronosII/*
+%{_datadir}/cronosII-scratch/

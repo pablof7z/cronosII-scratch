@@ -38,4 +38,6 @@ EXTRA_DIST = \
 	xpm/new.xpm			\
 	xpm/read.xpm		\
 	xpm/reply.xpm		\
-	xpm/unread.xpm
+	xpm/unread.xpm		\
+	preferences-trans.h	\
+	trans.h

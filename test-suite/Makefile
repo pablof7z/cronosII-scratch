@@ -1,5 +1,5 @@
 # Generated automatically from Makefile.in by configure.
-# Makefile.in generated automatically by automake 1.4a from Makefile.am
+# Makefile.in generated automatically by automake 1.4 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -46,10 +46,9 @@ AUTOMAKE = automake
 AUTOHEADER = autoheader
 
 INSTALL = /usr/bin/install -c
-INSTALL_PROGRAM = ${INSTALL}
+INSTALL_PROGRAM = ${INSTALL} $(AM_INSTALL_PROGRAM_FLAGS)
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_SCRIPT = ${INSTALL_PROGRAM}
-INSTALL_STRIP_FLAG =
 transform = s,x,x,
 
 NORMAL_INSTALL = :
@@ -58,10 +57,10 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-host_alias = i586-pc-linux-gnu
-host_triplet = i586-pc-linux-gnu
+host_alias = i686-pc-linux-gnu
+host_triplet = i686-pc-linux-gnu
 AS = @AS@
-CATALOGS = 
+CATALOGS =  br.gmo de.gmo es.gmo fr.gmo it.gmo
 CATOBJEXT = .gmo
 CC = gcc
 CFLAGS = -g -O2
@@ -73,24 +72,24 @@ GLIB_CFLAGS = -I/usr/include/glib-1.2 -I/usr/lib/glib/include -D_REENTRANT
 GLIB_CONFIG = /usr/bin/glib-config
 GLIB_LIBS = -L/usr/lib -lgthread -lglib -lpthread
 GMOFILES =  br.gmo de.gmo es.gmo fr.gmo it.gmo
-GMSGFMT = /usr/local/bin/msgfmt
-GNOMEGNORBA_LIBS = -rdynamic -lgnorba -lORBitCosNaming -lORBit -lIIOP -lORBitutil -lnsl -lgnomeui -lart_lgpl -lgdk_imlib -lSM -lICE -lgtk -lgdk -lgmodule -lXext -lX11 -lgnome -lgnomesupport -lesd -lasound -laudiofile -lm -ldb -lglib -ldl
-GNOMEUI_LIBS = -rdynamic -lgnomeui -lart_lgpl -lgdk_imlib -lSM -lICE -lgtk -lgdk -lgmodule -lXext -lX11 -lgnome -lgnomesupport -lesd -lasound -laudiofile -lm -ldb -lglib -ldl
+GMSGFMT = /usr/bin/msgfmt
+GNOMEGNORBA_LIBS = -rdynamic -lgnorba -lORBitCosNaming -lORBit -lIIOP -lORBitutil -lgnomeui -lart_lgpl -lgdk_imlib -lSM -lICE -lgtk -lgdk -lgmodule -lXi -lXext -lX11 -lgnome -lgnomesupport -lesd -laudiofile -lm -ldb1 -lglib -ldl
+GNOMEUI_LIBS = -rdynamic -lgnomeui -lart_lgpl -lgdk_imlib -lSM -lICE -lgtk -lgdk -lgmodule -lXi -lXext -lX11 -lgnome -lgnomesupport -lesd -laudiofile -lm -ldb1 -lglib -ldl
 GNOME_APPLETS_LIBS = 
 GNOME_CAPPLET_LIBS = 
-GNOME_CONFIG = /usr/local/bin/gnome-config
+GNOME_CONFIG = /usr/bin/gnome-config
 GNOME_DOCKLETS_LIBS = 
 GNOME_INCLUDEDIR = -I/usr/include -DNEED_GNOMESUPPORT_H -I/usr/lib/gnome-libs/include -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/include/gtk-1.2 -I/usr/X11R6/include
 GNOME_LIBDIR = -rdynamic -L/usr/lib -L/usr/X11R6/lib
-GNOME_LIBS = -lgnome -lgnomesupport -lesd -lasound -laudiofile -lm -ldb -lglib -ldl
+GNOME_LIBS = -lgnome -lgnomesupport -lesd -laudiofile -lm -ldb1 -lglib -ldl
 GNOME_PRINT_CFLAGS = -I/usr/include -DNEED_GNOMESUPPORT_H -I/usr/lib/gnome-libs/include -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/X11R6/include -I/usr/include/gnome-xml
-GNOME_PRINT_LIBS = -rdynamic -L/usr/lib -L/usr/X11R6/lib -lgnomeprint -lgnomeui -lart_lgpl -lgdk_imlib -lSM -lICE -lgnome -lgnomesupport -lesd -lasound -laudiofile -ldb -lgdk_pixbuf -lgtk -lgdk -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm -lxml -lz
+GNOME_PRINT_LIBS = -rdynamic -L/usr/lib -L/usr/X11R6/lib -lgnomeprint -lgnomeui -lart_lgpl -lgdk_imlib -lSM -lICE -lgnome -lgnomesupport -lesd -laudiofile -ldb1 -lgdk_pixbuf -lgtk -lgdk -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm -lxml -lz
 GNORBA_CFLAGS = -I/usr/include -DNEED_GNOMESUPPORT_H -I/usr/lib/gnome-libs/include -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/include/gtk-1.2 -I/usr/X11R6/include
-GNORBA_LIBS = -rdynamic -L/usr/lib -L/usr/X11R6/lib -lgnorba -lORBitCosNaming -lORBit -lIIOP -lORBitutil -lnsl -lgnomeui -lart_lgpl -lgdk_imlib -lSM -lICE -lgtk -lgdk -lgmodule -lXext -lX11 -lgnome -lgnomesupport -lesd -lasound -laudiofile -lm -ldb -lglib -ldl
-GTKXMHTML_LIBS = -rdynamic -lgtkxmhtml -lXpm -ljpeg -lpng -lz -lSM -lICE -lgtk -lgdk -lgmodule -lglib -ldl -lXext -lX11 -lm
+GNORBA_LIBS = -rdynamic -L/usr/lib -L/usr/X11R6/lib -lgnorba -lORBitCosNaming -lORBit -lIIOP -lORBitutil -lgnomeui -lart_lgpl -lgdk_imlib -lSM -lICE -lgtk -lgdk -lgmodule -lXi -lXext -lX11 -lgnome -lgnomesupport -lesd -laudiofile -lm -ldb1 -lglib -ldl
+GTKXMHTML_LIBS = -rdynamic -lgtkxmhtml -lXpm -ljpeg -lpng -lz -lSM -lICE -lgtk -lgdk -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm
 GTK_CFLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/X11R6/include
 GTK_CONFIG = /usr/bin/gtk-config
-GTK_LIBS = -lSM -lICE -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXext -lX11 -lm
+GTK_LIBS = -lSM -lICE -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm
 GT_NO = 
 GT_YES = #YES#
 HTMLLIBS = 
@@ -100,9 +99,9 @@ INTLDEPS =
 INTLLIBS = 
 INTLOBJS = 
 LEX = @LEX@
-LIBGLADE_CFLAGS = -I/usr/include/gnome-xml -I/usr/local/include -DNEED_GNOMESUPPORT_H -I/usr/local/lib/gnome-libs/include -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/include/gtk-1.2 -I/usr/X11R6/include
+LIBGLADE_CFLAGS = -I/usr/include/gnome-xml -I/usr/include -DNEED_GNOMESUPPORT_H -I/usr/lib/gnome-libs/include -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/include/gtk-1.2 -I/usr/X11R6/include
 LIBGLADE_CONFIG = /usr/bin/libglade-config
-LIBGLADE_LIBS = -L/usr/lib -lglade-gnome -lglade -L/usr/lib -lxml -lz -rdynamic -L/usr/local/lib -L/usr/lib -L/usr/X11R6/lib -rdynamic -lgnomeui -lart_lgpl -lgdk_imlib -lSM -lICE -lgtk -lgdk -lgmodule -lXi -lXext -lX11 -lgnome -lgnomesupport -lesd -lasound -laudiofile -lm -ldb -lglib -ldl
+LIBGLADE_LIBS = -L/usr/lib -lglade-gnome -lglade -L/usr/lib -lxml -lz -rdynamic -L/usr/lib -L/usr/X11R6/lib -rdynamic -lgnomeui -lart_lgpl -lgdk_imlib -lSM -lICE -lgtk -lgdk -lgmodule -lXi -lXext -lX11 -lgnome -lgnomesupport -lesd -laudiofile -lm -ldb1 -lglib -ldl
 LIBOBJS = 
 LIBS = -lpthread 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
@@ -110,12 +109,12 @@ LN_S = ln -s
 MAINT = #
 MAKEINFO = makeinfo
 MKINSTALLDIRS = ./mkinstalldirs
-MSGFMT = /usr/local/bin/msgfmt
+MSGFMT = /usr/bin/msgfmt
 OBJDUMP = @OBJDUMP@
-ORBIT_CFLAGS = -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/local/include
-ORBIT_CONFIG = /usr/local/bin/orbit-config
-ORBIT_IDL = /usr/local/bin/orbit-idl
-ORBIT_LIBS = -L/usr/local/lib -L/usr/lib -lORBitCosNaming -lORBit -lIIOP -lORBitutil -lglib -lnsl -lm
+ORBIT_CFLAGS = -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/include
+ORBIT_CONFIG = /usr/bin/orbit-config
+ORBIT_IDL = /usr/bin/orbit-idl
+ORBIT_LIBS = -L/usr/lib -lORBitCosNaming -lORBit -lIIOP -lORBitutil -lglib -lm
 PACKAGE = cronosII-scratch
 POFILES =  br.po de.po es.po fr.po it.po
 POSUB = po
@@ -125,8 +124,8 @@ USE_INCLUDED_LIBINTL = no
 USE_NLS = yes
 VERSION = 0.0.1
 XPM_LIBS = -lXpm
-ZVT_LIBS = -rdynamic -lzvt -lutil -lSM -lICE -lgtk -lgdk -lgmodule -lglib -ldl -lXext -lX11 -lm
-cronosIIpath = /usr/bin/cronosII-config
+ZVT_LIBS = -rdynamic -lzvt -lutil -lSM -lICE -lgdk_imlib -lgtk -lgdk -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm
+cronosIIpath = 
 gnomedownload = /usr/bin/gnome-download
 l = 
 
@@ -209,8 +208,8 @@ install-binPROGRAMS: $(bin_PROGRAMS)
 	$(mkinstalldirs) $(DESTDIR)$(bindir)
 	@list='$(bin_PROGRAMS)'; for p in $$list; do \
 	  if test -f $$p; then \
-	    echo " $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
-	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	    echo " $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
 	  else :; fi; \
 	done
 
@@ -310,7 +309,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
+	    cp -pr $$/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
@@ -371,7 +370,7 @@ uninstall: uninstall-am
 all-am: Makefile $(PROGRAMS)
 all-redirect: all-am
 install-strip:
-	$(MAKE) $(AM_MAKEFLAGS) INSTALL_STRIP_FLAG=-s install
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
 	$(mkinstalldirs)  $(DESTDIR)$(bindir)
 
