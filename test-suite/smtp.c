@@ -32,7 +32,9 @@ main (gint argc, gchar **argv)
 	C2SMTP *smtp;
 	C2Message *msg;
 	
-	smtp = c2_smtp_new(C2_SMTP_REMOTE, "smtp.arnet.com.ar", 25, FALSE, NULL, NULL);
+	gtk_init(&argc, &argv);
+	
+	smtp = c2_smtp_new(C2_SMTP_REMOTE, "smtp.arnet.com.ar", 25, FALSE, FALSE, NULL, NULL);
 	
 	msg = g_new0(C2Message, 1);
 	msg->header = g_strdup("From: testing <testing@cronosii.sourceforge.net>\n"
