@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-05 13:22-0300\n"
+"POT-Creation-Date: 2001-09-07 17:47-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -131,7 +131,7 @@ msgstr ""
 msgid "Bad syntaxes, quotes aren't closed.\n"
 msgstr ""
 
-#: src/c2-main-window.c:352 src/widget-window-main.c:833
+#: src/c2-main-window.c:352 src/widget-window-main.c:842
 msgid "Unable to create mailbox"
 msgstr ""
 
@@ -575,24 +575,29 @@ msgid ""
 "Aborting.\n"
 msgstr ""
 
-#: src/widget-window-main.c:334
+#: src/widget-window-main.c:335
 #, c-format
 msgid "The mailbox '%s' couldn't be loaded"
 msgstr ""
 
-#: src/trans.h:205 src/widget-window-main.c:435
+#: src/widget-window-main.c:352
+#, c-format
+msgid "%d messages, %d new."
+msgstr ""
+
+#: src/trans.h:205 src/widget-window-main.c:444
 msgid "You found the Eastern Egg!"
 msgstr ""
 
-#: src/trans.h:206 src/widget-window-main.c:436
+#: src/trans.h:206 src/widget-window-main.c:445
 msgid "Neat, baby!"
 msgstr ""
 
-#: src/widget-window-main.c:474
+#: src/widget-window-main.c:483
 msgid "Unable to open about file"
 msgstr ""
 
-#: src/widget-window-main.c:662
+#: src/widget-window-main.c:671
 msgid "New mailbox"
 msgstr ""
 

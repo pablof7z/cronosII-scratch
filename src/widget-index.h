@@ -103,6 +103,9 @@ c2_index_exists_previous_message				(C2Index *index);
 gboolean
 c2_index_exists_next_message					(C2Index *index);
 
+void
+c2_index_install_hints						(C2Index *index, GtkWidget *appbar, pthread_mutex_t *lock);
+
 #ifdef __cplusplus
 }
 #endif

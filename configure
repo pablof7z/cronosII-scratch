@@ -71,9 +71,9 @@ ac_help="$ac_help
 ac_help="$ac_help
   --disable-debug           Disable the debugging routines. [default=yes]"
 ac_help="$ac_help
-  --disable-gtkxmhtml        Disable the use of the GtkXmHTML widget for showing messages [default=no]"
+  --disable-gtkhtml         Disable the use of the GtkHTML widget for showing messages [default=auto]"
 ac_help="$ac_help
-  --enable-gtkhtml          Use the GtkHtml widget for showing messages [default=auto]"
+  --disable-gtkxmhtml       Disable the use of the GtkXmHTML widget for showing messages [default=auto]"
 ac_help="$ac_help
   --enable-test-suite       Enable the test suite. [default=no]"
 ac_help="$ac_help
@@ -3840,7 +3840,7 @@ fi
 
 
 
-ALL_LINGUAS="br de es fr it"
+ALL_LINGUAS="br de es es_AR fr it"
 echo $ac_n "checking for working const""... $ac_c" 1>&6
 echo "configure:3846: checking for working const" >&5
 if eval "test \"`echo '$''{'ac_cv_c_const'+set}'`\" = set"; then
@@ -5837,6 +5837,37 @@ EOF
 
 
 
+# Check whether --enable-gtkhtml or --disable-gtkhtml was given.
+if test "${enable_gtkhtml+set}" = set; then
+  enableval="$enable_gtkhtml"
+   gtkhtml=$enableval 
+else
+   gtkhtml=yes 
+fi
+
+
+echo $ac_n "checking for GtkHTML""... $ac_c" 1>&6
+echo "configure:5851: checking for GtkHTML" >&5
+if test "$gtkhtml" = "yes"; then
+	if gnome-config --libs gtkhtml > /dev/null 2>&1; then
+		vers=`gnome-config --modversion gtkhtml | sed 's/^gtkhtml-//'`
+		html="with GtkHTML $vers"
+		FEATURES="$FEATURES 'HTML (GtkHTML)'"
+		cat >> confdefs.h <<\EOF
+#define USE_GTKHTML 1
+EOF
+
+		echo "$ac_t""yes" 1>&6
+		HTMLLIBS="-lgtkhtml"
+	else
+		html="no"
+		echo "$ac_t""no" 1>&6
+	fi
+else
+	echo "$ac_t""no" 1>&6
+fi
+
+
 # Check whether --enable-gtkxmhtml or --disable-gtkxmhtml was given.
 if test "${enable_gtkxmhtml+set}" = set; then
   enableval="$enable_gtkxmhtml"
@@ -5847,21 +5878,22 @@ fi
 
 
 echo $ac_n "checking for GtkXmHTML""... $ac_c" 1>&6
-echo "configure:5851: checking for GtkXmHTML" >&5
+echo "configure:5882: checking for GtkXmHTML" >&5
 if test "$gtkxmhtml" = "yes"; then
-	ac_safe=`echo "gtk-xmhtml/gtk-xmhtml.h" | sed 'y%./+-%__p_%'`
+	if test "$gtkhtml" = "no"; then
+		ac_safe=`echo "gtk-xmhtml/gtk-xmhtml.h" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for gtk-xmhtml/gtk-xmhtml.h""... $ac_c" 1>&6
-echo "configure:5855: checking for gtk-xmhtml/gtk-xmhtml.h" >&5
+echo "configure:5887: checking for gtk-xmhtml/gtk-xmhtml.h" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 5860 "configure"
+#line 5892 "configure"
 #include "confdefs.h"
 #include <gtk-xmhtml/gtk-xmhtml.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:5865: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:5897: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -5884,48 +5916,18 @@ if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
 #define USE_GTKXMHTML 1
 EOF
 
-		HTMLLIBS="-lgtkxmhtml"
-	
+		HTMLLIBS=`gnome-config --libs gtkxmhtml`
+		
 else
   echo "$ac_t""no" 1>&6
 
 		html="no"
-	
+		
 fi
 
-else
-	echo "$ac_t""no" 1>&6
-fi
-
-
-# Check whether --enable-gtkhtml or --disable-gtkhtml was given.
-if test "${enable_gtkhtml+set}" = set; then
-  enableval="$enable_gtkhtml"
-   gtkhtml=$enableval 
-else
-   gtkhtml=yes 
-fi
-
-
-echo $ac_n "checking for GtkHTML""... $ac_c" 1>&6
-echo "configure:5912: checking for GtkHTML" >&5
-if test "$gtkhtml" = "yes"; then
-	if gnome-config --libs gtkhtml > /dev/null 2>&1; then
-		vers=`gnome-config --modversion gtkhtml | sed 's/^gtkhtml-//'`
-		html="with GtkHTML $vers"
-		FEATURES="$FEATURES 'HTML (GtkHTML)'"
-		cat >> confdefs.h <<\EOF
-#define USE_GTKHTML 1
-EOF
-
-		echo "$ac_t""yes" 1>&6
-		HTMLLIBS="-lgtkhtml"
 	else
-		html="no"
 		echo "$ac_t""no" 1>&6
 	fi
-else
-	echo "$ac_t""no" 1>&6
 fi
 
 

@@ -1,4 +1,5 @@
-configure.in: Check for libglade-gnome: it is required to build.
+configure.in:
+			o Check for libglade-gnome: it is required to build.
 
 art work:
 			o Build own icons (for all buttons and menu items).
@@ -7,3 +8,6 @@ art work:
 	
 widget-mail:
 			o Italic is not recognized/translated.
+
+supports:
+			o MH

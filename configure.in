@@ -89,7 +89,7 @@ dnl #######################################################
 dnl   i18n
 dnl #######################################################
 
-ALL_LINGUAS="br de es fr it"
+ALL_LINGUAS="br de es es_AR fr it"
 AM_GNU_GETTEXT
 
 dnl #######################################################
@@ -196,33 +196,11 @@ fi
 AC_DEFINE_UNQUOTED(GNOME_DOWNLOAD_PATH, "$gnomedownload")
 
 dnl #######################################################
-dnl   GtkXmHtml
-dnl #######################################################
-
-AC_ARG_ENABLE([gtkxmhtml],
-[  --disable-gtkxmhtml        Disable the use of the GtkXmHTML widget for showing messages [default=no]],
-[ gtkxmhtml=$enableval ], [ gtkxmhtml=yes ])
-
-AC_MSG_CHECKING(for GtkXmHTML)
-if test "$gtkxmhtml" = "yes"; then
-	AC_CHECK_HEADER([gtk-xmhtml/gtk-xmhtml.h], [
-		html="with GtkXmHTML"
-		FEATURES="$FEATURES 'HTML (GtkXmHTML)'"
-		AC_DEFINE(USE_GTKXMHTML)
-		HTMLLIBS="-lgtkxmhtml"
-	], [
-		html="no"
-	])
-else
-	AC_MSG_RESULT(no)
-fi
-
-dnl #######################################################
-dnl   GtkHtml
+dnl   GtkHTML
 dnl #######################################################
 
 AC_ARG_ENABLE([gtkhtml],
-[  --enable-gtkhtml          Use the GtkHtml widget for showing messages [default=auto]],
+[  --disable-gtkhtml         Disable the use of the GtkHTML widget for showing messages [default=auto]],
 [ gtkhtml=$enableval ], [ gtkhtml=yes ])
 
 AC_MSG_CHECKING(for GtkHTML)
@@ -240,6 +218,30 @@ if test "$gtkhtml" = "yes"; then
 	fi
 else
 	AC_MSG_RESULT(no)
+fi
+
+dnl #######################################################
+dnl   GtkXmHtml
+dnl #######################################################
+
+AC_ARG_ENABLE([gtkxmhtml],
+[  --disable-gtkxmhtml       Disable the use of the GtkXmHTML widget for showing messages [default=auto]],
+[ gtkxmhtml=$enableval ], [ gtkxmhtml=yes ])
+
+AC_MSG_CHECKING(for GtkXmHTML)
+if test "$gtkxmhtml" = "yes"; then
+	if test "$gtkhtml" = "no"; then
+		AC_CHECK_HEADER([gtk-xmhtml/gtk-xmhtml.h], [
+		html="with GtkXmHTML"
+		FEATURES="$FEATURES 'HTML (GtkXmHTML)'"
+		AC_DEFINE(USE_GTKXMHTML)
+		HTMLLIBS=`gnome-config --libs gtkxmhtml`
+		], [
+		html="no"
+		])
+	else
+		AC_MSG_RESULT(no)
+	fi
 fi
 
 dnl #######################################################

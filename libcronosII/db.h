@@ -94,6 +94,9 @@ c2_db_new									(C2Mailbox *mailbox, gint mark, gchar *subject,
 gint
 c2_db_length								(C2Mailbox *mailbox);
 
+gint
+c2_db_length_type							(C2Mailbox *mailbox, gint state);
+
 C2Db *
 c2_db_get_node								(C2Mailbox *mailbox, gint n);
 

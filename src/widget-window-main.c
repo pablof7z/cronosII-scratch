@@ -320,6 +320,7 @@ on_mlist_mailbox_selected_pthread (C2WindowMain *wmain)
 {
 	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
 	C2Index *index = C2_INDEX (wmain->index);
+	gchar *buf;
 	
 	gdk_threads_enter ();
 	c2_window_set_activity (C2_WINDOW (wmain), TRUE);
@@ -348,14 +349,22 @@ on_mlist_mailbox_selected_pthread (C2WindowMain *wmain)
 	if (pthread_mutex_trylock (&wmain->index_lock))
 		return 0;
 	
-	printf ("Length of selected mailbox is %d\n", c2_db_length (mailbox));
+	buf = g_strdup_printf (_("%d messages, %d new."), c2_db_length (mailbox),
+							c2_db_length_type (mailbox, C2_MESSAGE_UNREADED));
 	gdk_threads_enter ();
 	c2_index_remove_mailbox (index);
 	c2_index_add_mailbox (index, mailbox);
 	c2_window_set_activity (C2_WINDOW (wmain), FALSE);
 	gtk_widget_queue_draw (GTK_WIDGET (index));
 	c2_index_sort (index);
+	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->status_lock))
+	{
+		gnome_appbar_set_status (GNOME_APPBAR (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "appbar")),
+									buf);
+		pthread_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
+	}
 	gdk_threads_leave ();
+	g_free (buf);
 
 	pthread_mutex_unlock (&wmain->index_lock);
 	return 0;
@@ -465,7 +474,7 @@ on_settings_preferences_activate (GtkWidget *widget, C2WindowMain *wmain)
 static void
 on_about_activate (GtkWidget *widget, C2WindowMain *wmain)
 {
-	C2Html *html = C2_HTML (C2_MAIL (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail"))->body);
+	C2HTML *html = C2_HTML (C2_MAIL (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail"))->body);
 	gchar *string;
 
 	if (c2_get_file (PKGDATADIR G_DIR_SEPARATOR_S "about.html", &string) < 0)

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __CRONOSII_WIDGET_PART_H__
-#define __CRONOSII_WIDGET_PART_H__
+#ifndef __WIDGET_PART_H__
+#define __WIDGET_PART_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,12 +55,12 @@ typedef struct _C2PartClass C2PartClass;
 
 struct _C2Part
 {
-	C2Html object;
+	C2HTML object;
 };
 
 struct _C2PartClass
 {
-	C2HtmlClass parent_class;
+	C2HTMLClass parent_class;
 };
 
 guint

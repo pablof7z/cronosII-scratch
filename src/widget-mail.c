@@ -34,8 +34,13 @@ c2_mail_class_init							(C2MailClass *klass);
 static void
 c2_mail_init								(C2Mail *mail);
 
+#ifdef USE_GTKHTML
 void
-html_link_manager_cid						(C2Html *html, const gchar *url, GtkHTMLStream *stream);
+html_link_manager_cid						(C2HTML *html, const gchar *url, GtkHTMLStream *stream);
+#elif defined USE_GTKXMHTML
+void
+html_link_manager_cid						(C2HTML *html, const gchar *url, C2Pthread2 *data);
+#endif
 
 static gchar *
 interpret_text_plain_symbols				(const gchar *plain);
@@ -220,8 +225,9 @@ c2_mail_init (C2Mail *mail)
 	mail->showing_priority	= 0;
 }
 
+#ifdef USE_GTKHTML
 void
-html_link_manager_cid (C2Html *html, const gchar *url, GtkHTMLStream *stream)
+html_link_manager_cid (C2HTML *html, const gchar *url, GtkHTMLStream *stream)
 {
 	C2Message *message = C2_MESSAGE (gtk_object_get_data (GTK_OBJECT (html), "message"));
 	C2Mime *mime;
@@ -237,13 +243,54 @@ html_link_manager_cid (C2Html *html, const gchar *url, GtkHTMLStream *stream)
 			break;
 
 	if (!mime)
-	{
-		L
 		return;
-	}
 	
 	gtk_html_stream_write (stream, c2_mime_get_part (mime), mime->length);
 }
+#elif defined (USE_GTKXMHTML)
+void
+html_link_manager_cid (C2HTML *html, const gchar *url, C2Pthread2 *data)
+{
+	C2Message *message = C2_MESSAGE (gtk_object_get_data (GTK_OBJECT (html), "message"));
+	C2Mime *mime;
+	gchar *tmpfile;
+	FILE *fd;
+	GtkWidget *widget = GTK_WIDGET (data->v1);
+	XmImageInfo *image = (XmImageInfo*) data->v2;
+	XmImageInfo *new_image;
+
+	if (!message)
+	{
+		g_print ("Internal error, unable to get message from Widget.\n");
+		return;
+	}
+
+	for (mime = message->mime; mime; mime = mime->next)
+		if (c2_streq (mime->id, url+4))
+			break;
+
+	if (!mime)
+		return;
+
+	tmpfile = c2_get_tmp_file ();
+	if (!(fd = fopen (tmpfile, "w")))
+	{
+		c2_error_set (-errno);
+		g_warning ("Unable to write to tmpfile %s: %d\n", tmpfile, c2_error_get (c2_errno));
+		g_free (tmpfile);
+	} else
+	{
+		fwrite (c2_mime_get_part (mime), sizeof (gchar), mime->length, fd);
+		fclose (fd);
+		new_image = XmHTMLImageDefaultProc (widget, tmpfile, NULL, 0);
+	}
+
+	gtk_xmhtml_freeze (GTK_XMHTML (widget));
+	XmHTMLImageReplace (widget, image, new_image);
+	XmHTMLRedisplay (widget);
+	gtk_xmhtml_thaw (GTK_XMHTML (widget));
+}
+#endif
 
 /* [TODO]
  * Can this be optimized as we usually do?

@@ -15,8 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __CRONOSII_WIDGET_HTML_H__
-#define __CRONOSII_WIDGET_HTML_H__
+#ifndef __WIDGET_HTML_H__
+#define __WIDGET_HTML_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,10 +28,14 @@ extern "C" {
 #	include <cronosII.h>
 #endif
 	
-#ifdef USE_GTKHTML
-#	include <gtkhtml/gtkhtml.h>
-#elif defined (USE_GTKXMHTML)
-#	include <gtk-xmhtml/gtk-xmhtml.h>
+#ifdef BUILDING_C2
+#	ifdef USE_GTKHTML
+#		include "widget-HTML-gtkhtml.h"
+#	elif defined (USE_GTKXMHTML)
+#		include "widget-HTML-gtkxmhtml.h"
+#	else
+#		include "widget-HTML-text.h"
+#	endif
 #endif
 
 #include <gtk/gtk.h>
@@ -40,28 +44,33 @@ extern "C" {
 
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <libcronosII/mime.h>
+#	include <libcronosII/utils.h>
 #else
 #	include <cronosII.h>
 #endif
 
-#define C2_TYPE_HTML							(c2_html_get_type ())
-#define C2_HTML(obj)							GTK_CHECK_CAST (obj, c2_html_get_type (), C2Html)
-#define C2_HTML_CLASS(klass)					GTK_CHECK_CLASS_CAST (klass, c2_html_get_type, C2HtmlClass)
-#define C2_IS_HTML(obj)							GTK_CHECK_TYPE (obj, c2_html_get_type ())
+#define C2_TYPE_HTML						(c2_html_get_type ())
+#define C2_HTML(obj)						(GTK_CHECK_CAST (obj, c2_html_get_type (), C2HTML))
+#define C2_HTML_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, c2_html_get_type, C2HTMLClass))
+#define C2_IS_HTML(obj)						(GTK_CHECK_TYPE (obj, c2_html_get_type ()))
 
-typedef struct _C2Html C2Html;
-typedef struct _C2HtmlClass C2HtmlClass;
-typedef enum _C2HtmlProxyType C2HtmlProxyType;
-typedef void (*C2HtmlLinkManager)			(C2Html *html, const gchar *url, GtkHTMLStream *stream);
+typedef struct _C2HTML C2HTML;
+typedef struct _C2HTMLClass C2HTMLClass;
+typedef enum _C2HTMLProxyType C2HTMLProxyType;
+#ifdef USE_GTKHTML
+typedef void (*C2HTMLLinkManager)			(C2HTML *html, const gchar *url, GtkHTMLStream *stream);
+#elif defined (USE_GTKXMHTML)
+typedef void (*C2HTMLLinkManager)			(C2HTML *html, const gchar *url, C2Pthread2 *data);
+#endif
 
-enum _C2HtmlProxyType
+enum _C2HTMLProxyType
 {
 	C2_HTML_PROXY_HTTP,
 	C2_HTML_PROXY_FTP,
 	C2_HTML_PROXY_LAST
 };
 
-struct _C2Html
+struct _C2HTML
 {
 #ifdef USE_GTKHTML
 	GtkHTML parent;
@@ -88,7 +97,7 @@ struct _C2Html
 	pthread_mutex_t *appbar_lock;
 };
 
-struct _C2HtmlClass
+struct _C2HTMLClass
 {
 #ifdef USE_GTKHTML
 	GtkHTMLClass parent_class;
@@ -106,56 +115,44 @@ GtkWidget *
 c2_html_new									(void);
 
 void
-c2_html_set_editable						(C2Html *html);
+c2_html_set_editable						(C2HTML *html);
 
 void
-c2_html_set_link_manager					(C2Html *html, const gchar *prefix, C2HtmlLinkManager lm);
+c2_html_set_link_manager					(C2HTML *html, const gchar *prefix, C2HTMLLinkManager lm);
 
 void
-c2_html_freeze									(C2Html *html);
+c2_html_freeze								(C2HTML *html);
 
 void
-c2_html_thaw									(C2Html *html);
+c2_html_thaw								(C2HTML *html);
 
 void
-c2_html_clear									(C2Html *html);
+c2_html_clear								(C2HTML *html);
 
 /* Configuration */
 void
-c2_html_set_proxy								(C2Html *html, C2HtmlProxyType type, const gchar *proxy,
-												 guint port);
+c2_html_set_proxy							(C2HTML *html, C2HTMLProxyType type, const gchar *proxy,
+											 guint port);
 
 void
-c2_html_set_color_default_bg					(C2Html *html, GdkColor *color);
-
-void
-c2_html_set_color_default_fg					(C2Html *html, GdkColor *color);
-
-void
-c2_html_set_color_usage							(C2Html *html, gboolean allow_switching);
-
-void
-c2_html_set_font_default						(C2Html *html, GdkFont *font, gchar *strfont, gchar *sizes);
-
-void
-c2_html_set_font_usage							(C2Html *html, gboolean allow_switching);
+c2_html_set_font_default					(C2HTML *html, GdkFont *font, gchar *strfont, gchar *sizes);
 
 /* Data source */
 void
-c2_html_set_content_from_url					(C2Html *html, const gchar *url);
+c2_html_set_content_from_url				(C2HTML *html, const gchar *url);
 
 void
-c2_html_set_content_from_string					(C2Html *html, const gchar *string);
+c2_html_set_content_from_string				(C2HTML *html, const gchar *string);
 
 /* Misc */
 void
-c2_html_set_line								(C2Html *html, guint line);
+c2_html_set_line							(C2HTML *html, guint line);
 
 guint
-c2_html_get_line								(C2Html *html);
+c2_html_get_line							(C2HTML *html);
 
 void
-c2_html_install_hints							(C2Html *html, GtkWidget *appbar, pthread_mutex_t *lock);
+c2_html_install_hints						(C2HTML *html, GtkWidget *appbar, pthread_mutex_t *lock);
 
 #ifdef __cplusplus
 }

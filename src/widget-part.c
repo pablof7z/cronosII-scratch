@@ -38,7 +38,7 @@ enum
 
 static gint c2_part_signals[LAST_SIGNAL] = { 0 };
 
-static C2HtmlClass *parent_class = NULL;
+static C2HTMLClass *parent_class = NULL;
 
 guint
 c2_part_get_type (void)

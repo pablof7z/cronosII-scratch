@@ -207,6 +207,32 @@ c2_db_length (C2Mailbox *mailbox)
 }
 
 /**
+ * c2_db_length_type
+ * @mailbox: Mailbox where to act.
+ * @state: State of messages to count.
+ *
+ * Counts the number of messages in the mailbox of a special type.
+ *
+ * Return Value:
+ * Number of mails in the mailbox.
+ **/
+gint
+c2_db_length_type (C2Mailbox *mailbox, gint state)
+{
+	gint i = 0;
+	C2Db *l;
+
+	c2_return_val_if_fail (mailbox, 0, C2EDATA);
+
+	if (mailbox->db)
+		for (l = mailbox->db; l; c2_db_lineal_next (l))
+			if (l->state == state)
+				i++;
+
+	return i;
+}
+
+/**
  * c2_db_get_node
  * @mailbox: Mailbox where to act.
  * @n: Number of node to get (starting at 0).
