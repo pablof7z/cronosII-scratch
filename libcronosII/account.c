@@ -292,6 +292,29 @@ c2_account_append (C2Account *head, C2Account *obj)
 }
 
 /**
+ * c2_account_get_by_name
+ * @head: A C2Account object where to start looking.
+ * @name: Name of mailbox to get.
+ *
+ * This function searchs the list @head looking
+ * for the mailbox with name @name.
+ *
+ * Return Value:
+ * The C2Mailbox that mached the name or %NULL.
+ **/
+C2Account *
+c2_account_get_by_name (C2Account *head, const gchar *name)
+{
+	C2Account *l;
+
+	for (l = head; l; l = c2_account_next (l))
+		if (c2_streq (l->name, name))
+			break;
+
+	return NULL;
+}
+
+/**
  * c2_account_last
  * @head: A C2Account object list.
  *

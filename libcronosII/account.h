@@ -126,6 +126,9 @@ c2_account_append									(C2Account *head, C2Account *obj);
 C2Account *
 c2_account_last										(C2Account *head);
 
+C2Account *
+c2_account_get_by_name								(C2Account *head, const gchar *name);
+
 gint
 c2_account_check									(const C2Account *account);
 
