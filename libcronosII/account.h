@@ -26,7 +26,7 @@ extern "C" {
 
 #ifdef HAVE_CONFIG_H
 #	include "mailbox.h"
-#	include "pop.h"
+#	include "pop3.h"
 #	include "smtp.h"
 #	include "spool.h"
 #else
@@ -35,7 +35,7 @@ extern "C" {
 
 typedef enum
 {
-	C2_ACCOUNT_POP,
+	C2_ACCOUNT_POP3,
 	C2_ACCOUNT_SPOOL
 } C2AccountType;
 
@@ -50,15 +50,15 @@ typedef struct _C2Account
 	
 	union
 	{
-		C2Pop *pop;
+		C2Pop3 *pop3;
 		C2Spool *spool;
 	} protocol;
 
-	C2Smtp smtp;
+	C2Smtp *smtp;
 
 	struct
 	{
-		gboolean activated;
+		gboolean active;
 	} options;
 
 	struct
@@ -67,23 +67,24 @@ typedef struct _C2Account
 		gboolean automatically;
 	} signature;
 
-	C2Mailbox *mbox;
-
 	struct _C2Account *next;
 } C2Account;
 
 C2Account *
 c2_account_new										(const gchar *name, const gchar *per_name,
-													 const gchar *email, const gchar *smtp_address,
-													 gint smtp_port, gboolean activated,
+													 const gchar *email, const gchar *smtp_addr,
+													 gint smtp_port, gboolean active,
 													 const gchar *signature, gboolean autosign,
-													 gint mailbox, C2AccountType type, ...);
+													 C2AccountType type, ...);
 
 void
 c2_account_free										(C2Account *account);
 
 void
 c2_account_free_all									(C2Account *head);
+
+C2Account *
+c2_account_copy										(C2Account *account);
 
 C2Account *
 c2_account_append									(C2Account *head);

@@ -137,6 +137,17 @@ c2_mailbox_destroy_tree							(void);
 void
 c2_mailbox_remove								(C2Mailbox *mailbox);
 
+#define c2_mailbox_get_parent_id(x)				c2_mailbox_get_complete_id (x, c2_mailbox_get_level (x)-1)
+
+gint
+c2_mailbox_get_level							(const gchar *id);
+
+gchar *
+c2_mailbox_get_complete_id						(const gchar *id, guint number);
+
+gint
+c2_mailbox_get_id								(const gchar *id, gint number);
+
 C2Mailbox *
 c2_mailbox_get_head								(void);
 

@@ -22,10 +22,11 @@
 #include <libcronosII/error.h>
 
 #include "c2-app.h"
+#include "c2-main-window.h"
 #include "main-window.h"
 
 static gint
-c2_config_init											(void);
+c2_config_init									(void);
 
 static void
 c2_init (gint argc, gchar **argv)
@@ -68,6 +69,7 @@ main (gint argc, gchar **argv)
 		gdk_threads_enter ();
 		gtk_main ();
 		gdk_threads_leave ();
+		gnome_config_sync ();
 	}
 
 	return 0;
@@ -108,7 +110,7 @@ c2_config_init (void)
 	load_mailboxes ();
 
 	c2_app.options_check_timeout = gnome_config_get_int_with_default
-									("/cronoII/Options/check_timeout=" DEFAULT_OPTIONS_CHECK_TIMEOUT, NULL);
+									("/cronosII/Options/check_timeout=" DEFAULT_OPTIONS_CHECK_TIMEOUT, NULL);
 	c2_app.options_mark_timeout = gnome_config_get_int_with_default
 									("/cronosII/Options/mark_timeout=" DEFAULT_OPTIONS_MARK_TIMEOUT, NULL);
 	c2_app.options_prepend_character = gnome_config_get_string_with_default
@@ -167,6 +169,8 @@ c2_config_init (void)
 									("/cronosII/Paths/download=" DEFAULT_PATHS_DOWNLOAD, NULL);
 	c2_app.paths_get = gnome_config_get_string_with_default
 									("/cronosII/Paths/get=" DEFAULT_PATHS_GET, NULL);
+	c2_app.paths_always_use = gnome_config_get_int_with_default
+									("/cronosII/Paths/always_use=" DEFAULT_PATHS_ALWAYS_USE, NULL);
 
 	c2_app.advanced_http_proxy_addr = gnome_config_get_string_with_default
 									("/cronosII/Advanced/http_proxy_addr=" DEFAULT_ADVANCED_HTTP_PROXY_ADDR, NULL);
@@ -218,9 +222,9 @@ c2_config_init (void)
 static void
 load_mailboxes (void)
 {
-	int i;
+	gint i;
 
-	for (c2_app.mailbox = NULL, i = 0;; i++)
+	for (c2_app.mailbox = NULL, i = 1;; i++)
 	{
 		gchar *name;
 		gchar *id;
@@ -230,22 +234,20 @@ load_mailboxes (void)
 		gchar *host, *user, *pass;
 		gint port;
 		gchar *db;
-		
-		gchar *query = g_strdup_printf ("/cronosII/Mailboxes/%d", i);
+		gchar *query = g_strdup_printf ("/cronosII/Mailbox %d/", i);
 		
 		gnome_config_push_prefix (query);
-		if (!(name = gnome_config_get_string ("::Name")))
+		if (!(name = gnome_config_get_string ("name")))
 		{
 			gnome_config_pop_prefix ();
-			c2_app.mailbox = c2_mailbox_get_head ();
 			g_free (query);
 			break;
 		}
 
-		id = gnome_config_get_string ("::Id");
-		type = gnome_config_get_int ("::Type");
-		sort_by = gnome_config_get_int ("::Sort By");
-		sort_type = gnome_config_get_int ("::Sort Type");
+		id = gnome_config_get_string ("id");
+		type = gnome_config_get_int ("type");
+		sort_by = gnome_config_get_int ("sort_by");
+		sort_type = gnome_config_get_int ("sort_type");
 
 		switch (type)
 		{
@@ -253,10 +255,10 @@ load_mailboxes (void)
 				c2_mailbox_new (name, id, type, sort_by, sort_type);
 				break;
 			case C2_MAILBOX_IMAP:
-				host = gnome_config_get_string ("::Host");
-				port = gnome_config_get_int ("::Port");
-				user = gnome_config_get_string ("::User");
-				pass = gnome_config_get_string ("::Pass");	
+				host = gnome_config_get_string ("host");
+				port = gnome_config_get_int ("port");
+				user = gnome_config_get_string ("user");
+				pass = gnome_config_get_string ("pass");	
 				c2_mailbox_new (name, id, type, sort_by, sort_type, host, port, user, pass);
 				g_free (host);
 				g_free (user);
@@ -264,11 +266,11 @@ load_mailboxes (void)
 				break;
 #ifdef USE_MYSQL
 			case C2_MAILBOX_MYSQL:
-				host = gnome_config_get_string ("::Host");
-				port = gnome_config_get_int ("::Port");
-				db = gnome_config_get_string ("::Db");
-				user = gnome_config_get_string ("::User");
-				pass = gnome_config_get_string ("::Pass");	
+				host = gnome_config_get_string ("host");
+				port = gnome_config_get_int ("port");
+				db = gnome_config_get_string ("db");
+				user = gnome_config_get_string ("user");
+				pass = gnome_config_get_string ("pass");	
 				c2_mailbox_new (name, id, type, sort_by, sort_type, host, port, db, user, pass);
 				g_free (host);
 				g_free (db);
@@ -282,4 +284,6 @@ load_mailboxes (void)
 		gnome_config_pop_prefix ();
 		g_free (query);
 	}
+
+	c2_app.mailbox = c2_mailbox_get_head ();
 }

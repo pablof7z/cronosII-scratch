@@ -42,9 +42,13 @@ c2_app_init (void)
 	c2_app.tooltips = gtk_tooltips_new ();
 	c2_app.open_windows = NULL;
 
-	c2_app.gdk_font_body = gdk_font_load (c2_app.fonts_message_body);
-	c2_app.gdk_font_read = gdk_font_load (c2_app.fonts_readed_message);
-	c2_app.gdk_font_unread = gdk_font_load (c2_app.fonts_unreaded_message);
+	c2_app.fonts_gdk_message_body = gdk_font_load (c2_app.fonts_message_body);
+	c2_app.fonts_gdk_readed_message = gdk_font_load (c2_app.fonts_readed_message);
+	c2_app.fonts_gdk_unreaded_message = gdk_font_load (c2_app.fonts_unreaded_message);
+
+	gdk_color_alloc (gdk_colormap_get_system (), &c2_app.colors_replying_original_message);
+	gdk_color_alloc (gdk_colormap_get_system (), &c2_app.colors_message_bg);
+	gdk_color_alloc (gdk_colormap_get_system (), &c2_app.colors_message_fg);
 
 	return 0;
 }

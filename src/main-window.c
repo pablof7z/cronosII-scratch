@@ -64,6 +64,7 @@ void
 c2_window_new (void)
 {
 	GtkWidget *window;
+	GtkWidget *toolbar;
 	GtkWidget *hpaned;
 	GtkWidget *vpaned;
 	GtkWidget *ctree;
@@ -105,6 +106,10 @@ c2_window_new (void)
 	/* Register the window */
 	c2_app_register_window (GTK_WINDOW (window));
 
+	/* Toolbar */
+	toolbar = glade_xml_get_widget (WMain.xml, "toolbar");
+	gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), c2_app.interface_toolbar);
+
 	/* Hpaned */
 	hpaned = glade_xml_get_widget (WMain.xml, "hpaned");
 	gtk_paned_set_position (GTK_PANED (hpaned), c2_app.rc_hpan);
@@ -118,8 +123,11 @@ c2_window_new (void)
 	gtk_signal_connect (GTK_OBJECT (ctree), "button_press_event",
       			GTK_SIGNAL_FUNC (on_ctree_button_press_event), NULL);
 	if (c2_app.mailbox)
+	{
+		on_ctree_changed_mailboxes (c2_app.mailbox);
 		gtk_signal_connect (GTK_OBJECT (c2_app.mailbox), "changed_mailboxes",
 							GTK_SIGNAL_FUNC (on_ctree_changed_mailboxes), NULL);
+	}
 
 	/* Vpaned */
 	vpaned = glade_xml_get_widget (WMain.xml, "vpaned");

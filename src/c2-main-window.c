@@ -91,6 +91,8 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 	C2Mailbox *parent;
 	C2MailboxType type;
 	C2Mailbox *retval;
+	gchar *query;
+	gint config_id;
 	
 	c2_return_if_fail (gxml, C2EDATA);
 
@@ -113,8 +115,6 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 	else
 		parent = NULL;
 
-	C2_DEBUG (parent ? parent->name : "no parent");
-	
 	/* Get the type */
 	tmp = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (gxml, "type-entry")));
 	if (c2_streq (tmp, CRONOSII_TYPE_STRING))
@@ -128,23 +128,60 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 	
 	retval = c2_mailbox_new_with_parent (name, parent ? parent->id : NULL, type,
 			C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING);
+	C2_DEBUG (retval->id);
+	C2_DEBUG (retval->name);
 	
 	/* Since this is the first mailbox we will connect to the signal
 	 * and emit it again.
 	 */
 	if (first_mailbox)
 	{
-		gtk_signal_connect (GTK_OBJECT (retval), "changed_mailboxes",
+L		gtk_signal_connect (GTK_OBJECT (retval), "changed_mailboxes",
 				GTK_SIGNAL_FUNC (on_ctree_changed_mailboxes), NULL);
-		gtk_signal_emit_by_name (GTK_OBJECT (retval), "changed_mailboxes");
+L		gtk_signal_emit_by_name (GTK_OBJECT (retval), "changed_mailboxes");
 	}
-}
+L
+	/* Now we have to write to the config file the new mailbox */
+	config_id = gnome_config_get_int_with_default ("/cronosII/Mailboxes/quantity=0", NULL)+1;
+	query = g_strdup_printf ("/cronosII/Mailbox %d/", config_id);
+	gnome_config_push_prefix (query);
+L
+	gnome_config_set_string ("name", retval->name);
+	gnome_config_set_string ("id", retval->id);
+	gnome_config_set_int ("type", retval->type);
+	gnome_config_set_int ("sort_by", retval->sort_by);
+	gnome_config_set_int ("sort_type", retval->sort_type);
+
+	switch (retval->sort_type)
+	{
+		case C2_MAILBOX_IMAP:
+			gnome_config_set_string ("user", retval->protocol.imap.user);
+			gnome_config_set_string ("pass", retval->protocol.imap.pass);
+			gnome_config_set_string ("host", retval->protocol.imap.server);
+			gnome_config_set_int ("port", retval->protocol.imap.port);
+			break;
+#ifdef USE_MYSQL
+		case C2_MAILBOX_MYSQL:
+			gnome_config_set_string ("user", retval->protocol.mysql.user);
+			gnome_config_set_string ("pass", retval->protocol.mysql.pass);
+			gnome_config_set_string ("host", retval->protocol.mysql.server);
+			gnome_config_set_int ("port", retval->protocol.mysql.port);
+			gnome_config_set_string ("db", retval->protocol.mysql.db);
+			break;
+#endif
+	}
+	gnome_config_pop_prefix ();
+	g_free (query);
+
+	gnome_config_set_int ("/cronosII/Mailboxes/quantity", config_id);
+	gnome_config_sync ();
+L}
 
 static void
 on_new_mailbox_dlg_name_activate (GtkWidget *widget, GladeXML *gxml)
 {
-	on_new_mailbox_dlg_ok_clicked (gxml, c2_mailbox_get_head () ? FALSE : TRUE);
-	gnome_dialog_close (GNOME_DIALOG (glade_xml_get_widget (gxml, "dlg_new_mailbox")));
+L	on_new_mailbox_dlg_ok_clicked (gxml, c2_mailbox_get_head () ? FALSE : TRUE);
+L	gnome_dialog_close (GNOME_DIALOG (glade_xml_get_widget (gxml, "dlg_new_mailbox")));
 }
 
 void

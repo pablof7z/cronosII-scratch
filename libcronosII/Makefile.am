@@ -8,7 +8,7 @@ libcronosII_a_SOURCES = \
 	mailbox.c			mailbox.h					\
 	message.c			message.h					\
 	mime.c				mime.h						\
-	pop.c				pop.h						\
+	pop3.c				pop3.h						\
 	request.c			request.h					\
 	smtp.c				smtp.h						\
 	spool.c				spool.h						\
@@ -19,3 +19,7 @@ libcronosII_a_SOURCES = \
 libcronosII_a_LIBADD = @LIBOBJS@
 
 INCLUDES=-DBUILDING_C2 -I. -I${top_srcdir} $(GNOME_INCLUDEDIR)
+
+EXTRA_DIST = \
+	README				\
+	README.mailbox_id	

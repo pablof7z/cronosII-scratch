@@ -24,10 +24,27 @@ extern "C" {
 
 typedef struct _C2Spool C2Spool;
 
+enum
+{
+	C2_SPOOL_DO_KEEP_COPY			= 1 << 0,	/* Will get a mail and leave a copy on server */
+	C2_SPOOL_DONT_KEEP_COPY			= 1 << 1	/* Will get a mail and delete it on server */
+};
+
 struct _C2Spool
 {
 	gchar *file;
+
+	gint flags;
 };
+
+C2Spool *
+c2_spool_new (const gchar *file);
+
+void
+c2_spool_set_flags (C2Spool *spool, gint flags);
+
+void
+c2_spool_free (C2Spool *spool);
 
 #ifdef __cplusplus
 }

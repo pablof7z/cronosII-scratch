@@ -73,6 +73,7 @@ extern "C" {
 #define DEFAULT_PATHS_SAVING					"/home"
 #define DEFAULT_PATHS_DOWNLOAD					"/home"
 #define DEFAULT_PATHS_GET						"/home"
+#define DEFAULT_PATHS_ALWAYS_USE				"1"
 	
 #define DEFAULT_ADVANCED_HTTP_PROXY_ADDR		""
 #define DEFAULT_ADVANCED_HTTP_PROXY_PORT		"80"
@@ -170,9 +171,6 @@ struct C2Application
 	GdkPixmap *pixmap_unread, *pixmap_read, *pixmap_reply, *pixmap_forward;
 	GdkCursor *cursor_busy;
 	GdkCursor *cursor_normal;
-	GdkFont *gdk_font_body;
-	GdkFont *gdk_font_read;
-	GdkFont *gdk_font_unread;
 
 	C2Mailbox *mailbox;
 
@@ -193,6 +191,9 @@ struct C2Application
 	gchar *fonts_message_body;
 	gchar *fonts_unreaded_message;
 	gchar *fonts_readed_message;
+	GdkFont *fonts_gdk_message_body;
+	GdkFont *fonts_gdk_unreaded_message;
+	GdkFont *fonts_gdk_readed_message;
 	C2FontSource fonts_source;
 
 	GdkColor colors_replying_original_message;
@@ -203,6 +204,7 @@ struct C2Application
 	gchar *paths_saving;
 	gchar *paths_download;
 	gchar *paths_get;
+	gint paths_always_use : 1;
 
 	gchar *advanced_http_proxy_addr;
 	gint advanced_http_proxy_port;

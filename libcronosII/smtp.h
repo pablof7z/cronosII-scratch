@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 #include <glib.h>
+#include <pthread.h>
 
 #if HAVE_CONFIG_H
 #	include "db.h"
@@ -30,25 +31,35 @@ extern "C" {
 #	include <cronosII.h>
 #endif
 
+enum
+{
+	C2_SMTP_DO_PERSIST			= 1 << 0,	/* Will keep the connection alive for future requests */
+	C2_SMTP_DONT_PERSIST		= 1 << 1	/* Will not keep the connection alive */
+};
+
 typedef struct
 {
 	gchar *address;
 	gint port;
 
-	gint sock;
+	gint flags;
+
+	pthread_mutex_t lock;
+
+	guint sock;
 } C2Smtp;
 
 C2Smtp *
 c2_smtp_new (const gchar *address, gint port);
 
-gint
-c2_smtp_connect (C2Smtp *smtp);
+void
+c2_smtp_set_flags (C2Smtp *smtp, gint flags);
 
 gint
 c2_smtp_send_message (C2Smtp *smtp, C2Message *message);
 
-gint
-c2_smtp_disconnect (C2Smtp *smtp);
+void
+c2_smtp_free (C2Smtp *smtp);
 
 #ifdef __cplusplus
 }

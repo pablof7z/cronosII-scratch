@@ -1,0 +1,57 @@
+Mailbox ID storage form has changed since version 0.2.3.
+
+	The old format was a sequencial number, pretty simple.
+	The new one is a little more complex, but effective too.
+
+The Algorithm:
+
+	ID is equal to the parent's ID's appending a '-' as a separator
+	(unless the mailbox	is toplevel) and the number of mailboxes in
+	same level (at time of adding the mailbox).
+
+	This algorithm is infinite, fast to search.
+	The only limitation I see to this algorithm is by hardware
+	(in 1 MB of RAM/Swap you can just have 511 elements).
+
+Example:
+
+	Inbox (ID: 0)
+	Outbox (ID: 1)
+	Queue (ID: 2)
+		Child of Queue (ID: 2-0)
+			Other Child (ID: 2-0-0)
+			And other (ID: 2-0-1)
+	
+	
+	Queue ID is 2: " 2"
+	                ^^
+					12
+	1) ID of parent (null).
+	2) Number of mailboxes in same level.
+	
+	Child of Queue ID is 2-0: "2-0"
+	                           ^^^
+							   123
+	
+	1) ID of parent (2)
+	2) Separator
+	3) Numbero of mailboxes in same level.
+
+	Other Child ID is 2-0-0: "2-0-0"
+	                          ^  ^^
+							  1  23
+	
+	1) ID of parent (2-0)
+	2) Separator
+	3) Number of mailboxes in same level.
+
+	And other ID is 2-0-1: "2-0-1"
+	                        ^  ^^
+							1  23
+	
+	1) ID of parent (2-0)
+	2) Separator
+	3) Number of mailboxes in same level.
+
+
+	This algorithm has been designed by Pablo Fernández Navarro <cronosII@users.sourceforge.net>.

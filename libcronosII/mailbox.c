@@ -18,6 +18,7 @@
 #include <glib.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include <config.h>
 
 #include "error.h"
@@ -189,7 +190,7 @@ c2_mailbox_destroy (GtkObject *object)
  * tree according to the Id.
  *
  * Return Value:
- * The head of the hash tree.
+ * The new mailbox object.
  **/
 C2Mailbox *
 c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
@@ -199,7 +200,7 @@ c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
 	va_list edata;
 
 	c2_return_val_if_fail (name, NULL, C2EDATA);
-	
+L	
 	mailbox = gtk_type_new (C2_TYPE_MAILBOX);
 	mailbox->name = g_strdup (name);
 	mailbox->id = g_strdup (id);
@@ -241,14 +242,14 @@ c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
 	}
 
 	if (!mailbox_head)
-		mailbox_head = mailbox;
+		c2_mailbox_set_head (mailbox);
 	else
 		c2_mailbox_insert (mailbox_head, mailbox);
 
 	gtk_signal_emit (GTK_OBJECT (mailbox_head),
 						c2_mailbox_signals[CHANGED_MAILBOXES]);
 
-	return mailbox_head;
+L	return mailbox;
 }
 
 C2Mailbox *
@@ -258,31 +259,33 @@ c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2Mailbox
 	C2Mailbox *parent;
 	C2Mailbox *value;
 	gchar *id;
-	
+L	
 	c2_return_val_if_fail (name, NULL, C2EDATA);
-
+L
 	if (parent_id)
 	{
-		if (!(parent = c2_mailbox_search_by_id (mailbox_head, parent_id)))
+		C2_DEBUG (parent_id);
+L		if (!(parent = c2_mailbox_search_by_id (mailbox_head, parent_id)))
 		{
-			c2_error_set (C2EDATA);
+L			c2_error_set (C2EDATA);
 			return NULL;
 		}
 		
-		id = c2_mailbox_create_id_from_parent (parent);
+L		id = c2_mailbox_create_id_from_parent (parent);
+L		C2_DEBUG (id);
 	} else
 	{
-		if ((parent = c2_mailbox_get_head ()))
+L		if ((parent = c2_mailbox_get_head ()))
 		{
-			for (; parent->next; parent = parent->next);
+L			for (; parent->next; parent = parent->next);
 			id = g_strdup_printf ("%d", atoi (parent->id)+1);
 		} else
-			id = g_strdup ("1");
-	}
-	value = c2_mailbox_new (name, id, type, sort_by, sort_type);
+			id = g_strdup ("0");
+L	}
+L	value = c2_mailbox_new (name, id, type, sort_by, sort_type);
 	g_free (id);
 	
-	return value;
+L	return value;
 }
 
 /**
@@ -313,13 +316,15 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
 
 	if (!C2_MAILBOX_IS_TOPLEVEL (mailbox))
 	{
-		id = g_strndup (mailbox->id, strlen (mailbox->id)-1);
+		/* Get the ID of the parent */
+		id = c2_mailbox_get_parent_id (mailbox->id);
+		C2_DEBUG (mailbox->name);
 		l = c2_mailbox_search_by_id (head, id);
 		g_free (id);
 		
 		if (!l)
 		{
-			c2_error_set (C2EDATA);
+L			c2_error_set (C2EDATA);
 			return;
 		}
 		
@@ -449,23 +454,34 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 static C2Mailbox *
 c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id)
 {
-	const gchar *ptr_id;
+	const gchar *ptr;
 	C2Mailbox *l;
 	gint pos = 0;
+	gint top_id;
+	gint ck_id;
 	
 	c2_return_val_if_fail (head, NULL, C2EDATA);
 	c2_return_val_if_fail (id, NULL, C2EDATA);
 
-	for (ptr_id = id, l = head; l != NULL;)
+	top_id = c2_mailbox_get_id (id, 1);
+
+	/* Comparar el primer id y despues llamarme pasandome el strstr (id, "-") */
+	for (l = head; l != NULL; l = l->next)
 	{
-		if (*(l->id+pos) == *ptr_id)
+		ck_id = c2_mailbox_get_id (l->id, 1);
+		if (top_id == ck_id)
 		{
-			if (*(++ptr_id) == '\0')
-				break;
-			l = l->child;
-			pos++;
-		} else
-			l = l->next;
+			if (c2_mailbox_get_level (id) == 1)
+				return l;
+			else
+			{
+				ptr = strstr (id, "-");
+				if (!ptr)
+					return NULL;
+				ptr++;
+				return c2_mailbox_search_by_id (l->child, ptr);
+			}
+		}
 	}
 
 	return l;
@@ -488,15 +504,106 @@ c2_mailbox_create_id_from_parent (C2Mailbox *parent)
 		if (parent->child)
 		{
 			for (l = parent->child; l->next != NULL; l = l->next);
-			id = g_strdup (l->id);
-			/* Add 1 to the previous ID */
-			*(id+strlen (id)-1) = (*(id+strlen (id)-1)-48)+1;
+			id = g_strdup_printf ("%s-%d", c2_mailbox_get_parent_id (l->id), c2_mailbox_get_id (l->id, -1)+1);
 		} else
-			id = g_strdup_printf ("%s0", parent->id);
+			id = g_strdup_printf ("%s-0", parent->id);
 	}
 
+	C2_DEBUG (id);
 	return id;
 }
+
+/**
+ * c2_mailbox_get_level
+ * @id: Mailbox ID.
+ *
+ * This function will get the level
+ * of the mailbox with ID @id in the
+ * mailboxes tree.
+ *
+ * Return Value:
+ * The level of the mailbox.
+ **/
+gint
+c2_mailbox_get_level (const gchar *id)
+{
+	gint i;
+	const gchar *ptr;
+
+	c2_return_val_if_fail (id, -1, C2EDATA);
+
+	for (i = 1, ptr = id; (ptr = strstr (ptr, "-")); i++) ptr++;
+
+	return i;
+}
+
+/**
+ * c2_mailbox_get_complete_id
+ * @id: ID String.
+ * @number: Number of id to get.
+ * 
+ * This function will get certain ID by position in
+ * a valid mailbox ID.
+ *
+ * Return Value:
+ * The ID required or null if it wasn't found.
+ **/
+gchar *
+c2_mailbox_get_complete_id (const gchar *id, guint number)
+{
+	gint i;
+	const gchar *ptr;
+	
+	c2_return_val_if_fail (id, NULL, C2EDATA);
+
+	for (ptr = id, i = 0; i < number; i++, ptr++)
+		if (!(ptr = strstr (ptr, "-")))
+			return NULL;
+
+	return g_strndup (id, ptr-id-1);
+}
+
+/**
+ * c2_mailbox_get_id
+ * @id: ID String.
+ * @number: Number of id to get (-1 for last one).
+ * 
+ * This function will get certain ID by position in
+ * a valid mailbox ID.
+ * The difference between this function and c2_mailbox_get_complete_id
+ * is that this function will return "70" for
+ * c2_mailbox_get_id ("50-60-70-84-47", 3),
+ * while c2_mailbox_get_complete_id will return
+ * "50-60-70" in the same call.
+ *
+ * Return Value:
+ * The ID required or -1 if it wasn't found.
+ **/
+gint
+c2_mailbox_get_id (const gchar *id, gint number)
+{
+	gint i;
+	const gchar *ptr;
+	
+	c2_return_val_if_fail (id, -1, C2EDATA);
+
+	if (number < 0)
+	{
+		for (ptr = id+strlen (id)-1; *ptr != '\0' && *ptr != '-'; ptr--);
+		if (!ptr)
+			return -1;
+	
+		printf ("Returning %d for %s, %d\n", atoi (ptr+1), id, number);
+		return atoi (++ptr);
+	}
+		
+	for (ptr = id, i = 1; i < number; i++)
+		if (!(ptr = strstr (ptr, "-")))
+			return -1;
+
+	return atoi (ptr);
+}
+
 
 /**
  * c2_mailbox_get_head

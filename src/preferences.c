@@ -22,9 +22,24 @@
 #include <libcronosII/account.h>
 
 #include "c2-app.h"
+#include "main-window.h"
+
+#define OPTIONS_DEFAULT_MIME_STRING_PLAIN_TEXT _("Plain text")
+#define OPTIONS_DEFAULT_MIME_STRING_HTML_TEXT _("HTML formatted")
+#define INTERFACE_TOOLBAR_STRING_ICONS_ONLY _("Icons only")
+#define INTERFACE_TOOLBAR_STRING_TEXT_ONLY _("Text only")
+#define INTERFACE_TOOLBAR_STRING_BOTH _("Icons & Text")
+#define FONTS_SOURCE_STRING_USE_DOCUMENT _("Use document specified fonts")
+#define FONTS_SOURCE_STRING_USE_MY _("Always use my fonts")
 
 static void
 on_ok_btn_clicked								(void);
+
+static void
+on_apply_btn_clicked							(void);
+
+static void
+on_cancel_btn_clicked							(void);
 
 static void
 on_accounts_clist_select_row					(GtkCList *clist);
@@ -102,6 +117,7 @@ c2_preferences_new (void)
 	GtkWidget *options_use_outbox;
 	GtkWidget *options_check_at_start;
 	GtkWidget *options_default_mime;
+	GtkWidget *menu;
 
 	C2Account *account;
 	GtkCList *accounts_clist;
@@ -137,6 +153,7 @@ c2_preferences_new (void)
 	GtkWidget *paths_download_btn;
 	GtkWidget *paths_get_entry;
 	GtkWidget *paths_get_btn;
+	GtkWidget *paths_always_use;
 	
 	GtkWidget *advanced_http_proxy_btn;
 	GtkWidget *advanced_http_proxy_addr;
@@ -152,6 +169,7 @@ c2_preferences_new (void)
 	if (preferences_xml)
 	{
 		dialog = glade_xml_get_widget (preferences_xml, "dlg_preferences");
+		gtk_clist_clear (GTK_CLIST (glade_xml_get_widget (preferences_xml, "accounts_clist")));
 		gtk_widget_show (dialog);
 		return;
 	}
@@ -162,6 +180,10 @@ c2_preferences_new (void)
 	dialog = glade_xml_get_widget (preferences_xml, "dlg_preferences");
 	gnome_dialog_button_connect (GNOME_DIALOG (dialog), 0,
 								GTK_SIGNAL_FUNC (on_ok_btn_clicked), NULL);
+	gnome_dialog_button_connect (GNOME_DIALOG (dialog), 1,
+								GTK_SIGNAL_FUNC (on_apply_btn_clicked), NULL);
+	gnome_dialog_button_connect (GNOME_DIALOG (dialog), 2,
+								GTK_SIGNAL_FUNC (on_cancel_btn_clicked), NULL);
 
 	/* Tree */
 	ctree = GTK_CTREE (glade_xml_get_widget (preferences_xml, "tree"));
@@ -228,6 +250,13 @@ c2_preferences_new (void)
 
 	/* options_default_mime */
 	options_default_mime = glade_xml_get_widget (preferences_xml, "options_default_mime");
+	menu = gtk_menu_item_new_with_label (OPTIONS_DEFAULT_MIME_STRING_PLAIN_TEXT);
+	gtk_widget_show (menu);
+	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (options_default_mime)->menu), menu);
+	
+	menu = gtk_menu_item_new_with_label (OPTIONS_DEFAULT_MIME_STRING_HTML_TEXT);
+	gtk_widget_show (menu);
+	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (options_default_mime)->menu), menu);
 	gtk_option_menu_set_history (GTK_OPTION_MENU (options_default_mime), c2_app.options_default_mime);
 
 	/* accounts_clist */
@@ -237,7 +266,7 @@ c2_preferences_new (void)
 		gchar *row[] =
 		{
 			account->name,
-			(account->type == C2_ACCOUNT_POP) ? "POP" : "Spool",
+			(account->type == C2_ACCOUNT_POP3) ? "POP" : "Spool",
 			account->per_name,
 			account->email,
 			NULL
@@ -323,6 +352,12 @@ c2_preferences_new (void)
 	
 	/* fonts_source */
 	fonts_source = glade_xml_get_widget (preferences_xml, "fonts_source");
+	menu = gtk_menu_item_new_with_label (FONTS_SOURCE_STRING_USE_DOCUMENT);
+	gtk_widget_show (menu);
+	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (fonts_source)->menu), menu);
+	menu = gtk_menu_item_new_with_label (FONTS_SOURCE_STRING_USE_MY);
+	gtk_widget_show (menu);
+	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (fonts_source)->menu), menu);
 	gtk_option_menu_set_history (GTK_OPTION_MENU (fonts_source), c2_app.fonts_source);
 
 	/* colors_replying_original_message */
@@ -377,6 +412,10 @@ c2_preferences_new (void)
 	paths_get_btn = glade_xml_get_widget (preferences_xml, "paths_get_btn");
 	gtk_signal_connect (GTK_OBJECT (paths_get_btn), "clicked",
 						GTK_SIGNAL_FUNC (on_paths_btn_clicked), paths_get_entry);
+
+	/* paths_always_use */
+	paths_always_use = glade_xml_get_widget (preferences_xml, "paths_always_use");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (paths_always_use), c2_app.paths_always_use);
 	
 	/* advanced_http_proxy_addr */
 	advanced_http_proxy_addr = glade_xml_get_widget (preferences_xml, "advanced_http_proxy_addr");
@@ -452,24 +491,227 @@ c2_preferences_new (void)
 static void
 on_ok_btn_clicked (void)
 {
+	on_apply_btn_clicked ();
+	on_cancel_btn_clicked ();
+}
+	
+static void
+on_apply_btn_clicked (void)
+{
 	{ /* Options page */
-		gint check_timeout;
-		gint mark_timeout;
-		gchar *prepend_character;
-		gint empty_garbage;
-		gint use_outbox;
-		gint check_at_start;
-		gint options_default_mime;
+		GtkWidget *check_timeout = glade_xml_get_widget (preferences_xml, "options_check_timeout");
+		GtkWidget *mark_timeout = glade_xml_get_widget (preferences_xml, "options_mark_timeout");
+		GtkWidget *prepend_character = glade_xml_get_widget (preferences_xml, "options_prepend_character");
+		GtkWidget *empty_garbage = glade_xml_get_widget (preferences_xml, "options_empty_garbage");
+		GtkWidget *use_outbox = glade_xml_get_widget (preferences_xml, "options_use_outbox");
+		GtkWidget *check_at_start = glade_xml_get_widget (preferences_xml, "options_check_at_start");
+		GtkWidget *default_mime = glade_xml_get_widget (preferences_xml, "options_default_mime");
+		gchar *selection;
+
+		c2_app.options_check_timeout = gtk_spin_button_get_value_as_int (
+										GTK_SPIN_BUTTON (check_timeout));
+		c2_app.options_mark_timeout = gtk_spin_button_get_value_as_int (
+										GTK_SPIN_BUTTON (mark_timeout));
+
+		g_free (c2_app.options_prepend_character);
+		c2_app.options_prepend_character = g_strdup (gtk_entry_get_text (
+											GTK_ENTRY (GTK_COMBO (prepend_character)->entry)));
+		
+		c2_app.options_empty_garbage = GTK_TOGGLE_BUTTON (empty_garbage)->active;
+		c2_app.options_use_outbox = GTK_TOGGLE_BUTTON (use_outbox)->active;
+		c2_app.options_check_at_start = GTK_TOGGLE_BUTTON (check_at_start)->active;
+
+		if (GTK_BIN (default_mime)->child)
+		{
+			GtkWidget *child = GTK_BIN (default_mime)->child;
+			
+			if (GTK_LABEL (child))
+			{
+				gtk_label_get (GTK_LABEL (child), &selection);
+				if (c2_streq (selection, OPTIONS_DEFAULT_MIME_STRING_PLAIN_TEXT))
+					c2_app.options_default_mime = C2_DEFAULT_MIME_PLAIN;
+				else
+					c2_app.options_default_mime = C2_DEFAULT_MIME_HTML;
+			}
+		}
+
+		gnome_config_set_int ("/cronosII/Options/check_timeout", c2_app.options_check_timeout);
+		gnome_config_set_int ("/cronosII/Options/mark_timeout", c2_app.options_mark_timeout);
+		gnome_config_set_string ("/cronosII/Options/prepend_character", c2_app.options_prepend_character);
+		gnome_config_set_int ("/cronosII/Options/empty_garbage", c2_app.options_empty_garbage);
+		gnome_config_set_int ("/cronosII/Options/use_outbox", c2_app.options_use_outbox);
+		gnome_config_set_int ("/cronosII/Options/check_at_start", c2_app.options_check_at_start);
+		gnome_config_set_int ("/cronosII/Options/default_mime", c2_app.options_default_mime);
 	}
 	{ /* Accounts */
+		GtkCList *accounts_clist = GTK_CLIST (glade_xml_get_widget (preferences_xml, "accounts_clist"));
+		C2Account *account;
+		gint i;
+		gchar *buf;
+
+		/* Free the c2_app.account list */
+		c2_account_free_all (c2_app.account);
+		c2_app.account = NULL;
+		
+		for (i = 0; i < accounts_clist->rows; i++)
+		{
+			account = gtk_clist_get_row_data (accounts_clist, i);
+			account->next = gtk_clist_get_row_data (accounts_clist, i+1);
+			
+			if (!c2_app.account)
+				c2_app.account = account;
+
+			buf = g_strdup_printf ("/cronosII/Account %d/", i);
+			gnome_config_push_prefix (buf);
+			gnome_config_set_string ("name", account->name);
+			gnome_config_set_string ("per_name", account->per_name);
+			gnome_config_set_string ("email", account->email);
+			gnome_config_set_int ("options.active", account->options.active),
+			gnome_config_set_string ("signature.string", account->signature.string);
+			gnome_config_set_int ("signature.automatically", account->signature.automatically);
+			gnome_config_set_int ("type", account->type);
+
+			switch (account->type)
+			{
+				case C2_ACCOUNT_POP3:
+					gnome_config_set_string ("pop3.username", account->protocol.pop3->user);
+					gnome_config_set_string ("pop3.password", account->protocol.pop3->pass);
+					gnome_config_set_string ("pop3.hostname", account->protocol.pop3->host);
+					gnome_config_set_int ("pop3.port", account->protocol.pop3->port);
+					gnome_config_set_int ("pop3.flags", account->protocol.pop3->flags);
+					break;
+				case C2_ACCOUNT_SPOOL:
+					gnome_config_set_string ("spool.file", account->protocol.spool->file);
+					gnome_config_set_int ("spool.flags", account->protocol.spool->flags);
+					break;
+			}
+			gnome_config_pop_prefix ();
+			g_free (buf);
+		}
 	}
 	{ /* Interface */
+		GtkWidget *title = glade_xml_get_widget (preferences_xml, "interface_title");
+		GtkWidget *toolbar = glade_xml_get_widget (preferences_xml, "interface_toolbar");
+		GtkWidget *date_fmt = glade_xml_get_widget (preferences_xml, "interface_date_fmt");
+		gchar *selection;
+
+		c2_app.interface_title = gtk_entry_get_text (GTK_ENTRY (title));
+
+		if (GTK_BIN (toolbar)->child)
+		{
+			GtkWidget *child = GTK_BIN (toolbar)->child;
+			
+			if (GTK_LABEL (child))
+			{
+				gtk_label_get (GTK_LABEL (child), &selection);
+				if (c2_streq (selection, INTERFACE_TOOLBAR_STRING_ICONS_ONLY))
+					c2_app.interface_toolbar = GTK_TOOLBAR_ICONS;
+				else if (c2_streq (selection, INTERFACE_TOOLBAR_STRING_TEXT_ONLY))
+					c2_app.interface_toolbar = GTK_TOOLBAR_TEXT;
+				else
+					c2_app.interface_toolbar = GTK_TOOLBAR_BOTH;
+			}
+		}
+
+		g_free (c2_app.interface_date_fmt);
+		c2_app.interface_date_fmt = gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (date_fmt)->entry));
+
+		gtk_toolbar_set_style (GTK_TOOLBAR (glade_xml_get_widget (WMain.xml, "toolbar")),
+								c2_app.interface_toolbar);
+		gtk_widget_queue_resize (glade_xml_get_widget (WMain.xml, "wnd_main"));
+
+		gnome_config_set_string ("/cronosII/Interface/title", c2_app.interface_title);
+		gnome_config_set_int ("/cronosII/Interface/toolbar", c2_app.interface_toolbar);
+		gnome_config_set_string ("/cronosII/Interface/date_fmt", c2_app.interface_date_fmt);
 	}
 	{ /* Fonts */
+		GtkWidget *message_body = glade_xml_get_widget (preferences_xml, "fonts_message_body");
+		GtkWidget *unreaded_message = glade_xml_get_widget (preferences_xml, "fonts_unreaded_message");
+		GtkWidget *readed_message = glade_xml_get_widget (preferences_xml, "fonts_readed_message");
+		GtkWidget *source = glade_xml_get_widget (preferences_xml, "fonts_source");
+		gchar *selection;
+		
+		g_free (c2_app.fonts_message_body);
+		g_free (c2_app.fonts_unreaded_message);
+		g_free (c2_app.fonts_readed_message);
+
+		c2_app.fonts_message_body = gnome_font_picker_get_font_name (GNOME_FONT_PICKER (message_body));
+		c2_app.fonts_unreaded_message = gnome_font_picker_get_font_name (GNOME_FONT_PICKER (unreaded_message));
+		c2_app.fonts_readed_message = gnome_font_picker_get_font_name (GNOME_FONT_PICKER (readed_message));
+
+		gdk_font_unref (c2_app.fonts_gdk_message_body);
+		c2_app.fonts_gdk_message_body = gnome_font_picker_get_font (GNOME_FONT_PICKER (message_body));
+		gdk_font_unref (c2_app.fonts_gdk_unreaded_message);
+		c2_app.fonts_gdk_unreaded_message = gnome_font_picker_get_font (GNOME_FONT_PICKER (unreaded_message));
+		gdk_font_unref (c2_app.fonts_gdk_readed_message);
+		c2_app.fonts_gdk_readed_message = gnome_font_picker_get_font (GNOME_FONT_PICKER (readed_message));
+
+		if (GTK_BIN (source)->child)
+		{
+			GtkWidget *child = GTK_BIN (source)->child;
+			
+			if (GTK_LABEL (child))
+			{
+				gtk_label_get (GTK_LABEL (child), &selection);
+				if (c2_streq (selection, FONTS_SOURCE_STRING_USE_DOCUMENT))
+					c2_app.fonts_source = C2_FONT_USE_DOCUMENTS_FONT;
+				else
+					c2_app.fonts_source = C2_FONT_USE_MY_FONT;
+			}
+		}
+
+		gnome_config_set_string ("/cronosII/Fonts/message_body", c2_app.fonts_message_body);
+		gnome_config_set_string ("/cronosII/Fonts/unreaded_message", c2_app.fonts_unreaded_message);
+		gnome_config_set_string ("/cronosII/Fonts/readed_message", c2_app.fonts_readed_message);
+		gnome_config_set_int ("/cronosII/Fonts/source", c2_app.fonts_source);
 	}
 	{ /* Colors */
+		GtkWidget *replying_original_message = glade_xml_get_widget
+												(preferences_xml, "colors_replying_original_message");
+		GtkWidget *message_bg = glade_xml_get_widget (preferences_xml, "colors_message_bg");
+		GtkWidget *message_fg = glade_xml_get_widget (preferences_xml, "colors_message_fg");
+		GtkWidget *message_source = glade_xml_get_widget (preferences_xml, "colors_message_source");
+
+		gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (replying_original_message),
+									&c2_app.colors_replying_original_message.red,
+									&c2_app.colors_replying_original_message.green,
+									&c2_app.colors_replying_original_message.blue,
+									(gushort*) &c2_app.colors_replying_original_message.pixel);
+		gdk_color_alloc (gdk_colormap_get_system (), &c2_app.colors_replying_original_message);
+		
+		gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (message_bg),
+									&c2_app.colors_message_bg.red,
+									&c2_app.colors_message_bg.green,
+									&c2_app.colors_message_bg.blue,
+									(gushort*) &c2_app.colors_message_bg.pixel);
+		gdk_color_alloc (gdk_colormap_get_system (), &c2_app.colors_message_bg);
+		
+		gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (message_fg),
+									&c2_app.colors_message_fg.red,
+									&c2_app.colors_message_fg.green,
+									&c2_app.colors_message_fg.blue,
+									(gushort*) &c2_app.colors_message_fg.pixel);
+		gdk_color_alloc (gdk_colormap_get_system (), &c2_app.colors_message_fg);
 	}
 	{ /* Paths */
+		GtkWidget *saving_entry = glade_xml_get_widget (preferences_xml, "paths_saving_entry");
+		GtkWidget *download_entry = glade_xml_get_widget (preferences_xml, "paths_download_entry");
+		GtkWidget *get_entry = glade_xml_get_widget (preferences_xml, "paths_get_entry");
+		GtkWidget *always_use = glade_xml_get_widget (preferences_xml, "paths_always_use");
+
+		g_free (c2_app.paths_saving);
+		g_free (c2_app.paths_download);
+		g_free (c2_app.paths_get);
+
+		c2_app.paths_saving = gtk_entry_get_text (GTK_ENTRY (saving_entry));
+		c2_app.paths_download = gtk_entry_get_text (GTK_ENTRY (download_entry));
+		c2_app.paths_get = gtk_entry_get_text (GTK_ENTRY (get_entry));
+		c2_app.paths_always_use = GTK_TOGGLE_BUTTON (always_use)->active;
+
+		gnome_config_set_string ("/cronosII/Paths/saving", c2_app.paths_saving);
+		gnome_config_set_string ("/cronosII/Paths/download", c2_app.paths_download);
+		gnome_config_set_string ("/cronosII/Paths/get", c2_app.paths_get);
+		gnome_config_set_int ("/cronosII/Paths/always_use", c2_app.paths_always_use);
 	}
 	{ /* Advanced */
 		GtkWidget *http_proxy_btn = glade_xml_get_widget (preferences_xml, "advanced_http_proxy_btn");
@@ -509,6 +751,12 @@ on_ok_btn_clicked (void)
 	}
 	
 	gnome_config_sync ();
+}
+
+static void
+on_cancel_btn_clicked (void)
+{
+	gnome_dialog_close (GNOME_DIALOG (glade_xml_get_widget (preferences_xml, "dlg_preferences")));
 }
 
 static void

@@ -30,7 +30,7 @@
   <allow_grow>True</allow_grow>
   <auto_shrink>False</auto_shrink>
   <wmclass_name>cronosII</wmclass_name>
-  <wmclass_class>WMain</wmclass_class>
+  <wmclass_class>wnd_main</wmclass_class>
   <enable_layout_config>True</enable_layout_config>
 
   <widget>
@@ -1759,7 +1759,7 @@ is already taken.</message>
   <modal>True</modal>
   <wmclass_name>cronosII</wmclass_name>
   <wmclass_class>about</wmclass_class>
-  <copyright>2000-2001 Pablo Fernández Navarro</copyright>
+  <copyright>© 2000-2001 Pablo Fernández Navarro</copyright>
   <authors>Pablo Fernández Navarro
 Bosko Blagojevic
 André Casteliano

@@ -104,7 +104,7 @@ gchar *s = N_("This progress bar indicates the progress of the fetch of the curr
 gchar *s = N_("%P %%");
 gchar *s = N_("Account");
 gchar *s = N_("Description");
-gchar *s = N_("2000-2001 Pablo Fernández Navarro");
+gchar *s = N_("© 2000-2001 Pablo Fernández Navarro");
 gchar *s = N_("Cronos II is a fast, light, user friendly and powerful mail client for the Gnome Desktop.\n"
               "It has an extended and intuitive interface which will make life for novice easier without taking out the power to the gurus.\n"
               "\n"

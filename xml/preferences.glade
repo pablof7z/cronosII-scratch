@@ -31,8 +31,10 @@
   <allow_shrink>False</allow_shrink>
   <allow_grow>False</allow_grow>
   <auto_shrink>False</auto_shrink>
+  <wmclass_name>cronosII</wmclass_name>
+  <wmclass_class>dlg_preferences</wmclass_class>
   <auto_close>False</auto_close>
-  <hide_on_close>False</hide_on_close>
+  <hide_on_close>True</hide_on_close>
 
   <widget>
     <class>GtkVBox</class>
@@ -463,14 +465,12 @@ Quote#
 		  <name>options_default_mime</name>
 		  <height>23</height>
 		  <can_focus>True</can_focus>
-		  <items>Plain text
-HTML formatted
-</items>
+		  <items></items>
 		  <initial_choice>0</initial_choice>
 		  <child>
 		    <padding>0</padding>
-		    <expand>False</expand>
-		    <fill>False</fill>
+		    <expand>True</expand>
+		    <fill>True</fill>
 		  </child>
 		</widget>
 	      </widget>
@@ -1275,9 +1275,7 @@ Icons &amp; Text
 	      <name>fonts_source</name>
 	      <height>23</height>
 	      <can_focus>True</can_focus>
-	      <items>Use document specified fonts
-Always use my fonts
-</items>
+	      <items></items>
 	      <initial_choice>0</initial_choice>
 	      <child>
 		<left_attach>1</left_attach>
@@ -1730,6 +1728,20 @@ Always use my colors.
 		  </child>
 		</widget>
 	      </widget>
+	    </widget>
+
+	    <widget>
+	      <class>GtkCheckButton</class>
+	      <name>paths_always_use</name>
+	      <can_focus>True</can_focus>
+	      <label>Always prompt for this directories.</label>
+	      <active>False</active>
+	      <draw_indicator>True</draw_indicator>
+	      <child>
+		<padding>0</padding>
+		<expand>False</expand>
+		<fill>False</fill>
+	      </child>
 	    </widget>
 	  </widget>
 	</widget>

@@ -22,9 +22,6 @@ gchar *s = N_("Empty the Garbage mailbox on exit.");
 gchar *s = N_("Store a copy of outgoing messages in the Outbox mailbox.");
 gchar *s = N_("Check for mail at start up.");
 gchar *s = N_("Default MIME part to display:");
-gchar *s = N_("Plain text\n"
-              "HTML formatted\n"
-              "");
 gchar *s = N_("Options");
 gchar *s = N_("Name");
 gchar *s = N_("Type");
@@ -65,9 +62,6 @@ gchar *s = N_("Pick a Font");
 gchar *s = N_("AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz");
 gchar *s = N_("Pick a Font");
 gchar *s = N_("AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz");
-gchar *s = N_("Use document specified fonts\n"
-              "Always use my fonts\n"
-              "");
 gchar *s = N_("Fonts");
 gchar *s = N_("Replying and Forwarding");
 gchar *s = N_("Pick a color");
@@ -87,6 +81,7 @@ gchar *s = N_("Default directory for downloading files");
 gchar *s = N_("Browse...");
 gchar *s = N_("Default directory for getting files");
 gchar *s = N_("Browse...");
+gchar *s = N_("Always prompt for this directories.");
 gchar *s = N_("Paths");
 gchar *s = N_("Proxy");
 gchar *s = N_("HTTP Proxy:");
