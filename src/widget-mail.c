@@ -26,6 +26,14 @@
 #include "widget-mail.h"
 #include "widget-part.h"
 
+/* [TODO]
+ * 010920 Interpret some HTML symbols too.
+ * 010920 The quote symbol coloring is not working
+ *        correctly, the rest of the message after
+ *        the quote symbol the rest of the message
+ *        is colored even if its not quoted.
+ */
+
 static void
 on_body_button_press_event					(GtkWidget *widget, GdkEventButton *event);
 
@@ -64,7 +72,7 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 {
 	C2Mime *mime;
 	gboolean text_plain = TRUE;
-	gchar *string;
+	gchar *string, *html;
 
 	c2_return_if_fail (message, C2EDATA);
 
@@ -144,6 +152,7 @@ c2_mail_construct (C2Mail *mail, C2Application *application)
 	gtk_widget_show (mail->body);
 #ifdef USE_GTKHTML
 	c2_html_set_link_manager (C2_HTML (mail->body), "cid", html_link_manager_cid);
+//	gtk_object_set_data (GTK_OBJECT (mail->body), "attachments_object", (gpointer) c2_attachment_list_new);
 #endif
 }
 
@@ -241,11 +250,15 @@ html_link_manager_cid (C2HTML *html, const gchar *url, GtkHTMLStream *stream)
 
 	for (mime = message->mime; mime; mime = mime->next)
 		if (c2_streq (mime->id, url+4))
+		{
+			printf ("%s %s (%s/%s)\n", mime->id, url+4, mime->type, mime->subtype);
 			break;
+		}
 
 	if (!mime)
 		return;
-	
+
+	printf ("--\n%s\n--\n", c2_mime_get_part (mime));
 	gtk_html_stream_write (stream, c2_mime_get_part (mime), mime->length);
 }
 #elif defined (USE_GTKXMHTML)
@@ -424,7 +437,6 @@ avoid_interpret:
 
 	buf = string->str;
 	g_string_free (string, FALSE);
-	C2_DEBUG (buf);
 
 	return buf;
 }
@@ -503,13 +515,13 @@ make_quote_color (gint level, gshort *red, gshort *green, gshort *blue)
 	switch (level)
 	{
 		case 1:
-			*red = *blue = *green = 0x55;
-			return;
-		case 2:
 			*red = *blue = *green = 0x77;
 			return;
-		case 3:
+		case 2:
 			*red = *blue = *green = 0x99;
+			return;
+		case 3:
+			*red = *blue = *green = 0xaa;
 			return;
 	}
 

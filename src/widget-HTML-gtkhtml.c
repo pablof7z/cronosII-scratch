@@ -20,7 +20,9 @@
 #ifdef USE_GTKHTML
 
 #include <gtkhtml/htmlform.h>
+#include <glade/glade.h>
 
+#include "widget-application.h"
 #include "widget-HTML.h"
 #include <libcronosII/request.h>
 #include <libcronosII/net-object.h>
@@ -28,25 +30,86 @@
 #include <pthread.h>
 
 static void
-on_html_http_url_requested_exchange (C2Request *request, C2NetObjectExchangeType type,
+on_html_http_link_clicked_exchange (C2Request *request, C2NetObjectExchangeType type,
 									 gint length, C2Pthread2 *data)
 {
-	GtkHTMLStream *stream = data->v2;
-	const gchar *ptr;
+}
 
-	if (type == C2_NET_OBJECT_EXCHANGE_SEND)
-		return;
+static void
+on_html_http_link_clicked_disconnect (C2Request *request, gboolean success, C2Pthread3 *data)
+{
+	GtkHTML *html = GTK_HTML (data->v1);
+	GtkHTMLStream *stream = data->v3;
+	const gchar *ptr;
+	gint length = request->got_size;
 
 	ptr = (request->source+request->got_size)-length;
 
 	gtk_html_stream_write (stream, ptr, length);
+	gtk_html_end (html, stream, success ? GTK_HTML_STREAM_OK : GTK_HTML_STREAM_ERROR);
+}
+
+static void
+on_html_http_link_clicked (C2Pthread3 *data)
+{
+	C2Request *request;
+	const gchar *url = data->v2;
+	GtkHTML *html = GTK_HTML (data->v1);
+	GtkHTMLStream *stream;
+
+	stream = gtk_html_begin (html);
+	data->v3 = (gpointer) stream;
+	
+	request = c2_request_new (url);
+	gtk_signal_connect (GTK_OBJECT (request), "exchange",
+							GTK_SIGNAL_FUNC (on_html_http_link_clicked_exchange), data);
+	gtk_signal_connect (GTK_OBJECT (request), "disconnect",
+							GTK_SIGNAL_FUNC (on_html_http_link_clicked_disconnect), data);
+	c2_request_run (request);
+}
+
+void
+c2_html_gtkhtml_link_clicked (GtkHTML *gtkhtml, const gchar *url, gpointer data)
+{
+	C2Pthread3 *data3;
+	gchar *prefix;
+	pthread_t thread;
+
+	prefix = c2_str_get_word (0, url, ':');
+
+	data3 = g_new0 (C2Pthread3, 1);
+	data3->v1 = (gpointer) gtkhtml;
+	data3->v2 = (gpointer) url;
+	
+	if (c2_streq (prefix, "http"))
+		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_html_http_link_clicked), data3);
+	else if (c2_streq (prefix, "ftp"))
+		L
+	g_free (prefix);
+}
+
+void
+c2_html_gtkhtml_on_url (GtkHTML *gtkhtml, const gchar *url, gpointer data)
+{
+	C2HTML *html = C2_HTML (data);
+}
+
+static void
+on_html_http_url_requested_exchange (C2Request *request, C2NetObjectExchangeType type,
+									 gint length, C2Pthread2 *data)
+{
 }
 
 static void
 on_html_http_url_requested_disconnect (C2Request *request, gboolean success, C2Pthread2 *data)
 {
-	g_free (data);
-	gtk_object_destroy (GTK_OBJECT (request));
+	GtkHTMLStream *stream = data->v2;
+	const gchar *ptr;
+	gint length = request->got_size;
+
+	ptr = (request->source+request->got_size)-length;
+
+	gtk_html_stream_write (stream, ptr, length);
 }
 
 static void

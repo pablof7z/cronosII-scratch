@@ -185,11 +185,15 @@ c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 	gchar *buf;
 	FILE *fd;
 
-
+L
 	if (mailbox->db)
-		mid = mailbox->db->prev->mid+1;
-	else
-		mid = 1;
+	{
+L		mid = mailbox->db->prev->mid+1;
+		printf ("Latest mid is %d (%s)\n", mailbox->db->prev->mid, mailbox->db->prev->subject);
+	} else
+	{
+L		mid = 1;
+	}
 	printf ("New mid: %d\n", mid);
 
 	db->mid = mid;

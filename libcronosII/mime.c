@@ -24,6 +24,11 @@
 #include "message.h"
 #include "utils.h"
 
+/* [TODO]
+ * 010918: There is a bug that causes the first ID found to be
+ *         the ID of all parts.
+ */
+
 static void
 c2_mime_class_init							(C2MimeClass *klass);
 

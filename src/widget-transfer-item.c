@@ -217,7 +217,7 @@ C2TransferItemType type, va_list args)
 
 	ti->progress_byte = gtk_progress_bar_new ();
 	gtk_box_pack_start (GTK_BOX (box), ti->progress_byte, FALSE, TRUE, 0);
-	gtk_widget_set_usize (ti->progress_byte, -1, 5);
+	gtk_widget_set_usize (ti->progress_byte, -1, 6);
 
 	button = gtk_button_new ();
 
@@ -393,12 +393,21 @@ on_pop3_status (GtkObject *object, gint mails, C2TransferItem *ti)
 static void
 on_pop3_retrieve (GtkObject *object, gint16 nth, gint32 received, gint32 total, C2TransferItem *ti)
 {
+	gdk_threads_enter ();
+	
 	if (!received)
 	{
 		if (nth == 1)
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Receiving %v of %u"));
 		gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), nth);
-	}
+		
+		gtk_widget_show (ti->progress_byte);
+		gtk_progress_configure (GTK_PROGRESS (ti->progress_byte), 0, 0, total);
+	} else if (total)
+		gtk_progress_set_value (GTK_PROGRESS (ti->progress_byte), received);
+	else
+		gtk_widget_hide (ti->progress_byte);
+	gdk_threads_leave ();
 }
 
 static void

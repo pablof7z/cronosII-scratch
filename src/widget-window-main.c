@@ -832,6 +832,10 @@ re_run_add_mailbox_dialog:
 
 				name = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "name")));
 
+				/* Hehe, a little eastern egg :) */
+				if (c2_streq (name, ""))
+
+
 				if (!C2_WINDOW (wmain)->application)
 					L
 

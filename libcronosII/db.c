@@ -416,6 +416,10 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 	gboolean marked = FALSE;
 	time_t date;
 
+	if (!mailbox->db)
+		c2_mailbox_load_db (mailbox);
+	printf ("Length of mailbox is %d\n", c2_db_length (mailbox));
+
 	/* Note for developers of VFUNCTIONS about this function:
 	 *   The VFunction should just append the node to the
 	 *   mailbox, this function will handle itself the
@@ -459,9 +463,6 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 			break;
 	}
 
-	if (!mailbox->db)
-		c2_mailbox_load_db (mailbox);
-
 	if (!func (mailbox, db))
 		return;
 	gtk_object_destroy (GTK_OBJECT (message));
@@ -470,7 +471,8 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 
 	if (mailbox->db)
 	{
-		l = mailbox->db->prev;
+		printf ("<%d>\n", mailbox->db->prev->position);
+L		l = mailbox->db->prev;
 
 		l->next = db;
 		db->prev = l;
@@ -480,7 +482,7 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 	} else
 	{
 		mailbox->db = db;
-		db->prev = db; /* This is what makes the list to be circular */
+L		db->prev = db; /* This is what makes the list to be circular */
 	}
 
 	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox", db->prev);

@@ -226,7 +226,7 @@ c2_request_get_proxy (C2ProxyType type, gchar **addr, gint *port, gchar **ignore
 static void
 c2_request_construct (C2Request *request)
 {
-	gchar *cmnd = g_strconcat ("/usr/bin/lynx -source ", request->url, NULL);
+	gchar *cmnd = g_strconcat ("lynx -source ", request->url, NULL);
 	gchar buffer[1024], *ptr;
 	FILE *fd;
 	gint bytes, total_bytes = 0;
@@ -301,7 +301,7 @@ c2_request_construct (C2Request *request)
 void
 c2_request_run (C2Request *request)
 {
-L	c2_request_construct (request);
+	c2_request_construct (request);
 }
 
 const gchar *

@@ -109,6 +109,10 @@ static void
 init (C2HTML *obj)
 {
 #if defined (USE_GTKHTML)
+	gtk_signal_connect (GTK_OBJECT (obj), "link_clicked",
+							GTK_SIGNAL_FUNC (c2_html_gtkhtml_link_clicked), obj);
+	gtk_signal_connect (GTK_OBJECT (obj), "on_url",
+							GTK_SIGNAL_FUNC (c2_html_gtkhtml_on_url), obj);
 	gtk_signal_connect (GTK_OBJECT (obj), "url_requested",
 							GTK_SIGNAL_FUNC (c2_html_gtkhtml_url_requested), obj);
 	gtk_signal_connect (GTK_OBJECT (obj), "submit",

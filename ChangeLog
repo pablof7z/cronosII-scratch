@@ -1,6 +1,9 @@
 Fri Sep 21 Peter Gossner <gossner@arcom.com.au>
 	* Framework for new manual in place
-	* All current files in doc/C will be used.
+
+Tue Sep 20 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Work with the DB module.
+	* Work with the Transfer Item widget.
 
 Sun Sep 16 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Sending MIME attachments via SMTP seems to be stable now

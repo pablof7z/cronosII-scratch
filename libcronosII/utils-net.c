@@ -145,7 +145,6 @@ c2_net_send (guint sock, const gchar *fmt, ...)
 	
 	if ((value = send (sock, string, strlen (string), 0)) < 0)
 		c2_error_set (-errno);
-	C2_DEBUG (string);
 	g_free (string);
 	return value;
 }
@@ -192,7 +191,6 @@ c2_net_read (guint sock, gchar **string)
 	tmpstring[1023] = '\0';
 	
 	*string = g_strdup (tmpstring);
-	C2_DEBUG (*string);
 	return bytes;
 }
 

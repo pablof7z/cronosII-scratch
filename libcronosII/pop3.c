@@ -684,7 +684,7 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 			{
 				getting_header = FALSE;
 				fprintf (fd, "X-CronosII-Account: %s\n", account->name);
-				fprintf (fd, "X-CronosII-State: %c\n", C2_MESSAGE_UNREADED);
+				fprintf (fd, "X-CronosII-State: %c\n\n", C2_MESSAGE_UNREADED);
 			}
 			
 			string[len-2] = '\n';
@@ -698,7 +698,6 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 		}
 
 		fclose (fd);
-		C2_DEBUG (tmp);
 
 		/* Load the mail */
 		if ((message = c2_db_message_get_from_file (tmp)))

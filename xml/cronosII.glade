@@ -90,6 +90,7 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_new_message</name>
+		  <sensitive>False</sensitive>
 		  <tooltip>Compose a new E-Mail</tooltip>
 		  <accelerator>
 		    <modifiers>0</modifiers>
@@ -134,6 +135,7 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_new_contact</name>
+		  <sensitive>False</sensitive>
 		  <tooltip>Add a new contact to your address book</tooltip>
 		  <accelerator>
 		    <modifiers>0</modifiers>
@@ -172,6 +174,7 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_check_mail_all_accounts</name>
+		  <sensitive>False</sensitive>
 		  <tooltip>Check all accounts for new mail</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_CONTROL_MASK</modifiers>
@@ -199,6 +202,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_send_unsent_mails</name>
+	      <sensitive>False</sensitive>
 	      <accelerator>
 		<modifiers>0</modifiers>
 		<key>GDK_S</key>
@@ -223,6 +227,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_address_book</name>
+	      <sensitive>False</sensitive>
 	      <tooltip>Open the Address Book</tooltip>
 	      <accelerator>
 		<modifiers>0</modifiers>
@@ -248,6 +253,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_save</name>
+	      <sensitive>False</sensitive>
 	      <signal>
 		<name>activate</name>
 		<handler>on_save_activate</handler>
@@ -259,6 +265,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_print</name>
+	      <sensitive>False</sensitive>
 	      <signal>
 		<name>activate</name>
 		<handler>on_print_activate</handler>
@@ -277,6 +284,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_exit</name>
+	      <sensitive>False</sensitive>
 	      <stock_item>GNOMEUIINFO_MENU_EXIT_ITEM</stock_item>
 	    </widget>
 	  </widget>
@@ -294,6 +302,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>edit_find</name>
+	      <sensitive>False</sensitive>
 	      <signal>
 		<name>activate</name>
 		<handler>on_find_activate</handler>
@@ -392,6 +401,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>mailbox_speed_up</name>
+	      <sensitive>False</sensitive>
 	      <label>_Speed Up</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_TIMER</stock_icon>
@@ -406,6 +416,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>mailbox_import</name>
+	      <sensitive>False</sensitive>
 	      <label>_Import</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_HOME</stock_icon>
@@ -414,6 +425,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>mailbox_export</name>
+	      <sensitive>False</sensitive>
 	      <label>_Export</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_CONVERT</stock_icon>
@@ -428,6 +440,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>mailbox_empty_garbage</name>
+	      <sensitive>False</sensitive>
 	      <signal>
 		<name>activate</name>
 		<handler>on_mailbox_empty_garbage_activate</handler>
@@ -453,6 +466,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_reply</name>
+	      <sensitive>False</sensitive>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_R</key>
@@ -466,6 +480,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_reply_all</name>
+	      <sensitive>False</sensitive>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_A</key>
@@ -479,6 +494,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_forward</name>
+	      <sensitive>False</sensitive>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_F</key>
@@ -498,6 +514,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_copy</name>
+	      <sensitive>False</sensitive>
 	      <tooltip>Copy selected messages</tooltip>
 	      <accelerator>
 		<modifiers>GDK_MOD1_MASK</modifiers>
@@ -512,6 +529,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_move</name>
+	      <sensitive>False</sensitive>
 	      <tooltip>Move selected messages</tooltip>
 	      <accelerator>
 		<modifiers>GDK_MOD1_MASK</modifiers>
@@ -532,6 +550,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_delete</name>
+	      <sensitive>False</sensitive>
 	      <tooltip>Delete selected messages</tooltip>
 	      <accelerator>
 		<modifiers>0</modifiers>
@@ -546,6 +565,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_expunge</name>
+	      <sensitive>False</sensitive>
 	      <tooltip>Expunge selected messages</tooltip>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
@@ -577,6 +597,7 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>message_mark_mark</name>
+		  <sensitive>False</sensitive>
 		  <tooltip>Mark selected message</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_MOD1_MASK</modifiers>
@@ -597,6 +618,7 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>message_mark_unread</name>
+		  <sensitive>False</sensitive>
 		  <tooltip>Mark selected messages as unreaded</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_MOD1_MASK</modifiers>
@@ -611,6 +633,7 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>read</name>
+		  <sensitive>False</sensitive>
 		  <tooltip>Mark selected messages as readed</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_MOD1_MASK</modifiers>
@@ -625,6 +648,7 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>message_mark_replied</name>
+		  <sensitive>False</sensitive>
 		  <tooltip>Mark selected messages as replied</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_MOD1_MASK</modifiers>
@@ -639,6 +663,7 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>message_mark_forward</name>
+		  <sensitive>False</sensitive>
 		  <tooltip>Mark selected messages as forwarded</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_MOD1_MASK</modifiers>
@@ -661,6 +686,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_previous</name>
+	      <sensitive>False</sensitive>
 	      <tooltip>Select previous message</tooltip>
 	      <accelerator>
 		<modifiers>0</modifiers>
@@ -675,6 +701,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_next</name>
+	      <sensitive>False</sensitive>
 	      <tooltip>Select next message</tooltip>
 	      <accelerator>
 		<modifiers>0</modifiers>
@@ -695,6 +722,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>recovery</name>
+	      <sensitive>False</sensitive>
 	      <tooltip>Try to recover an expunged message</tooltip>
 	      <accelerator>
 		<modifiers>0</modifiers>
@@ -758,6 +786,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>help_user_manual</name>
+	      <sensitive>False</sensitive>
 	      <accelerator>
 		<modifiers>0</modifiers>
 		<key>GDK_F1</key>
@@ -771,6 +800,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>help_quick_tips</name>
+	      <sensitive>False</sensitive>
 	      <accelerator>
 		<modifiers>0</modifiers>
 		<key>GDK_F2</key>
@@ -819,6 +849,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>help_about_plugins</name>
+	      <sensitive>False</sensitive>
 	      <signal>
 		<name>activate</name>
 		<handler>on_help_about_plugins_activate</handler>
@@ -873,6 +904,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_send</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Send unsent messages from the mail queue</tooltip>
 	  <label>Send</label>
 	  <icon>sendqueue.xpm</icon>
@@ -882,6 +914,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_save</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Save current message to file.</tooltip>
 	  <label>Save</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_SAVE</stock_pixmap>
@@ -894,6 +927,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_print</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Print current message</tooltip>
 	  <label>Print</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_PRINT</stock_pixmap>
@@ -903,6 +937,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_delete</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Delete selected messages</tooltip>
 	  <label>Delete</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_TRASH</stock_pixmap>
@@ -915,6 +950,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_compose</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Compose a new message</tooltip>
 	  <signal>
 	    <name>clicked</name>
@@ -932,6 +968,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_reply</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Reply to the selected message</tooltip>
 	  <label>Reply</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_RPL</stock_pixmap>
@@ -941,6 +978,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_reply_all</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Reply to all recipients of the selected message</tooltip>
 	  <label>Reply All</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_RPL</stock_pixmap>
@@ -950,6 +988,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_forward</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Forward selected message</tooltip>
 	  <label>Forward</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_FWD</stock_pixmap>
@@ -959,6 +998,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_previous</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Select previous message</tooltip>
 	  <label>Previous</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_BACK</stock_pixmap>
@@ -971,6 +1011,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_next</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Select next message</tooltip>
 	  <label>Next</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_FORWARD</stock_pixmap>
@@ -980,6 +1021,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_contacts</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Open the Address Book</tooltip>
 	  <label>Contacts</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_BOOK_RED</stock_pixmap>
@@ -1117,7 +1159,6 @@
 	  <class>GtkButton</class>
 	  <name>appbar_button</name>
 	  <tooltip>Show the Message Transfer dialog</tooltip>
-	  <can_focus>True</can_focus>
 	  <relief>GTK_RELIEF_NORMAL</relief>
 	  <child>
 	    <padding>0</padding>
@@ -2459,270 +2500,6 @@ this mailbox?</message>
 	<expand>False</expand>
 	<fill>False</fill>
       </child>
-    </widget>
-  </widget>
-</widget>
-
-<widget>
-  <class>GnomeDialog</class>
-  <name>dlg_message_transfer</name>
-  <height>400</height>
-  <title>Message Tranfer</title>
-  <type>GTK_WINDOW_TOPLEVEL</type>
-  <position>GTK_WIN_POS_CENTER</position>
-  <modal>False</modal>
-  <allow_shrink>True</allow_shrink>
-  <allow_grow>True</allow_grow>
-  <auto_shrink>True</auto_shrink>
-  <wmclass_name>cronosii</wmclass_name>
-  <wmclass_class>dlg_msg_transfer</wmclass_class>
-  <auto_close>False</auto_close>
-  <hide_on_close>False</hide_on_close>
-
-  <widget>
-    <class>GtkVBox</class>
-    <child_name>GnomeDialog:vbox</child_name>
-    <name>dialog-vbox9</name>
-    <homogeneous>False</homogeneous>
-    <spacing>8</spacing>
-    <child>
-      <padding>4</padding>
-      <expand>True</expand>
-      <fill>True</fill>
-    </child>
-
-    <widget>
-      <class>GtkHButtonBox</class>
-      <child_name>GnomeDialog:action_area</child_name>
-      <name>dialog-action_area9</name>
-      <layout_style>GTK_BUTTONBOX_END</layout_style>
-      <spacing>8</spacing>
-      <child_min_width>85</child_min_width>
-      <child_min_height>27</child_min_height>
-      <child_ipad_x>7</child_ipad_x>
-      <child_ipad_y>0</child_ipad_y>
-      <child>
-	<padding>0</padding>
-	<expand>False</expand>
-	<fill>True</fill>
-	<pack>GTK_PACK_END</pack>
-      </child>
-
-      <widget>
-	<class>GtkButton</class>
-	<name>button67</name>
-	<tooltip>Finished. Close this dialog.</tooltip>
-	<can_default>True</can_default>
-	<can_focus>True</can_focus>
-	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
-      </widget>
-
-      <widget>
-	<class>GtkButton</class>
-	<name>cancel_btn</name>
-	<tooltip>Close</tooltip>
-	<can_default>True</can_default>
-	<can_focus>True</can_focus>
-	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
-      </widget>
-    </widget>
-
-    <widget>
-      <class>GtkVBox</class>
-      <name>dlg_message_transfer_box</name>
-      <width>367</width>
-      <homogeneous>False</homogeneous>
-      <spacing>3</spacing>
-      <child>
-	<padding>0</padding>
-	<expand>True</expand>
-	<fill>True</fill>
-      </child>
-
-      <widget>
-	<class>GtkFrame</class>
-	<name>frame1</name>
-	<height>135</height>
-	<label>Task list</label>
-	<label_xalign>0</label_xalign>
-	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
-	<child>
-	  <padding>0</padding>
-	  <expand>True</expand>
-	  <fill>True</fill>
-	</child>
-
-	<widget>
-	  <class>GtkScrolledWindow</class>
-	  <name>scrolledwindow11</name>
-	  <border_width>4</border_width>
-	  <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
-	  <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
-	  <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
-	  <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
-
-	  <widget>
-	    <class>GtkCList</class>
-	    <name>task_clist</name>
-	    <can_focus>True</can_focus>
-	    <columns>3</columns>
-	    <column_widths>12,65,80</column_widths>
-	    <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
-	    <show_titles>True</show_titles>
-	    <shadow_type>GTK_SHADOW_IN</shadow_type>
-
-	    <widget>
-	      <class>GtkLabel</class>
-	      <child_name>CList:title</child_name>
-	      <name>label69</name>
-	      <label></label>
-	      <justify>GTK_JUSTIFY_CENTER</justify>
-	      <wrap>False</wrap>
-	      <xalign>0.5</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	    </widget>
-
-	    <widget>
-	      <class>GtkLabel</class>
-	      <child_name>CList:title</child_name>
-	      <name>label67</name>
-	      <label>Account</label>
-	      <justify>GTK_JUSTIFY_CENTER</justify>
-	      <wrap>False</wrap>
-	      <xalign>0.5</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	    </widget>
-
-	    <widget>
-	      <class>GtkLabel</class>
-	      <child_name>CList:title</child_name>
-	      <name>label68</name>
-	      <label>Information</label>
-	      <justify>GTK_JUSTIFY_CENTER</justify>
-	      <wrap>False</wrap>
-	      <xalign>0.5</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	    </widget>
-	  </widget>
-	</widget>
-      </widget>
-
-      <widget>
-	<class>GtkVBox</class>
-	<name>info_box</name>
-	<visible>False</visible>
-	<homogeneous>False</homogeneous>
-	<spacing>3</spacing>
-	<child>
-	  <padding>0</padding>
-	  <expand>False</expand>
-	  <fill>True</fill>
-	</child>
-
-	<widget>
-	  <class>GtkFrame</class>
-	  <name>subtasks_frame</name>
-	  <label>Subtasks</label>
-	  <label_xalign>0</label_xalign>
-	  <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
-	  <child>
-	    <padding>0</padding>
-	    <expand>True</expand>
-	    <fill>True</fill>
-	  </child>
-
-	  <widget>
-	    <class>GtkVBox</class>
-	    <name>vbox14</name>
-	    <border_width>3</border_width>
-	    <homogeneous>False</homogeneous>
-	    <spacing>0</spacing>
-
-	    <widget>
-	      <class>GtkProgressBar</class>
-	      <name>subtasks_progress</name>
-	      <tooltip>This bar shows how many subtasks there are for the current task</tooltip>
-	      <value>0</value>
-	      <lower>0</lower>
-	      <upper>100</upper>
-	      <bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
-	      <orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
-	      <activity_mode>False</activity_mode>
-	      <show_text>True</show_text>
-	      <format>%v of %u [%P%%]</format>
-	      <text_xalign>0.5</text_xalign>
-	      <text_yalign>0.5</text_yalign>
-	      <child>
-		<padding>0</padding>
-		<expand>False</expand>
-		<fill>False</fill>
-	      </child>
-	    </widget>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkFrame</class>
-	  <name>subtask_frame</name>
-	  <label>Progress of subtask</label>
-	  <label_xalign>0</label_xalign>
-	  <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
-	  <child>
-	    <padding>0</padding>
-	    <expand>True</expand>
-	    <fill>True</fill>
-	  </child>
-
-	  <widget>
-	    <class>GtkVBox</class>
-	    <name>vbox15</name>
-	    <border_width>3</border_width>
-	    <homogeneous>False</homogeneous>
-	    <spacing>0</spacing>
-
-	    <widget>
-	      <class>GtkProgressBar</class>
-	      <name>subtask_progress</name>
-	      <value>0</value>
-	      <lower>0</lower>
-	      <upper>100</upper>
-	      <bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
-	      <orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
-	      <activity_mode>False</activity_mode>
-	      <show_text>True</show_text>
-	      <format>%u bytes [%P%%]</format>
-	      <text_xalign>0.5</text_xalign>
-	      <text_yalign>0.5</text_yalign>
-	      <child>
-		<padding>0</padding>
-		<expand>False</expand>
-		<fill>False</fill>
-	      </child>
-	    </widget>
-	  </widget>
-	</widget>
-      </widget>
-
-      <widget>
-	<class>GtkCheckButton</class>
-	<name>auto_close_btn</name>
-	<tooltip>Close this dialog when task completes.</tooltip>
-	<can_focus>True</can_focus>
-	<label>Automatically close when finished.</label>
-	<active>False</active>
-	<draw_indicator>True</draw_indicator>
-	<child>
-	  <padding>0</padding>
-	  <expand>False</expand>
-	  <fill>False</fill>
-	</child>
-      </widget>
     </widget>
   </widget>
 </widget>

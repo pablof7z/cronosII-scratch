@@ -13,7 +13,6 @@ endif
 bin_PROGRAMS = cronosII-scratch $(UI_TEXT_EDITOR)
 
 cronosII_scratch_SOURCES = \
-	c2-main-window.c			c2-main-window.h			\
 	install-wizard.c										\
 	main.c						main.h						\
 	object-ui-data.c			object-ui-data.h			\
@@ -30,7 +29,6 @@ cronosII_scratch_SOURCES = \
 	widget-index.c				widget-index.h				\
 	widget-mail.c				widget-mail.h				\
 	widget-mailbox-list.c		widget-mailbox-list.h		\
-	widget-message-transfer.c	widget-message-transfer.h	\
 	widget-part.c				widget-part.h				\
 	widget-sidebar.c			widget-sidebar.h			\
 	widget-transfer-item.c		widget-transfer-item.h		\

@@ -34,6 +34,12 @@ extern "C" {
 #include <gtkhtml/htmlengine.h>
 
 void
+c2_html_gtkhtml_link_clicked				(GtkHTML *gtkhtml, const gchar *url, gpointer data);
+
+void
+c2_html_gtkhtml_on_url						(GtkHTML *gtkhtml, const gchar *url, gpointer data);
+
+void
 c2_html_gtkhtml_url_requested				(GtkWidget *widget, const gchar *url,
 											 GtkHTMLStream *handle, gpointer data);
 
