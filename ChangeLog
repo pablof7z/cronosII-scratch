@@ -1,3 +1,7 @@
+Mon Nov 19 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Updated DB Module to use C2Mutex's for portability.
+	* Updated Mailbox Module to use C2Mutex's for portability.
+
 Mon Nov 19 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed the new crash when destroying the byte in a
 	  net object with a limit of 1.
