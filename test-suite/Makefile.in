@@ -129,13 +129,16 @@ cronosIIpath = @cronosIIpath@
 gnomedownload = @gnomedownload@
 l = @l@
 
-bin_PROGRAMS = date db hash mailbox request
+bin_PROGRAMS = date db hash mailbox request pop3_test
 
 INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules $(GNOME_INCLUDEDIR)
 
 LDADD = $(top_builddir)/libcronosII/libcronosII.a
-LDFLAGS = $(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS)
+LDFLAGS = $(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(GTK_LIBS)
 
+pop3_test_SOURCES = pop3_test.c
+pop3_test_LDADD = $(LDADD)
+pop3_test_LDFLAGS = $(LDFLAGS)
 
 date_SOURCES = date.c
 date_LDADD = $(LDADD)
@@ -164,6 +167,8 @@ PROGRAMS =  $(bin_PROGRAMS)
 
 DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
+pop3_test_OBJECTS =  pop3_test.o
+pop3_test_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 date_OBJECTS =  date.o
 date_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 db_OBJECTS =  db.o
@@ -186,9 +191,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/date.P .deps/db.P .deps/hash.P .deps/mailbox.P \
-.deps/request.P
-SOURCES = $(date_SOURCES) $(db_SOURCES) $(hash_SOURCES) $(mailbox_SOURCES) $(request_SOURCES)
-OBJECTS = $(date_OBJECTS) $(db_OBJECTS) $(hash_OBJECTS) $(mailbox_OBJECTS) $(request_OBJECTS)
+.deps/request.P .deps/pop3_test.P
+SOURCES = $(date_SOURCES) $(db_SOURCES) $(hash_SOURCES) $(mailbox_SOURCES) $(request_SOURCES) $(pop3_test_SOURCES)
+OBJECTS = $(date_OBJECTS) $(db_OBJECTS) $(hash_OBJECTS) $(mailbox_OBJECTS) $(request_OBJECTS) $(pop3_test_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -277,6 +282,10 @@ mailbox: $(mailbox_OBJECTS) $(mailbox_DEPENDENCIES)
 request: $(request_OBJECTS) $(request_DEPENDENCIES)
 	@rm -f request
 	$(LINK) $(request_LDFLAGS) $(request_OBJECTS) $(request_LDADD) $(LIBS)
+
+pop3_test: $(pop3_test_OBJECTS) $(pop3_test_DEPENDENCIES)
+	@rm -f pop3_test
+	$(LINK) $(pop3_test_LDFLAGS) $(pop3_test_OBJECTS) $(pop3_test_LDADD) $(LIBS)
 
 tags: TAGS
 

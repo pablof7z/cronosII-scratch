@@ -223,7 +223,7 @@ c2_smtp_send_message (C2Smtp *smtp, C2Message *message)
 		/* TODO: Implement sending MIME attachments */
 		if(c2_net_read(smtp->sock, &buffer) < 0)
 		{
-			c2_smtp_error(smtp, SOCK_READ_FAILED);
+			c2_smtp_set_error(smtp, SOCK_READ_FAILED);
 			pthread_mutex_unlock(&smtp->lock);
 			c2_net_disconnect(smtp->sock);
 			return -1;

@@ -5,7 +5,8 @@ INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules $(GNOME_INC
 LDADD = $(top_builddir)/libcronosII/libcronosII.a
 LDFLAGS = $(top_builddir)/libcronosII/libcronosII.a \
 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) \
-	$(GNOME_PRINT_LIBS) $(GLIB_LIBS)
+	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(GTK_LIBS)
+
 
 date_SOURCES = date.c
 date_LDADD = $(LDADD)
@@ -26,3 +27,7 @@ mailbox_LDFLAGS = $(LDFLAGS)
 request_SOURCES = request.c
 request_LDADD = $(LDADD)
 request_LDFLAGS = $(LDFLAGS)
+
+pop3_test_SOURCES = pop3_test.c
+pop3_test_LDADD = $(LDADD)
+pop3_test_LDFLAGS = $(LDFLAGS)
