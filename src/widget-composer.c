@@ -29,6 +29,8 @@
 #include <libcronosII/message.h>
 #include <libcronosII/smtp.h>
 #include <libcronosII/utils-date.h>
+#include <libcronosII/utils-str.h>
+#include <libcronosII/utils-file.h>
 
 #include "main.h"
 #include "preferences.h"

@@ -29,6 +29,7 @@
 #include "pop3.h"
 #include "smtp.h"
 #include "utils.h"
+#include "utils-str.h"
 
 static void
 class_init									(C2AccountClass *klass);

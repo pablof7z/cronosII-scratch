@@ -26,6 +26,7 @@
 #include <fnmatch.h>
 
 #include "error.h"
+#include "utils-str.h"
 #include "utils-date.h"
 #include "utils-filter.h"
 

@@ -28,6 +28,7 @@
 #include "mailbox.h"
 #include "net-object.h"
 #include "utils.h"
+#include "utils-str.h"
 #include "utils-date.h"
 #include "account.h"
 #include "imap.h"

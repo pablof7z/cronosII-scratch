@@ -29,6 +29,8 @@
 #include "error.h"
 #include "smtp.h"
 #include "utils.h"
+#include "utils-str.h"
+#include "utils-file.h"
 #include "utils-net.h"
 #include "i18n.h"
 

@@ -1,3 +1,7 @@
+Mon Jul 22 Daniel Fairhead
+	* Split utils.h
+	* Fixed a few things in (now renamed *again*) c2_str_html_to_text :)
+
 Sun Jul 21 Daniel Fairhead
 	* Fixed *stupid* error. PEBCAK, of course, my fault.
 	* Re-Named c2_strip_html to c2_str_strip_html

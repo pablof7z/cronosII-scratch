@@ -22,6 +22,7 @@
 #include <libcronosII/error.h>
 #include <libcronosII/request.h>
 #include <libcronosII/utils.h>
+#include <libcronosII/utils-str.h>
 
 #ifdef BUILDING_C2
 #	ifdef USE_GTKHTML
@@ -297,8 +298,7 @@ c2_html_set_content_from_string (C2HTML *html, const gchar *string)
 	gtk_html_load_from_string (GTK_HTML (html), string, strlen (string));
 #elif defined (USE_GTKXMHTML)
 #else
-	/* DAN */
-	newstring = c2_str_strip_html(string,C2_STRIP_HTML_DO_SYMBOLS);
+	newstring = c2_str_html_to_text(string,C2_STRIP_HTML_DO_SYMBOLS);
 	gtk_text_insert (GTK_TEXT (html), html->font, html->fore, NULL, newstring, -1);
 #endif
 	c2_html_thaw (html);

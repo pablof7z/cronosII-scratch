@@ -30,6 +30,7 @@
 #include <libcronosII/request.h>
 #include <libcronosII/net-object.h>
 #include <libcronosII/utils.h>
+#include <libcronosII/utils-str.h>
 #include <pthread.h>
 
 static void

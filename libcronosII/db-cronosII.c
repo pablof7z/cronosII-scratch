@@ -40,6 +40,8 @@
 #include "error.h"
 #include "mailbox.h"
 #include "utils.h"
+#include "utils-str.h"
+#include "utils-file.h"
 
 /* [TODO]
  * 010916 - Make a function that returns the last MID of a Mailbox.

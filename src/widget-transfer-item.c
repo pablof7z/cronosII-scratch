@@ -25,6 +25,7 @@
 
 #include <libcronosII/pop3.h>
 #include <libcronosII/error.h>
+#include <libcronosII/utils-str.h>
 
 #include "main.h"
 #include "preferences.h"

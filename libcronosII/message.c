@@ -33,6 +33,8 @@
 #include "message.h"
 #include "error.h"
 #include "utils.h"
+#include "utils-str.h"
+#include "utils-file.h"
 
 #define  MOD "Message"
 #define DMOD TRUE

@@ -31,6 +31,7 @@
 #include "error.h"
 #include "mailbox.h"
 #include "utils.h"
+#include "utils-str.h"
 
 static C2Mailbox *
 init										(C2Mailbox *mailbox);

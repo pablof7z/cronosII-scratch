@@ -20,10 +20,13 @@ libcronosII_a_SOURCES = \
 	request.c			request.h					\
 	smtp.c				smtp.h						\
 	utils.c				utils.h						\
+	utils-str.c			utils-str.h					\
+	utils-file.c		utils-file.h				\
 	utils-date.c		utils-date.h				\
 	utils-filter.c		utils-filter.h				\
 	utils-net.c			utils-net.h					\
 	utils-mutex.c		utils-mutex.h				\
+						utils-debug.h				\
 						vdb.h						\
 						vmailbox.h
 

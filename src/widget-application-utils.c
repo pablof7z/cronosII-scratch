@@ -17,6 +17,8 @@
  */
 #include <libcronosII/error.h>
 #include <libcronosII/request.h>
+#include <libcronosII/utils-str.h>
+#include <libcronosII/utils-file.h>
 
 #include "preferences.h"
 #include "main.h"

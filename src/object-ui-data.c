@@ -20,6 +20,7 @@
 
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
+#include <libcronosII/utils-str.h>
 
 #include "object-ui-data.h"
 

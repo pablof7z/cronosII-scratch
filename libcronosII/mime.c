@@ -29,6 +29,7 @@
 #include "mime.h"
 #include "message.h"
 #include "utils.h"
+#include "utils-str.h"
 
 /* [TODO]
  * 010918: There is a bug that causes the first ID found to be

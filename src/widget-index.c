@@ -26,6 +26,7 @@
 
 #include <libcronosII/error.h>
 #include <libcronosII/mailbox.h>
+#include <libcronosII/utils-str.h>
 
 #include "main.h"
 #include "preferences.h"

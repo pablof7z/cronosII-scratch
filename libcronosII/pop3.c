@@ -33,8 +33,10 @@
 #include "net-object.h"
 #include "pop3.h"
 #include "utils.h"
+#include "utils-str.h"
 #include "md5.h"
 #include "utils-mutex.h"
+#include "utils-file.h"
 
 /*
  * [TODO] Add support for CRAM-MD5 authentication.

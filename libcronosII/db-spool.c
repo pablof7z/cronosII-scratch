@@ -36,6 +36,8 @@
 #include "mailbox.h"
 #include "utils.h"
 #include "utils-date.h"
+#include "utils-str.h"
+#include "utils-file.h"
 
 /*hmmm this is almost beautifull in its minimalism -pete ;)*/
 /*yeah, is the shortest module I ever see! but it doesn't have any bugs! :) -pablo */

@@ -24,6 +24,7 @@
 #include <libcronosII/imap.h>
 #include <libcronosII/smtp.h>
 #include <libcronosII/utils.h>
+#include <libcronosII/utils-str.h>
 
 #include "preferences.h"
 #include "widget-application.h"

@@ -29,6 +29,7 @@
 #include "request.h"
 #include "error.h"
 #include "utils.h"
+#include "utils-str.h"
 #include "utils-net.h"
 
 static void

@@ -51,6 +51,7 @@
 #include "db.h"
 #include "error.h"
 #include "utils.h"
+#include "utils-str.h"
 #include "utils-date.h"
 #include "utils-mutex.h"
 

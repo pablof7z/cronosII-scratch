@@ -24,6 +24,7 @@
 #include <libcronosII/request.h>
 #include <libcronosII/net-object.h>
 #include <libcronosII/utils.h>
+#include <libcronosII/utils-file.h>
 #include <libcronosII/error.h>
 #include <pthread.h>
 

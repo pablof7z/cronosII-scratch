@@ -31,6 +31,7 @@
 
 #include "utils-date.h"
 #include "utils.h"
+#include "utils-str.h"
 #include "error.h"
 
 static gchar *

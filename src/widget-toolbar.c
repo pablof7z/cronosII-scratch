@@ -18,6 +18,7 @@
 #include "widget-toolbar.h"
 
 #include <libcronosII/utils.h>
+#include <libcronosII/utils-str.h>
 
 /* TODO
  * 20011208 Some type of scroll when the toolbar doesn't fit in the window.

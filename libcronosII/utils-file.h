@@ -21,8 +21,8 @@
  * Code of this file by:
  * 		* Pablo Fernández
  */
-#ifndef __LIBCRONOSII_UTILS_H__
-#define __LIBCRONOSII_UTILS_H__
+#ifndef __LIBCRONOSII_UTILS_FILE_H__
+#define __LIBCRONOSII_UTILS_FILE_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,52 +31,41 @@ extern "C" {
 #include <glib.h>
 #include <stdio.h>
 #include <pthread.h>
-#include <gtk/gtk.h>
+//#include <gtk/gtk.h>
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <config.h>
 #else
 #	include <cronosII.h>
 #endif
 
-#include "utils-debug.h"
+gchar *
+c2_get_tmp_file								(const gchar *template);
 
-#define C2_HOME								/*$HOME*/ G_DIR_SEPARATOR_S ".c2" G_DIR_SEPARATOR_S
+gint
+c2_get_file									(const gchar *path, gchar **string);
 
-#define C2_CHAR(x)							((gchar*)x)
+char *
+c2_fd_get_line								(FILE *fd);
 
+gchar *
+c2_fd_get_word								(FILE *fd);
 
-typedef void *(*C2PthreadFunc)				(void*);
-#define C2_PTHREAD_FUNC(x)					((C2PthreadFunc)x)
+gint
+c2_file_binary_copy							(const gchar *from_path, const gchar *target_path);
 
-typedef struct
-{
-	gpointer v1, v2;
-} C2Pthread2;
+gint
+c2_file_binary_move							(const gchar *from_path, const gchar *target_path);
 
-typedef struct
-{
-	gpointer v1, v2, v3;
-} C2Pthread3;
+gboolean
+c2_file_exists								(const gchar *file);
 
-typedef struct
-{
-	gpointer v1, v2, v3, v4;
-} C2Pthread4;
+gboolean
+c2_file_is_directory						(const gchar *file);
 
-typedef struct
-{
-	gpointer v1, v2, v3, v4, v5;
-} C2Pthread5;
-
-void
-c2_marshal_NONE__INT_INT_INT				(GtkObject *object, GtkSignalFunc func,
-											 gpointer func_data, GtkArg * args);
-
-void
-c2_marshal_INT__POINTER_POINTER_POINTER		(GtkObject *object, GtkSignalFunc func,
-											 gpointer func_data, GtkArg * args);
-
-
+gboolean
+c2_fd_move_to								(FILE *fp, gchar c, guint8 cant,
+										 	 gboolean forward, gboolean next);
+										 	 
 #ifdef __cplusplus
 }
 #endif
