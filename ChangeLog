@@ -1,3 +1,7 @@
+Sun Nov 25 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Fixed a small bug in the SMTP module that would indicate success
+	  on failure to send an email.
+
 Sun Nov 25 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed the damn bug that made c2 avoid sending extra headers
 	  in the composer.
