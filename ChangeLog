@@ -1,5 +1,9 @@
+Sat Apr 14 Bosko Blagojevic <falling at users dot sf dot net>
+	* Another segfault bug fix that glibc tolerated but
+	  libc did not :-D
+
 Thu Apr 11 Bosko Blagojevic <falling at users dot sf dot net>
-    	* Tiny segfault bug fix in libcronosII/message.c
+	* Tiny segfault bug fix in libcronosII/message.c
 
 Sun Apr  7 Pablo Fernández <sandokan@pablossite.net>
 	* Added the splash.png image.
