@@ -144,11 +144,7 @@ on_interface_fonts_composer_body_font_set	(GtkWidget *widget, gchar *font, C2Dia
 
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 static void
-on_interface_fonts_message_body_activate	(GtkWidget *widget, C2DialogPreferences *preferences);
-
-static void
-on_interface_fonts_message_body_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
-												 C2DialogPreferences *preferences);
+on_interface_fonts_message_body_changed		(GtkWidget *widget, C2DialogPreferences *preferences);
 #else
 static void
 on_interface_fonts_message_body_font_set	(GtkWidget *widget, gchar *font, C2DialogPreferences *preferences);
@@ -435,11 +431,8 @@ set_signals (C2DialogPreferences *preferences)
 
 	widget = preferences->interface_fonts_message_body;
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
-	gtk_signal_connect (GTK_OBJECT (widget), "activate",
-						GTK_SIGNAL_FUNC (on_interface_fonts_message_body_activate), preferences);
-
-	gtk_signal_connect (GTK_OBJECT (widget), "focus_out_event",
-						GTK_SIGNAL_FUNC (on_interface_fonts_message_body_focus_out_event), preferences);
+	gtk_signal_connect (GTK_OBJECT (widget), "changed",
+						GTK_SIGNAL_FUNC (on_interface_fonts_message_body_changed), preferences);
 #else
 	gtk_signal_connect (GTK_OBJECT (widget), "font_set",
 						GTK_SIGNAL_FUNC (on_interface_fonts_message_body_font_set), preferences);
