@@ -106,11 +106,13 @@ typedef struct
 	GtkWidget *vpaned;
 	GtkWidget *ctree;
 	GtkWidget *clist;
+	pthread_mutex_t clist_lock;
 	GtkWidget *mime_left, *mime_right;
 	GtkWidget *menu_clist;
 	GtkWidget *header_table;
 	GtkWidget *header_titles[C2_HEADER_TITLES_LAST][2];
 	GtkWidget *text;
+	pthread_mutex_t text_lock;
 	GtkWidget *mime_scroll;
 	GtkWidget *icon_list;
 	GtkWidget *appbar;

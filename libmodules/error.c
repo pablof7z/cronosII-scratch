@@ -22,9 +22,10 @@
 
 static const gchar *err_list[] =
 {
-	/* C2SUCCESS */	N_("Success"),
+	/* C2SUCCESS */		N_("Success"),
 	/* C2EDATA */		N_("Data exception"),
-	/* C2ENOMSG */		N_("No such message")
+	/* C2ENOMSG */		N_("No such message"),
+	/* C2EBUSY */		N_("Process is busy")
 };
 
 /**

@@ -87,7 +87,7 @@ c2_db_load (const gchar *db_name)
 		switch (*buf)
 		{
 			case 'N':
-				node->status = C2_DB_NODE_UNREAD; break;
+				node->status = C2_DB_NODE_UNREADED; break;
 			case 'R':
 				node->status = C2_DB_NODE_REPLIED; break;
 			case 'F':

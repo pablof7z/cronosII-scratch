@@ -46,7 +46,14 @@
 gint
 c2_app_init (void)
 {
+	c2_app.tooltips = gtk_tooltips_new ();
 	c2_app.open_windows = NULL;
+
+	DEBUG(c2_app.font_body);
+	c2_app.gdk_font_body = gdk_font_load (c2_app.font_body);
+	c2_app.gdk_font_read = gdk_font_load (c2_app.font_read);
+	c2_app.gdk_font_unread = gdk_font_load (c2_app.font_unread);
+
 	return 0;
 }
 

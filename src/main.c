@@ -55,11 +55,12 @@ main (gint argc, gchar **argv)
 	textdomain (PACKAGE);
 #endif
 
-	/* Initialization of GNOME or GTK+ */
+	/* Initialization of GNOME */
 	c2_init (argc, argv);
 
 	if (!c2_config_init ())
 	{
+		c2_app_init ();
 		c2_window_new ();
 		
 		gdk_threads_enter ();
@@ -112,6 +113,10 @@ c2_config_init (void)
 	c2_app.wm_clist[5] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist::5=70", NULL);
 	c2_app.wm_clist[6] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist::6=70", NULL);
 	c2_app.wm_clist[7] = gnome_config_get_int_with_default ("/cronosII/Appareance/wm_clist::7=70", NULL);
+
+	c2_app.font_read = gnome_config_get_string_with_default ("/cronosII/Fonts/font_read=-b&h-lucida-medium-r-normal-*-*-100-*-*-p-*-iso8859-1", NULL);
+	c2_app.font_unread = gnome_config_get_string_with_default ("/cronosII/Fonts/font_unread=-b&h-lucida-bold-r-normal-*-*-100-*-*-p-*-iso8859-1", NULL);
+	c2_app.font_body = gnome_config_get_string_with_default ("/cronosII/Fonts/font_body=-adobe-courier-medium-r-normal-*-*-120-*-*-m-*-iso8859-1", NULL);
 
 	return 0;
 }

@@ -8,6 +8,7 @@ bin_PROGRAMS = cronos
 
 cronos_SOURCES = \
 	c2-app.c					c2-app.h					\
+	c2-main-window.c			c2-main-window.h			\
 	install-wizard.c										\
 	main-window.c				main-window.h				\
 	main.c										

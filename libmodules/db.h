@@ -35,7 +35,7 @@ typedef gint mid_t;
 
 typedef enum
 {
-	C2_DB_NODE_UNREAD,
+	C2_DB_NODE_UNREADED,
 	C2_DB_NODE_REPLIED,
 	C2_DB_NODE_FORWARDED,
 	C2_DB_NODE_READED

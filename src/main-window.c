@@ -19,8 +19,10 @@
 #include <gnome.h>
 
 #include <libmodules/error.h>
+#include <libmodules/utils.h>
 
 #include "main-window.h"
+#include "c2-main-window.h"
 #include "c2-app.h"
 
 #include "xpm/read.xpm"
@@ -62,6 +64,8 @@ c2_window_new (void)
 	GtkWidget *vbox, *table, *hbox, *viewport, *vbox2, *button;
 	GtkStyle *style, *style2;
 
+	pthread_mutex_init (&WMain.clist_lock, NULL);
+	pthread_mutex_init (&WMain.text_lock, NULL);
 	pthread_mutex_init (&WMain.appbar_lock, NULL);
 
 	/* Window */
@@ -278,41 +282,13 @@ static void
 on_ctree_tree_select_row (GtkCTree *ctree, GtkCTreeNode *row, gint column)
 {
 	C2Mailbox *mbox;
+	pthread_t thread;
 	
-	if (GTK_CLIST (WMain.clist)->selection)
-	{
-		/* Get the mailbox that was loaded */
-		mbox = WMain.selected_mbox;
-		if (mbox)
-		{
-			if (GTK_CLIST (WMain.clist)->selection)
-				mbox->last_row = GPOINTER_TO_INT (GTK_CLIST (WMain.clist)->selection->data);
-		}
-	}
-
-	/* Get the mailbox */
 	mbox = gtk_ctree_node_get_row_data (ctree, row);
 	if (!mbox)
-	{
 		c2_app_report (_("Internal error in CTree listing."), C2_REPORT_ERROR);
-		return;
-	}
-
-	if (!mbox->db)
-	{
-		/* Load the database */
-		if (!(mbox->db = c2_db_load (mbox->name)))
-		{
-			gchar *string;
-
-			string = g_strdup_printf (_("Couldn't load db: %s"), c2_error_get (c2_errno));
-			c2_app_report (string, C2_REPORT_ERROR);
-			g_free (string);
-			return;
-		}
-	}
-
-	c2_app_report ("Mailbox loaded.", C2_REPORT_MESSAGE);
+	else
+		pthread_create (&thread, NULL, PTHREAD_FUNC (c2_main_window_list_mails), mbox);
 }
 
 static void
