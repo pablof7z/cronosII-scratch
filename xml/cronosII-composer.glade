@@ -30,7 +30,7 @@
   <widget>
     <class>GnomeDock</class>
     <child_name>GnomeApp:dock</child_name>
-    <name>dock1</name>
+    <name>wnd_composer_contents</name>
     <allow_floating>True</allow_floating>
     <child>
       <padding>0</padding>
@@ -576,7 +576,7 @@
 	    <last_modification_time>Wed, 08 Aug 2001 22:34:30 GMT</last_modification_time>
 	  </signal>
 	  <label>Send</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_SND</stock_pixmap>
+	  <icon>send.xpm</icon>
 	</widget>
 
 	<widget>
@@ -590,7 +590,7 @@
 	    <last_modification_time>Wed, 08 Aug 2001 22:34:03 GMT</last_modification_time>
 	  </signal>
 	  <label>Later</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL</stock_pixmap>
+	  <icon>mail.xpm</icon>
 	</widget>
 
 	<widget>
@@ -604,7 +604,7 @@
 	    <last_modification_time>Wed, 08 Aug 2001 22:33:48 GMT</last_modification_time>
 	  </signal>
 	  <label>Save</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_SAVE</stock_pixmap>
+	  <icon>save.xpm</icon>
 	  <child>
 	    <new_group>True</new_group>
 	  </child>
@@ -714,7 +714,7 @@
 	  <rows>5</rows>
 	  <columns>3</columns>
 	  <homogeneous>False</homogeneous>
-	  <row_spacing>4</row_spacing>
+	  <row_spacing>3</row_spacing>
 	  <column_spacing>4</column_spacing>
 
 	  <widget>
@@ -849,102 +849,6 @@
 
 	  <widget>
 	    <class>GnomeEntry</class>
-	    <name>to_entry</name>
-	    <history_id>cronosII_composer_to</history_id>
-	    <max_saved>10</max_saved>
-	    <child>
-	      <left_attach>1</left_attach>
-	      <right_attach>2</right_attach>
-	      <top_attach>1</top_attach>
-	      <bottom_attach>2</bottom_attach>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <xexpand>True</xexpand>
-	      <yexpand>False</yexpand>
-	      <xshrink>False</xshrink>
-	      <yshrink>False</yshrink>
-	      <xfill>True</xfill>
-	      <yfill>False</yfill>
-	    </child>
-
-	    <widget>
-	      <class>GtkEntry</class>
-	      <child_name>GnomeEntry:entry</child_name>
-	      <name>combo-entry5</name>
-	      <can_focus>True</can_focus>
-	      <editable>True</editable>
-	      <text_visible>True</text_visible>
-	      <text_max_length>0</text_max_length>
-	      <text></text>
-	    </widget>
-	  </widget>
-
-	  <widget>
-	    <class>GnomeEntry</class>
-	    <name>cc_entry</name>
-	    <history_id>cronosII_composer_to</history_id>
-	    <max_saved>10</max_saved>
-	    <child>
-	      <left_attach>1</left_attach>
-	      <right_attach>2</right_attach>
-	      <top_attach>2</top_attach>
-	      <bottom_attach>3</bottom_attach>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <xexpand>True</xexpand>
-	      <yexpand>False</yexpand>
-	      <xshrink>False</xshrink>
-	      <yshrink>False</yshrink>
-	      <xfill>True</xfill>
-	      <yfill>False</yfill>
-	    </child>
-
-	    <widget>
-	      <class>GtkEntry</class>
-	      <child_name>GnomeEntry:entry</child_name>
-	      <name>combo-entry6</name>
-	      <can_focus>True</can_focus>
-	      <editable>True</editable>
-	      <text_visible>True</text_visible>
-	      <text_max_length>0</text_max_length>
-	      <text></text>
-	    </widget>
-	  </widget>
-
-	  <widget>
-	    <class>GnomeEntry</class>
-	    <name>bcc_entry</name>
-	    <history_id>cronosII_composer_to</history_id>
-	    <max_saved>10</max_saved>
-	    <child>
-	      <left_attach>1</left_attach>
-	      <right_attach>2</right_attach>
-	      <top_attach>3</top_attach>
-	      <bottom_attach>4</bottom_attach>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <xexpand>True</xexpand>
-	      <yexpand>False</yexpand>
-	      <xshrink>False</xshrink>
-	      <yshrink>False</yshrink>
-	      <xfill>True</xfill>
-	      <yfill>False</yfill>
-	    </child>
-
-	    <widget>
-	      <class>GtkEntry</class>
-	      <child_name>GnomeEntry:entry</child_name>
-	      <name>combo-entry7</name>
-	      <can_focus>True</can_focus>
-	      <editable>True</editable>
-	      <text_visible>True</text_visible>
-	      <text_max_length>0</text_max_length>
-	      <text></text>
-	    </widget>
-	  </widget>
-
-	  <widget>
-	    <class>GnomeEntry</class>
 	    <name>subject_entry</name>
 	    <history_id>cronosII_composer_subject</history_id>
 	    <max_saved>10</max_saved>
@@ -1069,12 +973,14 @@
 	  </widget>
 
 	  <widget>
-	    <class>GtkOptionMenu</class>
-	    <name>account_menu</name>
-	    <height>26</height>
-	    <can_focus>True</can_focus>
+	    <class>GtkCombo</class>
+	    <name>account</name>
+	    <value_in_list>False</value_in_list>
+	    <ok_if_empty>True</ok_if_empty>
+	    <case_sensitive>False</case_sensitive>
+	    <use_arrows>True</use_arrows>
+	    <use_arrows_always>False</use_arrows_always>
 	    <items></items>
-	    <initial_choice>0</initial_choice>
 	    <child>
 	      <left_attach>1</left_attach>
 	      <right_attach>3</right_attach>
@@ -1082,7 +988,90 @@
 	      <bottom_attach>1</bottom_attach>
 	      <xpad>0</xpad>
 	      <ypad>0</ypad>
-	      <xexpand>False</xexpand>
+	      <xexpand>True</xexpand>
+	      <yexpand>False</yexpand>
+	      <xshrink>False</xshrink>
+	      <yshrink>False</yshrink>
+	      <xfill>True</xfill>
+	      <yfill>False</yfill>
+	    </child>
+
+	    <widget>
+	      <class>GtkEntry</class>
+	      <child_name>GtkCombo:entry</child_name>
+	      <name>combo-entry9</name>
+	      <can_focus>True</can_focus>
+	      <editable>True</editable>
+	      <text_visible>True</text_visible>
+	      <text_max_length>0</text_max_length>
+	      <text></text>
+	    </widget>
+	  </widget>
+
+	  <widget>
+	    <class>GtkEntry</class>
+	    <name>to</name>
+	    <can_focus>True</can_focus>
+	    <editable>True</editable>
+	    <text_visible>True</text_visible>
+	    <text_max_length>0</text_max_length>
+	    <text></text>
+	    <child>
+	      <left_attach>1</left_attach>
+	      <right_attach>2</right_attach>
+	      <top_attach>1</top_attach>
+	      <bottom_attach>2</bottom_attach>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	      <xexpand>True</xexpand>
+	      <yexpand>False</yexpand>
+	      <xshrink>False</xshrink>
+	      <yshrink>False</yshrink>
+	      <xfill>True</xfill>
+	      <yfill>False</yfill>
+	    </child>
+	  </widget>
+
+	  <widget>
+	    <class>GtkEntry</class>
+	    <name>cc</name>
+	    <can_focus>True</can_focus>
+	    <editable>True</editable>
+	    <text_visible>True</text_visible>
+	    <text_max_length>0</text_max_length>
+	    <text></text>
+	    <child>
+	      <left_attach>1</left_attach>
+	      <right_attach>2</right_attach>
+	      <top_attach>2</top_attach>
+	      <bottom_attach>3</bottom_attach>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	      <xexpand>True</xexpand>
+	      <yexpand>False</yexpand>
+	      <xshrink>False</xshrink>
+	      <yshrink>False</yshrink>
+	      <xfill>True</xfill>
+	      <yfill>False</yfill>
+	    </child>
+	  </widget>
+
+	  <widget>
+	    <class>GtkEntry</class>
+	    <name>bcc</name>
+	    <can_focus>True</can_focus>
+	    <editable>True</editable>
+	    <text_visible>True</text_visible>
+	    <text_max_length>0</text_max_length>
+	    <text></text>
+	    <child>
+	      <left_attach>1</left_attach>
+	      <right_attach>2</right_attach>
+	      <top_attach>3</top_attach>
+	      <bottom_attach>4</bottom_attach>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	      <xexpand>True</xexpand>
 	      <yexpand>False</yexpand>
 	      <xshrink>False</xshrink>
 	      <yshrink>False</yshrink>

@@ -196,8 +196,6 @@ C2TransferItemType type, va_list args)
 			subject = c2_message_get_header_field (ti->type_info.send.message, "Subject:");
 		else
 			subject = NULL;
-		if (!subject)
-			subject = g_strdup (_("This is a mail with a really long subject"));
 		buffer = g_strdup_printf (_("Send «%s»"), subject);
 		g_free (subject);
 	}

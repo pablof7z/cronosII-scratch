@@ -109,7 +109,6 @@ gchar *s = N_("gnome-edit");
 gchar *s = N_("gedit");
 gchar *s = N_("gnp");
 gchar *s = N_("gvim");
-gchar *s = N_("abiword");
 gchar *s = N_("gnome-edit");
 gchar *s = N_("Inteface/Composer");
 gchar *s = N_("Title format");

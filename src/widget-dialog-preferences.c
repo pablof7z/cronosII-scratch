@@ -117,6 +117,9 @@ static void
 on_interface_composer_editor_external_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
+on_interface_composer_editor_external_cmnd_changed	(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
 on_general_accounts_identity_name_changed		(GtkWidget *widget, C2Window *window);
 
 static void
@@ -336,6 +339,10 @@ set_signals (C2DialogPreferences *preferences)
 	widget = glade_xml_get_widget (xml, "interface_composer_editor_external");
 	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
 						GTK_SIGNAL_FUNC (on_interface_composer_editor_external_toggled), preferences);
+
+	widget = glade_xml_get_widget (xml, "interface_composer_editor_external_cmnd");
+	gtk_signal_connect (GTK_OBJECT (widget), "changed",
+						GTK_SIGNAL_FUNC (on_interface_composer_editor_external_cmnd_changed), preferences);
 }
 
 #define SET_BOOLEAN(section, subsection, key, value, wkey)	\
@@ -1150,6 +1157,11 @@ on_interface_composer_editor_internal_toggled (GtkWidget *widget, C2DialogPrefer
 		gtk_widget_set_sensitive (combo, TRUE);
 	else
 		gtk_widget_set_sensitive (combo, FALSE);
+
+	gnome_config_set_string ("/"PACKAGE"/Interface-Composer/editor", "internal");
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_COMPOSER_EDITOR, "internal");
 }
 
 static void
@@ -1162,6 +1174,21 @@ on_interface_composer_editor_external_toggled (GtkWidget *widget, C2DialogPrefer
 		gtk_widget_set_sensitive (combo, TRUE);
 	else
 		gtk_widget_set_sensitive (combo, FALSE);
+	gnome_config_set_string ("/"PACKAGE"/Interface-Composer/editor", "external");
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_COMPOSER_EDITOR, "external");
+}
+
+static void
+on_interface_composer_editor_external_cmnd_changed (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gchar *cmnd = gtk_entry_get_text (GTK_ENTRY (widget));
+
+	gnome_config_set_string ("/"PACKAGE"/Interface-Composer/editor_external_cmnd", cmnd);
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_COMPOSER_EDITOR_CMND, cmnd);
 }
 
 static void

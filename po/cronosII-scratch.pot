@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-25 23:26-0300\n"
+"POT-Creation-Date: 2001-09-27 14:04-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,56 +70,56 @@ msgstr ""
 msgid "This message claims to be multipart but it seems to be broken."
 msgstr ""
 
-#: libcronosII/smtp.c:323
+#: libcronosII/smtp.c:315
 msgid "SMTP server did not respond to our sent messaage in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:341
+#: libcronosII/smtp.c:333
 msgid "System Error: Unable to write message to disk for local SMTP command"
 msgstr ""
 
-#: libcronosII/smtp.c:350
+#: libcronosII/smtp.c:342
 msgid "Internal C2 Error: Unable to fetch headers in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:374
+#: libcronosII/smtp.c:366
 msgid ""
 "Problem running local SMTP command to send messages -- Check SMTP settings"
 msgstr ""
 
-#: libcronosII/smtp.c:403
+#: libcronosII/smtp.c:396
 msgid "Unable to connect to SMTP server"
 msgstr ""
 
-#: libcronosII/smtp.c:417
+#: libcronosII/smtp.c:410
 msgid "SMTP server was not friendly on our connect! May not be RFC compliant"
 msgstr ""
 
-#: libcronosII/smtp.c:479
+#: libcronosII/smtp.c:472
 msgid "SMTP server did not respond to 'EHLO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:508
+#: libcronosII/smtp.c:501
 msgid "SMTP server did not respond to HELO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:531
+#: libcronosII/smtp.c:524
 msgid "Internal C2 Error: Unable to fetch \"From:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:547
+#: libcronosII/smtp.c:540
 msgid "Internal C2 Error: Unable to fetch \"To:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:560
+#: libcronosII/smtp.c:553
 msgid "SMTP server did not reply to 'MAIL FROM:' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:602
+#: libcronosII/smtp.c:595
 msgid "SMTP server did not reply to 'DATA' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:1060
+#: libcronosII/smtp.c:1064
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
 msgstr ""
 
@@ -442,12 +442,12 @@ msgstr ""
 msgid "Open the main window (default)"
 msgstr ""
 
-#: src/preferences.c:205 src/widget-dialog-preferences.c:578
-#: src/widget-dialog-preferences.c:650
+#: src/preferences.c:205 src/widget-dialog-preferences.c:585
+#: src/widget-dialog-preferences.c:657
 msgid "General"
 msgstr ""
 
-#: src/preferences-trans.h:203 src/preferences.c:209
+#: src/preferences-trans.h:202 src/preferences.c:209
 msgid "Options"
 msgstr ""
 
@@ -459,8 +459,8 @@ msgstr ""
 msgid "Accounts"
 msgstr ""
 
-#: src/preferences.c:221 src/widget-dialog-preferences.c:579
-#: src/widget-dialog-preferences.c:660
+#: src/preferences.c:221 src/widget-dialog-preferences.c:586
+#: src/widget-dialog-preferences.c:667
 msgid "Interface"
 msgstr ""
 
@@ -472,50 +472,50 @@ msgstr ""
 msgid "Colors"
 msgstr ""
 
-#: src/widget-dialog-preferences.c:389
+#: src/widget-dialog-preferences.c:396
 #, c-format
 msgid "%s (default)"
 msgstr ""
 
-#: src/widget-dialog-preferences.c:580 src/widget-dialog-preferences.c:670
+#: src/widget-dialog-preferences.c:587 src/widget-dialog-preferences.c:677
 msgid "Advanced"
 msgstr ""
 
 #: src/preferences-trans.h:29 src/trans.h:191
-#: src/widget-dialog-preferences.c:588
+#: src/widget-dialog-preferences.c:595
 msgid "Preferences"
 msgstr ""
 
-#: src/preferences-trans.h:143 src/widget-dialog-preferences.c:994
+#: src/preferences-trans.h:142 src/widget-dialog-preferences.c:1001
 msgid "Account Editor"
 msgstr ""
 
-#: src/preferences-trans.h:167 src/widget-dialog-preferences.c:1306
-#: src/widget-dialog-preferences.c:1317 src/widget-dialog-preferences.c:1621
+#: src/preferences-trans.h:166 src/widget-dialog-preferences.c:1333
+#: src/widget-dialog-preferences.c:1344 src/widget-dialog-preferences.c:1648
 msgid "POP3"
 msgstr ""
 
-#: src/preferences-trans.h:168 src/widget-dialog-preferences.c:1306
-#: src/widget-dialog-preferences.c:1323 src/widget-dialog-preferences.c:1623
+#: src/preferences-trans.h:167 src/widget-dialog-preferences.c:1333
+#: src/widget-dialog-preferences.c:1350 src/widget-dialog-preferences.c:1650
 msgid "IMAP"
 msgstr ""
 
-#: src/preferences-trans.h:187 src/widget-dialog-preferences.c:1357
-#: src/widget-dialog-preferences.c:1416 src/widget-dialog-preferences.c:1762
+#: src/preferences-trans.h:186 src/widget-dialog-preferences.c:1384
+#: src/widget-dialog-preferences.c:1443 src/widget-dialog-preferences.c:1789
 msgid "SMTP"
 msgstr ""
 
-#: src/preferences-trans.h:188 src/widget-dialog-preferences.c:1422
-#: src/widget-dialog-preferences.c:1766
+#: src/preferences-trans.h:187 src/widget-dialog-preferences.c:1449
+#: src/widget-dialog-preferences.c:1793
 msgid "Sendmail"
 msgstr ""
 
-#: src/preferences-trans.h:179 src/preferences-trans.h:201
-#: src/widget-dialog-preferences.c:1689
+#: src/preferences-trans.h:178 src/preferences-trans.h:200
+#: src/widget-dialog-preferences.c:1716
 msgid "Password"
 msgstr ""
 
-#: src/preferences-trans.h:180 src/widget-dialog-preferences.c:1693
+#: src/preferences-trans.h:179 src/widget-dialog-preferences.c:1720
 msgid "APOP"
 msgstr ""
 
@@ -536,65 +536,61 @@ msgstr ""
 msgid "Receive «%s»"
 msgstr ""
 
-#: src/widget-transfer-item.c:200
-msgid "This is a mail with a really long subject"
-msgstr ""
-
-#: src/widget-transfer-item.c:201
+#: src/widget-transfer-item.c:199
 #, c-format
 msgid "Send «%s»"
 msgstr ""
 
-#: src/widget-transfer-item.c:239
+#: src/widget-transfer-item.c:237
 msgid "Cancel the transfer"
 msgstr ""
 
-#: src/widget-transfer-item.c:307
+#: src/widget-transfer-item.c:305
 msgid "No Inbox mailbox"
 msgstr ""
 
-#: src/widget-transfer-item.c:339
+#: src/widget-transfer-item.c:337
 msgid "Resolving"
 msgstr ""
 
-#: src/widget-transfer-item.c:362
+#: src/widget-transfer-item.c:360
 msgid "Connecting"
 msgstr ""
 
 #. [FIXME]
 #. * Action to login? Loggining?
 #.
-#: src/widget-transfer-item.c:373
+#: src/widget-transfer-item.c:371
 msgid "Loggining"
 msgstr ""
 
-#: src/widget-transfer-item.c:432
+#: src/widget-transfer-item.c:430
 msgid "Login failed"
 msgstr ""
 
-#: src/widget-transfer-item.c:499
+#: src/widget-transfer-item.c:497
 msgid "Getting mail list"
 msgstr ""
 
-#: src/widget-transfer-item.c:517
+#: src/widget-transfer-item.c:515
 #, c-format
 msgid "%u message."
 msgstr ""
 
-#: src/widget-transfer-item.c:519
+#: src/widget-transfer-item.c:517
 #, c-format
 msgid "%u messages."
 msgstr ""
 
-#: src/widget-transfer-item.c:534
+#: src/widget-transfer-item.c:532
 msgid "Receiving %v of %u"
 msgstr ""
 
-#: src/widget-transfer-item.c:553
+#: src/widget-transfer-item.c:551
 msgid "Synchronizing"
 msgstr ""
 
-#: src/widget-transfer-item.c:564
+#: src/widget-transfer-item.c:562
 msgid "Completed"
 msgstr ""
 
@@ -614,46 +610,46 @@ msgstr ""
 msgid "Cancelled."
 msgstr ""
 
-#: src/widget-window-main.c:190
+#: src/widget-window-main.c:193
 msgid ""
 "Cronos II was not able to load the UI, you should check your installation.\n"
 "Aborting.\n"
 msgstr ""
 
-#: src/widget-window-main.c:439
+#: src/widget-window-main.c:446
 #, c-format
 msgid "The mailbox '%s' couldn't be loaded"
 msgstr ""
 
-#: src/widget-window-main.c:463
+#: src/widget-window-main.c:470
 #, c-format
 msgid "%d messages, %d new."
 msgstr ""
 
-#: src/trans.h:192 src/widget-window-main.c:542
+#: src/trans.h:192 src/widget-window-main.c:549
 msgid "You found the Eastern Egg!"
 msgstr ""
 
-#: src/trans.h:193 src/widget-window-main.c:543
+#: src/trans.h:193 src/widget-window-main.c:550
 msgid "Neat, baby!"
 msgstr ""
 
-#: src/widget-window-main.c:581
+#: src/widget-window-main.c:588
 msgid "Unable to open about file"
 msgstr ""
 
-#: src/widget-window-main.c:795
+#: src/widget-window-main.c:802
 msgid "New mailbox"
 msgstr ""
 
-#: src/widget-window-main.c:970
+#: src/widget-window-main.c:973
 msgid "Unable to create mailbox"
 msgstr ""
 
 #.
-#. * Translatable strings file generated by Glade.
-#. * Add this file to your project's POTFILES.in.
-#. * DO NOT compile it as part of your application.
+#. * Archivo de cadenas traducibles generado por Glade.
+#. * Añada este archivo a su POTFILES.in de su proyecto.
+#. * NO lo compile como parte de su aplicación.
 #.
 #: src/preferences-trans.h:7
 msgid ""
@@ -666,7 +662,7 @@ msgstr ""
 
 #: src/preferences-trans.h:12 src/preferences-trans.h:16
 #: src/preferences-trans.h:20 src/preferences-trans.h:23
-#: src/preferences-trans.h:228 src/trans.h:98 src/trans.h:190 src/trans.h:197
+#: src/preferences-trans.h:227 src/trans.h:98 src/trans.h:190 src/trans.h:197
 msgid "Error"
 msgstr ""
 
@@ -699,7 +695,7 @@ msgid ""
 "Are you sure you want this?"
 msgstr ""
 
-#: src/preferences-trans.h:28 src/preferences-trans.h:142 src/trans.h:146
+#: src/preferences-trans.h:28 src/preferences-trans.h:141 src/trans.h:146
 msgid "Confirmation"
 msgstr ""
 
@@ -747,7 +743,7 @@ msgstr ""
 msgid "minutes."
 msgstr ""
 
-#: src/preferences-trans.h:41 src/preferences-trans.h:162
+#: src/preferences-trans.h:41 src/preferences-trans.h:161
 msgid "Incoming mail"
 msgstr ""
 
@@ -755,7 +751,7 @@ msgstr ""
 msgid "Let know the user."
 msgstr ""
 
-#: src/preferences-trans.h:43 src/preferences-trans.h:182
+#: src/preferences-trans.h:43 src/preferences-trans.h:181
 msgid "Outgoing mail"
 msgstr ""
 
@@ -1016,7 +1012,7 @@ msgstr ""
 msgid "Use external editor:"
 msgstr ""
 
-#: src/preferences-trans.h:108 src/preferences-trans.h:113
+#: src/preferences-trans.h:108 src/preferences-trans.h:112
 msgid "gnome-edit"
 msgstr ""
 
@@ -1032,110 +1028,106 @@ msgstr ""
 msgid "gvim"
 msgstr ""
 
-#: src/preferences-trans.h:112
-msgid "abiword"
-msgstr ""
-
-#: src/preferences-trans.h:114
+#: src/preferences-trans.h:113
 msgid "Inteface/Composer"
 msgstr ""
 
-#: src/preferences-trans.h:115
+#: src/preferences-trans.h:114
 msgid "Title format"
 msgstr ""
 
-#: src/preferences-trans.h:116 src/preferences-trans.h:120
+#: src/preferences-trans.h:115 src/preferences-trans.h:119
 msgid "%a v.%v - %M (%m messages, %n new)"
 msgstr ""
 
-#: src/preferences-trans.h:117
+#: src/preferences-trans.h:116
 msgid "%a v.%v - %M"
 msgstr ""
 
-#: src/preferences-trans.h:118
+#: src/preferences-trans.h:117
 msgid "%a v.%v"
 msgstr ""
 
-#: src/preferences-trans.h:119
+#: src/preferences-trans.h:118
 msgid "%M - %a %v"
 msgstr ""
 
-#: src/preferences-trans.h:121
+#: src/preferences-trans.h:120
 msgid "Date format"
 msgstr ""
 
-#: src/preferences-trans.h:122 src/preferences-trans.h:125
+#: src/preferences-trans.h:121 src/preferences-trans.h:124
 msgid "%d.%m.%Y %H:%M %z"
 msgstr ""
 
-#: src/preferences-trans.h:123
+#: src/preferences-trans.h:122
 msgid "%Y.%m.%d %H:%M %z"
 msgstr ""
 
-#: src/preferences-trans.h:124
+#: src/preferences-trans.h:123
 msgid "%A %d %B %Y %H:%M"
 msgstr ""
 
-#: src/preferences-trans.h:126
+#: src/preferences-trans.h:125
 msgid "Attachments"
 msgstr ""
 
-#: src/preferences-trans.h:127
+#: src/preferences-trans.h:126
 msgid "Display"
 msgstr ""
 
-#: src/preferences-trans.h:128
+#: src/preferences-trans.h:127
 msgid "text/plain"
 msgstr ""
 
-#: src/preferences-trans.h:129
+#: src/preferences-trans.h:128
 msgid "text/html"
 msgstr ""
 
-#: src/preferences-trans.h:130
+#: src/preferences-trans.h:129
 msgid "by default."
 msgstr ""
 
-#: src/preferences-trans.h:131
+#: src/preferences-trans.h:130
 msgid "Interface/Misc"
 msgstr ""
 
-#: src/preferences-trans.h:132
+#: src/preferences-trans.h:131
 msgid "Proxy"
 msgstr ""
 
-#: src/preferences-trans.h:133
+#: src/preferences-trans.h:132
 msgid "FTP Proxy"
 msgstr ""
 
-#: src/preferences-trans.h:134
+#: src/preferences-trans.h:133
 msgid "HTTP Proxy"
 msgstr ""
 
-#: src/preferences-trans.h:135 src/preferences-trans.h:136
+#: src/preferences-trans.h:134 src/preferences-trans.h:135
 msgid "Port"
 msgstr ""
 
-#: src/preferences-trans.h:137
+#: src/preferences-trans.h:136
 msgid "Copy values."
 msgstr ""
 
-#: src/preferences-trans.h:138
+#: src/preferences-trans.h:137
 msgid "Advanced/Misc"
 msgstr ""
 
-#: src/preferences-trans.h:139
+#: src/preferences-trans.h:138
 msgid ""
 "This will permanently remove\n"
 "the selected account.\n"
 "Do you want to continue?"
 msgstr ""
 
-#: src/preferences-trans.h:144
+#: src/preferences-trans.h:143
 msgid "Account Setup"
 msgstr ""
 
-#: src/preferences-trans.h:145
+#: src/preferences-trans.h:144
 msgid ""
 "Cronos II supports multiple mail accounts and identities.\n"
 "\n"
@@ -1145,225 +1137,225 @@ msgid ""
 "Further help is available in the «Help» menu"
 msgstr ""
 
-#: src/preferences-trans.h:151
+#: src/preferences-trans.h:150
 msgid "Identity"
 msgstr ""
 
-#: src/preferences-trans.h:152
+#: src/preferences-trans.h:151
 msgid "Required information"
 msgstr ""
 
-#: src/preferences-trans.h:153
+#: src/preferences-trans.h:152
 msgid "Full Name:"
 msgstr ""
 
-#: src/preferences-trans.h:154
+#: src/preferences-trans.h:153
 msgid "E-Mail Address:"
 msgstr ""
 
-#: src/preferences-trans.h:155
+#: src/preferences-trans.h:154
 msgid ""
 "Name of person or organization which will appear as remitent in outgoing "
 "messages of this account."
 msgstr ""
 
-#: src/preferences-trans.h:156
+#: src/preferences-trans.h:155
 msgid "Optional information"
 msgstr ""
 
-#: src/preferences-trans.h:157
+#: src/preferences-trans.h:156
 msgid "Organization:"
 msgstr ""
 
-#: src/preferences-trans.h:158
+#: src/preferences-trans.h:157
 msgid "Reply-To Address:"
 msgstr ""
 
-#: src/preferences-trans.h:159
+#: src/preferences-trans.h:158
 msgid ""
 "E-mail address where reply's to mail sent from this account will be sent."
 msgstr ""
 
-#: src/preferences-trans.h:160
+#: src/preferences-trans.h:159
 msgid "Submit Personal Card:"
 msgstr ""
 
-#: src/preferences-trans.h:161
+#: src/preferences-trans.h:160
 msgid "[TODO]"
 msgstr ""
 
-#: src/preferences-trans.h:163
+#: src/preferences-trans.h:162
 msgid ""
 "Please, fill in the information regarding the incoming mail.\n"
 "If you don't know the protocol the server uses you should ask your\n"
 "system administrator or your ISP."
 msgstr ""
 
-#: src/preferences-trans.h:166
+#: src/preferences-trans.h:165
 msgid "Protocol:"
 msgstr ""
 
-#: src/preferences-trans.h:169 src/preferences-trans.h:189
+#: src/preferences-trans.h:168 src/preferences-trans.h:188
 msgid "Server information"
 msgstr ""
 
-#: src/preferences-trans.h:170 src/preferences-trans.h:190 src/trans.h:113
+#: src/preferences-trans.h:169 src/preferences-trans.h:189 src/trans.h:113
 msgid "Hostname:"
 msgstr ""
 
-#: src/preferences-trans.h:171 src/preferences-trans.h:191 src/trans.h:110
+#: src/preferences-trans.h:170 src/preferences-trans.h:190 src/trans.h:110
 msgid "Port:"
 msgstr ""
 
-#: src/preferences-trans.h:172
+#: src/preferences-trans.h:171
 msgid "Port where Cronos II can access the mail server for your mails"
 msgstr ""
 
-#: src/preferences-trans.h:173
+#: src/preferences-trans.h:172
 msgid "Mail server where Cronos II will go to fetch your mails"
 msgstr ""
 
-#: src/preferences-trans.h:174 src/preferences-trans.h:198
+#: src/preferences-trans.h:173 src/preferences-trans.h:197
 msgid "Use Secure Server Layer (SSL)."
 msgstr ""
 
-#: src/preferences-trans.h:175 src/preferences-trans.h:194 src/trans.h:114
+#: src/preferences-trans.h:174 src/preferences-trans.h:193 src/trans.h:114
 #: src/trans.h:155
 msgid "Username:"
 msgstr ""
 
-#: src/preferences-trans.h:176
+#: src/preferences-trans.h:175
 msgid "Username Cronos II will use to identifies it self at the server"
 msgstr ""
 
-#: src/preferences-trans.h:177 src/preferences-trans.h:199
+#: src/preferences-trans.h:176 src/preferences-trans.h:198
 msgid "Authentication"
 msgstr ""
 
-#: src/preferences-trans.h:178 src/preferences-trans.h:200
+#: src/preferences-trans.h:177 src/preferences-trans.h:199
 msgid "Authentication method:"
 msgstr ""
 
-#: src/preferences-trans.h:181 src/preferences-trans.h:202
+#: src/preferences-trans.h:180 src/preferences-trans.h:201
 msgid "Remember password."
 msgstr ""
 
-#: src/preferences-trans.h:183
+#: src/preferences-trans.h:182
 msgid ""
 "Please, fill in the information regarding the outgoing mail server.\n"
 "If you don't know the protocol your server uses you should ask your\n"
 "System Administrator, your ISP or use the Sendmail protocol."
 msgstr ""
 
-#: src/preferences-trans.h:186
+#: src/preferences-trans.h:185
 msgid "Server Protocol:"
 msgstr ""
 
-#: src/preferences-trans.h:192
+#: src/preferences-trans.h:191
 msgid ""
 "Port where Cronos II can access the Mail Transfer Agent to deliver messages "
 "from this account"
 msgstr ""
 
-#: src/preferences-trans.h:193
+#: src/preferences-trans.h:192
 msgid ""
 "Outgoing mail server where Cronos II will find the Mail Transfer Agent (MTA) "
 "to deliver messages from this account"
 msgstr ""
 
-#: src/preferences-trans.h:195
+#: src/preferences-trans.h:194
 msgid "Username Cronos II will use to authenticate it self to the MTA"
 msgstr ""
 
-#: src/preferences-trans.h:196
+#: src/preferences-trans.h:195
 msgid "Enable this option if your server requires authentication"
 msgstr ""
 
-#: src/preferences-trans.h:197
+#: src/preferences-trans.h:196
 msgid "This server requires authentication."
 msgstr ""
 
-#: src/preferences-trans.h:204
+#: src/preferences-trans.h:203
 msgid "Account Information"
 msgstr ""
 
-#: src/preferences-trans.h:205 src/trans.h:107
+#: src/preferences-trans.h:204 src/trans.h:107
 msgid "Name:"
 msgstr ""
 
-#: src/preferences-trans.h:206
+#: src/preferences-trans.h:205
 msgid "Unique name that will identify this account"
 msgstr ""
 
-#: src/preferences-trans.h:207
+#: src/preferences-trans.h:206
 msgid "Signature"
 msgstr ""
 
-#: src/preferences-trans.h:208
+#: src/preferences-trans.h:207
 msgid "Signature file (plain):"
 msgstr ""
 
-#: src/preferences-trans.h:209
+#: src/preferences-trans.h:208
 msgid "Signature file (HTML):"
 msgstr ""
 
-#: src/preferences-trans.h:210
+#: src/preferences-trans.h:209
 msgid "Signature file that will be used when signing messages with no format"
 msgstr ""
 
-#: src/preferences-trans.h:211
+#: src/preferences-trans.h:210
 msgid "Signature file that will be used when signing messages with HTML format"
 msgstr ""
 
-#: src/preferences-trans.h:212
+#: src/preferences-trans.h:211
 msgid "Multiple server access options"
 msgstr ""
 
-#: src/preferences-trans.h:213
+#: src/preferences-trans.h:212
 msgid ""
 "Enable this if you don't want Cronos II to delete mails in the server after "
 "fetching them"
 msgstr ""
 
-#: src/preferences-trans.h:214
+#: src/preferences-trans.h:213
 msgid "Leave messages in the server."
 msgstr ""
 
-#: src/preferences-trans.h:215
+#: src/preferences-trans.h:214
 msgid ""
 "Enable this option if you want Cronos II to delete downloaded messages in "
 "the server after an specific period of time"
 msgstr ""
 
-#: src/preferences-trans.h:216
+#: src/preferences-trans.h:215
 msgid "Remove messages older than"
 msgstr ""
 
-#: src/preferences-trans.h:217
+#: src/preferences-trans.h:216
 msgid ""
 "Specify the period of time you want Cronos II to keep downloaded messages in "
 "the server"
 msgstr ""
 
-#: src/preferences-trans.h:218
+#: src/preferences-trans.h:217
 msgid "days."
 msgstr ""
 
-#: src/preferences-trans.h:219
+#: src/preferences-trans.h:218
 msgid ""
 "Enable this option if you want to include this account in \"All Account\" "
 "checks"
 msgstr ""
 
-#: src/preferences-trans.h:220
+#: src/preferences-trans.h:219
 msgid "Automatically check this account."
 msgstr ""
 
-#: src/preferences-trans.h:221
+#: src/preferences-trans.h:220
 msgid "Finished"
 msgstr ""
 
-#: src/preferences-trans.h:222
+#: src/preferences-trans.h:221
 msgid ""
 "Congratulations, you have successfully configured\n"
 "your account for use with Cronos II.\n"
@@ -1371,7 +1363,7 @@ msgid ""
 "Press «Finish» to store the new configuration."
 msgstr ""
 
-#: src/preferences-trans.h:226
+#: src/preferences-trans.h:225
 msgid ""
 "The name you entered is\n"
 "not valid."

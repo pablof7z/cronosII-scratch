@@ -897,7 +897,7 @@
 	  <name>toolbar_check</name>
 	  <tooltip>Check all accounts for new mail.</tooltip>
 	  <label>Check</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_RCV</stock_pixmap>
+	  <icon>receive.xpm</icon>
 	</widget>
 
 	<widget>
@@ -907,7 +907,7 @@
 	  <sensitive>False</sensitive>
 	  <tooltip>Send unsent messages from the mail queue</tooltip>
 	  <label>Send</label>
-	  <icon>sendqueue.xpm</icon>
+	  <icon>send.xpm</icon>
 	</widget>
 
 	<widget>
@@ -917,7 +917,7 @@
 	  <sensitive>False</sensitive>
 	  <tooltip>Save current message to file.</tooltip>
 	  <label>Save</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_SAVE</stock_pixmap>
+	  <icon>save.xpm</icon>
 	  <child>
 	    <new_group>True</new_group>
 	  </child>
@@ -930,7 +930,7 @@
 	  <sensitive>False</sensitive>
 	  <tooltip>Print current message</tooltip>
 	  <label>Print</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_PRINT</stock_pixmap>
+	  <icon>print.xpm</icon>
 	</widget>
 
 	<widget>
@@ -949,7 +949,6 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_compose</name>
-	  <sensitive>False</sensitive>
 	  <tooltip>Compose a new message</tooltip>
 	  <signal>
 	    <name>clicked</name>
@@ -957,7 +956,7 @@
 	    <last_modification_time>Thu, 09 Aug 2001 19:27:27 GMT</last_modification_time>
 	  </signal>
 	  <label>Compose</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_NEW</stock_pixmap>
+	  <icon>mail-write.xpm</icon>
 	  <child>
 	    <new_group>True</new_group>
 	  </child>
@@ -970,7 +969,7 @@
 	  <sensitive>False</sensitive>
 	  <tooltip>Reply to the selected message</tooltip>
 	  <label>Reply</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_RPL</stock_pixmap>
+	  <icon>reply-big.xpm</icon>
 	</widget>
 
 	<widget>
@@ -980,7 +979,7 @@
 	  <sensitive>False</sensitive>
 	  <tooltip>Reply to all recipients of the selected message</tooltip>
 	  <label>Reply All</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_RPL</stock_pixmap>
+	  <icon>reply-all-big.xpm</icon>
 	</widget>
 
 	<widget>
@@ -990,7 +989,7 @@
 	  <sensitive>False</sensitive>
 	  <tooltip>Forward selected message</tooltip>
 	  <label>Forward</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_FWD</stock_pixmap>
+	  <icon>forward-big.xpm</icon>
 	</widget>
 
 	<widget>
@@ -1000,7 +999,7 @@
 	  <sensitive>False</sensitive>
 	  <tooltip>Select previous message</tooltip>
 	  <label>Previous</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_BACK</stock_pixmap>
+	  <icon>prev.xpm</icon>
 	  <child>
 	    <new_group>True</new_group>
 	  </child>
@@ -1013,7 +1012,7 @@
 	  <sensitive>False</sensitive>
 	  <tooltip>Select next message</tooltip>
 	  <label>Next</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_FORWARD</stock_pixmap>
+	  <icon>next.xpm</icon>
 	</widget>
 
 	<widget>

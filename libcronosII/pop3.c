@@ -27,6 +27,11 @@
 #include "utils.h"
 #include "md5.h"
 
+/*
+ * [TODO] Add support for CRAM-MD5 authentication.
+ * [DONE] Add APOP support.
+ */
+
 #define DEFAULT_FLAGS C2_POP3_DO_NOT_KEEP_COPY | C2_POP3_DO_NOT_LOSE_PASSWORD
 
 #define UIDL_LENGTH		70
@@ -45,6 +50,12 @@ welcome										(C2POP3 *pop3);
 
 static gint
 login										(C2POP3 *pop3);
+
+static gint
+login_apop									(C2POP3 *pop3);
+
+static gint
+login_plain									(C2POP3 *pop3);
 
 static GSList *
 status										(C2POP3 *pop3, C2Account *account, GSList **cuidl);
@@ -279,7 +290,7 @@ c2_pop3_set_leave_copy (C2POP3 *pop3, gboolean leave_copy, gint days)
 gint
 c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 {
-	GSList *download_list, *uidl_list;
+	GSList *download_list = NULL, *uidl_list;
 	gint mails;
 	gint retval = 0;
 
@@ -368,33 +379,6 @@ welcome (C2POP3 *pop3)
 	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
 		return -1;
 
-	if(pop3->auth_method == C2_POP3_AUTHENTICATION_APOP)
-	{
-		// They want to use APOP so we need to get the timestamp and
-		// domain name from the welcome message
-
-		logintokenpos = strstr(string,"<"); 	/* login token start with the first <  */
-		if (logintokenpos == NULL) 				/* no < means they don't support APOP */
-		{
-			c2_error_object_set_custom (GTK_OBJECT (pop3), "Server does not support APOP");
-			return -1;
-		}
-
-		loginsize = strlen(logintokenpos)-1;		/* don't want the trailing \n  */
-		logintoken = g_new (gchar, loginsize);
-	
-		strncpy(logintoken,logintokenpos,strlen(logintokenpos)); /* copy everything from the "<" to the \0 */
-		logintoken[loginsize-1] = 0;				 /* overwrite the \n with the NULL terminator */
-	
-	
-		pop3->logintoken = g_strndup (logintoken, loginsize);
-		C2_DEBUG (pop3->logintoken);
-	}
-	else
-	{
-		pop3->logintoken = NULL;
-	}
-
 	if (c2_strnne (string, "+OK", 3))
 	{
 
@@ -405,7 +389,24 @@ welcome (C2POP3 *pop3)
 		c2_error_object_set_custom (GTK_OBJECT (pop3), string);
 		return -1;
 	}
-	
+
+	if (pop3->auth_method == C2_POP3_AUTHENTICATION_APOP)
+	{
+		gchar *ptr;
+		size_t size;
+		
+		ptr = strstr (string,"<");
+		if (ptr == NULL)
+		{
+			c2_error_object_set_custom (GTK_OBJECT (pop3), _("Server does not support APOP"));
+			return -1;
+		}
+
+		size = (strstr (ptr+1, ">")+1)-ptr;
+		pop3->logintoken = g_strndup (ptr, size);
+	} else
+		pop3->logintoken = NULL;
+
 	return 0;
 }
 
@@ -413,152 +414,163 @@ static gint
 login (C2POP3 *pop3)
 {
 	gchar *string;
-	gchar *apopstring;
-
-	unsigned char md5apop[16];
-	gchar md5apopstring[33];
-	int x;
-
 	gint i = 0;
 	gboolean logged_in = FALSE;
 	
 	gtk_signal_emit (GTK_OBJECT (pop3), signals[LOGIN]);
 
-	if (pop3->auth_method == C2_POP3_AUTHENTICATION_APOP)
-	{
-		if (pop3->logintoken == NULL)
-		{
-			/* how the hell did this happen? */
-			c2_error_object_set_custom (GTK_OBJECT (pop3),
-								_("The server does not supports the APOP protocol, change preferences for this account"));
-			return -1;
-		}
-		
-		// allocate a string for the pass+logintoken so we can get the md5 hash of it
-		apopstring = (gchar*)g_malloc(sizeof(gchar) * (strlen(pop3->pass) + strlen(pop3->logintoken) ) + 1);
-
-		strncpy(apopstring,pop3->logintoken,strlen(pop3->logintoken)+1);
-		//printf("apopstring is \"%s\" before strcat\n",apopstring);
-
-		strcat(apopstring,pop3->pass);
-
-		md5_buffer(apopstring,strlen(apopstring),md5apop);
-		//printf("apopstring is \"%s\" after strcat\n",apopstring);
-
-		// print out the md5 hash
-		for( x = 0; x < 16; x++)
-		{
-			sprintf(&md5apopstring[x*2],"%02x",md5apop[x]);
-		}
-		md5apopstring[32] = 0;
-
-		//printf("%s\n",md5apopstring);
-
-		printf ("APOP %s %s\n", pop3->user, md5apopstring);
-		if (c2_net_object_send (C2_NET_OBJECT (pop3), "APOP %s %s\r\n", pop3->user,md5apopstring) < 0)
-		{
-			c2_error_object_set_custom(GTK_OBJECT (pop3), "Sending APOP login failed");
-
-			return -1;
-		}
-
-		if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
-		{
-			c2_error_object_set_custom(GTK_OBJECT (pop3), "Failed to recv APOP login reply");
-			return -1;
-		}
-
-		if (c2_strnne (string, "+OK", 3))
-		{
-			string = strstr (string, " ");
-			if (string)
-				string++;
-	
-			c2_error_object_set_custom (GTK_OBJECT (pop3), string);
-			return -1;
-		} else
-		{
-			/* Something wrong, probably APOP not supported, but it might be
-			 * login not supported.
-			 *
-			 * [TODO] I will continue developing APOP once I find a server
-			 * that supports it.*/
-			return 0;
-		}
-
-	}
-
 	do
 	{
-		/* Username */
-		if (c2_net_object_send (C2_NET_OBJECT (pop3), "USER %s\r\n", pop3->user) < 0)
-			return -1;
-
-		if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
-			return -1;
-
-		if (c2_strnne (string, "+OK", 3))
-		{
-			string = strstr (string, " ");
-			if (string)
-				string++;
-
-			c2_error_object_set_custom (GTK_OBJECT (pop3), string);
-			return -1;
-		}
-
-		/* Password */
-		g_free (string);
-		if (c2_net_object_send (C2_NET_OBJECT (pop3), "PASS %s\r\n", pop3->pass) < 0)
-			return -1;
+		gint retval;
 		
-		if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+		if (pop3->auth_method == C2_POP3_AUTHENTICATION_APOP)
+			retval = login_apop (pop3);
+		else
+			retval = login_plain (pop3);
+		
+		if (retval == -1)
 			return -1;
+		if (retval == 0)
+			logged_in = FALSE;
+		else
+			logged_in = FALSE;
 
-		if (c2_strnne (string, "+OK", 3))
+		if (!logged_in)
 		{
+			const gchar *error;
 			gchar *newuser, *newpass;
 			gboolean ret;
-			pthread_mutex_t lock;
 
-			string = strstr (string, " ");
-			if (string)
-				string++;
+			error = c2_error_object_get (GTK_OBJECT (pop3));
 			
-			/* set pop3->pass equal to NULL just in case there is no callback function */
 			newuser = NULL;
 			newpass = NULL;
-
-			pthread_mutex_init (&lock, NULL);
-
 			if (C2_POP3_CLASS_FW (pop3)->login_failed)
 			{
+				pthread_mutex_t lock;
+				gint cont;
+				
+				pthread_mutex_init (&lock, NULL);
 				pthread_mutex_lock (&lock);
-				if (C2_POP3_CLASS_FW (pop3)->login_failed (pop3, string, &newuser, &newpass, &lock))
+				cont = C2_POP3_CLASS_FW (pop3)->login_failed (pop3, error, &newuser, &newpass, &lock);
+				pthread_mutex_lock (&lock);
+				pthread_mutex_unlock (&lock);
+				pthread_mutex_destroy (&lock);
+				if (cont)
 				{
-					pthread_mutex_lock (&lock);
-					pthread_mutex_destroy (&lock);
-					
 					pop3->user = newuser;
 					pop3->pass = newpass;
 				} else
 				{
-					pthread_mutex_destroy (&lock);
 					c2_error_object_set (GTK_OBJECT (pop3), C2USRCNCL);
 					return -1;
 				}
 			} else
 			{
-				pthread_mutex_destroy (&lock);
 				c2_error_object_set_custom (GTK_OBJECT (pop3), string);
 				return -1;
 			}
-		} else
-			logged_in = TRUE;
-	} while (i++ < 3 && !logged_in && pop3->pass);
+		}
+	} while (++i < 3 && !logged_in && pop3->pass);
 	
 	if (!logged_in)
 		return -1;
+
+	return 0;
+}
+
+static gboolean
+login_apop (C2POP3 *pop3)
+{
+	gchar *string;
+	gchar *apopstring;
+	unsigned char md5apop[16];
+	gchar md5apopstring[33];
+	int x;
+	
+	/* allocate a string for the pass+logintoken so we can get the md5 hash of it */
+	apopstring = g_strconcat (pop3->logintoken, pop3->pass, NULL);
+
+	md5_buffer (apopstring, strlen(apopstring), md5apop);
+
+	// print out the md5 hash
+	for( x = 0; x < 16; x++)
+		sprintf (&md5apopstring[x*2],"%02x",md5apop[x]);
+	md5apopstring[32] = 0;
+
+	if (c2_net_object_send (C2_NET_OBJECT (pop3), "APOP %s %s\r\n", pop3->user,md5apopstring) < 0)
+	{
+		c2_error_object_set_custom(GTK_OBJECT (pop3), "Sending APOP login failed");
+			return -1;
+	}
+	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+	{
+		c2_error_object_set_custom(GTK_OBJECT (pop3), "Failed to recv APOP login reply");
+		return -1;
+	}
+
+	if (c2_strnne (string, "+OK", 3))
+	{
+		string = strstr (string, " ");
+		if (string)
+			string++;
+		c2_error_object_set_custom (GTK_OBJECT (pop3), string);
+		return 0;
+	} else
+		return 1;
+}
+
+/**
+ * login_plain
+ * @pop3: C2POP3 to login.
+ *
+ * This function login using the plain type of login.
+ *
+ * Return Value:
+ * Indicates which is the status of the login:
+ * -1: Socket error, connection should be aborted
+ *     immediatly.
+ *  0: Login failed, connection might keep alive.
+ * +1: Login successfull.
+ **/
+static gint
+login_plain (C2POP3 *pop3)
+{
+	gchar *string;
+	
+	/* Username */
+	if (c2_net_object_send (C2_NET_OBJECT (pop3), "USER %s\r\n", pop3->user) < 0)
+		return -1;
+
+	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+		return -1;
+
+	if (c2_strnne (string, "+OK", 3))
+	{
+		string = strstr (string, " ");
+		if (string)
+			string++;
+		c2_error_object_set_custom (GTK_OBJECT (pop3), string);
+		return 0;
+	}
+
+	/* Password */
+	g_free (string);
+	if (c2_net_object_send (C2_NET_OBJECT (pop3), "PASS %s\r\n", pop3->pass) < 0)
+		return -1;
+	
+	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+		return -1;
+	
+	if (c2_strnne (string, "+OK", 3))
+	{
+		string = strstr (string, " ");
+		if (string)
+			string++;
+		c2_error_object_set_custom (GTK_OBJECT (pop3), string);
+		return 0;
+	} else
+		return 1;
 
 	return 0;
 }

@@ -57,6 +57,9 @@ static void
 on_toolbar_delete_clicked					(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
+on_toolbar_compose_clicked					(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_index_select_message						(GtkWidget *index, C2Db *node, C2WindowMain *wmain);
 
 static void
@@ -266,12 +269,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_toolbar_check_clicked), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "toolbar_delete")), "clicked",
 							GTK_SIGNAL_FUNC (on_toolbar_delete_clicked), wmain);
-/*	glade_xml_signal_connect (xml, "on_new_mail_activate", GTK_SIGNAL_FUNC (on_new_mail_activate));
-	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (xml, "file_exit")), "activate",
-							GTK_SIGNAL_FUNC (on_quit), NULL);
-	gtk_signal_connect_object (GTK_OBJECT(glade_xml_get_widget(xml,"settings_preferences")), "activate",
-							GTK_SIGNAL_FUNC (on_preferences_activated), NULL);
-*/	
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "toolbar_compose")), "clicked",
+							GTK_SIGNAL_FUNC (on_toolbar_compose_clicked), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_new_mailbox")), "activate",
 							GTK_SIGNAL_FUNC (on_file_new_mailbox_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_egg_separator")), "activate",
@@ -409,6 +408,14 @@ on_toolbar_delete_clicked (GtkWidget *widget, C2WindowMain *wmain)
 	list = GTK_CLIST (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "index"))->selection;
 
 	c2_db_message_remove (mailbox, list);
+}
+
+static void
+on_toolbar_compose_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	GtkWidget *composer;
+	
+	composer = c2_composer_new (C2_WINDOW (wmain)->application);
 }
 
 static void
@@ -675,7 +682,7 @@ on_new_mail_activate (GtkWidget *widget, C2WindowMain *wmain)
 	if (!c2_application_check_account_exists (C2_WINDOW (wmain)->application))
 		return;
 
-	composer = c2_composer_new (C2_WINDOW (wmain)->application->interface_toolbar);
+	composer = c2_composer_new (C2_WINDOW (wmain)->application);
 
 	gtk_widget_show (window);
 }

@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -17,28 +17,21 @@
  */
 #include <glade/glade.h>
 
+#include <libcronosII/account.h>
+
+#include "widget-application.h"
 #include "widget-composer.h"
 
 #define XML_FILE "cronosII-composer"
 
-GtkWidget *
-c2_composer_new (GtkToolbarStyle style)
-{
-	return NULL;
-}
-
-GtkType
-c2_composer_get_type (void)
-{
-	return 0;
-}
-
-#if 0
 static void
 class_init									(C2ComposerClass *klass);
 
 static void
 init										(C2Composer *composer);
+
+static void
+destroy										(GtkObject *object);
 
 enum
 {
@@ -46,13 +39,12 @@ enum
 	SEND_NOW,
 	SEND_LATER,
 	SAVE_DRAFT,
-	CLOSE,
 	LAST_SIGNAL
 };
 
 static gint signals[LAST_SIGNAL] = { 0 };
 
-static GtkWidgetClass *parent_class = NULL;
+static C2WindowClass *parent_class = NULL;
 
 GtkType
 c2_composer_get_type (void)
@@ -95,21 +87,18 @@ class_init (C2ComposerClass *klass)
 						GTK_SIGNAL_OFFSET (C2ComposerClass, changed_title),
 						gtk_marshal_NONE__STRING, GTK_TYPE_NONE, 1,
 						GTK_TYPE_STRING);
-
 	signals[SEND_NOW] =
 		gtk_signal_new ("send_now",
 						GTK_RUN_FIRST,
 						object_class->type,
 						GTK_SIGNAL_OFFSET (C2ComposerClass, send_now),
 						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-
 	signals[SEND_LATER] =
 		gtk_signal_new ("send_later",
 						GTK_RUN_FIRST,
 						object_class->type,
 						GTK_SIGNAL_OFFSET (C2ComposerClass, send_later),
 						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-
 	signals[SAVE_DRAFT] =
 		gtk_signal_new ("save_draft",
 						GTK_RUN_FIRST,
@@ -118,52 +107,58 @@ class_init (C2ComposerClass *klass)
 						gtk_marshal_NONE__INT, GTK_TYPE_NONE, 1,
 						GTK_TYPE_INT);
 
-	signals[CLOSE] =
-		gtk_signal_new ("close",
-						GTK_RUN_FIRST,
-						object_class->type,
-						GTK_SIGNAL_OFFSET (C2ComposerClass, close),
-						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 
 	klass->changed_title = NULL;
 	klass->send_now = NULL;
 	klass->send_later = NULL;
 	klass->save_draft = NULL;
-	klass->close = NULL;
+
+	object_class->destroy = destroy;
 }
 
 static void
 init (C2Composer *composer)
 {
+	composer->type = 0;
+	composer->cmnd = NULL;
 	composer->file = NULL;
 	composer->draft_id = -1;
 	composer->operations = NULL;
 	composer->operations_ptr = NULL;
+	composer->application = NULL;
+}
+
+static void
+destroy (GtkObject *object)
+{
 }
 
 GtkWidget *
-c2_composer_new (GtkToolbarStyle style)
+c2_composer_new (C2Application *application)
 {
 	C2Composer *composer;
 
 	composer = gtk_type_new (c2_composer_get_type ());
-	c2_composer_construct (composer, style);
+	c2_composer_construct (composer, application);
 
 	return GTK_WIDGET (composer);
 }
 
 void
-c2_composer_construct (C2Composer *composer, GtkToolbarStyle style)
+c2_composer_construct (C2Composer *composer, C2Application *application)
 {
 	GtkWidget *menu;
 	GtkWidget *widget;
 	gchar *str;
+	GList *popdown = NULL;
 	gint i;
 	C2Account *account;
+	GladeXML *xml;
 	
-	composer->xml = glade_xml_new (C2_APP_GLADE_FILE (XML_FILE), "wnd_composer");
+	C2_WINDOW (composer)->xml = glade_xml_new (C2_APPLICATION_GLADE_FILE (XML_FILE),
+								"wnd_composer_contents");
+	xml = C2_WINDOW (composer)->xml;
 	
 	for (i = 0; i <= 9; i++)
 	{
@@ -201,27 +196,25 @@ c2_composer_construct (C2Composer *composer, GtkToolbarStyle style)
 				break;
 		}
 		
-		if ((widget = glade_xml_get_widget (composer->xml, str)))
+		if ((widget = glade_xml_get_widget (xml, str)))
 			gtk_widget_set_sensitive (widget, FALSE);
 	}
 
-	menu = glade_xml_get_widget (composer->xml, "account_menu");
-	for (account = c2_app.account; account; account = account->next)
+	menu = glade_xml_get_widget (xml, "account");
+	for (account = application->account; account; account = account->next)
 	{
-		str = g_strdup_printf ("\"%s\" <%s> (%s)", account->per_name, account->email, account->name);
-		widget = gtk_menu_item_new_with_label (str);
-		gtk_widget_show (widget);
-		gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (menu)->menu), widget);
+		const gchar *name;
+		name = c2_account_get_extra_data (account, C2_ACCOUNT_KEY_FULL_NAME, NULL);
+		
+		if (name)
+			str = g_strdup_printf ("\"%s\" <%s> (%s)", name, account->email, account->name);
+		else
+			str = g_strdup_printf ("%s (%s)", account->email, account->name);
+
+		popdown = g_list_append (popdown, str);
 	}
-	gtk_option_menu_set_history (GTK_OPTION_MENU (menu), 0);
 
-	gtk_toolbar_set_style (GTK_TOOLBAR (glade_xml_get_widget (composer->xml, "toolbar")), style);
-	gtk_widget_queue_resize (glade_xml_get_widget (composer->xml, "wnd_composer"));
+/*	gtk_toolbar_set_style (GTK_TOOLBAR (glade_xml_get_widget (xml, "toolbar")),
+						gnome_config_get_int ());*/
+	gtk_widget_queue_resize (GTK_WIDGET (composer));
 }
-
-GtkWidget *
-c2_composer_get_window (C2Composer *composer)
-{
-	return glade_xml_get_widget (composer->xml, "wnd_composer");
-}
-#endif
