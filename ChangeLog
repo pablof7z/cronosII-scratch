@@ -1,3 +1,8 @@
+Mon Mar 4 Bosko Blagojevic <falling@users.sourceforge.net>
+	* More good work in IMAP: retriving messages, more features in
+	  reading server data, a few fixes here and there.
+	* A few tweaks + fixes in libcronosII/db.c
+
 Mon Feb 25 Peter Gossner <petegozz@users.sf.net>
 	* Fixed some spelling and content in html.in files.
 	* Tried some tidy/style formating in some user first load messages.
