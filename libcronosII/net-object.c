@@ -219,7 +219,7 @@ c2_net_object_run (C2NetObject *nobj)
 	{
 		if (g_list_length (nobj->bytes) >= nobj->max)
 		{
-			c2_error_obj_set (GTK_OBJECT (nobj), C2NOBJMAX);
+			c2_error_object_set (GTK_OBJECT (nobj), C2NOBJMAX);
 			return NULL;
 		}
 	}
@@ -230,7 +230,7 @@ c2_net_object_run (C2NetObject *nobj)
 	/* Create the socket */
 	if ((byte->sock = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 	{
-		c2_error_obj_set (GTK_OBJECT (nobj), -errno);
+		c2_error_object_set (GTK_OBJECT (nobj), -errno);
 		g_free (byte);
 		return NULL;
 	}
@@ -246,7 +246,7 @@ c2_net_object_run (C2NetObject *nobj)
 #ifdef USE_DEBUG
 		g_warning ("Unable to resolve hostname: %s\n", c2_error_get ());
 #endif
-		c2_error_obj_set (GTK_OBJECT (nobj), -errno);
+		c2_error_object_set (GTK_OBJECT (nobj), -errno);
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
 		return NULL;
 	}
@@ -260,7 +260,7 @@ c2_net_object_run (C2NetObject *nobj)
 #ifdef USE_DEBUG
 		g_warning ("Unable to connect: %s\n", c2_error_get ());
 #endif
-		c2_error_obj_set (GTK_OBJECT (nobj), -errno);
+		c2_error_object_set (GTK_OBJECT (nobj), -errno);
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
 		return NULL;
 	}

@@ -315,6 +315,138 @@ c2_str_strip_enclosed (const gchar *str, gchar open, gchar close)
 }
 
 /**
+ * c2_str_get_enclosed_text
+ * @str:	String to process.
+ * @enc1:	Opening character.
+ * @enc2:	Closing character.
+ * @args:	Number of values in @....
+ * @...:	List of possible characters that
+ * 			will force to finish the process.
+ *
+ * This function will get the string between
+ * @enc1 and @enc2 in @str, which can not
+ * contain any of the characters in @....
+ *
+ * Return Value:
+ * The text or %NULL.
+ **/
+gchar *
+c2_str_get_enclosed_text (const gchar *str, gchar enc1, gchar enc2, guint args, ...)
+{
+	const gchar *ptr, *start, *end;
+	gchar *enclosed_text;
+	gchar forcers[args];
+	va_list vargs;
+	gint i, level;
+
+	/* Load the value of ... to forcers */
+	va_start (vargs, args);
+	for (i = 0; i < args; i++)
+		forcers[i] = va_arg (vargs, gchar);
+	va_end (vargs);
+	
+	/* Process */
+	for (level = 0, start = end = NULL, ptr = str; ptr; ptr++)
+	{
+		if (*ptr == enc1)
+		{
+			if (!start)
+				start = ptr;
+			else
+				level++;
+		} else if (*ptr == enc2)
+		{
+			if (start)
+			{
+				if (level > 0)
+					level--;
+				else
+				{
+					end = ptr;
+					break;
+				}
+			}
+		}
+
+		for (i = 0; i < args; i++)
+			if (forcers[i] == *ptr)
+				return NULL;
+	}
+
+	/* Move pointer away from enc1 and enc2 */
+	start++;
+	
+	return g_strndup (start, end-start);
+}
+
+/**
+ * c2_str_get_enclosed_text_backward
+ * @str:	String to process.
+ * @enc1:	Opening character.
+ * @enc2:	Closing character.
+ * @args:	Number of values in @....
+ * @...:	List of possible characters that
+ * 			will force to finish the process.
+ *
+ * This function will get the string between
+ * @enc1 and @enc2 in @str, which can not
+ * contain any of the characters in @....
+ * It will search the string from the end to the start.
+ *
+ * Return Value:
+ * The text or %NULL.
+ **/
+gchar *
+c2_str_get_enclosed_text_backward (const gchar *str, gchar enc1, gchar enc2, guint args, ...)
+{
+	const gchar *ptr, *start, *end;
+	gchar *enclosed_text;
+	gchar forcers[args];
+	va_list vargs;
+	gint i, level, length;
+
+	/* Load the value of ... to forcers */
+	va_start (vargs, args);
+	for (i = 0; i < args; i++)
+		forcers[i] = va_arg (vargs, gchar);
+	va_end (vargs);
+	
+	/* Process */
+	length = strlen (str);
+	for (level = 0, start = end = NULL, ptr = (str+length); ptr; ptr--)
+	{
+		if (*ptr == enc2)
+		{
+			if (!end)
+				end = ptr;
+			else
+				level++;
+		} else if (*ptr == enc1)
+		{
+			if (end)
+			{
+				if (level > 0)
+					level--;
+				else
+				{
+					start = ptr;
+					break;
+				}
+			}
+		}
+
+		for (i = 0; i < args; i++)
+			if (forcers[i] == *ptr)
+				return NULL;
+	}
+
+	/* Move pointer away from enc1 and enc2 */
+	start++;
+	
+	return g_strndup (start, end-start);
+}
+
+/**
  * c2_str_get_line
  * @str: A pointer to an string object where the next line should be searched.
  *

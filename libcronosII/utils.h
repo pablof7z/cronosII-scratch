@@ -91,6 +91,12 @@ gchar *
 c2_str_strip_enclosed							(const gchar *str, gchar open, gchar close);
 
 gchar *
+c2_str_get_enclosed_text					(const gchar *str, gchar enc1, gchar enc2, guint args, ...);
+
+gchar *
+c2_str_get_enclosed_text_backward			(const gchar *str, gchar enc1, gchar enc2, guint args, ...);
+
+gchar *
 c2_str_get_line									(const gchar *str);
 
 gchar *
