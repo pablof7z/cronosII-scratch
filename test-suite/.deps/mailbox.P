@@ -12,7 +12,7 @@ mailbox.o: mailbox.c /usr/include/string.h /usr/include/features.h \
  /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h \
  /usr/include/alloca.h /usr/include/gtk-1.2/gtk/gtk.h \
  /usr/include/gtk-1.2/gdk/gdk.h /usr/include/gtk-1.2/gdk/gdktypes.h \
- /usr/include/glib-1.2/glib.h /usr/lib/glib/include/glibconfig.h \
+ /usr/include/glib.h /usr/lib/glib/include/glibconfig.h \
  /usr/include/limits.h /usr/include/bits/posix1_lim.h \
  /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
  /usr/include/bits/posix2_lim.h \
@@ -129,7 +129,10 @@ mailbox.o: mailbox.c /usr/include/string.h /usr/include/features.h \
  /usr/include/errno.h /usr/include/bits/errno.h \
  /usr/include/linux/errno.h /usr/include/asm/errno.h \
  ../libcronosII/utils.h ../config.h ../libcronosII/mailbox.h \
- ../libcronosII/db.h /usr/include/bits/time.h ../libcronosII/message.h
+ ../libcronosII/db.h /usr/include/bits/time.h \
+ ../libcronosII/db-cronosII.h ../libcronosII/message.h \
+ ../libcronosII/mime.h ../libcronosII/db-imap.h \
+ ../libcronosII/db-spool.h
 mailbox.c :
 /usr/include/string.h :
 /usr/include/features.h :
@@ -158,7 +161,7 @@ mailbox.c :
 /usr/include/gtk-1.2/gtk/gtk.h :
 /usr/include/gtk-1.2/gdk/gdk.h :
 /usr/include/gtk-1.2/gdk/gdktypes.h :
-/usr/include/glib-1.2/glib.h :
+/usr/include/glib.h :
 /usr/lib/glib/include/glibconfig.h :
 /usr/include/limits.h :
 /usr/include/bits/posix1_lim.h :
@@ -288,4 +291,8 @@ mailbox.c :
 ../libcronosII/mailbox.h :
 ../libcronosII/db.h :
 /usr/include/bits/time.h :
+../libcronosII/db-cronosII.h :
 ../libcronosII/message.h :
+../libcronosII/mime.h :
+../libcronosII/db-imap.h :
+../libcronosII/db-spool.h :

@@ -233,7 +233,7 @@ c2_html_get_type (void)
 #ifdef USE_GTKHTML
 #elif defined (USE_GTKXMHTML)
 #else
-		c2_html_type = gtk_type_unique (gtk_xtext_get_type (), &c2_html_info);
+		c2_html_type = gtk_type_unique (gtk_text_get_type (), &c2_html_info);
 #endif
 	}
 

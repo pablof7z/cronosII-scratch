@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /test-suite/date.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 #include <glib.h>
 #include <time.h>
 
-#include <libmodules/date-utils.h>
+#include <libcronosII/utils-date.h>
 
 gint
 main (gint argc, gchar **argv)

@@ -60,6 +60,12 @@ static void
 clist_unselect_row								(GtkCList *clist, gint row, gint column,
 												 GdkEvent *event, C2MessageTransfer *mt);
 
+static void
+ok_btn_clicked									(GtkWidget *button, C2MessageTransfer *mt);
+
+static void
+cancel_btn_clicked								(GtkWidget *button, C2MessageTransfer *mt);
+
 enum
 {
 	APPEND,
@@ -89,7 +95,8 @@ c2_message_transfer_new (void)
 							GTK_SIGNAL_FUNC (clist_select_row), mt);
 	gtk_signal_connect (GTK_OBJECT (box), "unselect_row",
 							GTK_SIGNAL_FUNC (clist_unselect_row), mt);
-	
+	gnome_dialog_button_connect (GNOME_DIALOG (GTK_WIDGET (mt)), 0, ok_btn_clicked, mt);
+	gnome_dialog_button_connect (GNOME_DIALOG (GTK_WIDGET (mt)), 1, cancel_btn_clicked, mt);	
 
 	return GTK_WIDGET (mt);
 }
@@ -245,7 +252,6 @@ run (C2MessageTransfer *mt)
 					 __LINE__);
 		}
 	}
-	pthread_attr_destroy (&attr);
 
 	if (pthread_mutex_trylock (&mt->queue_lock))
 	{
@@ -326,6 +332,20 @@ clist_unselect_row (GtkCList *clist, gint row, gint column, GdkEvent *event, C2M
 	GtkWidget *info_box = glade_xml_get_widget (mt->xml, "info_box");
 
 	gtk_widget_hide (info_box);
+}
+
+static void
+ok_btn_clicked (GtkWidget *button, C2MessageTransfer *mt)
+{
+	gtk_widget_hide (GTK_WIDGET (mt));
+}
+
+static void
+cancel_btn_clicked (GtkWidget *button, C2MessageTransfer *mt)
+{
+#ifdef USE_DEBUG
+	g_print ("Cancel hasn't been coded: %s:%d\n", __FILE__, __LINE__);
+#endif
 }
 
 GtkType

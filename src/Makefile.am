@@ -17,8 +17,7 @@ cronos_SOURCES = \
 	widget-html.c				widget-html.h				\
 	widget-mail.c				widget-mail.h				\
 	widget-message-transfer.c	widget-message-transfer.h	\
-	widget-part.c				widget-part.h				\
-	widget-xtext.c				widget-xtext.h
+	widget-part.c				widget-part.h
 	
 
 cronos_LDADD = \

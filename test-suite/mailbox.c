@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /test-suite/mailbox.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -85,10 +85,6 @@ main (gint argc, gchar **argv)
 				type = C2_MAILBOX_CRONOSII;
 			else if (c2_streq (argv[i], "C2_MAILBOX_IMAP"))
 				type = C2_MAILBOX_IMAP;
-#ifdef USE_MYSQL
-			else if (c2_streq (argv[i], "C2_MAILBOX_MYSQL"))
-				type = C2_MAILBOX_MYSQL;
-#endif
 			else
 			{
 				g_print ("Unsupported mailbox type: %s\n", argv[i]);
@@ -141,21 +137,13 @@ main (gint argc, gchar **argv)
 					pass = argv[++i];
 					c2_mailbox_new (name, id, type, sort_by, sort_type, server, port, user, pass);
 					break;
-				case C2_MAILBOX_MYSQL:
-					server = argv[++i];
-					port = atoi (argv[++i]);
-					db = argv[++i];
-					user = argv[++i];
-					pass = argv[++i];
-					c2_mailbox_new (name, id, type, sort_by, sort_type, server, port, db, user, pass);
-					break;
 			}
 		}
 	}
 
 	print_tree (c2_mailbox_get_head ());
 
-	c2_mailbox_remove (c2_mailbox_get_head ());
+	/*c2_mailbox_remove (c2_mailbox_get_head ());*/
 
 	print_tree (c2_mailbox_get_head ());
 

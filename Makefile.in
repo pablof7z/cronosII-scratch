@@ -132,7 +132,7 @@ l = @l@
 @USE_TEST_SUITE_TRUE@test_suite = test-suite
 @USE_TEST_SUITE_FALSE@test_suite = 
 
-SUBDIRS = intl po libcronosII $(test_suite) src macros images pixmaps doc man plugins xml
+SUBDIRS = intl po libcronosII src $(test_suite) macros images pixmaps doc man plugins xml
 
 bin_SCRIPTS = cronosII-config
 
@@ -176,7 +176,7 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = gtar
 GZIP_ENV = --best
-DIST_SUBDIRS =  intl po libcronosII test-suite src macros images pixmaps \
+DIST_SUBDIRS =  intl po libcronosII src test-suite macros images pixmaps \
 doc man plugins xml
 all: all-redirect
 .SUFFIXES:
