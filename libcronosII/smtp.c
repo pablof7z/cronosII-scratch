@@ -534,14 +534,6 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 				start = ptr + 1;
 			}
 		}
-		if(c2_net_send(smtp->sock, "\r\n") < 0)
-		{
-			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
-			smtp_disconnect(smtp);
-			if(mimeboundry) g_free(mimeboundry);
-			pthread_mutex_unlock(&smtp->lock);
-			return -1;
-		}
 		if(contents == message->header)
 		{
 			if(c2_smtp_send_message_mime_headers(smtp, message, &mimeboundry) < 0)
@@ -558,6 +550,15 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 			if(mimeboundry) g_free(mimeboundry);
 			break;
 		}
+		if(c2_net_send(smtp->sock, "\r\n") < 0)
+		{
+			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+			smtp_disconnect(smtp);
+			if(mimeboundry) g_free(mimeboundry);
+			pthread_mutex_unlock(&smtp->lock);
+			return -1;
+		}
+
 	}
 	
 	return 0;
@@ -594,13 +595,13 @@ c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2Message *message, gchar **boun
 										"enclosed. You should consider moving to another mail client or\r\n"
 										"upgrading to a higher version.\r\nFor further information and help"
 										"please see http://sourceforge.net/projects/cronosii/ and\r\n"
-										"feel free to ask for help on our online forums or email lists\r\n");
+										"feel free to ask for help on our online forums or email lists");
 	
 	msgheader = g_strdup("Content-Type: text/plain\r\n"
 											 "Content-Transfer-Encoding: 8bit\r\n"
-											 "Content-Disposition: inline\r\n");
+											 "Content-Disposition: inline");
 	
-	if(c2_net_send(smtp->sock, "%s%s\r\n%s\r\n%s\r\n", mimeinfo, *boundry, errmsg, 
+	if(c2_net_send(smtp->sock, "%s%s\r\n%s\r\n%s\r\n%s\r\n", mimeinfo, *boundry, errmsg, 
 		*boundry, msgheader) < 0)
 	{
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
@@ -655,7 +656,7 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundry)
 	if(!message->mime)
 		return 0;
 	
-	if(c2_net_send(smtp->sock, "%s\r\n", boundry))
+	if(c2_net_send(smtp->sock, "%s\r\n", boundry) < 0)
 	{
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 		smtp_disconnect(smtp);
@@ -666,13 +667,33 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundry)
 	for(mime = message->mime; mime; mime = mime->next)
 	{
 		if(c2_net_send(smtp->sock, "Content-Type: %s\r\nContent-Transfer-"
-									"Encoding: %s\r\nContent-Disposition: %s\r\n\r\n%s\r\n",
-									mime->type, mime->encoding, mime->disposition, boundry) < 0)
+									"Encoding: %s\r\nContent-Disposition: %s; filename=\"%s\"\r\n\r\n%s%s",
+									mime->type, mime->encoding, mime->disposition, mime->id, mime->part, boundry) < 0)
 		{
-			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+			c2_smtp_set_error(smtp, /*SOCK_WRITE_FAILED*/"Ass Failure");
 			smtp_disconnect(smtp);
 			pthread_mutex_unlock(&smtp->lock);
 			return -1;
+		}
+		if(!mime->next)
+		{
+			if(c2_net_send(smtp->sock, "--\r\n") < 0)
+		  {
+				c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+				smtp_disconnect(smtp);
+				pthread_mutex_unlock(&smtp->lock);
+				return -1;
+			}
+		}
+		else
+		{
+			if(c2_net_send(smtp->sock, "\r\n") < 0)
+		  {
+				c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+				smtp_disconnect(smtp);
+				pthread_mutex_unlock(&smtp->lock);
+				return -1;
+			}
 		}
 	}
 	
