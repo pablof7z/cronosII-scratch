@@ -1,3 +1,7 @@
+Mon Apr 15 Pablo Fernández <sandokan@pablossite.net>
+	* Removed the -Wstrict-protoypes so we don't get bombed
+	  when compiling with a buggy GTK+ version.
+
 Sat Apr 14 Bosko Blagojevic <falling at users dot sf dot net>
 	* Another segfault bug fix that glibc tolerated but
 	  libc did not :-D

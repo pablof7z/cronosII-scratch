@@ -419,7 +419,7 @@ AC_SUBST(GCONFLIBS)
 AC_SUBST(BONOBOLIBS)
 AC_SUBST(LIBS)
 if test "$debug" = "yes"; then
-	CFLAGS="$CFLAGS -Wparentheses -Wpointer-arith -Wnested-externs -Wimplicit-function-declaration -Wreturn-type -Wstrict-prototypes -Wuninitialized -Wunused"
+	CFLAGS="$CFLAGS -Wparentheses -Wpointer-arith -Wnested-externs -Wimplicit-function-declaration -Wreturn-type -Wuninitialized -Wunused"
 fi
 AC_SUBST(CFLAGS)
 AC_SUBST(FEATURES)
