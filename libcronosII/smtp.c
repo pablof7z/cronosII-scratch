@@ -25,17 +25,12 @@
 #include "utils-net.h"
 #include "i18n.h"
 
-/* NOTE: This module has not yet been tested.. AT ALL!
- * If you can, please write a test-module for it.
- * I guess I will do it eventually if noone else
- * wants to. --Bosko */
-
 /* hard-hat area, in progress by bosko */
 /* feel free to mess around -- help me get this module up to spec faster! */
 /* (done!) TODO: implement keep-alive smtp connection */
 /* (in progress) TODO: implement local sendmail capability */
 /* TODO: upgrade this module to use the C2 Net-Object */
-/* TODO: create a test-module */
+/* (in progress) TODO: create a test-module */
 /* TODO: implement BCC */
 /* TODO: implement sending of MIME attachments */
 
@@ -263,7 +258,7 @@ c2_smtp_connect (C2Smtp *smtp)
 	else if(smtp->sock && smtp->flags==C2_SMTP_DO_PERSIST)
 		return 0;
 	
-	if(c2_net_resolve(smtp->host, &ip) < 1)
+	if(c2_net_resolve(smtp->host, &ip) != 0)
 	{
 		c2_smtp_set_error(smtp, _("Unable to resolve SMTP server hostname"));
 		pthread_mutex_unlock(&smtp->lock);
@@ -560,7 +555,11 @@ get_mail_addresses (const gchar *string)
 	
 	for(i=0; i < strlen(string); i++) {
 		if(((string[i] == ';' || string[i] == ',') && i > 0) || i+1 == strlen(string)) {
-			g_list_append(list, str->str);
+			if(i+1 == strlen(string)) {
+				if(!str) str = g_string_new(NULL);
+				g_string_append_c(str, string[i]);
+			}
+			list = g_list_append(list, str->str);
 			g_string_free(str, FALSE);
 			str = NULL;
 			continue;
