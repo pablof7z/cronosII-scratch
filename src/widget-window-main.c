@@ -29,6 +29,7 @@
 #include "preferences.h"
 #include "widget-application-utils.h"
 #include "widget-composer.h"
+#include "widget-dialog-network-traffic.h"
 #include "widget-dialog-preferences.h"
 #include "widget-mailbox-list.h"
 #include "widget-mail.h"
@@ -147,6 +148,9 @@ on_menubar_view_headers_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_menubar_view_mail_source_activate		(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_view_network_traffic_activate	(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_menubar_message_reply_activate			(GtkWidget *widget, C2WindowMain *wmain);
@@ -736,6 +740,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_menubar_view_headers_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_mail_source")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_view_mail_source_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_network_traffic")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_view_network_traffic_activate), wmain);
 
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_reply")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_message_reply_activate), wmain);
@@ -1449,6 +1455,7 @@ on_application_window_changed (C2Application *application, GSList *list, C2Windo
 		GtkWidget *label;
 		GtkWidget *image;
 		const gchar *file = PKGDATADIR "/pixmaps/window.png";
+		gchar *tlabel;
 
 		hbox = gtk_hbox_new (FALSE, 4);
 		gtk_widget_show (hbox);
@@ -1466,10 +1473,21 @@ on_application_window_changed (C2Application *application, GSList *list, C2Windo
 		gtk_box_pack_start (GTK_BOX (hbox), image, FALSE, FALSE, 0);
 		gtk_widget_show (image);
 
-		label = gtk_label_new (GTK_WINDOW (l->data)->title);
+		if (strlen (((GtkWindow*)l->data)->title) > 40)
+		{
+			gchar *buf;
+
+			buf = g_strndup (((GtkWindow*)l->data)->title, 36);
+			tlabel = g_strdup_printf ("%s...", buf);
+			g_free (buf);
+		} else
+			tlabel = g_strdup (((GtkWindow*)l->data)->title);
+		
+		label = gtk_label_new (tlabel);
 		gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
 		gtk_widget_show (label);
 		gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+		g_free (tlabel);
 		
 		item = gtk_menu_item_new ();
 		gtk_container_add (GTK_CONTAINER (item), hbox);
@@ -1641,6 +1659,15 @@ on_menubar_view_mail_source_activate (GtkWidget *widget, C2WindowMain *wmain)
 		return;
 	
 	c2_application_dialog_mail_source (C2_WINDOW (wmain)->application, message);
+}
+
+static void
+on_menubar_view_network_traffic_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	GtkWidget *widget;
+
+	widget = c2_dialog_network_traffic_new (C2_WINDOW (wmain)->application);
+	gtk_widget_show (widget);
 }
 
 static void

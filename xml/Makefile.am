@@ -42,6 +42,7 @@ Pmap_DATA = \
 	save16.xpm		\
 	send.xpm		\
 	send-later.xpm	\
+	send-receive.xpm	\
 	send16.xpm		\
 	unread.xpm
 

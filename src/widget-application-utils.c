@@ -172,6 +172,18 @@ c2_application_dialog_add_features (C2Application *application)
 	gtk_object_destroy (GTK_OBJECT (xml));
 }
 
+void
+c2_application_dialog_network_traffic (C2Application *application)
+{
+	GladeXML *xml;
+	GtkWidget *widget;
+
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_network_traffic");
+
+	widget = glade_xml_get_widget (xml, "darea");
+
+}
+
 static void
 on_dialog_release_information_show_at_start_btn_toggled (GtkWidget *button)
 {

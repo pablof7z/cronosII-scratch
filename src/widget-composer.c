@@ -464,6 +464,10 @@ send_ (C2Composer *composer, C2ComposerSendType type)
 	if (!mailbox)
 		g_assert_not_reached ();
 
+	gdk_threads_enter ();
+	gtk_widget_hide (GTK_WIDGET (composer));
+	gdk_threads_leave ();
+
 	c2_db_freeze (mailbox);
 	if (!c2_db_message_add (mailbox, message))
 	{
@@ -475,7 +479,10 @@ send_ (C2Composer *composer, C2ComposerSendType type)
 	} else
 	{
 		c2_db_thaw (mailbox);
-		
+
+		gdk_threads_enter ();
+		gtk_widget_show (GTK_WIDGET (composer));
+		gdk_threads_leave ();
 		/* Make the send buttons sensitive again */
 	}
 }

@@ -37,6 +37,21 @@ c2_net_get_internal_cache					(void);
 static void
 c2_net_set_internal_cache					(C2Cache *cache);
 
+static void
+tracker_set_send							(gint bytes);
+
+static void
+tracker_set_recv							(gint bytes);
+
+static gint
+on_tracker_set_send_timeout					(gpointer data);
+
+static gint
+on_tracker_set_recv_timeout					(gpointer data);
+
+static gint internal_tracker_recv = 0, internal_tracker_send = 0,
+			internal_tracker_recv_bytes = -1, internal_tracker_send_bytes = -1;
+
 /**
  * c2_net_resolve
  * @hostname: Hostname to resolve (i.e. "google.com")
@@ -132,19 +147,39 @@ gint
 c2_net_send (guint sock, const gchar *fmt, ...)
 {
 	va_list args;
-	gchar *string;
-	gint value;
+	gint retval;
 	
 	c2_return_val_if_fail (fmt, -1, C2EDATA);
 
 	va_start (args, fmt);
-	string = g_strdup_vprintf (fmt, args);
+	retval = c2_net_sendv (sock, fmt, args);
 	va_end (args);
 	
-	if ((value = send (sock, string, strlen (string), 0)) < 0)
-		c2_error_set (-errno);
+	return retval;
+}
+
+gint
+c2_net_sendv (guint sock, const gchar *fmt, va_list args)
+{
+	gchar *ptr;
+	gchar *string;
+	gint value, bytes = 0, length, i;
+
+	string = g_strdup_vprintf (fmt, args);
+
+	length = strlen (string);
+
+	for (ptr = string, i = 0; i < length; ptr++, i++)
+	{
+		if ((value = send (sock, ptr, 1, 0)) < 0)
+			c2_error_set (-errno);
+		
+		tracker_set_send (value);
+		bytes += value;
+	}
 	g_free (string);
-	return value;
+	
+	return bytes;
 }
 
 /**
@@ -164,20 +199,23 @@ gint
 c2_net_read (guint sock, gchar **string)
 {
 	gchar tmpstring[1024];
-	gint bytes = 0, i;
+	gint bytes = 0, i, byte;
 	gchar c[1];
 	
 	for (i = 0; i < 1023; i++)
 	{
-		if ((bytes += read (sock, c, 1)) < 0)
+		if ((byte = read (sock, c, 1)) < 0)
 		{
 			c2_error_set (-errno);
 			return -1;
 		}
+		bytes += byte;
 		if (!bytes)
 		{
 			break;
 		}
+
+		tracker_set_recv (byte);
 
 		tmpstring[i] = *c;
 		if (*c == '\n')
@@ -187,7 +225,7 @@ c2_net_read (guint sock, gchar **string)
 		}
 	}
 	tmpstring[1023] = '\0';
-	
+
 	*string = g_strdup (tmpstring);
 	return bytes;
 }
@@ -302,4 +340,70 @@ static void
 c2_net_set_internal_cache (C2Cache *cache)
 {
 	internal_cache = cache;
+}
+
+static void
+tracker_set_send (gint bytes)
+{
+	if (internal_tracker_send_bytes < 0)
+	{
+		gtk_timeout_add (1000, on_tracker_set_send_timeout, NULL);
+		internal_tracker_send_bytes = 0;
+	}
+
+	internal_tracker_send_bytes += bytes;
+}
+
+static void
+tracker_set_recv (gint bytes)
+{
+	if (internal_tracker_recv_bytes < 0)
+	{
+		gtk_timeout_add (1000, on_tracker_set_recv_timeout, NULL);
+		internal_tracker_recv_bytes = 0;
+	}
+
+	internal_tracker_recv_bytes += bytes;
+}
+
+static gint
+on_tracker_set_send_timeout (gpointer data)
+{
+	gfloat x;
+	
+	internal_tracker_send = internal_tracker_send_bytes;
+	internal_tracker_send_bytes = 0;
+
+	x = internal_tracker_send/1024;
+
+	printf ("Send speed: (%d) %.2f Kb/s\n", internal_tracker_send, x);
+
+	return TRUE;
+}
+
+static gint
+on_tracker_set_recv_timeout (gpointer data)
+{
+	gfloat x;
+	
+	internal_tracker_recv = internal_tracker_recv_bytes;
+	internal_tracker_recv_bytes = 0;
+
+	x = internal_tracker_recv/1024;
+
+	printf ("Recv speed: (%d) %.2f Kb/s\n", internal_tracker_recv, x);
+
+	return TRUE;
+}
+
+gint
+c2_net_speed_tracker_recv (void)
+{
+	return internal_tracker_recv;
+}
+
+gint
+c2_net_speed_tracker_send (void)
+{
+	return internal_tracker_send;
 }

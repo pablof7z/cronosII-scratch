@@ -151,7 +151,7 @@ init (C2Application *application)
 	gint quantity = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL);
 	gint i;
 	gboolean load_mailboxes_at_start;
-	
+
 	application->open_windows = NULL;
 	application->tmp_files = NULL;
 	application->account = NULL;
@@ -504,6 +504,16 @@ void
 on_mailbox_changed_mailboxes (C2Mailbox *mailbox, C2Application *application)
 {
 	gtk_signal_emit (GTK_OBJECT (application), signals[RELOAD_MAILBOXES]);
+}
+
+/**
+ * This function works for the tracking of the network
+ * speed.
+ **/
+static void
+on_net_speed_timeout (C2Application *application)
+{
+	
 }
 
 static void

@@ -57,11 +57,23 @@ c2_net_printf								(guint sock, const gchar *fmt, ...);
 gint
 c2_net_read									(guint sock, gchar **string);
 
+gint
+c2_net_send									(guint sock, const gchar *fmt, ...);
+
+gint
+c2_net_sendv								(guint sock, const gchar *fmt, va_list args);
+
 void
 c2_net_disconnect							(guint sock);
 
 gchar *
 c2_net_get_local_hostname					(guint sock);
+
+gint
+c2_net_speed_tracker_recv					(void);
+
+gint
+c2_net_speed_tracker_send					(void);
 	
 #ifdef __cplusplus
 }

@@ -32,6 +32,9 @@ void
 c2_application_dialog_add_features			(C2Application *application);
 
 void
+c2_application_dialog_network_traffic		(C2Application *application);
+
+void
 c2_application_dialog_release_information	(C2Application *application);
 
 void

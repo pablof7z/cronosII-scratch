@@ -52,6 +52,7 @@ pixmap_DATA = \
 	save.png			\
 	send.png			\
 	send-receive.png	\
+	send-receive16.png	\
 	splash.png			\
 	reply-all.png		\
 	reply.png			\

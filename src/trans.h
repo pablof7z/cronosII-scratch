@@ -27,6 +27,7 @@ gchar *s = N_("_Mailboxes List");
 gchar *s = N_("Mail _Preview");
 gchar *s = N_("_Headers");
 gchar *s = N_("Mail _Source");
+gchar *s = N_("_Network Traffic");
 gchar *s = N_("_Mailbox");
 gchar *s = N_("_Speed Up...");
 gchar *s = N_("_Import...");

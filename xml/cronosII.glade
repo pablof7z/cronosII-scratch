@@ -447,6 +447,19 @@
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_ALIGN_JUSTIFY</stock_icon>
 	    </widget>
+
+	    <widget>
+	      <class>GtkPixmapMenuItem</class>
+	      <name>view_network_traffic</name>
+	      <accelerator>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
+		<key>GDK_T</key>
+		<signal>activate</signal>
+	      </accelerator>
+	      <label>_Network Traffic</label>
+	      <right_justify>False</right_justify>
+	      <icon>send-receive.xpm</icon>
+	    </widget>
 	  </widget>
 	</widget>
 
