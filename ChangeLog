@@ -1,6 +1,8 @@
 Thu Nov 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work in the composer in order to have replying working,
 	  not yet, but very close...
+	* Now it is working, it probably has a tiny count of bugs,
+	  but is working nice, and I just added support for Reply-To.
 
 Sun Nov 11 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed one more bug on the Preferences Dialog.

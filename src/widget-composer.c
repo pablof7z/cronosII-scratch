@@ -987,12 +987,12 @@ set_message_to (C2Composer *composer, C2Message *message)
 	GtkWidget *widget;
 	gchar *buf;
 	
-	/* To */
 	switch (composer->action)
 	{
 		case C2_COMPOSER_ACTION_REPLY:
 		case C2_COMPOSER_ACTION_REPLY_ALL:
-			buf = c2_message_get_header_field (message, "\nFrom:");
+			if (!(buf = c2_message_get_header_field (message, "\nReply-To:")))
+				buf = c2_message_get_header_field (message, "\nFrom:");
 			widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "to");
 			gtk_entry_set_text (GTK_ENTRY (widget), buf);
 			g_free (buf);
@@ -1130,44 +1130,122 @@ set_message_attachments (C2Composer *composer, C2Message *message)
 }
 
 static void
-set_message_body_internal (C2Composer *composer, const gchar *body)
+set_message_body_internal_freeze (C2Composer *composer)
 {
-	gint r, g, b;
-		
-	c2_preferences_get_interface_composer_quote_color (r, g, b);
 	c2_editor_freeze (C2_EDITOR (composer->editor));
+}
+
+static void
+set_message_body_external_freeze (C2Composer *composer)
+{
+	FILE *fd;
+	gchar *file;
+
+	file = c2_get_tmp_file ("c2-editor-XXXXXX");
+	if (!(fd = fopen (file, "w")))
+	{
+		c2_error_object_set (GTK_OBJECT (composer), -errno);
+		c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING,
+							_("Unable to open temporal file for writing to external editor: %s"),
+							c2_error_object_get (GTK_OBJECT (composer)));
+		return;
+	}
+
+	gtk_object_set_data (GTK_OBJECT (composer), "composer::fd", fd);
+}
+
+static void
+set_message_body_internal_append (C2Composer *composer, const gchar *body, gint r, gint g, gint b)
+{
 	c2_editor_append (C2_EDITOR (composer->editor), body, r, g, b);
+}
+
+static void
+set_message_body_external_append (C2Composer *composer, const gchar *body, gint r, gint g, gint b)
+{
+	FILE *fd;
+
+	fd = (FILE*) gtk_object_get_data (GTK_OBJECT (composer), "composer::fd");
+	if (fd)
+		fwrite (body, sizeof (gchar), strlen (body), fd);
+}
+
+static void
+set_message_body_internal_thaw (C2Composer *composer)
+{
 	c2_editor_thaw (C2_EDITOR (composer->editor));
 }
 
 static void
-set_message_body_external (C2Composer *composer, const gchar *body)
+set_message_body_external_thaw (C2Composer *composer)
 {
+	FILE *fd;
+
+	fd = (FILE*) gtk_object_get_data (GTK_OBJECT (composer), "composer::fd");
+	if (fd)
+		fclose (fd);
 }
 
-/* TODO
- * This is a good idea: We create three functions:
- * set_message_body_[in|en]ternal_freeze,
- * set_message_body_[in|en]ternal_write,
- * set_message_body_[in|en]ternal_thaw.
- *
- * Each of this functions does what it should do,
- * wheter freeze the editor or open a file
- * (gtk_object_set_data to remember the FD),
- * the other would append to the editor or
- * write to the file,
- * and the other would thaw the editor or close
- * the file.
- *
- * This way we avoid having to alloc so many buffers.
- */
 static void
 set_message_body (C2Composer *composer, C2Message *message)
 {
-	gchar *body = NULL;
-	gchar *ptr, *partbody;
+	gchar *ptr, *partbody, *buf;
+	gchar *quote_char = c2_preferences_get_interface_composer_quote_character ();
 	C2Mime *part;
+	gint r, g, b;
+	void (*freeze) (C2Composer *);
+	void (*append) (C2Composer *, const gchar *, gint, gint, gint);
+	void (*thaw) (C2Composer *);
 
+	if (composer->type == C2_COMPOSER_TYPE_INTERNAL)
+	{
+		freeze = set_message_body_internal_freeze;
+		append = set_message_body_internal_append;
+		thaw = set_message_body_internal_thaw;
+	} else
+	{
+		freeze = set_message_body_external_freeze;
+		append = set_message_body_external_append;
+		thaw = set_message_body_external_thaw;
+	}
+
+	freeze (composer);
+	c2_preferences_get_interface_composer_quote_color (r, g, b);
+
+	/* Ground Zero: Let's write an empty line where the
+	 * user might write something and then put the quote
+	 * line
+	 */
+	/* TODO Signature should be appended somewhere around here */
+	if (composer->action != C2_COMPOSER_ACTION_DRAFT)
+	{
+		struct tm *tm;
+		time_t date;
+		gchar tbuf[128];
+		gchar *date_fmt, *from;
+		
+		append (composer, "\n\n", 0, 0, 0);
+	
+		if (!(buf = c2_message_get_header_field (message, "\nDate:")))
+		{
+			date = c2_date_parse (buf);
+			g_free (buf);
+		} else
+			date = time (NULL);
+
+		date_fmt = c2_preferences_get_interface_misc_date ();
+		tm = localtime (&date);
+		strftime (tbuf, 128, date_fmt, tm);
+		g_free (date_fmt);
+
+		from = c2_message_get_header_field (message, "\nFrom:");
+
+		buf = g_strdup_printf (_("On %s, %s wrote:\n"), tbuf, from);
+		append (composer, buf, 0, 0, 0);
+		g_free (buf);
+		g_free (from);
+	}
+	
 	/* First learn which is the right body (HTML or PLAIN) */
 	/* We will use the HTML part of the message to reply
 	 * when the message has an HTML part and when the composer
@@ -1193,47 +1271,47 @@ set_message_body (C2Composer *composer, C2Message *message)
 	 */
 	if (part)
 	{
-		gchar *quote_char;
-		gchar *buf = c2_preferences_get_interface_composer_quote_character ();
+		gchar cbuf;
 		gboolean newline;
 
-		/* TODO This can get much better if we use a 
-		 * buffer and we flush it sometimes
-		 */
-		
 		partbody = c2_str_wrap (part->part, 75);
 		g_free (part->part);
 		part->part = NULL;
 
+		/* TODO I think this would be better
+		 * if it uses a buffer of some length, say 80,
+		 * and fills that buffer before appending.
+		 */
+
 		newline = TRUE;
-#if 0
-		for (ptr = partbody; *ptr != '\0'; ptr++)
+		for (ptr = partbody;; ptr++)
 		{
+			if (*ptr == '\0')
+				break;
+
 			/* If it is a new line we have to append the
 			 * quote character.
 			 */
 			if (newline)
 			{
-				
+				append (composer, quote_char, r, g, b);
 				newline = FALSE;
 			}
+
+			if (*ptr == '\n')
+				newline = TRUE;
+
+			cbuf = *(ptr+1);
+			*(ptr+1) = '\0';
+			append (composer, ptr, r, g, b);
+			*(ptr+1) = cbuf;
 		}
-#endif
-
-		quote_char = g_strdup_printf ("\n%s", buf);
-		body = c2_str_replace_all (partbody, "\n", quote_char);
 		g_free (partbody);
-
-		g_free (quote_char);
-		g_free (buf);
 	}
 
-	if (composer->type == C2_COMPOSER_TYPE_INTERNAL)
-		set_message_body_internal (composer, body);
-	else
-		set_message_body_external (composer, body);
+	g_free (quote_char);
 
-	g_free (body);
+	thaw (composer);
 }
 
 /**
