@@ -483,6 +483,14 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 	return 0;
 }
 
+static gint
+db_message_remove_sort (gconstpointer a, gconstpointer b)
+{
+	gint ga = GPOINTER_TO_INT (a), gb = GPOINTER_TO_INT (b);
+	
+	return ga > gb;
+}
+
 /**
  * c2_db_message_remove [VFUNCTION]
  * @mailbox: Mailbox where to act.
@@ -491,10 +499,41 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
  *
  * This function will remove a message
  * from the mailbox.
+ *
+ * Return Value:
+ * 0 on success, -1 on error.
  **/
-void
+gint
 c2_db_message_remove (C2Mailbox *mailbox, GList *list)
 {
+	gint first;
+	gint (*func) (C2Mailbox *mailbox, GList *list);
+	GList *sorted_list = NULL, *l;
+
+	/* Sort the list (< to >)  */
+	for (l = list; l; l = g_list_next (l))
+		sorted_list = g_list_insert_sorted (sorted_list, l->data, db_message_remove_sort);
+
+	first = GPOINTER_TO_INT (sorted_list->data);
+
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_message_remove;
+			break;
+		case C2_MAILBOX_IMAP:
+			func = c2_db_imap_message_remove;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_message_remove;
+			break;
+	}
+
+	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
+							C2_MAILBOX_CHANGE_REMOVE,
+							c2_db_get_node (mailbox, first ? first-1 : 0));
+
+	return func (mailbox, list);
 }
 #if 0
 	void (*func) (C2Mailbox *mailbox, C2Db *db, gint n);

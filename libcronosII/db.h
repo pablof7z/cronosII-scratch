@@ -121,7 +121,7 @@ c2_db_load									(C2Mailbox *mailbox);
 gint
 c2_db_message_add							(C2Mailbox *mailbox, C2Message *message);
 
-void
+gint
 c2_db_message_remove						(C2Mailbox *mailbox, GList *list);
 
 void

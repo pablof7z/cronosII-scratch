@@ -47,8 +47,8 @@ c2_db_cronosII_load							(C2Mailbox *mailbox);
 gboolean
 c2_db_cronosII_message_add					(C2Mailbox *mailbox, C2Db *db);
 
-void
-c2_db_cronosII_message_remove				(C2Mailbox *mailbox, C2Db *db, gint n);
+gint
+c2_db_cronosII_message_remove				(C2Mailbox *mailbox, GList *list);
 
 void
 c2_db_cronosII_message_set_state			(C2Db *db, C2MessageState state);

@@ -585,7 +585,7 @@ on_toolbar_delete_clicked (GtkWidget *widget, C2WindowMain *wmain)
 	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
 	GList *list;
 
-	list = GTK_CLIST (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "index"))->selection;
+	list = GTK_CLIST (wmain->index)->selection;
 
 	c2_db_message_remove (mailbox, list);
 }
@@ -624,6 +624,9 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 {
 	GladeXML *xml;
 	GtkWidget *widget;
+
+	if (g_list_length (GTK_CLIST (index)->selection) > 1)
+		return;
 	
 	if (!node->message)
 		c2_db_load_message (node);

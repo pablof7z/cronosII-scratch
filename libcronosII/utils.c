@@ -107,11 +107,15 @@ c2_strcaseeq (const gchar *fst, const gchar *snd)
 	{
 		if (*ptr[0] == '\0')
 		{
-			if (*ptr[1] == '\0') return TRUE;
-			else return FALSE;
+			if (*ptr[1] == '\0')
+				return TRUE;
+			else
+				return FALSE;
 		}
-		if (*ptr[1] == '\0') return FALSE;
-		if (*ptr[0] != *ptr[1]) return FALSE;
+		if (*ptr[1] == '\0')
+			return FALSE;
+		if (*ptr[0] != *ptr[1])
+			return FALSE;
 	}
 	return TRUE;
 }
@@ -142,13 +146,17 @@ c2_strncaseeq (const gchar *fst, const gchar *snd, gint length)
 	
 	for (ptr[0] = fst, ptr[1] = snd, i = 0; i < length; ptr[0]++, ptr[1]++, i++)
 	{
+		if (*ptr[0] != *ptr[1])
+			return FALSE;
 		if (*ptr[0] == '\0')
 		{
-			if (*ptr[1] == '\0') return TRUE;
-			else return FALSE;
+			if (*ptr[1] == '\0')
+				return TRUE;
+			else
+				return FALSE;
 		}
-		if (*ptr[1] == '\0') return FALSE;
-		if (*ptr[0] != *ptr[1]) return FALSE;
+		if (*ptr[1] == '\0')
+			return FALSE;
 	}
 	return TRUE;
 }
@@ -175,9 +183,12 @@ c2_streq (const gchar *fst, const gchar *snd)
 	gchar *_fst;
 	gchar *_snd;
 	
-	if (!fst && snd) return FALSE;
-	if (fst && !snd) return FALSE;
-	if (!fst && !snd) return TRUE;
+	if (!fst && snd)
+		return FALSE;
+	if (fst && !snd)
+		return FALSE;
+	if (!fst && !snd)
+		return TRUE;
 	_fst = g_strdup (fst);
 	g_strup (_fst);
 	_snd = g_strdup (snd);
@@ -185,13 +196,17 @@ c2_streq (const gchar *fst, const gchar *snd)
 	
 	for (ptr[0] = _fst, ptr[1] = _snd; ptr[0] || ptr[1]; ptr[0]++, ptr[1]++)
 	{
+		if (*ptr[0] != *ptr[1])
+			return FALSE;
 		if (*ptr[0] == '\0')
 		{
-			if (*ptr[1] == '\0') return TRUE;
-			else return FALSE;
+			if (*ptr[1] == '\0')
+				return TRUE;
+			else
+				return FALSE;
 		}
-		if (*ptr[1] == '\0') return FALSE;
-		if (*ptr[0] != *ptr[1]) return FALSE;
+		if (*ptr[1] == '\0')
+			return FALSE;
 	}
 	g_free (_fst);
 	g_free (_snd);
@@ -224,10 +239,14 @@ c2_strneq (const gchar *fst, const gchar *snd, gint length)
 	gchar *_snd;
 	gint i;
 	
-	if (!fst && snd) return FALSE;
-	if (fst && !snd) return FALSE;
-	if (!fst && !snd) return TRUE;
-	if (length < 1) return TRUE;
+	if (!fst && snd)
+		return FALSE;
+	if (fst && !snd)
+		return FALSE;
+	if (!fst && !snd)
+		return TRUE;
+	if (length < 1)
+		return TRUE;
 	
 	_fst = g_strdup (fst);
 	g_strup (_fst);
@@ -236,13 +255,17 @@ c2_strneq (const gchar *fst, const gchar *snd, gint length)
 	
 	for (ptr[0] = _fst, ptr[1] = _snd, i = 0; i < length; ptr[0]++, ptr[1]++, i++)
 	{
+		if (*ptr[1] == '\0')
+			return FALSE;
+		if (*ptr[0] != *ptr[1])
+			return FALSE;
 		if (*ptr[0] == '\0')
 		{
-			if (*ptr[1] == '\0') return TRUE;
-			else return FALSE;
+			if (*ptr[1] == '\0')
+				return TRUE;
+			else
+				return FALSE;
 		}
-		if (*ptr[1] == '\0') return FALSE;
-		if (*ptr[0] != *ptr[1]) return FALSE;
 	}
 	g_free (_fst);
 	g_free (_snd);
@@ -310,7 +333,8 @@ c2_str_replace_all (const gchar *or_string, const gchar *se_string, const gchar 
 	
 	for (ptr = C2_CHAR (or_string);;)
 	{
-		if (*ptr == '\0') break;
+		if (*ptr == '\0')
+			break;
 		if (c2_strneq (ptr, se_string, strlen (se_string)))
 		{
 			length += strlen (re_string);
@@ -327,7 +351,8 @@ c2_str_replace_all (const gchar *or_string, const gchar *se_string, const gchar 
 	
 	for (ptr = C2_CHAR (or_string), strptr = str;;)
 	{
-		if (*ptr == '\0') break;
+		if (*ptr == '\0')
+			break;
 		if (c2_strneq (ptr, se_string, strlen (se_string)))
 		{
 			strcpy (strptr, re_string);
@@ -531,11 +556,13 @@ c2_str_get_line (const gchar *str)
 	{
 		if (*strptr == '\0')
 		{
-			if (len == 0) return NULL;
+			if (len == 0)
+				return NULL;
 			break;
 		}
 		len++;
-		if (*strptr == '\n') break;
+		if (*strptr == '\n')
+			break;
 	}
 	
 	string = g_new0 (gchar, len+1);
@@ -543,11 +570,10 @@ c2_str_get_line (const gchar *str)
 	for (i=0, ptr = string, strptr = C2_CHAR (str); i <= len; i++, strptr++)
 	{
 		if (*strptr == '\0')
-		{
 			break;
-		}
 		*(ptr++) = *strptr;
-		if (*strptr == '\n') break;
+		if (*strptr == '\n')
+			break;
 	}
 	*ptr = '\0';
 	
@@ -569,36 +595,45 @@ c2_str_get_line (const gchar *str)
 gchar *
 c2_str_get_word (guint8 word_n, const gchar *str, gchar ch)
 {
-  guint8 Ai=0;
-  gchar *c = NULL;
-  gboolean record = FALSE;
-  gboolean quotes = FALSE;
-  GString *rtn;
- 
-  if (str == NULL) return NULL;
-  if (word_n == 0) record = TRUE;
-  rtn = g_string_new (NULL);
-  
-  for (c = C2_CHAR (str); *c != '\0'; c++)
-  {
-    if (*c == '"')
-	 {
-      if (quotes) quotes = FALSE;
-      else quotes = TRUE;
-      continue;
-    }
-    
-    if (record && *c == '"') break;
-    if (record && *c == ch && !quotes) break; /* If the word ends, break */
-    if (record) g_string_append_c (rtn, *c); /* Record this character */
-    if (*c == ch && !quotes) Ai++;
-    if (*c == ch && Ai == word_n && !quotes) record = TRUE;
-  }
-  
-  c = rtn->str;
-  g_string_free (rtn, FALSE);
-  
-  return c;
+	guint8 Ai=0;
+	gchar *c = NULL;
+	gboolean record = FALSE;
+	gboolean quotes = FALSE;
+	GString *rtn;
+	
+	if (str == NULL)
+		return NULL;
+	if (word_n == 0)
+		record = TRUE;
+	rtn = g_string_new (NULL);
+	
+	for (c = C2_CHAR (str); *c != '\0'; c++)
+	{
+		if (*c == '"')
+		{
+			if (quotes)
+				quotes = FALSE;
+			else
+				quotes = TRUE;
+			continue;
+		}
+			
+		if (record && *c == '"')
+			break;
+		if (record && *c == ch && !quotes)
+			break; /* If the word ends, break */
+		if (record)
+			g_string_append_c (rtn, *c); /* Record this character */
+		if (*c == ch && !quotes)
+			Ai++;
+		if (*c == ch && Ai == word_n && !quotes)
+			record = TRUE;
+	}
+	
+	c = rtn->str;
+	g_string_free (rtn, FALSE);
+	
+	return c;
 }
 
 /**
@@ -725,6 +760,64 @@ c2_get_file (const gchar *path, gchar **string)
  * Return Value:
  * The line read or NULL in case of error.
  **/
+#if 0
+gchar *
+c2_fd_get_line (FILE *fd)
+{
+	gchar buf[1024];
+	gchar byte;
+	gchar *retval = NULL, *ptr;
+	gint i;
+
+restart_loop:
+L	buf[0] = 0;
+L	for (i = 0; i<1024; i++)
+	{
+L		buf[i+1] = 0;
+L		
+L		if ((byte = fgetc (fd)) == EOF)
+		{
+L			fseek (fd, 0, SEEK_END);
+			break;
+		}
+		if (byte == '\n')
+			break;
+L
+L		buf[i] = byte;
+
+		if (i == 1023)
+		{
+L			if (retval)
+			{
+L				ptr = g_strconcat (retval, buf, NULL);
+L				g_free (retval);
+L				retval = ptr;
+			} else
+			{
+L				retval = g_strdup (buf);
+			}
+L			C2_DEBUG (retval);
+L			goto restart_loop;
+		}
+	}
+L
+L	if (retval)
+	{
+L		ptr = g_strconcat (retval, buf, NULL);
+L		g_free (retval);
+L		retval = ptr;
+L	} else
+	{
+L		retval = g_strdup (buf);
+	}
+	if (*retval == '\0')
+	{
+L		return NULL;
+	}
+
+L	return retval;
+}
+#else
 gchar *
 c2_fd_get_line (FILE *fd)
 {
@@ -768,6 +861,7 @@ c2_fd_get_line (FILE *fd)
 	
 	return str;
 }
+#endif
 
 /**
  * c2_fd_get_word

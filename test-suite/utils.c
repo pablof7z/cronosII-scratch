@@ -17,18 +17,20 @@
  */
 #include <libcronosII/utils.h>
 
-#define STRING "Pablo Ferná(ndez) Navarro <cronosII@users.sourceforge.net> (Yahoo!)"
-#define ENC1 '('
-#define ENC2 ')'
-
 gint
 main (gint argc, gchar **argv)
 {
 	gchar *string;
+	FILE *fd;
 
-	printf ("'%s', '%c', '%c' = \n", STRING, ENC1, ENC2);
-	string = c2_str_get_enclosed_text_backward (STRING, ENC1, ENC2, 0);
-	printf ("%s\n", string);
+	fd = fopen ("test-string.txt", "r");
 	
+L	for (;(string = c2_fd_get_line (fd)) != NULL;)
+	{
+L		printf ("%s\n", string);
+	}
+	fseek (fd, 0, SEEK_SET);
+L	fclose (fd);
+
 	return 0;
 }
