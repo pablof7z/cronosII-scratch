@@ -1,3 +1,8 @@
+Mon Oct 8 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Worked on foundation for the C2IMAP object.
+	* Fixed a few simple bugs in the new net-object.c
+	* Setup SMTP to use multiple connections at a time (not done).
+
 Mon Oct 08 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work in the Db module: Deletion is working, with some bugs.
 	* Work in the utils.
@@ -73,6 +78,10 @@ Tue Sep 25 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed all the sources in order to use the respective
 	  c2_error_[object_] function.
 	* Fixed a little bug in the New Mailbox dialog.
+
+Mon Sep 24 Bosko Blagojevic <bosko@users.sourceforge.net>
+	* C2SMTP is a full GtkObject object with signals now!
+	* C2SMTP seems to be stabling out.
 
 Mon Sep 24 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Added the rfc directory to the CVS.
