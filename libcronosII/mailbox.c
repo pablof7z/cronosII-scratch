@@ -817,26 +817,18 @@ c2_mailbox_get_by_name (C2Mailbox *head, const gchar *name)
 	
 	c2_return_val_if_fail (name, NULL, C2EDATA);
 
-	pthread_mutex_lock(&head->lock);
 	for (l = head ? head : c2_mailbox_get_head (); l != NULL; l = l->next)
 	{
 		if (c2_streq (l->name, name))
-		{
-			pthread_mutex_unlock(&head->lock);
 			return l;
-		}
 		if (l->child)
 		{
 			C2Mailbox *s;
 			if ((s = c2_mailbox_get_by_name (l->child, name)))
-			{
-				pthread_mutex_unlock(&head->lock);
 				return s;
-			}
 		}
 	}
 
-	pthread_mutex_unlock(&head->lock);
 	return NULL;
 }
 

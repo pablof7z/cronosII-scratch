@@ -1,3 +1,6 @@
+Tue Sep 04 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Transfer Item and Transfer List workaround, POP3 workaround.
+
 Mon Sep 03 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Implemented BCC: and EHLO for SMTP module
 	* Fixed some efficency bugs in SMTP module

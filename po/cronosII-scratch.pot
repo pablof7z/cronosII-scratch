@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-04 13:33-0300\n"
+"POT-Creation-Date: 2001-09-04 21:58-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,56 +70,56 @@ msgstr ""
 msgid "This message claims to be multipart but it seems to be broken."
 msgstr ""
 
-#: libcronosII/smtp.c:193
+#: libcronosII/smtp.c:194
 msgid "SMTP server did not respond to our sent messaage in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:211
+#: libcronosII/smtp.c:212
 msgid "System Error: Unable to write message to disk for local SMTP command"
 msgstr ""
 
-#: libcronosII/smtp.c:220
+#: libcronosII/smtp.c:221
 msgid "Internal C2 Error: Unable to fetch headers in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:244
+#: libcronosII/smtp.c:245
 msgid ""
 "Problem running local SMTP command to send messages -- Check SMTP settings"
 msgstr ""
 
-#: libcronosII/smtp.c:273
+#: libcronosII/smtp.c:274
 msgid "Unable to resolve SMTP server hostname"
 msgstr ""
 
-#: libcronosII/smtp.c:279
+#: libcronosII/smtp.c:280
 msgid "Unable to connect to SMTP server"
 msgstr ""
 
-#: libcronosII/smtp.c:294
+#: libcronosII/smtp.c:295
 msgid "SMTP server was not friendly on our connect! May not be RFC compliant"
 msgstr ""
 
-#: libcronosII/smtp.c:326
+#: libcronosII/smtp.c:327
 msgid "SMTP server did not respond to 'HELO/EHLO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:347
+#: libcronosII/smtp.c:348
 msgid "Internal C2 Error: Unable to fetch \"From:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:363
+#: libcronosII/smtp.c:364
 msgid "Internal C2 Error: Unable to fetch \"To:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:376
+#: libcronosII/smtp.c:377
 msgid "SMTP server did not reply to 'MAIL FROM:' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:418
+#: libcronosII/smtp.c:419
 msgid "SMTP server did not reply to 'DATA' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:640
+#: libcronosII/smtp.c:641
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
 msgstr ""
 
@@ -127,7 +127,7 @@ msgstr ""
 msgid "Bad syntaxes, quotes aren't closed.\n"
 msgstr ""
 
-#: src/c2-main-window.c:352 src/widget-window-main.c:826
+#: src/c2-main-window.c:352 src/widget-window-main.c:833
 msgid "Unable to create mailbox"
 msgstr ""
 

@@ -127,11 +127,12 @@ init (C2Application *application)
 	application->open_windows = NULL;
 	application->tmp_files = NULL;
 	application->account = NULL;
+	application->mailbox = NULL;
 
 	/* Load accounts */
 	for (i = 0;; i++)
 	{
-		tmp = g_strdup_printf ("/Cronos II/Account %d/", i);
+		tmp = g_strdup_printf ("/"PACKAGE"/Account %d/", i);
 		gnome_config_push_prefix (tmp);
 
 		if (!(account_name = gnome_config_get_string ("name")))

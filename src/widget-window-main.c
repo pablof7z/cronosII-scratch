@@ -687,6 +687,8 @@ c2_window_main_add_mailbox_dialog (C2WindowMain *wmain)
 	gtk_option_menu_set_menu (option_menu, menu);
 	gtk_option_menu_set_history (option_menu, 0);
 
+	gtk_widget_grab_focus (glade_xml_get_widget (xml, "name"));
+
 	gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (wmain));
 	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
 
@@ -708,16 +710,21 @@ re_run_add_mailbox_dialog:
 
 				name = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "name")));
 
+				if (!C2_WINDOW (wmain)->application)
+					L
+
+				C2_DEBUG (name);
+L
 				/* Check if the name is valid */
-				if (!name || !strlen (name) ||
+L				if (!name || !strlen (name) ||
 					c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox, name))
 				{
 					GladeXML *err_xml;
 					GtkWidget *err_dialog;
-					
+L					
 					err_xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_mailbox_err");
 					err_dialog = glade_xml_get_widget (err_xml, "dlg_mailbox_err");
-
+L
 					gtk_window_set_modal (GTK_WINDOW (err_dialog), TRUE);
 					gnome_dialog_run_and_close (GNOME_DIALOG (err_dialog));
 
@@ -745,7 +752,7 @@ re_run_add_mailbox_dialog:
 							type = C2_MAILBOX_IMAP;
 							host = gtk_entry_get_text (GTK_ENTRY (
 													glade_xml_get_widget (xml, "ehost")));
-							user = gtk_entry_get_text (GTK_ENTRY (
+L							user = gtk_entry_get_text (GTK_ENTRY (
 													glade_xml_get_widget (xml, "euser")));
 							pass = gtk_entry_get_text (GTK_ENTRY (
 													glade_xml_get_widget (xml, "epass")));
@@ -766,7 +773,7 @@ re_run_add_mailbox_dialog:
 															"dlg_mailbox_not_enough_data");
 								err_dialog = glade_xml_get_widget (err_xml, "dlg_mailbox_not_enough_data");
 								
-								gtk_window_set_modal (GTK_WINDOW (err_dialog), TRUE);
+L								gtk_window_set_modal (GTK_WINDOW (err_dialog), TRUE);
 								gnome_dialog_run_and_close (GNOME_DIALOG (err_dialog));
 								
 								gtk_object_destroy (GTK_OBJECT (err_xml));
@@ -775,7 +782,7 @@ re_run_add_mailbox_dialog:
 							}
 						} else if (c2_streq (query, MAILBOX_TYPE_SPOOL))
 						{
-							type = C2_MAILBOX_SPOOL;
+L							type = C2_MAILBOX_SPOOL;
 							path = gtk_entry_get_text (GTK_ENTRY (
 													gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (
 													glade_xml_get_widget (xml, "epath_spool")))));
@@ -791,7 +798,7 @@ re_run_add_mailbox_dialog:
 								
 								gtk_window_set_modal (GTK_WINDOW (err_dialog), TRUE);
 								gnome_dialog_run_and_close (GNOME_DIALOG (err_dialog));
-								
+L								
 								gtk_object_destroy (GTK_OBJECT (err_xml));
 								
 								goto re_run_add_mailbox_dialog;
@@ -802,11 +809,11 @@ re_run_add_mailbox_dialog:
 
 				/* Get parent mailbox */
 				parent = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
-
+L
 				switch (type)
 				{
 					case C2_MAILBOX_CRONOSII:
-						mailbox = c2_mailbox_new_with_parent (name, parent ? parent->id : NULL, type,
+L						mailbox = c2_mailbox_new_with_parent (name, parent ? parent->id : NULL, type,
 													C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING);
 						break;
 					case C2_MAILBOX_IMAP:
@@ -819,7 +826,7 @@ re_run_add_mailbox_dialog:
 													C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, path);
 						break;
 				}
-
+L
 				if (!mailbox)
 				{
 					c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
@@ -839,7 +846,7 @@ re_run_add_mailbox_dialog:
 					return;
 				}
 
-				if (C2_WINDOW (wmain)->application->advanced_load_mailboxes_at_start)
+L				if (C2_WINDOW (wmain)->application->advanced_load_mailboxes_at_start)
 					c2_mailbox_load_db (mailbox);
 
 				/* If this is the first mailbox we need
@@ -856,22 +863,22 @@ re_run_add_mailbox_dialog:
 					gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailboxes");
 				}
 				
-				config_id = gnome_config_get_int_with_default ("/Cronos II/Mailboxes/quantity=0", NULL)+1;
-				query = g_strdup_printf ("/Cronos II/Mailbox %d/", config_id);
+				config_id = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL)+1;
+				query = g_strdup_printf ("/"PACKAGE"/Mailbox %d/", config_id);
 				gnome_config_push_prefix (query);
 				
-				gnome_config_set_string ("name", mailbox->name);
+L				gnome_config_set_string ("name", mailbox->name);
 				gnome_config_set_string ("id", mailbox->id);
 				gnome_config_set_int ("type", mailbox->type);
 				gnome_config_set_int ("sort_by", mailbox->sort_by);
 				gnome_config_set_int ("sort_type", mailbox->sort_type);
 				
-				switch (mailbox->type)
+L				switch (mailbox->type)
 				{
 					case C2_MAILBOX_IMAP:
 						gnome_config_set_string ("host", mailbox->protocol.imap.host);
 						gnome_config_set_string ("user", mailbox->protocol.imap.user);
-						gnome_config_set_string ("pass", mailbox->protocol.imap.pass);
+L						gnome_config_set_string ("pass", mailbox->protocol.imap.pass);
 						gnome_config_set_string ("path", mailbox->protocol.imap.path);
 						gnome_config_set_int ("port", mailbox->protocol.imap.port);
 						break;
@@ -880,10 +887,10 @@ re_run_add_mailbox_dialog:
 						break;
 				}
 				gnome_config_pop_prefix ();
-				g_free (query);
+L				g_free (query);
 				
 				gnome_config_set_int ("/Cronos II/Mailboxes/quantity", config_id);
-				gnome_config_sync ();
+L				gnome_config_sync ();
 			}
 		case 2:
 			gtk_window_set_modal (GTK_WINDOW (dialog), FALSE);

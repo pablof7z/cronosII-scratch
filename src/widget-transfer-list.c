@@ -32,6 +32,9 @@ static void
 on_button0_clicked							(GtkWidget *widget, C2TransferList *tl);
 
 static void
+on_button1_clicked							(GtkWidget *widget, C2TransferList *tl);
+
+static void
 on_transfer_item_finish						(C2TransferItem *ti, C2TransferList *tl);
 
 enum
@@ -129,6 +132,7 @@ c2_transfer_list_new (C2Application *application)
 	c2_dialog_construct (C2_DIALOG (tl), application, _("Send & Receive"), buttons);
 
 	gnome_dialog_button_connect (GNOME_DIALOG (tl), 0, on_button0_clicked, tl);
+	gnome_dialog_button_connect (GNOME_DIALOG (tl), 1, on_button1_clicked, tl);
 
 	return GTK_WIDGET (tl);
 }
@@ -147,6 +151,12 @@ on_button0_clicked (GtkWidget *widget, C2TransferList *tl)
 
 		gtk_signal_emit_by_name (GTK_OBJECT (tl->cancel_button), "clicked");
 	}
+}
+
+static void
+on_button1_clicked (GtkWidget *widget, C2TransferList *tl)
+{
+	gtk_widget_hide (GTK_WIDGET (tl));
 }
 
 void
