@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-04 21:58-0300\n"
+"POT-Creation-Date: 2001-09-05 13:22-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,56 +70,60 @@ msgstr ""
 msgid "This message claims to be multipart but it seems to be broken."
 msgstr ""
 
-#: libcronosII/smtp.c:194
+#: libcronosII/smtp.c:197
 msgid "SMTP server did not respond to our sent messaage in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:212
+#: libcronosII/smtp.c:215
 msgid "System Error: Unable to write message to disk for local SMTP command"
 msgstr ""
 
-#: libcronosII/smtp.c:221
+#: libcronosII/smtp.c:224
 msgid "Internal C2 Error: Unable to fetch headers in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:245
+#: libcronosII/smtp.c:248
 msgid ""
 "Problem running local SMTP command to send messages -- Check SMTP settings"
 msgstr ""
 
-#: libcronosII/smtp.c:274
+#: libcronosII/smtp.c:277
 msgid "Unable to resolve SMTP server hostname"
 msgstr ""
 
-#: libcronosII/smtp.c:280
+#: libcronosII/smtp.c:283
 msgid "Unable to connect to SMTP server"
 msgstr ""
 
-#: libcronosII/smtp.c:295
+#: libcronosII/smtp.c:298
 msgid "SMTP server was not friendly on our connect! May not be RFC compliant"
 msgstr ""
 
-#: libcronosII/smtp.c:327
-msgid "SMTP server did not respond to 'HELO/EHLO in a friendly way"
+#: libcronosII/smtp.c:360
+msgid "SMTP server did not respond to 'EHLO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:348
+#: libcronosII/smtp.c:389
+msgid "SMTP server did not respond to HELO in a friendly way"
+msgstr ""
+
+#: libcronosII/smtp.c:412
 msgid "Internal C2 Error: Unable to fetch \"From:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:364
+#: libcronosII/smtp.c:428
 msgid "Internal C2 Error: Unable to fetch \"To:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:377
+#: libcronosII/smtp.c:441
 msgid "SMTP server did not reply to 'MAIL FROM:' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:419
+#: libcronosII/smtp.c:483
 msgid "SMTP server did not reply to 'DATA' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:641
+#: libcronosII/smtp.c:707
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
 msgstr ""
 

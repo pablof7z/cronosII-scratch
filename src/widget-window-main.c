@@ -889,7 +889,7 @@ L						gnome_config_set_string ("pass", mailbox->protocol.imap.pass);
 				gnome_config_pop_prefix ();
 L				g_free (query);
 				
-				gnome_config_set_int ("/Cronos II/Mailboxes/quantity", config_id);
+				gnome_config_set_int ("/"PACKAGE"/Mailboxes/quantity", config_id);
 L				gnome_config_sync ();
 			}
 		case 2:

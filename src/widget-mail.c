@@ -70,7 +70,7 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 				string = mime->part;
 			break;
 		case C2_DEFAULT_MIME_HTML:
-			if (!(mime = c2_mime_get_part_by_content_type (message->mime, "text/htm")))
+			if (!(mime = c2_mime_get_part_by_content_type (message->mime, "text/html")))
 			{
 				if ((mime = c2_mime_get_part_by_content_type (message->mime, "text/plain")))
 					string = mime->part;

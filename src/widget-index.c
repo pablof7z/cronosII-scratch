@@ -324,45 +324,46 @@ c2_index_add_mailbox (C2Index *index, C2Mailbox *mbox)
 	db = mbox->db;
 
 	gtk_clist_freeze (clist);
-	do
+	if (db)
 	{
-		struct tm *tm;
-		gchar *row[] = {
-			NULL, NULL, NULL, db->subject, db->from, NULL, db->account, g_strdup_printf ("%d", db->position)
-		};
-		
-		gchar *tmp = g_strdup_printf ("%d", db->mid);
-		gchar *info[] = {
-			NULL, NULL, NULL, db->subject, db->from, NULL,
-			db->account, tmp
-		};
-		tm = localtime (&db->date);
-		row[5] = g_new (gchar, 128);
-		strftime (row[5], 128, application->interface_date_fmt, tm);
-
-		gtk_clist_append (clist, row);
-
-		/* Set the state */
-		switch (db->state)
+		do
 		{
-			case C2_MESSAGE_READED:
-				gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_read, application->mask_read);
-				break;
-			case C2_MESSAGE_UNREADED:
-				gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_unread, application->mask_unread);
-				break;
-			case C2_MESSAGE_FORWARDED:
-				gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_forward, application->mask_forward);
-				break;
-			case C2_MESSAGE_REPLIED:
-				gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_reply, application->mask_reply);
-				break;
-			default:
-				gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_read, application->mask_read);
-		}
-
-		gtk_clist_set_row_data (clist, clist->rows-1, db);
-	} while (c2_db_lineal_next (db));
+			struct tm *tm;
+			gchar *row[] = {
+				NULL, NULL, NULL, db->subject, db->from, NULL, db->account, g_strdup_printf ("%d", db->position)
+			};
+			gchar *tmp = g_strdup_printf ("%d", db->mid);
+			gchar *info[] = {
+				NULL, NULL, NULL, db->subject, db->from, NULL, db->account, tmp
+			};
+			tm = localtime (&db->date);
+			row[5] = g_new (gchar, 128);
+			strftime (row[5], 128, application->interface_date_fmt, tm);
+			
+			gtk_clist_append (clist, row);
+			
+			/* Set the state */
+			switch (db->state)
+			{
+				case C2_MESSAGE_READED:
+					gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_read, application->mask_read);
+					break;
+				case C2_MESSAGE_UNREADED:
+					gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_unread, application->mask_unread);
+					break;
+				case C2_MESSAGE_FORWARDED:
+					gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_forward, application->mask_forward);
+					break;
+				case C2_MESSAGE_REPLIED:
+					gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_reply, application->mask_reply);
+					break;
+				default:
+					gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_read, application->mask_read);
+			}
+			
+			gtk_clist_set_row_data (clist, clist->rows-1, db);
+		} while (c2_db_lineal_next (db));
+	}
 	
 	gtk_clist_thaw (clist);
 	index->mbox = mbox;

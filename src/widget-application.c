@@ -334,7 +334,7 @@ init (C2Application *application)
 		GtkSortType sort_type;
 		gchar *host, *user, *pass, *path;
 		gint port;
-		gchar *query = g_strdup_printf ("/Cronos II/Mailbox %d/", i);
+		gchar *query = g_strdup_printf ("/"PACKAGE"/Mailbox %d/", i);
 		C2Mailbox *mailbox;
 		
 		gnome_config_push_prefix (query);

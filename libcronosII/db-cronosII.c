@@ -90,6 +90,15 @@ c2_db_cronosII_remove_structure (C2Mailbox *mailbox)
 	return TRUE;
 }
 
+/**
+ * c2_db_cronosII_load
+ * @mailbox: Mailbox to load.
+ *
+ * Will load the Cronos II Mailbox.
+ *
+ * Return Value:
+ * Number of loaded messages or -1 in case of error.
+ **/
 gint
 c2_db_cronosII_load (C2Mailbox *mailbox)
 {
@@ -114,7 +123,7 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 		return -1;
 	}
 
-	for (i = 0; (line = c2_fd_get_line (fd)) != NULL; i++)
+	for (i = 0; (line = c2_fd_get_line (fd)) != NULL;)
 	{
 		if (*line == '?')
 		{
@@ -159,9 +168,10 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 		current = next;
 
 		g_free (line);
+		i++;
 	}
 
-	return 0;	
+	return i;
 }
 
 void

@@ -285,8 +285,6 @@ _c2_mailbox_new (const gchar *name, const gchar *id, gboolean independent, C2Mai
 	if (independent)
 			gtk_signal_emit (GTK_OBJECT (mailbox_head),
 							c2_mailbox_signals[CHANGED_MAILBOXES]);
-
-	pthread_mutex_unlock(&mailbox->lock);
 	
 	return mailbox;
 }
@@ -582,8 +580,6 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 	C2Mailbox *l;
 	gint i;
 
-	pthread_mutex_lock(&head->lock);
-	
 	if (!head)
 	{
 		/* TOPLEVEL */
@@ -605,8 +601,6 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 				c2_mailbox_recreate_tree_ids (l);
 		}
 	}
-	
-	pthread_mutex_unlock(&head->lock);
 }
 
 static C2Mailbox *
@@ -621,8 +615,6 @@ _c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id, guint level)
 	c2_return_val_if_fail (head, NULL, C2EDATA);
 	c2_return_val_if_fail (id, NULL, C2EDATA);
 
-	pthread_mutex_lock(&head->lock);
-	
 	top_id = c2_mailbox_get_id (id, level);
 
 	for (l = head; l != NULL; l = l->next)
@@ -632,18 +624,15 @@ _c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id, guint level)
 		{
 			if (c2_mailbox_get_level (id)-level == 0)
 			{
-				pthread_mutex_unlock(&head->lock);
 				return l;
 			}
 			else
 			{
-				pthread_mutex_unlock(&head->lock);
 				return _c2_mailbox_search_by_id (l->child, id, level+1);
 			}
 		}
 	}
 
-	pthread_mutex_unlock(&head->lock);
 	return l;
 }
 
@@ -652,8 +641,6 @@ c2_mailbox_create_id_from_parent (C2Mailbox *parent)
 {
 	C2Mailbox *l;
 	gchar *id;
-	
-	pthread_mutex_lock(&parent->lock);
 	
 	if (!parent)
 	{
@@ -671,7 +658,6 @@ c2_mailbox_create_id_from_parent (C2Mailbox *parent)
 			id = g_strdup_printf ("%s-0", parent->id);
 	}
 
-	pthread_mutex_unlock(&parent->lock);
 	return id;
 }
 
@@ -694,7 +680,8 @@ c2_mailbox_get_level (const gchar *id)
 
 	c2_return_val_if_fail (id, -1, C2EDATA);
 
-	for (i = 1, ptr = id; (ptr = strstr (ptr, "-")); i++) ptr++;
+	for (i = 1, ptr = id; (ptr = strstr (ptr, "-")); i++)
+		ptr++;
 
 	return i;
 }
@@ -857,7 +844,7 @@ c2_mailbox_load_db (C2Mailbox *mailbox)
 	}
 
 	/* We must load the db */
-	if (!c2_db_load (mailbox))
+	if (c2_db_load (mailbox) < 0)
 	{
 		gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], FALSE);
 		return FALSE;
