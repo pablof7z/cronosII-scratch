@@ -91,8 +91,7 @@ class_init (C2TransferListClass *klass)
 static void
 init (C2TransferList *tl)
 {
-	tl->receive_list = NULL;
-	tl->send_list = NULL;
+	tl->list = NULL; 
 }
 
 GtkWidget *
@@ -118,24 +117,9 @@ c2_transfer_list_new (C2Application *application)
 	table = gtk_table_new (1, 4, FALSE);
 	gtk_box_pack_start (GTK_BOX (vbox), table, TRUE, TRUE, 0);
 	gtk_widget_show (table);
-	gtk_table_set_col_spacings (GTK_TABLE (table), 2);
-	gtk_table_set_row_spacings (GTK_TABLE (table), 2);
-	tl->receive_table = GTK_TABLE (table);
-
-	button = gtk_hseparator_new ();
-	gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-	gtk_widget_show (button);
-
-	table = gtk_table_new (1, 4, FALSE);
-	gtk_box_pack_start (GTK_BOX (vbox), table, TRUE, TRUE, 4);
-	gtk_widget_show (table);
 	gtk_table_set_col_spacings (GTK_TABLE (table), 4);
 	gtk_table_set_row_spacings (GTK_TABLE (table), 4);
-	tl->send_table = GTK_TABLE (table);
-
-	button = gtk_hseparator_new ();
-	gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 4);
-	gtk_widget_show (button);
+	tl->table = table;
 	
 	button = gtk_check_button_new_with_label (_("Close when finished."));
 	gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, TRUE, 0);
@@ -150,20 +134,12 @@ void
 c2_transfer_list_add_item (C2TransferList *tl, C2TransferItem *ti)
 {
 	GtkWidget *c1, *c2, *c3, *c4, *hsep;
-	GtkTable *table;
+	GtkTable *table = GTK_TABLE (tl->table);
 	gint rows, cols;
 	
 	c2_return_if_fail (C2_IS_TRANSFER_ITEM (ti), C2EDATA);
 	
-	if (ti->type == C2_TRANSFER_ITEM_RECEIVE)
-	{
-		tl->receive_list = g_slist_append (tl->receive_list, ti);
-		table = GTK_TABLE (tl->receive_list);
-	} else
-	{
-		tl->send_list = g_slist_append (tl->send_list, ti);
-		table = GTK_TABLE (tl->send_list);
-	}
+	tl->list = g_slist_append (tl->list, ti);
 
 	c1 = ti->c1;
 	c2 = ti->c2;

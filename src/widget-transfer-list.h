@@ -43,11 +43,9 @@ struct _C2TransferList
 {
 	C2Dialog dialog;
 
-	GtkTable *receive_table;
-	GtkTable *send_table;
+	GtkWidget *table;
 
-	GSList *receive_list;
-	GSList *send_list;
+	GSList *list;
 };
 
 struct _C2TransferListClass
