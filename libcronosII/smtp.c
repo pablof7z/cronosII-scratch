@@ -34,13 +34,19 @@
 /* (done!) TODO: implement BCC */
 /* TODO: implement sending of MIME attachments */
 /* TODO: implement authentication (posted by pablo) */
-/* TODO: implement EHLO */
+/* (done!) TODO: implement EHLO */
 
 static gint
 c2_smtp_connect (C2SMTP *smtp);
 
 static gint
+c2_smtp_send_helo (C2SMTP *smtp, gboolean esmtp);
+
+static gint
 c2_smtp_send_headers (C2SMTP *smtp, C2Message *message);
+
+static gint
+c2_smtp_send_rcpt (C2SMTP *smtp, gchar *to);
 
 static gint
 c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message);
@@ -53,9 +59,6 @@ smtp_test_connection(C2SMTP *smtp);
 
 static void
 smtp_disconnect(C2SMTP *smtp);
-
-static gint
-c2_smtp_send_rcpt (C2SMTP *smtp, gchar *to);
 
 static void
 c2_smtp_set_error(C2SMTP *smtp, const gchar *error);
@@ -298,42 +301,103 @@ c2_smtp_connect (C2SMTP *smtp)
 		pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
-	g_free(buffer);
 	
-	/* TODO: implement EHLO */
+	if(strstr(buffer, "ESMTP") == NULL)
+	{
+		g_free(buffer);
+		if(c2_smtp_send_helo(smtp, FALSE) < 0)
+			 return -1;
+	}
+	else
+	{
+		g_free(buffer);
+		if(c2_smtp_send_helo(smtp, TRUE) < 0)
+			return -1;
+	}
+	
+	return 0;
+}
+
+static gint
+c2_smtp_send_helo (C2SMTP *smtp, gboolean esmtp)
+{
+	gchar *hostname, *buffer = NULL;
+	
 	/* hostname = c2_net_get_local_hostname(smtp->sock); */ /* temp */
 	hostname = g_strdup("localhost.localdomain");
 	if(!hostname)
 		hostname = g_strdup("localhost.localdomain");
-	if(c2_net_send(smtp->sock, "HELO %s\r\n", hostname) < 0)
+	
+	if(esmtp)
 	{
-		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+		if(c2_net_send(smtp->sock, "EHLO %s\r\n", hostname) < 0)
+		{
+			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+			g_free(hostname);
+			smtp_disconnect(smtp);
+			pthread_mutex_unlock(&smtp->lock);
+			return -1;
+		}
 		g_free(hostname);
-		smtp_disconnect(smtp);
-		pthread_mutex_unlock(&smtp->lock);
-		return -1;
-	}
-	g_free(hostname);
-	if(c2_net_read(smtp->sock, &buffer) < 0)
-	{
-		c2_smtp_set_error(smtp, SOCK_READ_FAILED);
-		smtp_disconnect(smtp);
-		pthread_mutex_unlock(&smtp->lock);
-		return -1;
-	}
-	if(!c2_strneq(buffer, "250", 3))
-	{
-		c2_smtp_set_error(smtp, 
-											_("SMTP server did not respond to 'HELO/EHLO in a friendly way"));
+		do 
+		{
+			/* Put whatever code in here to mark certain special
+			 * ESMTP extensions as working if c2 smtp module
+			 * uses them and EHLO reports them */
+			if(buffer) g_free(buffer);
+			if(c2_net_read(smtp->sock, &buffer) < 0)
+			{
+				c2_smtp_set_error(smtp, SOCK_READ_FAILED);
+				smtp_disconnect(smtp);
+				pthread_mutex_unlock(&smtp->lock);
+				return -1;
+			}
+		}
+		while(c2_strneq(buffer+3, "-", 1));
+		if(!c2_strneq(buffer, "250", 3))
+		{
+			c2_smtp_set_error(smtp, 
+												_("SMTP server did not respond to 'EHLO in a friendly way"));
+			g_free(buffer);
+			smtp_disconnect(smtp);
+			pthread_mutex_unlock(&smtp->lock);
+			return -1;
+		}
 		g_free(buffer);
-		smtp_disconnect(smtp);
-		pthread_mutex_unlock(&smtp->lock);
-		return -1;
 	}
-	g_free(buffer);
+	else
+	{
+		if(c2_net_send(smtp->sock, "HELO %s\r\n", hostname) < 0)
+		{
+			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+			g_free(hostname);
+			smtp_disconnect(smtp);
+			pthread_mutex_unlock(&smtp->lock);
+			return -1;
+		}
+		g_free(hostname);
+		if(c2_net_read(smtp->sock, &buffer) < 0)
+		{
+			c2_smtp_set_error(smtp, SOCK_READ_FAILED);
+			smtp_disconnect(smtp);
+			pthread_mutex_unlock(&smtp->lock);
+			return -1;
+		}
+		if(!c2_strneq(buffer, "250", 3))
+		{
+			c2_smtp_set_error(smtp,
+												_("SMTP server did not respond to HELO in a friendly way"));
+			g_free(buffer);
+			smtp_disconnect(smtp);
+			pthread_mutex_unlock(&smtp->lock);
+			return -1;
+		}
+		g_free(buffer);
+	}
 	
 	return 0;
 }
+
 
 static gint
 c2_smtp_send_headers(C2SMTP *smtp, C2Message *message)
@@ -448,8 +512,9 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 					continue;
 				}
 			}
-			if(*ptr == '\n')
+			if(*ptr == '\n' || *(ptr+1) == '\0')
 			{
+				if(*(ptr+1) == '\0') ptr++;
 				buf = g_strndup(start, ptr - start);
 				if(c2_net_send(smtp->sock, "%s\r\n", buf) < 0)
 				{
@@ -460,6 +525,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 					return -1;
 				}
 				g_free(buf);
+				if(*ptr == '\0') ptr--;
 				start = ptr + 1;
 			}
 		}
