@@ -5,6 +5,10 @@ Mon Oct 15 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	  time and/or lost interest in the project.
 	* Prepared the widget Transfer Item to send messages.
 	* Found a bug in the SMTP module: reported.
+	* New functions: c2_str_get_email, c2_str_get_emails and
+	  c2_str_are_email.
+	* Fixed a bug in c2_str_is_email that produced a SegFault.
+	* Fixed bug utils.c::011014.
 
 Mon Oct 15 Peter William Gossner <gossner@arcom.com.au>
 	* Added a few new file to further "modularise" the manual.

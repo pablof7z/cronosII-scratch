@@ -26,9 +26,9 @@
 #include "utils.h"
 
 /* [TODO]
- * 011014 There's a bug in c2_str_is_email, it
- *        won't detect as mail the format "name" <email>
- *        or <email>.
+ * [DONE] 011014 There's a bug in c2_str_is_email, it
+ *               won't detect as mail the format "name" <email>
+ *               or <email>.
  */
 
 /**
@@ -736,6 +736,107 @@ c2_str_wrap (const gchar *str, guint8 position)
 #undef FLUSH
 
 /**
+ * c2_str_get_emails
+ * @string: String to process.
+ *
+ * This function will look for several
+ * email addresses in the formats supported
+ * by c2_str_get_email, using ',[ ]' or ';[ ]'
+ * as separators.
+ * Read the comments for c2_str_get_email for more.
+ *
+ * Return Value:
+ * A GList containing the different emails or %NULL.
+ **/
+GList *
+c2_str_get_emails (const gchar *string)
+{
+	GList *emails = NULL;
+	gchar *ptr;
+	gchar *copy, *buf;
+
+	copy = g_strdup (string);
+	
+	for (ptr = copy; (ptr = strtok (ptr, ",;")); ptr = NULL)
+	{
+		buf = c2_str_get_email (ptr);
+		emails = g_list_append (emails, buf);
+	}
+
+	g_free (copy);
+
+	return emails;
+}
+
+/**
+ * c2_str_get_email
+ * @string: String to process.
+ *
+ * This function searches for a
+ * what might be an email address.
+ * Note that this function will not
+ * evaluate if the result is or is not
+ * an e-mail address, it will just determine
+ * it for common practices when writing an
+ * email address.
+ *
+ * This function supports the following formats:
+ * 1. [["]Name["]] <email> [Something]
+ * 2. email
+ * 
+ * Return Value:
+ * The email address found or %NULL.
+ **/
+gchar *
+c2_str_get_email (const gchar *string)
+{
+	const gchar *ptr, *start = NULL, *end = NULL;
+	gchar *email = NULL;
+	gint length;
+
+	if (!(length = strlen (string)))
+		return NULL;
+
+	/* Look for format [["]Name["]] <email> [Something] */
+	for (ptr = string+length; *ptr != *string; ptr--)
+	{
+		if (!end)
+		{
+			if (*ptr == '>')
+				end = ptr;
+		} else
+		{
+			if (*ptr == '<')
+				start = ptr;
+		}
+	}
+
+	if (start && end)
+	{
+		email = g_strndup (start+1, end-start-1);
+		goto finish;
+	} else
+	{
+		/* If we don't have the complete information
+		 * reset the values.
+		 */
+		start = NULL;
+		end = NULL;
+	}
+
+	/* Look for the format email */
+	for (ptr = string; *ptr != '\0'; ptr++)
+		if (*ptr != ' ')
+			break;
+	if (ptr)
+		email = g_strdup (ptr);
+	goto finish;
+
+finish:
+	return email;
+}
+
+/**
  * c2_str_is_email
  * @email: String to evaluate.
  *
@@ -757,7 +858,7 @@ c2_str_is_email (const gchar *email)
 	if (!length)
 		return FALSE;
 
-	for (ptr = email; ptr; ptr++)
+	for (ptr = email; *ptr != '\0'; ptr++)
 		if (*ptr == '@')
 			goto passed1;
 	
@@ -784,6 +885,35 @@ passed1:
 
 	return FALSE;
 }
+
+/**
+ * c2_str_are_emails
+ * @list: List of email addresses to check.
+ *
+ * This function checks if all emails in @list
+ * are valid email address.
+ * Read c2_str_is_email for more.
+ *
+ * Return Value:
+ * %TRUE if all emails are valid or %FALSE.
+ **/
+gboolean
+c2_str_are_emails (GList *list)
+{
+	GList *l;
+
+	if (!list)
+		return FALSE;
+
+	for (l = list; l; l = g_list_next (l))
+	{
+		if (!c2_str_is_email ((gchar*) l->data))
+			return FALSE;
+	}
+	
+	return TRUE;
+}
+
 /**
  * c2_get_tmp_file
  * @template: Template to use for the file name, %NULL if

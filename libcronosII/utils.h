@@ -32,15 +32,15 @@ extern "C" {
 #	include <cronosII.h>
 #endif
 
-#define C2_HOME									/*$HOME*/ G_DIR_SEPARATOR_S ".c2" G_DIR_SEPARATOR_S
+#define C2_HOME								/*$HOME*/ G_DIR_SEPARATOR_S ".c2" G_DIR_SEPARATOR_S
 
-#define C2_CHAR(x)								((gchar*)x)
+#define C2_CHAR(x)							((gchar*)x)
 
-#define c2_strne(x,y)							(!(c2_streq (x, y)))
-#define c2_strnne(x,y,z)						(!(c2_strneq (x, y, z)))
+#define c2_strne(x,y)						(!(c2_streq (x, y)))
+#define c2_strnne(x,y,z)					(!(c2_strneq (x, y, z)))
 
-typedef void *(*PthreadFunc)					(void*);
-#define C2_PTHREAD_FUNC(x)						((PthreadFunc)x)
+typedef void *(*C2PthreadFunc)				(void*);
+#define C2_PTHREAD_FUNC(x)					((C2PthreadFunc)x)
 
 typedef struct
 {
@@ -58,53 +58,53 @@ typedef struct
 } C2Pthread4;
 
 #ifdef USE_DEBUG
-#	define L									g_print ("%s:%d:%s\n", __FILE__, __LINE__, \
-														__PRETTY_FUNCTION__);
-#	define C2_DEBUG(x)							g_print ("%s:%d:%s:%s: %s\n", __FILE__, __LINE__,\
-														__PRETTY_FUNCTION__, #x, x)
-#	define C2_DEBUG_(x)							{ x }
+#	define L								g_print ("%s:%d:%s\n", __FILE__, __LINE__, \
+													__PRETTY_FUNCTION__);
+#	define C2_DEBUG(x)						g_print ("%s:%d:%s:%s: %s\n", __FILE__, __LINE__,\
+													__PRETTY_FUNCTION__, #x, x)
+#	define C2_DEBUG_(x)						{ x }
 #else
-#	define L									;
-#	define C2_DEBUG(x)							;
-#	define C2_DEBUG_(x)							;
+#	define L								;
+#	define C2_DEBUG(x)						;
+#	define C2_DEBUG_(x)						;
 #endif
 
 gint
-c2_mutex_init (pthread_mutex_t *mutex);
+c2_mutex_init								(pthread_mutex_t *mutex);
 	
 gint
-c2_mutex_lock (pthread_mutex_t *mutex);
+c2_mutex_lock								(pthread_mutex_t *mutex);
 	
 gint
-c2_mutex_trylock (pthread_mutex_t *mutex);
+c2_mutex_trylock							(pthread_mutex_t *mutex);
 	
 gint
-c2_mutex_unlock (pthread_mutex_t *mutex);
+c2_mutex_unlock								(pthread_mutex_t *mutex);
 
 gint
-c2_mutex_destroy (pthread_mutex_t *mutex);
+c2_mutex_destroy							(pthread_mutex_t *mutex);
 	
 gboolean
-c2_strcaseeq									(const gchar *fst, const gchar *snd);
+c2_strcaseeq								(const gchar *fst, const gchar *snd);
 
 gboolean
-c2_strncaseeq									(const gchar *fst, const gchar *snd, gint length);
+c2_strncaseeq								(const gchar *fst, const gchar *snd, gint length);
 
 gboolean
-c2_streq										(const gchar *fst, const gchar *snd);
+c2_streq									(const gchar *fst, const gchar *snd);
 
 gboolean
-c2_strneq										(const gchar *fst, const gchar *snd, gint length);
+c2_strneq									(const gchar *fst, const gchar *snd, gint length);
 
 const gchar *
-c2_strstr_case_insensitive						(const gchar *haystack, const gchar *needle);
+c2_strstr_case_insensitive					(const gchar *haystack, const gchar *needle);
 
 gchar *
-c2_str_replace_all								(const gchar *or_string, const gchar *se_string,
-												 const gchar *re_string);
+c2_str_replace_all							(const gchar *or_string, const gchar *se_string,
+											 const gchar *re_string);
 
 gchar *
-c2_str_strip_enclosed							(const gchar *str, gchar open, gchar close);
+c2_str_strip_enclosed						(const gchar *str, gchar open, gchar close);
 
 gchar *
 c2_str_get_enclosed_text					(const gchar *str, gchar enc1, gchar enc2, guint args, ...);
@@ -113,44 +113,53 @@ gchar *
 c2_str_get_enclosed_text_backward			(const gchar *str, gchar enc1, gchar enc2, guint args, ...);
 
 gchar *
-c2_str_get_line									(const gchar *str);
+c2_str_get_line								(const gchar *str);
 
 gchar *
-c2_str_get_word									(guint8 word_n, const gchar *str, gchar ch);
+c2_str_get_word								(guint8 word_n, const gchar *str, gchar ch);
 
 gchar *
 c2_str_wrap									(const gchar *str, guint8 position);
 
-gboolean
-c2_str_is_email									(const gchar *email);
+GList *
+c2_str_get_emails							(const gchar *string);
 
 gchar *
-c2_get_tmp_file									(const gchar *template);
+c2_str_get_email							(const gchar *email);
+
+gboolean
+c2_str_are_emails							(GList *list);
+
+gboolean
+c2_str_is_email								(const gchar *email);
+
+gchar *
+c2_get_tmp_file								(const gchar *template);
 
 gint
-c2_get_file										(const gchar *path, gchar **string);
+c2_get_file									(const gchar *path, gchar **string);
 
 char *
-c2_fd_get_line									(FILE *fd);
+c2_fd_get_line								(FILE *fd);
 
 gchar *
-c2_fd_get_word									(FILE *fd);
+c2_fd_get_word								(FILE *fd);
 
 gint
-c2_file_binary_copy								(const gchar *from_path, const gchar *target_path);
+c2_file_binary_copy							(const gchar *from_path, const gchar *target_path);
 
 gint
-c2_file_binary_move								(const gchar *from_path, const gchar *target_path);
+c2_file_binary_move							(const gchar *from_path, const gchar *target_path);
 
 gboolean
-c2_file_exists									(const gchar *file);
+c2_file_exists								(const gchar *file);
 
 gboolean
-c2_file_is_directory							(const gchar *file);
+c2_file_is_directory						(const gchar *file);
 
 gboolean
-c2_fd_move_to									(FILE *fp, gchar c, guint8 cant,
-										 		 gboolean forward, gboolean next);
+c2_fd_move_to								(FILE *fp, gchar c, guint8 cant,
+										 	 gboolean forward, gboolean next);
 
 void
 c2_marshal_NONE__INT_INT_INT				(GtkObject *object, GtkSignalFunc func,

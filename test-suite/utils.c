@@ -21,21 +21,20 @@
 gint
 main (gint argc, gchar **argv)
 {
-	C2Message *message;
-	gchar *str;
+	gchar *string = "\"Pablo Fernández Navarro\" <cronosII@users.sourceforge.net>; "
+					"Bosko <falling@users.sourceforge.net>,                  "
+					"<cronosII-hackers@lists.sourceforge.net>";
+	GList *l;
 
-	gtk_init (&argc, &argv);
+	if (argc > 1)
+		string = argv[1];
 
-	message = c2_db_message_get_from_file ("test-string.txt");
-	str = c2_str_wrap (message->body, 70);
-	printf ("Not wrapped:\n"
-			"-------------------------------\n"
-			"%s\n"
-			"-------------------------------\n", message->body);
-	printf ("\nWrapped:\n"
-			"-------------------------------\n"
-			"%s\n"
-			"-------------------------------\n", str);
-
+	C2_DEBUG (string);
+	for (l = c2_str_get_emails (string); l; l = g_list_next (l))
+		printf ("<email type=\"%s\">%s</email>\n",
+					c2_str_is_email ((gchar*) l->data) ? "VALID" : "INVALID", (gchar*) l->data);
+	printf ("%s\n", c2_str_are_emails (c2_str_get_emails (string)) ?
+					"All email are valid" : "There're invalid email addresses");
+	
 	return 0;
 }
