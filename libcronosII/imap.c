@@ -396,6 +396,7 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	gchar *final = NULL;
 	tag_t tag = 0;
 	
+	gdk_threads_enter();
 	c2_mutex_lock(&imap->lock);
 	
 	for(;;)
@@ -410,6 +411,7 @@ DIE:
 			c2_net_object_disconnect(C2_NET_OBJECT(imap));
 			c2_net_object_destroy_byte (C2_NET_OBJECT (imap));
 			if(final) g_free(final);
+			gdk_threads_leave();
 			return;
 		}
 		/* put checks on incoming date below */
@@ -444,13 +446,17 @@ DIE:
 		if(!final && c2_strneq(buf, "* BYE ", 6)) /* server is closing connection! */
 		{
 			if(c2_imap_reconnect(imap) == 0) /* try to reconnect on the fly... */
+			{	
+				gdk_threads_leave();
 				return; /* works? return & wait for the new gdk_input to catch data! */
+			}
 			/* if it doesnt work, bitch a little and give up... */
 			c2_imap_set_error(imap, buf + 6);
 			c2_net_object_disconnect(C2_NET_OBJECT(imap));
 			c2_net_object_destroy_byte (C2_NET_OBJECT (imap));
 			gtk_signal_emit(GTK_OBJECT(imap), signals[LOGOUT]);
 			g_free(buf);
+			gdk_threads_leave();
 			return;
 		}
 		if(!final) final = g_strdup(buf);
@@ -481,6 +487,7 @@ DIE:
 	c2_imap_unlock_pending(imap);
 	
 	c2_mutex_unlock(&imap->lock);
+	gdk_threads_leave();
 }
 
 /** c2_imap_unlock_pending
@@ -1386,7 +1393,7 @@ c2_imap_subscribe_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 		c2_mutex_unlock(&imap->lock);
 		return FALSE;
 	}
-	
+		
 	if(!c2_imap_check_server_reply(reply, tag))
 	{
 		c2_imap_set_error(imap, reply+C2TagLen + 3);
@@ -1707,12 +1714,11 @@ c2_imap_load_message (C2IMAP *imap, C2Db *db)
 	return message;
 }
 
-#if 0
 /* in progress! */
 gint
-c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState *state)
+c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState state)
 {
-	gchar *reply;
+	gchar *cmd = NULL;
 	tag_t tag;
 	
 	if(c2_imap_select_mailbox(imap, db->mailbox) < 0)
@@ -1722,14 +1728,39 @@ c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState *state)
 	switch (state) {
 	 
 	 case C2_MESSAGE_READED:
-		reply = g_strdup("\Seen");
+		cmd = g_strdup("+FLAGS.SILENT (\\Seen)");
 		break;
 	 case C2_MESSAGE_UNREADED:
-		reply = g_strdup("");
+		cmd = g_strdup("-FLAGS.SILENT (\\Seen)");
+		break;
+	 case C2_MESSAGE_REPLIED:
+		cmd = g_strdup("+FLAGS.SILENT (\\Answered)");
+		break;
+	 case C2_MESSAGE_FORWARDED:
+		cmd = g_strdup("+FLAGS.SILENT (\\Answered)");
+		break;
 	}
 	
-	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d"));
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d "
+	   "STORE %i %s\r\n", tag, db->position, cmd) < 0)
+	{
+		g_free(cmd);
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+		return NULL;
+	}
+	g_free(cmd);
+
+	if(!(cmd = c2_imap_get_server_reply(imap, tag)))
+		return -1;
+
+	if(!c2_imap_check_server_reply(cmd, tag))
+	{
+		c2_imap_set_error(imap, cmd + C2TagLen + 3);
+		g_free(cmd);
+		return -1;
+	}
+	g_free(cmd);
 
 	return 0;
 }
-#endif
