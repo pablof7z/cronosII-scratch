@@ -167,8 +167,8 @@ main (gint argc, gchar **argv)
 							"Cronos II", "cronosII@users.sourceforge.net",
 							NULL, TRUE, NULL, NULL,
 							C2_ACCOUNT_POP3, C2_SMTP_REMOTE,
-							"pop3.yahoo.com.ar", 110, "pablo_viajando",
-							getenv ("POP_PASS"), 0, "smtp.arnet.com.ar", 25,
+							"pop3.ciudad.com.ar", 110, "condarco30",
+							getenv ("POP_PASS"), FALSE, 0, "smtp.arnet.com.ar", 25,
 							FALSE, NULL, NULL);
 		
 		transfer_list = c2_transfer_list_new (application);
@@ -176,23 +176,11 @@ main (gint argc, gchar **argv)
 
 		transfer_item = c2_transfer_item_new (account, C2_TRANSFER_ITEM_RECEIVE);
 		c2_transfer_list_add_item (C2_TRANSFER_LIST (transfer_list), transfer_item);
+		c2_transfer_item_start (transfer_item);
 
 		transfer_item = c2_transfer_item_new (account, C2_TRANSFER_ITEM_RECEIVE);
 		c2_transfer_list_add_item (C2_TRANSFER_LIST (transfer_list), transfer_item);
-
-		transfer_item = c2_transfer_item_new (account, C2_TRANSFER_ITEM_SEND, NULL, NULL);
-		c2_transfer_list_add_item (C2_TRANSFER_LIST (transfer_list), transfer_item);
-
-		account->name = g_strdup ("Sourceforge");
-
-		transfer_item = c2_transfer_item_new (account, C2_TRANSFER_ITEM_RECEIVE);
-		c2_transfer_list_add_item (C2_TRANSFER_LIST (transfer_list), transfer_item);
-
-		transfer_item = c2_transfer_item_new (account, C2_TRANSFER_ITEM_RECEIVE);
-		c2_transfer_list_add_item (C2_TRANSFER_LIST (transfer_list), transfer_item);
-
-		transfer_item = c2_transfer_item_new (account, C2_TRANSFER_ITEM_SEND, NULL, NULL);
-		c2_transfer_list_add_item (C2_TRANSFER_LIST (transfer_list), transfer_item);
+		c2_transfer_item_start (transfer_item);
 	}
 	
 	gdk_threads_enter ();

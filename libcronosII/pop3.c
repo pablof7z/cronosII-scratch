@@ -71,15 +71,16 @@ static C2NetObject *parent_class = NULL;
  * @pass: Password (might be NULL).
  * @host: Hostame.
  * @port: Port.
+ * @ssl: Wheter SSL connection should be used or not.
  *
  * This function will create a new C2POP3 with
  * the data you pass it and with some default configuration.
  * 
  * Return Value:
- * The allocated C2POP3 object or NULL if there was an error.
+ * The allocated C2POP3 object or %NULL if there was an error.
  **/
 C2POP3 *
-c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port)
+c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port, gboolean ssl)
 {
 	C2POP3 *pop3;
 	
@@ -90,7 +91,7 @@ c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port)
 	pop3->user = g_strdup (user);
 	pop3->pass = g_strdup (pass);
 
-	c2_net_object_construct (C2_NET_OBJECT (pop3), host, port);
+	c2_net_object_construct (C2_NET_OBJECT (pop3), host, port, ssl);
 
 	return pop3;
 }
@@ -397,6 +398,7 @@ status (C2POP3 *pop3)
 
 	sscanf (string, "+OK %d ", &mails);
 
+	printf ("mails: %d\n", mails);
 	gtk_signal_emit (GTK_OBJECT (pop3), signals[STATUS], mails);
 
 	return mails;

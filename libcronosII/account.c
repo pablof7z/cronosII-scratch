@@ -42,32 +42,6 @@ static guint signals[LAST_SIGNAL] = { 0 };
 
 static GtkObjectClass *parent_class = NULL;
 
-/**
- * c2_account_check
- * @account: The C2Account object to work on.
- *
- * This function will start the checking
- * of an account.
- *
- * Return Value:
- * 0 on success, -1 on error.
- **/
-gint
-c2_account_check (const C2Account *account)
-{
-	typedef gint (*FetchmailFunction) (const C2Account *);
-	FetchmailFunction fetchmail;
-	
-	switch (account->type)
-	{
-		case C2_ACCOUNT_POP3:
-			fetchmail = (FetchmailFunction) c2_pop3_fetchmail;
-			break;
-	}
-
-	return fetchmail (account);
-}
-
 GtkType
 c2_account_get_type (void)
 {
@@ -125,6 +99,7 @@ c2_account_new (const gchar *name, const gchar *full_name, const gchar *organiza
 {
 	C2Account *account;
 	const gchar *user, *pass, *host;
+	gboolean ssl;
 	gint flags;
 	gboolean smtp_authentication;
 	gint port;
@@ -152,9 +127,10 @@ c2_account_new (const gchar *name, const gchar *full_name, const gchar *organiza
 			port = va_arg (args, gint);
 			user = va_arg (args, const gchar *);
 			pass = va_arg (args, const gchar *);
+			ssl = va_arg (args, gboolean);
 			flags = va_arg (args, gint);
 			
-			account->protocol.pop3 = c2_pop3_new (user, pass, host, port);
+			account->protocol.pop3 = c2_pop3_new (user, pass, host, port, ssl);
 			c2_pop3_set_flags (account->protocol.pop3, flags);
 			break;
 		case C2_ACCOUNT_IMAP:
@@ -162,9 +138,10 @@ c2_account_new (const gchar *name, const gchar *full_name, const gchar *organiza
 			port = va_arg (args, gint);
 			user = va_arg (args, const gchar *);
 			pass = va_arg (args, const gchar *);
+			ssl = va_arg (args, gboolean);
 			flags = va_arg (args, gint);
 
-//			account->protocol.imap = c2_imap_new (host, port, user, pass);
+//			account->protocol.imap = c2_imap_new (host, port, user, pass, ssl);
 	}
 	
 	switch (smtp_type)
@@ -341,4 +318,35 @@ c2_account_last (C2Account *head)
 			c = c2_account_next (c);
 
 	return c;
+}
+
+/**
+ * c2_account_check
+ * @account: The C2Account object to work on.
+ *
+ * This function will start the checking
+ * of an account.
+ *
+ * Return Value:
+ * 0 on success, -1 on error.
+ **/
+gint
+c2_account_check (const C2Account *account)
+{
+	typedef gint (*FetchmailFunction) (const C2Account *);
+	FetchmailFunction fetchmail;
+	
+	switch (account->type)
+	{
+		case C2_ACCOUNT_POP3:
+			fetchmail = (FetchmailFunction) c2_pop3_fetchmail;
+			break;
+		case C2_ACCOUNT_IMAP:
+			printf ("No one developed the IMAP part of C2: %s:%d\n", __FILE__, __LINE__);
+			break;
+		default:
+			g_warning ("Account is misconfigured, type = %d\n", account->type);
+	}
+
+	return fetchmail (account);
 }

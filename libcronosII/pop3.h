@@ -92,20 +92,23 @@ struct _C2POP3Class
 #endif
 
 GtkType
-c2_pop3_get_type								(void);
+c2_pop3_get_type							(void);
 
 C2POP3 *
-c2_pop3_new										(const gchar *user, const gchar *pass,
-												 const gchar *host, gint port);
+c2_pop3_new									(const gchar *user, const gchar *pass,
+											 const gchar *host, gint port, gboolean ssl);
 
 void
-c2_pop3_set_flags								(C2POP3 *pop3, gint flags);
+c2_pop3_set_flags							(C2POP3 *pop3, gint flags);
 
 void
-c2_pop3_set_wrong_pass_cb						(C2POP3 *pop3, C2POP3GetPass func);
+c2_pop3_set_wrong_pass_cb					(C2POP3 *pop3, C2POP3GetPass func);
 
 gint
-c2_pop3_fetchmail								(C2Account *account);
+c2_pop3_fetchmail							(C2Account *account);
+
+void
+c2_pop3_cancel								(C2POP3 *pop3);
 
 
 #ifdef __cplusplus

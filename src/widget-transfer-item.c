@@ -15,6 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+#include <pthread.h>
+
 #include "widget-transfer-item.h"
 
 #define MAX_CHARS_IN_LABEL		25
@@ -27,6 +29,22 @@ init										(C2TransferItem *ti);
 
 static void
 destroy										(GtkObject *object);
+
+static void
+on_cancel_clicked							(GtkWidget *button, C2TransferItem *ti);
+
+static void
+on_pop3_resolve								(GtkObject *object, C2TransferItem *ti);
+
+static void
+on_pop3_status								(GtkObject *object, gint mails, C2TransferItem *ti);
+
+static void
+on_pop3_retrieve							(GtkObject *object, gint16 nth, gint32 received,
+											 gint32 total, C2TransferItem *ti);
+
+static void
+on_pop3_disconnect							(GtkObject *object, gboolean success, C2TransferItem *ti);
 
 enum
 {
@@ -125,9 +143,10 @@ void
 c2_transfer_item_construct (C2TransferItem *ti, C2Account *account, C2TransferItemType type, va_list args)
 {
 	GtkTooltips *tooltips;
-	GtkWidget *label, *button, *pixmap, *box;
+	GtkWidget *label, *button, *pixmap, *box, *bpixmap;
 	gchar *buffer, *subject;
 	
+	ti->account = account;
 	ti->type = type;
 
 	/* Store the extra-information */
@@ -139,6 +158,10 @@ c2_transfer_item_construct (C2TransferItem *ti, C2Account *account, C2TransferIt
 		ti->type_info.send.message = va_arg (args, C2Message *);
 	} else
 		g_assert_not_reached ();
+
+	ti->table = gtk_table_new (1, 4, FALSE);
+	gtk_table_set_col_spacings (GTK_TABLE (ti->table), 4);
+	gtk_widget_show (ti->table);
 
 	tooltips = gtk_tooltips_new ();
 
@@ -161,7 +184,6 @@ c2_transfer_item_construct (C2TransferItem *ti, C2Account *account, C2TransferIt
 	}
 	
 	gtk_widget_show (pixmap);
-	ti->c1 = pixmap;
 	
 	if (strlen (buffer) > MAX_CHARS_IN_LABEL)
 	{
@@ -175,11 +197,10 @@ c2_transfer_item_construct (C2TransferItem *ti, C2Account *account, C2TransferIt
 	label = gtk_label_new (buffer);
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 	gtk_widget_show (label);
-	ti->c2 = label;
+	gtk_widget_set_usize (label, 138, -1);
 
 	box = gtk_vbox_new (FALSE, 0);
 	gtk_widget_show (box);
-	ti->c3 = box;
 
 	ti->progress_mail = gtk_progress_bar_new ();
 	gtk_box_pack_start (GTK_BOX (box), ti->progress_mail, FALSE, TRUE, 0);
@@ -187,28 +208,123 @@ c2_transfer_item_construct (C2TransferItem *ti, C2Account *account, C2TransferIt
 
 	ti->progress_byte = gtk_progress_bar_new ();
 	gtk_box_pack_start (GTK_BOX (box), ti->progress_byte, FALSE, TRUE, 0);
-	gtk_widget_show (ti->progress_byte);
 	gtk_widget_set_usize (ti->progress_byte, -1, 5);
 
 	button = gtk_button_new ();
 
-	pixmap = gnome_stock_pixmap_widget_new (GTK_WIDGET (ti), GNOME_STOCK_PIXMAP_STOP);
-	gtk_container_add (GTK_CONTAINER (button), pixmap);
-	gtk_widget_show (pixmap);
+	bpixmap = gnome_stock_pixmap_widget_new (GTK_WIDGET (ti), GNOME_STOCK_PIXMAP_STOP);
+	gtk_container_add (GTK_CONTAINER (button), bpixmap);
+	gtk_widget_show (bpixmap);
 
 	gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
 	gtk_tooltips_set_tip (tooltips, button, _("Cancel the transfer"), NULL);
 	gtk_widget_show (button);
+	gtk_signal_connect (GTK_OBJECT (button), "clicked",
+						GTK_SIGNAL_FUNC (on_cancel_clicked), ti);
+	ti->cancel_button = button;
 
-	ti->c4 = button;
+	gtk_table_attach (GTK_TABLE (ti->table), pixmap, 0, 1, 0, 1, 0, 0, 0, 0);
+	gtk_table_attach (GTK_TABLE (ti->table), label, 1, 2, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach (GTK_TABLE (ti->table), box, 2, 3, 0, 1, 0, 0, 0, 0);
+	gtk_table_attach (GTK_TABLE (ti->table), button, 3, 4, 0, 1, 0, 0, 0, 0);
 }
 
+static void
+on_cancel_clicked (GtkWidget *button, C2TransferItem *ti)
+{
+	C2Account *account = ti->account;
+	
+	gtk_signal_emit (GTK_OBJECT (ti), signals[CANCEL], account);
+
+	/* [XXX] This won't be here, I'm testing */
+	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
+
 #if 0
+	if (account->type == C2_ACCOUNT_POP3)
+		c2_pop3_cancel (account->protocol.pop3);
+#endif
+}
+
+static void
+fire_c2_account_check_in_its_own_thread (C2Account *account)
+{
+	c2_account_check (account);
+}
+
 void
 c2_transfer_item_start (C2TransferItem *ti)
 {
+	pthread_t thread;
+
 	if (ti->type == C2_TRANSFER_ITEM_RECEIVE)
 	{
-		c2_account_
+		if (ti->account->type == C2_ACCOUNT_POP3)
+		{
+			gtk_signal_connect (GTK_OBJECT (ti->account->protocol.pop3), "resolve",
+								GTK_SIGNAL_FUNC (on_pop3_resolve), ti);
+
+			gtk_signal_connect (GTK_OBJECT (ti->account->protocol.pop3), "status",
+								GTK_SIGNAL_FUNC (on_pop3_status), ti);
+
+			gtk_signal_connect (GTK_OBJECT (ti->account->protocol.pop3), "retrieve",
+								GTK_SIGNAL_FUNC (on_pop3_retrieve), ti);
+
+			gtk_signal_connect (GTK_OBJECT (ti->account->protocol.pop3), "disconnect",
+								GTK_SIGNAL_FUNC (on_pop3_disconnect), ti);
+
+			gtk_progress_set_show_text (GTK_PROGRESS (ti->progress_mail), TRUE);
+			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Resolving"));
+		} else
+		{
+			g_assert_not_reached ();
+			return;
+		}
+		
+		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_account_check), ti->account);
+	}
 }
-#endif
+
+static void
+on_pop3_resolve (GtkObject *object, C2TransferItem *ti)
+{
+	gdk_threads_enter ();
+	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Connecting"));
+	gdk_threads_leave ();
+}
+
+static void
+on_pop3_status (GtkObject *object, gint mails, C2TransferItem *ti)
+{
+	gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
+
+	if (!mails)
+		gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
+	else
+	{
+		if (mails == 1)
+			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("%u message."));
+		else
+			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("%u messages."));
+		
+		gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
+	}
+}
+
+static void
+on_pop3_retrieve (GtkObject *object, gint16 nth, gint32 received, gint32 total, C2TransferItem *ti)
+{
+	if (!received)
+	{
+		if (nth == 1)
+			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Receiving %v of %u"));
+		gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), nth);
+	}
+}
+
+static void
+on_pop3_disconnect (GtkObject *object, gboolean success, C2TransferItem *ti)
+{
+	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Completed"));
+	gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
+	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
+}

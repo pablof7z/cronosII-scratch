@@ -28,6 +28,12 @@ init										(C2TransferList *tl);
 static void
 destroy										(GtkObject *object);
 
+static void
+on_button0_clicked							(GtkWidget *widget, C2TransferList *tl);
+
+static void
+on_transfer_item_finish						(C2TransferItem *ti, C2TransferList *tl);
+
 enum
 {
 	FINISH,
@@ -113,45 +119,100 @@ c2_transfer_list_new (C2Application *application)
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (tl)->vbox), vbox, TRUE, TRUE, 0);
 	gtk_widget_show (vbox);
+	tl->vbox = vbox;
 
-	table = gtk_table_new (1, 4, FALSE);
-	gtk_box_pack_start (GTK_BOX (vbox), table, TRUE, TRUE, 0);
-	gtk_widget_show (table);
-	gtk_table_set_col_spacings (GTK_TABLE (table), 4);
-	gtk_table_set_row_spacings (GTK_TABLE (table), 4);
-	tl->table = table;
-	
 	button = gtk_check_button_new_with_label (_("Close when finished."));
-	gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, TRUE, 0);
+	gtk_box_pack_end (GTK_BOX (vbox), button, FALSE, TRUE, 0);
 	gtk_widget_show (button);
+	tl->close = button;
 
 	c2_dialog_construct (C2_DIALOG (tl), application, _("Send & Receive"), buttons);
 
+	gnome_dialog_button_connect (GNOME_DIALOG (tl), 0, on_button0_clicked, tl);
+
 	return GTK_WIDGET (tl);
+}
+
+static void
+on_button0_clicked (GtkWidget *widget, C2TransferList *tl)
+{
+	GSList *list;
+
+	for (list = tl->list; list; list = g_slist_next (list))
+	{
+		C2TransferItem *tl = C2_TRANSFER_ITEM (list->data);
+		
+		if (!tl)
+			break;
+
+		gtk_signal_emit_by_name (GTK_OBJECT (tl->cancel_button), "clicked");
+	}
 }
 
 void
 c2_transfer_list_add_item (C2TransferList *tl, C2TransferItem *ti)
 {
 	GtkWidget *c1, *c2, *c3, *c4, *hsep;
-	GtkTable *table = GTK_TABLE (tl->table);
-	gint rows, cols;
+	gint rows, cols, i;
+	GSList *list;
 	
 	c2_return_if_fail (C2_IS_TRANSFER_ITEM (ti), C2EDATA);
-	
+
 	tl->list = g_slist_append (tl->list, ti);
 
-	c1 = ti->c1;
-	c2 = ti->c2;
-	c3 = ti->c3;
-	c4 = ti->c4;
+	gtk_box_pack_start (GTK_BOX (tl->vbox), ti->table, FALSE, TRUE, 0);
 
-	rows = table->nrows;
-	cols = table->ncols;
-	gtk_table_resize (table, rows+2, cols);
+	gtk_signal_connect (GTK_OBJECT (ti), "finish",
+						GTK_SIGNAL_FUNC (on_transfer_item_finish), tl);
+}
 
-	gtk_table_attach (table, c1, 0, 1, rows, rows+1, 0, 0, 0, 0);
-	gtk_table_attach (table, c2, 1, 2, rows, rows+1, GTK_FILL, 0, 0, 0);
-	gtk_table_attach (table, c3, 2, 3, rows, rows+1, 0, 0, 0, 0);
-	gtk_table_attach (table, c4, 3, 4, rows, rows+1, 0, 0, 0, 0);
+static gint
+on_finish_timeout (GtkWidget *table)
+{
+	gtk_widget_destroy (table);
+
+	return FALSE;
+}
+
+static gint
+on_last_finish_timeout (GtkWidget *widget)
+{
+	C2TransferList *tl = C2_TRANSFER_LIST (widget);
+	
+	g_slist_free (tl->list);
+	gtk_widget_destroy (widget);
+	
+	return FALSE;
+}
+
+static void
+on_transfer_item_finish (C2TransferItem *ti, C2TransferList *tl)
+{
+	C2TransferItem *transfer_item;
+	GtkWidget *progress;
+	GSList *list;
+	C2Account *account = ti->account;
+
+	if (GTK_TOGGLE_BUTTON (tl->close)->active)
+	{
+		gtk_timeout_add (2500, (GtkFunction) on_finish_timeout, ti->table);
+		
+		if (g_slist_length (tl->list) == 1)
+			gtk_timeout_add (2500, (GtkFunction) on_last_finish_timeout, tl);
+	}
+	
+	progress = ti->progress_byte;
+	
+	gtk_widget_hide (progress);
+
+	progress = ti->progress_mail;
+	
+	gtk_progress_set_show_text (GTK_PROGRESS (progress), TRUE);
+	gtk_progress_set_format_string (GTK_PROGRESS (progress), _("Cancelled."));
+	gtk_progress_set_percentage (GTK_PROGRESS (progress), 1.0);
+	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
+
+	list = g_slist_find (tl->list, ti);
+	tl->list = g_slist_remove (tl->list, ti);
+	gtk_object_destroy (GTK_OBJECT (ti));
 }

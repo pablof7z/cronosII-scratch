@@ -80,10 +80,11 @@ struct _C2TransferItem
 		} send;
 	} type_info;
 
-	GtkWidget *c1, *c2, *c3, *c4;
+	GtkWidget *table;
 
 	GtkWidget *progress_mail;
 	GtkWidget *progress_byte;
+	GtkWidget *cancel_button;
 };
 
 struct _C2TransferItemClass

@@ -90,7 +90,6 @@ c2_net_object_run (C2NetObject *nobj)
 		g_warning ("Unable to connect: %s\n", c2_error_get (c2_errno));
 #endif
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE);
-		g_free (ip);
 		return -1;
 	}
 	g_free (ip);
@@ -363,7 +362,7 @@ init (C2NetObject *nobj)
 }
 
 C2NetObject *
-c2_net_object_new (const gchar *host, guint port)
+c2_net_object_new (const gchar *host, guint port, gboolean ssl)
 {
 	C2NetObject *nobj;
 	
@@ -372,19 +371,25 @@ c2_net_object_new (const gchar *host, guint port)
 
 	nobj = gtk_type_new (C2_TYPE_NET_OBJECT);
 
-	c2_net_object_construct (nobj, host, port);
+	c2_net_object_construct (nobj, host, port, ssl);
 
 	return nobj;
 }
 
 void
-c2_net_object_construct (C2NetObject *nobj, const gchar *host, guint port)
+c2_net_object_construct (C2NetObject *nobj, const gchar *host, guint port, gboolean ssl)
 {
 	c2_return_if_fail (host, C2EDATA);
 	c2_return_if_fail (port > 0, C2EDATA);
 
 	nobj->host = g_strdup (host);
 	nobj->port = port;
+	nobj->ssl = ssl ? 1 : 0;
+
+#ifndef USE_SSL
+	if (ssl)
+		g_warning ("SSL has not been compiled.\n");
+#endif
 }
 
 static void

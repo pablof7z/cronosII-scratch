@@ -43,7 +43,8 @@ struct _C2TransferList
 {
 	C2Dialog dialog;
 
-	GtkWidget *table;
+	GtkWidget *vbox;
+	GtkWidget *close;
 
 	GSList *list;
 };

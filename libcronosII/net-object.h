@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -79,6 +79,7 @@ struct _C2NetObject
 	guint port;
 
 	gint flags;
+	gint ssl : 1;
 
 	gint8 state;
 };
@@ -101,10 +102,11 @@ GtkType
 c2_net_object_get_type							(void);
 
 C2NetObject *
-c2_net_object_new								(const gchar *host, guint port);
+c2_net_object_new								(const gchar *host, guint port, gboolean ssl);
 
 void
-c2_net_object_construct							(C2NetObject *nobj, const gchar *host, guint port);
+c2_net_object_construct							(C2NetObject *nobj, const gchar *host, guint port,
+												 gboolean ssl);
 
 void
 c2_net_object_disconnect						(C2NetObject *nobj);
