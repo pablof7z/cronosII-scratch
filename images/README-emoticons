@@ -1,0 +1,17 @@
+This file is to explain the emoticons:
+All images created with gimp at 16 pixels by 16 pixels.
+Each image saved in xpm and png for GTK and Gnome use.
+Images built from the ASCII string with some small modifications for clarity only.
+(no art involved here)
+I checked the emoticons at various sites about the net. " google emoticons".
+
+File		=	ASCII string
+emoticon-angry	=	>:<
+emoticon-angry1	=	:-||
+emoticon-laugh	=	:D
+emoticon-sad	=	:(
+emoticon-smiley	=	:)
+emoticon-surprise	=	:0
+
+
+

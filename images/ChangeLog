@@ -1,0 +1,24 @@
+Mon Oct  1 13:41:49 	Petergozz <gossner@arcom.com.au>
+	*	Initial Setup of ChangeLog for this Images Directory
+	*	Added emoticons
+	*	Initial Files are:
+                          		   mcard-edit.png
+Makefile            		 folder-closed.png     	mcard-edit_menu.png
+Makefile.am     		  folder-opened.png       	mcard-menu.png
+Makefile.in       		  forward.png           	 	 mcard.png
+README-emoticons     	garbage.png      		 mcard.xpm
+advanced_misc.png   	 general_accounts.png  	  mcard_menu.png
+blue_arrow.png      		 general_options.png    	 no-image.png
+cronosII.png        		 general_paths.png      	 outbox.png
+cronosII.xpm        		 general_plugins.png    	 queue_mbox.png
+drafts.png           		green_arrow.png    		  read.png
+emoticon-angry.png  	 inbox.png              	 	receive.png
+emoticon-angry.xpm  	 interface_composer.png 	 red_arrow.png
+emoticon-angry1.png 	 interface_fonts.png    	 reply.png
+emoticon-angry1.xpm  	interface_html.png      	send-receive.png
+emoticon-laugh.png  	 interface_misc.png      	send.png
+emoticon-laugh.xpm  	 loading-image.png     	  splash.png
+emoticon-sad.png    	 mailbox.png            	 	unknown-file.png
+emoticon-sad.xpm     	mails.png              		 unread.png
+emoticon-smiley.png  	emoticon-smiley.xpm 	emoticon-surprise.png
+emoticon-surprise.xpm	 mark.png 		yellow_arrow.png
