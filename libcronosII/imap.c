@@ -44,13 +44,19 @@ init										(C2IMAP *imap);
 static void
 destroy										(GtkObject *object);
 
+/* Private IMAP functions */
+static void
+c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition);
+
+static gint
+c2_imap_plaintext_login (C2IMAP *imap);
 
 /* Misc. functions */
 static void
-c2_imap_tag(C2IMAP *imap);
+c2_imap_tag (C2IMAP *imap);
 
 static void
-c2_imap_set_error(C2IMAP *imap, gchar *error);
+c2_imap_set_error(C2IMAP *imap, const gchar *error);
 
 enum
 {
@@ -144,20 +150,39 @@ init (C2IMAP *imap)
 	imap->cmnd = 0;
 	imap->mailboxes = NULL;
 	imap->selected_mailbox = NULL;
+	imap->host = NULL;
+	imap->user = NULL;
+	imap->pass = NULL;
+	imap->hash = NULL;
+	imap->login = NULL;
+	
+	pthread_mutex_init(&imap->lock, NULL);
 }
 
 C2IMAP *
-c2_imap_new (gchar *host, gint port, gchar *user, gchar *pass, gboolean ssl)
+c2_imap_new (gchar *host, gint port, gchar *user, gchar *pass, 
+		C2IMAPAuthenticationType auth, gboolean ssl)
 {
 	C2IMAP *imap;
 
 	imap = gtk_type_new (c2_imap_get_type ());
 	imap->user = g_strdup(user);
 	imap->pass = g_strdup(pass);
-	pthread_mutex_init(&imap->lock, NULL);
+	imap->host = g_strdup(host);
+	imap->hash = g_hash_table_new(g_str_hash, g_int_equal);
+	
+	switch(auth)
+	{
+		case C2_IMAP_AUTHENTICATION_PLAINTEXT:
+			imap->login = c2_imap_plaintext_login;
+			break;
+	}
 
 	c2_net_object_construct (C2_NET_OBJECT (imap), host, port, ssl);
 
+	gdk_input_add(C2_NET_OBJECT(imap)->sock, GDK_INPUT_READ,
+								(GdkInputFunction)c2_imap_on_net_traffic, imap);
+	
 	return imap;
 }
 
@@ -171,6 +196,23 @@ c2_imap_new (gchar *host, gint port, gchar *user, gchar *pass, gboolean ssl)
 void
 c2_imap_init (C2IMAP *imap)
 {
+	pthread_mutex_lock(&imap->lock);
+	
+	if(c2_net_object_run(C2_NET_OBJECT(imap)) < 0)
+	{
+		gtk_signal_emit(GTK_OBJECT(imap), NET_ERROR);
+		c2_imap_set_error(imap, _("Error connecting to IMAP server."));
+		pthread_mutex_unlock(&imap->lock);
+		return;
+	}
+	if(imap->login(imap) < 0)
+	{
+		gtk_signal_emit(GTK_OBJECT(imap), LOGIN_FAILED);
+		c2_imap_set_error(imap, _("Failed to login to IMAP server."));
+		pthread_mutex_unlock(&imap->lock);
+		return;
+	}
+	
 	g_print ("%s (%s@%s)\n", __PRETTY_FUNCTION__, imap->user, C2_NET_OBJECT (imap)->host);
 }
 
@@ -189,13 +231,9 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	C2IMAP *imap = C2_IMAP(data);
 	gchar *buf, *buf2, *ptr = NULL;
 	gchar *final = NULL;
+	gint tag = 0;
 	
 	pthread_mutex_lock(&imap->lock);
-	
-	/* TODO */
-	/* Suggestion: keep reading and do not put the info in the hash until we hit
-	 * the last 'tagged' response. This might mean the necessity for a global
-	 * buffer to be used in the object, or a static variable. Ideas? */
 	
 	for(;;)
 	{
@@ -219,9 +257,14 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 		/* The IMAP server returned our tag, end of response */
 		if(c2_strneq(buf, "CronosII-", 9)) 
 			break;
+		g_free(buf);
 	}
 	
-	/* now insert final into the hash...*/
+	tag = atoi(buf+9);
+	g_free(buf);
+	/* now insert 'final' into the hash...*/
+	printf("Now inserting data: %s in hash table for tag #%i\n", final, tag);
+	g_hash_table_insert(imap->hash, &tag, final);
 	
 	pthread_mutex_unlock(&imap->lock);
 }
@@ -236,7 +279,7 @@ c2_imap_tag(C2IMAP *imap)
 }
 
 static void
-c2_imap_set_error(C2IMAP *imap, gchar *error)
+c2_imap_set_error(C2IMAP *imap, const gchar *error)
 {
 	GtkObject *object = GTK_OBJECT(imap);
 	gchar *buf;
@@ -248,16 +291,14 @@ c2_imap_set_error(C2IMAP *imap, gchar *error)
 	gtk_object_set_data(object, "error", buf);
 }
 
-gint
+static gint
 c2_imap_plaintext_login (C2IMAP *imap)
 {	
 	gint tag;
 	
-	pthread_mutex_lock(&imap->lock);
-	
 	tag = imap->cmnd;
 	c2_imap_tag(imap);
-	if(c2_net_object_send(C2_NET_OBJECT(imap), "%03d LOGIN %s %s\r\n", 
+	if(c2_net_object_send(C2_NET_OBJECT(imap), "CronosII-%03d LOGIN %s %s\r\n", 
 												tag, imap->user, imap->pass) < 0)
 	{
 		c2_imap_tag(imap);
@@ -273,4 +314,3 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	
 	return 0;
 }
-

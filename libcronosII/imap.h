@@ -48,7 +48,7 @@ typedef enum _C2IMAPAuthenticationType C2IMAPAuthenticationType;
 
 enum _C2IMAPAuthenticationType
 {
-	C2_IMAP_AUTHENTICATION_PASSWORD
+	C2_IMAP_AUTHENTICATION_PLAINTEXT
 };
 
 struct _C2IMAP
@@ -66,6 +66,8 @@ struct _C2IMAP
 
 	gint auth_remember :1;		/* %TRUE = Store password */
 
+	gint (*login) (C2IMAP *imap);
+	
 	GHashTable *hash; /* TEMP hash to store server replies...*/
 	                  /* will be replaced with our own native C2Hash */
 	
@@ -92,7 +94,8 @@ GtkType
 c2_imap_get_type							(void);
 
 C2IMAP *
-c2_imap_new									(gchar *host, gint port, gchar *user, gchar *pass, gboolean ssl);
+c2_imap_new									(gchar *host, gint port, gchar *user, gchar *pass, 
+														C2IMAPAuthenticationType auth, gboolean ssl);
 
 void
 c2_imap_init								(C2IMAP *imap);
