@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández Navarro
+ * 		* Pablo Fernández López
  * Code of this file by:
- * 		* Pablo Fernández Navarro
+ * 		* Pablo Fernández López
  */
 #include <glib.h>
 #include <config.h>
@@ -42,38 +42,230 @@
 /*Oh, yes, the perfect armony of "the 0 bytes length of the file", just perfect :) -pablo */
 /*Cool! I´m coding from Paris with my new laptop! -pablo */
 /*Crap! I'm coding in Buenos Aires without electricity (it went off) -pablo */
+/*Cool! I'm coding from Madrid, missing and loving my very best friends Vicky and Sol! -pablo */
 
-#define index_file(mbox, v) \
+#define QUEUE_TIMEOUT	60
+#define QUEUE_STRING	"queue"
+
+#define index_file(mbox, value) \
 	{ \
 		gchar *hd = g_get_home_dir (); \
-		v = g_strconcat (hd, "/.c2/spool/", mbox->name, NULL); \
-		g_free (hd); \
+		value = g_strconcat (hd, "/.c2/spool/", mbox->name, NULL); \
 	}
 
+typedef GList C2DbSpoolQueue;
+typedef struct _C2DbSpoolQueueItem C2DbSpoolQueueItem;
+typedef enum _C2DbSpoolQueueAction C2DbSpoolQueueAction;
+
+enum _C2DbSpoolQueueAction
+{
+	C2_DB_SPOOL_QUEUE_ADD,
+	C2_DB_SPOOL_QUEUE_REMOVE,
+	C2_DB_SPOOL_QUEUE_MARK,
+	C2_DB_SPOOL_QUEUE_STATE
+};
+
+struct _C2DbSpoolQueue
+{
+	C2DbSpoolQueueAction action;
+
+	gpointer edata;
+
+	gint mid;
+};
+
+static C2DbSpoolQueue *
+queue_item_new (C2DbSpoolQueue *queue, C2DbSpoolQueueAction action, gpointer edata, gint mid);
+
+static gboolean
+line_is_start_of_mail						(const gchar *line);
+
+static gboolean
+check_commit								(C2Mailbox *mailbox);
+
+static void
+commit										(C2Mailbox *mailbox);
+
+/*********************
+ * UTILITY FUNCTIONS *
+ *********************/
+static gboolean
+line_is_start_of_mail (const gchar *line)
+{
+	const gchar *ptr;
+
+	ptr = line;
+	
+	/* Check that the line starts with "From " */
+	if (c2_strnne (ptr, "From ", 5))
+		return FALSE;
+	
+	/* Go through the blank spaces */
+	for (ptr += 5; *ptr == ' ' && *ptr != '\0'; ptr++)
+		;
+	if (!ptr)
+		return FALSE;
+
+	/* Should come something that might look like an
+	 * email address, but it might also be a local username,
+	 * so we will just move one word forward ignoring what
+	 * it looks like.
+	 */
+	for (; *ptr != ' ' && *ptr != '\0'; ptr++)
+		;
+	if (!ptr)
+		return FALSE;
+	
+	/* Go through the blank spaces */
+	for (; *ptr == ' ' && *ptr != '\0'; ptr++)
+		;
+	if (!ptr)
+		return FALSE;
+
+	if (c2_date_parse_fmt3 (ptr) == -1)
+		return FALSE;
+
+	/* Check that there's nothing else */
+	ptr += 25;
+
+	if (strlen (ptr))
+		return FALSE;
+
+	return TRUE;
+}
+
+/*******************
+ * QUEUE FUNCTIONS *
+ *******************/
+static C2DbSpoolQueue *
+queue_item_new (C2DbSpoolQueue *queue, C2DbSpoolQueueAction action, gpointer edata, gint mid)
+{
+	C2DbSpoolQueueItem *item;
+
+	item = g_new0 (C2DbSpoolQueueItem, 1);
+	item->action = action;
+	item->edata = edata;
+	item->mid = mid;
+
+	/* Search the Queue looking for an action over this mid
+	 * to see if we are cancelling an action that wasn't
+	 * committed yet (i.e. unmarking a mail that the queue
+	 * says it should be marked). */
+
+	return g_list_append (queue, item);
+}
+
+
+/********************
+ * COMMIT FUNCTIONS *
+ ********************/
+static gboolean
+check_commit (C2Mailbox *mailbox)
+{
+	
+}
+
+static void
+commit (C2Mailbox *mailbox)
+{
+		
+}
+
+/****************************
+ * INDEX CREATION FUNCTIONS *
+ ****************************/
+static void
+index_create (C2Mailbox *mailbox)
+{
+	FILE *spool, *index;
+	gchar *index_path, *line;
+
+	/* Open the spool file */
+	if (!(spool = fopen (mailbox->protocol.spool.path, "a+")))
+	{
+		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
+		C2_PRINTD ("spool -- index_create() -- spool file failed\n");
+		C2_DEBUG_ (perror ("index_create()"););
+		return;
+	}
+	fseek (spool, 0, SEEK_SET);
+
+	/* Open the index file */
+	index_file (mailbox, index_path);
+	if (!(index = fopen (index_path, "w")))
+	{
+		fclose (spool);
+		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
+		C2_PRINTD ("spool -- index_create() -- index path = '%s'\n", index_path);
+		C2_DEBUG_ (perror ("index_create()"););
+		g_free (index_path);
+		return;
+	}
+	g_free (index_path);
+
+	/* Go through the spool file */
+	C2_PRINTD ("spool -- index_create() -- starting for on '%s'\n", mailbox->protocol.spool.path);
+	for (;;)
+	{
+		if (!(line = c2_fd_get_line (spool)))
+			break;
+
+		if (line_is_start_of_mail (line))
+		{
+			if (ftell (spool) < 0)
+			{
+				C2_PRINTD ("spool -- index_create() -- ftell (spool) failed\n");
+				C2_DEBUG_ (perror ("index_create()"););
+			}
+			
+			/* Write in the index file the line where the mail we found
+			 * begins.
+			 */
+			fprintf (index, "%016x\n", ftell (spool)-strlen (line)-1);
+			C2_PRINTD ("spool -- index_create() -- Adding 0x%x\n", ftell (spool)-strlen (line)-1);
+		}
+
+		g_free (line);
+	}
+	C2_PRINTD ("spool -- index_create() -- ending for\n");
+
+	fclose (index);
+	fclose (spool);
+}
+
+/***********************
+ * STRUCTURE FUNCTIONS *
+ ***********************/
 gboolean
 c2_db_spool_create_structure (C2Mailbox *mailbox)
 {
-	gchar *ipath;
-	gint fd;
+	int fd;
+	gchar *path;
 
-	if ((fd = open (mailbox->protocol.spool.path, O_CREAT, S_IRUSR | S_IWUSR)) < 0)
+	/* Try to create the spool file */
+	if (!(fd = open (mailbox->protocol.spool.path, O_CREAT, S_IRUSR | S_IWUSR)))
 	{
-		c2_error_set (-errno);
+		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
+		C2_PRINTD ("c2_db_spool_create_structure() -- spool path = '%s'\n",
+						mailbox->protocol.spool.path);
+		C2_DEBUG_ (perror ("c2_db_spool_create_structure()"););
 		return FALSE;
 	}
-
 	close (fd);
 
-	index_file (mailbox, ipath);
-	if ((fd = open (ipath, O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)) < 0)
+	/* Try to create the index file */
+	index_file (mailbox, path);
+	if (!(fd = open (mailbox->protocol.spool.path, O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)))
 	{
-		c2_error_set (-errno);
+		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
+		C2_PRINTD ("c2_db_spool_create_structure() -- index path = '%s'\n",
+						path);
+		C2_DEBUG_ (perror ("c2_db_spool_create_structure()"););
+		g_free (path);
 		return FALSE;
 	}
+	g_free (path);
 
-	close (fd);
-	g_free (ipath);
-	
 	return TRUE;
 }
 
@@ -85,28 +277,14 @@ c2_db_spool_update_structure (C2Mailbox *mailbox)
 gboolean
 c2_db_spool_remove_structure (C2Mailbox *mailbox)
 {
-	gchar *ipath;
-	
-	if ((unlink (mailbox->protocol.spool.path)) < 0)
-	{
-		c2_error_set (-errno);
-		return FALSE;
-	}
-
-	index_file (mailbox, ipath);
-	if ((unlink (ipath)) < 0)
-	{
-		c2_error_set (-errno);
-		g_free (ipath);
-		return FALSE;
-	}
-
-	return TRUE;
 }
 
 gint
 c2_db_spool_load (C2Mailbox *mailbox)
 {
+	C2_PRINTD ("spool -- c2_db_spool_load() -- Start\n");
+	index_create (mailbox);
+	C2_PRINTD ("spool -- c2_db_spool_load() -- End\n");
 }
 
 void
@@ -133,434 +311,3 @@ C2Message *
 c2_db_spool_load_message (C2Db *db)
 {
 }
-
-#if 0
-static gchar *
-get_field_value							(const gchar *field, gint offset);
-
-static time_t
-get_date_field_from_date				(const gchar *field);
-
-static time_t
-get_date_field_from_from				(const gchar *field);
-
-static void
-get_source_desc							(C2Mailbox *mailbox, FILE **source);
-
-static void
-get_index_info							(C2Mailbox *mailbox, gint mail, gint *start, gint *hoffset, gint *length);
-
-C2Message *
-c2_db_spool_message_get (C2Db *db, gint mid)
-{
-	FILE *source;
-	gint start, hoffset, length;
-	C2Message *message = c2_message_new ();
-
-	get_index_info (db->mailbox, mid, &start, &hoffset, &length);
-	get_source_desc (db->mailbox, &source);
-
-	fseek (source, start, SEEK_SET);
-	printf ("Allocate %d\n", hoffset);
-	message->header = g_new0 (gchar, hoffset);
-	printf ("%s\n", c2_fd_get_line (source));
-	fread (message->header, sizeof (gchar), hoffset, source);
-	C2_DEBUG (message->header);
-	fseek (source, start+hoffset, SEEK_SET);
-	printf ("Allocate %d\n", length-hoffset);
-	message->body = g_new0 (gchar, length-hoffset);
-	fread (message->body, sizeof (gchar), length-hoffset, source);
-	fclose (source);
-
-	return message;
-}
-
-gint
-c2_db_spool_load (C2Mailbox *mailbox)
-{
-	gchar *source_path = mailbox->protocol.spool.path;
-	gchar *index_path = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name, ".mbx", NULL);
-	FILE *source, *index;
-	gchar *buf;
-	gint i, len, pos, hoffset, l;
-	C2Db *head = NULL, *next, *current = NULL;
-
-	c2_return_val_if_fail (mailbox->type == C2_MAILBOX_SPOOL, -1, C2EDATA);
-	if (c2_db_spool_sanity_check (mailbox))
-	{
-		g_warning ("Sanity check failed... Rebuilding.\n");
-		if (c2_db_spool_update_structure (mailbox))
-			return -1;
-	}		
-
-	/* Open the source file (read-only). */
-	if (!(source = fopen (mailbox->protocol.spool.path, "r")))
-	{
-		c2_error_set (-errno);
-		g_warning (_("Unable to update structure for Spool Db: %s\n"), c2_error_get (c2_errno));
-		return -1;
-	}
-	
-	/* Open the index file (read-only). */
-	buf = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name, ".mbx", NULL);
-	if (!(index = fopen (buf, "r")))
-	{
-		c2_error_set (-errno);
-		g_warning (_("Unable to update structure for Spool Db: %s\n"), c2_error_get (c2_errno));
-		fclose (source);
-		g_free (buf);
-		return -1;
-	}
-	g_free (buf);
-
-	for (l=1;;l++)
-	{
-		if (!(buf = c2_fd_get_line (index)))
-			break;
-
-		sscanf (buf, "%d %d %d", &pos, &hoffset, &len);
-		g_free (buf);
-
-		/* Go to the correct line in the souce file */
-		fseek (source, pos, SEEK_SET);
-
-		next = c2_db_new (mailbox);
-
-		for (i=0;;)
-		{
-			if (!(buf = c2_fd_get_line (source)))
-				break;
-
-			i += strlen (buf);
-
-			if (i >= len)
-			{
-				g_free (buf);
-				break;
-			}
-
-			/* Check if this is still the header */
-			if (!strlen (buf))
-			{
-				g_free (buf);
-				break;
-			}
-
-			if (!next->subject && c2_strneq (buf, "Subject:", 8))
-				next->subject = get_field_value (buf, 8);
-			else if (!next->from && c2_strneq (buf, "From:", 5))
-				next->from = get_field_value (buf, 5);
-			else if (!next->account && c2_strneq (buf, "X-Account:", 10))
-				next->account = get_field_value (buf, 10);
-			else if (!next->date && c2_strneq (buf, "From ", 5))
-				next->date = get_date_field_from_from (buf);
-			else if (!next->date && c2_strneq (buf, "Date:", 5))
-				next->date = get_date_field_from_date (buf);
-
-			/* TODO: marked and state, check from other mailers
-			 * how those are handled */
-			next->position = next->mid = l;
-			
-			g_free (buf);
-		}
-
-		if (current)
-			current->next = next;
-
-		if (!head)
-			head = next;
-
-		current = next;
-	}
-
-	mailbox->db = head;
-	
-	return 0;
-}
-
-static gchar *
-get_field_value (const gchar *field, gint offset)
-{
-	const gchar *ptr;
-	
-	for (ptr = field+offset; *ptr != '\0' && *ptr != ' '; ptr++)
-		;
-
-	return g_strdup (ptr);
-}
-
-static time_t
-get_date_field_from_date (const gchar *field)
-{
-	gchar *strdate;
-	time_t date;
-
-	strdate = get_field_value (field, 5);
-	if ((date = c2_date_parse (strdate)) == -1)
-		if ((date = c2_date_parse_fmt2 (strdate)) == -1)
-			date = 0;
-
-	g_free (strdate);
-
-	return date;
-}
-
-static time_t
-get_date_field_from_from (const gchar *field)
-{
-	const gchar *ptr;
-
-	for (ptr = field+5; *ptr == ' ' && *ptr != '\0'; ptr++)
-		;
-
-	for (; *ptr != ' ' && *ptr != '\0'; ptr++)
-		;
-
-	for (; *ptr == ' ' && *ptr != '\0'; ptr++)
-		;
-	
-	if (!ptr)
-		return 0;
-
-	/* We don´t try with other than c2_date_parse_fmt3 because this format
-	 * must be the first one and we don´t want to waste time
-	 * checking for something we know is not there.
-	 */
-	return c2_date_parse_fmt3 (ptr);
-}
-
-gint
-c2_db_spool_create_structure (C2Mailbox *mailbox)
-{
-	gchar *path = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name, ".mbx", NULL);
-	gint fd;
-
-	c2_return_val_if_fail (mailbox->type == C2_MAILBOX_SPOOL, -1, C2EDATA);
-
-	if ((fd = open (mailbox->protocol.spool.path, O_CREAT | O_WRONLY, 0600)) < 0)
-	{
-		c2_error_set (-errno);
-		g_warning (_("Unable to create structure for Spool Db (1): %s\n"), c2_error_get (c2_errno));
-		g_free (path);
-		return -1;
-	}
-	close (fd);
-
-	if ((fd = open (path, O_CREAT, 0600)) < 0)
-	{
-		c2_error_set (-errno);
-		g_warning (_("Unable to create structure for Spool Db (2): %s\n"), c2_error_get (c2_errno));
-		g_free (path);
-		return -1;
-	}
-	close (fd);
-	
-	c2_db_spool_update_structure (mailbox);
-	
-	return 0;
-}
-
-gint
-c2_db_spool_update_structure (C2Mailbox *mailbox)
-{
-	gchar *buf;
-	gint start = -1, length;
-	FILE *source, *index;
-	gboolean reading_header;
-	
-	c2_return_val_if_fail (mailbox->type == C2_MAILBOX_SPOOL, -1, C2EDATA);
-	
-	/* Open the source file (read-only). */
-	if (!(source = fopen (mailbox->protocol.spool.path, "r")))
-	{
-		c2_error_set (-errno);
-		g_warning (_("Unable to update structure for Spool Db: %s\n"), c2_error_get (c2_errno));
-		return -1;
-	}
-	
-	/* Open the index file (write-only). */
-	buf = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name, ".mbx", NULL);
-	if (!(index = fopen (buf, "w")))
-	{
-		c2_error_set (-errno);
-		g_warning (_("Unable to update structure for Spool Db: %s\n"), c2_error_get (c2_errno));
-		fclose (source);
-		g_free (buf);
-		return -1;
-	}
-	g_free (buf);
-	
-	/* Go through the source file looking for a From. */
-	reading_header = TRUE;
-	for (;;)
-	{
-		if (!(buf = c2_fd_get_line (source)))
-		{
-			/* We found the end of the last mail */
-			if (!reading_header)
-				fprintf (index, "%d\n", ftell (source)-start);
-			break;
-		}
-
-		if (reading_header && !strlen (buf))
-		{
-			fprintf (index, "%d ", ftell (source)-start);
-			g_free (buf);
-			reading_header = FALSE;
-			continue;
-		}
-
-		/* Check if this line is important (must start with 'From ') */
-		if (c2_strnne (buf, "From ", 5))
-		{
-			
-			g_free (buf);
-			continue;
-		}
-
-		if (start < 0)
-		{
-			/* Then this is the first line we read from the mail */
-			start = ftell (source)-strlen (buf)-1;
-			fprintf (index, "%d ", start);
-			fprintf (stdout, "mail starts at position: %d\n", start);
-			reading_header = TRUE;
-		} else
-		{
-			/* Then this is the last line we read from the mail */
-			printf ("length = %d-%d-%d-1 (%d)\n", ftell (source), start, strlen (buf), 
-						ftell (source)-start-strlen (buf)-1);
-			length = ftell (source)-start-strlen (buf)-1;
-			fprintf (index, "%d\n", length);
-			fprintf (stdout, "length of mail is: %d\n", length);
-
-			/* And we also got the start of the next mail */
-			start = start+length;
-			fprintf (index, "%d ", start);
-			fprintf (stdout, "mail starts at position: %d\n", start);
-			reading_header = TRUE;
-		}
-
-		g_free (buf);
-	}
-	
-	/* Close everything and return 0. */
-	fclose (source);
-	fclose (index);
-
-	return 0;
-}
-
-gint
-c2_db_spool_remove_structure (C2Mailbox *mailbox)
-{
-	gchar *buf;
-	
-	c2_return_val_if_fail (mailbox->type == C2_MAILBOX_SPOOL, -1, C2EDATA);
-	
-	buf = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name, ".mbx", NULL);
-	unlink (mailbox->protocol.spool.path);
-	unlink (buf);
-	g_free (buf);
-}
-
-/**
- * c2_db_spool_sanity_check
- * @mailbox: Mailbox where to act.
- *
- * This function will check if everything looks
- * Ok in the Spool Db.
- * 
- * Return Value:
- * 0 if everything is Ok or -1.
- **/
-gint
-c2_db_spool_sanity_check (C2Mailbox *mailbox)
-{
-	/* This works by calculating the size the file
-	 * should have (using the index file) and checking
-	 * if they match.
-	 */
-	FILE *index;
-	gint calc_size = 0;
-	gchar *buf, *size;
-	struct stat st;
-
-	c2_return_val_if_fail (mailbox->type == C2_MAILBOX_SPOOL, -1, C2EDATA);
-
-	/* Open the index file (read-only). */
-	buf = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name, ".mbx", NULL);
-	if (!(index = fopen (buf, "r")))
-	{
-		c2_error_set (-errno);
-		g_warning (_("Unable to update structure for Spool Db: %s\n"), c2_error_get (c2_errno));
-		g_free (buf);
-		return -1;
-	}
-	g_free (buf);
-
-	for (;;)
-	{
-		if (!(buf = c2_fd_get_line (index)))
-			break;
-
-		size = c2_str_get_word (2, buf, ' ');
-		g_free (buf);
-
-		calc_size += atoi (size);
-		printf ("%d\n", calc_size);
-		g_free (size);
-	}
-	fclose (index);
-
-	if (stat (mailbox->protocol.spool.path, &st) < 0)
-		return -1;
-	
-	calc_size *= sizeof (gchar);
-	printf ("%d != %d = %d\n", st.st_size, calc_size, -(st.st_size != calc_size));
-	return -(st.st_size != calc_size);
-}
-
-static void
-get_index_info (C2Mailbox *mailbox, gint mail, gint *start, gint *hoffset, gint *length)
-{
-	FILE *fd;
-	gchar *buf;
-	gint i;
-
-	buf = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name, ".mbx", NULL);
-	if (!(fd = fopen (buf, "r")))
-	{
-		c2_error_set (-errno);
-		g_warning (_("Unable to update structure for Spool Db: %s\n"), c2_error_get (c2_errno));
-		g_free (buf);
-		return;
-	}
-	g_free (buf);
-
-	for (i = 0; i < mail; i++)
-	{
-		if (!(buf = c2_fd_get_line (fd)))
-			return;
-		
-		if (i != mail-1)
-			g_free (buf);
-	}
-
-	sscanf (buf, "%d %d %d", start, hoffset, length);
-
-	g_free (buf);
-	fclose (fd);
-}
-
-static void
-get_source_desc (C2Mailbox *mailbox, FILE **source)
-{
-	if (!(*source = fopen (mailbox->protocol.spool.path, "r")))
-	{
-		c2_error_set (-errno);
-		g_warning (_("Unable to update structure for Spool Db: %s\n"), c2_error_get (c2_errno));
-		return;
-	}
-}
-#endif

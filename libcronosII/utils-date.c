@@ -365,7 +365,6 @@ c2_date_parse_fmt3 (const gchar *strtime)
 				/* Weekday month day_of_month hour:minute:second year
 				 *         ^^^^^
 				 */
-				C2_DEBUG (ptr);
 				if ((tmp = c2_date_get_month (ptr)) < 0)
 				{
 					g_free (cpy);

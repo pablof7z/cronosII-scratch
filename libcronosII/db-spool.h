@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández Navarro
+ * 		* Pablo Fernández López
  * Code of this file by:
- * 		* Pablo Fernández Navarro
+ * 		* Pablo Fernández López
  */
 #ifndef __LIBCRONOSII_SPOOL_H__
 #define __LIBCRONOSII_SPOOL_H__
@@ -33,6 +33,8 @@ extern "C" {
 #else
 #	include <cronosII.h>
 #endif
+
+#define QUEUE_TIMEOUT	60
 
 gboolean
 c2_db_spool_create_structure				(C2Mailbox *mailbox);
