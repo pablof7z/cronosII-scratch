@@ -1,3 +1,10 @@
+Sun Apr  7 Pablo Fernández <sandokan@pablossite.net>
+	* Added the splash.png image.
+	* Added the error_page.png image.
+	* Added the message_404.html page.
+	* Support for showing a cute error message on
+	  message database loading failure.
+
 Sat Apr  6 Pablo Fernández <sandokan@pablossite.net>
 	* Work on the Multisession.
 	* Work on the transfer list and transfer item widgets.

@@ -721,11 +721,10 @@ on_dialog_about_web_site_clicked (GtkWidget *widget, GladeXML *xml)
 }
 
 static void
-on_dialog_about_close_clicked (GtkWidget *widget)
+on_dialog_about_close_clicked (GtkWidget *widget, GtkWidget *window)
 {
 	C2Application *application = C2_APPLICATION (
-							gtk_object_get_data (GTK_OBJECT (xml), "application"));
-	GtkWidget *window = glade_xml_get_widget (xml, "dlg_about");
+							gtk_object_get_data (GTK_OBJECT (widget), "application"));
 	
 	c2_application_window_remove (application, GTK_WINDOW (window));
 	gtk_object_destroy (GTK_OBJECT (window));
@@ -748,6 +747,7 @@ c2_application_dialog_about (C2Application *application)
 							authors,
 							_(""),
 							PKGDATADIR "/pixmaps/splash.png");
+	gtk_object_set_data (GTK_OBJECT (widget), "application", application);
 
 //	button = gnome_
 	
@@ -757,7 +757,7 @@ c2_application_dialog_about (C2Application *application)
 	gnome_dialog_button_connect (GNOME_DIALOG (widget), 0,
 						GTK_SIGNAL_FUNC (on_dialog_about_web_site_clicked), NULL);
 	gnome_dialog_button_connect (GNOME_DIALOG (widget), 1,
-						GTK_SIGNAL_FUNC (on_dialog_about_close_clicked), NULL);
+						GTK_SIGNAL_FUNC (on_dialog_about_close_clicked), widget);
 	c2_application_window_add (application, GTK_WINDOW (widget));
 
 	gnome_dialog_run_and_close (GNOME_DIALOG (widget));
