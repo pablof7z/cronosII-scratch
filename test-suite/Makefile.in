@@ -129,11 +129,11 @@ cronosIIpath = @cronosIIpath@
 gnomedownload = @gnomedownload@
 l = @l@
 
-bin_PROGRAMS = date db hash mailbox request smtp pop3_test
+bin_PROGRAMS = date db hash mailbox request pop3_test smtp
 
 INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules $(GNOME_INCLUDEDIR)
 
-LDADD = $(top_builddir)/libcronosII/libcronosII.a $(top_builddir)/intl/libintl.a
+LDADD = $(top_builddir)/libcronosII/libcronosII.a
 LDFLAGS = $(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(GTK_LIBS)
 
 
@@ -157,14 +157,13 @@ request_SOURCES = request.c
 request_LDADD = $(LDADD)
 request_LDFLAGS = $(LDFLAGS)
 
-smtp_SOURCED = smtp.c
-smtp_LDADD = $(LDADD)
-smtp_LDFLAGS = $(LDFLAGS)
-
 pop3_test_SOURCES = pop3_test.c
 pop3_test_LDADD = $(LDADD)
 pop3_test_LDFLAGS = $(LDFLAGS)
 
+smtp_SOURCES = smtp.c
+smtp_LDADD = $(LDADD)
+smtp_LDFLAGS = $(LDFLAGS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -183,10 +182,10 @@ mailbox_OBJECTS =  mailbox.o
 mailbox_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 request_OBJECTS =  request.o
 request_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
-smtp_OBJECTS = smtp.o
-smtp_DEPENDENCIES = $(top_builddir)/libcronosII/libcronosII.a
 pop3_test_OBJECTS =  pop3_test.o
 pop3_test_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+smtp_OBJECTS =  smtp.o
+smtp_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -199,9 +198,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/date.P .deps/db.P .deps/hash.P .deps/mailbox.P \
-.deps/pop3_test.P .deps/request.P
-SOURCES = $(date_SOURCES) $(db_SOURCES) $(hash_SOURCES) $(mailbox_SOURCES) $(request_SOURCES) $(smtp_SOURCES) $(pop3_test_SOURCES)
-OBJECTS = $(date_OBJECTS) $(db_OBJECTS) $(hash_OBJECTS) $(mailbox_OBJECTS) $(smtp_SOURCES) $(request_OBJECTS) $(pop3_test_OBJECTS)
+.deps/pop3_test.P .deps/request.P .deps/smtp.P
+SOURCES = $(date_SOURCES) $(db_SOURCES) $(hash_SOURCES) $(mailbox_SOURCES) $(request_SOURCES) $(pop3_test_SOURCES) $(smtp_SOURCES)
+OBJECTS = $(date_OBJECTS) $(db_OBJECTS) $(hash_OBJECTS) $(mailbox_OBJECTS) $(request_OBJECTS) $(pop3_test_OBJECTS) $(smtp_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -291,13 +290,13 @@ request: $(request_OBJECTS) $(request_DEPENDENCIES)
 	@rm -f request
 	$(LINK) $(request_LDFLAGS) $(request_OBJECTS) $(request_LDADD) $(LIBS)
 
-smtp: $(smtp_OBJECTS) $(smtp_DEPENDENCIES)
-	@rm -f smtp
-	$(LINK) $(smtp_LDFLAGS) $(smtp_OBJECTS) $(smtp_LDADD) $(LIBS)
-
 pop3_test: $(pop3_test_OBJECTS) $(pop3_test_DEPENDENCIES)
 	@rm -f pop3_test
 	$(LINK) $(pop3_test_LDFLAGS) $(pop3_test_OBJECTS) $(pop3_test_LDADD) $(LIBS)
+
+smtp: $(smtp_OBJECTS) $(smtp_DEPENDENCIES)
+	@rm -f smtp
+	$(LINK) $(smtp_LDFLAGS) $(smtp_OBJECTS) $(smtp_LDADD) $(LIBS)
 
 tags: TAGS
 

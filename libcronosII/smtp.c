@@ -33,6 +33,7 @@
 /* (in progress) TODO: create a test-module */
 /* TODO: implement BCC */
 /* TODO: implement sending of MIME attachments */
+/* TODO: implement authentication (posted by pablo) */
 
 static gint
 c2_smtp_connect (C2Smtp *smtp);

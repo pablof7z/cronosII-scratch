@@ -129,10 +129,12 @@ mailbox.o: mailbox.c /usr/include/string.h /usr/include/features.h \
  /usr/include/errno.h /usr/include/bits/errno.h \
  /usr/include/linux/errno.h /usr/include/asm/errno.h \
  ../libcronosII/utils.h ../config.h ../libcronosII/mailbox.h \
- ../libcronosII/db.h /usr/include/bits/time.h \
- ../libcronosII/db-cronosII.h ../libcronosII/message.h \
- ../libcronosII/mime.h ../libcronosII/db-imap.h \
- ../libcronosII/db-spool.h
+ /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
+ /usr/include/bits/time.h /usr/include/signal.h \
+ /usr/include/bits/pthreadtypes.h /usr/include/bits/sigthread.h \
+ ../libcronosII/db.h ../libcronosII/db-cronosII.h \
+ ../libcronosII/message.h ../libcronosII/mime.h \
+ ../libcronosII/db-imap.h ../libcronosII/db-spool.h
 mailbox.c :
 /usr/include/string.h :
 /usr/include/features.h :
@@ -289,8 +291,14 @@ mailbox.c :
 ../libcronosII/utils.h :
 ../config.h :
 ../libcronosII/mailbox.h :
-../libcronosII/db.h :
+/usr/include/pthread.h :
+/usr/include/sched.h :
+/usr/include/bits/sched.h :
 /usr/include/bits/time.h :
+/usr/include/signal.h :
+/usr/include/bits/pthreadtypes.h :
+/usr/include/bits/sigthread.h :
+../libcronosII/db.h :
 ../libcronosII/db-cronosII.h :
 ../libcronosII/message.h :
 ../libcronosII/mime.h :

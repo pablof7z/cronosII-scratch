@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-01 23:50-0300\n"
+"POT-Creation-Date: 2001-09-02 01:54-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,43 +70,56 @@ msgstr ""
 msgid "This message claims to be multipart but it seems to be broken."
 msgstr ""
 
-#: libcronosII/smtp.c:72
-msgid "Unable to resolve SMTP server hostname"
-msgstr ""
-
-#: libcronosII/smtp.c:78
-msgid "Unable to connect to SMTP server"
-msgstr ""
-
-#: libcronosII/smtp.c:93
-msgid "SMTP server was not friendly on our connect! May not be RFC compliant"
-msgstr ""
-
-#: libcronosII/smtp.c:124
-msgid "SMTP server did not respond to 'HELO/EHLO in a friendly way"
-msgstr ""
-
-#: libcronosII/smtp.c:250
+#: libcronosII/smtp.c:184
 msgid "SMTP server did not respond to our sent messaage in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:281
-msgid "Unable to get 'From:' header from message"
+#: libcronosII/smtp.c:202
+msgid "System Error: Unable to write message to disk for local SMTP command"
 msgstr ""
 
-#: libcronosII/smtp.c:298
-msgid "Unable to get 'To:' header from message"
+#: libcronosII/smtp.c:211
+msgid "Internal C2 Error: Unable to fetch headers in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:312
+#: libcronosII/smtp.c:235
+msgid ""
+"Problem running local SMTP command to send messages -- Check SMTP settings"
+msgstr ""
+
+#: libcronosII/smtp.c:264
+msgid "Unable to resolve SMTP server hostname"
+msgstr ""
+
+#: libcronosII/smtp.c:270
+msgid "Unable to connect to SMTP server"
+msgstr ""
+
+#: libcronosII/smtp.c:285
+msgid "SMTP server was not friendly on our connect! May not be RFC compliant"
+msgstr ""
+
+#: libcronosII/smtp.c:317
+msgid "SMTP server did not respond to 'HELO/EHLO in a friendly way"
+msgstr ""
+
+#: libcronosII/smtp.c:341
+msgid "Internal C2 Error: Unable to fetch \"From:\" header in email message"
+msgstr ""
+
+#: libcronosII/smtp.c:358
+msgid "Internal C2 Error: Unable to fetch \"To:\" header in email message"
+msgstr ""
+
+#: libcronosII/smtp.c:372
 msgid "SMTP server did not reply to 'MAIL FROM:' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:344
+#: libcronosII/smtp.c:404
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:374
+#: libcronosII/smtp.c:434
 msgid "SMTP server did not reply to 'DATA' in a friendly way"
 msgstr ""
 
@@ -589,7 +602,7 @@ msgstr ""
 
 #: src/preferences-trans.h:12 src/preferences-trans.h:16
 #: src/preferences-trans.h:20 src/preferences-trans.h:23
-#: src/preferences-trans.h:207 src/trans.h:100 src/trans.h:203 src/trans.h:210
+#: src/preferences-trans.h:208 src/trans.h:100 src/trans.h:203 src/trans.h:210
 msgid "Error"
 msgstr ""
 
@@ -1197,10 +1210,14 @@ msgid "Leave message in the server."
 msgstr ""
 
 #: src/preferences-trans.h:200
-msgid "Finished"
+msgid "Automatically check this account."
 msgstr ""
 
 #: src/preferences-trans.h:201
+msgid "Finished"
+msgstr ""
+
+#: src/preferences-trans.h:202
 msgid ""
 "Congratulations, you have successfully configured\n"
 "your account for use with Cronos II.\n"
@@ -1208,7 +1225,7 @@ msgid ""
 "Press «Finish» to store the new configuration."
 msgstr ""
 
-#: src/preferences-trans.h:205
+#: src/preferences-trans.h:206
 msgid ""
 "The name you entered is\n"
 "not valid."
