@@ -226,6 +226,7 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	scroll = glade_xml_get_widget (xml, "mlist_scroll");
 	gtk_container_add (GTK_CONTAINER (scroll), wmain->mlist);
 	gtk_widget_show (wmain->mlist);
+	GTK_WIDGET_UNSET_FLAGS (wmain->mlist, GTK_CAN_FOCUS);
 
 	gtk_signal_connect (GTK_OBJECT (wmain->mlist), "mailbox_selected",
 								GTK_SIGNAL_FUNC (on_mlist_mailbox_selected), wmain);

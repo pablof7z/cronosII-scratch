@@ -345,11 +345,8 @@ c2_transfer_item_start (C2TransferItem *ti)
 			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_transfer_item_start_pop3_thread), data);
 		} else if (ti->account->type == C2_ACCOUNT_IMAP)
 		{
-#ifdef USE_DEBUG
-			g_error ("The IMAP account aren't checked for mail, they are treated "
-					 "like a regular mailbox, this should not be here (%s:%d)\n",
-					 __FILE__, __LINE__);
-#endif
+			/* Nothing to do since IMAP accounts are not
+			 * checked like accounts but as mailboxes. */
 		} else
 		{
 			g_assert_not_reached ();
@@ -520,7 +517,7 @@ on_pop3_status (GtkObject *object, gint mails, C2TransferItem *ti)
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("%u message."));
 		else
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("%u messages."));
-		
+	
 		gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
 	}
 	gdk_threads_leave ();

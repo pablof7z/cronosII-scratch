@@ -28,11 +28,7 @@
 
 #define DEFAULT_FLAGS C2_POP3_DO_NOT_KEEP_COPY | C2_POP3_DO_NOT_LOSE_PASSWORD
 
-#define UIDL_LENGTH		128		/* [FIXME]
-								 * I'm not sure about this length
-								 * of the buffer, I need to check
-								 * the RFC.
-								 */
+#define UIDL_LENGTH		70
 
 static void
 class_init									(C2POP3Class *klass);
@@ -284,6 +280,7 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 {
 	GSList *download_list, *uidl_list;
 	gint mails;
+	gint retval = 0;
 
 	c2_return_val_if_fail (pop3, -1, C2EDATA);
 
@@ -294,54 +291,45 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 
 	if (c2_net_object_run (C2_NET_OBJECT (pop3)) < 0)
 	{	
-		gtk_object_remove_data (GTK_OBJECT (pop3), "account");
-		pthread_mutex_unlock (&pop3->run_lock);
-		return -1;
+		retval = -1;
+		goto shutdown;
 	}
 
 	if (welcome (pop3) < 0)
 	{
-		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
-		gtk_object_remove_data (GTK_OBJECT (pop3), "account");
-		pthread_mutex_unlock (&pop3->run_lock);
-		return -1;
+		retval = -1;
+		goto after_quit;
 	}
 
 	if (login (pop3) < 0)
 	{
-		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
-		gtk_object_remove_data (GTK_OBJECT (pop3), "account");
-		pthread_mutex_unlock (&pop3->run_lock);
-		return -1;
+		retval = -1;
+		goto after_quit;
 	}
 
 	if ((download_list = status (pop3, account, &uidl_list)) < 0)
 	{
-		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
-		gtk_object_remove_data (GTK_OBJECT (pop3), "account");
-		pthread_mutex_unlock (&pop3->run_lock);
-		return -1;
+		retval = -1;
+		goto after_quit;
 	}
 
 	if (retrieve (pop3, account, inbox, download_list) < 0)
 	{
-		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
-		gtk_object_remove_data (GTK_OBJECT (pop3), "account");
-		pthread_mutex_unlock (&pop3->run_lock);
-		return -1;
+		retval = -1;
+		goto after_quit;
 	}
 
 	if (pop3->flags & C2_POP3_DO_KEEP_COPY && pop3->copies_in_server_life_time)
 	{
 		if (synchronize (pop3, account, uidl_list))
+		{
+			retval = -1;
 			goto after_quit;
+		}
 	} else
 	{
 		GSList *l;
 
-#ifdef USE_DEBUG
-		printf ("Freeing unused complete uidl list\n");
-#endif
 		for (l = uidl_list; l; l = g_slist_next (l))
 			g_free (l->data);
 		g_slist_free (uidl_list);
@@ -352,7 +340,11 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 after_quit:
 	printf("done with fetching\n");
 
-	c2_net_object_disconnect (C2_NET_OBJECT (pop3));
+	if (!retval)
+		c2_net_object_disconnect (C2_NET_OBJECT (pop3));
+	else
+		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
+	
 	g_slist_free (download_list);
 	
 shutdown:
@@ -361,7 +353,7 @@ shutdown:
 	gtk_object_remove_data (GTK_OBJECT (pop3), "account");
 	pthread_mutex_unlock (&pop3->run_lock);
 
-	return 0;
+	return retval;
 }
 
 static gint
@@ -700,6 +692,7 @@ uidl_in_db (C2Account *account, const gchar *uidl)
 		if (c2_streq (buf, uidl))
 			break;
 		g_free (buf);
+		buf = NULL;
 	}
 
 	fclose (fd);
@@ -747,14 +740,14 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 {
 	C2Message *message;
 	gchar *string;
-	gint nth, len;
+	gint nth, len, i;
 	gint32 length, total_length = 0;
 	gchar *tmp;
 	FILE *fd;
 	GSList *l;
 	gboolean getting_header;
 	
-	for (l = download_list; l; l = g_slist_next (l))
+	for (l = download_list, i = 1; l; l = g_slist_next (l), i++)
 	{
 		nth = atoi ((gchar*)l->data);
 		
@@ -781,7 +774,7 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 
 		sscanf (string, "+OK %d octets\r\n", &total_length);
 
-		gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], nth, 0, total_length);
+		gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], i, 0, total_length);
 
 		/* Get a temp name */
 		tmp = c2_get_tmp_file ();
@@ -843,6 +836,21 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 			g_free (prompt);
 		} else
 		{
+			if (c2_net_object_send (C2_NET_OBJECT (pop3), "DELE %d\r\n", nth) < 0)
+				return -1;
+			
+			if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+				return -1;
+
+			if (c2_strnne (string, "+OK", 3))
+			{
+				string = strstr (string, " ");
+				if (string)
+					string++;
+				
+				c2_error_set_custom (string);
+				return -1;
+			}
 		}
 
 		gtk_object_destroy (GTK_OBJECT (message));

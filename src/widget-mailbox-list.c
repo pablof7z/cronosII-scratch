@@ -17,6 +17,8 @@
  */
 #include "widget-mailbox-list.h"
 
+#include <libcronosII/imap.h>
+
 static void
 class_init									(C2MailboxListClass *klass);
 
@@ -39,7 +41,7 @@ get_mailbox_from_node						(C2MailboxList *mlist, GtkCTreeNode *node);
 
 static void
 tree_fill									(C2Application *application, C2MailboxList *mlist,
-											 C2Mailbox *mailbox, GtkCTreeNode *node);
+											 C2Mailbox *mailbox, C2Account *account, GtkCTreeNode *node);
 
 enum
 {
@@ -123,7 +125,7 @@ c2_mailbox_list_new (C2Application *application)
 
 	mlist = gtk_type_new (c2_mailbox_list_get_type ());
 
-	tree_fill (application, mlist, application->mailbox, NULL);
+	tree_fill (application, mlist, application->mailbox, application->account, NULL);
 
 	gtk_signal_connect (GTK_OBJECT (mlist), "tree_select_row",
 							GTK_SIGNAL_FUNC (on_tree_select_row), mlist);
@@ -177,7 +179,7 @@ on_tree_unselect_row (GtkCTree *ctree, GtkCTreeNode *row, gint column, C2Mailbox
 static void
 on_application_reload_mailboxes (C2Application *application, C2MailboxList *mlist)
 {
-	tree_fill (application, mlist, application->mailbox, NULL);
+	tree_fill (application, mlist, application->mailbox, application->account, NULL);
 }
 
 static C2Mailbox *
@@ -187,7 +189,8 @@ get_mailbox_from_node (C2MailboxList *mlist, GtkCTreeNode *node)
 }
 
 static void
-tree_fill (C2Application *application, C2MailboxList *mlist, C2Mailbox *mailbox, GtkCTreeNode *node)
+tree_fill (C2Application *application, C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
+			GtkCTreeNode *node)
 {
 	C2Mailbox *l;
 	GtkWidget *pixmap_closed;
@@ -272,9 +275,38 @@ tree_fill (C2Application *application, C2MailboxList *mlist, C2Mailbox *mailbox,
 		}
 
 		if (l->child)
-			tree_fill (application, mlist, l, nnode);
+			tree_fill (application, mlist, l, account, nnode);
 	}
 
 	if (!node)
+	{
+		C2Account *la;
+
+		for (la = account; la; la = c2_account_next (la))
+		{
+			if (la->type == C2_ACCOUNT_IMAP)
+			{
+				C2IMAP *imap;
+				gchar *lrow[] =
+				{
+					la->name
+				};
+				
+				nnode = gtk_ctree_insert_node (ctree, NULL, NULL, lrow, 4, NULL, NULL, NULL, NULL, FALSE,
+												TRUE);
+				gtk_ctree_node_set_row_data (ctree, nnode, (gpointer) la);
+				gtk_ctree_node_set_selectable (ctree, nnode, FALSE);
+				style = gtk_ctree_node_get_row_style (ctree, nnode);
+				if (!style)
+					style = gtk_style_copy (GTK_WIDGET (ctree)->style);
+				style->font = application->fonts_gdk_unreaded_mailbox;
+				gtk_ctree_node_set_row_style (ctree, nnode, style);
+
+				imap = C2_IMAP (c2_account_get_extra_data (la, C2_ACCOUNT_KEY_INCOMING, NULL));
+				c2_imap_init (imap);
+			}
+		}
+		
 		gtk_clist_thaw (GTK_CLIST (mlist));
+	}
 }

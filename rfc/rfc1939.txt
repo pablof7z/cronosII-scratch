@@ -429,7 +429,7 @@ RFC 1939                          POP3                          May 1996
          Examples:
              C: RETR 1
              S: +OK 120 octets
-             S: &lt;the POP3 server sends the entire message here&gt;
+             S: <the POP3 server sends the entire message here>
              S: .
 
 
@@ -620,9 +620,9 @@ Myers & Rose                Standards Track                    [Page 11]
 RFC 1939                          POP3                          May 1996
 
 
-             S: &lt;the POP3 server sends the headers of the
+             S: <the POP3 server sends the headers of the
                 message, a blank line, and the first 10 lines
-                of the body of the message&gt;
+                of the body of the message>
              S: .
                 ...
              C: TOP 100 3
@@ -823,7 +823,7 @@ RFC 1939                          POP3                          May 1996
              separate UNIX process is used for each instance of a POP3
              server, the syntax of the timestamp might be:
 
-                &lt;process-ID.clock@hostname&gt;
+                <process-ID.clock@hostname>
 
              where `process-ID' is the decimal value of the process's
              PID, clock is the decimal value of the system clock, and
@@ -869,14 +869,14 @@ RFC 1939                          POP3                          May 1996
              -ERR permission denied
 
          Examples:
-             S: +OK POP3 server ready &lt;1896.697170952@dbc.mtview.ca.us&gt;
+             S: +OK POP3 server ready <1896.697170952@dbc.mtview.ca.us>
              C: APOP mrose c4c9334bac560ecc979e58001b3e22fb
              S: +OK maildrop has 1 message (369 octets)
 
              In this example, the shared  secret  is  the  string  `tan-
              staaf'.  Hence, the MD5 algorithm is applied to the string
 
-                &lt;1896.697170952@dbc.mtview.ca.us&gt;tanstaaf
+                <1896.697170952@dbc.mtview.ca.us>tanstaaf
 
              which produces a digest value of
 
@@ -1014,9 +1014,9 @@ RFC 1939                          POP3                          May 1996
 
 10. Example POP3 Session
 
-      S: &lt;wait for connection on TCP port 110&gt;
-      C: &lt;open connection&gt;
-      S:    +OK POP3 server ready &lt;1896.697170952@dbc.mtview.ca.us&gt;
+      S: <wait for connection on TCP port 110>
+      C: <open connection>
+      S:    +OK POP3 server ready <1896.697170952@dbc.mtview.ca.us>
       C:    APOP mrose c4c9334bac560ecc979e58001b3e22fb
       S:    +OK mrose's maildrop has 2 messages (320 octets)
       C:    STAT
@@ -1028,20 +1028,20 @@ RFC 1939                          POP3                          May 1996
       S:    .
       C:    RETR 1
       S:    +OK 120 octets
-      S:    &lt;the POP3 server sends message 1&gt;
+      S:    <the POP3 server sends message 1>
       S:    .
       C:    DELE 1
       S:    +OK message 1 deleted
       C:    RETR 2
       S:    +OK 200 octets
-      S:    &lt;the POP3 server sends message 2&gt;
+      S:    <the POP3 server sends message 2>
       S:    .
       C:    DELE 2
       S:    +OK message 2 deleted
       C:    QUIT
       S:    +OK dewey POP3 server signing off (maildrop empty)
-      C:  &lt;close connection&gt;
-      S:  &lt;wait for next connection&gt;
+      C:  <close connection>
+      S:  <wait for next connection>
 
 11. Message Format
 

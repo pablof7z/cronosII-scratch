@@ -418,7 +418,8 @@ Are you sure you want this?</message>
 	<class>GtkNotebook</class>
 	<name>notebook</name>
 	<width>451</width>
-	<show_tabs>False</show_tabs>
+	<can_focus>True</can_focus>
+	<show_tabs>True</show_tabs>
 	<show_border>False</show_border>
 	<tab_pos>GTK_POS_LEFT</tab_pos>
 	<scrollable>False</scrollable>
@@ -704,7 +705,7 @@ Are you sure you want this?</message>
 		      <update_policy>GTK_UPDATE_ALWAYS</update_policy>
 		      <snap>False</snap>
 		      <wrap>False</wrap>
-		      <value>1</value>
+		      <value>10</value>
 		      <lower>0</lower>
 		      <upper>100</upper>
 		      <step>1</step>
@@ -3073,7 +3074,7 @@ Do you want to continue?</message>
 With this tool you will be able to add new accounts
 and edit existing accounts.
 
-Extra Help is available from the Main Window Help Menu.</text>
+Further help is available in the «Help» menu</text>
       <title_color>255,255,255</title_color>
       <text_color>0,0,0</text_color>
       <background_color>53,69,163</background_color>
@@ -3190,7 +3191,7 @@ Extra Help is available from the Main Window Help Menu.</text>
 	      <widget>
 		<class>GtkEntry</class>
 		<name>identity_name</name>
-		<tooltip>This Identity name</tooltip>
+		<tooltip>Name of person or organization which will appear as remitent in outgoing messages of this account.</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3215,7 +3216,6 @@ Extra Help is available from the Main Window Help Menu.</text>
 	      <widget>
 		<class>GtkEntry</class>
 		<name>identity_email</name>
-		<tooltip>A functional email address for this Identity</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3316,7 +3316,7 @@ Extra Help is available from the Main Window Help Menu.</text>
 	      <widget>
 		<class>GtkEntry</class>
 		<name>identity_reply_to</name>
-		<tooltip>Optional: Only required when different to the above email address.</tooltip>
+		<tooltip>E-mail address where reply's to mail sent from this account will be sent.</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3341,7 +3341,6 @@ Extra Help is available from the Main Window Help Menu.</text>
 	      <widget>
 		<class>GtkEntry</class>
 		<name>identity_organization</name>
-		<tooltip>Optional Name for this Organisation</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3602,6 +3601,7 @@ IMAP
 	      <widget>
 		<class>GtkSpinButton</class>
 		<name>incoming_server_port</name>
+		<tooltip>Port where Cronos II can access the mail server for your mails</tooltip>
 		<can_focus>True</can_focus>
 		<climb_rate>1</climb_rate>
 		<digits>0</digits>
@@ -3634,7 +3634,7 @@ IMAP
 	      <widget>
 		<class>GtkEntry</class>
 		<name>incoming_server_hostname</name>
-		<tooltip>The Mail Server Hostname.</tooltip>
+		<tooltip>Mail server where Cronos II will go to fetch your mails</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3708,7 +3708,7 @@ IMAP
 	      <widget>
 		<class>GtkEntry</class>
 		<name>incoming_server_username</name>
-		<tooltip>Your user name at this accounts server.</tooltip>
+		<tooltip>Username Cronos II will use to identifies it self at the server</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3787,7 +3787,7 @@ IMAP
 		  <items>Password
 APOP
 </items>
-		  <initial_choice>0</initial_choice>
+		  <initial_choice>1</initial_choice>
 		  <child>
 		    <padding>0</padding>
 		    <expand>False</expand>
@@ -3995,6 +3995,7 @@ Sendmail
 	      <widget>
 		<class>GtkSpinButton</class>
 		<name>outgoing_server_port</name>
+		<tooltip>Port where Cronos II can access the Mail Transfer Agent to deliver messages from this account</tooltip>
 		<can_focus>True</can_focus>
 		<climb_rate>1</climb_rate>
 		<digits>0</digits>
@@ -4027,7 +4028,7 @@ Sendmail
 	      <widget>
 		<class>GtkEntry</class>
 		<name>outgoing_server_hostname</name>
-		<tooltip>This address often takes the format of  &quot;mail.yourisp.com&quot;</tooltip>
+		<tooltip>Outgoing mail server where Cronos II will find the Mail Transfer Agent (MTA) to deliver messages from this account</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -4078,7 +4079,7 @@ Sendmail
 	      <widget>
 		<class>GtkEntry</class>
 		<name>outgoing_server_username</name>
-		<tooltip>Your User Name at this mail account.</tooltip>
+		<tooltip>Username Cronos II will use to authenticate it self to the MTA</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -4123,6 +4124,7 @@ Sendmail
 		<widget>
 		  <class>GtkCheckButton</class>
 		  <name>outgoing_auth_required</name>
+		  <tooltip>Enable this option if your server requires authentication</tooltip>
 		  <can_focus>True</can_focus>
 		  <label>This server requires authentication.</label>
 		  <active>False</active>
@@ -4336,7 +4338,7 @@ Sendmail
 	      <widget>
 		<class>GtkEntry</class>
 		<name>options_account_name</name>
-		<tooltip>Give this account a unique name.</tooltip>
+		<tooltip>Unique name that will identify this account</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -4459,6 +4461,7 @@ Sendmail
 		  <class>GtkEntry</class>
 		  <child_name>GnomeEntry:entry</child_name>
 		  <name>combo-entry10</name>
+		  <tooltip>Signature file that will be used when signing messages with no format</tooltip>
 		  <can_focus>True</can_focus>
 		  <editable>True</editable>
 		  <text_visible>True</text_visible>
@@ -4492,6 +4495,7 @@ Sendmail
 		  <class>GtkEntry</class>
 		  <child_name>GnomeEntry:entry</child_name>
 		  <name>combo-entry11</name>
+		  <tooltip>Signature file that will be used when signing messages with HTML format</tooltip>
 		  <can_focus>True</can_focus>
 		  <editable>True</editable>
 		  <text_visible>True</text_visible>
@@ -4524,6 +4528,7 @@ Sendmail
 	      <widget>
 		<class>GtkCheckButton</class>
 		<name>options_multiple_access_leave</name>
+		<tooltip>Enable this if you don't want Cronos II to delete mails in the server after fetching them</tooltip>
 		<can_focus>True</can_focus>
 		<label>Leave messages in the server.</label>
 		<active>False</active>
@@ -4550,6 +4555,7 @@ Sendmail
 		  <class>GtkCheckButton</class>
 		  <name>options_multiple_access_remove</name>
 		  <sensitive>False</sensitive>
+		  <tooltip>Enable this option if you want Cronos II to delete downloaded messages in the server after an specific period of time</tooltip>
 		  <can_focus>True</can_focus>
 		  <label>Remove messages older than</label>
 		  <active>False</active>
@@ -4565,6 +4571,7 @@ Sendmail
 		  <class>GtkSpinButton</class>
 		  <name>options_multiple_access_remove_value</name>
 		  <sensitive>False</sensitive>
+		  <tooltip>Specify the period of time you want Cronos II to keep downloaded messages in the server</tooltip>
 		  <can_focus>True</can_focus>
 		  <climb_rate>1</climb_rate>
 		  <digits>0</digits>
@@ -4608,6 +4615,7 @@ Sendmail
 	  <widget>
 	    <class>GtkCheckButton</class>
 	    <name>options_auto_check</name>
+	    <tooltip>Enable this option if you want to include this account in &quot;All Account&quot; checks</tooltip>
 	    <can_focus>True</can_focus>
 	    <label>Automatically check this account.</label>
 	    <active>True</active>

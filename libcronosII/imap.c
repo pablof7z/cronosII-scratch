@@ -43,6 +43,7 @@ c2_imap_tag(C2IMAP *imap);
 
 enum
 {
+	LOGIN,
 	LOGIN_FAILED,
 	MAILBOX_LIST,
 	INCOMING_MAIL,
@@ -83,13 +84,12 @@ class_init (C2IMAPClass *klass)
 {
 	GtkObjectClass *object_class = (GtkObjectClass*) klass;
 
-	signals[LOGIN_FAILED] =
-		gtk_signal_new ("login_failed",
+	signals[LOGIN] =
+		gtk_signal_new ("login",
 						GTK_RUN_FIRST,
 						object_class->type,
-						GTK_SIGNAL_OFFSET (C2IMAPClass, login_failed),
-						c2_marshal_INT__POINTER_POINTER_POINTER, GTK_TYPE_INT, 3,
-						GTK_TYPE_STRING, GTK_TYPE_POINTER, GTK_TYPE_POINTER);
+						GTK_SIGNAL_OFFSET (C2IMAPClass, login),
+						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 	signals[MAILBOX_LIST] =
 		gtk_signal_new ("mailbox_list",
 						GTK_RUN_FIRST,
@@ -111,6 +111,7 @@ class_init (C2IMAPClass *klass)
 						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 
+	klass->login = NULL;
 	klass->login_failed = NULL;
 	klass->mailbox_list = NULL;
 	klass->incoming_mail = NULL;
@@ -139,6 +140,19 @@ c2_imap_new (gchar *host, gint port, gchar *user, gchar *pass, gboolean ssl)
 	c2_net_object_construct (C2_NET_OBJECT (imap), host, port, ssl);
 
 	return imap;
+}
+
+/**
+ * c2_imap_init
+ * @imap: IMAP object.
+ *
+ * This function will start an IMAP object,
+ * it will connect the object, make it login, etc.
+ **/
+void
+c2_imap_init (C2IMAP *imap)
+{
+	g_print ("%s (%s@%s)\n", __PRETTY_FUNCTION__, imap->user, C2_NET_OBJECT (imap)->host);
 }
 
 static void

@@ -251,7 +251,12 @@ ignore:
 						c2_pop3_set_flags (pop3, flags);
 						c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, pop3);
 					} else if (account_type == C2_ACCOUNT_IMAP)
-						g_warning ("The IMAP protocol has not been coded yet for Cronos II.\n");
+					{
+						C2IMAP *imap;
+						imap = c2_imap_new (host, port, user, pass, ssl);
+						/* [TODO] There is more of the IMAP object to load... */
+						c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, imap);
+					}
 				}
 				break;
 		}

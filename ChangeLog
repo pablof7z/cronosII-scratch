@@ -1,6 +1,18 @@
+Tue Sep 24 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Fixed a bug in POP3 that made it not to show the "Receiving message X of Y"
+	  string when using UIDL and some messages were already downloaded.
+	* Fixed a buf in the POP3 module that made the c2_pop3_fetchmail
+	  function to return an OK value even if there was an error.
+
 Mon Sep 24 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Added the rfc directory to the CVS.
 	* Removed obsoletes directories from CVS, /module-test and /libmodules.
+	* Work in the UI through Glade.
+	* Update in the structure of the Mailing Lists of Cronos II.
+	* Work in the POP3 module to make it delete mails that after downloading
+	  them.
+	* Added RFC 1321 to the /rfc directory.
+	* Inital work to integrate the module IMAP to Cronos II.
 
 Sat Sep 22 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed a bug in the copy and moving functions
@@ -12,7 +24,7 @@ Sat Sep 22 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 Fri Sep 21 Peter Gossner <gossner@arcom.com.au>
 	* Framework for new manual in place
 
-Tue Sep 20 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+Thu Sep 20 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work with the DB module.
 	* Work with the Transfer Item widget.
 	* Fixed bug that made the DB-Cronos II to give the same MID
@@ -44,7 +56,7 @@ Fri Sep 14 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Some work in the UI with Glade.
 	* Fixed a bug in the DB module (c2_db_length_type).
 
-Tue Sep 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+Thu Sep 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work in the Window Main widget.
 	* POP3 and little IMAP.
 	* Utils (Marshal functions).
@@ -52,7 +64,7 @@ Tue Sep 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 Wed Sep 12 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work in the Preferences.
 
-Thu Sep 11 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+Tue Sep 11 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work in the Preferences.
 	* NY destroyed.
 
@@ -84,7 +96,6 @@ Sat Sep 01 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
 Tue Aug 28 17:26:58 CST 2001 Pete Gossner <gossner@arcom.com.au>
 	* Updates to all xml/*.glade files
-	* ? What do I do with source files produced by glade ?
 
 Sun Aug 19 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Implemented local sendmail and a test-suite component for SMTP
