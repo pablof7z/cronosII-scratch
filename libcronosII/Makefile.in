@@ -131,7 +131,11 @@ l = @l@
 
 noinst_LIBRARIES = libcronosII.a
 
+<<<<<<< Makefile.in
+libcronosII_a_SOURCES =  	account.c			account.h						db.c				db.h							db-cronosII.c		db-cronosII.h					db-imap.c			db-imap.h						db-spool.c			db-spool.h						error.c				error.h												i18n.h							mailbox.c			mailbox.h						message.c			message.h						mime.c				mime.h							net-object.c		net-object.h					pop3.c				pop3.h							request.c			request.h						smtp.c				smtp.h							utils.c				utils.h							utils-date.c		utils-date.h					utils-net.c			utils-net.h	md5.c	md5.h
+=======
 libcronosII_a_SOURCES =  	account.c			account.h						db.c				db.h							db-cronosII.c		db-cronosII.h					db-imap.c			db-imap.h						db-spool.c			db-spool.h						error.c				error.h												i18n.h							hash.c				hash.h												hash-definitions.h				mailbox.c			mailbox.h						message.c			message.h						mime.c				mime.h							net-object.c		net-object.h					pop3.c				pop3.h							request.c			request.h						smtp.c				smtp.h							utils.c				utils.h							utils-date.c		utils-date.h					utils-net.c			utils-net.h
+>>>>>>> 1.15
 
 
 libcronosII_a_LIBADD = @LIBOBJS@
@@ -151,8 +155,13 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 libcronosII_a_DEPENDENCIES =  @LIBOBJS@
 libcronosII_a_OBJECTS =  account.o db.o db-cronosII.o db-imap.o \
+<<<<<<< Makefile.in
+db-spool.o error.o mailbox.o message.o mime.o net-object.o pop3.o \
+request.o smtp.o utils.o utils-date.o utils-net.o md5.o
+=======
 db-spool.o error.o hash.o mailbox.o message.o mime.o net-object.o \
 pop3.o request.o smtp.o utils.o utils-date.o utils-net.o
+>>>>>>> 1.15
 AR = ar
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -169,7 +178,7 @@ DEP_FILES =  .deps/account.P .deps/db-cronosII.P .deps/db-imap.P \
 .deps/db-spool.P .deps/db.P .deps/error.P .deps/hash.P .deps/mailbox.P \
 .deps/message.P .deps/mime.P .deps/net-object.P .deps/pop3.P \
 .deps/request.P .deps/smtp.P .deps/utils-date.P .deps/utils-net.P \
-.deps/utils.P
+.deps/utils.P .deps/md5.P
 SOURCES = $(libcronosII_a_SOURCES)
 OBJECTS = $(libcronosII_a_OBJECTS)
 
