@@ -27,15 +27,14 @@
 
 /* hard-hat area, in progress by bosko */
 /* feel free to mess around -- help me get this module up to spec faster! */
-/* TODO: implement sending of MIME attachments */
 /* TODO: implement authentication (posted by pablo) */
 /* TODO: update this module to use C2 Net-Object */
+/* (needs testing) TODO: implement sending of MIME attachments */
 /* (in progress) TODO: implement local sendmail capability */
 /* (in progress) TODO: create a test-module */
 /* (done!) TODO: implement BCC */
 /* (done!) TODO: implement EHLO */
 /* (done!) TODO: implement keep-alive smtp connection */
-
 
 static gint
 c2_smtp_connect (C2SMTP *smtp);
@@ -53,7 +52,13 @@ static gint
 c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message);
 
 static gint
-c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message);
+c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2Message *message, gchar **boundry);
+
+static gchar *
+c2_smtp_mime_make_message_boundry (void);
+
+static gint
+c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundry);
 
 static gboolean
 smtp_test_connection(C2SMTP *smtp);
@@ -176,9 +181,6 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 			return -1;
 		if(c2_smtp_send_message_contents(smtp, message) < 0)
 			return -1;
-		if(c2_smtp_send_message_mime(smtp, message) < 0)
-			return -1;
-		/* TODO: Implement sending MIME attachments */
 		if(c2_net_send(smtp->sock, "\r\n.\r\n") < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
@@ -498,6 +500,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 	/* This function sends the message body so that there is no
 	 * bare 'LF' and that all '\n' are sent as '\r\n' */
 	gchar *ptr, *start, *buf, *contents = message->header;
+	gchar *mimeboundry = NULL;
 	
 	while(1) 
 	{
@@ -521,6 +524,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 				{
 					c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 					g_free(buf);
+					if(mimeboundry) g_free(mimeboundry);
 					smtp_disconnect(smtp);
 					pthread_mutex_unlock(&smtp->lock);
 					return -1;
@@ -534,26 +538,147 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp);
+			if(mimeboundry) g_free(mimeboundry);
 			pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 		if(contents == message->header)
+		{
+			if(c2_smtp_send_message_mime_headers(smtp, message, &mimeboundry) < 0)
+				return -1;
 			contents = message->body;
+		}
 		else if(contents == message->body)
+		{
+			if(c2_smtp_send_message_mime(smtp, message, mimeboundry) < 0)
+			{	
+				g_free(mimeboundry);
+				return -1;
+			}
+			if(mimeboundry) g_free(mimeboundry);
 			break;
+		}
 	}
 	
 	return 0;
 }
 
+/* send_message_mime_headers
+ * @smtp: the C2SMTP Object to use as network connection
+ * @message: the actual message we are in the process of sending
+ * @boundry: a string that will get allocated and set to be the boundry
+ *           of the MIME message 
+ * 
+ * Function sends the MIME headers such as Mime-Version: and the text/plain
+ * MIME header before sending the actual text of the message 
+ * 
+ * Return Value:
+ * 0 on success, -1 on failure.
+ **/
 static gint
-c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message)
+c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2Message *message, gchar **boundry)
 {
-	/* TODO */
+	gchar *mimeinfo, *errmsg, *msgheader;
+	
+	if(!message->mime)
+		return 0;
+	
+	mimeinfo = g_strdup("MIME-Version: 1.0\r\n"
+								 "Content-Type: multipart/mixed; boundary=");
+	
+	*boundry = c2_smtp_mime_make_message_boundry();
+	
+	errmsg = g_strdup("This is a multipart message in MIME format.\r\n"
+										"The fact that you can read this text means that your\r\n"
+										"mail client does not understand MIME messages and\r\nthe attachments"
+										"enclosed. You should consider moving to another mail client or\r\n"
+										"upgrading to a higher version.\r\nFor further information and help"
+										"please see http://sourceforge.net/projects/cronosii/ and\r\n"
+										"feel free to ask for help on our online forums or email lists\r\n");
+	
+	msgheader = g_strdup("Content-Type: text/plain\r\n"
+											 "Content-Transfer-Encoding: 8bit\r\n"
+											 "Content-Disposition: inline\r\n");
+	
+	if(c2_net_send(smtp->sock, "%s%s\r\n%s\r\n%s\r\n", mimeinfo, *boundry, errmsg, 
+		*boundry, msgheader) < 0)
+	{
+		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+		g_free(mimeinfo);
+		g_free(*boundry);
+		g_free(errmsg);
+		g_free(msgheader);
+		smtp_disconnect(smtp);
+		pthread_mutex_unlock(&smtp->lock);
+		return -1;
+	}
+	
+	g_free(mimeinfo);
+	g_free(errmsg);
+	g_free(msgheader);
 	
 	return 0;
 }
-													
+
+/* c2_smtp_mime_make_message_boundry
+ *
+ * Creates a random string of chars for use as a MIME boundary
+ * 
+ * Return Value:
+ * The freeable string containing the boundary
+ **/
+static gchar *
+c2_smtp_mime_make_message_boundry (void) 
+{
+	gchar *boundry = NULL;
+	gchar *ptr;
+	gint i;
+	
+	srand (time (NULL));
+	boundry = g_new0 (char, 50);
+	sprintf (boundry, "Cronos-II=");
+	ptr = boundry+10;
+	for (i = 0; i < 39; i++) 
+		*(ptr+i) = (rand () % 26)+97; /* From a to z */
+	if (*(ptr+i-1) == '-') *(ptr+i-1) = '.';
+	*(ptr+i) = '\0';
+	
+	return boundry;
+}
+
+
+static gint
+c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundry)
+{
+	C2Mime *mime;
+	
+	if(!message->mime)
+		return 0;
+	
+	if(c2_net_send(smtp->sock, "%s\r\n", boundry))
+	{
+		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+		smtp_disconnect(smtp);
+		pthread_mutex_unlock(&smtp->lock);
+		return -1;
+	}
+
+	for(mime = message->mime; mime; mime = mime->next)
+	{
+		if(c2_net_send(smtp->sock, "Content-Type: %s\r\nContent-Transfer-"
+									"Encoding: %s\r\nContent-Disposition: %s\r\n\r\n%s\r\n",
+									mime->type, mime->encoding, mime->disposition, boundry) < 0)
+		{
+			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+			smtp_disconnect(smtp);
+			pthread_mutex_unlock(&smtp->lock);
+			return -1;
+		}
+	}
+	
+	return 0;
+}
+
 static gboolean
 smtp_test_connection(C2SMTP *smtp)
 {
