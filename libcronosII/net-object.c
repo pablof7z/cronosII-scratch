@@ -71,7 +71,6 @@ c2_net_object_run (C2NetObject *nobj)
 	nobj->state = C2_NET_OBJECT_RESOLVE;
 	gtk_signal_emit (GTK_OBJECT (nobj), signals[RESOLVE]);
 
-	C2_DEBUG (nobj->host);	
 	if (c2_net_resolve (nobj->host, &ip) < 0)
 	{
 #ifdef USE_DEBUG

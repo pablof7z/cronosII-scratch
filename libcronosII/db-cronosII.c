@@ -189,10 +189,8 @@ c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 	if (mailbox->db)
 		mid = mailbox->db->prev->prev->mid+1;
 
-	printf ("About: %d\n", mid);
 	if (!mid)
 		mid = 1;
-	printf ("New mid: %d\n", mid);
 
 	db->mid = mid;
 	

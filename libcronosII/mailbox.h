@@ -38,6 +38,7 @@ typedef struct _C2MailboxClass C2MailboxClass;
 typedef enum _C2MailboxSortBy C2MailboxSortBy;
 typedef enum _C2MailboxType C2MailboxType;
 typedef enum _C2MailboxIMAPEvent C2MailboxIMAPEvent;
+typedef enum _C2MailboxChangeType C2MailboxChangeType;
 
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include "db.h"
@@ -65,6 +66,12 @@ enum _C2MailboxType
 	C2_MAILBOX_CRONOSII,
 	C2_MAILBOX_IMAP,
 	C2_MAILBOX_SPOOL
+};
+
+enum _C2MailboxChangeType
+{
+	C2_MAILBOX_CHANGE_ADD_REMOVE, /* Add or remove */
+	C2_MAILBOX_CHANGE_STATE /* State of a/several mail/s */
 };
 
 struct _C2Mailbox
@@ -119,13 +126,14 @@ struct _C2MailboxClass
 {
 	GtkObjectClass parent_class;
 
+	/* This signal represents a new mailbox */
 	void (*changed_mailboxes) (C2Mailbox *mailbox);
 
 	/* This signal will be emitted when the mailbox has changed the number
 	 * of mails,  db_node is the node where changes start,
 	 * from that node ahead there had been changes.
 	 */
-	void (*changed_mailbox) (C2Mailbox *mailbox, C2Db *db_node);
+	void (*changed_mailbox) (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *db_node);
 	void (*db_loaded) (C2Mailbox *mailbox, gboolean success);
 };
 

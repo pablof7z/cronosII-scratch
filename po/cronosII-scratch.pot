@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-24 20:27-0300\n"
+"POT-Creation-Date: 2001-09-25 16:35-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -527,7 +527,7 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: src/widget-mailbox-list.c:110
+#: src/widget-mailbox-list.c:112
 msgid "Mailbox"
 msgstr ""
 
@@ -557,44 +557,44 @@ msgstr ""
 msgid "Resolving"
 msgstr ""
 
-#: src/widget-transfer-item.c:365
+#: src/widget-transfer-item.c:362
 msgid "Connecting"
 msgstr ""
 
 #. [FIXME]
 #. * Action to login? Loggining?
 #.
-#: src/widget-transfer-item.c:376
+#: src/widget-transfer-item.c:373
 msgid "Loggining"
 msgstr ""
 
-#: src/widget-transfer-item.c:435
+#: src/widget-transfer-item.c:432
 msgid "Login failed"
 msgstr ""
 
-#: src/widget-transfer-item.c:502
+#: src/widget-transfer-item.c:499
 msgid "Getting mail list"
 msgstr ""
 
-#: src/widget-transfer-item.c:520
+#: src/widget-transfer-item.c:517
 #, c-format
 msgid "%u message."
 msgstr ""
 
-#: src/widget-transfer-item.c:522
+#: src/widget-transfer-item.c:519
 #, c-format
 msgid "%u messages."
 msgstr ""
 
-#: src/widget-transfer-item.c:537
+#: src/widget-transfer-item.c:534
 msgid "Receiving %v of %u"
 msgstr ""
 
-#: src/widget-transfer-item.c:556
+#: src/widget-transfer-item.c:553
 msgid "Synchronizing"
 msgstr ""
 
-#: src/widget-transfer-item.c:567
+#: src/widget-transfer-item.c:564
 msgid "Completed"
 msgstr ""
 
@@ -620,33 +620,33 @@ msgid ""
 "Aborting.\n"
 msgstr ""
 
-#: src/widget-window-main.c:438
+#: src/widget-window-main.c:439
 #, c-format
 msgid "The mailbox '%s' couldn't be loaded"
 msgstr ""
 
-#: src/widget-window-main.c:462
+#: src/widget-window-main.c:463
 #, c-format
 msgid "%d messages, %d new."
 msgstr ""
 
-#: src/trans.h:192 src/widget-window-main.c:541
+#: src/trans.h:192 src/widget-window-main.c:542
 msgid "You found the Eastern Egg!"
 msgstr ""
 
-#: src/trans.h:193 src/widget-window-main.c:542
+#: src/trans.h:193 src/widget-window-main.c:543
 msgid "Neat, baby!"
 msgstr ""
 
-#: src/widget-window-main.c:580
+#: src/widget-window-main.c:581
 msgid "Unable to open about file"
 msgstr ""
 
-#: src/widget-window-main.c:794
+#: src/widget-window-main.c:795
 msgid "New mailbox"
 msgstr ""
 
-#: src/widget-window-main.c:969
+#: src/widget-window-main.c:970
 msgid "Unable to create mailbox"
 msgstr ""
 

@@ -113,8 +113,8 @@ c2_mailbox_class_init (C2MailboxClass *klass)
 					GTK_RUN_FIRST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2MailboxClass, changed_mailbox),
-					gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
-					GTK_TYPE_POINTER);
+					gtk_marshal_NONE__INT_POINTER, GTK_TYPE_NONE, 2,
+					GTK_TYPE_ENUM, GTK_TYPE_POINTER);
 
 	c2_mailbox_signals[DB_LOADED] =
 		gtk_signal_new ("db_loaded",
@@ -144,7 +144,7 @@ c2_mailbox_init (C2Mailbox *mailbox)
 	mailbox->next = NULL;
 	mailbox->child = NULL;
 
-	pthread_mutex_init(&mailbox->lock, NULL);
+	pthread_mutex_init (&mailbox->lock, NULL);
 	
 	return mailbox;
 }

@@ -156,7 +156,7 @@ c2_db_new (C2Mailbox *mailbox, gboolean mark, gchar *subject, gchar *from,
 			gchar *account, time_t date, gint mid, gint position)
 {
 	C2Db *db = NULL;
-	C2Db *prev;
+	C2Db *last;
 
 	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
 	
@@ -172,15 +172,16 @@ c2_db_new (C2Mailbox *mailbox, gboolean mark, gchar *subject, gchar *from,
 
 	if (mailbox->db)
 	{
-		prev = mailbox->db->prev;
+		last = mailbox->db->prev;
+		last->next = db;
 		mailbox->db->prev = db;
 	} else
 	{
-		prev = db;
+		last = db;
 		mailbox->db = db;
 	}
 
-	db->prev = prev;
+	db->prev = last;
 	db->next = mailbox->db;
 
 	return db;
@@ -449,7 +450,7 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 	db = c2_db_new (mailbox, marked, c2_message_get_header_field (message, "Subject:"),
 					c2_message_get_header_field (message, "From:"),
 					c2_message_get_header_field (message, "X-CronosII-Account:"),
-					date, 0, 0);
+					date, 0, mailbox->db ? mailbox->db->prev->position+1 : 1);
 	db->message = message;
 	db->state = *(c2_message_get_header_field (message, "X-CronosII-State:"));
 	if (!db->state)
@@ -473,24 +474,8 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 	gtk_object_destroy (GTK_OBJECT (message));
 	db->message = NULL;
 
-
-	if (mailbox->db)
-	{
-		printf ("<%d>\n", mailbox->db->prev->position);
-		l = mailbox->db->prev;
-
-		l->next = db;
-		db->prev = l;
-		mailbox->db->prev = db; /* This is what makes the list to be circular */
-
-		db->position = l->position+1;
-	} else
-	{
-		mailbox->db = db;
-		db->prev = db; /* This is what makes the list to be circular */
-	}
-
-	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox", db->prev);
+	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
+							C2_MAILBOX_CHANGE_ADD_REMOVE, db->prev);
 }
 
 /**
