@@ -722,6 +722,133 @@ c2_str_wrap (const gchar *str, guint8 position)
 #undef FLUSH
 
 /**
+ * c2_str_text_to_html
+ * @str: String to process.
+ * @proc_email: Wether string that looks like E-Mail should be
+ *              converted to links.
+ *
+ * This function will convert the string @str into an
+ * HTML string.
+ * Note that this function will not put any other tag
+ * that the string requires, i.e. it won't put any
+ * <html> tag or <body> tag, all it does is stuff like
+ * converting < into &lt; and that stuff.
+ *
+ * Return Value:
+ * A new allocated HTML string.
+ **/
+#define BUFFER 80
+#define APPEND(c) \
+	{ \
+		buffer[buf_pos++] = c; \
+		buffer[buf_pos] = 0; \
+		FLUSH; \
+	}
+#define APPEND_S(str) \
+	{ \
+		gchar *__ptr__; \
+		for (__ptr__ = str; *__ptr__ != '\0'; __ptr__++) \
+			APPEND (*__ptr__); \
+	}
+#define FLUSH \
+	if (buf_pos >= BUFFER-1) \
+	{ \
+		/* Flush everything */ \
+		if (!gstring) \
+			gstring = g_string_new (buffer); \
+		else \
+			g_string_append (gstring, buffer); \
+		bzero (buffer, BUFFER); \
+		buf_pos = 0; \
+	}
+gchar *
+c2_str_text_to_html (const gchar *str, gboolean proc_email)
+{
+	gchar buffer[BUFFER];
+	const gchar *ptr;
+	gchar *retval;
+	gint buf_pos;
+	GString *gstring = NULL;
+	gboolean new_word = TRUE;
+	
+	if (!str)
+		return NULL;
+
+	bzero (buffer, BUFFER);
+	
+	for (ptr = str, buf_pos = 0; *ptr != '\0'; ptr++)
+	{
+		if (new_word && proc_email)
+		{
+			gchar *buf = c2_str_get_word (0, ptr, ' ');
+			gint buflength;
+			
+			if (c2_str_is_email (buf))
+			{
+				gchar *link, *email;
+				size_t length;
+
+				email = c2_str_get_email (buf);
+				link = g_strdup_printf ("<a href=\"mailto:%s\">%s</a>", email, buf);
+				length = strlen (email);
+				g_free (email);
+
+				APPEND_S (link);
+				g_free (link);
+
+				ptr += length;
+				buffer[buf_pos] = 0;
+			} else if (*buf == '<' && *(buf+(buflength = strlen (buf))-1) == '>')
+			{
+				gchar *email = g_strndup (buf+1, buflength-2);
+				gchar *link;
+				gint length;
+
+				link = g_strdup_printf ("<a href=\"mailto:%s\">&lt;%s&gt;</a>", email, email);
+				length = strlen (buf);
+				g_free (email);
+
+				APPEND_S (link);
+				g_free (link);
+
+				ptr += length;
+				buffer[buf_pos] = 0;
+			}
+
+			g_free (buf);
+		}
+		
+		if (*ptr == '<')
+		{
+			APPEND_S ("&lt;");
+			new_word = TRUE; /* I know, this is not a new word,
+								but it is for what we want to see:
+								an email address */
+		} else if (*ptr == '>')
+		{
+			APPEND_S ("&gt;");
+		} else if (*ptr == ' ')
+		{
+			new_word = TRUE;
+			APPEND (' ');
+		} else
+			APPEND (*ptr);
+	}
+
+	if (gstring)
+	{
+		retval = g_strconcat (gstring->str, buffer, NULL);
+		g_string_free (gstring, FALSE);
+	} else
+		retval = g_strdup (buffer);
+	
+	return retval;
+}
+#undef BUFFER
+#undef APPEND
+#undef FLUSH
+
+/**
  * c2_str_get_emails
  * @string: String to process.
  *

@@ -132,7 +132,7 @@ init (C2HTML *obj)
 }
 
 GtkWidget *
-c2_html_new (void)
+c2_html_new (C2Application *application)
 {
 #if defined (USE_GTKHTML)
 	C2HTML *html;
@@ -140,17 +140,21 @@ c2_html_new (void)
 	html = gtk_type_new (c2_html_get_type ());
 	gtk_html_construct (GTK_WIDGET (html));
 
+	html->application = application;
+
 	return GTK_WIDGET (html);
 #elif defined (USE_GTKXMHTML)
 	C2HTML *html;
 	
 	html = gtk_type_new (c2_html_get_type ());
+	html->application = application;
 
 	return GTK_WIDGET (html);
 #else
 	GtkWidget *html;
 	
 	html = gtk_widget_new (C2_TYPE_HTML, "hadjustment", NULL, "vadjustment", NULL,	 NULL);
+	html->application = application;
 	return html;
 #endif
 }

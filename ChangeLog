@@ -1,3 +1,7 @@
+Sun Dec 02 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* A lot of work to get the headers of mails to display (GtkHTML).
+	* Work to get the links to work again (GtkHTML).
+
 Tue Nov 27 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* A lot of work in the preferences dialog.
 

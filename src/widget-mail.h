@@ -49,27 +49,11 @@ struct _C2Mail
 	C2Message *message;
 	
 	/* Headers */
-	GtkWidget *from_label;
-	GtkWidget *to_label;
-	GtkWidget *cc_label;
-	GtkWidget *bcc_label;
-	GtkWidget *subject_label;
-	GtkWidget *priority_label;
-	GtkWidget *from;
-	GtkWidget *to;
-	GtkWidget *cc;
-	GtkWidget *bcc;
-	GtkWidget *subject;
-	GtkWidget *priority;
-
-	gint showing_from		: 1;
-	gint showing_to			: 1;
-	gint showing_cc			: 1;
-	gint showing_bcc		: 1;
-	gint showing_subject	: 1;
-	gint showing_priority	: 1;
-
-	GtkWidget *table;
+	GtkWidget *headers;
+/*	GtkWidget *from_label[2];
+	GtkWidget *cc_label[2];
+	GtkWidget *subject_label[2];
+	GtkWidget *attachment_button;*/
 
 	/* Part Shower */
 	GtkWidget *body;

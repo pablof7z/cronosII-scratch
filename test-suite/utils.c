@@ -21,11 +21,20 @@
 gint
 main (gint argc, gchar **argv)
 {
-	gchar *file;
+	long int i;
 
-	c2_get_file ("utils.txt", &file);
+	
+	printf ("plain = \"%s\"\n", argv[1]);
+	printf ("html = \"%s\"\n", c2_str_text_to_html (argv[1], TRUE));
 
-	c2_str_wrap (file, 75);
+	for (i = 0; i <= 0xffff; i++)
+		;
+
+	printf ("Counted until %d\n", 0xffff);
+
+	g_free (g_malloc (500));
+
+	printf ("Allocated and freed 500 bytes\n");
 
 	return 0;
 }

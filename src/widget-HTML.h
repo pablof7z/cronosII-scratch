@@ -45,6 +45,7 @@ extern "C" {
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <libcronosII/mime.h>
 #	include <libcronosII/utils.h>
+#	include "widget-application.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -93,7 +94,8 @@ struct _C2HTML
 		gchar *host;
 		guint port;
 	} proxy[C2_HTML_PROXY_LAST];
-			
+	
+	C2Application *application;
 
 	GtkWidget *appbar;
 	pthread_mutex_t *appbar_lock;
@@ -114,7 +116,7 @@ GtkType
 c2_html_get_type							(void);
 
 GtkWidget *
-c2_html_new									(void);
+c2_html_new									(C2Application *application);
 
 void
 c2_html_set_editable						(C2HTML *html);

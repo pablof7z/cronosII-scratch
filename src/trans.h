@@ -70,7 +70,6 @@ gchar *s = N_("_Getting in Touch");
 gchar *s = N_("_Release Information");
 gchar *s = N_("About _Plugins");
 gchar *s = N_("Icon Menu Bar");
-gchar *s = N_("View Message Pane");
 gchar *s = N_("Show the Message Transfer dialog");
 gchar *s = N_("The mailbox name you\n"
               "entered is invalid.");

@@ -22,8 +22,10 @@
 #include <gtkhtml/htmlform.h>
 #include <glade/glade.h>
 
+#include "preferences.h"
 #include "widget-application.h"
 #include "widget-HTML.h"
+#include "widget-composer.h"
 #include <libcronosII/request.h>
 #include <libcronosII/net-object.h>
 #include <libcronosII/utils.h>
@@ -77,16 +79,16 @@ c2_html_gtkhtml_link_clicked (GtkHTML *gtkhtml, const gchar *url, gpointer data)
 
 	prefix = c2_str_get_word (0, url, ':');
 
-	buf = gnome_config_get_string ("/"PACKAGE"/Interface-HTML/links");
+	buf = c2_preferences_get_interface_html_links ();
 	if (c2_streq (buf, "default"))
 	{
 		if (c2_streq (prefix, "mailto"))
 		{
 			GtkWidget *composer;
 
-/*			composer = c2_composer_new ( I have to make changes so
-										 I can get the application
-										 with the HTML widget. */
+			composer = c2_composer_new (C2_HTML (data)->application);
+			c2_composer_set_contents_from_link (C2_COMPOSER (composer), url);
+			gtk_widget_show (composer);
 		} else
 			gnome_url_show (url);
 	} else
@@ -102,6 +104,7 @@ c2_html_gtkhtml_link_clicked (GtkHTML *gtkhtml, const gchar *url, gpointer data)
 	}
 
 	g_free (prefix);
+	g_free (buf);
 }
 
 void

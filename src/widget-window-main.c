@@ -475,7 +475,6 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	GtkWidget *ctree;
 	GtkCList *clist;
 	GtkWidget *index_scroll;
-	GtkWidget *mail;
 	GtkWidget *button;
 	GtkWidget *pixmap;
 	GtkWidget *appbar;
@@ -618,8 +617,11 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_index_select_message), wmain);
 
 	/* Mail */
-	mail = glade_xml_get_widget (xml, "mail");
-	c2_mail_install_hints (C2_MAIL (mail), appbar, &C2_WINDOW (wmain)->status_lock);
+	wmain->mail = c2_mail_new (application);
+	widget = glade_xml_get_widget (xml, "vpaned");
+	gtk_paned_add2 (GTK_PANED (widget), wmain->mail);
+	gtk_widget_show (wmain->mail);
+	c2_mail_install_hints (C2_MAIL (wmain->mail), appbar, &C2_WINDOW (wmain)->status_lock);
 
 	/* Button */
 	button = glade_xml_get_widget (xml, "appbar_button");
@@ -1044,11 +1046,9 @@ static void
 forward (C2WindowMain *wmain)
 {
 	GtkWidget *composer;
-	GtkWidget *mail;
 	C2Message *message;
 	
-	mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
-	message = c2_mail_get_message (C2_MAIL (mail));
+	message = c2_mail_get_message (C2_MAIL (wmain->mail));
 	composer = c2_composer_new (C2_WINDOW (wmain)->application);
 	c2_composer_set_message_as_forward (C2_COMPOSER (composer), message);
 	gtk_widget_show (composer);
@@ -1203,11 +1203,9 @@ static void
 reply (C2WindowMain *wmain)
 {
 	GtkWidget *composer;
-	GtkWidget *mail;
 	C2Message *message;
 	
-	mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
-	message = c2_mail_get_message (C2_MAIL (mail));
+	message = c2_mail_get_message (C2_MAIL (wmain->mail));
 	composer = c2_composer_new (C2_WINDOW (wmain)->application);
 	c2_composer_set_message_as_reply (C2_COMPOSER (composer), message);
 	gtk_widget_show (composer);
@@ -1217,11 +1215,9 @@ static void
 reply_all (C2WindowMain *wmain)
 {
 	GtkWidget *composer;
-	GtkWidget *mail;
 	C2Message *message;
 	
-	mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
-	message = c2_mail_get_message (C2_MAIL (mail));
+	message = c2_mail_get_message (C2_MAIL (wmain->mail));
 	composer = c2_composer_new (C2_WINDOW (wmain)->application);
 	c2_composer_set_message_as_reply_all (C2_COMPOSER (composer), message);
 	gtk_widget_show (composer);
@@ -1252,13 +1248,11 @@ static void
 save (C2WindowMain *wmain)
 {
 	C2Message *message;
-	GtkWidget *mail;
 	GtkWidget *dialog;
 	gchar *save_path;
 	gint button;
 
-	mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
-	message = c2_mail_get_message (C2_MAIL (mail));
+	message = c2_mail_get_message (C2_MAIL (wmain->mail));
 	gtk_object_ref (GTK_OBJECT (message));
 
 	c2_preferences_get_general_paths_save (save_path);
@@ -1723,9 +1717,7 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 		}
 	}
 
-	
-	
-	c2_mail_set_message (C2_MAIL (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail")), node->message);
+	c2_mail_set_message (C2_MAIL (wmain->mail), node->message);
 
 	/* Set some widgets sensivity */
 }

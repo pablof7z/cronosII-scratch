@@ -974,19 +974,7 @@
 	  </widget>
 
 	  <widget>
-	    <class>Custom</class>
-	    <name>mail</name>
-	    <tooltip>View Message Pane</tooltip>
-	    <creation_function>c2_mail_new</creation_function>
-	    <string1></string1>
-	    <string2></string2>
-	    <int1>0</int1>
-	    <int2>0</int2>
-	    <last_modification_time>Wed, 13 Jun 2001 22:19:55 GMT</last_modification_time>
-	    <child>
-	      <shrink>True</shrink>
-	      <resize>True</resize>
-	    </child>
+	    <class>Placeholder</class>
 	  </widget>
 	</widget>
       </widget>

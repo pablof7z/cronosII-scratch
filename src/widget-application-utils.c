@@ -142,7 +142,7 @@ c2_application_dialog_release_information (C2Application *application)
 #endif
 		gtk_widget_show (parent);
 
-		html = c2_html_new ();
+		html = c2_html_new (application);
 		gtk_container_add (GTK_CONTAINER (parent), html);
 		gtk_widget_show (html);
 
@@ -229,7 +229,7 @@ c2_application_dialog_about (C2Application *application)
 #endif
 	gtk_widget_show (parent);
 
-	html = c2_html_new ();
+	html = c2_html_new (application);
 	gtk_container_add (GTK_CONTAINER (parent), html);
 	gtk_widget_show (html);
 

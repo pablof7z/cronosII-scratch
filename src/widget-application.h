@@ -36,6 +36,7 @@ extern "C" {
 
 #define C2_APPLICATION(obj)					(GTK_CHECK_CAST (obj, c2_application_get_type (), C2Application))
 #define C2_APPLICATION_CLASS(klass)			(GTK_CHECK_CLASS_CAST (klass, c2_application_get_type (), C2ApplicationClass))
+#define C2_IS_APPLICATION(obj)				(GTK_CHECK_TYPE (obj, c2_application_get_type ()))
 #define C2_APPLICATION_CLASS_FW(obj)		(C2_APPLICATION_CLASS (((GtkObject*)(obj))->klass))
 
 #define C2_MAILBOX_INBOX					_("Inbox")

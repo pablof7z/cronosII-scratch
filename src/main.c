@@ -28,7 +28,10 @@
 #include "widget-window-main.h"
 
 static gint
-idle										(C2Application *application);
+on_release_information_idle					(gpointer);
+
+static void
+on_window_main_show							(GtkWidget *widget, C2WindowMain *wmain);
 
 gchar *error_list[] =
 {
@@ -174,17 +177,9 @@ c2_init (gint argc, gchar **argv)
 
 #define CREATE_WINDOW_MAIN \
 	{ \
-		C2Mailbox *mailbox; \
-		 \
 		widget = c2_window_main_new (application); \
-		mailbox = c2_mailbox_get_by_name (application->mailbox, \
-									flags.mailbox ? flags.mailbox : C2_MAILBOX_INBOX); \
-		if (!mailbox) \
-			c2_window_report (C2_WINDOW (widget), C2_WINDOW_REPORT_WARNING, \
-								_("The mailbox \"%s\", specified in command line, " \
-								  "does not exist."), flags.mailbox); \
-		else \
-			c2_window_main_set_mailbox (C2_WINDOW_MAIN (widget), mailbox); \
+		gtk_signal_connect (GTK_OBJECT (widget), "show", \
+							GTK_SIGNAL_FUNC (on_window_main_show), widget); \
 		gtk_widget_show (widget); \
 		something_opened = TRUE; \
 	}
@@ -223,9 +218,27 @@ main (gint argc, gchar **argv)
 
 		if (flags.mailto)
 			c2_composer_set_contents_from_link (C2_COMPOSER (widget), flags.mailto);
-		else if (flags.account)
-			c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_ACCOUNT,
-										flags.account);
+		else
+		{
+			if (flags.account)
+				c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_ACCOUNT,
+											flags.account);
+			if (flags.to)
+				c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_TO,
+											flags.to);
+			if (flags.cc)
+				c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_CC,
+											flags.cc);
+			if (flags.bcc)
+				c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_BCC,
+											flags.bcc);
+			if (flags.subject)
+				c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_SUBJECT,
+											flags.subject);
+			if (flags.body)
+				c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_BODY,
+											flags.body);
+		}
 		gtk_widget_show (widget);
 		something_opened = TRUE;
 	}
@@ -236,7 +249,7 @@ main (gint argc, gchar **argv)
 
 	/* Release Information Dialog */
 	if (c2_preferences_get_extra_release_information_show ())
-		gtk_idle_add (idle, application);
+		gtk_idle_add (on_release_information_idle, application);
 	
 	gtk_main ();
 	gdk_threads_leave ();
@@ -248,9 +261,28 @@ main (gint argc, gchar **argv)
 }
 
 static gint
-idle (C2Application *application)
+on_release_information_idle (gpointer data)
 {
+	C2Application *application = C2_APPLICATION (data);
 	c2_application_dialog_release_information (application);
 
+	return FALSE;
+}
+
+static void
+on_window_main_show (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2Mailbox *mailbox;
+
+	mailbox = c2_mailbox_get_by_name (application->mailbox,
+							flags.mailbox ? flags.mailbox : C2_MAILBOX_INBOX);
+	
+	if (!mailbox)
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+							_("The mailbox \"%s\", specified in command line, "
+							  "does not exist."), flags.mailbox);
+	else
+		c2_window_main_set_mailbox (wmain, mailbox);
+	
 	return FALSE;
 }

@@ -109,6 +109,9 @@ c2_str_get_word								(guint8 word_n, const gchar *str, gchar ch);
 gchar *
 c2_str_wrap									(const gchar *str, guint8 position);
 
+gchar *
+c2_str_text_to_html							(const gchar *str, gboolean proc_email);
+
 GList *
 c2_str_get_emails							(const gchar *string);
 
