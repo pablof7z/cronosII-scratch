@@ -1,4 +1,8 @@
-Mon Jun  4 Pablo Fernández <sandokan at pablossite dot net>
+Tue Jun  4 Pablo Fernández <sandokan at pablossite dot net>
+	* Basic DB Spool support is working (just reading, writing
+	  has some problems still).
+
+Mon Jun  3 Pablo Fernández <sandokan at pablossite dot net>
 	* Work in the DB spool submodule.
 
 Sat Jun  1 Pablo Fernández <sandokan at pablossite dot net>

@@ -327,6 +327,7 @@ add_mailbox_dialog_type_selection_done (GtkWidget *widget, GladeXML *xml)
 				gtk_widget_hide (epath_spool);
 			} else if (c2_streq (selection, MAILBOX_TYPE_SPOOL))
 			{
+				gtk_widget_hide (epath_imap);
 				gtk_widget_show (edata);
 				gtk_widget_show (epathl);
 				gtk_widget_show (epath_spool);
@@ -762,7 +763,7 @@ on_dialog_incoming_mail_warning_pixmap_button_press_event (GtkWidget *widget, Gd
 			c2_application_command (application, C2_COMMAND_WINDOW_MAIN_RAISE);
 		case 1:
 			gtk_object_remove_data (GTK_OBJECT (window), "showing");
-			gtk_timeout_add (20, on_dialog_incoming_mail_warning_timeout, window);
+			gtk_timeout_add (20, (GtkFunction) on_dialog_incoming_mail_warning_timeout, window);
 	}
 }
 
@@ -788,7 +789,7 @@ c2_application_dialog_incoming_mail_warning (C2Application *application)
 
 		mails = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "mails"));
 		mails++;
-		gtk_object_set_data (GTK_OBJECT (window), "mails", mails);
+		gtk_object_set_data (GTK_OBJECT (window), "mails", (gpointer) mails);
 
 		e = g_new0 (GdkEventExpose, 1);
 
@@ -813,14 +814,14 @@ c2_application_dialog_incoming_mail_warning (C2Application *application)
 		pos = c2_preferences_get_interface_misc_mail_warning ();
 
 		gtk_object_set_data (GTK_OBJECT (window), "application", application);
-		gtk_object_set_data (GTK_OBJECT (window), "pos", pos);
-		gtk_object_set_data (GTK_OBJECT (window), "width", width);
-		gtk_object_set_data (GTK_OBJECT (window), "height", height);
+		gtk_object_set_data (GTK_OBJECT (window), "pos", (gpointer) pos);
+		gtk_object_set_data (GTK_OBJECT (window), "width", (gpointer) width);
+		gtk_object_set_data (GTK_OBJECT (window), "height", (gpointer) height);
 		gtk_object_set_data (GTK_OBJECT (window), "pixmap", GNOME_PIXMAP (gpixmap)->pixmap);
-		gtk_object_set_data (GTK_OBJECT (window), "text_pos_x", text_pos_x);
-		gtk_object_set_data (GTK_OBJECT (window), "text_pos_y", text_pos_y);
-		gtk_object_set_data (GTK_OBJECT (window), "font", font);
-		gtk_object_set_data (GTK_OBJECT (window), "mails", 1);
+		gtk_object_set_data (GTK_OBJECT (window), "text_pos_x", (gpointer) text_pos_x);
+		gtk_object_set_data (GTK_OBJECT (window), "text_pos_y", (gpointer) text_pos_y);
+		gtk_object_set_data (GTK_OBJECT (window), "font", (gpointer) font);
+		gtk_object_set_data (GTK_OBJECT (window), "mails", (gpointer) 1);
 		gtk_object_set_data (GTK_OBJECT (window), "showing", 1);
 
 		gtk_signal_connect (GTK_OBJECT (darea), "expose_event",
@@ -1032,6 +1033,9 @@ c2_application_dialog_release_information (C2Application *application)
 	GtkWidget *widget, *html, *parent;
 	gint i;
 	gchar *buf;
+#ifdef USE_GTKHTML
+	GtkWidget *scroll;
+#endif
 	
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_release_information");
 	gtk_object_set_data (GTK_OBJECT (xml), "application", application);

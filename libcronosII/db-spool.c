@@ -171,7 +171,6 @@ line_is_start_of_mail (const gchar *line)
 static void
 c2_spool_queue_item_new (C2Mailbox *mailbox, C2Db *db, C2DbSpoolQueueAction action, gpointer edata)
 {
-	printf ("[SPOOL] Adding a Queue Item\n");
 	queue_set (mailbox, queue_item_new (queue_get (mailbox), action, db, edata, db ? db->mid : -1));
 }
 
@@ -200,8 +199,6 @@ queue_idle (gpointer data)
 {
 	C2Mailbox *mailbox;
 	
-	printf ("[SPOOL] queue_idle called\n");
-
 	mailbox = C2_MAILBOX (data);
 
 	if (check_commit (mailbox))
@@ -332,14 +329,11 @@ static gboolean
 check_commit (C2Mailbox *mailbox)
 {
 	if (queue_get (mailbox))
-	{
-		C2_PRINTD (MOD, "Needs to commit\n");
 		return TRUE;
-	} else
-	{
-		C2_PRINTD (MOD, "Doesn't need to commit\n");
+	else
 		return FALSE;
-	}
+
+	return TRUE;
 }
 
 static void
@@ -356,8 +350,6 @@ commit (C2Mailbox *mailbox)
 	gchar *line;
 	gint from_reached;
 	
-	C2_PRINTD (MOD, "Start\n");
-
 	/* First of all sort the list */
 	queue_sort (mailbox);
 
@@ -405,14 +397,12 @@ commit (C2Mailbox *mailbox)
 				
 				qaction = item->action;
 				qdb = item->db;
-				printf ("Getting the DB: '%s'\n", qdb->message->body);
 				qedata = item->edata;
 				qmid = item->mid;
 
 				g_free (item);
 				l->data = NULL;
 				l = l->next;
-				C2_PRINTD (MOD, "qmid = '%d' -- l = l->next\n", qmid);
 			}
 		}
 
@@ -422,7 +412,7 @@ commit (C2Mailbox *mailbox)
 			C2_PRINTD (MOD, "qmid = '%d'\n", qmid);
 			
 			/* Is time to act according to the action specified */
-L			switch (qaction)
+			switch (qaction)
 			{
 				case C2_DB_SPOOL_QUEUE_ADD:
 					/* We are going to add the message */
@@ -432,45 +422,56 @@ L			switch (qaction)
 						gchar timestamp[80];
 						C2Message *message;
 						struct tm *tm;
-L						
-						//printf ("Getting the DB: '%s'\n", qdb->message->body);
-						
-						if (!C2_IS_DB (qdb))
-						{
-							C2_PRINTD (MOD, "qdb is not a C2Db!\n");
-						}
+						const gchar *ptr;
+						gchar *line;
 						
 						message = qdb->message;
-L						if (!C2_IS_MESSAGE (message))
-						{
-							C2_PRINTD (MOD, "message is not a C2Message!\n");
-						}
-						
 						from = c2_message_get_header_field (message, "From:");
-L						
+						
 						if (from)
 						{
 							buf = c2_str_get_email (from);
+							g_free (from);
 							
 							if (buf)
-							{
 								from = buf;
-L							} else
-							{
+							else
 								from = g_strdup ("(nobody)");
-							}
-							
-L							g_free (from);
 						} else
 						{
 							from = g_strdup ("(nobody)");
 						}
 						
-L						tm = localtime (&qdb->date);
+						tm = localtime (&qdb->date);
 						
+						setlocale (LC_ALL, "C");
 						strftime (timestamp, 80, "%a %b %d %H:%M:%S %Y", tm);
+						setlocale (LC_ALL, "");
 						
-L						fprintf (tmp, "From %s %s", from, timestamp);
+						fprintf (tmp, "From %s %s\n", from, timestamp);
+
+						/* Write the header */
+						for (ptr = message->header;;)
+						{
+							if (!(line = c2_str_get_line (ptr)))
+								break;
+
+							ptr += strlen (line);
+
+							if (c2_strneq (line, "X-CronosII-Account:", 20) ||
+							    c2_strneq (line, "X-CronosII-State:", 7) ||
+							    c2_strneq (line, "X-CronosII-Mark:", 16))
+								continue;
+
+							fprintf (tmp, "%s", line);
+							g_free (line);
+						}
+						
+						fprintf (tmp, "X-CronosII-State: %d\n", qdb->state);
+						fprintf (tmp, "X-CronosII-Mark: %d\n", qdb->mark);
+						fprintf (tmp, "X-CronosII-Account: %s\n", qdb->account);
+						fprintf (tmp, "\n");
+						fprintf (tmp, "%s", message->body);
 					}
 					
 					break;
@@ -486,6 +487,8 @@ L						fprintf (tmp, "From %s %s", from, timestamp);
 				default:
 					g_assert_not_reached ();
 			}
+
+			/* Now is time to unref the C2Db and the C2Message */
 		} else
 		{
 			/* We are going to write until we reach the next 'From ' */
@@ -531,8 +534,6 @@ L						fprintf (tmp, "From %s %s", from, timestamp);
 		index_create (mailbox);
 
 	g_list_free (queue);
-	
-	C2_PRINTD (MOD, "End\n");
 }
 
 /****************************
@@ -578,6 +579,7 @@ index_create (C2Mailbox *mailbox)
 			/* Write in the index file the line where the mail we found
 			 * begins.
 			 */
+			C2_PRINTD (MOD, "Start of mail: '%s'\n", line);
 			fprintf (index, "%016x\n", ftell (spool)-strlen (line)-1);
 		}
 
@@ -608,12 +610,13 @@ index_is_sync (C2Mailbox *mailbox)
 	if (!(index = fopen (path, "r")))
 	{
 		g_free (path);
+		C2_DEBUG_ (perror ("fopen"););
 		return FALSE;
 	}
 	g_free (path);
 
 	/* Move 17 bytes back from the end of the file */
-	if (fseek (index, -17, SEEK_END) < 0)
+	if (fseek (index, -16, SEEK_END) < 0)
 	{
 		fclose (index);
 		return FALSE;
@@ -702,18 +705,9 @@ c2_db_spool_load (C2Mailbox *mailbox)
 	gchar *path, buffer[17];
 	gint iFilePosition, iPosition;
 	
-	C2_PRINTD (MOD, "Start\n");
-	
 	/* Test if the index is in sync */
-	C2_PRINTD (MOD, "index in sync: ");
-	fflush (stdout);
 	if (!index_is_sync (mailbox))
-	{
-		C2_DEBUG_ (printf ("no\n"););
 		index_create (mailbox);
-	} else
-		C2_DEBUG_ (printf ("yes\n"););
-	
 
 	/* Start the loading */
 	
@@ -783,8 +777,6 @@ c2_db_spool_load (C2Mailbox *mailbox)
 
 	/* Add the Queue Committing timeout */
 	gtk_timeout_add (C2_SECONDS_IN_MS (QUEUE_TIMEOUT), queue_timeout, (gpointer) mailbox);
-	
-	C2_PRINTD (MOD, "End\n");
 
 	return iPosition;
 }
@@ -796,10 +788,12 @@ load_mail (C2Mailbox *mailbox, FILE *spool, gint iPosition, gint iMid)
 	gchar *cSubject=NULL,
 	      *cFrom=NULL,
 		  *cAccount=NULL,
-		  cMark=FALSE;
+		  cMark=FALSE,
+		  cState=C2_MESSAGE_READED;
 	time_t tDate = -1;
 	gchar *cLine, **cCurrentHeader=NULL, *cPtr;
 	gint iLines;
+	gboolean has_state = FALSE;
 
 	for (iLines = 0;; iLines++)
 	{
@@ -846,6 +840,25 @@ load_mail (C2Mailbox *mailbox, FILE *spool, gint iPosition, gint iMid)
 			{
 				cCurrentHeader = &cAccount;
 				cPtr += 19;
+			} else if (c2_strneq (cLine, "X-CronosII-Mark:", 16))
+			{
+				cMark = atoi ((cPtr+17));
+				goto noheader;
+			} else if (c2_strneq (cLine, "X-CronosII-State:", 17))
+			{
+				cState = atoi ((cPtr+18));
+				has_state = TRUE;
+				goto noheader;
+			} else if (!has_state && c2_strneq (cLine, "Status:", 7))
+			{
+				/* Move through the spaces */
+				for (cPtr += 7; *cPtr == ' ' && *cPtr != '\0'; cPtr++)
+					;
+				
+				if (c2_streq (cPtr, "O"))
+					cState = C2_MESSAGE_UNREADED;
+				else if (c2_streq (cPtr, "RO"))
+					cState = C2_MESSAGE_READED;
 			} else if (tDate == -1 && c2_strneq (cLine, "Date:", 5)) /* Date */
 			{
 				/* In case the parsing of the date has failed we
@@ -861,12 +874,16 @@ load_mail (C2Mailbox *mailbox, FILE *spool, gint iPosition, gint iMid)
 				strcat (cTmp, cPtr);
 				cTmp[iLen] = 0;
 				*cCurrentHeader = cTmp;
-			} else if (c2_streq (cLine, "") || !strchr (cLine, ':')) /* End of header */
+			} else if (c2_streq (cLine, "") ||
+					   ((*cLine != '\t' && *cLine != ' ') && !strchr (cLine, ':'))) /* End of header */
 			{
 				g_free (cLine);
 				break;
 			} else /* Nothing matched */
+			{
+noheader:
 				cCurrentHeader = NULL;
+			}
 
 			if (cCurrentHeader)
 			{
@@ -891,6 +908,7 @@ load_mail (C2Mailbox *mailbox, FILE *spool, gint iPosition, gint iMid)
 	/* Create the DB */
 	db = c2_db_new (mailbox, cMark, cSubject, cFrom,
 					cAccount, tDate, iMid, iPosition);
+	db->state = cState;
 
 	return db;
 }
@@ -906,9 +924,8 @@ c2_db_spool_message_add (C2Mailbox *mailbox, C2Db *db)
 	/* Set the mid */
 	if (!c2_db_is_load (mailbox))
 		c2_db_load (mailbox);
-	
-	if (!C2_IS_MESSAGE (db->message))
-		c2_db_load_message (db);
+
+	gtk_object_ref (GTK_OBJECT (db->message));
 	
 	if (mailbox->db)
 		db->mid = mailbox->db->prev->mid+1;
@@ -982,26 +999,22 @@ c2_db_spool_load_message (C2Db *db)
 		 * to load.
 		 */
 		fseek (fd, 0, SEEK_END);
-		C2_PRINTD (MOD, "mid = %d -- ftell (fd) = %d -- iLength = %d\n", db->mid, ftell (fd), iLength);
-		iLength = db->mid + iLength;
-		fseek (fd, iLength, SEEK_SET);
+		iLength = ftell (fd) - db->mid;
+		fseek (fd, db->mid, SEEK_SET);
 	} else
-		iLength = db->next->mid - db->mid - iLength - 1;
-	
-	chunk = g_new0 (gchar, iLength+1);
+		iLength = db->next->mid - db->mid - iLength;
+
+	chunk = g_new0 (gchar, iLength-1);
 
 	/* Read the data */
-	fread (chunk, sizeof (gchar), iLength+1, fd);
-	C2_PRINTD (MOD, "length = '%d'\n", strlen (chunk));
-
-	C2_PRINTD (MOD, "iLength = '%d'\n", iLength);
-
+	fread (chunk, sizeof (gchar), iLength-1, fd);
+	
 	/* Create the message */
 	message = c2_message_new ();
 	c2_message_set_message (message, chunk);
 
 	g_free (chunk);
-	
+
 	fclose (fd);
 
 	return message;

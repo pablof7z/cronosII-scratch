@@ -738,7 +738,6 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 		func (mailbox, db);
 
 		gtk_object_unref (GTK_OBJECT (message));
-		c2_db_set_message (db, NULL);
 	}
 	
 	mailbox->db_is_loaded = 1;

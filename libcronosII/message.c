@@ -31,6 +31,9 @@
 #include "error.h"
 #include "utils.h"
 
+#define  MOD "Message"
+#define DMOD TRUE
+
 #define BOUNDARY_LENGTH 50
 
 #define MIME_UNCAPABLE_WARNING "This is a multipart message in MIME format.\n" \
@@ -173,6 +176,8 @@ destroy (GtkObject *object)
 	C2Message *message;
 	
 	c2_return_if_fail (C2_IS_MESSAGE (object), C2EDATA);
+
+	C2_PRINTD (MOD, "The object is being destroyed\n");
 
 	message = C2_MESSAGE (object);
 

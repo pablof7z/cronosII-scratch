@@ -34,7 +34,16 @@ class_init									(C2EditorClass *klass);
 static void
 init										(C2Editor *editor);
 
-#ifndef USE_ADVANCED_EDITOR
+#ifdef USE_ADVANCED_EDITOR
+
+static gboolean
+on_editor_command							(GtkHTML *html, GtkHTMLCommandType com_type, C2Editor *editor);
+
+static GtkWidget *
+on_editor_create_input_line					(GtkHTML *html, C2Editor *editor);
+
+#else
+
 static void
 on_text_insert_text							(GtkText *widget, const gchar *text, gint length,
 											 gint *position, C2Editor *editor);
@@ -154,6 +163,7 @@ c2_editor_new (void)
 	GtkWidget *scroll;
 #ifdef USE_ADVANCED_EDITOR
 	GtkWidget *viewport;
+	GtkHTMLEditorAPI editor_api;
 #endif
 
 	editor = gtk_type_new (c2_editor_get_type ());
@@ -193,8 +203,17 @@ c2_editor_new (void)
 
 	/* Connect to signals */
 #ifdef USE_ADVANCED_EDITOR
-#error The Advanced editor support has not be finished, you should specify the \
+#warning
+#warning
+#warning The Advanced editor support has not be finished, you should specify the \
 	   --disable-htmleditor flag to the configure script.
+#warning
+#warning
+#warning
+	
+	editor_api.command = on_editor_command;
+	editor_api.create_input_line = on_editor_create_input_line;
+	gtk_html_set_editor_api (GTK_HTML (editor->text), &editor_api, GTK_HTML (editor->text)->frame);
 #else
 	editor->insert_signal =
 		gtk_signal_connect (GTK_OBJECT (editor->text), "insert_text",
@@ -207,7 +226,29 @@ c2_editor_new (void)
 	return GTK_WIDGET (editor);
 }
 
-#ifndef USE_ADVANCED_EDITOR
+#ifdef USE_ADVANCED_EDITOR
+
+/* Advanced editor functions */
+
+static gboolean
+on_editor_command (GtkHTML *html, GtkHTMLCommandType com_type, C2Editor *editor)
+{
+	printf ("An event of the editor occured: number %d\n", com_type);
+
+	return TRUE;
+}
+
+static GtkWidget *
+on_editor_create_input_line (GtkHTML *html, C2Editor *editor)
+{
+	printf ("%s\n", __PRETTY_FUNCTION__);
+	return NULL;
+}
+
+#else /* Advanced/Simple functions */
+
+/* Simple editor functions */
+
 static void
 on_text_insert_text (GtkText *widget, const gchar *text, gint length, gint *position, C2Editor *editor)
 {
