@@ -1,3 +1,6 @@
+Sat May 11 Bosko Blagojevic <falling at users dot sf dot net>
+	* Work on marking emails in IMAP.
+
 Thu May  9 Pablo Fernández <sandokan at pablossite dot net>
 	* Fixed a bug when the mail preview is not visible.
 	* Added the configuration for the position of the incoming mail
