@@ -57,6 +57,7 @@ void
 run_imap(C2IMAP *imap)
 {	
 	C2Mailbox *mailbox;
+	C2Message *message;
 	
 	if(c2_imap_init(imap) < 0)
 	{	
@@ -82,7 +83,7 @@ run_imap(C2IMAP *imap)
 		printf("Error was: %s\n", gtk_object_get_data(GTK_OBJECT(imap), "error"));
 		exit(-1);
 	}
-	printf("success!%s\n%s\n\n", mailbox->name, mailbox->id);
+	printf("success!");
 	
 	printf("listing folders: \n");
 	print_imap_tree(imap, NULL, NULL);
@@ -102,8 +103,6 @@ run_imap(C2IMAP *imap)
 	while(mailbox->next)
 		mailbox = mailbox->next;
 	
-	printf("\t\tMAILBOX == %s\n", mailbox->name);
-	
 	/*printf("Selecting mailbox Drafts...");*/
 	if(c2_db_load(mailbox) < 0)
 	{
@@ -112,14 +111,28 @@ run_imap(C2IMAP *imap)
 	}
 	/*printf("success!\n");*/
 	
-	printf("deleting message #1 from INBOX...\n");
-	printf("its mailbox is %s\n", mailbox->db->mailbox->name);
-	if(c2_db_message_remove(mailbox, mailbox->db) < 0)
+	/*printf("deleting message #1 from INBOX...\n");
+	if(c2_db_message_remove(mailbox, mailbox->db->next) < 0)
 	{
 		printf("failure!\n");
     printf("Error was: %s", gtk_object_get_data(GTK_OBJECT(imap), "error"));
 		exit(-1);
+	}*/
+	
+	
+	message = c2_message_new();
+	message->header = g_strdup("To: hax0r@rox0r.com\n"
+														 "From: FallenAngel@rox0r.com\n"
+														 "Subject: Hey!\n");
+	message->body   = g_strdup("Testing 1-2-3-4-5");
+	printf("adding message #1 in mailbox %s...", mailbox->name);
+	if(!c2_db_message_add(mailbox, message))
+	{
+		printf("failure!\n");
+		printf("Error was: %s", gtk_object_get_data(GTK_OBJECT(imap), "error"));
+		exit(-1);
 	}
+	printf("success!\n");
 	
 	printf("\nCronosII IMAP capability testing completed successfully!\n");
 	exit(0);

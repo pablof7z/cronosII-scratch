@@ -49,7 +49,7 @@ c2_db_imap_remove_structure					(C2Mailbox *mailbox);
 gint
 c2_db_imap_load								(C2Mailbox *mailbox);
 
-void
+gboolean
 c2_db_imap_message_add						(C2Mailbox *mailbox, C2Db *db);
 
 gint

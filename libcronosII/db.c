@@ -669,7 +669,7 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 			func = c2_db_cronosII_message_add;
 			break;
 		case C2_MAILBOX_IMAP:
-			func = NULL;
+			func = c2_db_imap_message_add;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = NULL;
@@ -679,7 +679,7 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 	/* Note for developers of VFUNCTIONS about this function:
 	 *   The VFunction should just append the node to the
 	 *   mailbox, this function will handle itself the
-	 *   appending to the dynamic list.
+	 *   appending to the dynamic list of C2Db's.
 	 *
 	 *   The mid of the db passed to the function should be changed
 	 *   by the VFUNCTION to a proper value.
@@ -798,7 +798,8 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 	}
 
 	/* Remove from the db */
-	retval = func (mailbox, list);
+	if((retval = func (mailbox, list)) < 0)
+		/*return FALSE*/;
 
 	/* Remove from the loaded db list */
 	for (l = list; l; l = g_list_next (l))

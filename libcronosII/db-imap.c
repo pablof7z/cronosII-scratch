@@ -78,9 +78,20 @@ c2_db_imap_load (C2Mailbox *mailbox)
 	return retval;
 }
 
-void
+gboolean
 c2_db_imap_message_add (C2Mailbox *mailbox, C2Db *db)
 {
+	C2IMAP *imap = mailbox->protocol.IMAP.imap;
+	gint retval;
+	
+	c2_mutex_lock(&imap->lock);
+	retval = c2_imap_message_add(imap, mailbox, db);
+	c2_mutex_unlock(&imap->lock);
+	
+	if(retval < 0)
+		return FALSE;
+	else
+		return TRUE;
 }
 
 gint

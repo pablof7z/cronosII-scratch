@@ -31,10 +31,10 @@
 
 /* C2 IMAP Module in the process of being engineered by Bosko */
 /* TODO: Get messages */
-/* (in progress) TODO: Delete messages */
-/* (in progress) TODO: Add messages */
 /* TODO: Function that handles untagged messages that come unwarranted */
-/* TODO: Elegent network problem handling (i.e. reconnecting, etc) */
+/* (in progress) TODO: Elegent network problem handling (reconnecting, etc) */
+/* (done!) TODO: Add messages */
+/* (done!) TODO: Delete messages */
 /* (done!) TODO: Get list of messages */
 /* (done!) TODO: Load a mailbox */
 /* (done!) TODO: Login (at least plain-text for now) */
@@ -309,6 +309,33 @@ destroy(GtkObject *object)
 	c2_mutex_destroy(&imap->lock);
 }
 
+/** c2_imap_reconnect
+ * 
+ * @imap: A locked imap object
+ * @state: The state to set the imap object to
+ * @mailbox: If @state == C2IMAPSelected, the
+ *           mailbox to select
+ * 
+ * This function attempts to reconnect and restore 
+ * proper state of an imap object.
+ * 
+ * Return Value:
+ * 0 on success, -1 otherwise
+ **/
+#if 0
+static gint
+c2_imap_reconnect(C2IMAP *imap, C2IMAPState state, C2Mailbox *mailbox)
+{
+	gchar *reply;
+	tag_t tag;
+	
+	tag = c2_imap_get_tag(imap);
+	
+	/* TODO: finish me! */
+	return 0;
+}
+#endif
+
 static void
 c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition)
 {
@@ -508,7 +535,7 @@ c2_imap_check_server_reply(gchar *reply, tag_t tag)
 	gchar *ptr;
 	
 	/* quickie fix for single line reply checks */
-	if(*reply != '*')
+	if(*reply != '*' && *reply != '+')
 	{
 		ptr = reply;
 		ptr += C2TagLen;
@@ -862,8 +889,6 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 			db->mailbox = mailbox;
 			messages++;
 			if(date) g_free(date);
-			if(subject) g_free(subject);
-			if(from) g_free(from);
 			date = NULL;
 			subject = NULL;
 			from = NULL;
@@ -1172,7 +1197,7 @@ c2_imap_delete_mailbox(C2IMAP *imap, C2Mailbox *mailbox)
  * Return Value:
  * 0 on success, -1 on failure
  **/
-gint
+#if 0
 c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
 {
 	gchar *reply, *oldname;
@@ -1217,6 +1242,7 @@ c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
 	
 	return 0;
 }
+#endif
 
 /** c2_imap_message_remove
  * 
@@ -1244,7 +1270,8 @@ c2_imap_message_remove (C2IMAP *imap, GList *list)
 		
 		tag = c2_imap_get_tag(imap);
 		if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d STORE "
-			 "%i +FLAGS.SILENT (\\Deleted)\r\n", tag, db->mid) < 0)
+			 "%i +FLAGS.SILENT (\\Deleted)\r\n", tag, db->position ? db->position 
+			 : 1) < 0)
 		{
 			c2_imap_set_error(imap, NET_WRITE_FAILED);
 			imap->state = C2IMAPDisconnected;
@@ -1254,7 +1281,7 @@ c2_imap_message_remove (C2IMAP *imap, GList *list)
 	
 		if(!(reply = c2_imap_get_server_reply(imap, tag)))
 			return -1;
-		return 0;
+
 		if(!c2_imap_check_server_reply(reply, tag))
 		{
 			c2_imap_set_error(imap, reply + C2TagLen + 3);
@@ -1307,21 +1334,25 @@ c2_imap_message_add (C2IMAP *imap, C2Mailbox *mailbox, C2Db *db)
 {
 	gchar *reply;
 	tag_t tag;
-		
+	gint32 size = strlen(db->message->header) + strlen(db->message->body) + 3;
+	gint messages;
+
 	tag = c2_imap_get_tag(imap);
-	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d APPEND "
-		 "\"%s\"\r\n%s\r\n\r\n%s\r\n\r\n", mailbox,  
-		 C2_MESSAGE(db->message)->header, C2_MESSAGE(db->message)->body) < 0)
-	 {
+	if((c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d APPEND "
+		 "\"%s\" () {%d}\r\n", tag, mailbox->name, size) < 0) ||
+		 (c2_net_object_send(C2_NET_OBJECT(imap), NULL, "%s\r\n%s\r\n",
+			db->message->header, db->message->body) < 0))
+	{
 		 		c2_imap_set_error(imap, NET_WRITE_FAILED);
 		 		imap->state = C2IMAPDisconnected;
 		 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		 		return -1;
-	 }
+	}
+	
 	
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
 		return -1;
-		
+
 	if(!c2_imap_check_server_reply(reply, tag))
 	{
 		c2_imap_set_error(imap, reply + C2TagLen + 3);
@@ -1329,7 +1360,28 @@ c2_imap_message_add (C2IMAP *imap, C2Mailbox *mailbox, C2Db *db)
  		return -1;
 	}
 	g_free(reply);
-		
-	/* TODO: add db to mailbox manually? */
+	
+	tag = c2_imap_get_tag(imap);
+	messages = c2_imap_select_mailbox(imap, mailbox);
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d FETCH "
+		 "%i (UID)\r\n", tag, messages) < 0)
+	{
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		imap->state = C2IMAPDisconnected;
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+		return -1;
+	}
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
+		return -1;
+	
+	if(!c2_imap_check_server_reply(reply, tag))
+	{
+		c2_imap_set_error(imap, reply + C2TagLen + 3);
+		g_free(reply);
+		return -1;
+	}
+	db->mid = atoi(strstr(reply, "UID ") + 4);
+	g_free(reply);
+
 	return 0;
 }
