@@ -27,10 +27,36 @@
 /* file to test the c2 imap module  -- 
  * by Bosko Blagojevic <falling@users.sourcforge.net> */
 
+void 
+print_imap_tree(C2IMAP *imap, C2Mailbox *parent, gchar *tab)
+{
+	C2Mailbox *ptr;
+	
+	if(!parent)
+		parent = imap->mailboxes;
+	else
+		parent = parent->child;
+	
+	for(ptr = parent; ptr; ptr = ptr->next)
+	{
+		printf("%s%s\n", tab ? tab : "", ptr->name);
+		if(ptr->child)
+		{
+			if(!tab)
+				print_imap_tree(imap, ptr, g_strdup("+---"));
+			else 
+				print_imap_tree(imap, ptr, g_strconcat(tab, "---", NULL));
+		}
+	}
+	
+	if(tab) g_free(tab);
+}
+
 void
 run_imap(C2IMAP *imap)
 {	
 	GList *list = NULL;
+	C2Mailbox *mailbox;
 	
 	if(c2_imap_init(imap) < 0)
 	{	
@@ -44,6 +70,28 @@ run_imap(C2IMAP *imap)
 		printf("failed to populate the IMAP Folders tree");
 		exit(-1);
 	}
+	
+	print_imap_tree(imap, NULL, NULL);
+	
+	printf("\nCreating top-level folder CronosII...");
+	if(!(mailbox = c2_imap_create_folder(imap, NULL, "CronosII")))
+	{
+		printf("failure!\n");
+		exit(-1);
+	}
+	printf("success!\n\n");
+	
+	printf("listing folders: \n");
+	print_imap_tree(imap, NULL, NULL);
+	
+	printf("Deleting top-level folder CronosII...");
+  if(c2_imap_delete_folder(imap, mailbox) < 0)
+	{
+		printf("failure!\n");
+		printf("Error was: %s", gtk_object_get_data(GTK_OBJECT(imap), "error"));
+		exit(-1);
+	}
+  printf("success!\n");
 	
 	printf("\nCronosII IMAP capability testing completed successfully!\n");
 	exit(0);

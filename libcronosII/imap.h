@@ -122,8 +122,8 @@ c2_imap_init								(C2IMAP *imap);
 gint
 c2_imap_populate_folders					(C2IMAP *imap);
 
-gint
-c2_imap_create_folder						(C2IMAP *imap, const gchar *reference, const gchar *name);
+C2Mailbox *
+c2_imap_create_folder						(C2IMAP *imap, const C2Mailbox *parent, const gchar *name);
 
 gint
 c2_imap_delete_folder						(C2IMAP *imap, C2Mailbox *mailbox);

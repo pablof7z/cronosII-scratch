@@ -527,6 +527,7 @@ c2_imap_populate_folders (C2IMAP *imap)
 	
 	if(imap->mailboxes)
 		c2_mailbox_destroy_tree(imap->mailboxes);
+	imap->mailboxes = NULL; 
 	
 	if(c2_imap_folder_loop(imap, NULL) < 0)
 	{
@@ -608,11 +609,6 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 						C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap);
 			buf2 = g_strndup(start, ptr - start);
 			
-			folder->protocol.IMAP.noinferiors = FALSE;
-			folder->protocol.IMAP.noselect = FALSE;
-			folder->protocol.IMAP.marked = FALSE;
-			folder->next = NULL;
-			
 			for(ptr2 = buf2; *ptr2; ptr2++)
 			{
 				if(num == 0 && *ptr2 == '(')
@@ -638,7 +634,6 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 					folder->protocol.IMAP.imap_name = name;
 					folder->name = c2_imap_get_folder_heirarchy
 						(name, c2_imap_get_folder_level(name));
-					printf("the name of the mailbox is: %s\n", name);
 					if(!folder->protocol.IMAP.noinferiors)
 						if(c2_imap_folder_loop(imap, folder) < 0)
 							return -1;
@@ -761,20 +756,20 @@ c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name)
 /**
  * c2_imap_create_folder
  * @imap: The IMAP object.
- * @reference: Any parent folders we want above our
- *             new folder
+ * @reference: An parent folder, or NULL for top-level folders
  * @name: Name of folder we want to delete
  *
  * This function will create the folder
  * @reference/@name
  * 
  * Return Value:
- * 0 on success, -1 on failure
+ * The new C2Mailbox on success, NULL on failure
  **/
-gint
-c2_imap_create_folder(C2IMAP *imap, const gchar *reference, const gchar *name)
+C2Mailbox *
+c2_imap_create_folder(C2IMAP *imap, const C2Mailbox *parent, const gchar *name)
 {
-	gchar *reply;
+	C2Mailbox *mailbox;
+	gchar *reply, *id = NULL;
 	tag_t tag;
 	
 	c2_mutex_lock(&imap->lock);
@@ -782,24 +777,33 @@ c2_imap_create_folder(C2IMAP *imap, const gchar *reference, const gchar *name)
 	tag = c2_imap_get_tag(imap);
 	
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d CREATE " 
-		"\"%s%s%s\"\r\n", tag, reference ? reference : "", reference ? "/" : "",
-		name) < 0)
+		"\"%s%s%s\"\r\n", tag, parent ? parent->protocol.IMAP.imap_name : "", 
+		parent ? "/" : "", name) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		c2_mutex_unlock(&imap->lock);
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
-		return -1;
+		return NULL;
 	}
 	
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
-		return -1;
+	{
+		c2_mutex_unlock(&imap->lock);
+		return NULL;
+	}
 	
 	c2_mutex_unlock(&imap->lock);
 	
 	if(!c2_imap_check_server_reply(reply, tag))
-		return -1;
+		return NULL;
 	
-	/* FINISH ME! */
-	return 0;
+	if(parent) id = parent->id;
+	mailbox = c2_mailbox_new_with_parent(&imap->mailboxes, name, id, C2_MAILBOX_IMAP,
+						C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap);
+	
+	/* fatty but a good precaution to keep folders in sync */
+	//c2_imap_populate_folders(imap);
+	return mailbox;
 }
 
 /**
@@ -818,6 +822,8 @@ c2_imap_delete_folder(C2IMAP *imap, C2Mailbox *mailbox)
 {
 	gchar *reply;
 	tag_t tag;
+	
+	printf("folder name is: %s\n", mailbox->name);
 	
 	c2_mutex_lock(&imap->lock);
 	
@@ -904,6 +910,7 @@ c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
 	mailbox->name = g_strdup(name);
 	
 	c2_mutex_unlock(&imap->lock);
+	/* fatty but a good precaution to keep folder imap names in sync */
 	c2_imap_populate_folders(imap);
 	
 	return 0;
