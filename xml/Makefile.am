@@ -12,6 +12,7 @@ Pmap_DATA = \
 	copy16.xpm		\
 	cut16.xpm		\
 	delete16.xpm	\
+	filter.xpm		\
 	forward.xpm		\
 	forward-big.xpm	\
 	mail-forward16.xpm	\

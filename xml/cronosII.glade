@@ -82,12 +82,12 @@
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
-	      <name>new</name>
+	      <name>file_new</name>
 	      <stock_item>GNOMEUIINFO_MENU_NEW_SUBTREE</stock_item>
 
 	      <widget>
 		<class>GtkMenu</class>
-		<name>new_menu</name>
+		<name>file_new_menu</name>
 
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
@@ -583,7 +583,7 @@
 		<key>GDK_A</key>
 		<signal>activate</signal>
 	      </accelerator>
-	      <label>Reply _all</label>
+	      <label>Reply to _all</label>
 	      <right_justify>False</right_justify>
 	      <icon>mail-reply-all16.xpm</icon>
 	    </widget>
@@ -690,7 +690,6 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>message_mark_important</name>
-		  <sensitive>False</sensitive>
 		  <tooltip>Mark selected message as important</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_MOD1_MASK</modifiers>
@@ -710,30 +709,28 @@
 
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
-		  <name>message_mark_unread</name>
-		  <sensitive>False</sensitive>
+		  <name>message_mark_unreaded</name>
 		  <tooltip>Mark selected messages as unreaded</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_MOD1_MASK</modifiers>
 		    <key>GDK_U</key>
 		    <signal>activate</signal>
 		  </accelerator>
-		  <label>_Unread</label>
+		  <label>_Unreaded</label>
 		  <right_justify>False</right_justify>
 		  <icon>unread.xpm</icon>
 		</widget>
 
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
-		  <name>read</name>
-		  <sensitive>False</sensitive>
+		  <name>message_mark_readed</name>
 		  <tooltip>Mark selected messages as readed</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_MOD1_MASK</modifiers>
 		    <key>GDK_V</key>
 		    <signal>activate</signal>
 		  </accelerator>
-		  <label>_Read</label>
+		  <label>_Readed</label>
 		  <right_justify>False</right_justify>
 		  <icon>read.xpm</icon>
 		</widget>
@@ -741,7 +738,6 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>message_mark_replied</name>
-		  <sensitive>False</sensitive>
 		  <tooltip>Mark selected messages as replied</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_MOD1_MASK</modifiers>
@@ -755,15 +751,14 @@
 
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
-		  <name>message_mark_forward</name>
-		  <sensitive>False</sensitive>
+		  <name>message_mark_forwarded</name>
 		  <tooltip>Mark selected messages as forwarded</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_MOD1_MASK</modifiers>
 		    <key>GDK_F</key>
 		    <signal>activate</signal>
 		  </accelerator>
-		  <label>_Forward</label>
+		  <label>_Forwarded</label>
 		  <right_justify>False</right_justify>
 		  <icon>forward.xpm</icon>
 		</widget>
@@ -812,7 +807,7 @@
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
-	      <name>recovery</name>
+	      <name>recover</name>
 	      <sensitive>False</sensitive>
 	      <tooltip>Try to recover an expunged message</tooltip>
 	      <accelerator>
@@ -825,9 +820,53 @@
 		<handler>on_recovery_activate</handler>
 		<last_modification_time>Mon, 04 Jun 2001 16:56:53 GMT</last_modification_time>
 	      </signal>
-	      <label>Reco_very</label>
+	      <label>Reco_ver</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_TRASH_FULL</stock_icon>
+	    </widget>
+	  </widget>
+	</widget>
+
+	<widget>
+	  <class>GtkMenuItem</class>
+	  <name>filters</name>
+	  <label>F_ilters</label>
+	  <right_justify>False</right_justify>
+
+	  <widget>
+	    <class>GtkMenu</class>
+	    <name>filters_menu</name>
+
+	    <widget>
+	      <class>GtkPixmapMenuItem</class>
+	      <name>filters_rule_manager</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_filters_remove_rule_activate</handler>
+		<last_modification_time>Sat, 12 Jan 2002 09:24:09 GMT</last_modification_time>
+	      </signal>
+	      <label>_Rule Manager...</label>
+	      <right_justify>False</right_justify>
+	      <icon>filter.xpm</icon>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>separator26</name>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkPixmapMenuItem</class>
+	      <name>filters_apply_rule</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_filters_apply_rule_activate</handler>
+		<last_modification_time>Sat, 12 Jan 2002 10:21:24 GMT</last_modification_time>
+	      </signal>
+	      <label>_Apply rule to selected mailbox</label>
+	      <right_justify>False</right_justify>
+	      <stock_icon>GNOME_STOCK_MENU_INDEX</stock_icon>
 	    </widget>
 	  </widget>
 	</widget>
@@ -1005,7 +1044,6 @@
       <name>dockitem_toolbar</name>
       <border_width>1</border_width>
       <visible>False</visible>
-      <tooltip>Icon Menu Bar</tooltip>
       <placement>GNOME_DOCK_TOP</placement>
       <band>1</band>
       <position>0</position>
@@ -1018,7 +1056,30 @@
       <shadow_type>GTK_SHADOW_OUT</shadow_type>
 
       <widget>
-	<class>Placeholder</class>
+	<class>GtkHBox</class>
+	<name>toolbar_container</name>
+	<homogeneous>False</homogeneous>
+	<spacing>0</spacing>
+
+	<widget>
+	  <class>Placeholder</class>
+	</widget>
+
+	<widget>
+	  <class>GtkButton</class>
+	  <name>button133</name>
+	  <relief>GTK_RELIEF_NORMAL</relief>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	    <pack>GTK_PACK_END</pack>
+	  </child>
+
+	  <widget>
+	    <class>Placeholder</class>
+	  </widget>
+	</widget>
       </widget>
     </widget>
 
@@ -3352,7 +3413,7 @@ and try again.</message>
 
   <widget>
     <class>GtkMenuItem</class>
-    <name>separator17</name>
+    <name>separator25</name>
     <right_justify>False</right_justify>
   </widget>
 
@@ -4805,6 +4866,500 @@ What follow is a list of all available features of Cronos II that you can downlo
 	</widget>
       </widget>
     </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeDialog</class>
+  <name>dlg_rule_manager</name>
+  <width>392</width>
+  <height>181</height>
+  <title>Rule Manager</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>False</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <wmclass_name>dlg_rule_manager</wmclass_name>
+  <wmclass_class>cronosii</wmclass_class>
+  <auto_close>False</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox28</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area28</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button136</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_CLOSE</stock_button>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkHBox</class>
+      <name>hbox27</name>
+      <homogeneous>False</homogeneous>
+      <spacing>4</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>Custom</class>
+	<name>select_list</name>
+	<creation_function>c2_select_list_new_from_glade</creation_function>
+	<int1>0</int1>
+	<int2>0</int2>
+	<last_modification_time>Sat, 12 Jan 2002 10:27:35 GMT</last_modification_time>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkVButtonBox</class>
+	<name>vbuttonbox1</name>
+	<layout_style>GTK_BUTTONBOX_DEFAULT_STYLE</layout_style>
+	<spacing>10</spacing>
+	<child_min_width>85</child_min_width>
+	<child_min_height>27</child_min_height>
+	<child_ipad_x>7</child_ipad_x>
+	<child_ipad_y>0</child_ipad_y>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GtkButton</class>
+	  <name>button137</name>
+	  <can_default>True</can_default>
+	  <can_focus>True</can_focus>
+	  <events>GDK_KEY_PRESS_MASK</events>
+	  <extension_events>GDK_EXTENSION_EVENTS_ALL</extension_events>
+	  <accelerator>
+	    <modifiers>GDK_CONTROL_MASK</modifiers>
+	    <key>GDK_A</key>
+	    <signal>clicked</signal>
+	  </accelerator>
+	  <label>_Add rule</label>
+	  <relief>GTK_RELIEF_NORMAL</relief>
+	</widget>
+
+	<widget>
+	  <class>GtkButton</class>
+	  <name>button138</name>
+	  <can_default>True</can_default>
+	  <can_focus>True</can_focus>
+	  <events>GDK_KEY_PRESS_MASK</events>
+	  <extension_events>GDK_EXTENSION_EVENTS_ALL</extension_events>
+	  <accelerator>
+	    <modifiers>GDK_CONTROL_MASK</modifiers>
+	    <key>GDK_E</key>
+	    <signal>clicked</signal>
+	  </accelerator>
+	  <label>_Edit rule</label>
+	  <relief>GTK_RELIEF_NORMAL</relief>
+	</widget>
+
+	<widget>
+	  <class>GtkButton</class>
+	  <name>button139</name>
+	  <can_default>True</can_default>
+	  <can_focus>True</can_focus>
+	  <events>GDK_ENTER_NOTIFY_MASK</events>
+	  <accelerator>
+	    <modifiers>GDK_CONTROL_MASK</modifiers>
+	    <key>GDK_D</key>
+	    <signal>clicked</signal>
+	  </accelerator>
+	  <label>_Remove rule</label>
+	  <relief>GTK_RELIEF_NORMAL</relief>
+	</widget>
+      </widget>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeDialog</class>
+  <name>dlg_rule_editor</name>
+  <title>Rule Editor</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>False</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <wmclass_name>rule_editor</wmclass_name>
+  <wmclass_class>cronosii</wmclass_class>
+  <auto_close>False</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox29</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area29</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button140</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button142</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>Placeholder</class>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GtkMenu</class>
+  <name>mnu_index</name>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>open_message</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_open_message_activate</handler>
+      <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+    </signal>
+    <label>_Open Message</label>
+    <right_justify>False</right_justify>
+    <icon>mail16.xpm</icon>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separator27</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>reply</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_reply_activate</handler>
+      <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+    </signal>
+    <label>_Reply</label>
+    <right_justify>False</right_justify>
+    <icon>mail-reply16.xpm</icon>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>reply_all</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_reply_to_all_activate</handler>
+      <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+    </signal>
+    <label>Reply to _all</label>
+    <right_justify>False</right_justify>
+    <icon>mail-reply-all16.xpm</icon>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>forward</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_forward_activate</handler>
+      <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+    </signal>
+    <label>_Forward</label>
+    <right_justify>False</right_justify>
+    <icon>mail-forward16.xpm</icon>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separator30</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>delete</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_delete_activate</handler>
+      <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+    </signal>
+    <label>_Delete</label>
+    <right_justify>False</right_justify>
+    <icon>delete16.xpm</icon>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>expunge</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_expunge_activate</handler>
+      <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+    </signal>
+    <label>_Expunge...</label>
+    <right_justify>False</right_justify>
+    <stock_icon>GNOME_STOCK_MENU_TRASH_FULL</stock_icon>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separator31</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>mark</name>
+    <label>_Mark</label>
+    <right_justify>False</right_justify>
+    <stock_icon>GNOME_STOCK_MENU_INDEX</stock_icon>
+
+    <widget>
+      <class>GtkMenu</class>
+      <name>mark_menu</name>
+
+      <widget>
+	<class>GtkPixmapMenuItem</class>
+	<name>mark_important</name>
+	<signal>
+	  <name>activate</name>
+	  <handler>on_important_activate</handler>
+	  <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+	</signal>
+	<label>_Important</label>
+	<right_justify>False</right_justify>
+	<icon>mark.xpm</icon>
+      </widget>
+
+      <widget>
+	<class>GtkMenuItem</class>
+	<name>separator32</name>
+	<right_justify>False</right_justify>
+      </widget>
+
+      <widget>
+	<class>GtkPixmapMenuItem</class>
+	<name>mark_unreaded</name>
+	<signal>
+	  <name>activate</name>
+	  <handler>on_unreaded_activate</handler>
+	  <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+	</signal>
+	<label>_Unreaded</label>
+	<right_justify>False</right_justify>
+	<icon>unread.xpm</icon>
+      </widget>
+
+      <widget>
+	<class>GtkPixmapMenuItem</class>
+	<name>mark_readed</name>
+	<signal>
+	  <name>activate</name>
+	  <handler>on_readed_activate</handler>
+	  <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+	</signal>
+	<label>_Readed</label>
+	<right_justify>False</right_justify>
+	<icon>read.xpm</icon>
+      </widget>
+
+      <widget>
+	<class>GtkPixmapMenuItem</class>
+	<name>mark_replied</name>
+	<signal>
+	  <name>activate</name>
+	  <handler>on_replied_activate</handler>
+	  <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+	</signal>
+	<label>Repl_ied</label>
+	<right_justify>False</right_justify>
+	<icon>reply.xpm</icon>
+      </widget>
+
+      <widget>
+	<class>GtkPixmapMenuItem</class>
+	<name>mark_forwarded</name>
+	<signal>
+	  <name>activate</name>
+	  <handler>on_forwarded_activate</handler>
+	  <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+	</signal>
+	<label>_Forwarded</label>
+	<right_justify>False</right_justify>
+	<icon>forward.xpm</icon>
+      </widget>
+    </widget>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separator29</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>copy</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_copy_activate</handler>
+      <last_modification_time>Sun, 13 Jan 2002 19:22:30 GMT</last_modification_time>
+    </signal>
+    <label>_Copy...</label>
+    <right_justify>False</right_justify>
+    <icon>copy-message16.xpm</icon>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>move</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_move_activate</handler>
+      <last_modification_time>Sun, 13 Jan 2002 19:22:30 GMT</last_modification_time>
+    </signal>
+    <label>_Move...</label>
+    <right_justify>False</right_justify>
+    <icon>move-message16.xpm</icon>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separator33</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>previous</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_previous_activate</handler>
+      <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+    </signal>
+    <label>_Previous</label>
+    <right_justify>False</right_justify>
+    <icon>prev16.xpm</icon>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>next</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_next_activate</handler>
+      <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+    </signal>
+    <label>_Next</label>
+    <right_justify>False</right_justify>
+    <icon>next16.xpm</icon>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separator28</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>save</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_save_activate</handler>
+      <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+    </signal>
+    <label>_Save...</label>
+    <right_justify>False</right_justify>
+    <icon>save16.xpm</icon>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>print</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_print_activate</handler>
+      <last_modification_time>Sun, 13 Jan 2002 18:53:24 GMT</last_modification_time>
+    </signal>
+    <label>_Print...</label>
+    <right_justify>False</right_justify>
+    <icon>print16.xpm</icon>
   </widget>
 </widget>
 

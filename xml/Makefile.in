@@ -142,7 +142,7 @@ gladeui_DATA =  	cronosII.glade				composer.glade				install.glade				preference
 
 gladeuidir = $(pkgdatadir)/ui
 
-Pmap_DATA =  	copy-message16.xpm		copy16.xpm			cut16.xpm			delete16.xpm		forward.xpm			forward-big.xpm		mail-forward16.xpm		mail-reply16.xpm		mail-reply-all16.xpm		mail-write.xpm		mail.xpm			mail16.xpm			mails.png			mark.xpm			mcard.xpm			move.xpm			move-message16.xpm		new.xpm				next.xpm			next16.xpm			paste16.xpm			prev.xpm			prev16.xpm			print.xpm			print16.xpm			receive.xpm			receive16.xpm		reply.xpm			reply-all-big.xpm		reply-big.xpm		save.xpm			save16.xpm			send.xpm			send-later.xpm		send-receive.xpm		send16.xpm			unread.xpm
+Pmap_DATA =  	copy-message16.xpm		copy16.xpm			cut16.xpm			delete16.xpm		filter.xpm			forward.xpm			forward-big.xpm		mail-forward16.xpm		mail-reply16.xpm		mail-reply-all16.xpm		mail-write.xpm		mail.xpm			mail16.xpm			mails.png			mark.xpm			mcard.xpm			move.xpm			move-message16.xpm		new.xpm				next.xpm			next16.xpm			paste16.xpm			prev.xpm			prev16.xpm			print.xpm			print16.xpm			receive.xpm			receive16.xpm		reply.xpm			reply-all-big.xpm		reply-big.xpm		save.xpm			save16.xpm			send.xpm			send-later.xpm		send-receive.xpm		send16.xpm			unread.xpm
 
 
 Pmapdir = $(pkgdatadir)/ui
@@ -163,9 +163,9 @@ GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu xml/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps xml/Makefile
 
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
@@ -216,11 +216,6 @@ distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 subdir = xml
 
 distdir: $(DISTFILES)
-	here=`cd $(top_builddir) && pwd`; \
-	top_distdir=`cd $(top_distdir) && pwd`; \
-	distdir=`cd $(distdir) && pwd`; \
-	cd $(top_srcdir) \
-	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu xml/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
