@@ -16,12 +16,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <glib.h>
 #include "mailbox.h"
 #include "net-object.h"
 #include "utils.h"
 #include "imap.h"
-#include "i18n.h"
+#include "i18n.h" 
 
 #define NET_READ_FAILED  _("Internal socket read operation failed, connection is most likely broken")
 #define NET_WRITE_FAILED _("Internal socket write operation failed, connection is most likely broken")
@@ -30,12 +31,12 @@
 /* TODO: Get list of messages */
 /* TODO: Get messages */
 /* TODO: Move + Delete messages */
-/* TODO: (un)Subscribe to folders */
 /* TODO: Function that handles untagged messages that comes unwarranted */
-/* (in progress) TODO: Login (at least plain-text for now) */
-/* (in progress) TODO: Create a test module */
-/* (in progress) TODO: Create Folders */
-/* (in progress)TODO: Internal folder managment + syncronization */
+/* (in progress) TODO: Load a mailbox */
+/* (done!) TODO: Login (at least plain-text for now) */
+/* (done!) TODO: Create a test module */
+/* (done!)TODO: Internal folder managment + syncronization */
+/* (done!) TODO: Create Folders */
 /* (done!) TODO: Delete Folders */
 /* (done!) TODO: Rename Folders */
 /* (done!) TODO: Function for reading server replies */
@@ -74,6 +75,12 @@ c2_imap_plaintext_login (C2IMAP *imap);
 
 static gchar*
 c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name);
+
+static gint
+c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox);
+
+static gint
+c2_imap_close_mailbox (C2IMAP *imap);
 
 /* Internal Folder Managment */
 
@@ -205,7 +212,7 @@ init (C2IMAP *imap)
 	imap->hash = NULL;
 	imap->pending = NULL;
 	imap->login = NULL;
-	
+	imap->state = C2IMAPDisconnected;
 	c2_mutex_init(&imap->lock);
 }
 
@@ -256,15 +263,16 @@ c2_imap_init (C2IMAP *imap)
 	}
 
 	gdk_input_add(byte->sock, GDK_INPUT_READ, (GdkInputFunction)c2_imap_on_net_traffic, imap);
+	imap->state = C2IMAPNonAuthenticated;
 	
 	if(imap->login(imap) < 0)
 	{
 		gtk_signal_emit(GTK_OBJECT(imap), signals[LOGIN_FAILED]);
-		//c2_imap_set_error(imap, _("Failed to login to IMAP server."));
 		c2_mutex_unlock(&imap->lock);
 		return -1;
 	}
 	
+	imap->state = C2IMAPAuthenticated;
 	g_print ("%s (%s@%s)\n", __PRETTY_FUNCTION__, imap->user, C2_NET_OBJECT (imap)->host);
 	
 	c2_mutex_unlock(&imap->lock);
@@ -284,7 +292,7 @@ static void
 c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition)
 {
 	C2IMAP *imap = C2_IMAP(data);
-	gchar *buf, *buf2, *ptr = NULL;
+	gchar *buf, *buf2;
 	gchar *final = NULL;
 	tag_t tag = 0;
 	
@@ -367,7 +375,6 @@ c2_imap_remove_pending (C2IMAP *imap, tag_t tag)
 {
   GSList *ptr;
 	C2IMAPPending *pending;
-	gchar *data;
 	
 	for(ptr = imap->pending; ptr; ptr = ptr->next)
 	{
@@ -523,8 +530,6 @@ check:
 gint
 c2_imap_populate_folders (C2IMAP *imap)
 {
-	gchar *start, *reply, *ptr, *buf;
-	
 	c2_mutex_lock(&imap->lock);
 	
 	if(imap->mailboxes)
@@ -558,9 +563,9 @@ static gint
 c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 {
 	gchar *buf, *ptr, *start, *name;
-	C2Mailbox *box;
 	
-	if(parent) 
+	printf("word...");
+	if(parent)
 	{
 		buf = c2_imap_get_full_folder_name(imap, parent);
 		name = g_strconcat(buf, "/%", NULL);
@@ -596,7 +601,6 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 			start++;
 		}
 	}
-  
 	
 	for(ptr = start; *ptr; ptr++)
 	{
@@ -609,27 +613,24 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 			gchar *buf2, *ptr2;
 			guint num = 0;
 			gchar *id = NULL;
-			
+			gboolean noselect = FALSE, noinferiors = FALSE, marked = FALSE;
 			if(parent) id = parent->id;
 			
-			folder = c2_mailbox_new_with_parent(&imap->mailboxes, "*", id, C2_MAILBOX_IMAP,
-						C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap, FALSE);
 			buf2 = g_strndup(start, ptr - start);
 			
 			for(ptr2 = buf2; *ptr2; ptr2++)
 			{
 				if(num == 0 && *ptr2 == '(')
 				{
-					gchar *flags = g_strndup(ptr2, (strstr(ptr2, ")")-ptr2));
+					if(c2_strstr_case_insensitive(ptr2, "\\NoInferiors"))
+						noinferiors = TRUE;
+					if(c2_strstr_case_insensitive(ptr2, "\\NoSelect"))
+						noselect = TRUE;
+					if(c2_strstr_case_insensitive(ptr2, "\\Marked"))
+						marked = TRUE;
 					
-					if(c2_strstr_case_insensitive(flags, "\\NoInferiors"))
-						folder->protocol.IMAP.noinferiors = TRUE;
-					if(c2_strstr_case_insensitive(flags, "\\NoSelect"))
-						folder->protocol.IMAP.noselect = TRUE;
-					if(c2_strstr_case_insensitive(flags, "\\Marked"))
-						folder->protocol.IMAP.marked = TRUE;
-					
-					g_free(flags);
+					while(*ptr2 != ')' && *ptr2)
+						ptr2++;
 					num++;
 				}
 				else if(num > 0 && num < 3 && *ptr2 == ' ')
@@ -637,9 +638,14 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 				else if(num == 3)
 				{
 					name = g_strndup(ptr2, strlen(ptr2) - 1);
-					g_free(folder->name);
-					folder->name = c2_imap_get_folder_heirarchy
-						(name, c2_imap_get_folder_level(name));
+					folder = c2_mailbox_new_with_parent(&imap->mailboxes,
+							c2_imap_get_folder_heirarchy (name, c2_imap_get_folder_level(name)), 
+							id, C2_MAILBOX_IMAP, C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap, FALSE);
+					g_free(name);
+					folder->protocol.IMAP.noinferiors = noinferiors;
+					folder->protocol.IMAP.noselect = noselect;
+					folder->protocol.IMAP.marked = marked;
+					printf("done!\n");
 					if(!folder->protocol.IMAP.noinferiors)
 						if(c2_imap_folder_loop(imap, folder) < 0)
 							return -1;
@@ -730,6 +736,129 @@ c2_imap_get_full_folder_name (C2IMAP *imap, C2Mailbox *mailbox)
 	return name;
 }
 
+gint
+c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
+{
+	/* TODO: 
+	 * 	(done!) (1) Select box
+	 *  (2) Build C2Db linked list according to messages */
+	gint retval = 0;
+	
+	if(!imap->lock.lock)
+	{
+		c2_mutex_lock(&imap->lock);
+		retval = c2_imap_select_mailbox (imap, mailbox);
+		c2_mutex_unlock(&imap->lock);
+	}
+	else
+		retval = c2_imap_select_mailbox (imap, mailbox);
+
+	
+	if(retval == 0) c2_imap_close_mailbox(imap);
+	return retval;
+}
+
+/** c2_imap_select_mailbox
+ * 
+ * @imap: A locked IMAP object
+ * @mailbox: The mailbox to select
+ * 
+ * Performs a 'select' operation on the specified mailbox.
+ * 
+ * Return Value:
+ * Number of mails in the box or -1 on failure
+ **/
+static gint
+c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
+{
+	tag_t tag;
+	gchar *reply, *ptr, *name, *line = NULL;
+	
+	tag = c2_imap_get_tag(imap);
+	
+	if(mailbox->protocol.IMAP.noselect == TRUE)
+	{
+		c2_imap_set_error(imap, _("That IMAP mailbox is non-selectable"));
+		return -1;
+	}
+	
+	if(!(name = c2_imap_get_full_folder_name(imap, mailbox)))
+	{
+		c2_imap_set_error(imap, _("Invalid IMAP mailbox"));
+		return -1;
+	}
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d SELECT "
+					"%s\r\n", tag, name) < 0)
+	{
+		g_free(name);
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		return -1;
+	}
+	g_free(name);
+	
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
+		return -1;
+	
+	if(!c2_imap_check_server_reply(reply, tag))
+	{
+		c2_imap_set_error(imap, reply+C2TagLen+3);
+		g_free(reply);
+		return -1;
+	}
+	
+	ptr = reply;
+	do
+	{
+		if(line) ptr += strlen(line);
+		if(line) g_free(line);
+		line = c2_str_get_line(ptr);
+		if(!line)
+		{
+			c2_imap_set_error(imap, _("Invalid SELECT command status returned by IMAP server"));
+			return -1;
+		}
+	}
+	while(c2_strstr_case_insensitive(line, "EXISTS") == NULL);
+	//printf("EXISTS: %i\n", atoi(line+2));
+	g_free(line);
+	
+	imap->state = C2IMAPSelected;
+	g_free(reply);
+	return 0;
+}
+
+static gint
+c2_imap_close_mailbox (C2IMAP *imap)
+{
+	tag_t tag;
+	gchar *reply;
+	
+	if(imap->state < C2IMAPSelected)
+		return 0;
+	
+	tag = c2_imap_get_tag(imap);
+	
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d CLOSE\r\n", tag) < 0)
+	{
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		return -1;
+	}
+	
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
+		return -1;
+	
+	if(!c2_imap_check_server_reply(reply, tag))
+	{
+		c2_imap_set_error(imap, reply+C2TagLen+3);
+		g_free(reply);
+		return -1;
+	}
+	
+	imap->state = C2IMAPAuthenticated;
+	g_free(reply);
+	return 0;
+}
+
 static gint
 c2_imap_plaintext_login (C2IMAP *imap)
 {
@@ -774,8 +903,7 @@ static gchar*
 c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name)
 {
 	tag_t tag;
-	gchar *reply, *start, *ptr, *ptr2, *buf;
-	guint num = 0;
+	gchar *reply;
 	
 	tag = c2_imap_get_tag(imap);
 	
@@ -814,7 +942,6 @@ c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name)
 gboolean
 c2_imap_create_folder(C2IMAP *imap, C2Mailbox *parent, const gchar *name)
 {
-	C2Mailbox *mailbox;
 	gchar *reply, *buf = NULL;
 	tag_t tag;
 
@@ -844,7 +971,7 @@ c2_imap_create_folder(C2IMAP *imap, C2Mailbox *parent, const gchar *name)
 	
 	if(!c2_imap_check_server_reply(reply, tag))
 	{
-		c2_imap_set_error(imap, reply+C2TagLen);
+		c2_imap_set_error(imap, reply+C2TagLen+3);
 		g_free(reply);
 		return FALSE;
 	}
@@ -900,7 +1027,6 @@ c2_imap_delete_folder(C2IMAP *imap, C2Mailbox *mailbox)
 	}
 	g_free(reply);
 	
-	/*c2_mailbox_remove(&imap->mailboxes, mailbox);*/
 	c2_mutex_unlock(&imap->lock);
 	
 	return 0;
@@ -923,7 +1049,6 @@ c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
 {
 	gchar *reply, *oldname;
 	tag_t tag;
-	gint i;
 	
 	c2_mutex_lock(&imap->lock);
 	

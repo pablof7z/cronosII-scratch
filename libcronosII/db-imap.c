@@ -42,6 +42,7 @@ c2_db_imap_create_structure (C2Mailbox *mailbox)
 gboolean
 c2_db_imap_update_structure (C2Mailbox *mailbox)
 {
+	return 0;
 }
 
 gboolean
@@ -53,6 +54,7 @@ c2_db_imap_remove_structure (C2Mailbox *mailbox)
 gint
 c2_db_imap_load (C2Mailbox *mailbox)
 {
+	return c2_imap_load_mailbox(mailbox->protocol.IMAP.imap, mailbox);
 }
 
 void
@@ -78,6 +80,7 @@ c2_db_imap_message_set_mark (C2Db *db, gboolean mark)
 C2Message *
 c2_db_imap_load_message (C2Db *db)
 {
+	return NULL;
 }
 
 

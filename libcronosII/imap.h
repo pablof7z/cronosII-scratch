@@ -42,6 +42,7 @@ typedef struct _C2IMAPFolder C2IMAPFolder;
 typedef enum _C2IMAPAuthenticationType C2IMAPAuthenticationType;
 typedef unsigned int tag_t;
 typedef struct _C2IMAPPending C2IMAPPending;
+typedef unsigned int C2IMAPState;
 	
 #ifdef BUILDING_C2
 #	include "net-object.h"
@@ -54,6 +55,14 @@ typedef struct _C2IMAPPending C2IMAPPending;
 enum _C2IMAPAuthenticationType
 {
 	C2_IMAP_AUTHENTICATION_PLAINTEXT
+};
+	
+enum C2IMAPState
+{
+	C2IMAPDisconnected,
+	C2IMAPNonAuthenticated,
+	C2IMAPAuthenticated,
+	C2IMAPSelected
 };
 
 struct _C2IMAP
@@ -78,6 +87,7 @@ struct _C2IMAP
 	GSList *pending;   /* linked list to store process mutex locks	for processes
 										 * that are expecting a tagged response from the server */
 	
+	C2IMAPState state;
 	C2Mutex lock;
 	
 	C2Mailbox *mailboxes;
@@ -129,11 +139,13 @@ gint
 c2_imap_delete_folder						(C2IMAP *imap, C2Mailbox *mailbox);
 	
 gint
-c2_imap_rename_folder						(C2IMAP *imap, C2Mailbox *mailbox, gchar *name);	
+c2_imap_rename_folder						(C2IMAP *imap, C2Mailbox *mailbox, gchar *name);
+	
+gint
+c2_imap_load_mailbox						(C2IMAP *imap, C2Mailbox *mailbox);
 
 gchar *
-c2_imap_get_full_folder_name (C2IMAP *imap, C2Mailbox *mailbox);
-	
+c2_imap_get_full_folder_name (C2IMAP *imap, C2Mailbox *mailbox);	
 	
 #ifdef __cplusplus
 }
