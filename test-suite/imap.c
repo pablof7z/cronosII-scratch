@@ -72,7 +72,7 @@ run_imap(C2IMAP *imap)
 	}
 	
 	print_imap_tree(imap, NULL, NULL);
-	
+
 	printf("\nCreating top-level folder CronosII...");
 	if(!(mailbox = c2_imap_create_folder(imap, NULL, "CronosII")))
 	{
