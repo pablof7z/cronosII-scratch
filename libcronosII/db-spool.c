@@ -171,24 +171,26 @@ line_is_start_of_mail (const gchar *line)
 static void
 c2_spool_queue_item_new (C2Mailbox *mailbox, C2Db *db, C2DbSpoolQueueAction action, gpointer edata)
 {
+	printf ("[SPOOL] Adding a Queue Item\n");
 	queue_set (mailbox, queue_item_new (queue_get (mailbox), action, db, edata, db ? db->mid : -1));
 }
 
 static C2DbSpoolQueue *
 queue_item_new (C2DbSpoolQueue *queue, C2DbSpoolQueueAction action, C2Db *db, gpointer edata, gint mid)
 {
-	C2DbSpoolQueueItem *item;
+	C2DbSpoolQueueItem *item, *li;
+	
+	/* This is done later... */
+	/* Search the Queue looking for an action over this mid
+	 * to see if we are cancelling an action that wasn't
+	 * committed yet (i.e. unmarking a mail that the queue
+	 * says it should be marked). */	
 
 	item = g_new0 (C2DbSpoolQueueItem, 1);
 	item->action = action;
 	item->db = db;
 	item->edata = edata;
 	item->mid = mid;
-
-	/* Search the Queue looking for an action over this mid
-	 * to see if we are cancelling an action that wasn't
-	 * committed yet (i.e. unmarking a mail that the queue
-	 * says it should be marked). */
 
 	return g_list_append (queue, item);
 }
@@ -197,6 +199,8 @@ static void
 queue_idle (gpointer data)
 {
 	C2Mailbox *mailbox;
+	
+	printf ("[SPOOL] queue_idle called\n");
 
 	mailbox = C2_MAILBOX (data);
 
@@ -221,6 +225,7 @@ queue_get (C2Mailbox *mailbox)
 static void
 queue_set (C2Mailbox *mailbox, C2DbSpoolQueue *queue)
 {
+	
 	gtk_object_set_data (GTK_OBJECT (mailbox), QUEUE_STRING, (gpointer) queue);
 }
 
@@ -280,10 +285,7 @@ queue_sort (C2Mailbox *mailbox)
 	 *  1. MID (ascending),
 	 *  2. Action (Add, Remove, State, Mark)
 	 */
-	
-	C2_PRINTD (MOD, "Starting sorting\n");
 	queue_set (mailbox, g_list_sort (queue_get (mailbox), queue_sorting_func));
-	C2_PRINTD (MOD, "Finishing sorting\n");
 }
 
 static void
@@ -351,6 +353,8 @@ commit (C2Mailbox *mailbox)
 	gpointer qedata;
 	gint qmid;
 	gint last_mail_proc, i;
+	gchar *line;
+	gint from_reached;
 	
 	C2_PRINTD (MOD, "Start\n");
 
@@ -364,8 +368,17 @@ commit (C2Mailbox *mailbox)
 	queue = queue_get (mailbox);
 
 	/* Open the spool file */
+	if (!(spool = fopen (mailbox->protocol.spool.path, "r")))
+	{
+		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
+		C2_DEBUG_(perror (tmp_path););
+		fclose (spool);
+		return;
+	}
+	
 	/* Open a tmp file */
 	tmp_path = c2_get_tmp_file (NULL);
+	C2_PRINTD (MOD, "Temporal file '%s'\n", tmp_path);
 	if (!(tmp = fopen (tmp_path, "w")))
 	{
 		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
@@ -375,12 +388,9 @@ commit (C2Mailbox *mailbox)
 		return;
 	}
 
-	last_mail_proc = 0;
-	i = 1;
-	for (i = 1, last_mail_proc = 0, l = queue; i < c2_db_length (mailbox) || l; i++)
+	for (i = 1, last_mail_proc = 0, l = queue; i < c2_db_length (mailbox) || l;)
 	{
 		C2_PRINTD (MOD, "c2_db_length() = '%d' -- l = %s -- i = '%d'\n", c2_db_length (mailbox), l ? "TRUE" : "FALSE", i);
-		usleep (7000);
 
 		/* Check if we should get a new item where to act */
 		if (!qdb)
@@ -395,6 +405,7 @@ commit (C2Mailbox *mailbox)
 				
 				qaction = item->action;
 				qdb = item->db;
+				printf ("Getting the DB: '%s'\n", qdb->message->body);
 				qedata = item->edata;
 				qmid = item->mid;
 
@@ -411,10 +422,57 @@ commit (C2Mailbox *mailbox)
 			C2_PRINTD (MOD, "qmid = '%d'\n", qmid);
 			
 			/* Is time to act according to the action specified */
-			switch (qaction)
+L			switch (qaction)
 			{
 				case C2_DB_SPOOL_QUEUE_ADD:
-					C2_PRINTD (MOD, "action = C2_DB_SPOOL_QUEUE_ADD\n");
+					/* We are going to add the message */
+					{
+						gchar *from;
+						gchar *buf;
+						gchar timestamp[80];
+						C2Message *message;
+						struct tm *tm;
+L						
+						//printf ("Getting the DB: '%s'\n", qdb->message->body);
+						
+						if (!C2_IS_DB (qdb))
+						{
+							C2_PRINTD (MOD, "qdb is not a C2Db!\n");
+						}
+						
+						message = qdb->message;
+L						if (!C2_IS_MESSAGE (message))
+						{
+							C2_PRINTD (MOD, "message is not a C2Message!\n");
+						}
+						
+						from = c2_message_get_header_field (message, "From:");
+L						
+						if (from)
+						{
+							buf = c2_str_get_email (from);
+							
+							if (buf)
+							{
+								from = buf;
+L							} else
+							{
+								from = g_strdup ("(nobody)");
+							}
+							
+L							g_free (from);
+						} else
+						{
+							from = g_strdup ("(nobody)");
+						}
+						
+L						tm = localtime (&qdb->date);
+						
+						strftime (timestamp, 80, "%a %b %d %H:%M:%S %Y", tm);
+						
+L						fprintf (tmp, "From %s %s", from, timestamp);
+					}
+					
 					break;
 				case C2_DB_SPOOL_QUEUE_REMOVE:
 					C2_PRINTD (MOD, "action = C2_DB_SPOOL_QUEUE_REMOVE\n");
@@ -427,6 +485,33 @@ commit (C2Mailbox *mailbox)
 					break;
 				default:
 					g_assert_not_reached ();
+			}
+		} else
+		{
+			/* We are going to write until we reach the next 'From ' */
+			for (from_reached = 0;;)
+			{
+				if (!(line = c2_fd_get_line (spool)))
+					break;
+				
+				if (c2_strneq (line, "From ", 5))
+				{
+					if (!from_reached)
+					{
+						from_reached++;
+					} else
+					{
+						/* We reached a new mail, get back and finish the for */
+						fseek (spool, -(strlen (line)+1), SEEK_CUR);
+						
+						g_free (line);
+						break;
+					}
+				}
+				
+				/* Write */
+				fprintf (tmp, "%s\n", line);
+				g_free (line);
 			}
 		}
 	}
@@ -821,6 +906,10 @@ c2_db_spool_message_add (C2Mailbox *mailbox, C2Db *db)
 	/* Set the mid */
 	if (!c2_db_is_load (mailbox))
 		c2_db_load (mailbox);
+	
+	if (!C2_IS_MESSAGE (db->message))
+		c2_db_load_message (db);
+	
 	if (mailbox->db)
 		db->mid = mailbox->db->prev->mid+1;
 	else

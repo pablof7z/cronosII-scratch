@@ -1137,7 +1137,7 @@ save (C2WindowMain *wmain)
 		gdk_threads_enter ();
 		
 		gtk_object_ref (GTK_OBJECT (db));
-		C2_APPLICATION_CLASS_FW (application)->save (application, db, db->message);
+		C2_APPLICATION_CLASS_FW (application)->save (application, db->message, C2_WINDOW (wmain));
 		gtk_object_unref (GTK_OBJECT (db));
 	}
 	
@@ -1147,77 +1147,6 @@ save (C2WindowMain *wmain)
 static void
 search (C2WindowMain *wmain)
 {
-}
-
-on_send_ti_finish (C2TransferItem *ti, C2Mutex *mutex)
-{
-	c2_mutex_unlock (mutex);
-}
-
-static void
-send_thread (C2WindowMain *wmain)
-{
-	C2Mailbox *outbox;
-	C2Db *db;
-	C2Mutex mutex;
-
-	c2_mutex_init (&mutex);
-
-	outbox = c2_mailbox_get_by_usage (C2_WINDOW (wmain)->application->mailbox, C2_MAILBOX_USE_AS_OUTBOX);
-	if (!C2_IS_MAILBOX (outbox))
-	{
-		c2_mutex_destroy (&mutex);
-		return;
-	}
-
-	db = outbox->db;
-	if (db)
-	{
-		GtkWidget *tl;
-
-		gdk_threads_enter ();
-		
-		tl = c2_application_window_get (application, C2_WIDGET_TRANSFER_LIST_TYPE);
-		if (!tl || !C2_IS_TRANSFER_LIST (tl))
-			tl = c2_transfer_list_new (application);
-
-		gtk_widget_show (tl);
-		gdk_window_raise (tl->window);
-
-		gdk_threads_leave ();
-		
-		do
-		{
-			C2Account *account;
-			C2SMTP *smtp;
-			C2TransferItem *ti;
-			gchar *buf;
-
-			c2_db_load_message (db);
-			
-			buf = c2_message_get_header_field (db->message, "X-CronosII-Account:");
-			account = c2_account_get_by_name (application->account, buf);
-			g_free (buf);
-			if (!account)
-				continue;
-
-			smtp = (C2SMTP*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, NULL);
-
-			c2_mutex_lock (&mutex);
-			
-			gdk_threads_enter ();
-
-			ti = c2_transfer_item_new (application, account, C2_TRANSFER_ITEM_SEND, smtp, db);
-			gtk_signal_connect (GTK_OBJECT (ti), "finish",
-								GTK_SIGNAL_FUNC (on_send_ti_finish), &mutex);
-			c2_transfer_list_add_item (C2_TRANSFER_LIST (tl), ti);
-			c2_transfer_item_start (ti);
-			
-			gdk_threads_leave ();
-		} while (c2_db_lineal_next (db));
-	}
-
-	c2_mutex_destroy (&mutex);
 }
 
 static void
@@ -1357,10 +1286,10 @@ on_application_application_preferences_changed (C2Application *application, gint
 				item = gtk_pixmap_menu_item_new ();
 				gtk_object_set_data (GTK_OBJECT (item), "account", account);
 				gtk_signal_connect (GTK_OBJECT (item), "activate",
-									GTK_SIGNAL_FUNC (on_menubar_file_check_mail_account_activate), wmain);
+							GTK_SIGNAL_FUNC (on_menubar_file_check_mail_account_activate), wmain);
 
-				pixmap = gnome_stock_pixmap_widget_at_size (GTK_WIDGET (wmain)->window,
-															PKGDATADIR "/ui/mail.xpm", 16, 16);
+				pixmap = gnome_stock_pixmap_widget_at_size (GTK_WINDOW (wmain),
+										PKGDATADIR "/ui/mail.xpm", 16, 16);
 				gtk_pixmap_menu_item_set_pixmap (GTK_PIXMAP_MENU_ITEM (item), pixmap);
 				gtk_widget_show (pixmap);
 
@@ -1980,7 +1909,6 @@ on_index_open_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 static void
 on_index_select_message_thread (C2Pthread3 *data)
 {
-	GtkWidget *index = GTK_WIDGET (data->v1);
 	C2Db *node = C2_DB (data->v2);
 	C2WindowMain *wmain = C2_WINDOW_MAIN (data->v3);
 	GtkWidget *widget;

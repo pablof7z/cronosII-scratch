@@ -1,3 +1,6 @@
+Mon Jun  4 Pablo Fernández <sandokan at pablossite dot net>
+	* Work in the DB spool submodule.
+
 Sat Jun  1 Pablo Fernández <sandokan at pablossite dot net>
 	* Fixed a compilation time bug (gcc 3 (I'm starting to hate
 	  that version!)).
