@@ -3,6 +3,7 @@ Sat Mar 16 Pablo Fernández López <pablo@pablossite.net>
 	* FIRST TIME THE UI OF CRONOS II RENDERED AN IMAP MAILBOX
 	  SUCCESSFULLY AND DISPLAYED CORRECTLY ALL THE MESSAGES
 	  IN IT: CRONOS II HAS IMAP SUPPORT (historical date, huh? =) )
+	* Fixed a bug with the timestamps in IMAP.
 
 Sat Mar 16 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Big IMAP bug fix and some subscribtion facility in IMAP.

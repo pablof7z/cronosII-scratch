@@ -951,9 +951,13 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 			}
 
 			if(date)
-				unixdate = c2_date_parse(date);
-			else
-				unixdate = 0;
+			{
+				if ((unixdate = c2_date_parse(date)) == -1)
+					if ((unixdate = c2_date_parse2 (date)) == -1)
+						if ((unixdate = c2_date_parse3 (date)))
+							unixdate = time ();
+			} else
+				unixdate = time ();
 			/* FIX ME: the @account below should not be NULL */
 			db = c2_db_new(mailbox, !seen, subject, from, NULL, unixdate, uid, messages);
 			messages++;
