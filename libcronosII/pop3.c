@@ -798,7 +798,7 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 		gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], i, 0, total_length);
 
 		/* Get a temp name */
-		tmp = c2_get_tmp_file ();
+		tmp = c2_get_tmp_file (NULL);
 
 		/* Open it */
 		if (!(fd = fopen (tmp, "w")))
@@ -931,7 +931,7 @@ synchronize (C2POP3 *pop3, C2Account *account, GSList *uidl_list)
 		return -1;
 	}
 
-	tmppath = c2_get_tmp_file ();
+	tmppath = c2_get_tmp_file (NULL);
 	if (!(tmpfd = fopen (tmppath, "wt")))
 	{
 		c2_error_object_set (GTK_OBJECT (pop3), -errno);

@@ -793,9 +793,10 @@ on_general_options_outgoing_outbox_toggled (GtkWidget *widget, C2DialogPreferenc
 {
 	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
 	
+	gnome_config_set_bool ("/"PACKAGE"/General-Options/outgoing_outbox", bool);
+	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_OUTGOING_OUTBOX, bool);
-	gnome_config_set_bool ("/"PACKAGE"/General-Options/outgoing_outbox", bool);
 }
 
 static void
@@ -867,6 +868,7 @@ general_accounts_update_list (C2DialogPreferences *preferences)
 	}
 
 	set_values_accounts (preferences);
+	
 }
 
 #define general_accounts_update_conf_string(num,str)	\
@@ -985,6 +987,8 @@ skip_smtp:
 	}
 	
 	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_ACCOUNTS, application->account);
 }
 
 static GtkWidget *
@@ -1666,6 +1670,7 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 	widget = glade_xml_get_widget (xml, "identity_email");
 	buf2 = gtk_entry_get_text (GTK_ENTRY (widget));
 	gnome_config_set_string ("identity_email", buf);
+	C2_DEBUG (buf2);
 
 	account = c2_account_new (type, buf, buf2);
 	C2_DIALOG (preferences)->application->account =
@@ -1779,7 +1784,7 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 		boolean = GTK_TOGGLE_BUTTON (widget)->active;
 		gnome_config_set_bool ("incoming_server_ssl", boolean);
 
-		imap = c2_imap_new (buf, integer, buf2, NULL, boolean);
+		imap = c2_imap_new (buf, integer, buf2, NULL, C2_IMAP_AUTHENTICATION_PLAINTEXT, boolean);
 		c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, imap);
 	}
 
@@ -1856,6 +1861,10 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 
 	set_values_accounts (preferences);
 	gtk_widget_destroy (GTK_WIDGET (window));
+	
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_ACCOUNTS,
+						C2_DIALOG (preferences)->application->account);
 }
 
 static gint

@@ -2,6 +2,10 @@ Fri Sep 28 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Little work in the IMAP module.
 	* Work in the composer widget.
 	* Work in the application widget.
+	* A little change to c2_get_tmp_file and all functions
+	  referring to it to avoid compilation-time errors.
+	* A lot of work in the Mailbox module in order to avoid the
+	  usage of global variable (removed mailbox cache).
 
 Thu Sep 27 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed a crash in the POP3 module when the password was wrong

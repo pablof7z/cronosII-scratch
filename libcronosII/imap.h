@@ -29,13 +29,6 @@ extern "C" {
 #include <glib.h>
 #include <pthread.h>
 
-#ifdef BUILDING_C2
-#	include "net-object.h"
-#	include "mailbox.h"
-#else
-#	include <cronosII.h>
-#endif
-
 #define C2_TYPE_IMAP						(c2_imap_get_type ())
 #define C2_IMAP(obj)						(GTK_CHECK_CAST (obj, C2_TYPE_IMAP, C2IMAP))
 #define C2_IMAP_CLASS(klass)				(GTK_CHECK_CLASS (klass, C2_TYPE_IMAP, C2IMAP))
@@ -46,6 +39,13 @@ typedef struct _C2IMAP C2IMAP;
 typedef struct _C2IMAPClass C2IMAPClass;
 typedef enum _C2IMAPAuthenticationType C2IMAPAuthenticationType;
 typedef unsigned int tag_t;
+
+#ifdef BUILDING_C2
+#	include "net-object.h"
+#	include "mailbox.h"
+#else
+#	include <cronosII.h>
+#endif
 
 enum _C2IMAPAuthenticationType
 {

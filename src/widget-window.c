@@ -75,8 +75,6 @@ class_init (C2WindowClass *klass)
 	parent_class = gtk_type_class (gnome_app_get_type ());
 
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
-
-	object_class->destroy = destroy;
 }
 
 static void
@@ -94,9 +92,6 @@ destroy (GtkObject *object)
 	C2Window *window;
 
 	window = C2_WINDOW (object);
-#ifdef USE_DEBUG
-	g_print ("Destroing window %s\n", (gchar*) gtk_object_get_data (GTK_OBJECT (window), "type"));
-#endif
 
 	c2_application_window_remove (window->application, GTK_WINDOW (window));
 
@@ -116,10 +111,6 @@ c2_window_new (C2Application *application, const gchar *title, const gchar *type
 
 	window = gtk_type_new (c2_window_get_type ());
 
-#ifdef USE_DEBUG
-	g_print ("Creating new C2Window ('%s').\n", type);
-#endif
-
 	c2_window_construct (window, application, title, type);
 
 	return GTK_WIDGET (window);
@@ -132,6 +123,9 @@ c2_window_construct (C2Window *window, C2Application *application, const gchar *
 	gtk_object_set_data (GTK_OBJECT (window), "type", g_strdup (type));
 
 	gnome_app_construct (GNOME_APP (window), application->name, title ? title : "Cronos II");
+
+	gtk_signal_connect (GTK_OBJECT (window), "destroy",
+						GTK_SIGNAL_FUNC (destroy), NULL);
 
 	c2_application_window_add (application, GTK_WINDOW (window));
 }

@@ -16,7 +16,6 @@ cronosII_scratch_SOURCES = \
 	install-wizard.c										\
 	main.c						main.h						\
 	object-ui-data.c			object-ui-data.h			\
-	preferences.c											\
 	widget-HTML-gtkhtml.c		widget-HTML-gtkhtml.h		\
 	widget-HTML-gtkxmhtml.c		widget-HTML-gtkxmhtml.h		\
 	widget-HTML-text.c			widget-HTML-text.h			\

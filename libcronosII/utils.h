@@ -97,7 +97,7 @@ gchar *
 c2_str_get_word									(guint8 word_n, const gchar *str, gchar ch);
 
 gchar *
-c2_get_tmp_file									(void);
+c2_get_tmp_file									(const gchar *template);
 
 gint
 c2_get_file										(const gchar *path, gchar **string);

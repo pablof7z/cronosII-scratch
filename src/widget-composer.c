@@ -22,6 +22,7 @@
 
 #include "widget-application.h"
 #include "widget-composer.h"
+#include "widget-dialog-preferences.h"
 #include "widget-window.h"
 
 #define XML_FILE "cronosII-composer"
@@ -34,6 +35,14 @@ init										(C2Composer *composer);
 
 static void
 destroy										(GtkObject *object);
+
+static void
+on_application_preferences_changed_account	(C2Application *application, gint key, gpointer value,
+											 GtkCombo *combo);
+
+static void
+on_application_preferences_changed_editor_external_cmnd	(C2Application *application, gint key,
+											gpointer value, GtkLabel *label);
 
 static void
 on_run_external_editor_clicked				(GtkWidget *widget, C2Composer *composer);
@@ -118,8 +127,6 @@ class_init (C2ComposerClass *klass)
 	klass->send_now = NULL;
 	klass->send_later = NULL;
 	klass->save_draft = NULL;
-
-	object_class->destroy = destroy;
 }
 
 static void
@@ -155,9 +162,7 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	GtkWidget *scroll;
 	GtkWidget *widget;
 	gchar *str, *buf;
-	GList *popdown = NULL;
 	gint i;
-	C2Account *account;
 	GladeXML *xml;
 	
 	c2_window_construct (C2_WINDOW (composer), application, _("Composer"), "composer");
@@ -210,21 +215,16 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 			gtk_widget_set_sensitive (widget, FALSE);
 	}
 
-	/* Set accounts */
+	/* Fill the account combo */
 	widget = glade_xml_get_widget (xml, "account");
-	for (account = application->account; account; account = account->next)
-	{
-		const gchar *name;
-		name = c2_account_get_extra_data (account, C2_ACCOUNT_KEY_FULL_NAME, NULL);
-		
-		if (name)
-			str = g_strdup_printf ("\"%s\" <%s> (%s)", name, account->email, account->name);
-		else
-			str = g_strdup_printf ("%s (%s)", account->email, account->name);
+	on_application_preferences_changed_account (application,
+					C2_DIALOG_PREFERENCES_KEY_GENERAL_ACCOUNTS, NULL, GTK_COMBO (widget));
+	gtk_signal_connect (GTK_OBJECT (application), "application_preferences_changed",
+						GTK_SIGNAL_FUNC (on_application_preferences_changed_account),
+						GTK_COMBO (widget));
 
-		popdown = g_list_append (popdown, str);
-	}
-	gtk_combo_set_popdown_strings (GTK_COMBO (widget), popdown);
+
+
 
 	/* Create the actual editor widget */
 	scroll = glade_xml_get_widget (xml, "scroll");
@@ -237,7 +237,6 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 		GtkWidget *alignment;
 		GtkWidget *frame;
 		GtkWidget *vbox, *label, *button, *hbox, *pixmap;
-		gchar *cmnd, *buf2;
 		
 		viewport = gtk_viewport_new (NULL, NULL);
 		gtk_container_add (GTK_CONTAINER (scroll), viewport);
@@ -289,30 +288,81 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 		gtk_box_pack_start (GTK_BOX (hbox), pixmap, FALSE, FALSE, 0);
 		gtk_widget_show (pixmap);
 
-		cmnd = gnome_config_get_string ("/"PACKAGE"/Interface-Composer/editor_external_cmnd");
-		buf2 = g_strdup_printf (_("Run external editor: %s"), cmnd);
-		g_free (cmnd);
-
-		label = gtk_label_new (buf2);
+		label = gtk_label_new ("");
 		gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
 		gtk_widget_show (label);
 		gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
-		g_free (buf2);
-
+		gtk_signal_connect (GTK_OBJECT (application), "application_preferences_changed",
+						GTK_SIGNAL_FUNC (on_application_preferences_changed_editor_external_cmnd),
+						GTK_LABEL (label));
+		on_application_preferences_changed_editor_external_cmnd (application,
+									C2_DIALOG_PREFERENCES_KEY_INTERFACE_COMPOSER_EDITOR_CMND,
+									NULL, GTK_LABEL (label));
+									
+		
 		gtk_signal_connect (GTK_OBJECT (button), "clicked",
 							GTK_SIGNAL_FUNC (on_run_external_editor_clicked), composer);
 	}
 
 	g_free (buf);
+
+	gtk_signal_connect_object (GTK_OBJECT (composer), "destroy",
+							GTK_SIGNAL_FUNC (destroy), NULL);
+}
+
+static void
+on_application_preferences_changed_account (C2Application *application, gint key, gpointer value,
+				GtkCombo *combo)
+{
+	C2Account *account;
+	GList *popdown = NULL;
+	gchar *str;
+
+	if (key != C2_DIALOG_PREFERENCES_KEY_GENERAL_ACCOUNTS)
+		return;
+	
+	for (account = application->account; account; account = c2_account_next (account))
+	{
+		const gchar *name;
+		name = c2_account_get_extra_data (account, C2_ACCOUNT_KEY_FULL_NAME, NULL);
+		
+		if (name)
+			str = g_strdup_printf ("\"%s\" <%s> (%s)", name, account->email, account->name);
+		else
+			str = g_strdup_printf ("%s (%s)", account->email, account->name);
+
+		popdown = g_list_append (popdown, str);
+	}
+	gtk_combo_set_popdown_strings (combo, popdown);
+}
+
+static void
+on_application_preferences_changed_editor_external_cmnd	(C2Application *application, gint key,
+gpointer value, GtkLabel *label)
+{
+	gchar *cmnd, *buf2;
+	
+	if (key != C2_DIALOG_PREFERENCES_KEY_INTERFACE_COMPOSER_EDITOR_CMND)
+		return;
+	
+	cmnd = gnome_config_get_string ("/"PACKAGE"/Interface-Composer/editor_external_cmnd");
+	buf2 = g_strdup_printf (_("Run external editor: %s"), cmnd);
+	gtk_label_set_text (label, buf2);
+	g_free (buf2);
+	g_free (cmnd);
 }
 
 static void
 on_run_external_editor_clicked (GtkWidget *widget, C2Composer *composer)
 {
 	gchar *cmnd;
+	gchar *filename;
 	pid_t pid;
 
 	cmnd = gnome_config_get_string ("/"PACKAGE"/Interface-Composer/editor_external_cmnd");
+	filename = c2_get_tmp_file ("c2-editor-XXXXXX");
+
+	gtk_object_set_data (GTK_OBJECT (composer), "external editor::file", filename);
 
 	pid = fork ();
 
@@ -322,7 +372,7 @@ on_run_external_editor_clicked (GtkWidget *widget, C2Composer *composer)
 	}
 	if (!pid)
 	{
-        execlp(cmnd, "cronosII-external-editor", NULL);
+        execlp(cmnd, "cronosII-external-editor", filename, NULL);
 		g_assert_not_reached ();
         _exit(-1);
 	} else

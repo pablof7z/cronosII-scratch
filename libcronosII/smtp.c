@@ -324,7 +324,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 	{
 		gchar *file_name, *from, *to, *temp, *cmd;
 
-		file_name = c2_get_tmp_file();
+		file_name = c2_get_tmp_file (NULL);
 		if(c2_smtp_local_write_msg(message, file_name) < 0) 
 		{
 			g_free(file_name);

@@ -296,8 +296,9 @@ c2_transfer_item_start (C2TransferItem *ti)
 			if (!(inbox = c2_mailbox_get_by_name (ti->application->mailbox, C2_MAILBOX_INBOX)))
 			{
 				/* There's no Inbox mailbox, create it */
-				ti->application->mailbox = c2_mailbox_new_with_parent (C2_MAILBOX_INBOX, NULL,
-												C2_MAILBOX_CRONOSII, 0, 0);
+				ti->application->mailbox = c2_mailbox_new_with_parent (
+											&ti->application->mailbox, C2_MAILBOX_INBOX, NULL,
+											C2_MAILBOX_CRONOSII, 0, 0);
 				if (!(inbox = ti->application->mailbox))
 				{
 					gtk_progress_set_show_text (GTK_PROGRESS (ti->progress_mail), TRUE);

@@ -26,32 +26,29 @@
 #include "utils.h"
 
 static C2Mailbox *
-c2_mailbox_init									(C2Mailbox *mailbox);
+init										(C2Mailbox *mailbox);
 
 static void
-c2_mailbox_class_init							(C2MailboxClass *klass);
+class_init									(C2MailboxClass *klass);
 
 static void
-c2_mailbox_destroy								(GtkObject *object);
+destroy										(GtkObject *object);
 
 static void
-c2_mailbox_insert								(C2Mailbox *head, C2Mailbox *mailbox);
+c2_mailbox_insert							(C2Mailbox *head, C2Mailbox *mailbox);
 
 static void
-c2_mailbox_recreate_tree_ids					(C2Mailbox *head);
+c2_mailbox_recreate_tree_ids				(C2Mailbox *head);
 
-#define c2_mailbox_search_by_id(x,y)			_c2_mailbox_search_by_id (x, y, 1)
+#define c2_mailbox_search_by_id(x,y)		_c2_mailbox_search_by_id (x, y, 1)
 
-#define c2_mailbox_get_parent(x,y)				c2_mailbox_search_by_id (x, c2_mailbox_get_parent_id (y->id))
+#define c2_mailbox_get_parent(x,y)			c2_mailbox_search_by_id (x, c2_mailbox_get_parent_id (y->id))
 
 static C2Mailbox *
-_c2_mailbox_search_by_id						(C2Mailbox *head, const gchar *id, guint level);
-
-static void
-c2_mailbox_set_head								(C2Mailbox *mailbox);
+_c2_mailbox_search_by_id					(C2Mailbox *head, const gchar *id, guint level);
 
 static gchar *
-c2_mailbox_create_id_from_parent				(C2Mailbox *parent);
+c2_mailbox_create_id_from_parent			(C2Mailbox *head, C2Mailbox *parent);
 
 enum
 {
@@ -61,11 +58,9 @@ enum
 	LAST_SIGNAL
 };
 
-static guint c2_mailbox_signals[LAST_SIGNAL] = { 0 };
+static guint signals[LAST_SIGNAL] = { 0 };
 
 static GtkObjectClass *parent_class = NULL;
-
-static C2Mailbox *mailbox_head = NULL;
 
 GtkType
 c2_mailbox_get_type (void)
@@ -79,8 +74,8 @@ c2_mailbox_get_type (void)
 			"C2Mailbox",
 			sizeof (C2Mailbox),
 			sizeof (C2MailboxClass),
-			(GtkClassInitFunc) c2_mailbox_class_init,
-			(GtkObjectInitFunc) c2_mailbox_init,
+			(GtkClassInitFunc) class_init,
+			(GtkObjectInitFunc) init,
 			/* reserved_1 */ NULL,
 			/* reserved_2 */ NULL,
 			(GtkClassInitFunc) NULL
@@ -93,7 +88,7 @@ c2_mailbox_get_type (void)
 }
 
 static void
-c2_mailbox_class_init (C2MailboxClass *klass)
+class_init (C2MailboxClass *klass)
 {
 	GtkObjectClass *object_class;
 
@@ -101,14 +96,14 @@ c2_mailbox_class_init (C2MailboxClass *klass)
 
 	parent_class = gtk_type_class (gtk_object_get_type ());
 
-	c2_mailbox_signals[CHANGED_MAILBOXES] =
+	signals[CHANGED_MAILBOXES] =
 		gtk_signal_new ("changed_mailboxes",
 					GTK_RUN_FIRST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2MailboxClass, changed_mailboxes),
 					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 
-	c2_mailbox_signals[CHANGED_MAILBOX] =
+	signals[CHANGED_MAILBOX] =
 		gtk_signal_new ("changed_mailbox",
 					GTK_RUN_FIRST,
 					object_class->type,
@@ -116,17 +111,14 @@ c2_mailbox_class_init (C2MailboxClass *klass)
 					gtk_marshal_NONE__INT_POINTER, GTK_TYPE_NONE, 2,
 					GTK_TYPE_ENUM, GTK_TYPE_POINTER);
 
-	c2_mailbox_signals[DB_LOADED] =
+	signals[DB_LOADED] =
 		gtk_signal_new ("db_loaded",
 					GTK_RUN_FIRST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2MailboxClass, db_loaded),
 					gtk_marshal_NONE__BOOL, GTK_TYPE_NONE, 1,
 					GTK_TYPE_BOOL);
-
-	gtk_object_class_add_signals (object_class, c2_mailbox_signals, LAST_SIGNAL);
-
-	object_class->destroy = c2_mailbox_destroy;
+	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 
 	klass->changed_mailboxes = NULL;
 	klass->changed_mailbox = NULL;
@@ -134,7 +126,7 @@ c2_mailbox_class_init (C2MailboxClass *klass)
 }
 
 static C2Mailbox *
-c2_mailbox_init (C2Mailbox *mailbox)
+init (C2Mailbox *mailbox)
 {
 	mailbox->name = NULL;
 	mailbox->id = NULL;
@@ -155,15 +147,8 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 	c2_return_if_fail (mailbox, C2EDATA);
 
 	pthread_mutex_lock(&mailbox->lock);
-	
 	switch (mailbox->type)
 	{
-		case C2_MAILBOX_IMAP:
-			g_free (mailbox->protocol.imap.host);
-			g_free (mailbox->protocol.imap.user);
-			g_free (mailbox->protocol.imap.pass);
-			g_free (mailbox->protocol.imap.path);
-			break;
 		case C2_MAILBOX_SPOOL:
 			g_free (mailbox->protocol.spool.path);
 			break;
@@ -181,28 +166,17 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 }
 
 static void
-c2_mailbox_destroy (GtkObject *object)
+destroy (GtkObject *object)
 {
 	C2Mailbox *mailbox, *l, *n;
 
-	c2_return_if_fail (C2_IS_MAILBOX (object), C2EDATA);
-	
 	mailbox = C2_MAILBOX (object);
-	
-	if (c2_mailbox_get_head () == mailbox)
-		c2_mailbox_set_head (mailbox->next);
-	
-	for (l = mailbox->child; l != NULL; l = n)
-	{
-		n = l->next;
-		c2_mailbox_destroy_node (l);
-	}
-	mailbox->child = NULL;
 	c2_mailbox_destroy_node (mailbox);
 }
 
 /**
  * _c2_mailbox_new
+ * @head: Where to append the mailbox.
  * @name: Name of mailbox.
  * @id: Id of mailbox.
  * @independent: TRUE if the call is not from an function-envelopment, you want to say TRUE.
@@ -212,7 +186,7 @@ c2_mailbox_destroy (GtkObject *object)
  * ...: Specific information about the mailbox according to the type
  * 		of mailbox.
  * 		Cronos II Mailbox's type: Null.
- * 		IMAP Mailbox's type: gchar *server, gint port, gchar *user, gchar *pass, gchar *path.
+ * 		IMAP Mailbox's type: C2IMAP *imap.
  * 		Spool Mailbox's type: gchar *path.
  *
  * This function will allocate a new C2Mailbox object
@@ -229,8 +203,8 @@ c2_mailbox_destroy (GtkObject *object)
  * The new mailbox object.
  **/
 C2Mailbox *
-_c2_mailbox_new (const gchar *name, const gchar *id, gboolean independent, C2MailboxType type,
-				C2MailboxSortBy sort_by, GtkSortType sort_type, ...)
+_c2_mailbox_new (C2Mailbox **head, const gchar *name, const gchar *id, gboolean independent,
+				C2MailboxType type, C2MailboxSortBy sort_by, GtkSortType sort_type, ...)
 {
 	C2Mailbox *mailbox;
 	va_list edata;
@@ -256,13 +230,7 @@ _c2_mailbox_new (const gchar *name, const gchar *id, gboolean independent, C2Mai
 			break;
 		case C2_MAILBOX_IMAP:
 			va_start (edata, sort_type);
-			mailbox->protocol.imap.host = g_strdup (va_arg (edata, gchar *));
-			mailbox->protocol.imap.port = va_arg (edata, gint);
-			mailbox->protocol.imap.user = g_strdup (va_arg (edata, gchar *));
-			mailbox->protocol.imap.pass = g_strdup (va_arg (edata, gchar *));
-			mailbox->protocol.imap.path = g_strdup (va_arg (edata, gchar *));
-			mailbox->protocol.imap.sock = -1;
-			mailbox->protocol.imap.tag  = 1;
+			mailbox->protocol.IMAP.imap = va_arg (edata, C2IMAP *);
 			va_end (edata);
 			break;
 		case C2_MAILBOX_SPOOL:
@@ -277,20 +245,23 @@ _c2_mailbox_new (const gchar *name, const gchar *id, gboolean independent, C2Mai
 #endif
 	}
 
-	if (!mailbox_head)
-		c2_mailbox_set_head (mailbox);
+	if (*head)
+		c2_mailbox_insert (*head, mailbox);
 	else
-		c2_mailbox_insert (mailbox_head, mailbox);
+		*head = mailbox;
 
 	if (independent)
-			gtk_signal_emit (GTK_OBJECT (mailbox_head),
-							c2_mailbox_signals[CHANGED_MAILBOXES]);
+			gtk_signal_emit (GTK_OBJECT (*head),
+							signals[CHANGED_MAILBOXES]);
+
+	gtk_signal_connect (GTK_OBJECT (mailbox), "destroy",
+						GTK_SIGNAL_FUNC (destroy), NULL);
 	
 	return mailbox;
 }
 
 C2Mailbox *
-c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2MailboxType type,
+c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *parent_id, C2MailboxType type,
 							C2MailboxSortBy sort_by, GtkSortType sort_type, ...)
 {
 	C2Mailbox *parent;
@@ -304,16 +275,16 @@ c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2Mailbox
 
 	if (parent_id)
 	{
-		if (!(parent = c2_mailbox_search_by_id (mailbox_head, parent_id)))
+		if (!(parent = c2_mailbox_search_by_id (*head, parent_id)))
 		{
 			c2_error_set (C2EDATA);
 			return NULL;
 		}
 		
-		id = c2_mailbox_create_id_from_parent (parent);
+		id = c2_mailbox_create_id_from_parent (*head, parent);
 	} else
 	{
-		if ((parent = c2_mailbox_get_head ()))
+		if ((parent = *head))
 		{
 			for (; parent->next; parent = parent->next);
 			id = g_strdup_printf ("%d", atoi (parent->id)+1);
@@ -326,7 +297,7 @@ c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2Mailbox
 	switch (type)
 	{
 		case C2_MAILBOX_CRONOSII:
-			value = _c2_mailbox_new (name, id, FALSE, type, sort_by, sort_type);
+			value = _c2_mailbox_new (head, name, id, FALSE, type, sort_by, sort_type);
 			break;
 		case C2_MAILBOX_IMAP:
 			va_start (edata, sort_type);
@@ -336,14 +307,14 @@ c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2Mailbox
 			pass = va_arg (edata, gchar *);
 			path = va_arg (edata, gchar *);
 	
-			value = _c2_mailbox_new (name, id, FALSE, type, sort_by, sort_type, host, port, user, pass, path);
+			value = _c2_mailbox_new (head, name, id, FALSE, type, sort_by, sort_type, host, port, user, pass, path);
 			va_end (edata);
 			break;
 		case C2_MAILBOX_SPOOL:
 			va_start (edata, sort_type);
 			path = va_arg (edata, gchar *);
 		
-			value = _c2_mailbox_new (name, id, FALSE, type, sort_by, sort_type, path);
+			value = _c2_mailbox_new (head, name, id, FALSE, type, sort_by, sort_type, path);
 			va_end (edata);
 			break;
 	}
@@ -358,27 +329,25 @@ c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2Mailbox
 
 	c2_db_load (value);
 
-	gtk_signal_emit (GTK_OBJECT (c2_mailbox_get_head ()),
-							c2_mailbox_signals[CHANGED_MAILBOXES]);
+	gtk_signal_emit (GTK_OBJECT (*head),
+							signals[CHANGED_MAILBOXES]);
 	
 	return value;
 }
 
 /**
  * c2_mailbox_destroy_tree
+ * @head: First mailbox where to start destroying
  *
  * Unref the whole mailboxes tree.
  **/
 void
-c2_mailbox_destroy_tree (void)
+c2_mailbox_destroy_tree (C2Mailbox *head)
 {
 	C2Mailbox *l;
 
-	for (l = c2_mailbox_get_head (); l != NULL; l = l->next)
-		gtk_object_unref (GTK_OBJECT (l));
-	gtk_signal_emit (GTK_OBJECT (mailbox_head),
-						c2_mailbox_signals[CHANGED_MAILBOXES]);
-	c2_mailbox_set_head (NULL);
+	for (l = head; l != NULL; l = l->next)
+		gtk_object_destroy (GTK_OBJECT (l));
 }
 
 static void
@@ -390,8 +359,6 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
 	c2_return_if_fail (head, C2EDATA);
 	c2_return_if_fail (mailbox, C2EDATA);
 
-	pthread_mutex_lock(&mailbox->lock);
-	
 	if (!C2_MAILBOX_IS_TOPLEVEL (mailbox))
 	{
 		/* Get the ID of the parent */
@@ -408,19 +375,19 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
 		
 		if (l->child)
 		{
-			for (l = l->child; l->next != NULL; l = l->next);
+			for (l = l->child; l->next != NULL; l = l->next)
+				;
 			l->next = mailbox;
 		} else
 			l->child = mailbox;
 	} else
 	{
-		for (l = head; l->next != NULL; l = l->next);
+		for (l = head; l->next != NULL; l = l->next)
+			;
 		l->next = mailbox;
 	}
-	gtk_signal_emit (GTK_OBJECT (mailbox_head),
-						c2_mailbox_signals[CHANGED_MAILBOXES]);
-	
-	pthread_mutex_unlock(&mailbox->lock);
+	gtk_signal_emit (GTK_OBJECT (head),
+						signals[CHANGED_MAILBOXES]);
 }
 
 /**
@@ -432,7 +399,7 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
  * ...: Specific information about the mailbox according to the type
  * 		of mailbox.
  * 		Cronos II Mailbox's type: Null.
- * 		IMAP Mailbox's type: gchar *server, gint port, gchar *user, gchar *pass, *gchar *path.
+ * 		IMAP Mailbox's type: Null.
  * 		Spool Mailbox's type: gchar *path.
  * 
  * This function will update a C2Mailbox object.
@@ -444,6 +411,19 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
 	
 	c2_return_if_fail (mailbox, C2EDATA);
 
+	/* [TODO]
+	 * This is what this function should do;
+	 * 
+	 * If mailbox->type != type:
+	 *      c2_db_{type}_structure_create ();
+	 *      for (db = mailbox->db; db = db->next)
+	 *      	c2_db_{mailbox->type}_load_message (db);
+	 *      	c2_db_{type}_add_message (db->message);
+	 *      c2_db_{mailbox->type}_structure_remove ();
+	 * Else
+	 *      Do what it currently does.
+	 */
+
 	pthread_mutex_lock(&mailbox->lock);
 	
 	g_free (mailbox->name);
@@ -451,16 +431,6 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
 
 	switch (mailbox->type)
 	{
-		case C2_MAILBOX_IMAP:
-			g_free (mailbox->protocol.imap.host);
-			mailbox->protocol.imap.host = NULL;
-			g_free (mailbox->protocol.imap.user);
-			mailbox->protocol.imap.user = NULL;
-			g_free (mailbox->protocol.imap.pass);
-			mailbox->protocol.imap.pass = NULL;
-			g_free (mailbox->protocol.imap.path);
-			mailbox->protocol.imap.path = NULL;
-			break;
 		case C2_MAILBOX_SPOOL:
 			g_free (mailbox->protocol.spool.path);
 			mailbox->protocol.spool.path = NULL;
@@ -473,14 +443,7 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
 			mailbox->type = C2_MAILBOX_CRONOSII;
 			break;
 		case C2_MAILBOX_IMAP:
-			va_start (edata, type);
 			mailbox->type = C2_MAILBOX_IMAP;
-			mailbox->protocol.imap.host = g_strdup (va_arg (edata, gchar *));
-			mailbox->protocol.imap.port = va_arg (edata, gint);
-			mailbox->protocol.imap.user = g_strdup (va_arg (edata, gchar *));
-			mailbox->protocol.imap.pass = g_strdup (va_arg (edata, gchar *));
-			mailbox->protocol.imap.path = g_strdup (va_arg (edata, gchar *));
-			va_end (edata);
 			break;
 		case C2_MAILBOX_SPOOL:
 			va_start (edata, type);
@@ -490,12 +453,13 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
 			break;
 	}
 
-	gtk_signal_emit (GTK_OBJECT (c2_mailbox_get_head ()), c2_mailbox_signals[CHANGED_MAILBOXES]);
+	gtk_signal_emit (GTK_OBJECT (mailbox), signals[CHANGED_MAILBOXES]);
 	pthread_mutex_unlock(&mailbox->lock);
 }
 
 /**
  * c2_mailbox_remove
+ * @head: Pointer to the head mailbox.
  * @mailbox: Mailbox to remove.
  *
  * Removes a mailbox and all of its children.
@@ -503,7 +467,7 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
  * TODO: Ability to delete the mailbox with ID "0".
  **/
 void
-c2_mailbox_remove (C2Mailbox *mailbox, gboolean archive)
+c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 {
 	C2Mailbox *parent = NULL, *previous = NULL, *next;
 	gchar *parent_id, *previous_id, *next_id;
@@ -523,7 +487,7 @@ c2_mailbox_remove (C2Mailbox *mailbox, gboolean archive)
 			return;
 		}
 		
-		if (!(parent = c2_mailbox_search_by_id (c2_mailbox_get_head (), parent_id)))
+		if (!(parent = c2_mailbox_search_by_id (*head, parent_id)))
 		{
 			pthread_mutex_unlock(&mailbox->lock);
 			return;
@@ -538,7 +502,7 @@ c2_mailbox_remove (C2Mailbox *mailbox, gboolean archive)
 		else
 			previous_id = g_strdup_printf ("%d", my_id-1);
 		
-		if (!(previous = c2_mailbox_search_by_id (c2_mailbox_get_head (), previous_id)))
+		if (!(previous = c2_mailbox_search_by_id (*head, previous_id)))
 		{
 			pthread_mutex_unlock(&mailbox->lock);
 			return;
@@ -556,19 +520,20 @@ c2_mailbox_remove (C2Mailbox *mailbox, gboolean archive)
 	else
 		previous->next = next;
 
-	if (!parent && (parent = c2_mailbox_get_parent (c2_mailbox_get_head (), mailbox)));
+	if (!parent && (parent = c2_mailbox_get_parent (*head, mailbox)))
+		;
 	else
-		parent = c2_mailbox_get_head ();
+		parent = *head;
 	
 	c2_mailbox_recreate_tree_ids (parent);
 
-	gtk_signal_emit (GTK_OBJECT (c2_mailbox_get_head ()), c2_mailbox_signals[CHANGED_MAILBOXES]);
+	gtk_signal_emit (GTK_OBJECT (*head), signals[CHANGED_MAILBOXES]);
 
 	/* Remove the structure */
-	if (archive)
-		c2_db_archive (mailbox);
-	else
-		c2_db_remove_structure (mailbox);
+#ifdef USE_ARCHIVER
+	c2_db_archive (mailbox);
+#endif
+	c2_db_remove_structure (mailbox);
 
 	pthread_mutex_unlock(&mailbox->lock);
 	gtk_object_unref (GTK_OBJECT (mailbox));
@@ -580,10 +545,10 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 	C2Mailbox *l;
 	gint i;
 
-	if (!head)
+	if (!strstr (head->id, "-"))
 	{
 		/* TOPLEVEL */
-		for (l = c2_mailbox_get_head (), i = 0; l != NULL; l = l->next, i++)
+		for (l = head, i = 0; l != NULL; l = l->next, i++)
 		{
 			g_free (l->id);
 			l->id = g_strdup_printf ("%d", i);
@@ -596,7 +561,7 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 		for (l = head->child, i = 0; l != NULL; l = l->next, i++)
 		{
 			g_free (l->id);
-			l->id = g_strdup_printf ("%s%d", head->id, i);
+			l->id = g_strdup_printf ("%s-%d", head->id, i);
 			if (l->child)
 				c2_mailbox_recreate_tree_ids (l);
 		}
@@ -637,14 +602,15 @@ _c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id, guint level)
 }
 
 static gchar *
-c2_mailbox_create_id_from_parent (C2Mailbox *parent)
+c2_mailbox_create_id_from_parent (C2Mailbox *head, C2Mailbox *parent)
 {
 	C2Mailbox *l;
 	gchar *id;
 	
 	if (!parent)
 	{
-		for (l = c2_mailbox_get_head (); l->next != NULL; l = l->next);
+		for (l = head; l->next != NULL; l = l->next)
+			;
 		id = g_strdup (l->id);
 		/* Add 1 to the previous ID */
 		*(id+strlen (id)-1) = (*(id+strlen (id)-1)-48)+1;
@@ -765,27 +731,6 @@ c2_mailbox_get_id (const gchar *id, gint number)
 	return atoi (ptr);
 }
 
-
-/**
- * c2_mailbox_get_head
- *
- * Gets the head of the mailbox tree.
- *
- * Return Value:
- * Head of mailbox tree or NULL if the tree is empty.
- **/
-C2Mailbox *
-c2_mailbox_get_head (void)
-{
-	return mailbox_head;
-}
-
-static void
-c2_mailbox_set_head (C2Mailbox *mailbox)
-{
-	mailbox_head = mailbox;
-}
-
 /**
  * c2_mailbox_get_by_name
  * @head: Head where to search.
@@ -804,7 +749,7 @@ c2_mailbox_get_by_name (C2Mailbox *head, const gchar *name)
 	
 	c2_return_val_if_fail (name, NULL, C2EDATA);
 
-	for (l = head ? head : c2_mailbox_get_head (); l != NULL; l = l->next)
+	for (l = head; l != NULL; l = l->next)
 	{
 		if (c2_streq (l->name, name))
 			return l;
@@ -839,17 +784,17 @@ c2_mailbox_load_db (C2Mailbox *mailbox)
 	/* Check if it is already loaded */
 	if (mailbox->db)
 	{
-		gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], TRUE);
+		gtk_signal_emit (GTK_OBJECT (mailbox), signals[DB_LOADED], TRUE);
 		return TRUE;
 	}
 
 	/* We must load the db */
 	if (c2_db_load (mailbox) < 0)
 	{
-		gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], FALSE);
+		gtk_signal_emit (GTK_OBJECT (mailbox), signals[DB_LOADED], FALSE);
 		return FALSE;
 	}
 
-	gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], TRUE);
+	gtk_signal_emit (GTK_OBJECT (mailbox), signals[DB_LOADED], TRUE);
 	return TRUE;
 }

@@ -412,6 +412,9 @@ c2_str_get_word (guint8 word_n, const gchar *str, gchar ch)
 
 /**
  * c2_get_tmp_file
+ * @template: Template to use for the file name, %NULL if
+ *            the name does not require any special name.
+ *            Read mkstemp(3) before using this function.
  *
  * Gets a tmp file path.
  *
@@ -419,7 +422,7 @@ c2_str_get_word (guint8 word_n, const gchar *str, gchar ch)
  * A freeable string with the path to the tmp file.
  **/
 gchar *
-c2_get_tmp_file (void)
+c2_get_tmp_file (const gchar *template)
 {
 	gchar *temp;
 	static gchar *dir = NULL;
@@ -428,7 +431,7 @@ c2_get_tmp_file (void)
 	if (!dir)
 		dir = g_get_tmp_dir ();
 	
-	temp = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "c2-tmp.XXXXXXX", dir);
+	temp = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s", dir, template ? template : "c2-tmp.XXXXXXX");
 	fd = mkstemp (temp);
 	close (fd);
 	

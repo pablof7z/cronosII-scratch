@@ -16,6 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include "widget-application.h"
+#include "widget-dialog-preferences.h"
 
 /**
  * c2_application_check_account_exists
@@ -30,7 +31,7 @@ gboolean
 c2_application_check_account_exists (C2Application *application)
 {
 	GladeXML *xml;
-	GtkWidget *window;
+	GtkWidget *window, *widget;
 	
 	if (application->account)
 		return TRUE;
@@ -41,7 +42,8 @@ c2_application_check_account_exists (C2Application *application)
 	switch (gnome_dialog_run_and_close (GNOME_DIALOG (window)))
 	{
 		case 0:
-			c2_preferences_new ();
+			widget = c2_dialog_preferences_new (application);
+			gtk_widget_show (widget);
 	}
 
 	return FALSE;

@@ -30,6 +30,7 @@
 
 #include "widget-application.h"
 #include "widget-dialog.h"
+#include "widget-dialog-preferences.h"
 #include "widget-window.h"
 
 static void
@@ -43,6 +44,10 @@ destroy										(GtkObject *object);
 
 void
 on_mailbox_changed_mailboxes				(C2Mailbox *mailbox, C2Application *application);
+
+static void
+on_preferences_changed						(C2DialogPreferences *preferences,
+											 C2DialogPreferencesKey key, gpointer value);
 
 enum
 {
@@ -111,8 +116,6 @@ class_init (C2ApplicationClass *klass)
 	klass->application_preferences_changed = NULL;
 	klass->reload_mailboxes = NULL;
 	klass->window_changed = NULL;
-
-	object_class->destroy = destroy;
 }
 
 static void
@@ -253,7 +256,8 @@ ignore:
 					} else if (account_type == C2_ACCOUNT_IMAP)
 					{
 						C2IMAP *imap;
-						imap = c2_imap_new (host, port, user, pass, ssl);
+						imap = c2_imap_new (host, port, user, pass, C2_IMAP_AUTHENTICATION_PLAINTEXT,
+											ssl);
 						/* [TODO] There is more of the IMAP object to load... */
 						c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, imap);
 					}
@@ -445,7 +449,7 @@ ignore:
 		switch (type)
 		{
 			case C2_MAILBOX_CRONOSII:
-				mailbox = c2_mailbox_new (name, id, type, sort_by, sort_type);
+				mailbox = c2_mailbox_new (&application->mailbox, name, id, type, sort_by, sort_type);
 				break;
 			case C2_MAILBOX_IMAP:
 				host = gnome_config_get_string ("host");
@@ -453,7 +457,7 @@ ignore:
 				user = gnome_config_get_string ("user");
 				pass = gnome_config_get_string ("pass");
 				path = gnome_config_get_string ("path");
-				mailbox = c2_mailbox_new (name, id, type, sort_by, sort_type, host, port, user, pass, path);
+				mailbox = c2_mailbox_new (&application->mailbox, name, id, type, sort_by, sort_type, host, port, user, pass, path);
 				g_free (host);
 				g_free (user);
 				g_free (pass);
@@ -461,11 +465,13 @@ ignore:
 				break;
 			case C2_MAILBOX_SPOOL:
 				path = gnome_config_get_string ("path");
-				mailbox = c2_mailbox_new (name, id, type, sort_by, sort_type, path);
+				mailbox = c2_mailbox_new (&application->mailbox, name, id, type, sort_by, sort_type, path);
 				g_free (path);
 				break;
 		}
 
+		/* [TODO]
+		 * Maybe fireing a separated thread where to do this? */
 		if (application->advanced_load_mailboxes_at_start)
 			c2_mailbox_load_db (mailbox);
 
@@ -485,8 +491,6 @@ ignore:
 						GTK_SIGNAL_FUNC (on_mailbox_db_loaded), NULL);
 #endif
 	}
-
-	application->mailbox = c2_mailbox_get_head ();
 
 	application->fonts_gdk_message_body = gdk_font_load (application->fonts_message_body);
 	application->fonts_gdk_readed_message = gdk_font_load (application->fonts_readed_message);
@@ -514,7 +518,7 @@ destroy (GtkObject *object)
 		unlink ((gchar *) l->data);
 	g_slist_free (l);
 
-	c2_mailbox_destroy_tree ();
+	c2_mailbox_destroy_tree (application->mailbox);
 
 	g_free (application->options_prepend_character);
 	
@@ -539,7 +543,6 @@ destroy (GtkObject *object)
 void
 on_mailbox_changed_mailboxes (C2Mailbox *mailbox, C2Application *application)
 {
-	application->mailbox = c2_mailbox_get_head ();
 	gtk_signal_emit (GTK_OBJECT (application), signals[RELOAD_MAILBOXES]);
 }
 
@@ -551,6 +554,9 @@ c2_application_new (const gchar *name)
 	application = gtk_type_new (c2_application_get_type ());
 
 	application->name = g_strdup (name);
+
+	gtk_signal_connect (GTK_OBJECT (application), "destroy",
+						GTK_SIGNAL_FUNC (destroy), NULL);
 
 	return application;
 }
@@ -571,6 +577,18 @@ c2_application_window_add (C2Application *application, GtkWindow *window)
 {
 	application->open_windows = g_slist_append (application->open_windows, window);
 	gtk_object_ref (GTK_OBJECT (application));
+
+	/* Special care for special windows */
+	if (C2_IS_WINDOW (GTK_WIDGET (window)) ||
+		C2_IS_DIALOG (GTK_WIDGET (window)))
+	{
+		const gchar *type;
+		
+		type = gtk_object_get_data (GTK_OBJECT (window), "type");
+		if (c2_streq (type, "preferences"))
+			gtk_signal_connect (GTK_OBJECT (window), "changed",
+								GTK_SIGNAL_FUNC (on_preferences_changed), window);
+	}
 
 	gtk_signal_emit (GTK_OBJECT (application), signals[WINDOW_CHANGED]);
 }
@@ -626,6 +644,13 @@ c2_application_window_get (C2Application *application, const gchar *type)
 		if (c2_streq ((gchar*)data, type))
 			return widget;
 	}
+}
+
+static void
+on_preferences_changed (C2DialogPreferences *preferences, C2DialogPreferencesKey key, gpointer value)
+{
+	gtk_signal_emit (GTK_OBJECT (C2_DIALOG (preferences)->application), signals[PREFERENCES_CHANGED],
+					key, value);
 }
 
 /**

@@ -29,6 +29,8 @@ extern "C" {
 #define C2_DIALOG_TYPE						(c2_dialog_get_type ())
 #define C2_DIALOG(obj)						(GTK_CHECK_CAST (obj, c2_dialog_get_type (), C2Dialog))
 #define C2_DIALOG_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, C2_DIALOG_TYPE, C2DialogClass))
+#define C2_IS_DIALOG(obj)					(GTK_CHECK_TYPE (obj, c2_dialog_get_type ()))
+#define C2_IS_DIALOG_CLASS(klass)			(GTK_CHECK_CLASS_TYPE (klass, c2_dialog_get_type ()))
 
 typedef struct _C2Dialog C2Dialog;
 typedef struct _C2DialogClass C2DialogClass;

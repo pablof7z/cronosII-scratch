@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-27 19:29-0300\n"
+"POT-Creation-Date: 2001-09-28 16:56-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,6 +62,19 @@ msgstr ""
 msgid "Unknown hostname"
 msgstr ""
 
+#: libcronosII/imap.c:204
+msgid "Error connecting to IMAP server."
+msgstr ""
+
+#: libcronosII/imap.c:211
+msgid "Failed to login to IMAP server."
+msgstr ""
+
+#: libcronosII/imap.c:242
+#, c-format
+msgid "Error reading from socket on IMAP host %s! Reader thread aborting!\n"
+msgstr ""
+
 #: libcronosII/mime.c:118 libcronosII/mime.c:124
 msgid "This message claims to be multipart, but is broken."
 msgstr ""
@@ -70,60 +83,64 @@ msgstr ""
 msgid "This message claims to be multipart but it seems to be broken."
 msgstr ""
 
-#: libcronosII/smtp.c:315
+#: libcronosII/pop3.c:401
+msgid "Server does not support APOP"
+msgstr ""
+
+#: libcronosII/smtp.c:313
 msgid "SMTP server did not respond to our sent messaage in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:333
+#: libcronosII/smtp.c:331
 msgid "System Error: Unable to write message to disk for local SMTP command"
 msgstr ""
 
-#: libcronosII/smtp.c:342
+#: libcronosII/smtp.c:340
 msgid "Internal C2 Error: Unable to fetch headers in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:366
+#: libcronosII/smtp.c:364
 msgid ""
 "Problem running local SMTP command to send messages -- Check SMTP settings"
 msgstr ""
 
-#: libcronosII/smtp.c:396
+#: libcronosII/smtp.c:394
 msgid "Unable to connect to SMTP server"
 msgstr ""
 
-#: libcronosII/smtp.c:410
+#: libcronosII/smtp.c:408
 msgid "SMTP server was not friendly on our connect! May not be RFC compliant"
 msgstr ""
 
-#: libcronosII/smtp.c:472
+#: libcronosII/smtp.c:470
 msgid "SMTP server did not respond to 'EHLO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:501
+#: libcronosII/smtp.c:499
 msgid "SMTP server did not respond to HELO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:524
+#: libcronosII/smtp.c:522
 msgid "Internal C2 Error: Unable to fetch \"From:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:540
+#: libcronosII/smtp.c:538
 msgid "Internal C2 Error: Unable to fetch \"To:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:553
+#: libcronosII/smtp.c:551
 msgid "SMTP server did not reply to 'MAIL FROM:' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:595
+#: libcronosII/smtp.c:593
 msgid "SMTP server did not reply to 'DATA' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:1064
+#: libcronosII/smtp.c:1062
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
 msgstr ""
 
-#: libcronosII/utils.c:569
+#: libcronosII/utils.c:572
 msgid "Bad syntaxes, quotes aren't closed.\n"
 msgstr ""
 
@@ -442,39 +459,40 @@ msgstr ""
 msgid "Open the main window (default)"
 msgstr ""
 
-#: src/preferences.c:205 src/widget-dialog-preferences.c:585
-#: src/widget-dialog-preferences.c:657
-msgid "General"
+#: src/widget-composer.c:168
+msgid "Composer"
 msgstr ""
 
-#: src/preferences-trans.h:202 src/preferences.c:209
-msgid "Options"
+#: src/widget-composer.c:259
+msgid ""
+"You selected to use an external editor instead of the built-in with Cronos "
+"II.\n"
+"\n"
+"Click the button below to run the editor you selected in the Preferences "
+"dialog.\n"
+"\n"
+"Once you finish writting the message in the editor save the file and close "
+"it.\n"
+"After that you can manipulate the message using the tools provided in this "
+"window.\n"
 msgstr ""
 
-#: src/preferences.c:213
-msgid "Paths"
-msgstr ""
-
-#: src/preferences.c:217
-msgid "Accounts"
-msgstr ""
-
-#: src/preferences.c:221 src/widget-dialog-preferences.c:586
-#: src/widget-dialog-preferences.c:667
-msgid "Interface"
-msgstr ""
-
-#: src/preferences.c:225
-msgid "Fonts"
-msgstr ""
-
-#: src/preferences.c:229
-msgid "Colors"
+#: src/widget-composer.c:349
+#, c-format
+msgid "Run external editor: %s"
 msgstr ""
 
 #: src/widget-dialog-preferences.c:396
 #, c-format
 msgid "%s (default)"
+msgstr ""
+
+#: src/widget-dialog-preferences.c:585 src/widget-dialog-preferences.c:657
+msgid "General"
+msgstr ""
+
+#: src/widget-dialog-preferences.c:586 src/widget-dialog-preferences.c:667
+msgid "Interface"
 msgstr ""
 
 #: src/widget-dialog-preferences.c:587 src/widget-dialog-preferences.c:677
@@ -486,35 +504,35 @@ msgstr ""
 msgid "Preferences"
 msgstr ""
 
-#: src/preferences-trans.h:142 src/widget-dialog-preferences.c:1001
+#: src/preferences-trans.h:142 src/widget-dialog-preferences.c:1005
 msgid "Account Editor"
 msgstr ""
 
-#: src/preferences-trans.h:166 src/widget-dialog-preferences.c:1333
-#: src/widget-dialog-preferences.c:1344 src/widget-dialog-preferences.c:1654
+#: src/preferences-trans.h:166 src/widget-dialog-preferences.c:1337
+#: src/widget-dialog-preferences.c:1348 src/widget-dialog-preferences.c:1658
 msgid "Post Office Protocol 3 (POP3)"
 msgstr ""
 
-#: src/preferences-trans.h:167 src/widget-dialog-preferences.c:1333
-#: src/widget-dialog-preferences.c:1353 src/widget-dialog-preferences.c:1656
+#: src/preferences-trans.h:167 src/widget-dialog-preferences.c:1337
+#: src/widget-dialog-preferences.c:1357 src/widget-dialog-preferences.c:1660
 msgid "Internet Message Access Protocol 4 (IMAP)"
 msgstr ""
 
-#: src/preferences-trans.h:186 src/widget-dialog-preferences.c:1390
-#: src/widget-dialog-preferences.c:1449 src/widget-dialog-preferences.c:1795
+#: src/preferences-trans.h:186 src/widget-dialog-preferences.c:1394
+#: src/widget-dialog-preferences.c:1453 src/widget-dialog-preferences.c:1800
 msgid "SMTP"
 msgstr ""
 
-#: src/preferences-trans.h:187 src/widget-dialog-preferences.c:1455
-#: src/widget-dialog-preferences.c:1799
+#: src/preferences-trans.h:187 src/widget-dialog-preferences.c:1459
+#: src/widget-dialog-preferences.c:1804
 msgid "Sendmail"
 msgstr ""
 
-#: src/preferences-trans.h:178 src/widget-dialog-preferences.c:1722
+#: src/preferences-trans.h:178 src/widget-dialog-preferences.c:1727
 msgid "Plain"
 msgstr ""
 
-#: src/preferences-trans.h:179 src/widget-dialog-preferences.c:1726
+#: src/preferences-trans.h:179 src/widget-dialog-preferences.c:1731
 msgid "APOP"
 msgstr ""
 
@@ -609,39 +627,39 @@ msgstr ""
 msgid "Cancelled."
 msgstr ""
 
-#: src/widget-window-main.c:193
+#: src/widget-window-main.c:189
 msgid ""
 "Cronos II was not able to load the UI, you should check your installation.\n"
 "Aborting.\n"
 msgstr ""
 
-#: src/widget-window-main.c:446
+#: src/widget-window-main.c:439
 #, c-format
 msgid "The mailbox '%s' couldn't be loaded"
 msgstr ""
 
-#: src/widget-window-main.c:470
+#: src/widget-window-main.c:463
 #, c-format
 msgid "%d messages, %d new."
 msgstr ""
 
-#: src/trans.h:192 src/widget-window-main.c:549
+#: src/trans.h:192 src/widget-window-main.c:542
 msgid "You found the Eastern Egg!"
 msgstr ""
 
-#: src/trans.h:193 src/widget-window-main.c:550
+#: src/trans.h:193 src/widget-window-main.c:543
 msgid "Neat, baby!"
 msgstr ""
 
-#: src/widget-window-main.c:588
+#: src/widget-window-main.c:579
 msgid "Unable to open about file"
 msgstr ""
 
-#: src/widget-window-main.c:802
+#: src/widget-window-main.c:747
 msgid "New mailbox"
 msgstr ""
 
-#: src/widget-window-main.c:973
+#: src/widget-window-main.c:918
 msgid "Unable to create mailbox"
 msgstr ""
 
@@ -1276,6 +1294,10 @@ msgstr ""
 
 #: src/preferences-trans.h:200
 msgid "Password"
+msgstr ""
+
+#: src/preferences-trans.h:202
+msgid "Options"
 msgstr ""
 
 #: src/preferences-trans.h:203

@@ -42,6 +42,7 @@ typedef enum _C2MailboxChangeType C2MailboxChangeType;
 
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include "db.h"
+#	include "imap.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -91,17 +92,8 @@ struct _C2Mailbox
 	{
 		struct
 		{
-		} cronosII;
-		struct
-		{
-			gchar *host;
-			gint port;
-			gchar *user;
-			gchar *pass;
-			gchar *path;
-			gint sock;
-			guint tag;
-		} imap;
+			C2IMAP *imap;
+		} IMAP;
 		struct
 		{
 			gchar *path;
@@ -141,25 +133,27 @@ GtkType
 c2_mailbox_get_type								(void);
 
 /* Tree handling */
-#define c2_mailbox_new(a, b, c, d, e, args...)	_c2_mailbox_new (a, b, TRUE, c, d, e, ##args)
+#define c2_mailbox_new(head, a, b, c, d, e, args...)	_c2_mailbox_new (head, a, b, TRUE, c, d, e, ##args)
 
 C2Mailbox *
-_c2_mailbox_new									(const gchar *name, const gchar *id, gboolean independent,
-												 C2MailboxType type, C2MailboxSortBy sort_by, GtkSortType sort_type, ...);
-
-C2Mailbox *
-c2_mailbox_new_with_parent						(const gchar *name, const gchar *parent_id, C2MailboxType type,
+_c2_mailbox_new									(C2Mailbox **head, const gchar *name, const gchar *id,
+												 gboolean independent, C2MailboxType type,
 												 C2MailboxSortBy sort_by, GtkSortType sort_type, ...);
 
+C2Mailbox *
+c2_mailbox_new_with_parent						(C2Mailbox **head, const gchar *name, const gchar *parent_id,
+												 C2MailboxType type, C2MailboxSortBy sort_by,
+												 GtkSortType sort_type, ...);
+
 void
-c2_mailbox_destroy_tree							(void);
+c2_mailbox_destroy_tree							(C2Mailbox *head);
 
 void
 c2_mailbox_update								(C2Mailbox *mailbox, const gchar *name, const gchar *id,
 												 C2MailboxType type, ...);
 
 void
-c2_mailbox_remove								(C2Mailbox *mailbox, gboolean archive);
+c2_mailbox_remove								(C2Mailbox **head, C2Mailbox *mailbox);
 
 #define c2_mailbox_get_parent_id(x)				c2_mailbox_get_complete_id (x, c2_mailbox_get_level (x)-1)
 
@@ -171,9 +165,6 @@ c2_mailbox_get_complete_id						(const gchar *id, guint number);
 
 gint
 c2_mailbox_get_id								(const gchar *id, gint number);
-
-C2Mailbox *
-c2_mailbox_get_head								(void);
 
 C2Mailbox *
 c2_mailbox_get_by_name							(C2Mailbox *head, const gchar *name);

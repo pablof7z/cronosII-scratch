@@ -87,10 +87,6 @@ static void
 on_close_clicked							(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
-on_preferences_changed						(C2DialogPreferences *preferences,
-											 C2DialogPreferencesKey key, gpointer value, C2WindowMain *wmain);
-
-static void
 on_toolbar_menu_toolbar_style_item_toggled	(GtkWidget *object, C2WindowMain *wmain);
 
 /* in widget-application.c */
@@ -568,8 +564,6 @@ on_settings_preferences_activate (GtkWidget *widget, C2WindowMain *wmain)
 	GtkWidget *preferences;
 
 	preferences = c2_dialog_preferences_new (C2_WINDOW (wmain)->application);
-	gtk_signal_connect (GTK_OBJECT (preferences), "changed",
-							GTK_SIGNAL_FUNC (on_preferences_changed), wmain);
 	gtk_widget_show (preferences);	
 }
 
@@ -593,18 +587,7 @@ on_about_activate (GtkWidget *widget, C2WindowMain *wmain)
 static void
 on_close_clicked (GtkWidget *widget, C2WindowMain *wmain)
 {
-#ifdef USE_DEBUG
-	g_print ("on_close_clicked was reached (%s)\n", (gchar*) gtk_object_get_data (GTK_OBJECT (wmain), "type"));
-#endif
 	gtk_object_destroy (GTK_OBJECT (wmain));
-}
-
-static void
-on_preferences_changed (C2DialogPreferences *preferences, C2DialogPreferencesKey key, gpointer value,
-						C2WindowMain *wmain)
-{
-	gtk_signal_emit_by_name (GTK_OBJECT (C2_WINDOW (wmain)->application), "application_preferences_changed",
-								key, value);
 }
 
 static void
@@ -633,41 +616,6 @@ on_toolbar_menu_toolbar_style_item_toggled (GtkWidget *object, C2WindowMain *wma
 		gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_TEXT);
 	else if (both)
 		gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH);
-}
-
-
-static void
-on_preferences_activated (GtkWidget *widget)
-{
-	c2_preferences_new ();
-}
-
-static void
-on_check_clicked (GtkWidget *widget, C2WindowMain *wmain)
-{
-#if 0
-	static GtkWidget *mt = NULL;
-	C2Account *account;
-
-	if (!mt)
-	{
-		mt = c2_message_transfer_new (C2_WINDOW (wmain)->application);
-		gtk_widget_show (mt);
-	} else
-	{
-		gtk_widget_show(mt);
-		gdk_window_raise (mt->window);
-	}
-	
-	c2_message_transfer_freeze (C2_MESSAGE_TRANSFER (mt));
-	for (account = C2_WINDOW (wmain)->application->account; account != NULL;
-				account = c2_account_next (account)) 
-		if (account->options.active)
-			c2_message_transfer_append (C2_MESSAGE_TRANSFER (mt), account, C2_MESSAGE_TRANSFER_MANUAL,
-										C2_MESSAGE_TRANSFER_CHECK);
-	
-	c2_message_transfer_thaw (C2_MESSAGE_TRANSFER (mt));
-#endif
 }
 
 static void
@@ -889,7 +837,7 @@ re_run_add_mailbox_dialog:
 							type = C2_MAILBOX_IMAP;
 							host = gtk_entry_get_text (GTK_ENTRY (
 													glade_xml_get_widget (xml, "ehost")));
-L							user = gtk_entry_get_text (GTK_ENTRY (
+							user = gtk_entry_get_text (GTK_ENTRY (
 													glade_xml_get_widget (xml, "euser")));
 							pass = gtk_entry_get_text (GTK_ENTRY (
 													glade_xml_get_widget (xml, "epass")));
@@ -910,7 +858,7 @@ L							user = gtk_entry_get_text (GTK_ENTRY (
 															"dlg_mailbox_not_enough_data");
 								err_dialog = glade_xml_get_widget (err_xml, "dlg_mailbox_not_enough_data");
 								
-L								gtk_window_set_modal (GTK_WINDOW (err_dialog), TRUE);
+								gtk_window_set_modal (GTK_WINDOW (err_dialog), TRUE);
 								gnome_dialog_run_and_close (GNOME_DIALOG (err_dialog));
 								
 								gtk_object_destroy (GTK_OBJECT (err_xml));
@@ -919,7 +867,7 @@ L								gtk_window_set_modal (GTK_WINDOW (err_dialog), TRUE);
 							}
 						} else if (c2_streq (query, MAILBOX_TYPE_SPOOL))
 						{
-L							type = C2_MAILBOX_SPOOL;
+							type = C2_MAILBOX_SPOOL;
 							path = gtk_entry_get_text (GTK_ENTRY (
 													gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (
 													glade_xml_get_widget (xml, "epath_spool")))));
@@ -935,7 +883,7 @@ L							type = C2_MAILBOX_SPOOL;
 								
 								gtk_window_set_modal (GTK_WINDOW (err_dialog), TRUE);
 								gnome_dialog_run_and_close (GNOME_DIALOG (err_dialog));
-L								
+								
 								gtk_object_destroy (GTK_OBJECT (err_xml));
 								
 								goto re_run_add_mailbox_dialog;
@@ -946,24 +894,30 @@ L
 
 				/* Get parent mailbox */
 				parent = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
-L
+
 				switch (type)
 				{
 					case C2_MAILBOX_CRONOSII:
-L						mailbox = c2_mailbox_new_with_parent (name, parent ? parent->id : NULL, type,
-													C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING);
+						mailbox = c2_mailbox_new_with_parent (
+											&C2_WINDOW (wmain)->application->mailbox,
+											name, parent ? parent->id : NULL, type,
+											C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING);
 						break;
 					case C2_MAILBOX_IMAP:
-						mailbox = c2_mailbox_new_with_parent (name, parent ? parent->id : NULL, type,
-													C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING,
-													host, port, user, pass, path);
+						mailbox = c2_mailbox_new_with_parent (
+											&C2_WINDOW (wmain)->application->mailbox,
+											name, parent ? parent->id : NULL, type,
+											C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING,
+											host, port, user, pass, path);
 						break;
 					case C2_MAILBOX_SPOOL:
-						mailbox = c2_mailbox_new_with_parent (name, parent ? parent->id : NULL, type,
-													C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, path);
+						mailbox = c2_mailbox_new_with_parent (
+											&C2_WINDOW (wmain)->application->mailbox,
+											name, parent ? parent->id : NULL, type,
+											C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, path);
 						break;
 				}
-L
+
 				if (!mailbox)
 				{
 					c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
@@ -983,7 +937,7 @@ L
 					return;
 				}
 
-L				if (C2_WINDOW (wmain)->application->advanced_load_mailboxes_at_start)
+				if (C2_WINDOW (wmain)->application->advanced_load_mailboxes_at_start)
 					c2_mailbox_load_db (mailbox);
 
 				/* If this is the first mailbox we need
@@ -1004,30 +958,23 @@ L				if (C2_WINDOW (wmain)->application->advanced_load_mailboxes_at_start)
 				query = g_strdup_printf ("/"PACKAGE"/Mailbox %d/", config_id);
 				gnome_config_push_prefix (query);
 				
-L				gnome_config_set_string ("name", mailbox->name);
+				gnome_config_set_string ("name", mailbox->name);
 				gnome_config_set_string ("id", mailbox->id);
 				gnome_config_set_int ("type", mailbox->type);
 				gnome_config_set_int ("sort_by", mailbox->sort_by);
 				gnome_config_set_int ("sort_type", mailbox->sort_type);
 				
-L				switch (mailbox->type)
+				switch (mailbox->type)
 				{
-					case C2_MAILBOX_IMAP:
-						gnome_config_set_string ("host", mailbox->protocol.imap.host);
-						gnome_config_set_string ("user", mailbox->protocol.imap.user);
-L						gnome_config_set_string ("pass", mailbox->protocol.imap.pass);
-						gnome_config_set_string ("path", mailbox->protocol.imap.path);
-						gnome_config_set_int ("port", mailbox->protocol.imap.port);
-						break;
 					case C2_MAILBOX_SPOOL:
 						gnome_config_set_string ("path", mailbox->protocol.spool.path);
 						break;
 				}
 				gnome_config_pop_prefix ();
-L				g_free (query);
+				g_free (query);
 				
 				gnome_config_set_int ("/"PACKAGE"/Mailboxes/quantity", config_id);
-L				gnome_config_sync ();
+				gnome_config_sync ();
 			}
 		case 2:
 			gtk_window_set_modal (GTK_WINDOW (dialog), FALSE);
