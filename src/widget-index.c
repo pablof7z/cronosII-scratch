@@ -20,11 +20,16 @@
 
 #include <libcronosII/error.h>
 
+#include "preferences.h"
 #include "widget-application.h"
 #include "widget-dialog-preferences.h"
 #include "widget-index.h"
 
 #define SELECTED_MAIL	"mailbox::selected mail"
+
+/* TODO Sorting
+ * TODO Right Click menu
+ */
 
 static void
 class_init									(C2IndexClass *klass);
@@ -313,8 +318,7 @@ reload (C2Index *index)
 		return;
 	}
 	
-	date_fmt = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-Misc/date_fmt="
-									DEFAULT_INTERFACE_DATE_FMT, NULL);
+	date_fmt = c2_preferences_get_interface_misc_date ();
 	db = index->mailbox->db;
 
 	gtk_clist_freeze (clist);

@@ -372,6 +372,58 @@ c2_db_remove_structure (C2Mailbox *mailbox)
 	return func (mailbox);
 }
 
+void
+c2_db_freeze (C2Mailbox *mailbox)
+{
+	void (*func) (C2Mailbox *mailbox);
+
+	pthread_mutex_lock (&mailbox->lock);
+	mailbox->freezed = 1;
+	
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_freeze;
+			break;
+/*		case C2_MAILBOX_IMAP:
+			func = c2_db_imap_freeze;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_freeze;
+			break;*/
+		default:
+			g_assert_not_reached ();
+	}
+
+	func (mailbox);
+}
+
+void
+c2_db_thaw (C2Mailbox *mailbox)
+{
+	void (*func) (C2Mailbox *mailbox);
+
+	mailbox->freezed = 0;
+	
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_thaw;
+			break;
+/*		case C2_MAILBOX_IMAP:
+			func = c2_db_imap_thaw;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_thaw;
+			break;*/
+		default:
+			g_assert_not_reached ();
+	}
+
+	func (mailbox);
+	pthread_mutex_unlock (&mailbox->lock);
+}
+
 /**
  * c2_db_load [VFUNCTION]
  * @mailbox: Mailbox to load.
@@ -389,9 +441,12 @@ gint
 c2_db_load (C2Mailbox *mailbox)
 {
 	gint (*func) (C2Mailbox *mailbox);
+	gint retval;
 	
 	c2_return_val_if_fail (mailbox, 1, C2EDATA);
-
+	
+	pthread_mutex_lock (&mailbox->lock);
+	
 	switch (mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
@@ -405,40 +460,21 @@ c2_db_load (C2Mailbox *mailbox)
 			break;
 	}
 
-	return func (mailbox);
+	retval = func (mailbox);
+
+	pthread_mutex_unlock (&mailbox->lock);
+
+	return retval;
 }
 
-/**
- * c2_db_message_add [VFUNCTION]
- * @mailbox: Mailbox where to act.
- * @message: Message to be added.
- * 
- * Appends a message to the mailbox.
- *
- * Return Value:
- * 0 on success, -1 on error.
- **/
-gint
-c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
+static C2Db *
+add_message (C2Mailbox *mailbox, C2Message *message)
 {
-	gboolean (*func) (C2Mailbox *mailbox, C2Db *db);
-	C2Db *l, *db;
+	C2Db *db;
 	gchar *buf;
 	gboolean marked = FALSE;
 	gchar *subject, *from, *account;
 	time_t date;
-
-	if (!mailbox->db)
-		c2_mailbox_load_db (mailbox);
-
-	/* Note for developers of VFUNCTIONS about this function:
-	 *   The VFunction should just append the node to the
-	 *   mailbox, this function will handle itself the
-	 *   appending to the dynamic list.
-	 *
-	 *   The mid of the db passed to the function should be changed
-	 *   by the VFUNCTION to a proper value.
-	 */
 	
 	buf = c2_message_get_header_field (message, "X-Priority:");
 	if (c2_streq (buf, "highest") || c2_streq (buf, "high"))
@@ -461,30 +497,41 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 					account ? account : "",
 					date, 0, mailbox->db ? mailbox->db->prev->position+1 : 1);
 	db->message = message;
-	db->state = (C2MessageState) GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (message), "state"));
-	
-	switch (mailbox->type)
+	buf = c2_message_get_header_field (message, "X-CronosII-State:");
+	if (!buf)
 	{
-		case C2_MAILBOX_CRONOSII:
-			func = c2_db_cronosII_message_add;
-			break;
-		case C2_MAILBOX_IMAP:
-			//func = c2_db_imap_message_add;
-			break;
-		case C2_MAILBOX_SPOOL:
-			func = c2_db_spool_message_add;
-			break;
-	}
+		buf = gtk_object_get_data (GTK_OBJECT (message), "state");
+		if (!buf)
+			db->state = C2_MESSAGE_UNREADED;
+		else
+			db->state = (C2MessageState) buf;
+	} else
+		db->state = atoi (buf);
 
-	if (!func (mailbox, db))
-		return -1;
-	gtk_object_destroy (GTK_OBJECT (message));
-	db->message = NULL;
+	return db;
+}
 
-	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
-							C2_MAILBOX_CHANGE_ADD, db->prev);
+/**
+ * c2_db_message_add [VFUNCTION]
+ * @mailbox: Mailbox where to act.
+ * @message: Message to be added.
+ * 
+ * Appends a message to the mailbox.
+ *
+ * Return Value:
+ * 0 on success, -1 on error.
+ **/
+gint
+c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
+{
+	gint retval = 0;
+	GList *list;
 
-	return 0;
+	list = g_list_append (NULL, message);
+	retval = c2_db_message_add_list (mailbox, list);
+	g_list_free (list);
+	
+	return retval;
 }
 
 /**
@@ -500,10 +547,19 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 gint
 c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 {
-	gboolean (*func) (C2Mailbox *mailbox, GList *list);
+	gint (*func) (C2Mailbox *mailbox, C2Db *db);
 	C2Db *db;
 	gchar *buf;
 	GList *l, *dl = NULL;
+	gboolean thaw = FALSE;
+
+	if (!mailbox->freezed)
+		pthread_mutex_lock (&mailbox->lock);
+	else
+	{
+		c2_db_freeze (mailbox);
+		thaw = TRUE;
+	}
 
 	if (!mailbox->db)
 		c2_mailbox_load_db (mailbox);
@@ -511,7 +567,7 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 	switch (mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
-			func = c2_db_cronosII_message_add_list;
+			func = c2_db_cronosII_message_add;
 			break;
 		case C2_MAILBOX_IMAP:
 			func = NULL;
@@ -533,51 +589,24 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 	for (l = list; l; l = g_list_next (l))
 	{
 		C2Message *message = C2_MESSAGE (l->data);
-		gboolean marked = FALSE;
-		gchar *subject, *from, *account;
-		time_t date;
-		
-		buf = c2_message_get_header_field (message, "X-Priority:");
-		
-		if (c2_streq (buf, "highest") || c2_streq (buf, "high"))
-			marked = TRUE;
-		g_free (buf);
-		
-		if ((buf = c2_message_get_header_field (message, "Date:")))
-		{
-			date = c2_date_parse (buf);
-			g_free (buf);
-		} else
-			date = time (NULL);
-		
-		subject = c2_message_get_header_field (message, "Subject:");
-		from = c2_message_get_header_field (message, "From:");
-		account = c2_message_get_header_field (message, "X-CronosII-Account:");
-		
-		db = c2_db_new (mailbox, marked, subject ? subject : "",
-						from ? from : "", account ? account : "",
-						date, 0, mailbox->db ? mailbox->db->prev->position+1 : 1);
-		db->message = message;
-		db->state = *(c2_message_get_header_field (message, "X-CronosII-State:"));
-		if (!db->state)
-			db->state = C2_MESSAGE_UNREADED;
-	
-		dl = g_list_append (dl, db);
-	}
 
-	func (mailbox, dl);
+		gtk_object_ref (GTK_OBJECT (message));
 
-	for (l = dl; l; l = g_list_next (l))
-	{
-		C2Db *db = C2_DB (l->data);
-		
-		gtk_object_unref (GTK_OBJECT (db));
+		db = add_message (mailbox, message);
+		func (mailbox, db);
+
+		gtk_object_unref (GTK_OBJECT (message));
 		db->message = NULL;
+
+		gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
+							C2_MAILBOX_CHANGE_ADD, db->prev);
 	}
+
+	if (!thaw)
+		pthread_mutex_unlock (&mailbox->lock);
+	else
+		c2_db_thaw (mailbox);
 	
-	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
-							C2_MAILBOX_CHANGE_ADD, C2_DB (dl->data)->prev);
-		
 	return 0;
 }
 
@@ -609,7 +638,14 @@ c2_db_message_remove (C2Mailbox *mailbox, GList *list)
 	GList *sorted_list = NULL, *l;
 	
 	C2Db *db;
-	gint i;
+	gint i, retval, pos = 0;
+	gboolean thaw = FALSE;
+
+	if (!mailbox->freezed)
+	{
+		c2_db_freeze (mailbox);
+		thaw = TRUE;
+	}
 
 	/* Sort the list (< to >)  */
 	for (l = list; l; l = g_list_next (l))
@@ -626,15 +662,17 @@ c2_db_message_remove (C2Mailbox *mailbox, GList *list)
 			//func = c2_db_imap_message_remove;
 			break;
 		case C2_MAILBOX_SPOOL:
-			func = c2_db_spool_message_remove;
+			//func = c2_db_spool_message_remove;
 			break;
 	}
 
-	/* Remove from the db list */
+	/* Remove from the loaded db list */
 	db = mailbox->db;
 	i = 0;
 	do
 	{
+		C2Db *_next = db;
+	
 		if (i == GPOINTER_TO_INT (sorted_list->data))
 		{
 			C2Db *prev = db->prev;
@@ -644,20 +682,42 @@ c2_db_message_remove (C2Mailbox *mailbox, GList *list)
 			prev->next = next;
 			next->prev = prev;
 
+			/* If is the first mail */
+			if (c2_db_is_first (curr))
+				mailbox->db = next;
+
+			/* If is the only mail */
+			if (prev == curr)
+				mailbox->db = NULL;
+
 			/* Remove the link */
 			sorted_list = g_list_remove_link (sorted_list, sorted_list);
 			if (!sorted_list)
 				break;
+
+			gtk_object_unref (GTK_OBJECT (db));
+			c2_db_lineal_next (_next);
+			db = _next;
+		} else
+		{
+			db->position = ++pos;
+			c2_db_lineal_next (db);
 		}
 		
 		i++;
-	} while (c2_db_lineal_next (db));
+	} while (db);
 
+	retval = func (mailbox, list);
+
+	db = c2_db_get_node (mailbox, first ? first-1 : 0);
 	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
 							C2_MAILBOX_CHANGE_REMOVE,
-							c2_db_get_node (mailbox, first ? first-1 : 0));
+							db);
 
-	return func (mailbox, list);
+	if (thaw)
+		c2_db_thaw (mailbox);
+
+	return retval;
 }
 
 gboolean

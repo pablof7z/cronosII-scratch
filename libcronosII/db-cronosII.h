@@ -41,6 +41,12 @@ c2_db_cronosII_update_structure				(C2Mailbox *mailbox);
 gboolean
 c2_db_cronosII_remove_structure				(C2Mailbox *mailbox);
 
+void
+c2_db_cronosII_freeze						(C2Mailbox *mailbox);
+
+void
+c2_db_cronosII_thaw							(C2Mailbox *mailbox);
+
 gint
 c2_db_cronosII_load							(C2Mailbox *mailbox);
 
@@ -52,6 +58,9 @@ c2_db_cronosII_message_add_list				(C2Mailbox *mailbox, GList *list);
 
 gint
 c2_db_cronosII_message_remove				(C2Mailbox *mailbox, GList *list);
+
+gint
+c2_db_cronosII_move_list					(C2Mailbox *fmailbox, C2Mailbox *tmailbox, GList *list);
 
 void
 c2_db_cronosII_message_set_state			(C2Db *db, C2MessageState state);

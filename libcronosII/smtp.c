@@ -268,7 +268,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 	gchar *buffer;
 
 	gtk_object_ref (GTK_OBJECT (message));
-		
+
 	if(smtp->type == C2_SMTP_REMOTE) 
 	{
 		c2_mutex_lock(&smtp->lock);
@@ -578,7 +578,7 @@ c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 
 static gint
 c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte, 
-															C2Message *message, const gint id)
+				 			  C2Message *message, const gint id)
 {
 	/* This function sends the message body so that there is no
 	 * bare 'LF' and that all '\n' are sent as '\r\n' */
@@ -595,30 +595,33 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte,
 		{
 			if(start == ptr && contents == message->header)
 			{
-				/* if this is the BCC  and C2 internal headers, don't send them! */
+				/* if this is the BCC and C2 internal headers, don't send them! */
 				if(c2_strneq(ptr, "BCC: ", 4) || c2_strneq(ptr, "X-CronosII", 10)) 
 				{
-					for( ; *ptr != '\n'; ptr++) sent++;
+					for( ; *ptr != '\n' && *(ptr+1) != '\0'; ptr++)
+						sent++;
 					sent++;
-					start = ptr + 1;
+					start = *ptr == '\0' ? NULL : ptr + 1;
 					continue;
 				}
 			}
 			if(*ptr == '\n' || *(ptr+1) == '\0')
 			{
-				if(*(ptr+1) == '\0') ptr++;
-				buf = g_strndup(start, ptr - start);
-				if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "%s\r\n", buf) < 0)
+				if (*(ptr+1) == '\0')
+					ptr++;
+				buf = g_strndup (start, ptr - start);
+				if (c2_net_object_send (C2_NET_OBJECT(smtp), byte, "%s\r\n", buf) < 0)
 				{
-					c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
-					g_free(buf);
-					smtp_disconnect(smtp, byte);
+					c2_smtp_set_error (smtp, SOCK_WRITE_FAILED);
+					g_free (buf);
+					smtp_disconnect (smtp, byte);
 					return -1;
 				}
-				sent += strlen(buf) + 1;
-				gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], id, len, sent);
-				g_free(buf);
-				if(*ptr == '\0') ptr--;
+				sent += strlen (buf) + 1;
+				gtk_signal_emit (GTK_OBJECT (smtp), signals[SMTP_UPDATE], id, len, sent);
+				g_free (buf);
+				if (*ptr == '\0')
+					ptr--;
 				start = ptr + 1;
 			}
 		}
@@ -626,7 +629,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte,
 			contents = message->body;
 		else if(contents == message->body)
 			break;
-		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "\r\n\r\n") < 0)
+		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "\r\n") < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp, byte);

@@ -1,4 +1,10 @@
-Tues Oct 23 Peter Gossner <gossner@arcom.com.au>
+Tue Oct 23 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* A lot of work that I just don't want to remember (around the
+	  phreacking DB module).
+	* Fixed many bugs in the DB module.
+	* Fixed a very annoying bug in the SMTP module.
+
+Tue Oct 23 Peter Gossner <gossner@arcom.com.au>
 	* Added switches.sgml to manual
 	* Work in the Main Window section of the Manual.
 

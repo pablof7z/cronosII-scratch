@@ -218,18 +218,13 @@ send_ (C2Composer *composer, C2ComposerSendType type)
 	message->header = g_strdup_printf ("%s\n"
 									   "X-CronosII-Send-Type: %d\n",
 									   message->header, type);
-	gtk_object_set_data (GTK_OBJECT (message), "state", (gpointer) C2_MESSAGE_UNREADED);
 
 	mailbox = c2_mailbox_get_by_name (C2_WINDOW (composer)->application->mailbox, C2_MAILBOX_OUTBOX);
 	if (!mailbox)
 		g_assert_not_reached ();
 
 	if (!c2_db_message_add (mailbox, message))
-	{
 		gtk_widget_destroy (GTK_WIDGET (composer));
-		gtk_object_unref (GTK_OBJECT (message));
-	}
-	gtk_object_remove_data (GTK_OBJECT (message), "state");
 }
 
 static void
@@ -1084,7 +1079,7 @@ create_message (C2Composer *composer)
 	g_free (buf1);
 
 	/* X-CronosII-State */
-	buf1 = g_strdup_printf ("X-CronosII-State: %d\n", C2_MESSAGE_UNREADED);
+	buf1 = g_strdup_printf ("X-CronosII-State: %d\n", C2_MESSAGE_READED);
 	g_string_append (header, buf1);
 	g_free (buf1);
 

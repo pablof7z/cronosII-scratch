@@ -838,11 +838,13 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 		fclose (fd);
 
 		/* Load the mail */
-		message = c2_db_message_get_from_file (tmp);
+L		message = c2_db_message_get_from_file (tmp);
+		gtk_object_ref (GTK_OBJECT (message));
 		gtk_object_set_data (GTK_OBJECT (message), "state", (gpointer) C2_MESSAGE_UNREADED);
-		c2_db_message_add (inbox, message);
-		gtk_object_remove_data (GTK_OBJECT (message), "state");
-		unlink (tmp);
+L		c2_db_message_add (inbox, message);
+L		gtk_object_remove_data (GTK_OBJECT (message), "state");
+		gtk_object_unref (GTK_OBJECT (message));
+L		unlink (tmp);
 
 		/* Now that everything is written, delete the mail
 		 * or add the UIDL to the db.

@@ -40,6 +40,7 @@
 #define MAILBOX_TYPE_IMAP					"IMAP"
 #define MAILBOX_TYPE_SPOOL					_("Spool (local)")
 
+
 static void
 class_init									(C2WindowMainClass *klass);
 
@@ -204,6 +205,9 @@ on_mnu_toolbar_edit_toolbar_activate		(GtkWidget *widget, C2WindowMain *wmain);
 
 static gint
 dlg_confirm_delete_message					(C2WindowMain *wmain);
+
+static gboolean
+dlg_confirm_expunge_message					(C2WindowMain *wmain);
 
 /* in widget-application.c */
 extern void
@@ -653,19 +657,48 @@ copy (C2WindowMain *wmain)
 }
 
 static void
+delete_thread (C2WindowMain *wmain)
+{
+	C2Mailbox *mailbox, *trash;
+	gint total;
+	GtkWidget *widget;
+	GtkProgress *progress;
+	GList *l, *list;
+	
+	gdk_threads_enter ();
+	mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
+	trash = c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox,
+												C2_MAILBOX_GARBAGE);
+
+	total = g_list_length (GTK_CLIST (wmain->index)->selection);
+
+	/* Configure the progress bar */
+	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "appbar");
+	progress = GTK_PROGRESS (GNOME_APPBAR (widget)->progress);
+	gtk_progress_configure (progress, 0, 0, total);
+
+	/* Now connect a callback to the mailbox_changed signal of the mailbox
+	 * so we know when each mail is deleted and we can update the appbar
+	 */
+/*	gtk_signal_connect (GTK_OBJECT (mailbox), "mailbox_changed",
+						GTK_SIGNAL_FUNC (on_delete_mailbox_changed), progress);*/
+	gdk_threads_leave ();
+
+	/* Send the delete cmnd */
+//	c2_db_move_
+}
+
+static void
 delete (C2WindowMain *wmain)
 {
 	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
-	GList *list;
 
-	list = GTK_CLIST (wmain->index)->selection;
+	if (!GTK_CLIST (wmain->index)->selection)
+		return;
 
 	if (c2_preferences_get_general_options_delete_use_trash ())
 	{ /* We have to save in «Trash» */
-		C2Mailbox *trash = c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox,
-												C2_MAILBOX_GARBAGE);
-		
-		if (trash == mailbox)
+		if (c2_streq (mailbox->name, C2_MAILBOX_GARBAGE))
 			/* This is already «Trash», we have to expunge */
 			goto expunge;
 		
@@ -682,7 +715,7 @@ delete (C2WindowMain *wmain)
 
 		/* Ok, we are ready to move everything to «Trash» */
 		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
-							"And now we move everything to «%s»", trash->name);
+							"And now we move everything to «%s»", C2_MAILBOX_GARBAGE);
 		
 //		cd_db_message_move (mailbox, trash, list);
 	} else
@@ -700,8 +733,30 @@ exit_ (C2WindowMain *wmain)
 }
 
 static void
+expunge_thread (C2WindowMain *wmain)
+{
+	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
+	
+L	c2_db_message_remove (mailbox, GTK_CLIST (wmain->index)->selection);
+L}
+
+static void
 expunge (C2WindowMain *wmain)
 {
+	pthread_t thread;
+
+	if (!GTK_CLIST (wmain->index)->selection)
+		return;
+	
+	/* Ask for confirmation */
+	if (!dlg_confirm_expunge_message (wmain))
+	{
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
+							_("Deletion cancelled by user"));
+		return;
+	}
+
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (expunge_thread), wmain);
 }
 
 static void
@@ -1691,6 +1746,49 @@ dlg_confirm_delete_message (C2WindowMain *wmain)
 	return retval;
 }
 #endif /* Delete Mails Confirmation Dialog */
+
+
+
+
+
+
+#if 1 /* Expunge Mails Confirmation Dialog */
+static gboolean
+dlg_confirm_expunge_message (C2WindowMain *wmain)
+{
+	C2Application *application;
+	GtkWidget *dialog;
+	GtkWidget *pixmap;
+	GtkWidget *toggle;
+	GladeXML *xml;
+	gboolean retval;
+	
+	c2_return_val_if_fail (C2_IS_WINDOW_MAIN (wmain), 0, C2EDATA);
+
+	application = C2_WINDOW (wmain)->application;
+
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_confirm_expunge_message");
+
+	dialog = glade_xml_get_widget (xml, "dlg_confirm_expunge_message");
+	c2_application_window_add (application, GTK_WINDOW (dialog));
+
+	gtk_window_set_position (GTK_WINDOW (dialog),
+					gnome_preferences_get_dialog_position ());
+	gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (wmain));
+	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
+	gnome_dialog_close_hides (GNOME_DIALOG (dialog), TRUE);
+	if (gnome_dialog_run (GNOME_DIALOG (dialog)) == 0)
+		retval = TRUE;
+	else
+		retval = FALSE;
+
+	c2_application_window_remove (application, GTK_WINDOW (dialog));
+	gtk_widget_destroy (dialog);
+	gtk_object_destroy (GTK_OBJECT (xml));
+
+	return retval;
+}
+#endif /* Expunge Mails Confirmation Dialog */
 
 
 

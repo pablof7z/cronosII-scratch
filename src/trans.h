@@ -190,3 +190,6 @@ gchar *s = N_("Confirmation");
 gchar *s = N_("Are you sure you want to\n"
               "delete the selected mails?");
 gchar *s = N_("Do not ask again.");
+gchar *s = N_("Are you sure you want to\n"
+              "expunge the selected mails?");
+gchar *s = N_("Confirmation");

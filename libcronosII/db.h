@@ -47,7 +47,9 @@ typedef struct _C2DbClass C2DbClass;
 #	include <cronosII.h>
 #endif
 
-#define c2_db_lineal_next(db)				((db) && (db->position < db->next->position) ? (db = db->next) : 0)
+#define c2_db_is_first(db)					((db)&&(db->position<=db->prev->position))
+#define c2_db_is_last(db)					((db)&&(db->position>=db->next->position))
+#define c2_db_lineal_next(db)				(c2_db_is_last (db)?0:(db=db->next))
 
 struct _C2Db
 {
@@ -115,6 +117,12 @@ c2_db_remove_structure						(C2Mailbox *mailbox);
 /************************
  * [DataBase Iteration] *
  ************************/
+void
+c2_db_freeze								(C2Mailbox *mailbox);
+
+void
+c2_db_thaw									(C2Mailbox *mailbox);
+
 gint
 c2_db_load									(C2Mailbox *mailbox);
 

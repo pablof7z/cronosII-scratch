@@ -278,17 +278,8 @@ node_fill (GtkCTree *ctree, GtkCTreeNode *cnode, C2Mailbox *mailbox, C2Db *start
 
 	ldb = start_db ? start_db : mailbox->db;
 
-	*unreaded = 0;
+	*unreaded = c2_db_length_type (mailbox, C2_MESSAGE_UNREADED);
 	
-	if (ldb)
-	{
-		do
-		{
-			if (ldb->state == C2_MESSAGE_UNREADED)
-				(*unreaded)++;
-		} while (c2_db_lineal_next (ldb));
-	}
-
 	if ((*unreaded))
 		text = g_strdup_printf ("%s (%d)", mailbox->name, (*unreaded));
 	else

@@ -93,6 +93,10 @@ struct _C2Mailbox
 	{
 		struct
 		{
+			FILE *fd;
+		} cronosII;
+		struct
+		{
 			C2IMAP *imap;
 		} IMAP;
 		struct
@@ -101,6 +105,8 @@ struct _C2Mailbox
 		} spool;
 	} protocol;
 	
+	gint freezed : 1;
+
 	pthread_mutex_t lock;
 	
 	C2MailboxSortBy sort_by;

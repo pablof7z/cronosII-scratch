@@ -135,6 +135,7 @@ init (C2Mailbox *mailbox)
 	mailbox->last_mid = -1;
 	mailbox->next = NULL;
 	mailbox->child = NULL;
+	mailbox->freezed = 0;
 
 	pthread_mutex_init (&mailbox->lock, NULL);
 	
