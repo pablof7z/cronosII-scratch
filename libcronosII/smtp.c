@@ -75,13 +75,6 @@ c2_smtp_send_rcpt							(C2SMTP *smtp, C2NetObjectByte *byte, gchar *to);
 static gint
 c2_smtp_send_message_contents				(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message, const gint id);
 
-static gint
-c2_smtp_send_message_mime_headers			(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message, gchar **boundary);
-
-static gint
-c2_smtp_send_message_mime					(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message, 
-											const gint id, gchar *boundary, const guint len, guint *sent);
-
 static gboolean
 smtp_test_connection						(C2SMTP *smtp, C2NetObjectByte *byte);
 
@@ -101,9 +94,6 @@ c2_smtp_local_divide_recepients				(gchar *to);
 /* Misc. functions */
 static void
 c2_smtp_set_error							(C2SMTP *smtp, const gchar *error);
-
-static gchar *
-c2_smtp_mime_make_message_boundary			(void);
 
 #define DEFAULT_FLAGS C2_SMTP_DO_NOT_PERSIST | C2_SMTP_DO_NOT_LOSE_PASSWORD
 
@@ -588,14 +578,10 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte,
 {
 	/* This function sends the message body so that there is no
 	 * bare 'LF' and that all '\n' are sent as '\r\n' */
-	C2Mime *mime;
 	gchar *ptr, *start, *buf, *contents = message->header;
-	gchar *mimeboundary = NULL;
 	guint len, sent = 0;	
 	
 	len = strlen(message->body) + 2 + strlen(message->header);
-	for(mime = message->mime; mime; mime = mime->next)
-		len += mime->length;
 	
 	gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], id, len, 0);	
 	
@@ -622,7 +608,6 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte,
 				{
 					c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 					g_free(buf);
-					if(mimeboundary) g_free(mimeboundary);
 					smtp_disconnect(smtp, byte);
 					return -1;
 				}
@@ -634,173 +619,10 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte,
 			}
 		}
 		if(contents == message->header)
-		{
-			if(c2_smtp_send_message_mime_headers(smtp, byte, message, &mimeboundary) < 0)
-				return -1;
 			contents = message->body;
-		}
 		else if(contents == message->body)
-		{
-			if(c2_smtp_send_message_mime(smtp, byte, message, id, mimeboundary, len, &sent) < 0)
-			{
-				g_free(mimeboundary);
-				return -1;
-			}
-			if(mimeboundary) g_free(mimeboundary);
 			break;
-		}
 		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "\r\n\r\n") < 0)
-		{
-			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
-			smtp_disconnect(smtp, byte);
-			if(mimeboundary) g_free(mimeboundary);
-			return -1;
-		}
-	}
-	
-	return 0;
-}
-
-/* send_message_mime_headers
- * @smtp: the C2SMTP Object to use as network connection
- * @message: the actual message we are in the process of sending
- * @boundary: a string that will get allocated and set to be the boundary
- *           of the MIME message 
- * 
- * Function sends the MIME headers such as Mime-Version: and the text/plain
- * MIME header before sending the actual text of the message 
- * 
- * Return Value:
- * 0 on success, -1 on failure.
- **/
-static gint
-c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2NetObjectByte *byte, 
-																	C2Message *message, gchar **boundary)
-{
-	gchar *mimeinfo, *errmsg, *msgheader;
-	
-	if(!message->mime)
-		return 0;
-	
-	mimeinfo = g_strdup("MIME-Version: 1.0\r\n"
-								 "Content-Type: multipart/mixed; boundary=\"");
-	
-	*boundary = c2_smtp_mime_make_message_boundary();
-	
-	errmsg = g_strdup("This is a multipart message in MIME format.\r\n"
-										"The fact that you can read this text means that your\r\n"
-										"mail client does not understand MIME messages and\r\nthe attachments"
-										"enclosed. You should consider moving to another mail client or\r\n"
-										"upgrading to a higher version. For further information and help\r\n"
-										"please see http://sourceforge.net/projects/cronosii/ and "
-										"feel free to ask for help on\r\nour online forums or email lists\r\n");
-	
-	msgheader = g_strdup("Content-Type: text/plain\r\n"
-											 "Content-Transfer-Encoding: 8bit\r\n"
-											 "Content-Disposition: inline");
-	
-	if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "%s%s\"\r\n%s\r\n--%s\r\n%s\r\n", mimeinfo, *boundary, errmsg, 
-		*boundary, msgheader) < 0)
-	{
-		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
-		g_free(mimeinfo);
-		g_free(*boundary);
-		g_free(errmsg);
-		g_free(msgheader);
-		smtp_disconnect(smtp, byte);
-		return -1;
-	}
-	
-	g_free(mimeinfo);
-	g_free(errmsg);
-	g_free(msgheader);
-	
-	return 0;
-}
-
-/* c2_smtp_mime_make_message_boundary
- *
- * Creates a random string of chars for use as a MIME boundary
- * 
- * Return Value:
- * The freeable string containing the boundary
- **/
-static gchar *
-c2_smtp_mime_make_message_boundary (void) 
-{
-	gchar *boundary = NULL;
-	gchar *ptr;
-	gint i;
-	
-	srand (time (NULL));
-	boundary = g_new0 (char, 50);
-	sprintf (boundary, "Cronos-II=");
-	ptr = boundary+10;
-	for (i = 0; i < 39; i++) 
-		*(ptr+i) = (rand () % 26)+97; /* From a to z */
-	if (*(ptr+i-1) == '-') *(ptr+i-1) = '.';
-	*(ptr+i) = '\0';
-	
-	return boundary;
-}
-
-
-static gint
-c2_smtp_send_message_mime(C2SMTP *smtp, C2NetObjectByte *byte, 
-						C2Message *message, const gint id, gchar *boundary, const guint len,
-						guint *sent)
-{
-	gint i, x;
-	gchar *buf;
-	C2Mime *mime;
-	
-	if(!message->mime)
-		return 0;
-	
-	if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "--%s\r\n", boundary) < 0)
-	{
-		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
-		smtp_disconnect(smtp, byte);
-		return -1;
-	}
-
-	for(mime = message->mime; mime; mime = mime->next)
-	{
-		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "Content-Type: %s\r\nContent-Transfer-"
-									"Encoding: %s\r\nContent-Disposition: %s; filename=\"%s\"\r\n\r\n",
-									mime->type, mime->encoding, mime->disposition, mime->id) < 0)
-		{
-			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
-			smtp_disconnect(smtp, byte);
-			return -1;
-		}
-		for(i = 0; i < mime->length; i += 1024)
-		{
-			/* send one kilobyte at a time */
-			if(i > mime->length)
-			{
-				i -= 1024;
-				i += mime->length - i;
-			}
-			if(mime->length - i < 1024)
-				x = mime->length - i;
-			else
-				x = 1024;
-			buf = g_new0(gchar, x+1);
-			memcpy(buf, mime->start+i, x);
-			if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "%s", buf) < 0)
-			{
-				c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
-				smtp_disconnect(smtp, byte);
-				g_free(buf);
-				return -1;
-			}
-			*sent += strlen(buf);
-			gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], id, len, sent);
-			g_free(buf);
-		}
-		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "--%s%s\r\n\r\n", boundary, 
-													(mime->next) ? "" : "--") < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp, byte);
@@ -841,7 +663,6 @@ static gint
 c2_smtp_local_write_msg(C2Message *message, gchar *file_name)
 {
 	FILE *file;
-	gchar *boundary = NULL;
 	
 	if(!(file = fopen(file_name, "w")) ||
 		!fwrite(message->header, strlen(message->header), 1, file)) 
@@ -853,76 +674,13 @@ c2_smtp_local_write_msg(C2Message *message, gchar *file_name)
 		}
 		return -1;
 	}
-	
-	/* print the MIME header */
-	if(message->mime)
-	{
-		gchar *mimeinfo, *errmsg, *msgheader;
-		
-		mimeinfo = g_strdup("MIME-Version: 1.0\r\n"
-												"Content-Type: multipart/mixed; boundary=");
-	
-		boundary = c2_smtp_mime_make_message_boundary();
-		
-		errmsg = g_strdup("This is a multipart message in MIME format.\r\n"
-											"The fact that you can read this text means that your\r\n"
-											"mail client does not understand MIME messages and\r\nthe attachments"
-											"enclosed. You should consider moving to another mail client or\r\n"
-											"upgrading to a higher version.\r\nFor further information and help"
-											"please see http://sourceforge.net/projects/cronosii/ and\r\n"
-											"feel free to ask for help on our online forums or email lists");
-		
-		msgheader = g_strdup("Content-Type: text/plain\r\n"
-												 "Content-Transfer-Encoding: 8bit\r\n"
-												 "Content-Disposition: inline");
-	
-		if(!fprintf(file, "%s\"%s\"\n\n%s\n--%s\n%s\n", mimeinfo, boundary, errmsg,
-								boundary, msgheader))
-		{
-			fclose(file);
-			unlink(file_name);
-			g_free(mimeinfo);
-			g_free(boundary);
-			g_free(errmsg);
-			g_free(msgheader);
-			return -1;
-		}
-		
-    g_free(mimeinfo);
-		g_free(errmsg);
-		g_free(msgheader);
-		
-	}
 
-	if(!fprintf(file, "\n%s\n%s%s%s", message->body, (message->mime) ? "--" : "",
-							(message->mime) ? boundary : "", (message->mime) ? "\n" : ""))
+	if(!fprintf(file, "\n%s\n", message->body))
 	{
-		if(boundary) g_free(boundary);
 		fclose(file);
 		unlink(file_name);
 		return -1;
 	}
-	
-	/* write the mime attachments */
-	if(message->mime)
-	{
-		C2Mime *mime;
-		
-		for(mime = message->mime; mime; mime = mime->next)
-		{
-			if(!fprintf(file, "Content-Type: %s\nContent-Transfer-Encoding: %s\n"
-						"Content-Disposition: %s; filename=\"%s\"\n\n%s--%s%s\n",
-						mime->type, mime->encoding, mime->disposition, mime->id,
-						mime->start, boundary, (mime->next) ? "" : "--"))
-			{
-				g_free(boundary);
-				fclose(file);
-				unlink(file_name);
-				return -1;
-			}
-		}
-	}
- 
 	
 	fclose(file);
 	return 0;
