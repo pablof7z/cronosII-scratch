@@ -30,15 +30,20 @@ extern "C" {
 
 #include <glib.h>
 #include <gtk/gtk.h>
+#include <time.h>
 
-typedef gint mid_t;
+#ifdef HAVE_CONFIG_H
+#	include "message.h"
+#else
+#	include <cronosII.h>
+#endif
 
 typedef enum
 {
-	C2_DB_NODE_UNREADED,
-	C2_DB_NODE_REPLIED,
-	C2_DB_NODE_FORWARDED,
-	C2_DB_NODE_READED
+	C2_DB_NODE_UNREADED		= 'N',
+	C2_DB_NODE_REPLIED		= 'R',
+	C2_DB_NODE_FORWARDED	= 'F',
+	C2_DB_NODE_READED		= ' '
 } C2DBNodeStatus;
 
 typedef enum
@@ -50,14 +55,21 @@ typedef enum
 	C2_SORT_ACCOUNT
 } C2SortType;
 
+typedef enum
+{
+	C2_METHOD_CRONOSII,
+	C2_METHOD_IMAP
+} C2Method;
+
 typedef struct
 {
 	/* Position in the database */
 	gint row;
 	mid_t mid;
 
-	/* Headers of node (Subject, From, Date, Account) */
-	gchar *headers[4];
+	/* Headers of node (Subject, From, Account) */
+	gchar *headers[3];
+	time_t date;
 	
 	C2DBNodeStatus status;
 	int marked : 1;
@@ -66,24 +78,15 @@ typedef struct
 typedef struct
 {
 	gchar *mbox;
+	C2Method method;
 	GList *head;
 } C2DB;
-
-typedef struct
-{
-	gchar *mbox;
-	mid_t mid;
-	gchar *message;
-	gchar *header;
-	gchar *body;
-	GList *mime;
-} C2Message;
 
 #define c2_db_new()						(g_new0 (C2DB, 1))
 #define c2_db_node_new()				(g_new0 (C2DBNode, 1))
 
 C2DB *
-c2_db_load									(const gchar *db_name);
+c2_db_load									(const gchar *db_name, C2Method method);
 
 void
 c2_db_unload								(C2DB *db_d);

@@ -25,6 +25,7 @@
 #include "db.h"
 #include "error.h"
 #include "utils.h"
+#include "date-utils.h"
 
 static gchar *
 c2_db_path_mail								(const gchar *mbox, mid_t mid);
@@ -35,6 +36,7 @@ c2_db_path									(const gchar *mbox);
 /**
  * c2_db_load
  * @db_name: Name of database to load (i.e. "Inbox").
+ * @method: Access Method.
  *
  * Loads a database.
  * 
@@ -44,7 +46,7 @@ c2_db_path									(const gchar *mbox);
  * (c2_errno will take the proper value)
  **/
 C2DB *
-c2_db_load (const gchar *db_name)
+c2_db_load (const gchar *db_name, C2Method method)
 {
 	gchar *path, *line, *buf;
 	FILE *fd;
@@ -59,7 +61,7 @@ c2_db_load (const gchar *db_name)
 	path = c2_db_path (db_name);
 
 	/* Open the file */
-	if ((fd = fopen (path, "r")) == NULL)
+	if ((fd = fopen (path, "rb")) == NULL)
 	{
 		c2_error_set (-errno);
 		return NULL;
@@ -68,6 +70,7 @@ c2_db_load (const gchar *db_name)
 	/* Create the C2DB object */
 	db = c2_db_new ();
 	db->mbox = g_strdup (db_name);
+	db->method = method;
 	db->head = NULL;
 
 	/* File opened read it */
@@ -104,8 +107,10 @@ c2_db_load (const gchar *db_name)
 		g_free (buf);
 		node->headers[0] = c2_str_get_word (3, line, '\r');
 		node->headers[1] = c2_str_get_word (4, line, '\r');
-		node->headers[2] = c2_str_get_word (5, line, '\r');
 		node->headers[3] = c2_str_get_word (6, line, '\r');
+		buf = c2_str_get_word (5, line, '\r');
+		node->date = atoi (buf);
+		g_free (buf);
 		buf = c2_str_get_word (7, line, '\r');
 		node->mid = atoi (buf);
 		g_free (buf);
@@ -139,7 +144,6 @@ c2_db_unload (C2DB *db_d)
 		g_free (node->headers[0]);
 		g_free (node->headers[1]);
 		g_free (node->headers[2]);
-		g_free (node->headers[3]);
 		g_free (node);
 		l->data = NULL;
 	}

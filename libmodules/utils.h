@@ -42,6 +42,9 @@ c2_streq										(const gchar *fst, const gchar *snd);
 gboolean
 c2_strneq										(const gchar *fst, const gchar *snd, gint length);
 
+const gchar *
+c2_strstr_case_insensitive						(const gchar *haystack, const gchar *needle);
+
 gchar *
 c2_str_replace_all								(const gchar *or_string, const gchar *se_string,
 												 const gchar *re_string);
@@ -51,6 +54,9 @@ c2_str_get_line									(const gchar *str);
 
 gchar *
 c2_str_get_word									(guint8 word_n, const gchar *str, gchar ch);
+
+gchar *
+c2_get_tmp_file									(void);
 
 gchar *
 c2_fd_get_line									(FILE *fd);

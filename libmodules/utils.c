@@ -191,6 +191,41 @@ c2_strneq (const gchar *fst, const gchar *snd, gint length)
 }
 
 /**
+ * c2_strstr_case_insensitive
+ * @haystack: String where to do the searching.
+ * @needle: String to search for.
+ *
+ * This functions is the case insensitive strstr.
+ *
+ * Return Value:
+ * A pointer to the first match of @needle within
+ * @haystack.
+ **/
+const gchar *
+c2_strstr_case_insensitive (const gchar *haystack, const gchar *needle)
+{
+	gchar *my_haystack;
+	gchar *my_needle;
+	const gchar *ptr;
+
+	c2_return_val_if_fail (haystack, NULL, C2EDATA);
+	c2_return_val_if_fail (needle, NULL, C2EDATA);
+
+	my_haystack = g_strdup (haystack); g_strup (my_haystack);
+	my_needle = g_strdup (needle); g_strup (my_needle);
+
+	ptr = strstr (my_haystack, my_needle);
+
+	if (ptr)
+		ptr = haystack + (ptr - my_haystack);
+
+	g_free (my_haystack);
+	g_free (my_needle);
+
+	return ptr;
+}
+
+/**
  * c2_str_replace_all
  * @or_string: A pointer to a string to have the replacements made on it
  * @se_string: The string to replace
@@ -347,6 +382,31 @@ c2_str_get_word (guint8 word_n, const gchar *str, gchar ch)
 }
 
 /**
+ * c2_get_tmp_file
+ *
+ * Gets a tmp file path.
+ *
+ * Return Value:
+ * A freeable string with the path to the tmp file.
+ **/
+gchar *
+c2_get_tmp_file (void)
+{
+	gchar *temp;
+	static gchar *dir = NULL;
+	gint fd;
+
+	if (!dir)
+		dir = g_get_tmp_dir ();
+	
+	temp = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "c2-tmp.XXXXXXX", dir);
+	fd = mkstemp (temp);
+	close (fd);
+	
+	return temp;
+}
+
+/**
  * c2_fd_get_line
  * @fd: File descriptor.
  *
@@ -460,6 +520,10 @@ c2_fd_get_word (FILE *fd)
 	
 	return rtn;
 }
+
+/**
+ * c2_file_copy
+ * @
 
 /**
  * c2_file_exists
