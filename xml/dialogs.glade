@@ -3914,6 +3914,7 @@ Do you want it to be the default application for e-mail handling?</label>
   <class>GtkWindow</class>
   <name>dlg_req_password</name>
   <border_width>10</border_width>
+  <visible>False</visible>
   <title>Cronos II: Password required</title>
   <type>GTK_WINDOW_DIALOG</type>
   <position>GTK_WIN_POS_NONE</position>
@@ -3921,6 +3922,8 @@ Do you want it to be the default application for e-mail handling?</label>
   <allow_shrink>False</allow_shrink>
   <allow_grow>True</allow_grow>
   <auto_shrink>False</auto_shrink>
+  <wmclass_name>dlg_req_password</wmclass_name>
+  <wmclass_class>cronosII</wmclass_class>
 
   <widget>
     <class>GtkFrame</class>

@@ -126,7 +126,7 @@ class_init (C2NetObjectClass *klass)
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2NetObjectClass, disconnect),
 					gtk_marshal_NONE__POINTER_INT, GTK_TYPE_NONE, 2,
-					GTK_TYPE_POINTER, GTK_TYPE_BOOL);
+					GTK_TYPE_POINTER, GTK_TYPE_INT);
 	signals[CANCEL] =
 		gtk_signal_new ("cancel",
 					GTK_RUN_FIRST,
@@ -235,7 +235,8 @@ c2_net_object_run (C2NetObject *nobj)
 	{
 		if (g_list_length (nobj->bytes) >= nobj->max)
 		{
-			c2_error_object_set (GTK_OBJECT (nobj), C2NOBJMAX);
+			if (!c2_error_object_get_id (GTK_OBJECT (nobj)))
+				c2_error_object_set (GTK_OBJECT (nobj), C2NOBJMAX);
 			return NULL;
 		}
 	}
@@ -246,7 +247,8 @@ c2_net_object_run (C2NetObject *nobj)
 	/* Create the socket */
 	if ((byte->sock = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 	{
-		c2_error_object_set (GTK_OBJECT (nobj), -errno);
+		if (!c2_error_object_get_id (GTK_OBJECT (nobj)))
+			c2_error_object_set (GTK_OBJECT (nobj), c2_errno);
 		g_free (byte);
 		return NULL;
 	}
@@ -265,7 +267,8 @@ c2_net_object_run (C2NetObject *nobj)
 		if (_debug_net_object)
 			C2_PRINTD (MOD, "Unable to resolve hostname: %s\n", c2_error_get ());
 #endif
-		c2_error_object_set (GTK_OBJECT (nobj), c2_errno);
+		if (!c2_error_object_get_id (GTK_OBJECT (nobj)))
+			c2_error_object_set (GTK_OBJECT (nobj), c2_errno);
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, FALSE);
 		return NULL;
 	}
@@ -279,7 +282,8 @@ c2_net_object_run (C2NetObject *nobj)
 #ifdef USE_DEBUG
 		g_warning ("Unable to connect: %s\n", c2_error_get ());
 #endif
-		c2_error_object_set (GTK_OBJECT (nobj), -errno);
+		if (!c2_error_object_get_id (GTK_OBJECT (nobj)))
+			c2_error_object_set (GTK_OBJECT (nobj), c2_errno);
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, FALSE);
 		return NULL;
 	}
@@ -358,10 +362,10 @@ c2_net_object_send (C2NetObject *nobj, C2NetObjectByte *byte, const gchar *fmt, 
 		 * the socket is closed, the state will be set off | error
 		 * and fire the disconnect signal.
 		 */
-		perror ("send()");
 		close (byte->sock);
 		c2_net_object_set_state (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR, byte);
-		c2_error_object_set (GTK_OBJECT (nobj), -errno);
+		if (!c2_error_object_get_id (GTK_OBJECT (nobj)))
+			c2_error_object_set (GTK_OBJECT (nobj), c2_errno);
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, FALSE);
 		va_end (args);
 		return -1;
@@ -369,7 +373,7 @@ c2_net_object_send (C2NetObject *nobj, C2NetObjectByte *byte, const gchar *fmt, 
 	va_end (args);
 
 	byte->state = C2_NET_OBJECT_EXCHANGE;
-	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE], C2_NET_OBJECT_EXCHANGE_SEND, value, byte);
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE], byte, C2_NET_OBJECT_EXCHANGE_SEND, value);
 
 	return value;
 }
@@ -433,13 +437,14 @@ c2_net_object_read (C2NetObject *nobj, gchar **string, ...)
 		 */
 		close (byte->sock);
 		c2_net_object_set_state (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR, byte);
-		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE);
-		c2_error_object_set (GTK_OBJECT (nobj), -errno);
+		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, FALSE);
+		if (!c2_error_object_get_id (GTK_OBJECT (nobj)))
+			c2_error_object_set (GTK_OBJECT (nobj), c2_errno);
 		return -1;
 	}
 	byte->state = C2_NET_OBJECT_EXCHANGE;
 	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE],
-					 C2_NET_OBJECT_EXCHANGE_READ, strlen (*string), byte);
+					 byte, C2_NET_OBJECT_EXCHANGE_READ, strlen (*string));
 	return ret;
 }
 
@@ -471,6 +476,11 @@ c2_net_object_disconnect (C2NetObject *nobj, ...)
 	close (byte->sock);
 	byte->state |= C2_NET_OBJECT_OFF;
 
+#ifdef USE_DEBUG
+	if (_debug_net_object)
+		C2_PRINTD (MOD, "Disconnecting the object.\n");
+#endif
+
 	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, TRUE);
 }
 
@@ -495,9 +505,14 @@ c2_net_object_disconnect_with_error (C2NetObject *nobj, ...)
 	
 	if (byte->state & C2_NET_OBJECT_OFF)
 		return;
-
+	
 	close (byte->sock);
 	byte->state |= C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR;
+
+#ifdef USE_DEBUG
+	if (_debug_net_object)
+		C2_PRINTD (MOD, "Disconnecting the object with error.\n");
+#endif
 	
 	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, FALSE);
 }

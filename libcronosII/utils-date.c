@@ -33,7 +33,6 @@
 #include "utils.h"
 #include "utils-str.h"
 #include "error.h"
-#include "i18n.h"
 
 static gchar *
 fix_timezone (const gchar *tz);
@@ -314,13 +313,13 @@ c2_date_parse_fmt2 (const gchar *strtime)
 
 static gchar *dates[] =
 {
-	N_("Mon"),
-	N_("Tue"),
-	N_("Wed"),
-	N_("Thu"),
-	N_("Fri"),
-	N_("Sat"),
-	N_("Sun")
+	"Mon",
+	"Tue",
+	"Wed",
+	"Thu",
+	"Fri",
+	"Sat",
+	"Sun"
 };
 
 /**
@@ -425,12 +424,12 @@ c2_date_parse_fmt3 (const gchar *strtime)
 }
 
 const gchar *Months[] = {
-	N_("Jan"), N_("Feb"),
-	N_("Mar"), N_("Apr"),
-	N_("May"), N_("Jun"),
-	N_("Jul"), N_("Aug"),
-	N_("Sep"), N_("Oct"),
-	N_("Nov"), N_("Dec")
+	"Jan", "Feb",
+	"Mar", "Apr",
+	"May", "Jun",
+	"Jul", "Aug",
+	"Sep", "Oct",
+	"Nov", "Dec"
 };
 
 gint

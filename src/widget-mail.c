@@ -831,6 +831,8 @@ c2_mail_set_file (C2Mail *mail, const gchar *path)
 void
 c2_mail_set_string (C2Mail *mail, const gchar *string)
 {
+	c2_return_if_fail (C2_IS_MAIL (mail), C2EDATA);
+
 	if (!string)
 	{
 		gtk_widget_hide ((GtkWidget*) mail);
@@ -848,6 +850,7 @@ c2_mail_set_string (C2Mail *mail, const gchar *string)
 	gtk_object_set_data (GTK_OBJECT (mail->body), "message", NULL);
 	
 	set_headers (mail, NULL);
+	C2_DEBUG (string);
 	c2_html_set_content_from_string (C2_HTML (mail->body), string);
 }
 

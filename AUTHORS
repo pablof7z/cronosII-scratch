@@ -1,4 +1,4 @@
-Cronos II is brought to you by the Cronos II Hackers Team <cronosII-hackers@lists.sourceforge.net>:
+Cronos II is brought to you by the Cronos II Hackers Team <cronosII-hackers@lists.sf.net>:
 
 Pablo Fernández <pablo@cronosII.org>
 - Main development.
@@ -15,23 +15,21 @@ Pablo Fernández <pablo@cronosII.org>
 - Utils (error, string, file, date and net).
 - Spanish translation.
 	
-Bosko Blagojevic <falling@users.sourceforge.net>
+Bosko Blagojevic <falling@cronosII.org>
 - IMAP module.
 - SMTP module.
 - Cronos II Mutexes implementation.
 - FreeBSD porting.
+- Bugfixes all around the code.
 
-Peter Gossner <gossner@arcom.com.au>
+Peter Gossner <petegozz@cronosII.org>
 - Documentation.
 - Spelling corrections.
 
+Daniel Fairhead <daniel@cronosII.org>
+- noHTML support.
+
 Special thanks to:
 
-Yves Mettier <ymettier@libertysurf.fr>
-- French translation.
+A. Khen for his donation of 25$.
 
-Arne Caspari <arnem@informatik.uni-bremen.de>
-- German translation.
-
-Pier Carteri <m3tr0@dei.unipd.it>
-- Italian translation.

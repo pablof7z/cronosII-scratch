@@ -28,7 +28,6 @@ cronosinclude_HEADERS = config.h
 
 EXTRA_DIST =				\
 	cronosII.spec			\
-	mkpotfiles-in			\
 	ABOUT-NLS				\
 	AUTHORS					\
 	COPYING					\
@@ -43,12 +42,12 @@ EXTRA_DIST =				\
 
 bzdist: distdir
 	-chmod -R a+r $(distdir)
-	$(TAR) choIf $(distdir).tar.bz2 $(distdir)
+	$(TAR) chojf $(distdir).tar.bz2 $(distdir)
 	-rm -rf $(distdir)
 
 fulldist: distdir
 	-chmod -R a+r $(distdir)
-	$(TAR) choIf $(distdir).tar.bz2 $(distdir)
+	$(TAR) chojf $(distdir).tar.bz2 $(distdir)
 	echo Done with $(distdir).tar.bz2
 	GZIP=$(GZIP_ENV) $(TAR) chozf $(distdir).tar.gz $(distdir)
 	echo Done with $(distdir).tar.gz

@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2002-08-04 23:48+0200\n"
+"POT-Creation-Date: 2002-08-05 20:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -198,82 +198,6 @@ msgstr ""
 
 #: libcronosII/smtp.c:856
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
-msgstr ""
-
-#: libcronosII/utils-date.c:317
-msgid "Mon"
-msgstr ""
-
-#: libcronosII/utils-date.c:318
-msgid "Tue"
-msgstr ""
-
-#: libcronosII/utils-date.c:319
-msgid "Wed"
-msgstr ""
-
-#: libcronosII/utils-date.c:320
-msgid "Thu"
-msgstr ""
-
-#: libcronosII/utils-date.c:321
-msgid "Fri"
-msgstr ""
-
-#: libcronosII/utils-date.c:322
-msgid "Sat"
-msgstr ""
-
-#: libcronosII/utils-date.c:323
-msgid "Sun"
-msgstr ""
-
-#: libcronosII/utils-date.c:428
-msgid "Jan"
-msgstr ""
-
-#: libcronosII/utils-date.c:428
-msgid "Feb"
-msgstr ""
-
-#: libcronosII/utils-date.c:429
-msgid "Mar"
-msgstr ""
-
-#: libcronosII/utils-date.c:429
-msgid "Apr"
-msgstr ""
-
-#: libcronosII/utils-date.c:430
-msgid "May"
-msgstr ""
-
-#: libcronosII/utils-date.c:430
-msgid "Jun"
-msgstr ""
-
-#: libcronosII/utils-date.c:431
-msgid "Jul"
-msgstr ""
-
-#: libcronosII/utils-date.c:431
-msgid "Aug"
-msgstr ""
-
-#: libcronosII/utils-date.c:432
-msgid "Sep"
-msgstr ""
-
-#: libcronosII/utils-date.c:432
-msgid "Oct"
-msgstr ""
-
-#: libcronosII/utils-date.c:433
-msgid "Nov"
-msgstr ""
-
-#: libcronosII/utils-date.c:433
-msgid "Dec"
 msgstr ""
 
 #: libcronosII/utils-file.c:257
@@ -1090,7 +1014,7 @@ msgstr ""
 msgid "(nobody)"
 msgstr ""
 
-#: src/dialogs.h:87 src/widget-mail.c:1720
+#: src/dialogs.h:87 src/widget-mail.c:1723
 msgid "Attachments Tool"
 msgstr ""
 
@@ -1306,99 +1230,99 @@ msgstr ""
 msgid "Send & Receive"
 msgstr ""
 
-#: src/dialogs.h:132 src/widget-window-mail.c:87 src/widget-window-main.c:373
+#: src/dialogs.h:132 src/widget-window-mail.c:87 src/widget-window-main.c:376
 msgid "Search"
 msgstr ""
 
-#: src/widget-window-mail.c:88 src/widget-window-main.c:374
+#: src/widget-window-mail.c:88 src/widget-window-main.c:377
 msgid "Search a message in existent mailboxes"
 msgstr ""
 
-#: src/widget-window-mail.c:98 src/widget-window-main.c:381
+#: src/widget-window-mail.c:98 src/widget-window-main.c:384
 msgid "Save"
 msgstr ""
 
-#: src/widget-window-mail.c:99 src/widget-window-main.c:382
+#: src/widget-window-mail.c:99 src/widget-window-main.c:385
 msgid "Save selected message"
 msgstr ""
 
-#: src/widget-window-mail.c:106 src/widget-window-main.c:389
+#: src/widget-window-mail.c:106 src/widget-window-main.c:392
 msgid "Print"
 msgstr ""
 
-#: src/widget-window-mail.c:107 src/widget-window-main.c:390
+#: src/widget-window-mail.c:107 src/widget-window-main.c:393
 msgid "Print selected message"
 msgstr ""
 
-#: src/widget-window-mail.c:117 src/widget-window-main.c:397
+#: src/widget-window-mail.c:117 src/widget-window-main.c:400
 msgid "Delete"
 msgstr ""
 
-#: src/widget-window-mail.c:118 src/widget-window-main.c:398
+#: src/widget-window-mail.c:118 src/widget-window-main.c:401
 msgid "Delete selected mails"
 msgstr ""
 
-#: src/widget-window-mail.c:128 src/widget-window-main.c:405
+#: src/widget-window-mail.c:128 src/widget-window-main.c:408
 msgid "Copy"
 msgstr ""
 
-#: src/widget-window-mail.c:129 src/widget-window-main.c:406
+#: src/widget-window-mail.c:129 src/widget-window-main.c:409
 msgid "Copy selected mails"
 msgstr ""
 
-#: src/widget-window-mail.c:136 src/widget-window-main.c:413
+#: src/widget-window-mail.c:136 src/widget-window-main.c:416
 msgid "Move"
 msgstr ""
 
-#: src/widget-window-mail.c:137 src/widget-window-main.c:414
+#: src/widget-window-mail.c:137 src/widget-window-main.c:417
 msgid "Move selected mails"
 msgstr ""
 
-#: src/widget-window-mail.c:147 src/widget-window-main.c:429
+#: src/widget-window-mail.c:147 src/widget-window-main.c:432
 msgid "Reply"
 msgstr ""
 
-#: src/widget-window-mail.c:148 src/widget-window-main.c:430
+#: src/widget-window-mail.c:148 src/widget-window-main.c:433
 msgid "Reply selected message"
 msgstr ""
 
-#: src/widget-window-mail.c:155 src/widget-window-main.c:437
+#: src/widget-window-mail.c:155 src/widget-window-main.c:440
 msgid "Reply All"
 msgstr ""
 
-#: src/widget-window-mail.c:156 src/widget-window-main.c:438
+#: src/widget-window-mail.c:156 src/widget-window-main.c:441
 msgid "Reply selected message to all recipients"
 msgstr ""
 
-#: src/widget-window-mail.c:163 src/widget-window-main.c:445
+#: src/widget-window-mail.c:163 src/widget-window-main.c:448
 msgid "Forward"
 msgstr ""
 
-#: src/widget-window-mail.c:164 src/widget-window-main.c:446
+#: src/widget-window-mail.c:164 src/widget-window-main.c:449
 msgid "Forward selected message"
 msgstr ""
 
-#: src/widget-window-mail.c:174 src/widget-window-main.c:453
+#: src/widget-window-mail.c:174 src/widget-window-main.c:456
 msgid "Previous"
 msgstr ""
 
-#: src/trans.h:61 src/widget-window-mail.c:175 src/widget-window-main.c:454
+#: src/trans.h:61 src/widget-window-mail.c:175 src/widget-window-main.c:457
 msgid "Select previous message"
 msgstr ""
 
-#: src/widget-window-mail.c:182 src/widget-window-main.c:461
+#: src/widget-window-mail.c:182 src/widget-window-main.c:464
 msgid "Next"
 msgstr ""
 
-#: src/trans.h:63 src/widget-window-mail.c:183 src/widget-window-main.c:462
+#: src/trans.h:63 src/widget-window-mail.c:183 src/widget-window-main.c:465
 msgid "Select next message"
 msgstr ""
 
-#: src/dialogs.h:38 src/widget-window-mail.c:193 src/widget-window-main.c:477
+#: src/dialogs.h:38 src/widget-window-mail.c:193 src/widget-window-main.c:480
 msgid "Close"
 msgstr ""
 
-#: src/widget-window-mail.c:195 src/widget-window-main.c:479
+#: src/widget-window-mail.c:195 src/widget-window-main.c:482
 msgid "Close the main window of Cronos II"
 msgstr ""
 
@@ -1406,110 +1330,114 @@ msgstr ""
 msgid "Message Viewer"
 msgstr ""
 
-#: src/widget-window-main.c:357
+#: src/widget-window-main.c:360
 msgid "Check"
 msgstr ""
 
-#: src/widget-window-main.c:358
+#: src/widget-window-main.c:361
 msgid "Check for incoming mails"
 msgstr ""
 
-#: src/widget-window-main.c:365
+#: src/widget-window-main.c:368
 msgid "Send"
 msgstr ""
 
-#: src/widget-window-main.c:366
+#: src/widget-window-main.c:369
 msgid "Send outgoing mails"
 msgstr ""
 
-#: src/widget-window-main.c:421
+#: src/widget-window-main.c:424
 msgid "Compose"
 msgstr ""
 
-#: src/widget-window-main.c:422
+#: src/widget-window-main.c:425
 msgid "Compose a new message"
 msgstr ""
 
-#: src/widget-window-main.c:469
+#: src/widget-window-main.c:472
 msgid "Contacts"
 msgstr ""
 
-#: src/widget-window-main.c:470
+#: src/widget-window-main.c:473
 msgid "Open the Contacts Address Book"
 msgstr ""
 
-#: src/widget-window-main.c:486
+#: src/widget-window-main.c:489
 msgid "Exit"
 msgstr ""
 
-#: src/widget-window-main.c:487
+#: src/widget-window-main.c:490
 msgid "Close all windows of Cronos II"
 msgstr ""
 
-#: src/widget-window-main.c:608
+#: src/widget-window-main.c:611
 msgid ""
 "Cronos II was not able to load the UI, you should check your installation.\n"
 "Aborting.\n"
 msgstr ""
 
-#: src/widget-window-main.c:2008
-msgid "Loading message..."
-msgstr ""
-
-#: src/widget-window-main.c:2276
-#, c-format
-msgid "%s, mailbox where incoming mail are stored"
-msgstr ""
-
-#: src/widget-window-main.c:2283
-#, c-format
-msgid "%s, mailbox where unsent mails are stored"
-msgstr ""
-
-#: src/widget-window-main.c:2290
-#, c-format
-msgid "%s, mailbox where sent mails are stored"
-msgstr ""
-
-#: src/widget-window-main.c:2297
-#, c-format
-msgid "%s, mailbox where deleted mails are stored"
-msgstr ""
-
-#: src/widget-window-main.c:2304
-#, c-format
-msgid "%s, mailbox where mails you save with the composer are stored"
-msgstr ""
-
-#: src/widget-window-main.c:2314
+#: src/widget-window-main.c:1224
 #, c-format
 msgid "%d mails, %d new"
 msgstr ""
 
-#: src/widget-window-main.c:2326
+#: src/widget-window-main.c:2040
+msgid "Loading message..."
+msgstr ""
+
+#: src/widget-window-main.c:2308
+#, c-format
+msgid "%s, mailbox where incoming mail are stored"
+msgstr ""
+
+#: src/widget-window-main.c:2315
+#, c-format
+msgid "%s, mailbox where unsent mails are stored"
+msgstr ""
+
+#: src/widget-window-main.c:2322
+#, c-format
+msgid "%s, mailbox where sent mails are stored"
+msgstr ""
+
+#: src/widget-window-main.c:2329
+#, c-format
+msgid "%s, mailbox where deleted mails are stored"
+msgstr ""
+
+#: src/widget-window-main.c:2336
+#, c-format
+msgid "%s, mailbox where mails you save with the composer are stored"
+msgstr ""
+
+#: src/widget-window-main.c:2351
 #, c-format
 msgid "%d messages, %d new."
 msgstr ""
 
-#: src/widget-window-main.c:2433
+#: src/widget-window-main.c:2418
+msgid "This is an IMAP account.\n"
+msgstr ""
+
+#: src/widget-window-main.c:2463
 msgid ""
 "This folder is the parent of all the local mailboxes that <b>Cronos II</b> "
 "handles for you."
 msgstr ""
 
-#: src/widget-window-main.c:2475
+#: src/widget-window-main.c:2505
 msgid "You found the Easter Egg!"
 msgstr ""
 
-#: src/dialogs.h:54 src/widget-window-main.c:2476
+#: src/dialogs.h:54 src/widget-window-main.c:2506
 msgid "Neat, baby!"
 msgstr ""
 
-#: src/widget-window-main.c:2604 src/widget-window-main.c:2838
+#: src/widget-window-main.c:2634 src/widget-window-main.c:2868
 msgid "Separator"
 msgstr ""
 
-#: src/widget-window-main.c:2735
+#: src/widget-window-main.c:2765
 msgid "Toolbar Configuration"
 msgstr ""
 

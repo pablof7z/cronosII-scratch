@@ -1,3 +1,13 @@
+Sat Aug 10 Pablo Fernández
+	* Fixed a bug in the net object that was driving me crazy.
+
+Thu Aug 08 Pablo Fernández
+	* I fix a bug that caused c2 to crash when a server unexpectedly
+	  closed the connection.
+
+Mon Aug 05 Pablo Fernández
+	* Cronos II 0.3.0 pre9.
+
 Sat Jul 27 Bosko Blagojevic
 	* Fixed bug that caused a crash when manually copying
 	  messages to the Outbox and then later viewing.

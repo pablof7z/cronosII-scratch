@@ -98,7 +98,6 @@ quit										(C2POP3 *pop3);
 enum
 {
 	LOGIN,
-	LOGIN_FAILED,
 	UIDL,
 	STATUS,
 	RETRIEVE,
@@ -408,6 +407,7 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 	quit (pop3);
 	
 after_quit:
+	printf ("retval in fetchmail %d\n", retval);
 	if (!retval)
 		c2_net_object_disconnect (C2_NET_OBJECT (pop3));
 	else
@@ -631,20 +631,15 @@ login_apop (C2POP3 *pop3)
 	md5apopstring[32] = 0;
 
 	if (c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "APOP %s %s\r\n", pop3->user,md5apopstring) < 0)
-	{
-		c2_error_object_set_custom(GTK_OBJECT (pop3), "Sending APOP login failed");
-			return -1;
-	}
-	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
-	{
-		c2_error_object_set_custom(GTK_OBJECT (pop3), "Failed to recv APOP login reply");
 		return -1;
-	}
+
+	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+		return -1;
 
 	if (c2_strnne (string, "+OK", 3))
 	{
 		gchar *ptr;
-
+		
 		string = strstr (string, " ");
 		if (string)
 			string++;

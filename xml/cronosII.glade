@@ -1273,83 +1273,84 @@ is equal to
 	</widget>
 
 	<widget>
-	  <class>GtkVPaned</class>
-	  <name>vpaned</name>
-	  <handle_size>10</handle_size>
-	  <gutter_size>10</gutter_size>
-	  <position>150</position>
+	  <class>GtkVBox</class>
+	  <name>vbox11</name>
+	  <homogeneous>False</homogeneous>
+	  <spacing>0</spacing>
 	  <child>
 	    <shrink>True</shrink>
 	    <resize>True</resize>
 	  </child>
 
 	  <widget>
-	    <class>GtkVBox</class>
-	    <name>vbox11</name>
-	    <homogeneous>False</homogeneous>
-	    <spacing>2</spacing>
+	    <class>GtkFrame</class>
+	    <name>mailbox_name_event_parent</name>
+	    <label_xalign>0</label_xalign>
+	    <shadow_type>GTK_SHADOW_ETCHED_OUT</shadow_type>
 	    <child>
-	      <shrink>True</shrink>
-	      <resize>False</resize>
+	      <padding>0</padding>
+	      <expand>False</expand>
+	      <fill>True</fill>
 	    </child>
 
 	    <widget>
-	      <class>GtkFrame</class>
-	      <name>mailbox_name_event_parent</name>
-	      <label_xalign>0</label_xalign>
-	      <shadow_type>GTK_SHADOW_ETCHED_OUT</shadow_type>
-	      <child>
-		<padding>0</padding>
-		<expand>False</expand>
-		<fill>True</fill>
-	      </child>
+	      <class>GtkEventBox</class>
+	      <name>mailbox_name_event</name>
 
 	      <widget>
-		<class>GtkEventBox</class>
-		<name>mailbox_name_event</name>
+		<class>GtkHBox</class>
+		<name>hbox26</name>
+		<homogeneous>False</homogeneous>
+		<spacing>1</spacing>
 
 		<widget>
-		  <class>GtkHBox</class>
-		  <name>hbox26</name>
-		  <homogeneous>False</homogeneous>
-		  <spacing>1</spacing>
+		  <class>GtkLabel</class>
+		  <name>mailbox_name_label</name>
+		  <label></label>
+		  <justify>GTK_JUSTIFY_CENTER</justify>
+		  <wrap>False</wrap>
+		  <xalign>0</xalign>
+		  <yalign>0.5</yalign>
+		  <xpad>2</xpad>
+		  <ypad>0</ypad>
+		  <child>
+		    <padding>0</padding>
+		    <expand>True</expand>
+		    <fill>True</fill>
+		  </child>
+		</widget>
 
-		  <widget>
-		    <class>GtkLabel</class>
-		    <name>mailbox_name_label</name>
-		    <label></label>
-		    <justify>GTK_JUSTIFY_CENTER</justify>
-		    <wrap>False</wrap>
-		    <xalign>0</xalign>
-		    <yalign>0.5</yalign>
-		    <xpad>2</xpad>
-		    <ypad>0</ypad>
-		    <child>
-		      <padding>0</padding>
-		      <expand>True</expand>
-		      <fill>True</fill>
-		    </child>
-		  </widget>
-
-		  <widget>
-		    <class>GtkLabel</class>
-		    <name>mailbox_num_label</name>
-		    <label></label>
-		    <justify>GTK_JUSTIFY_CENTER</justify>
-		    <wrap>False</wrap>
-		    <xalign>1</xalign>
-		    <yalign>0.5</yalign>
-		    <xpad>2</xpad>
-		    <ypad>0</ypad>
-		    <child>
-		      <padding>0</padding>
-		      <expand>True</expand>
-		      <fill>True</fill>
-		    </child>
-		  </widget>
+		<widget>
+		  <class>GtkLabel</class>
+		  <name>mailbox_num_label</name>
+		  <label></label>
+		  <justify>GTK_JUSTIFY_CENTER</justify>
+		  <wrap>False</wrap>
+		  <xalign>1</xalign>
+		  <yalign>0.5</yalign>
+		  <xpad>2</xpad>
+		  <ypad>0</ypad>
+		  <child>
+		    <padding>0</padding>
+		    <expand>True</expand>
+		    <fill>True</fill>
+		  </child>
 		</widget>
 	      </widget>
 	    </widget>
+	  </widget>
+
+	  <widget>
+	    <class>GtkVPaned</class>
+	    <name>vpaned</name>
+	    <handle_size>10</handle_size>
+	    <gutter_size>10</gutter_size>
+	    <position>150</position>
+	    <child>
+	      <padding>0</padding>
+	      <expand>True</expand>
+	      <fill>True</fill>
+	    </child>
 
 	    <widget>
 	      <class>GtkScrolledWindow</class>
@@ -1359,19 +1360,18 @@ is equal to
 	      <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
 	      <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
 	      <child>
-		<padding>0</padding>
-		<expand>True</expand>
-		<fill>True</fill>
+		<shrink>True</shrink>
+		<resize>False</resize>
 	      </child>
 
 	      <widget>
 		<class>Placeholder</class>
 	      </widget>
 	    </widget>
-	  </widget>
 
-	  <widget>
-	    <class>Placeholder</class>
+	    <widget>
+	      <class>Placeholder</class>
+	    </widget>
 	  </widget>
 	</widget>
       </widget>

@@ -107,6 +107,9 @@ save										(C2WindowMain *wmain);
 static void
 search										(C2WindowMain *wmain);
 
+static void
+set_mailbox_name_information						(C2WindowMain *wmain, const gchar *name, gint t, gint u);
+
 static gint
 on_delete_event								(GtkWidget *widget, GdkEventAny *event, gpointer data);
 
@@ -754,7 +757,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 
 	/* Index */
 	index_scroll = glade_xml_get_widget (xml, "index_scroll");
-	wmain->index = c2_index_new (application, C2_INDEX_READ_WRITE);
+	wmain->index = c2_index_new (application, c2_preferences_get_window_main_mail_preview_visible () ?
+						  C2_INDEX_READ_WRITE : C2_INDEX_READ_ONLY);
 	gtk_container_add (GTK_CONTAINER (index_scroll), wmain->index);
 	gtk_widget_show (wmain->index);
 	gtk_signal_connect (GTK_OBJECT (wmain->index), "open_message",
@@ -1196,6 +1200,35 @@ search (C2WindowMain *wmain)
 {
 }
 
+static void
+set_mailbox_name_information (C2WindowMain *wmain, const gchar *name, gint t, gint u)
+{
+	GtkWidget *widget;
+	GladeXML *xml;
+	gchar *text;
+	
+	c2_return_if_fail (C2_IS_WINDOW_MAIN (wmain), C2EDATA);
+
+	xml = C2_WINDOW (wmain)->xml;
+	
+	widget = glade_xml_get_widget (xml, "mailbox_name_label");
+
+	if (name)
+		gtk_label_set_text (GTK_LABEL (widget), name);
+	else
+		gtk_label_set_text (GTK_LABEL (widget), "");
+	
+	widget = glade_xml_get_widget (xml, "mailbox_num_label");
+	
+	if (t != -1)
+	{
+		text = g_strdup_printf (_("%d mails, %d new"), t, u);
+		gtk_label_set_text (GTK_LABEL (widget), text);
+		g_free (text);
+	} else
+		gtk_label_set_text (GTK_LABEL (widget), "");
+}
+
 static gint
 on_delete_event (GtkWidget *widget, GdkEventAny *event, gpointer data)
 {
@@ -1577,6 +1610,8 @@ on_menubar_view_mail_preview_activate (GtkWidget *widget, C2WindowMain *wmain)
 
 	c2_preferences_set_window_main_mail_preview_visible (active);
 	c2_preferences_commit ();
+
+	c2_index_set_mode (C2_INDEX (wmain->index), active ? C2_INDEX_READ_WRITE : C2_INDEX_READ_ONLY);
 
 	/* FIXME I have no idea why this shit doesn't work... */
 	
@@ -2307,16 +2342,9 @@ on_mlist_object_selected_pthread (C2WindowMain *wmain)
 		}
 	}
 
-	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mailbox_name_label");
-	gtk_label_set_text (GTK_LABEL (widget), buf);
+	set_mailbox_name_information (wmain, buf, c2_db_length (mailbox), c2_db_length_type (mailbox, C2_MESSAGE_UNREADED));
 	g_free (buf);
 
-	buf = g_strdup_printf (_("%d mails, %d new"), c2_db_length (mailbox), c2_db_length_type (mailbox, C2_MESSAGE_UNREADED));
-	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mailbox_num_label");
-	gtk_label_set_text (GTK_LABEL (widget), buf);
-	g_free (buf);
-	
-	
 	c2_index_clear (index);
 	c2_index_set_mailbox (index, mailbox);
 	c2_window_set_activity (C2_WINDOW (wmain), FALSE);
@@ -2373,7 +2401,7 @@ on_mlist_object_selected (C2MailboxList *mlist, GtkObject *object, C2WindowMain 
 		
 		if (showing_mailbox)
 		{
-			gtk_widget_hide (index_scroll);
+		L	gtk_widget_hide (index_scroll);
 			gtk_widget_show (wmain->mail);
 			c2_index_clear (C2_INDEX (wmain->index));
 
@@ -2388,6 +2416,11 @@ on_mlist_object_selected (C2MailboxList *mlist, GtkObject *object, C2WindowMain 
 
 		if (C2_IS_ACCOUNT (object))
 		{
+			set_mailbox_name_information (wmain, C2_ACCOUNT (object)->name, -1, -1);
+
+			string = g_strdup_printf (_("This is an IMAP account.\n"));
+
+			c2_mail_set_string (C2_MAIL (wmain->mail), string);
 		} else
 		{
 			gchar *buf1, *buf2, *text;
@@ -2448,8 +2481,8 @@ on_mlist_object_unselected (C2MailboxList *mlist, C2WindowMain *wmain)
 	{
 		GtkWidget *index = wmain->index;
 
+		set_mailbox_name_information (wmain, NULL, -1, -1);
 		c2_index_clear (C2_INDEX (index));
-		printf ("[ DOING ON_MLIST_OBJECT_UNSELECTED ]\n");
 		c2_mail_set_message (C2_MAIL (wmain->mail), NULL);
 		c2_mutex_unlock (&wmain->index_lock);
 	}

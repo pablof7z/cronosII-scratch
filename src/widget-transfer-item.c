@@ -865,7 +865,7 @@ on_pop3_login_failed (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pa
 	
 	gdk_threads_leave ();
 	
-	c2_mutex_lock (&local_lock);
+L	c2_mutex_lock (&local_lock);
 	c2_mutex_unlock (&local_lock);
 	c2_mutex_destroy (&local_lock);
 	
@@ -877,7 +877,7 @@ on_pop3_login_failed (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pa
 		
 		contents = glade_xml_get_widget (xml, "user");
 		*user = gtk_entry_get_text (GTK_ENTRY (contents));
-		contents = glade_xml_get_widget (xml, "pass");
+L		contents = glade_xml_get_widget (xml, "pass");
 		*pass = gtk_entry_get_text (GTK_ENTRY (contents));
 		
 		nth = c2_account_get_position (ti->application->account, account);
@@ -1061,6 +1061,7 @@ on_pop3_disconnect (GtkObject *object, C2NetObjectByte *byte, gboolean success, 
 	gchar *estr = NULL;
 
 	gdk_threads_enter ();
+	printf ("success is %d\n", success);
 	if (success)
 	{
 		/* In mail%s the %s is an s in case of plural (translators can change it). There is

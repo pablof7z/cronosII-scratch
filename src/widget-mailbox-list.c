@@ -943,7 +943,7 @@ init_imap (C2IMAP *imap)
 		if (error)
 		{
 			dialog = gnome_warning_dialog (error);
-			gnome_dialog_run_and_close (dialog);
+			gtk_widget_show (dialog);
 		}
 		
 		gdk_threads_leave ();

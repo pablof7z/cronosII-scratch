@@ -128,6 +128,9 @@ c2_index_sort								(C2Index *index, C2MailboxSortBy sort_by, GtkSortType sort_
 void
 c2_index_install_hints						(C2Index *index, GtkWidget *appbar, C2Mutex *lock);
 
+void
+c2_index_set_mode						(C2Index *index, C2IndexMode mode);
+
 #ifdef __cplusplus
 }
 #endif

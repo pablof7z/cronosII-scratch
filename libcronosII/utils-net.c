@@ -180,6 +180,9 @@ c2_net_sendv (guint sock, const gchar *fmt, va_list args)
 	gchar *ptr;
 	gchar *string;
 	gint value, bytes = 0, length, i;
+	gchar buf[2];
+
+	buf[1] = 0;
 
 	string = g_strdup_vprintf (fmt, args);
 
@@ -207,8 +210,14 @@ c2_net_sendv (guint sock, const gchar *fmt, va_list args)
 			fflush (stdout);
 		}
 #endif
-		if ((value = send (sock, ptr, 1, 0)) < 0)
-			c2_error_set (-errno);
+		buf[0] = *ptr;
+		if ((value = write (sock, buf, 1*sizeof (char))) < 0)
+		{
+			if (errno)
+				c2_error_set (-errno);
+			else
+				c2_error_set (C2SRVCNCL);
+		}
 		
 		tracker_set_send (value);
 		bytes += value;
@@ -257,9 +266,12 @@ c2_net_read (guint sock, gchar **string)
 	
 	for (i = 0; i < 1023; i++)
 	{
-		if ((byte = read (sock, c, 1)) < 0)
+		if ((byte = read (sock, c, 1)) <= 0)
 		{
-			c2_error_set (-errno);
+			if (errno)
+				c2_error_set (-errno);
+			else
+				c2_error_set (C2SRVCNCL);
 			return -1;
 		}
 

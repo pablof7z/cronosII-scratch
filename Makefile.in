@@ -157,7 +157,7 @@ desktop_DATA = cronosII.desktop
 cronosincludedir = $(includedir)/cronosII
 cronosinclude_HEADERS = config.h
 
-EXTRA_DIST =  	cronosII.spec				mkpotfiles-in				ABOUT-NLS					AUTHORS						COPYING						FEATURES					NEWS						README						README.1st					THANKS						TODO						ChangeLog					$(about_DATA)
+EXTRA_DIST =  	cronosII.spec				ABOUT-NLS					AUTHORS						COPYING						FEATURES					NEWS						README						README.1st					THANKS						TODO						ChangeLog					$(about_DATA)
 
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -579,12 +579,12 @@ maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 bzdist: distdir
 	-chmod -R a+r $(distdir)
-	$(TAR) choIf $(distdir).tar.bz2 $(distdir)
+	$(TAR) chojf $(distdir).tar.bz2 $(distdir)
 	-rm -rf $(distdir)
 
 fulldist: distdir
 	-chmod -R a+r $(distdir)
-	$(TAR) choIf $(distdir).tar.bz2 $(distdir)
+	$(TAR) chojf $(distdir).tar.bz2 $(distdir)
 	echo Done with $(distdir).tar.bz2
 	GZIP=$(GZIP_ENV) $(TAR) chozf $(distdir).tar.gz $(distdir)
 	echo Done with $(distdir).tar.gz

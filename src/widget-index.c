@@ -1431,3 +1431,11 @@ disconnect (C2Index *index)
 		gtk_signal_disconnect_by_func (GTK_OBJECT (index->mailbox),
 							GTK_SIGNAL_FUNC (on_mailbox_changed_mailbox), index);
 }
+
+void
+c2_index_set_mode (C2Index *index, C2IndexMode mode)
+{
+	c2_return_if_fail (C2_IS_INDEX (index), C2EDATA);
+
+	index->mode = mode;
+}
