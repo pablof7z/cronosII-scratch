@@ -591,7 +591,6 @@ set_values (C2DialogPreferences *preferences)
 	g_free (charv);
 	
 	charv = c2_preferences_get_interface_fonts_message_body ();
-	C2_DEBUG (charv);
 	widgetv = preferences->interface_fonts_message_body;
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 	gtk_entry_set_text (GTK_ENTRY (widgetv), charv);

@@ -38,6 +38,9 @@
 #include "widget-index.h"
 #include "widget-window-main.h"
 
+/* [NOTE]: ADD IN on_application_window_changed
+ *         OTHER ICONS FOR WINDOW THAT HAVE ICONS. */
+
 #define MAILBOX_TYPE_CRONOSII				"Cronos II"
 #define MAILBOX_TYPE_IMAP					"IMAP"
 #define MAILBOX_TYPE_SPOOL					_("Spool (local)")
@@ -110,7 +113,13 @@ static void
 on_size_allocate							(C2WindowMain *wmain, GtkAllocation *alloc);
 
 static void
+on_application_window_changed				(C2Application *application, GSList *list, C2WindowMain *wmain);
+
+static void
 on_docktoolbar_button_press_event			(GtkWidget *widget, GdkEventButton *event, C2WindowMain *wmain);
+
+static void
+on_menubar_file_new_window_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_menubar_file_send_unsent_mails_activate	(GtkWidget *widget, C2WindowMain *wmain);
@@ -476,6 +485,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gint i;
 
 	c2_window_construct (C2_WINDOW (wmain), application, "Cronos II", "Main");
+	gtk_signal_connect (GTK_OBJECT (application), "window_changed",
+						GTK_SIGNAL_FUNC (on_application_window_changed), wmain);
 
 	C2_WINDOW (wmain)->xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "wnd_main_contents");
 	c2_window_set_contents_from_glade (C2_WINDOW (wmain), "wnd_main_contents");
@@ -622,6 +633,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_new_mailbox")), "activate",
 							GTK_SIGNAL_FUNC (on_file_new_mailbox_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_new_window")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_file_new_window_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_send_unsent_mails")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_file_send_unsent_mails_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_save")), "activate",
@@ -667,6 +680,9 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (wmain->toolbar_menu, "edit_toolbar")), "activate",
 							GTK_SIGNAL_FUNC (on_mnu_toolbar_edit_toolbar_activate), wmain);
 	
+
+	gtk_signal_emit_by_name (GTK_OBJECT (application), "window_changed",
+							c2_application_open_windows (application));
 //	c2_main_window_build_dynamic_menu_accounts ();
 }
 
@@ -1386,6 +1402,70 @@ on_size_allocate (C2WindowMain *wmain, GtkAllocation *alloc)
 	c2_preferences_set_window_main_height (alloc->height);
 }
 
+static void
+on_window_item_activate (GtkWidget *widget, GtkWidget *window)
+{
+	gtk_widget_show (window);
+	gdk_window_raise (window->window);
+}
+
+static void
+on_application_window_changed (C2Application *application, GSList *list, C2WindowMain *wmain)
+{
+	GtkWidget *widget, *menu, *item;
+	GSList *l;
+
+	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "windows");
+
+	menu = gtk_menu_new ();
+	
+	for (l = list; l; l = g_slist_next (l))
+	{
+		GtkWidget *hbox;
+		GtkWidget *label;
+		GtkWidget *image;
+		const gchar *file = PKGDATADIR "/pixmaps/window.png";
+
+		hbox = gtk_hbox_new (FALSE, 4);
+		gtk_widget_show (hbox);
+
+		if (C2_IS_WINDOW (l->data) || C2_IS_DIALOG (l->data))
+		{
+			gchar *type;
+
+			type = (gchar*) gtk_object_get_data (GTK_OBJECT (l->data), "type");
+			
+			/* ADD HERE OTHER ICONS FOR WINDOW THAT HAVE ICONS */
+			/* ADD HERE OTHER ICONS FOR WINDOW THAT HAVE ICONS */
+			/* ADD HERE OTHER ICONS FOR WINDOW THAT HAVE ICONS */
+			/* ADD HERE OTHER ICONS FOR WINDOW THAT HAVE ICONS */
+			if (c2_streq (type, "composer"))
+				file = PKGDATADIR "/pixmaps/mail-write.png";
+			else if (c2_streq (type, C2_WIDGET_TRANSFER_LIST_TYPE))
+				file = PKGDATADIR "/pixmaps/send-receive.png";
+		}
+		
+		image = gnome_pixmap_new_from_file (file);
+		gtk_box_pack_start (GTK_BOX (hbox), image, FALSE, FALSE, 0);
+		gtk_widget_show (image);
+
+		label = gtk_label_new (GTK_WINDOW (l->data)->title);
+		gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
+		gtk_widget_show (label);
+		gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+		
+		item = gtk_menu_item_new ();
+		gtk_container_add (GTK_CONTAINER (item), hbox);
+		gtk_menu_append (GTK_MENU (menu), item);
+		gtk_signal_connect (GTK_OBJECT (item), "activate",
+							GTK_SIGNAL_FUNC (on_window_item_activate), l->data);
+		gtk_widget_show (item);
+	}
+
+	gtk_menu_item_remove_submenu (GTK_MENU_ITEM (widget));
+	gtk_menu_item_set_submenu (GTK_MENU_ITEM (widget), menu);
+}
+
 /**
  * c2_window_main_set_mailbox
  * @wmain: Object where to act.
@@ -1432,6 +1512,15 @@ on_docktoolbar_button_press_event (GtkWidget *widget, GdkEventButton *event, C2W
 		gnome_popup_menu_do_popup (glade_xml_get_widget (wmain->toolbar_menu, "mnu_toolbar"),
 								NULL, NULL, event, NULL);
 	}
+}
+
+static void
+on_menubar_file_new_window_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	GtkWidget *window;
+
+	window = c2_window_main_new (C2_WINDOW (wmain)->application);
+	gtk_widget_show (window);
 }
 
 static void

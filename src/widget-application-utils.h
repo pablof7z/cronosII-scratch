@@ -32,6 +32,9 @@ c2_application_dialog_release_information	(C2Application *application);
 void
 c2_application_dialog_about					(C2Application *application);
 
+gboolean
+c2_application_dialog_send_unsent_mails		(C2Application *application);
+
 C2Mailbox *
 c2_application_dialog_select_mailbox		(C2Application *application, GtkWindow *parent);
 

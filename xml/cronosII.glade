@@ -67,6 +67,8 @@
       <widget>
 	<class>GtkMenuBar</class>
 	<name>menubar</name>
+	<events>GDK_BUTTON_PRESS_MASK</events>
+	<extension_events>GDK_EXTENSION_EVENTS_ALL</extension_events>
 	<shadow_type>GTK_SHADOW_NONE</shadow_type>
 
 	<widget>
@@ -155,6 +157,20 @@
 		  <class>GtkMenuItem</class>
 		  <name>separator3</name>
 		  <right_justify>False</right_justify>
+		</widget>
+
+		<widget>
+		  <class>GtkPixmapMenuItem</class>
+		  <name>file_new_window</name>
+		  <tooltip>Open a new main window</tooltip>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_window_activate</handler>
+		    <last_modification_time>Sun, 25 Nov 2001 17:19:00 GMT</last_modification_time>
+		  </signal>
+		  <label>_Window</label>
+		  <right_justify>False</right_justify>
+		  <stock_icon>GNOME_STOCK_MENU_NEW</stock_icon>
 		</widget>
 	      </widget>
 	    </widget>
@@ -556,7 +572,7 @@
 	      <tooltip>Delete selected messages</tooltip>
 	      <accelerator>
 		<modifiers>0</modifiers>
-		<key>GDK_D</key>
+		<key>GDK_Delete</key>
 		<signal>activate</signal>
 	      </accelerator>
 	      <label>_Delete</label>

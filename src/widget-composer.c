@@ -148,6 +148,9 @@ on_editor_undo_available					(GtkWidget *widget, gboolean available, C2Composer 
 static void
 on_editor_redo_available					(GtkWidget *widget, gboolean available, C2Composer *composer);
 
+static gint
+on_editor_key_press_event					(GtkWidget *widget, GdkEventKey *e, C2Composer *composer);
+
 static void
 on_application_preferences_changed_account	(C2Application *application, gint key, gpointer value,
 											 GtkCombo *combo);
@@ -671,6 +674,8 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 							GTK_SIGNAL_FUNC (on_editor_undo_available), composer);
 		gtk_signal_connect (GTK_OBJECT (composer->editor), "redo_available",
 							GTK_SIGNAL_FUNC (on_editor_redo_available), composer);
+		gtk_signal_connect (GTK_OBJECT (C2_EDITOR (composer->editor)->text), "key_press_event",
+							GTK_SIGNAL_FUNC (on_editor_key_press_event), composer);
 	}
 
 	g_free (buf);
@@ -822,6 +827,29 @@ on_editor_redo_available (GtkWidget *widget, gboolean available, C2Composer *com
 	gtk_widget_set_sensitive (widget, available);
 	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "edit_redo");
 	gtk_widget_set_sensitive (widget, available);
+}
+
+static gint
+on_editor_key_press_event (GtkWidget *widget, GdkEventKey *e, C2Composer *composer)
+{
+	switch (e->keyval)
+	{
+		case GDK_Return:
+			if (e->state & GDK_CONTROL_MASK)
+				gtk_signal_emit_by_name (GTK_OBJECT (glade_xml_get_widget (
+										C2_WINDOW (composer)->xml, "send_now_btn")), "clicked", composer);
+			break;
+		case GDK_Left:
+		case GDK_Right:
+		case GDK_Up:
+		case GDK_Down:
+		case ' ':
+			break;
+		default:
+			return FALSE;
+	}
+
+	return TRUE;
 }
 
 static void
@@ -1622,6 +1650,7 @@ create_message (C2Composer *composer)
 	gboolean html, multipart;
 	gchar *buf, *buf1, *buf2;
 	gint i;
+	GList *l;
 
 	/* Create message */
 	message = c2_message_new ();
@@ -1877,6 +1906,10 @@ autodefine_type:
 		message->mime = c2_mime_append (message->mime, mime);
 	}
 
+	/* Extra Headers */
+	for (l = composer->eheaders; l; l = g_list_next (l))
+		g_string_append (header, (gchar*) l->data);
+
 	message->header = header->str;
 	g_string_free (header, FALSE);
 
@@ -1954,8 +1987,8 @@ c2_composer_set_extra_field (C2Composer *composer, const gchar *field, const gch
 	} else
 	{
 		gchar *string;
-		
-		string = g_strdup_printf ("%s: %s", field, data);
+	
+		string = g_strdup_printf ("%s: %s\n", field, data);
 		composer->eheaders = g_list_append (composer->eheaders, string);
 	}
 }

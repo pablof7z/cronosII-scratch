@@ -52,6 +52,7 @@ pixmap_DATA = \
 	reply.png			\
 	unknown-file.png	\
 	unread.png			\
+	window.png			\
 	yellow_arrow.png
 
 emoticonsdir = $(pixmapdir)/emoticons

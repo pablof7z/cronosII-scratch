@@ -250,6 +250,53 @@ c2_application_dialog_about (C2Application *application)
 	gtk_widget_show (widget);
 }
 
+/**
+ * c2_application_dialog_send_unsent_mails
+ * @application: Application object.
+ *
+ * This function will popup a dialog asking the
+ * user if s/he wants to send the unsent mails
+ * in the «Outbox» mailbox.
+ *
+ * Return Value:
+ * %TRUE if mails should be sent or %FALSE.
+ **/
+gboolean
+c2_application_dialog_send_unsent_mails (C2Application *application)
+{
+	GtkWidget *widget;
+	C2Mailbox *outbox;
+	gint mails;
+	gchar *label;
+	gint reply;
+
+	outbox = c2_mailbox_get_by_name (application->mailbox, C2_MAILBOX_OUTBOX);
+	mails = c2_db_length (outbox);
+	if (!mails)
+		return FALSE;
+
+	if (mails > 1)
+		label = g_strdup_printf (_("There are %d unsent mails.\n"
+								   "\n"
+								   "Do you want to send them now?"), mails);
+	else
+		label = g_strdup (_("There is an unsent message.\n"
+							"\n"
+							"Do you want to send it now?"));
+	
+	widget = gnome_question_dialog_modal (label, NULL, NULL);
+	c2_application_window_add (application, GTK_WINDOW (widget));
+	gnome_dialog_close_hides (GNOME_DIALOG (widget), TRUE);
+	
+	reply = gnome_dialog_run (GNOME_DIALOG (widget));
+	
+	c2_application_window_remove (application, GTK_WINDOW (widget));
+	gtk_widget_destroy (widget);
+	g_free (label);
+	
+	return !reply;
+}
+
 C2Mailbox *
 c2_application_dialog_select_mailbox (C2Application *application, GtkWindow *parent)
 {

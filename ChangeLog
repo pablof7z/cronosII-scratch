@@ -1,3 +1,12 @@
+Sun Nov 25 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Fixed the damn bug that made c2 avoid sending extra headers
+	  in the composer.
+	* Added the hot key Ctrl+Return to send a message in the composer
+	  widget.
+	* Added support for reloading the window's list.
+	* Added support for asking if the user wants to send the
+	  unsent mails when quitting.
+
 Sat Nov 24 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work to make the menubar a little more useful.
 	* Added new pixmaps.

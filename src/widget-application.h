@@ -36,6 +36,7 @@ extern "C" {
 
 #define C2_APPLICATION(obj)					(GTK_CHECK_CAST (obj, c2_application_get_type (), C2Application))
 #define C2_APPLICATION_CLASS(klass)			(GTK_CHECK_CLASS_CAST (klass, c2_application_get_type (), C2ApplicationClass))
+#define C2_APPLICATION_CLASS_FW(obj)		(C2_APPLICATION_CLASS (((GtkObject*)(obj))->klass))
 
 #define C2_MAILBOX_INBOX					_("Inbox")
 #define C2_MAILBOX_OUTBOX					_("Outbox")
@@ -148,7 +149,9 @@ struct _C2ApplicationClass
 	void (*application_preferences_changed) (C2Application *application, gint key,
 												gpointer value);
 	void (*reload_mailboxes) (C2Application *application);
-	void (*window_changed) (C2Application *application);
+	void (*window_changed) (C2Application *application, GSList *list);
+
+	void (*send) (C2Application *application);
 };
 
 GtkType
@@ -169,6 +172,9 @@ c2_application_window_remove				(C2Application *application, GtkWindow *window);
 
 GtkWidget *
 c2_application_window_get					(C2Application *application, const gchar *type);
+
+GSList *
+c2_application_open_windows					(C2Application *application);
 
 /***********************
  * [Application Utils] *

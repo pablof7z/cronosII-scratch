@@ -288,19 +288,19 @@ mailbox_mk (const gchar *name, C2Mailbox **head)
 								C2_MAILBOX_CRONOSII, C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING)))
 		return -1;
 
-	config_id = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL)+1;
+	config_id = gnome_config_private_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL)+1;
 	query = g_strdup_printf ("/"PACKAGE"/Mailbox %d/", config_id);
 	gnome_config_push_prefix (query);
 				
-	gnome_config_set_string ("name", mailbox->name);
-	gnome_config_set_string ("id", mailbox->id);
-	gnome_config_set_int ("type", mailbox->type);
-	gnome_config_set_int ("sort_by", mailbox->sort_by);
-	gnome_config_set_int ("sort_type", mailbox->sort_type);
+	gnome_config_private_set_string ("name", mailbox->name);
+	gnome_config_private_set_string ("id", mailbox->id);
+	gnome_config_private_set_int ("type", mailbox->type);
+	gnome_config_private_set_int ("sort_by", mailbox->sort_by);
+	gnome_config_private_set_int ("sort_type", mailbox->sort_type);
 	gnome_config_pop_prefix ();
 	g_free (query);
 				
-	gnome_config_set_int ("/"PACKAGE"/Mailboxes/quantity", config_id);
+	gnome_config_private_set_int ("/"PACKAGE"/Mailboxes/quantity", config_id);
 	gnome_config_sync ();
 	
 	return 0;
