@@ -271,6 +271,30 @@ c2_account_get_by_name (C2Account *head, const gchar *name)
 }
 
 /**
+ * c2_account_get_position
+ * @head: A C2Account object where to start looking.
+ * @account: Account to look for.
+ *
+ * This function will look for the position of an account
+ * in the accounts list.
+ *
+ * Return Value:
+ * Position of account in the list, starting at 1, 0 if not found.
+ **/
+gint
+c2_account_get_position (C2Account *head, C2Account *account)
+{
+	C2Account *l;
+	gint i;
+	
+	for (l = head, i = 1; l; l = c2_account_next (l), i++)
+		if (l == account)
+			return i;
+	
+	return 0;
+}
+
+/**
  * c2_account_last
  * @head: A C2Account object list.
  *

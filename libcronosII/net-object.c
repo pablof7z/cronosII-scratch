@@ -61,7 +61,7 @@ c2_net_object_run (C2NetObject *nobj)
 	gchar *ip;
 
 	/* Check that we are not already connect */
-	if (nobj->state != C2_NET_OBJECT_OFF)
+	if (nobj->state & C2_NET_OBJECT_OFF)
 	{
 		g_warning ("Running a C2NetObject which is not off (%d).\n", nobj->state);
 		return -1;
@@ -70,7 +70,8 @@ c2_net_object_run (C2NetObject *nobj)
 	/* Fire "resolve" signal */
 	nobj->state = C2_NET_OBJECT_RESOLVE;
 	gtk_signal_emit (GTK_OBJECT (nobj), signals[RESOLVE]);
-	
+
+	C2_DEBUG (nobj->host);	
 	if (c2_net_resolve (nobj->host, &ip) < 0)
 	{
 #ifdef USE_DEBUG

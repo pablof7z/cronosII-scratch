@@ -151,6 +151,8 @@ c2_window_set_contents_from_glade (C2Window *window, const gchar *dscp)
 		c2_window_set_contents (window, widget);
 }
 
+static gint16 report_timeout_id = 0;
+
 void
 c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, ...)
 {
@@ -159,11 +161,13 @@ c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, .
 
 	va_start (args, fmt);
 	msg = g_strdup_vprintf (fmt, args);
+	C2_DEBUG (msg);
 	va_end (args);
 
 	if (!pthread_mutex_trylock (&window->status_lock))
 	{
 		GtkWidget *appbar = glade_xml_get_widget (window->xml, "appbar");
+		C2Pthread2 *data;
 
 		if (!appbar)
 		{
@@ -176,11 +180,13 @@ c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, .
 		else
 			rmsg = g_strdup (msg);
 
-		g_free (msg);
+		data = g_new0 (C2Pthread2, 1);
+		data->v1 = (gpointer) window;
 
+		gnome_appbar_clear_stack (GNOME_APPBAR (appbar));
 		gnome_appbar_push (GNOME_APPBAR (appbar), rmsg);
-		gtk_timeout_add (10000, on_report_timeout, window);
-		g_free (rmsg);
+		data->v2 = (gpointer) gtk_timeout_add (3000, on_report_timeout, data);
+		report_timeout_id = GPOINTER_TO_INT (data->v2);
 		pthread_mutex_unlock (&window->status_lock);
 	}
 
@@ -190,15 +196,19 @@ c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, .
 static gint
 on_report_timeout (gpointer data)
 {
-	C2Window *window = C2_WINDOW (data);
+	C2Pthread2 *data2 = (C2Pthread2*) data;
+	C2Window *window = C2_WINDOW (data2->v1);
+	gint16 id = GPOINTER_TO_INT (data2->v2);
 
-	if (!pthread_mutex_trylock (&window->status_lock))
+	if (id == report_timeout_id && !pthread_mutex_trylock (&window->status_lock))
 	{
 		GtkWidget *appbar = glade_xml_get_widget (window->xml, "appbar");
 
 		gnome_appbar_pop (GNOME_APPBAR (appbar));
 		pthread_mutex_unlock (&window->status_lock);
 	}
+
+	g_free (data2);
 	
 	return FALSE;
 }

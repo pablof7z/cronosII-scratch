@@ -102,13 +102,6 @@ class_init (C2POP3Class *klass)
 	
 	parent_class = gtk_type_class (c2_net_object_get_type ());
 
-	signals[LOGIN_FAILED] =
-		gtk_signal_new ("login_failed",
-					GTK_RUN_LAST,
-					object_class->type,
-					GTK_SIGNAL_OFFSET (C2POP3Class, login_failed),
-					c2_marshal_INT__POINTER_POINTER_POINTER, GTK_TYPE_INT, 3,
-					GTK_TYPE_STRING, GTK_TYPE_POINTER, GTK_TYPE_POINTER);
 	signals[STATUS] =
 		gtk_signal_new ("status",
 					GTK_RUN_FIRST,
@@ -257,9 +250,12 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 
 	/* Lock the mutex */
 	pthread_mutex_lock (&pop3->run_lock);
+	
+	gtk_object_set_data (GTK_OBJECT (pop3), "account", account);
 
 	if (c2_net_object_run (C2_NET_OBJECT (pop3)) < 0)
-	{
+	{	
+		gtk_object_remove_data (GTK_OBJECT (pop3), "account");
 		pthread_mutex_unlock (&pop3->run_lock);
 		return -1;
 	}
@@ -267,6 +263,7 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 	if (welcome (pop3) < 0)
 	{
 		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
+		gtk_object_remove_data (GTK_OBJECT (pop3), "account");
 		pthread_mutex_unlock (&pop3->run_lock);
 		return -1;
 	}
@@ -274,6 +271,7 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 	if (login (pop3) < 0)
 	{
 		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
+		gtk_object_remove_data (GTK_OBJECT (pop3), "account");
 		pthread_mutex_unlock (&pop3->run_lock);
 		return -1;
 	}
@@ -281,6 +279,7 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 	if ((download_list = status (pop3, account)) < 0)
 	{
 		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
+		gtk_object_remove_data (GTK_OBJECT (pop3), "account");
 		pthread_mutex_unlock (&pop3->run_lock);
 		return -1;
 	}
@@ -288,6 +287,7 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 	if (retrieve (pop3, account, inbox, download_list) < 0)
 	{
 		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
+		gtk_object_remove_data (GTK_OBJECT (pop3), "account");
 		pthread_mutex_unlock (&pop3->run_lock);
 		return -1;
 	}
@@ -295,8 +295,11 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 
 	c2_net_object_disconnect (C2_NET_OBJECT (pop3));
 	g_slist_free (download_list);
+	
+shutdown:
 
 	/* Unlock the mutex */
+	gtk_object_remove_data (GTK_OBJECT (pop3), "account");
 	pthread_mutex_unlock (&pop3->run_lock);
 
 	return 0;
@@ -426,28 +429,27 @@ login (C2POP3 *pop3)
 
 	}
 
-	/* Username */
-	if (c2_net_object_send (C2_NET_OBJECT (pop3), "USER %s\r\n", pop3->user) < 0)
-		return -1;
-
-	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
-		return -1;
-
-	if (c2_strnne (string, "+OK", 3))
-	{
-		string = strstr (string, " ");
-		if (string)
-			string++;
-
-		c2_error_set_custom (string);
-		return -1;
-	}
-
-	/* Password */
 	do
 	{
-		/* FIXME This crashes when the password is wrong and
-		 * is executed for 2 time (probably for >1 time) see NULL setting below. */
+		printf ("%s\n%s\n", pop3->user, pop3->pass);
+		/* Username */
+		if (c2_net_object_send (C2_NET_OBJECT (pop3), "USER %s\r\n", pop3->user) < 0)
+			return -1;
+
+		if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+			return -1;
+
+		if (c2_strnne (string, "+OK", 3))
+		{
+			string = strstr (string, " ");
+			if (string)
+				string++;
+
+			c2_error_set_custom (string);
+			return -1;
+		}
+
+		/* Password */
 		g_free (string);
 		if (c2_net_object_send (C2_NET_OBJECT (pop3), "PASS %s\r\n", pop3->pass) < 0)
 			return -1;
@@ -459,6 +461,7 @@ login (C2POP3 *pop3)
 		{
 			gchar *newuser, *newpass;
 			gboolean ret;
+			pthread_mutex_t lock;
 
 			string = strstr (string, " ");
 			if (string)
@@ -468,16 +471,35 @@ login (C2POP3 *pop3)
 			newuser = NULL;
 			newpass = NULL;
 
-			gtk_signal_emit (GTK_OBJECT (pop3), signals[LOGIN_FAILED], string, &newuser, &newpass, &ret);
+			pthread_mutex_init (&lock, NULL);
 
-			if (!ret)
+			if (C2_POP3_CLASS_FW (pop3)->login_failed)
+			{
+				pthread_mutex_lock (&lock);
+				if (C2_POP3_CLASS_FW (pop3)->login_failed (pop3, string, &newuser, &newpass, &lock))
+				{
+					pthread_mutex_lock (&lock);
+					pthread_mutex_destroy (&lock);
+					
+					pop3->user = newuser;
+					pop3->pass = newpass;
+				} else
+				{
+					pthread_mutex_destroy (&lock);
+					printf ("....\n");
+					return -1;
+				}
+			} else
+			{
+				pthread_mutex_destroy (&lock);
 				return -1;
-			
+			}
+/*
 			if (newpass)
 			{
 				g_free (pop3->pass);
 				pop3->pass = newpass;
-			}
+			}*/
 		} else
 			logged_in = TRUE;
 	} while (i++ < 3 && !logged_in && pop3->pass);

@@ -60,7 +60,7 @@ static void
 on_mlist_mailbox_selected					(C2MailboxList *mlist, C2Mailbox *mailbox, C2WindowMain *wmain);
 
 static void
-on_mlist_mailbox_unselected					(C2MailboxList *mlist, C2Mailbox *mailbox, C2WindowMain *wmain);
+on_mlist_mailbox_unselected					(C2MailboxList *mlist, C2WindowMain *wmain);
 
 static void
 on_mlist_button_press_event					(GtkWidget *widget, GdkEvent *event, C2WindowMain *wmain);
@@ -410,12 +410,12 @@ on_mlist_mailbox_selected_pthread (C2WindowMain *wmain)
 	gchar *buf;
 	
 	gdk_threads_enter ();
-L	c2_window_set_activity (C2_WINDOW (wmain), TRUE);
+	c2_window_set_activity (C2_WINDOW (wmain), TRUE);
 	gdk_threads_leave ();
 	
 	if (!mailbox->db)
 	{
-L		if (!c2_mailbox_load_db (mailbox))
+		if (!c2_mailbox_load_db (mailbox))
 		{
 			/* Something went wrong... */
 			c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
@@ -436,22 +436,16 @@ L		if (!c2_mailbox_load_db (mailbox))
 	if (pthread_mutex_trylock (&wmain->index_lock))
 		return 0;
 	
-	buf = g_strdup_printf (_("%d messages, %d new."), c2_db_length (mailbox),
-							c2_db_length_type (mailbox, C2_MESSAGE_UNREADED));
 	gdk_threads_enter ();
 	c2_index_remove_mailbox (index);
 	c2_index_add_mailbox (index, mailbox);
 	c2_window_set_activity (C2_WINDOW (wmain), FALSE);
 	gtk_widget_queue_draw (GTK_WIDGET (index));
 	c2_index_sort (index);
-	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->status_lock))
-	{
-		gnome_appbar_set_status (GNOME_APPBAR (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "appbar")),
-									buf);
-		pthread_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
-	}
+	c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
+						_("%d messages, %d new."), c2_db_length (mailbox),
+						c2_db_length_type (mailbox, C2_MESSAGE_UNREADED));
 	gdk_threads_leave ();
-	g_free (buf);
 
 	pthread_mutex_unlock (&wmain->index_lock);
 	return 0;
@@ -466,7 +460,7 @@ on_mlist_mailbox_selected (C2MailboxList *mlist, C2Mailbox *mailbox, C2WindowMai
 }
 
 static void
-on_mlist_mailbox_unselected (C2MailboxList *mlist, C2Mailbox *mailbox, C2WindowMain *wmain)
+on_mlist_mailbox_unselected (C2MailboxList *mlist, C2WindowMain *wmain)
 {
 	if (!pthread_mutex_trylock (&wmain->index_lock))
 	{

@@ -155,8 +155,8 @@ gchar *s = N_("Password:");
 gchar *s = N_("Username:");
 gchar *s = N_("Account:");
 gchar *s = N_("The server has rejected the username/password\n"
-              "combination: 'invalid username/password'.\n"
-              "\n"
+              "combination: ");
+gchar *s = N_("\n"
               "Provide the correct information for logging in\n"
               "in the following fields.");
 gchar *s = N_("Getting in Touch");
@@ -195,10 +195,6 @@ gchar *s = N_("Not enough data was filled in,\n"
               "complete the missing data\n"
               "and try again.");
 gchar *s = N_("Error");
-gchar *s = N_("Login problem");
-gchar *s = N_("Username:");
-gchar *s = N_("Password:");
-gchar *s = N_("Remember password.");
 gchar *s = N_("Show both icons and text in the buttons");
 gchar *s = N_("_Both");
 gchar *s = N_("Show only the icons in the buttons");

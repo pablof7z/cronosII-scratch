@@ -27,11 +27,11 @@ extern "C" {
 
 #define C2_TYPE_POP3						(c2_pop3_get_type ())
 #define C2_POP3(obj)						(GTK_CHECK_CAST (obj, C2_TYPE_POP3, C2POP3))
-#define C2_POP3_CLASS(klass)				(GTK_CHECK_CLASS (klass, C2_TYPE_POP3, C2POP3))
+#define C2_POP3_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_POP3, C2POP3Class))
 #define C2_IS_POP3(obj)						(GTK_CHECK_TYPE (obj, C2_TYPE_POP3))
 #define C2_IS_POP3_CLASS(klass)				(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_POP3))
 
-#define C2_POP3_GET_PASS_FUNC(x)			((C2Pop3GetPass)x)
+#define C2_POP3_CLASS_FW(obj)				(C2_POP3_CLASS (((GtkObject*) (obj))->klass))
 
 typedef struct _C2POP3 C2POP3;
 typedef struct _C2POP3Class C2POP3Class;
@@ -83,7 +83,8 @@ struct _C2POP3Class
 {
 	C2NetObjectClass parent_class;
 
-	gboolean (*login_failed) (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pass);
+	gboolean (*login_failed) (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pass,
+							  pthread_mutex_t *lock);
 	
 	void (*status) (C2POP3 *pop3, gint mails);
 	void (*retrieve) (C2POP3 *pop3, gint16 nth, gint32 received, gint32 total);

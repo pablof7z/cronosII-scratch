@@ -6,13 +6,13 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-21 13:20+0930\n"
+"POT-Creation-Date: 2001-09-21 21:52-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Content-Transfer-Encoding: ENCODING\n"
 
 #: libcronosII/db-cronosII.c:44
 #, c-format
@@ -62,20 +62,12 @@ msgstr ""
 msgid "Unknown hostname"
 msgstr ""
 
-#: libcronosII/mime.c:113 libcronosII/mime.c:119
+#: libcronosII/mime.c:118 libcronosII/mime.c:124
 msgid "This message claims to be multipart, but is broken."
 msgstr ""
 
-#: libcronosII/mime.c:236 libcronosII/mime.c:242
+#: libcronosII/mime.c:241 libcronosII/mime.c:247
 msgid "This message claims to be multipart but it seems to be broken."
-msgstr ""
-
-#: libcronosII/smtp.c:100
-msgid "Internal socket read operation failed"
-msgstr ""
-
-#: libcronosII/smtp.c:101
-msgid "Internal socket write operation failed"
 msgstr ""
 
 #: libcronosII/smtp.c:297
@@ -137,22 +129,6 @@ msgstr ""
 
 #: libcronosII/utils.c:569
 msgid "Bad syntaxes, quotes aren't closed.\n"
-msgstr ""
-
-#: src/c2-main-window.c:33 src/widget-window-main.c:39
-msgid "Spool (local)"
-msgstr ""
-
-#: src/c2-main-window.c:352 src/widget-window-main.c:955
-msgid "Unable to create mailbox"
-msgstr ""
-
-#: src/c2-main-window.c:525
-msgid "Unable to update the mailbox: Unable to find the configuration ID"
-msgstr ""
-
-#: src/c2-main-window.c:687
-msgid "Unable to delete the mailbox: Unable to find the configuration ID"
 msgstr ""
 
 #: src/install-wizard.c:105
@@ -422,7 +398,7 @@ msgstr ""
 msgid "Set the Account field."
 msgstr ""
 
-#: src/main.c:80 src/trans.h:155 src/widget-index.c:244
+#: src/main.c:80 src/widget-index.c:244
 msgid "Account"
 msgstr ""
 
@@ -470,54 +446,6 @@ msgstr ""
 msgid "Open the main window (default)"
 msgstr ""
 
-#: src/preferences.c:26
-msgid "Plain text"
-msgstr ""
-
-#: src/preferences.c:27
-msgid "HTML formatted"
-msgstr ""
-
-#: src/preferences.c:28
-msgid "Multithread"
-msgstr ""
-
-#: src/preferences.c:29
-msgid "Monothread"
-msgstr ""
-
-#: src/preferences.c:30
-msgid "Icons only"
-msgstr ""
-
-#: src/preferences.c:31
-msgid "Text only"
-msgstr ""
-
-#: src/preferences.c:32
-msgid "Icons & Text"
-msgstr ""
-
-#: src/preferences.c:33
-msgid "Use document specified fonts"
-msgstr ""
-
-#: src/preferences.c:34
-msgid "Always use my fonts"
-msgstr ""
-
-#: src/preferences.c:35
-msgid "Post Office Protocol 3 (POP3)"
-msgstr ""
-
-#: src/preferences.c:36
-msgid "Static Signature"
-msgstr ""
-
-#: src/preferences.c:37
-msgid "Dynamic Signature (output of commands)"
-msgstr ""
-
 #: src/preferences.c:205 src/widget-dialog-preferences.c:578
 #: src/widget-dialog-preferences.c:650
 msgid "General"
@@ -557,7 +485,7 @@ msgstr ""
 msgid "Advanced"
 msgstr ""
 
-#: src/preferences-trans.h:29 src/trans.h:204
+#: src/preferences-trans.h:29 src/trans.h:191
 #: src/widget-dialog-preferences.c:588
 msgid "Preferences"
 msgstr ""
@@ -607,40 +535,72 @@ msgstr ""
 msgid "Mailbox"
 msgstr ""
 
-#: src/widget-message-transfer.c:123
-msgid "Message Transfer"
-msgstr ""
-
-#: src/widget-message-transfer.c:150
-msgid ""
-"This window shows transfer of messages (incoming and outcoming).\n"
-"Clicking a row on the list you will get more information  the progress of "
-"the transfer"
-msgstr ""
-
-#: src/widget-message-transfer.c:268
-msgid "Waiting to get messages."
-msgstr ""
-
-#: src/widget-message-transfer.c:270
-msgid "Waiting to deliver a message."
-msgstr ""
-
-#: src/widget-message-transfer.c:491
-msgid "Connection established."
-msgstr ""
-
-#: src/widget-message-transfer.c:504
-msgid "Retrieving messages..."
-msgstr ""
-
-#: src/widget-message-transfer.c:506 src/widget-message-transfer.c:539
-msgid "No messages at server."
-msgstr ""
-
-#: src/widget-message-transfer.c:537
+#: src/widget-transfer-item.c:180
 #, c-format
-msgid "%d messages downloaded."
+msgid "Receive «%s»"
+msgstr ""
+
+#: src/widget-transfer-item.c:190
+msgid "This is a mail with a really long subject"
+msgstr ""
+
+#: src/widget-transfer-item.c:191
+#, c-format
+msgid "Send «%s»"
+msgstr ""
+
+#: src/widget-transfer-item.c:229
+msgid "Cancel the transfer"
+msgstr ""
+
+#: src/widget-transfer-item.c:297
+msgid "No Inbox mailbox"
+msgstr ""
+
+#: src/widget-transfer-item.c:321
+msgid "Resolving"
+msgstr ""
+
+#: src/widget-transfer-item.c:347
+msgid "Connecting"
+msgstr ""
+
+#: src/widget-transfer-item.c:406
+msgid "Login failed"
+msgstr ""
+
+#: src/widget-transfer-item.c:476
+#, c-format
+msgid "%u message."
+msgstr ""
+
+#: src/widget-transfer-item.c:478
+#, c-format
+msgid "%u messages."
+msgstr ""
+
+#: src/widget-transfer-item.c:492
+msgid "Receiving %v of %u"
+msgstr ""
+
+#: src/widget-transfer-item.c:507
+msgid "Completed"
+msgstr ""
+
+#: src/widget-transfer-list.c:113
+msgid "Stop all"
+msgstr ""
+
+#: src/widget-transfer-list.c:127
+msgid "Close when finished."
+msgstr ""
+
+#: src/widget-transfer-list.c:132
+msgid "Send & Receive"
+msgstr ""
+
+#: src/widget-transfer-list.c:222
+msgid "Cancelled."
 msgstr ""
 
 #: src/widget-window-main.c:187
@@ -659,11 +619,11 @@ msgstr ""
 msgid "%d messages, %d new."
 msgstr ""
 
-#: src/trans.h:205 src/widget-window-main.c:531
+#: src/trans.h:192 src/widget-window-main.c:531
 msgid "You found the Eastern Egg!"
 msgstr ""
 
-#: src/trans.h:206 src/widget-window-main.c:532
+#: src/trans.h:193 src/widget-window-main.c:532
 msgid "Neat, baby!"
 msgstr ""
 
@@ -673,6 +633,10 @@ msgstr ""
 
 #: src/widget-window-main.c:784
 msgid "New mailbox"
+msgstr ""
+
+#: src/widget-window-main.c:959
+msgid "Unable to create mailbox"
 msgstr ""
 
 #.
@@ -691,7 +655,7 @@ msgstr ""
 
 #: src/preferences-trans.h:12 src/preferences-trans.h:16
 #: src/preferences-trans.h:20 src/preferences-trans.h:23
-#: src/preferences-trans.h:214 src/trans.h:98 src/trans.h:203 src/trans.h:210
+#: src/preferences-trans.h:214 src/trans.h:98 src/trans.h:190 src/trans.h:197
 msgid "Error"
 msgstr ""
 
@@ -728,7 +692,7 @@ msgstr ""
 msgid "Confirmation"
 msgstr ""
 
-#: src/preferences-trans.h:30 src/trans.h:156
+#: src/preferences-trans.h:30
 msgid "Information"
 msgstr ""
 
@@ -1236,7 +1200,7 @@ msgid "Use Secure Server Layer (SSL)."
 msgstr ""
 
 #: src/preferences-trans.h:173 src/preferences-trans.h:189 src/trans.h:114
-#: src/trans.h:168 src/trans.h:212
+#: src/trans.h:155
 msgid "Username:"
 msgstr ""
 
@@ -1248,7 +1212,7 @@ msgstr ""
 msgid "Authentication method:"
 msgstr ""
 
-#: src/preferences-trans.h:178 src/preferences-trans.h:195 src/trans.h:214
+#: src/preferences-trans.h:178 src/preferences-trans.h:195
 msgid "Remember password."
 msgstr ""
 
@@ -1718,7 +1682,7 @@ msgstr ""
 msgid "Type here the hostname where this mailbox is stored"
 msgstr ""
 
-#: src/trans.h:115 src/trans.h:167 src/trans.h:213
+#: src/trans.h:115 src/trans.h:154
 msgid "Password:"
 msgstr ""
 
@@ -1833,79 +1797,43 @@ msgid "Archive mails (recommended)."
 msgstr ""
 
 #: src/trans.h:151
-msgid "Message Tranfer"
-msgstr ""
-
-#: src/trans.h:152
-msgid "Finished. Close this dialog."
-msgstr ""
-
-#: src/trans.h:153 src/trans.h:166
-msgid "Close"
-msgstr ""
-
-#: src/trans.h:154
-msgid "Task list"
-msgstr ""
-
-#: src/trans.h:157
-msgid "Subtasks"
-msgstr ""
-
-#: src/trans.h:158
-msgid "This bar shows how many subtasks there are for the current task"
-msgstr ""
-
-#: src/trans.h:159
-msgid "%v of %u [%P%%]"
-msgstr ""
-
-#: src/trans.h:160
-msgid "Progress of subtask"
-msgstr ""
-
-#: src/trans.h:161
-msgid "%u bytes [%P%%]"
-msgstr ""
-
-#: src/trans.h:162
-msgid "Close this dialog when task completes."
-msgstr ""
-
-#: src/trans.h:163
-msgid "Automatically close when finished."
-msgstr ""
-
-#: src/trans.h:164
 msgid "Incorrect Password"
 msgstr ""
 
-#: src/trans.h:165
+#: src/trans.h:152
 msgid "Try this new information"
 msgstr ""
 
-#: src/trans.h:169
+#: src/trans.h:153
+msgid "Close"
+msgstr ""
+
+#: src/trans.h:156
 msgid "Account:"
 msgstr ""
 
-#: src/trans.h:170
+#: src/trans.h:157
 msgid ""
 "The server has rejected the username/password\n"
-"combination: 'invalid username/password'.\n"
+"combination: "
+msgstr ""
+
+#: src/trans.h:159
+msgid ""
 "\n"
 "Provide the correct information for logging in\n"
 "in the following fields."
 msgstr ""
 
-#: src/trans.h:175
+#: src/trans.h:162
 msgid "Getting in Touch"
 msgstr ""
 
-#: src/trans.h:176
+#: src/trans.h:163
 msgid "Close this dialog"
 msgstr ""
 
-#: src/trans.h:177
+#: src/trans.h:164
 msgid ""
 "Getting in Touch:\n"
 "\n"
@@ -1920,12 +1848,13 @@ msgid ""
 "_E_-_M_a_i_l:\n"
 "\n"
 "To send a mail to the developers you should write to\n"
-"our mailing list: _c_r_o_n_o_s_I_I_-_d_e_v_e_l_o_p_e_r_@_l_i_s_t_s_."
-"_s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n"
+"our mailing list: "
+"_c_r_o_n_o_s_I_I_-_d_e_v_e_l_o_p_e_r_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_"
+"e_t.\n"
 "\n"
 "To contact other users of Cronos II send mail\n"
-"to the user's mailing list: _c_r_o_n_o_s_I_I_-_u_s_e_r_s_@_l_i_s_t_s_."
-"_s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n"
+"to the user's mailing list: "
+"_c_r_o_n_o_s_I_I_-_u_s_e_r_s_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n"
 "\n"
 "_I_R_C:\n"
 "\n"
@@ -1934,72 +1863,48 @@ msgid ""
 "_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 and the channel _#_c_r_o_n_o_s_I_I."
 msgstr ""
 
-#: src/trans.h:200
+#: src/trans.h:187
 msgid ""
 "There is no account configured yet.\n"
 "You need to do this before being\n"
 "able to compose mails."
 msgstr ""
 
-#: src/trans.h:207
+#: src/trans.h:194
 msgid ""
 "Not enough data was filled in,\n"
 "complete the missing data\n"
 "and try again."
 msgstr ""
 
-#: src/trans.h:211
-msgid "Login problem"
-msgstr ""
-
-#: src/trans.h:215
+#: src/trans.h:198
 msgid "Show both icons and text in the buttons"
 msgstr ""
 
-#: src/trans.h:216
+#: src/trans.h:199
 msgid "_Both"
 msgstr ""
 
-#: src/trans.h:217
+#: src/trans.h:200
 msgid "Show only the icons in the buttons"
 msgstr ""
 
-#: src/trans.h:218
+#: src/trans.h:201
 msgid "_Icons"
 msgstr ""
 
-#: src/trans.h:219
+#: src/trans.h:202
 msgid "Show just text in the buttons"
 msgstr ""
 
-#: src/trans.h:220
+#: src/trans.h:203
 msgid "_Text"
 msgstr ""
 
-#: src/trans.h:221
+#: src/trans.h:204
 msgid "Show tooltips of buttons"
 msgstr ""
 
-#: src/trans.h:222
+#: src/trans.h:205
 msgid "_Tooltips"
-msgstr ""
-
-#: src/widget-application.h:40
-msgid "Inbox"
-msgstr ""
-
-#: src/widget-application.h:41
-msgid "Outbox"
-msgstr ""
-
-#: src/widget-application.h:42
-msgid "Queue"
-msgstr ""
-
-#: src/widget-application.h:43
-msgid "Garbage"
-msgstr ""
-
-#: src/widget-application.h:44
-msgid "Drafts"
 msgstr ""

@@ -39,8 +39,8 @@ static void
 on_pop3_resolve								(GtkObject *object, C2TransferItem *ti);
 
 static gboolean
-on_pop3_login_failed						(GtkObject *object, const gchar *error, gchar **user,
-											 gchar **pass, C2TransferItem *ti);
+on_pop3_login_failed						(C2POP3 *pop3, const gchar *error, gchar **user,
+											 gchar **pass, pthread_mutex_t *mutex);
 
 static void
 on_pop3_status								(GtkObject *object, gint mails, C2TransferItem *ti);
@@ -300,14 +300,13 @@ c2_transfer_item_start (C2TransferItem *ti)
 				}
 				gtk_signal_emit_by_name (GTK_OBJECT (inbox), "changed_mailboxes");
 			}
-				
 			
-
 			gtk_signal_connect (GTK_OBJECT (pop3), "resolve",
 								GTK_SIGNAL_FUNC (on_pop3_resolve), ti);
 
-			gtk_signal_connect (GTK_OBJECT (pop3), "login_failed",
-								GTK_SIGNAL_FUNC (on_pop3_login_failed), ti);
+
+			gtk_object_set_data (GTK_OBJECT (pop3), "login_failed::data", ti);
+			C2_POP3_CLASS_FW (pop3)->login_failed = on_pop3_login_failed;
 
 			gtk_signal_connect (GTK_OBJECT (pop3), "status",
 								GTK_SIGNAL_FUNC (on_pop3_status), ti);
@@ -349,14 +348,59 @@ on_pop3_resolve (GtkObject *object, C2TransferItem *ti)
 	gdk_threads_leave ();
 }
 
+static void
+on_pop3_login_failed_ok_clicked (GtkWidget *widget, C2Pthread2 *data)
+{
+	pthread_mutex_t *lock = (pthread_mutex_t*) data->v1;
+	
+	GPOINTER_TO_INT (data->v2) = 0;
+	
+	pthread_mutex_unlock (lock);
+}
+
+static void
+on_pop3_login_failed_cancel_clicked (GtkWidget *widget, C2Pthread2 *data)
+{
+	pthread_mutex_t *lock = (pthread_mutex_t*) data->v1;
+	
+	GPOINTER_TO_INT (data->v2) = 1;
+	
+	pthread_mutex_unlock (lock);
+}
+
 static gboolean
-on_pop3_login_failed (GtkObject *object, const gchar *error, gchar **user, gchar **pass, C2TransferItem *ti)
+on_pop3_login_failed_dialog_delete_event (GtkWidget *widget, GdkEvent *e, C2Pthread2 *data)
+{
+	pthread_mutex_t *lock = (pthread_mutex_t*) data->v1;
+	
+	GPOINTER_TO_INT (data->v2) = 1;
+	
+	pthread_mutex_unlock (lock);
+	
+	return FALSE;
+}
+
+static gboolean
+on_pop3_login_failed (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pass, pthread_mutex_t *mutex)
 {
 	GladeXML *xml;
 	GtkWidget *dialog;
 	GtkWidget *contents;
+	C2TransferItem *ti;
+	C2Account *account;
+	C2Pthread2 *data;
+	pthread_mutex_t local_lock;
+	gchar *label, *buffer;
+	gint button;
 
+	account = C2_ACCOUNT (gtk_object_get_data (GTK_OBJECT (pop3), "account"));
+	data = g_new0 (C2Pthread2, 1);
+	pthread_mutex_init (&local_lock, NULL);
+	pthread_mutex_lock (&local_lock);
+	data->v1 = (gpointer) &local_lock;
+	
 	gdk_threads_enter ();
+	ti = C2_TRANSFER_ITEM (gtk_object_get_data (GTK_OBJECT (pop3), "login_failed::data"));
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_req_pass_contents");
 	contents = glade_xml_get_widget (xml, "dlg_req_pass_contents");
 	dialog = c2_dialog_new (ti->application, _("Login failed"), "req_pass",
@@ -364,12 +408,59 @@ on_pop3_login_failed (GtkObject *object, const gchar *error, gchar **user, gchar
 	C2_DIALOG (dialog)->xml = xml;
 	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox), contents, TRUE, TRUE, 0);
 	
-	switch (gnome_dialog_run (GNOME_DIALOG (dialog)))
-	{
-	}
+	contents = glade_xml_get_widget (xml, "error_label");
+	gtk_label_get (GTK_LABEL (contents), &buffer);
+	label = g_strdup_printf ("%s '%s'.", buffer, error);
+	gtk_label_set_text (GTK_LABEL (contents), label);
+	
+	contents = glade_xml_get_widget (xml, "account");
+	gtk_entry_set_text (GTK_ENTRY (contents), account->name);
+	contents = glade_xml_get_widget (xml, "user");
+	gtk_entry_set_text (GTK_ENTRY (contents), pop3->user);
+	contents = glade_xml_get_widget (xml, "pass");
+	gtk_entry_set_text (GTK_ENTRY (contents), pop3->pass);
+	gtk_widget_grab_focus (contents);
+	
+	gnome_dialog_button_connect (GNOME_DIALOG (dialog), 0,
+								GTK_SIGNAL_FUNC (on_pop3_login_failed_ok_clicked), data);
+	gnome_dialog_button_connect (GNOME_DIALOG (dialog), 1,
+								GTK_SIGNAL_FUNC (on_pop3_login_failed_cancel_clicked), data);
+	gtk_signal_connect (GTK_OBJECT (dialog), "delete_event",
+								GTK_SIGNAL_FUNC (on_pop3_login_failed_dialog_delete_event), data);
+	gtk_widget_show (dialog);
+	
 	gdk_threads_leave ();
-
-	return TRUE;
+	
+	pthread_mutex_lock (&local_lock);
+	pthread_mutex_unlock (&local_lock);
+	pthread_mutex_destroy (&local_lock);
+	
+	button = GPOINTER_TO_INT (data->v2);
+	gdk_threads_enter ();
+	if (!button)
+	{
+		gint nth;
+		
+		contents = glade_xml_get_widget (xml, "user");
+		*user = gtk_entry_get_text (GTK_ENTRY (contents));
+		contents = glade_xml_get_widget (xml, "pass");
+		*pass = gtk_entry_get_text (GTK_ENTRY (contents));
+		
+		nth = c2_account_get_position (ti->application->account, account);
+		buffer = g_strdup_printf ("/"PACKAGE"/Account %d/", nth);
+		gnome_config_push_prefix (buffer);
+		gnome_config_set_string ("incoming_username", pop3->user);
+		if (pop3->flags & C2_POP3_DO_NOT_LOSE_PASSWORD)
+			gnome_config_set_string ("incoming_password", pop3->pass);
+		gnome_config_pop_prefix ();
+		g_free (buffer);
+	}
+	
+	gtk_widget_destroy (dialog);
+	gdk_threads_leave ();
+	pthread_mutex_unlock (mutex);
+	
+	return !button;
 }
 
 static void

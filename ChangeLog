@@ -10,6 +10,7 @@ Tue Sep 20 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	  now being able to use a dynamic password for tring to log in.
 	* Fixed the bug in the Net Object that made it to be broken for
 	  more than one use.
+	* Fixed some stuff in configure.in.
 	* Fixed the bug that caused a crash when unselecting a 0 length
 	  mailbox.
 	* Fixed the bugs (3 bugs) that caused the status to act weird
