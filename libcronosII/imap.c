@@ -1733,19 +1733,28 @@ c2_imap_load_message (C2IMAP *imap, C2Db *db)
 	}
 	start += 2;
 	if(!(end = strstr(start, "\r\n\r\n")))
+	{
 		if(!(end = strstr(start, ")\r\nCronosII-")))
 		{
 			g_free(reply);
 		L	return NULL;
 		}
+		/* in this case, we don't have headers! */
+		message = c2_message_new();
+		message->header = NULL;
+		goto GET_BODY;
+	}
 	
 	message = c2_message_new();
 	message->header = g_strndup(start, end - start);
 	start = end + 4;
 	end = strstr(start, "OK FETCH completed");
 	end -= (C2TagLen + 5); /* C2TagLen + '\r\n)\r\n' */
-	message->body = g_strndup(start, end - start);
-
+GET_BODY:
+	if(end - start > 0) /* sanity check */
+		message->body = g_strndup(start, end - start);
+	else
+		message->body = NULL;
 	g_free(reply);
 
 	/* Strip all the \r */
