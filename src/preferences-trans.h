@@ -23,8 +23,7 @@ gchar *s = N_("Store a copy of outgoing messages in the Outbox mailbox.");
 gchar *s = N_("Check for mail at start up.");
 gchar *s = N_("Default MIME part to display:");
 gchar *s = N_("Options");
-gchar *s = N_("Name");
-gchar *s = N_("Type");
+gchar *s = N_("Account");
 gchar *s = N_("Name");
 gchar *s = N_("E-Mail");
 gchar *s = N_("Click this button to create a new account");
@@ -118,28 +117,18 @@ gchar *s = N_("Reply-To Address:");
 gchar *s = N_("Attach Address Book Card with outgoing mails");
 gchar *s = N_("Select Card");
 gchar *s = N_("Protocol Information");
-gchar *s = N_("Access Method:");
-gchar *s = N_("Post Office Protocol 3 (POP3)\n"
-              "Spool\n"
-              "");
-gchar *s = N_("Extra data");
+gchar *s = N_("Protocol data");
 gchar *s = N_("Port:");
 gchar *s = N_("Username:");
 gchar *s = N_("Password:");
 gchar *s = N_("Hostname:");
-gchar *s = N_("File:");
-gchar *s = N_("Browse...");
+gchar *s = N_("Leave downloaded messages in server.");
 gchar *s = N_("SMTP Options");
 gchar *s = N_("Remote SMTP Server.");
 gchar *s = N_("Local sendmail program (MUA).");
-gchar *s = N_("localhost");
 gchar *s = N_("Set Information");
-gchar *s = N_("Leave downloaded messages in server.");
 gchar *s = N_("Signature");
 gchar *s = N_("Type of signature:");
-gchar *s = N_("Static Signature\n"
-              "Dynamic Signature (output of commands)\n"
-              "");
 gchar *s = N_("Signature");
 gchar *s = N_("Automatically append this signature to outgoing messages.");
 gchar *s = N_("Account Options");
@@ -165,3 +154,24 @@ gchar *s = N_("\n"
               "");
 gchar *s = N_("Hostname:");
 gchar *s = N_("Port:");
+gchar *s = N_("This server requires authentication");
+gchar *s = N_("Authentication Information");
+gchar *s = N_("Username:");
+gchar *s = N_("Password:");
+gchar *s = N_("The Account name you\n"
+              "entered is not valid.");
+gchar *s = N_("Error");
+gchar *s = N_("You selected that you want to\n"
+              "use a remote SMTP server for\n"
+              "outgoing mails of this account,\n"
+              "but you didn't set the information\n"
+              "to contact it.\n"
+              "\n"
+              "Click the button labeled\n"
+              "'Set Information' to enter the\n"
+              "needed data.");
+gchar *s = N_("Error");
+gchar *s = N_("You didn't entered a valid hostname.");
+gchar *s = N_("Error");
+gchar *s = N_("You didn't entered a valid username.");
+gchar *s = N_("Error");

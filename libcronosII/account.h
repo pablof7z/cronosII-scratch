@@ -29,7 +29,6 @@ extern "C" {
 #	include "mailbox.h"
 #	include "pop3.h"
 #	include "smtp.h"
-#	include "spool.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -43,28 +42,36 @@ extern "C" {
 typedef struct _C2Account C2Account;
 typedef struct _C2AccountClass C2AccountClass;
 typedef enum _C2AccountType C2AccountType;
+typedef enum _C2AccountSignatureType C2AccountSignatureType;
 
 enum _C2AccountType
 {
-	C2_ACCOUNT_POP3,
-	C2_ACCOUNT_SPOOL
+	C2_ACCOUNT_POP3
+};
+
+enum _C2AccountSignatureType
+{
+	C2_ACCOUNT_SIGNATURE_STATIC,
+	C2_ACCOUNT_SIGNATURE_DYNAMIC
 };
 
 struct _C2Account
 {
 	GtkObject object;
-	
-	gchar *name;
 
+	gchar *name;
+	
 	gchar *per_name;
+	gchar *organization;
+	
 	gchar *email;
+	gchar *reply_to;
 
 	C2AccountType type;
 	
 	union
 	{
 		C2Pop3 *pop3;
-		C2Spool *spool;
 	} protocol;
 
 	C2Smtp *smtp;
@@ -76,8 +83,9 @@ struct _C2Account
 
 	struct
 	{
+		C2AccountSignatureType type;
 		gchar *string;
-		gboolean automatically;
+		gboolean automatic;
 	} signature;
 
 	struct _C2Account *next;
@@ -96,10 +104,12 @@ c2_account_get_type									(void);
 
 C2Account *
 c2_account_new										(const gchar *name, const gchar *per_name,
-													 const gchar *email, const gchar *smtp_addr,
-													 gint smtp_port, gboolean active,
-													 const gchar *signature, gboolean autosign,
-													 C2AccountType type, ...);
+													 const gchar *organization, const gchar *email,
+													 const gchar *reply_to, gboolean active,
+													 C2AccountType account_type, ...,
+													 C2SMTPType smtp_type, ...,
+													 C2AccountSignatureType type,
+													 const gchar *signature, gboolean signature_automatic);
 
 void
 c2_account_free										(C2Account *account);

@@ -663,6 +663,31 @@
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_FORWARD</stock_icon>
 	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>separator15</name>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkPixmapMenuItem</class>
+	      <name>recovery</name>
+	      <tooltip>Try to recover an expunged message</tooltip>
+	      <accelerator>
+		<modifiers>0</modifiers>
+		<key>GDK_F5</key>
+		<signal>activate</signal>
+	      </accelerator>
+	      <signal>
+		<name>activate</name>
+		<handler>on_recovery_activate</handler>
+		<last_modification_time>Mon, 04 Jun 2001 16:56:53 GMT</last_modification_time>
+	      </signal>
+	      <label>Reco_very</label>
+	      <right_justify>False</right_justify>
+	      <stock_icon>GNOME_STOCK_MENU_TRASH_FULL</stock_icon>
+	    </widget>
 	  </widget>
 	</widget>
 
@@ -1610,7 +1635,7 @@ is already taken.</message>
 	  <widget>
 	    <class>GtkLabel</class>
 	    <name>path_label</name>
-	    <label>Remote path:</label>
+	    <label>Path:</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
 	    <xalign>1</xalign>

@@ -20,6 +20,7 @@
 #include <glade/glade.h>
 
 #include <libcronosII/account.h>
+#include <libcronosII/smtp.h>
 
 #include "c2-app.h"
 #include "main-window.h"
@@ -31,6 +32,9 @@
 #define INTERFACE_TOOLBAR_STRING_BOTH _("Icons & Text")
 #define FONTS_SOURCE_STRING_USE_DOCUMENT _("Use document specified fonts")
 #define FONTS_SOURCE_STRING_USE_MY _("Always use my fonts")
+#define ACCOUNTS_NEW_PROTOCOL_TYPE_STRING_POP3 _("Post Office Protocol (POP3)")
+#define ACCOUNTS_NEW_SIGNATURE_TYPE_STRING_STATIC _("Static Signature")
+#define ACCOUNTS_NEW_SIGNATURE_TYPE_STRING_DYNAMIC _("Dynamic Signature (output of commands)")
 
 static void
 on_ok_btn_clicked								(void);
@@ -593,10 +597,6 @@ on_apply_btn_clicked (void)
 					gnome_config_set_int ("pop3.port", account->protocol.pop3->port);
 					gnome_config_set_int ("pop3.flags", account->protocol.pop3->flags);
 					break;
-				case C2_ACCOUNT_SPOOL:
-					gnome_config_set_string ("spool.file", account->protocol.spool->file);
-					gnome_config_set_int ("spool.flags", account->protocol.spool->flags);
-					break;
 			}
 			gnome_config_pop_prefix ();
 			g_free (buf);
@@ -808,12 +808,325 @@ on_accounts_clist_unselect_row (GtkCList *clist)
 	gtk_widget_set_sensitive (accounts_down_btn, FALSE);
 }
 
+static gboolean
+on_accounts_new_druidpagestandard1_next (GtkWidget *druid_page, GtkWidget *druid, GladeXML *xml)
+{
+	GtkWidget *w_name = glade_xml_get_widget (xml, "account_name");
+	GtkWidget *w_email = glade_xml_get_widget (xml, "email");
+	GtkWidget *w_clist = glade_xml_get_widget (preferences_xml, "accounts_clist");
+	gchar *name = gtk_entry_get_text (GTK_ENTRY (w_name));
+	gchar *email = gtk_entry_get_text (GTK_ENTRY (w_email));
+	gint i;
+	C2Account *account;
+	
+	/* 1. Consist the name of the account */
+	/* 2. Consist the email address */
+
+	/* (1) */
+	for (i = 0; i < GTK_CLIST (w_clist)->rows; i++)
+	{
+		account = gtk_clist_get_row_data (GTK_CLIST (w_clist), i);
+		if (c2_streq (account->name, name))
+		{
+			/* Taken name */
+			GladeXML *tmp_xml = glade_xml_new (C2_APP_GLADE_FILE ("preferences"),
+											"dlg_account_new_error_wrong_name");
+			gnome_dialog_run_and_close (GNOME_DIALOG (glade_xml_get_widget (tmp_xml,
+											"dlg_account_new_error_wrong_name")));
+			return TRUE;
+		}
+	}
+
+	if (!strlen (name))
+	{
+		GladeXML *tmp_xml = glade_xml_new (C2_APP_GLADE_FILE ("preferences"),
+											"dlg_account_new_error_wrong_name");
+		gnome_dialog_run_and_close (GNOME_DIALOG (glade_xml_get_widget (tmp_xml,
+											"dlg_account_new_error_wrong_name")));
+		return TRUE;
+	}
+
+	/* (2) */
+	if (!strlen (email))
+	{
+		GladeXML *tmp_xml = glade_xml_new (C2_APP_GLADE_FILE ("preferences"),
+											"dlg_account_new_error_wrong_email");
+		gnome_dialog_run_and_close (GNOME_DIALOG (glade_xml_get_widget (tmp_xml,
+											"dlg_account_new_error_wrong_email")));
+		return TRUE;
+	}
+	return FALSE;
+}
+
+static gboolean
+on_accounts_new_druidpagestandard2_next (GtkWidget *druid_page, GtkWidget *druid, GladeXML *xml)
+{
+	GtkWidget *protocol_type = glade_xml_get_widget (xml, "protocol_type");
+	GtkWidget *pop3_server_addr = glade_xml_get_widget (xml, "pop3_server_addr");
+	GtkWidget *pop3_username = glade_xml_get_widget (xml, "pop3_username");
+	GtkWidget *smtp_remote_btn = glade_xml_get_widget (xml, "smtp_remote_btn");
+	GtkWidget *smtp_remote_server_addr = glade_xml_get_widget (xml, "smtp_remote_server_addr");
+	GtkWidget *smtp_remote_server_port = glade_xml_get_widget (xml, "smtp_remote_server_port");
+	gchar *selection;
+	C2AccountType account_type;
+
+	/* Get the type of account */
+	if (GTK_BIN (protocol_type)->child)
+	{
+		GtkWidget *child = GTK_BIN (protocol_type)->child;
+		
+		if (GTK_LABEL (child))
+		{
+			gtk_label_get (GTK_LABEL (child), &selection);
+			if (c2_streq (selection, ACCOUNTS_NEW_PROTOCOL_TYPE_STRING_POP3))
+				account_type = C2_ACCOUNT_POP3;
+		}
+	}
+
+	switch (account_type)
+	{
+		case C2_ACCOUNT_POP3:
+			/* Check that the user entered some host and username */
+			if (!strlen (gtk_entry_get_text (GTK_ENTRY (pop3_server_addr))))
+			{
+				GladeXML *tmpxml = glade_xml_new (C2_APP_GLADE_FILE ("preferences"),
+													"dlg_account_new_error_pop3_no_host");
+				
+				gnome_dialog_run_and_close (GNOME_DIALOG (glade_xml_get_widget (tmpxml,
+													"dlg_account_new_error_pop3_no_host")));
+				return TRUE;
+			}
+
+			if (!strlen (gtk_entry_get_text (GTK_ENTRY (pop3_username))))
+			{
+				GladeXML *tmpxml = glade_xml_new (C2_APP_GLADE_FILE ("preferences"),
+													"dlg_account_new_error_pop3_no_user");
+				
+				gnome_dialog_run_and_close (GNOME_DIALOG (glade_xml_get_widget (tmpxml,
+													"dlg_account_new_error_pop3_no_user")));
+				return TRUE;
+			}
+			break;
+	}
+
+	if (GTK_TOGGLE_BUTTON (smtp_remote_btn)->active)
+	{
+		/* Check that the information of the remote SMTP server is complete */
+		if (!strlen (gtk_entry_get_text (GTK_ENTRY (smtp_remote_server_addr))))
+		{
+			GladeXML *tmpxml = glade_xml_new (C2_APP_GLADE_FILE ("preferences"),
+												"dlg_account_new_error_no_smtp_info");
+			
+			gnome_dialog_run_and_close (GNOME_DIALOG (glade_xml_get_widget (tmpxml,
+												"dlg_account_new_error_no_smtp_info")));
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+static void
+on_accounts_new_smtp_btn_clicked (GtkWidget *widget, GladeXML *xml)
+{
+	GtkWidget *smtp_remote_btn = glade_xml_get_widget (xml, "smtp_remote_btn");
+	GtkWidget *smtp_remote_information_btn = glade_xml_get_widget (xml, "smtp_remote_information_btn");
+
+	gtk_widget_set_sensitive (smtp_remote_information_btn, GTK_TOGGLE_BUTTON (smtp_remote_btn)->active);
+}
+
+static void
+on_accounts_new_smtp_remote_information_btn_clicked_authentication_btn_clicked (GtkWidget *widget, GladeXML *xml)
+{
+	GtkWidget *authentication_frame = glade_xml_get_widget (xml, "authentication_frame");
+	
+	if (GTK_TOGGLE_BUTTON (widget)->active)
+		gtk_widget_show (authentication_frame);
+	else
+		gtk_widget_hide (authentication_frame);
+}
+
+static void
+on_accounts_new_smtp_remote_information_btn_clicked (GtkWidget *widget, GladeXML *xml)
+{
+	GladeXML *tmpxml = glade_xml_new (C2_APP_GLADE_FILE ("preferences"), "dlg_smtp_server");
+	GtkWidget *dialog = glade_xml_get_widget (tmpxml, "dlg_smtp_server");
+	GtkWidget *smtp_remote_server_addr = glade_xml_get_widget (xml, "smtp_remote_server_addr");
+	GtkWidget *smtp_remote_server_port = glade_xml_get_widget (xml, "smtp_remote_server_port");
+	GtkWidget *smtp_remote_authentication = glade_xml_get_widget (xml, "smtp_remote_authentication");
+	GtkWidget *smtp_remote_server_username = glade_xml_get_widget (xml, "smtp_remote_username");
+	GtkWidget *smtp_remote_server_password = glade_xml_get_widget (xml, "smtp_remote_password");
+	GtkWidget *hostname = glade_xml_get_widget (tmpxml, "hostname");
+	GtkWidget *port = glade_xml_get_widget (tmpxml, "port");
+	GtkWidget *authentication = glade_xml_get_widget (tmpxml, "authentication");
+	GtkWidget *username = glade_xml_get_widget (tmpxml, "username");
+	GtkWidget *password = glade_xml_get_widget (tmpxml, "password");
+
+	gtk_signal_connect (GTK_OBJECT (authentication), "toggled",
+						GTK_SIGNAL_FUNC (on_accounts_new_smtp_remote_information_btn_clicked_authentication_btn_clicked), tmpxml);
+	gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (hostname)->entry),
+						gtk_entry_get_text (GTK_ENTRY (smtp_remote_server_addr)));
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (port),
+						gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (smtp_remote_server_port)));
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (authentication),
+						GTK_TOGGLE_BUTTON (smtp_remote_authentication)->active);
+	gtk_entry_set_text (GTK_ENTRY (username),
+						gtk_entry_get_text (GTK_ENTRY (smtp_remote_server_username)));
+	gtk_entry_set_text (GTK_ENTRY (password),
+						gtk_entry_get_text (GTK_ENTRY (smtp_remote_server_password)));
+	
+	switch (GTK_TOGGLE_BUTTON (smtp_remote_authentication)->active)
+	{
+		case 0:
+			gtk_widget_hide (glade_xml_get_widget (tmpxml, "authentication_frame"));
+			break;
+		case 1:
+			gtk_widget_show (glade_xml_get_widget (tmpxml, "authentication_frame"));
+			break;
+	}
+			
+
+	switch (gnome_dialog_run (GNOME_DIALOG (dialog)))
+	{
+		case 0:
+			gtk_entry_set_text (GTK_ENTRY (smtp_remote_server_addr),
+								gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (hostname)->entry)));
+			gtk_spin_button_set_value (GTK_SPIN_BUTTON (smtp_remote_server_port),
+								gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (port)));
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (smtp_remote_authentication),
+								GTK_TOGGLE_BUTTON (authentication)->active);
+			gtk_entry_set_text (GTK_ENTRY (smtp_remote_server_username),
+								gtk_entry_get_text (GTK_ENTRY (username)));
+			gtk_entry_set_text (GTK_ENTRY (smtp_remote_server_password),
+								gtk_entry_get_text (GTK_ENTRY (password)));
+		case 1:
+			gnome_dialog_close (GNOME_DIALOG (dialog));
+	}
+}
+
+static void
+on_accounts_new_druidpagefinish1_finish (GnomeDruidPage *druid_page, GtkWidget *druid, GladeXML *xml)
+{
+	gchar *account_name, *person_name, *organization, *email, *replyto, *pop3_host,
+			*pop3_user, *pop3_pass, *smtp_host, *smtp_user, *smtp_pass,
+			*signature;
+	gint pop3_port, smtp_port;
+	gboolean active, smtp_authentication, keep_copy, signature_automatic;
+	C2AccountType account_type;
+	C2AccountSignatureType signature_type;
+	C2SMTPType smtp_type;
+	C2Account *account;
+	gchar *selection;
+	GtkWidget *buf;
+	
+	/* Collect the data */
+	account_name = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "account_name")));
+	person_name = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "person_name")));
+	organization = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "organization")));
+	email = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "email")));
+	replyto = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "reply_to")));
+	active = GTK_TOGGLE_BUTTON (glade_xml_get_widget (xml, "include_account"))->active;
+
+	buf = glade_xml_get_widget (xml, "protocol_type");
+	if (GTK_BIN (buf)->child)
+	{
+		GtkWidget *child = GTK_BIN (buf)->child;
+		
+		if (GTK_LABEL (child))
+		{
+			gtk_label_get (GTK_LABEL (child), &selection);
+			if (c2_streq (selection, ACCOUNTS_NEW_PROTOCOL_TYPE_STRING_POP3))
+				account_type = C2_ACCOUNT_POP3;
+		}
+	}
+
+	if (account_type == C2_ACCOUNT_POP3)
+	{
+		pop3_host = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "pop3_server_addr")));
+		pop3_port = gtk_spin_button_get_value_as_int (
+								GTK_SPIN_BUTTON (glade_xml_get_widget (xml, "pop3_server_port")));
+		pop3_user = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "pop3_username")));
+		pop3_pass = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "pop3_password")));
+	}
+	
+	if (GTK_TOGGLE_BUTTON (glade_xml_get_widget (xml, "smtp_remote_btn"))->active)
+		smtp_type = C2_SMTP_REMOTE;
+	else
+		smtp_type = C2_SMTP_LOCAL;
+
+	if (smtp_type == C2_SMTP_REMOTE)
+	{
+		smtp_host = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "smtp_remote_server_addr")));
+		smtp_port = gtk_spin_button_get_value_as_int (
+								GTK_SPIN_BUTTON (glade_xml_get_widget (xml, "smtp_remote_server_port")));
+		smtp_authentication = GTK_TOGGLE_BUTTON (glade_xml_get_widget
+										(xml, "smtp_remote_authentication"))->active;
+		smtp_user = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "smtp_remote_username")));
+		smtp_pass = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "smtp_remote_password")));
+	}
+
+	keep_copy = GTK_TOGGLE_BUTTON (glade_xml_get_widget (xml, "leave_messages"))->active;
+
+	buf = glade_xml_get_widget (xml, "signature_type");
+	if (GTK_BIN (buf)->child)
+	{
+		GtkWidget *child = GTK_BIN (buf)->child;
+		
+		if (GTK_LABEL (child))
+		{
+			gtk_label_get (GTK_LABEL (child), &selection);
+			if (c2_streq (selection, ACCOUNTS_NEW_SIGNATURE_TYPE_STRING_STATIC))
+				signature_type = C2_ACCOUNT_SIGNATURE_STATIC;
+			else
+				signature_type = C2_ACCOUNT_SIGNATURE_DYNAMIC;
+		}
+	}
+
+	signature = gtk_editable_get_chars (GTK_EDITABLE (glade_xml_get_widget (xml, "signature_text")), 0, -1);
+	signature_automatic = GTK_TOGGLE_BUTTON (glade_xml_get_widget (xml, "signature_automatic"))->active;
+	gtk_widget_destroy (glade_xml_get_widget (xml, "dlg_account_new"));
+}
+
 static void
 on_accounts_new_btn_clicked (void)
 {
 	GladeXML *xml = glade_xml_new (C2_APP_GLADE_FILE ("preferences"), "dlg_account_new");
 	GtkWidget *dialog = glade_xml_get_widget (xml, "dlg_account_new");
+	GtkWidget *druidpagestandard1 = glade_xml_get_widget (xml, "druidpagestandard1");
+	GtkWidget *druidpagestandard2 = glade_xml_get_widget (xml, "druidpagestandard2");
+	GtkWidget *druidpagefinish1 = glade_xml_get_widget (xml, "druidpagefinish1");
+	GtkWidget *smtp_remote_btn = glade_xml_get_widget (xml, "smtp_remote_btn");
+	GtkWidget *smtp_remote_information_btn = glade_xml_get_widget (xml, "smtp_remote_information_btn");
+	GtkWidget *smtp_local = glade_xml_get_widget (xml, "smtp_local");
+	GtkWidget *protocol_type = glade_xml_get_widget (xml, "protocol_type");
+	GtkWidget *signature_type = glade_xml_get_widget (xml, "signature_type");
+	GtkWidget *menu;
 
+	menu = gtk_menu_item_new_with_label (ACCOUNTS_NEW_PROTOCOL_TYPE_STRING_POP3);
+	gtk_widget_show (menu);
+	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (protocol_type)->menu), menu);
+	gtk_option_menu_set_history (GTK_OPTION_MENU (protocol_type), 0);
+
+	menu = gtk_menu_item_new_with_label (ACCOUNTS_NEW_SIGNATURE_TYPE_STRING_STATIC);
+	gtk_widget_show (menu);
+	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (signature_type)->menu), menu);
+	menu = gtk_menu_item_new_with_label (ACCOUNTS_NEW_SIGNATURE_TYPE_STRING_DYNAMIC);
+	gtk_widget_show (menu);
+	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (signature_type)->menu), menu);
+	gtk_option_menu_set_history (GTK_OPTION_MENU (signature_type), 0);
+	
+	gtk_signal_connect (GTK_OBJECT (druidpagestandard1), "next",
+						GTK_SIGNAL_FUNC (on_accounts_new_druidpagestandard1_next), xml);
+	gtk_signal_connect (GTK_OBJECT (druidpagestandard2), "next",
+						GTK_SIGNAL_FUNC (on_accounts_new_druidpagestandard2_next), xml);
+	gtk_signal_connect (GTK_OBJECT (druidpagefinish1), "finish",
+						GTK_SIGNAL_FUNC (on_accounts_new_druidpagefinish1_finish), xml);
+	gtk_signal_connect (GTK_OBJECT (smtp_remote_btn), "clicked",
+						GTK_SIGNAL_FUNC (on_accounts_new_smtp_btn_clicked), xml);
+	gtk_signal_connect (GTK_OBJECT (smtp_remote_information_btn), "clicked",
+						GTK_SIGNAL_FUNC (on_accounts_new_smtp_remote_information_btn_clicked), xml);
+	gtk_signal_connect (GTK_OBJECT (smtp_local), "clicked",
+						GTK_SIGNAL_FUNC (on_accounts_new_smtp_btn_clicked), xml);
 	gtk_widget_show (dialog);
 }
 

@@ -31,6 +31,14 @@ extern "C" {
 #	include <cronosII.h>
 #endif
 
+typedef enum _C2SMTPType C2SMTPType;
+
+enum _C2SMTPType
+{
+	C2_SMTP_REMOTE,
+	C2_SMTP_LOCAL
+};
+
 enum
 {
 	C2_SMTP_DO_PERSIST			= 1 << 0,	/* Will keep the connection alive for future requests */

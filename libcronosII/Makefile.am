@@ -5,6 +5,7 @@ libcronosII_a_SOURCES = \
 	db.c				db.h						\
 	db-cronosII.c		db-cronosII.h				\
 	db-imap.c			db-imap.h					\
+	db-spool.c			db-spool.h					\
 	error.c				error.h						\
 						i18n.h						\
 	mailbox.c			mailbox.h					\
@@ -13,7 +14,6 @@ libcronosII_a_SOURCES = \
 	pop3.c				pop3.h						\
 	request.c			request.h					\
 	smtp.c				smtp.h						\
-	spool.c				spool.h						\
 	utils.c				utils.h						\
 	utils-date.c		utils-date.h				\
 	utils-net.c			utils-net.h
