@@ -68,7 +68,7 @@ cache_index (C2Mailbox *mailbox)
 
 	path = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name,
 							".mbx" G_DIR_SEPARATOR_S "index", NULL);
-	if (!(mailbox->protocol.cronosII.fd = fopen (path, "rt+")))
+	if (!(mailbox->protocol.cronosII.fd = fopen (path, "r+")))
 	{
 		g_free (path);
 		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
@@ -453,7 +453,7 @@ c2_db_cronosII_compact (C2Mailbox *mailbox, size_t *cbytes, size_t *tbytes)
 	/* Open the index file */
 	ipath = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name,
 							".mbx" G_DIR_SEPARATOR_S "index", NULL);
-	if (!(ifd = fopen (ipath, "rt+")))
+	if (!(ifd = fopen (ipath, "r+")))
 	{
 			c2_error_object_set (GTK_OBJECT (mailbox), -errno);
 			g_free (ipath);
@@ -463,7 +463,7 @@ c2_db_cronosII_compact (C2Mailbox *mailbox, size_t *cbytes, size_t *tbytes)
 
 	/* Open the temp file */
 	tpath = c2_get_tmp_file ("c2-index-XXXXXXX");
-	if (!(tfd = fopen (tpath, "wt")))
+	if (!(tfd = fopen (tpath, "w")))
 	{
 		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
 		fclose (ifd);
@@ -687,7 +687,7 @@ c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 
 	/* Now write to its own file */
 	buf = g_strdup_printf ("%s" C2_HOME "%s.mbx/%d", g_get_home_dir (), mailbox->name, db->mid);
-	if (!(fd = fopen (buf, "wt")))
+	if (!(fd = fopen (buf, "w")))
 	{
 		g_free (buf);
 		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
