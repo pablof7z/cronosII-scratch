@@ -2,7 +2,7 @@
 <sect3 id="account-dialog">
 <title>The Account Setup Dialog</title>
 <para>
-&app; supports the use of multiple accounts using separate identities and various mail transfer protocols. These include POP, APOP, SMTP and your local mail spool (e.g. Sendmail).
+&app; supports the use of multiple accounts using separate identities and various mail transfer protocols. These include POP, APOP, SMTP, IMAP and your local mail spool (e.g. Sendmail).
 </para>
 <example>
 <title>Setting up an Initial Account</title>
@@ -15,27 +15,47 @@ Settings => Preferences => General => Accounts => Add
 <orderedlist>
 <listitem>
 <para>
-A Druid with some introductory text appears. Choose "Next".
+The Account Editor Druid  with some introductory text appears.  Choose "Next".
 </para>
 </listitem>
 <listitem><para> Identity</para>
-<para>Here you will find two areas where you will need to enter some required and optional informaation. The first area is the Unique Name (or Identity) you want to be called on this account and the email address for this account. The second area is Optional Information where you can choose to enter an Organisation Name and separate Reply To address if this needs be different to the above address.</para>
-<para>Once you have entered an email address you may select "Next" to move on.</para>
+<para>Here you will find two areas where you will need to enter some required and optional information. The first area is the name (or Identity) you want ,  and the email address for this account. The second area is Optional Information where you can choose to enter an Organisation Name and separate Reply To address. If this needs be different to the above address.</para>
+<para>Once you have entered an email address you may select "Next" to move on to the next step.</para>
 </listitem>
 <listitem<para> Incoming Mail</para>
-<para>This page of the Dialog asks for Mail Server Protocol Information. This relates to the INCOMING  mail server &app; will be connecting to. You need this information to have a working account. If you don't know the information you should ask your Internet Service Provider (ISP) and/or the System Adminstrator on networked systems. </para> <para>First Select a Mail Server Protocol from the fold out list.
+<para>This page of the Dialog asks for Mail Server Protocol information. This relates to the INCOMING  mail server &app; will be connecting to. You need this information to have a working account. If you don't know the information you should ask your Internet Service Provider (ISP) and/or the System Administrator on networked systems. </para> <para>First Select a Mail Server Protocol from the fold out list.
 The most common are POP3 and IMAP.</para>
 <para>Next you need to enter the Hostname of the Mail Server. A common format is " pop.yourisp.com". Change the Server listening Port number if you know that it is not 110.</para>
 <para>
 Now you need to enter your Username at the Mail Server. (try the account name)</para>
 <para>The following Toggle Button enables Secure Server Layer (SSL) modes. (You should know about this if you need it.)</para>
-<para>Finally choose an Authentification method. This is so the Server knows it is you calling. The password is entered later and is the password given to you by your ISP or Systems Administrator. Currently there is Password and APOP. </para>
-<para>Do you want &app; to remember your password for you ? If so check the  last button and then select 'Next" from the navigation buttons at the bottom of the dialog. </para>
+<para>Finally choose an Authentication method. This is so the Server knows it is you calling. The password is entered later and is the password given to you by your ISP or Systems Administrator. Currently there is Password and APOP. </para>
+<para>Do you want &app; to remember your password for you ? If so check the  last toggle button and then select 'Next" from the navigation buttons at the bottom of the dialog. </para>
 </listitem>
-<listitem><para>SMTP</para></listitem>
-<listitem><para></para></listitem>
+<listitem>
+	<para>Outgoing Mail</para>
+	<para>This next step on the configuration journey is mostly about the Simple Mail Transfer Protocol (SMTP).
+This is the method used near universally for SENDING mail across the Internet.</para>
+	<para>Once again you are presented with a brief introduction and some entry areas to fill in.</para>
+	<para>Firstly select a protocol from the  fold out list. (SMTP by default)</para>
+	<para>Then enter the SMTP servers Hostname into the next text entry field.</para>
+	<para>Next enter your Username at the SMTP server </para>
+<listitem>
+	  <para>Most probably this server will require you to authenticate yourself. If so check that the next toggle button is selected.</para>
+	  <para>Are you going to be using the Secure Server Layer (SSL) protocol ? If so check the adjacent toggle button.</para>
+	  <para>Finally choose an Authentication method then  and to save your password (or not) for this SMTP server.</para>
+</listitem>
+<listitem><para>Options</para>
+<para>Set some optional extras</para>
+<para>This final page of the Account Editor druid enables you to set some extra features per account.</para>
+<para>The first text entry area is for entering a unique name for each account. Each account name must be unique so that &app; can manage it individually.</para>
+<para>The Signature file section lets you choose a file to append to each mail from this account in text and HTML format. The
+ browse buttons to the right of each area open a standard file selection dialog so that you may choose a file.</para>
+<para>The Server Access area allows you to hold mail on the Server, even if you are using a POP account. You may set an optional  length of time you wish mail to be held from the second area of this section.</para>
+<para>Finally you have the Option of including this account every time you select "Check" from the Main Window.</para>
+<para> Select "Next" to complete this account configuration. A final page will open giving you the opportunity to abort or complete this Account Configuration.</para> </listitem>
+<listitem><para>You may edit your new account at any time by opening the Account Editor Druid, selecting the account from your list of accounts, and choosing Edit instead of Add.</para></listitem>
 </orderedlist>
 </example>
-
 
 </sect3>

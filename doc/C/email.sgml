@@ -13,9 +13,9 @@
 <listitem><para>The Mail Servers " Listening"  Port Number. (default settings are provided by &app;) </para></listitem>
 <listitem><para>The access password for that Mail Server. (This may be different from your normal login password and should be different to your local password.) </para></listitem>
 
-<listitem><para> </para></listitem>
-<listitem><para> </para></listitem>
-<listitem><para> </para></listitem>
+<listitem><para>The SMTP server Hostname  </para></listitem>
+<listitem><para>The SMTP password  </para></listitem>
+<listitem><para>Your Username at the SMTP server </para></listitem>
 </orderedlist>
 </sect2>
 </sect1>

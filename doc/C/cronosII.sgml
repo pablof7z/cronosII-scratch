@@ -4,22 +4,30 @@
 <!-- !DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[-->
 <!ENTITY version "C2 Scratch"> 
 <!ENTITY manver "Version: 3.0.0">
+<!-- Developers-->
+
+<!ENTITY andre "digitalcoder@users.sourceforge.net">
+<!ENTITY arne "arnem@informatik.uni-bremen.de">
+<!ENTITY bosko "falling@users.sourceforge.net">
+<!ENTITY jason "FIXME">
+<!ENTITY jeremy "witti@onramp.net">
+<!ENTITY marc "mustangg@users.sourceforge.net">
 <!ENTITY pablo "cronosii@users.sourceforge.net">
 <!ENTITY pete "petergozz@users.sourceforge.net">
-<!ENTITY bosko "falling@users.sourceforge.net">
-<!ENTITY arne "arnem@informatik.uni-bremen.de">
-<!ENTITY andre "digitalcoder@users.sourceforge.net">
 <!ENTITY pier "m3tr0@dei.unipd.it">
-<!ENTITY jeremy "witti@onramp.net">
 <!ENTITY spaghetty "spaghetty@libero.it">
+<!ENTITY tamas "crown@users.sourceforge.net">
 <!ENTITY yves "ymettier@libertysurf.fr">
-<!ENTITY marc "mustangg@users.sourceforge.net">
+<!-- Application and Project -->
+
 <!ENTITY app "Cronos II">
 <!ENTITY website "http://cronosii.sourceforge.net/">
 <!ENTITY developers "CronosII-Hackers@lists.sourceforge.net">
 <!ENTITY users "CronosII-users@lists.sourceforge.net ">
 <!ENTITY security "cronosii-security@lists.sourceforge.net">
 <!ENTITY announce "cronosii-announce@lists.sourceforge.net">
+<!-- Documents to include (and sequence) -->
+
 <!ENTITY FDL SYSTEM "fdl.sgml"> 
 <!ENTITY mainwindow SYSTEM "mainwindow.sgml">
 <!ENTITY preferences SYSTEM "preferences.sgml">
@@ -127,4 +135,7 @@ aim for reliability, simplicity, speed and flexibility while gradually increasin
 &plugins;
 &bugs;
 &authors;
+<!--
+&gtk-brief;
+&latest;-->
 </article>
