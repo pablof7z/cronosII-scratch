@@ -42,7 +42,7 @@ extern "C" {
 #	define C2_ACCOUNT(obj)						(GTK_CHECK_CAST (obj, C2_TYPE_ACCOUNT, C2Account))
 #	define C2_ACCOUNT_CLASS(klass)				(GTK_CHECK_CLASS (klass, C2_TYPE_ACCOUNT, C2Account))
 #else
-#	define C2_ACCOUNT(obj)						((C2Account*)obk)
+#	define C2_ACCOUNT(obj)						((C2Account*)obj)
 #	define C2_ACCOUNT_CLASS(klass)				((C2AccountClass*)klass)
 #endif
 #define C2_IS_ACCOUNT(obj)						(GTK_CHECK_TYPE (obj, C2_TYPE_ACCOUNT))
