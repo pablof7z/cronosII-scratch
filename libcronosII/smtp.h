@@ -92,8 +92,6 @@ struct _C2SMTP
 	
 	C2SMTPType type;
 
-	gchar *host; /* This should be deleted, this info is in netobject */
-	gint port; /* This should be deleted too */
 	gboolean ssl;
 	gboolean authentication;
 	gchar *user, *pass;

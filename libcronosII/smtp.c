@@ -162,8 +162,6 @@ class_init (C2SMTPClass *klass)
 static void
 init (C2SMTP *smtp)
 {
-	smtp->host = NULL;
-	smtp->port = 25;
 	smtp->ssl = FALSE;
 	smtp->authentication = FALSE;
 	smtp->user = NULL;
@@ -186,9 +184,6 @@ destroy (GtkObject *object)
 	
 	c2_smtp_set_error(smtp, NULL);
 	
-	if (smtp->host)
-		g_free(smtp->host);
-	
 	if(smtp->user)
 		g_free(smtp->user);
 	
@@ -208,6 +203,8 @@ C2SMTP *
 c2_smtp_new (C2SMTPType type, ...)
 {
 	C2SMTP *smtp;
+	gchar *host;
+	gint port;
 	va_list args;
 
 	smtp = gtk_type_new (C2_TYPE_SMTP);
@@ -220,22 +217,20 @@ c2_smtp_new (C2SMTPType type, ...)
 		case C2_SMTP_REMOTE:
 			smtp->smtp_local_cmd = NULL;
 			va_start (args, type);
-			smtp->host = g_strdup (va_arg (args, const gchar *));
-			smtp->port = va_arg (args, gint);
+			host = g_strdup (va_arg (args, const gchar *));
+			port = va_arg (args, gint);
 			smtp->ssl = va_arg (args, gint);
 			smtp->authentication = va_arg (args, gboolean);
 			smtp->user = g_strdup (va_arg (args, const gchar *));
 			smtp->pass = g_strdup (va_arg (args, const gchar *));
 			va_end (args);
-			c2_net_object_construct(C2_NET_OBJECT(smtp), smtp->host, smtp->port, smtp->ssl);
-		c2_net_object_set_maximum(C2_NET_OBJECT(smtp), 0); /* default for now */
+			c2_net_object_construct(C2_NET_OBJECT(smtp), host, port, smtp->ssl);
+			c2_net_object_set_maximum(C2_NET_OBJECT(smtp), 0); /* default for now */
 			break;
 		case C2_SMTP_LOCAL:
 			va_start (args, type);
 			smtp->smtp_local_cmd = g_strdup (va_arg(args, const gchar*));
 			va_end (args);
-			smtp->host = NULL;
-			smtp->port = 0;
 			smtp->ssl = 0;
 			smtp->authentication = FALSE;
 			smtp->user = NULL;
@@ -262,6 +257,9 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 
 	gtk_object_ref (GTK_OBJECT (message));
 
+	smtp->uses++;
+	if(!smtp->in_use.lock) c2_mutex_lock(&smtp->in_use);
+	
 	if(smtp->type == C2_SMTP_REMOTE) 
 	{
 		c2_mutex_lock(&smtp->lock);
@@ -271,6 +269,8 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 		{
 			if(c2_smtp_connect(smtp, &byte) < 0)
 			{
+				smtp->uses--;
+				if(!smtp->uses) c2_mutex_unlock(&smtp->in_use);
 				gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 				return -1;
 			}
@@ -279,16 +279,18 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 			smtp->persistent = byte;
 		else
 			smtp->persistent = NULL;
-		smtp->uses++;
-		if(!smtp->in_use.lock) c2_mutex_lock(&smtp->in_use);
 		if(smtp->flags & C2_SMTP_DO_NOT_PERSIST) c2_mutex_unlock(&smtp->lock);
 		if(c2_smtp_send_headers(smtp, byte, message) < 0)
 		{	
+			smtp->uses--;
+			if(!smtp->uses) c2_mutex_unlock(&smtp->in_use);
 			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
 		if(c2_smtp_send_message_contents(smtp, byte, message, id) < 0)
 		{
+			smtp->uses--;
+			if(!smtp->uses) c2_mutex_unlock(&smtp->in_use);
 			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
@@ -296,6 +298,8 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp, byte);
+			smtp->uses--;
+			if(!smtp->uses) c2_mutex_unlock(&smtp->in_use);
 			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
@@ -303,6 +307,8 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 		{
 			c2_smtp_set_error(smtp, SOCK_READ_FAILED);
 			smtp_disconnect(smtp, byte);
+			smtp->uses--;
+			if(!smtp->uses) c2_mutex_unlock(&smtp->in_use);
 			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
@@ -311,6 +317,8 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 			c2_smtp_set_error(smtp, _("SMTP server did not respond to our sent messaage in a friendly way"));
 			g_free(buffer);
 			smtp_disconnect(smtp, byte);
+			smtp->uses--;
+			if(!smtp->uses) c2_mutex_unlock(&smtp->in_use);
 			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
@@ -691,9 +699,6 @@ smtp_disconnect(C2SMTP *smtp, C2NetObjectByte *byte)
 	
 	if(smtp->persistent == byte)
 		smtp->persistent = NULL;
-	smtp->uses--;
-	if(!smtp->uses)
-		c2_mutex_unlock(&smtp->in_use);
 }
 
 static gint
