@@ -1,3 +1,8 @@
+Thu Apr 26 Bosko Blagojevic <falling at users dot sf dot net>
+	* Yea! A few more bug fixes to get c2 to work on freebsd.
+	  Now it can start on freebsd w/ no crashes and few
+	  warnings.
+
 Mon Apr 15 Bosko Blagojevic <falling at users dot sf dot net>
 	* A few warning fixes in libcronosII/.
 	* A little work in IMAP.
