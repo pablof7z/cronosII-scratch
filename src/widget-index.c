@@ -209,6 +209,9 @@ c2_index_construct (C2Index *index, C2Application *application, C2IndexMode mode
 				label = gtk_label_new (_("Account")); break;
 			case 7:
 				label = gtk_label_new (NULL); break;
+			default:
+				g_assert_not_reached ();
+				return;
 		}
 
 		gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
@@ -262,9 +265,6 @@ add_message (C2Application *application, GtkCList *clist, C2Db *db, const gchar 
 		NULL, NULL, NULL, db->subject, db->from, NULL, db->account, g_strdup_printf ("%d", db->position)
 	};
 	gchar *tmp = g_strdup_printf ("%d", db->mid);
-	gchar *info[] = {
-		NULL, NULL, NULL, db->subject, db->from, NULL, db->account, tmp
-	};
 	
 	tm = localtime (&db->date);
 	row[5] = g_new (gchar, 128);
@@ -312,7 +312,6 @@ reload (C2Index *index)
 {
 	C2Db *db;
 	GtkCList *clist = GTK_CLIST (GTK_WIDGET (index));
-	C2Application *application = index->application;
 	gchar *date_fmt;
 	gint selected_mail;
 
@@ -362,7 +361,7 @@ set_selected_mail (C2Index *index, gint i)
 {
 	C2Mailbox *mailbox = index->mailbox;
 
-	gtk_object_set_data (GTK_OBJECT (mailbox), SELECTED_MAIL, (gpointer) i+1);
+	gtk_object_set_data (GTK_OBJECT (mailbox), SELECTED_MAIL, (gpointer) (i+1));
 }
 
 void

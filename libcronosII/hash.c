@@ -17,6 +17,7 @@
  */
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
+#include <stdlib.h>
 
 #include "hash.h"
 

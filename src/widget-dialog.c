@@ -16,6 +16,11 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <libcronosII/error.h>
+#include <config.h>
+#include <gnome.h>
+#ifdef USE_GNOME_WINDOW_ICON
+#	include <libgnomeui/gnome-window-icon.h>
+#endif
 
 #include "widget-dialog.h"
 
@@ -91,20 +96,31 @@ destroy (GtkObject *object)
 
 	if (dialog->xml)
 		gtk_object_unref (GTK_OBJECT (dialog->xml));
+
+	g_free (gtk_object_get_data (object, "type"));
+	g_free (gtk_object_get_data (object, "icon"));
 }
 
 GtkWidget *
-c2_dialog_new (C2Application *application, const gchar *title, const gchar *type, ...)
+c2_dialog_new (C2Application *application, const gchar *title, const gchar *type, const gchar *icon, ...)
 {
 	C2Dialog *dialog;
 	va_list args;
 
 	dialog = gtk_type_new (c2_dialog_get_type ());
-	va_start (args, type);
+	va_start (args, icon);
 	gnome_dialog_construct (GNOME_DIALOG (dialog), title, args);
 	va_end (args);
 	dialog->application = application;
 	gtk_object_set_data (GTK_OBJECT (dialog), "type", g_strdup (type));
+
+	if (icon)
+	{
+		gtk_object_set_data (GTK_OBJECT (dialog), "icon", g_strdup (icon));
+#ifdef USE_GNOME_WINDOW_ICON
+		gnome_window_icon_set_from_file (GTK_WINDOW (dialog), icon);
+#endif
+	}
 
 	c2_application_window_add (application, GTK_WINDOW (dialog));
 
@@ -113,12 +129,19 @@ c2_dialog_new (C2Application *application, const gchar *title, const gchar *type
 
 void
 c2_dialog_construct (C2Dialog *dialog, C2Application *application, const gchar *title,
-const gchar *type, const gchar **buttons)
+const gchar *type, const gchar *icon, const gchar **buttons)
 {
 	dialog->application = application;
 
 	gnome_dialog_constructv (GNOME_DIALOG (dialog), title, buttons);
 	gtk_object_set_data (GTK_OBJECT (dialog), "type", g_strdup (type));
+	if (icon)
+	{
+		gtk_object_set_data (GTK_OBJECT (dialog), "icon", g_strdup (icon));
+#ifdef USE_GNOME_WINDOW_ICON
+		gnome_window_icon_set_from_file (GTK_WINDOW (dialog), icon);
+#endif
+	}
 
 	c2_application_window_add (application, GTK_WINDOW (dialog));
 }

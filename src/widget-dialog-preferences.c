@@ -31,6 +31,30 @@
 #include "widget-sidebar.h"
 
 /* Internal Functions */
+#define TOGGLE_FUNCTION_DEFINITION(__section__, __name__) \
+	static void \
+	on_##__section__##_##__name__##_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+	
+#define SPIN_FUNCTION_DEFINITION(__section__, __name__) \
+	static gint \
+	on_##__section__##_##__name__##_focus_out_event (GtkWidget *widget, GdkEventFocus *event, \
+													 C2DialogPreferences *preference); \
+	static void \
+	on_##__section__##_##__name__##_activate (GtkWidget *widget, C2DialogPreferences *preferences)
+	
+#define ENTRY_FUNCTION_DEFINITION(__section__, __name__) \
+	static void \
+	on_##__section__##_##__name__##_changed (GtkWidget *widget, C2DialogPreferences *preferences)
+
+#define FONT_FUNCTION_DEFINITION(__section__, __name__) \
+	static void \
+	on_##__section__##_##__name__##_font_set (GtkWidget *widget, gchar *font, \
+											  C2DialogPreferences *preferences)
+
+#define COLOR_FUNCTION_DEFINITION(__section__, __name__) \
+	static void \
+	on_##__section__##_##__name__##_color_set (GtkWidget *widget, guint r, guint g, guint b, \
+												guint a, C2DialogPreferences *preferences)
 
 static void
 class_init									(C2DialogPreferencesClass *klass);
@@ -51,43 +75,16 @@ on_sidebar_subsection_selected				(C2Sidebar *sidebar, const gchar *section, con
 static void
 on_close_clicked							(GtkWidget *widget, C2DialogPreferences *preferences);
 
-static void
-on_general_options_start_check_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
-	
-static void
-on_general_options_start_load_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
-	
-static void
-on_general_options_exit_expunge_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
-	
-static gint
-on_general_options_timeout_mark_focus_out_event	(GtkWidget *widget, GdkEventFocus *event,
-											C2DialogPreferences *preferences);
-
-static void
-on_general_options_timeout_mark_activate	(GtkWidget *widget, C2DialogPreferences *preferences);
-	
-static gint
-on_general_options_timeout_check_focus_out_event	(GtkWidget *widget, GdkEventFocus *event,
-											C2DialogPreferences *preferences);
-
-static void
-on_general_options_timeout_check_activate	(GtkWidget *widget, C2DialogPreferences *preferences);
-	
-static void
-on_general_options_incoming_warn_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
-
-static void
-on_general_options_outgoing_sent_items_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
-
-static void
-on_general_options_delete_use_trash_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
-
-static void
-on_general_options_delete_confirmation_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
-
-static void
-on_general_options_delete_archive_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
+TOGGLE_FUNCTION_DEFINITION (general_options, start_check);
+TOGGLE_FUNCTION_DEFINITION (general_options, start_load);
+TOGGLE_FUNCTION_DEFINITION (general_options, exit_expunge);
+SPIN_FUNCTION_DEFINITION (general_options, timeout_mark);
+SPIN_FUNCTION_DEFINITION (general_options, timeout_check);
+TOGGLE_FUNCTION_DEFINITION (general_options, incoming_warn);
+TOGGLE_FUNCTION_DEFINITION (general_options, outgoing_sent_items);
+TOGGLE_FUNCTION_DEFINITION (general_options, delete_use_trash);
+TOGGLE_FUNCTION_DEFINITION (general_options, delete_confirmation);
+TOGGLE_FUNCTION_DEFINITION (general_options, delete_archive);
 
 static void
 on_general_accounts_clist_select_row		(GtkWidget *widget, gint row, gint column,
@@ -99,6 +96,9 @@ on_general_accounts_clist_unselect_row		(GtkWidget *widget, gint row, gint colum
 
 static void
 general_accounts_update_list				(C2DialogPreferences *preferences);
+
+static void
+general_accounts_update_conf				(C2DialogPreferences *preferences);
 
 static void
 on_general_accounts_add_clicked				(GtkWidget *pwidget, C2DialogPreferences *preferences);
@@ -115,42 +115,21 @@ on_general_accounts_up_clicked				(GtkWidget *pwidget, C2DialogPreferences *pref
 static void
 on_general_accounts_down_clicked			(GtkWidget *pwidget, C2DialogPreferences *preferences);
 
-static void
-on_general_paths_save_changed				(GtkWidget *widget, C2DialogPreferences *preferences);
-
-static void
-on_general_paths_get_changed				(GtkWidget *widget, C2DialogPreferences *preferences);
-
-static void
-on_general_paths_smart_toggled				(GtkWidget *widget, C2DialogPreferences *preferences);
-
-static void
-on_interface_fonts_readed_mails_font_set	(GtkWidget *widget, gchar *font, C2DialogPreferences *preferences);
-
-static void
-on_interface_fonts_unreaded_mails_font_set	(GtkWidget *widget, gchar *font, C2DialogPreferences *preferences);
-
-static void
-on_interface_fonts_unreaded_mailbox_font_set(GtkWidget *widget, gchar *font, C2DialogPreferences *preferences);
-
+ENTRY_FUNCTION_DEFINITION (general_paths, save);
+ENTRY_FUNCTION_DEFINITION (general_paths, get);
+TOGGLE_FUNCTION_DEFINITION (general_paths, smart);
+FONT_FUNCTION_DEFINITION (interface_fonts, readed_mails);
+FONT_FUNCTION_DEFINITION (interface_fonts, unreaded_mails);
+FONT_FUNCTION_DEFINITION (interface_fonts, unreaded_mailbox);
 #ifdef USE_ADVANCED_EDITOR
-static void
-on_interface_fonts_composer_body_activate	(GtkWidget *widget, C2DialogPreferences *preferences);
-
-static void
-on_interface_fonts_composer_body_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
-												 C2DialogPreferences *preferences);
+ENTRY_FUNCTION_DEFINITION (interface_fonts, composer_body);
 #else
-static void
-on_interface_fonts_composer_body_font_set	(GtkWidget *widget, gchar *font, C2DialogPreferences *preferences);
+FONT_FUNCTION_DEFINITION (interface_fonts, composer_body);
 #endif
-
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
-static void
-on_interface_fonts_message_body_changed		(GtkWidget *widget, C2DialogPreferences *preferences);
+ENTRY_FUNCTION_DEFINITION (interface_fonts, message_body);
 #else
-static void
-on_interface_fonts_message_body_font_set	(GtkWidget *widget, gchar *font, C2DialogPreferences *preferences);
+FONT_FUNCTION_DEFINITION (interface_fonts, message_body);
 #endif
 
 static void
@@ -159,9 +138,7 @@ on_interface_html_links_default_toggled		(GtkWidget *widget, C2DialogPreferences
 static void
 on_interface_html_links_mailto_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
 
-static void
-on_interface_composer_quote_color_color_set		(GtkWidget *widget, guint r, guint g, guint b,
-												 guint a, C2DialogPreferences *preferences);
+COLOR_FUNCTION_DEFINITION (interface_composer, quote_color);
 
 static void
 on_interface_composer_editor_internal_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
@@ -169,78 +146,8 @@ on_interface_composer_editor_internal_toggled	(GtkWidget *widget, C2DialogPrefer
 static void
 on_interface_composer_editor_external_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
 
-static void
-on_interface_composer_editor_external_cmnd_changed	(GtkWidget *widget, C2DialogPreferences *preferences);
-
-static void
-on_interface_misc_date_changed				(GtkWidget *widget, C2DialogPreferences *preferences);
-
-static void
-on_interface_misc_date_focus_out_event		(GtkWidget *widget, GdkEventFocus *event,
-											 C2DialogPreferences *preferences);
-
-static void
-on_general_accounts_identity_name_changed		(GtkWidget *widget, C2Window *window);
-
-static void
-on_general_accounts_identity_email_changed		(GtkWidget *widget, C2Window *window);
-
-static void
-on_general_accounts_incoming_host_changed		(GtkWidget *widget, C2Window *window);
-
-static void
-on_general_accounts_incoming_user_changed		(GtkWidget *widget, C2Window *window);
-
-static void
-on_general_accounts_outgoing_host_changed		(GtkWidget *widget, C2Window *window);
-
-static void
-on_general_accounts_outgoing_user_changed		(GtkWidget *widget, C2Window *window);
-
-static void
-on_general_accounts_outgoing_auth_required_toggled (GtkWidget *button, C2Window *window);
-
-static void
-on_general_accounts_options_account_changed		(GtkWidget *widget, C2Window *window);
-
-static void
-on_general_accounts_incoming_protocol_selection_done	(GtkWidget *pwidget, C2Window *window);
-
-static void
-on_general_accounts_outgoing_server_protocol_selection_done	(GtkWidget *pwidget, C2Window *window);
-
-static void
-on_general_accounts_options_multiple_access_leave_toggled	(GtkWidget *button, C2Window *window);
-
-static void
-on_general_accounts_options_multiple_access_remove_toggled	(GtkWidget *button, C2Window *window);
-
-static gboolean
-on_general_accounts_druid_page0_next		(GnomeDruidPage *druid_page, GtkWidget *druid,
-												C2Window *window);
-
-static gint
-general_accounts_get_next_account_number	(void);
-
-static gboolean
-on_general_accounts_druid_page1_next		(GnomeDruidPage *druid_page, GtkWidget *druid,
-												C2Window *window);
-
-static gboolean
-on_general_accounts_druid_page2_next		(GnomeDruidPage *druid_page, GtkWidget *druid,
-												C2Window *window);
-
-static gboolean
-on_general_accounts_druid_page3_next		(GnomeDruidPage *druid_page, GtkWidget *druid,
-												C2Window *window);
-
-static gboolean
-on_general_accounts_druid_page4_next		(GnomeDruidPage *druid_page, GtkWidget *druid,
-												C2Window *window);
-
-static void
-on_general_accounts_druid_page5_finish		(GnomeDruidPage *druid_page, GtkWidget *druid,
-												C2Window *window);
+ENTRY_FUNCTION_DEFINITION (interface_composer, editor_external_cmnd);
+ENTRY_FUNCTION_DEFINITION (interface_misc, date);
 
 /* Widget Stuff */
 enum
@@ -537,7 +444,6 @@ set_values (C2DialogPreferences *preferences)
 	gchar *charv;
 	GtkWidget *widgetv;
 	GladeXML *xml;
-	gchar *buf;
 	gint r, g, b;
 
 	xml = C2_DIALOG (preferences)->xml;
@@ -718,14 +624,14 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 		{ NULL, NULL, NULL }
 	};
 	GtkWidget *sidebar, *widget, *container;
-	GtkStyle *style;
 
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"), "dlg_preferences_contents");
 	
-	c2_dialog_construct (C2_DIALOG (preferences), application, _("Preferences"), "preferences", buttons);
+	c2_dialog_construct (C2_DIALOG (preferences), application, _("Preferences"), "preferences", NULL, buttons);
 	C2_DIALOG (preferences)->xml = xml;
 	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (preferences)->vbox), glade_xml_get_widget (xml,
 							"dlg_preferences_contents"), TRUE, TRUE, 0);
+	gnome_dialog_button_connect (GNOME_DIALOG (preferences), 1, on_close_clicked, preferences);
 
 	/* Construct the pages */
 	widget = gnome_stock_pixmap_widget_at_size (GTK_WIDGET (preferences), GNOME_STOCK_PIXMAP_ADD, 18, 18);
@@ -853,6 +759,12 @@ on_sidebar_subsection_selected (C2Sidebar *sidebar, const gchar *section, const 
 	gtk_notebook_set_page (notebook, page);
 }
 
+static void
+on_close_clicked (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gtk_widget_destroy (GTK_WIDGET (preferences));
+}
+
 
 
 #define FUNCTION_CONSTRUCTOR(__vartype__, __val__, __secname__, __SECNAME__) \
@@ -891,6 +803,7 @@ on_sidebar_subsection_selected (C2Sidebar *sidebar, const gchar *section, const 
 		FUNCTION_CONSTRUCTOR (gfloat, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (widget)), \
 							  ##__section__##_##__name__##, \
 							  ##__SECTION__##_##__NAME__##) \
+		return FALSE; \
 	} \
 	 \
 	static void \
@@ -1052,7 +965,7 @@ general_accounts_update_conf (C2DialogPreferences *preferences)
 {
 	C2Application *application;
 	C2Account *account;
-	C2AccountType type;
+	C2AccountType type = 0;
 	C2SMTP *smtp;
 	gchar *charv, *buf;
 	gboolean boolv;
@@ -1099,10 +1012,7 @@ general_accounts_update_conf (C2DialogPreferences *preferences)
 			gnome_config_set_string ("incoming_server_password", pop3->pass);
 			gnome_config_set_bool ("incoming_server_ssl", C2_NET_OBJECT (pop3)->ssl);
 			gnome_config_set_int ("incoming_auth_method", pop3->auth_method);
-			if (pop3->flags & C2_POP3_DO_NOT_LOSE_PASSWORD)
-				gnome_config_set_bool ("incoming_auth_remember", TRUE);
-			else
-				gnome_config_set_bool ("incoming_auth_remember", FALSE);
+			gnome_config_set_bool ("incoming_auth_remember", c2_pop3_get_save_password (pop3));
 			if (pop3->flags & C2_POP3_DO_NOT_KEEP_COPY)
 				gnome_config_set_bool ("options_multiple_access_leave", TRUE);
 			else
@@ -1201,7 +1111,7 @@ on_general_accounts_remove_clicked (GtkWidget *pwidget, C2DialogPreferences *pre
 	{
 		case 0:
 			{
-				C2Account *prev, *account, *next;
+				C2Account *account;
 				GtkWidget *widget;
 				gint row;
 
@@ -1481,7 +1391,7 @@ c2_dialog_preferences_account_editor_new (C2Application *application, C2DialogPr
 	
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"), "dlg_account_editor_contents");
 	
-	window = c2_window_new (application, _("Account Editor"), "account_editor");
+	window = c2_window_new (application, _("Account Editor"), "account_editor", NULL);
 	C2_WINDOW (window)->xml = xml;
 	c2_window_set_contents_from_glade (C2_WINDOW (window), "dlg_account_editor_contents");
 	
@@ -1535,8 +1445,7 @@ c2_dialog_preferences_account_editor_new (C2Application *application, C2DialogPr
 			gtk_option_menu_set_history (GTK_OPTION_MENU (widget), pop3->auth_method);
 
 			widget = glade_xml_get_widget (xml, "incoming_auth_remember");
-			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget),
-											pop3->flags & C2_POP3_DO_NOT_LOSE_PASSWORD);
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), c2_pop3_get_save_password (pop3));
 		} else if (account->type == C2_ACCOUNT_IMAP)
 		{
 			C2IMAP *imap = C2_IMAP (c2_account_get_extra_data (account, C2_ACCOUNT_KEY_INCOMING, NULL));
@@ -1704,7 +1613,7 @@ process_page_identity (GladeXML *xml)
 {
 	GtkWidget *next, *widget;
 	gboolean sensitive = TRUE;
-	gchar *buf, *buf2;
+	gchar *buf;
 
 	next = GNOME_DRUID (glade_xml_get_widget (xml, "dlg_account_editor_contents"))->next;
 
@@ -1941,7 +1850,6 @@ static void
 on_account_editor_outgoing_protocol_selection_done(GtkWidget *pwidget, C2Window *window)
 {
 	GladeXML *xml = C2_WINDOW (window)->xml;
-	GtkWidget *menu = glade_xml_get_widget (xml, "outgoing_server_protocol");
 	GtkWidget *widget;
 	gchar *selection;
 
@@ -2141,19 +2049,17 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 	GtkWidget *widget;
 	GladeXML *xml;
 	C2Account *account;
-	GtkWidget *menu;
 	gchar *buf, *buf2, *selection;
 	gint integer;
 	gboolean boolean, boolean2;
-	C2AccountType type;
-	C2SMTPType outgoing_type;
+	C2AccountType type = 0;
+	C2SMTPType outgoing_type = 0;
 	C2SMTP *smtp;
 	gint nth;
 
 	xml = C2_WINDOW (window)->xml;
 
 	nth = general_accounts_get_next_account_number ();
-	printf ("Next: %d\n", nth);
 	
 	buf = g_strdup_printf ("/"PACKAGE"/Account %d/", nth);
 	gnome_config_push_prefix (buf);
@@ -2206,7 +2112,6 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 	if (type == C2_ACCOUNT_POP3)
 	{
 		C2POP3 *pop3;
-		gint flags = 0;
 		gchar *user, *pass = NULL;
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_hostname");
@@ -2260,10 +2165,7 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 			}
 		}
 
-		if (boolean)
-			c2_pop3_set_flags (pop3, pop3->flags | C2_POP3_DO_NOT_LOSE_PASSWORD);
-		else
-			c2_pop3_set_flags (pop3, pop3->flags | C2_POP3_DO_LOSE_PASSWORD);
+		c2_pop3_set_save_password (pop3, boolean);
 
 		widget = glade_xml_get_widget (xml, "options_multiple_access_leave");
 		boolean = GTK_TOGGLE_BUTTON (widget)->active;

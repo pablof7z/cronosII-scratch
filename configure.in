@@ -220,6 +220,7 @@ if test "$gconf" = "yes"; then
 		AC_MSG_CHECKING(gconf-config path)
 		AC_MSG_ERROR([the gconf-config script could not be found.])
 	else
+		GCONFCFLAGS=`gconf-config --cflags`
 		GCONFLIBS=`gconf-config --libs`
 		AC_DEFINE(USE_GCONF)
 		FEATURES="$FEATURES GConf"
@@ -371,15 +372,25 @@ AC_DEFINE_UNQUOTED(C2_PLUGIN_VERSION_MAJOR, $C2_PLUGIN_VERSION_MAJOR)
 AC_DEFINE_UNQUOTED(C2_PLUGIN_VERSION_MINOR, $C2_PLUGIN_VERSION_MINOR)
 AC_DEFINE_UNQUOTED(C2_PLUGIN_VERSION_MICRO, $C2_PLUGIN_VERSION_MICRO)
 AC_SUBST(HTMLLIBS)
+AC_SUBST(GCONFCFLAGS)
 AC_SUBST(GCONFLIBS)
 AC_SUBST(BONOBOLIBS)
 AC_SUBST(LIBS)
+if test "$debug" = "yes"; then
+	CFLAGS="$CFLAGS -Wparentheses -Wpointer-arith -Wnested-externs -Wimplicit-function-declaration -Wreturn-type -Wstrict-prototypes -Wuninitialized -Wunused"
+fi
 AC_SUBST(CFLAGS)
 AC_SUBST(FEATURES)
 AC_SUBST(LIBOBJS)
 AC_SUBST(LIBGLADE_CFLAGS)
 AC_SUBST(LIBGLADE_LIBS)
 AC_SUBST(BUILDTIME)
+URL="http://www.cronosII.net/"
+HACKERS_LIST="cronosII-hackers@lists.sourceforge.net"
+USERS_LIST="cronosII-users@lists.sourceforge.net"
+AC_SUBST(URL)
+AC_SUBST(HACKERS_LIST)
+AC_SUBST(USERS_LIST)
 
 AC_OUTPUT([
 doc/Makefile
@@ -403,6 +414,7 @@ Makefile
 about.html
 bugs.html
 features.html
+touch.html
 welcome.html
 cronosII.spec
 cronosII-config

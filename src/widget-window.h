@@ -65,13 +65,16 @@ struct _C2WindowClass
 	GnomeAppClass parent_class;
 };
 
+GtkType
+c2_window_get_type							(void);
+
 GtkWidget *
 c2_window_new								(C2Application *application, const gchar *title,
-											 const gchar *type);
+											 gchar *type, gchar *icon);
 
 void
 c2_window_construct							(C2Window *window, C2Application *application,
-											 const gchar *title, const gchar *type);
+											 const gchar *title, gchar *type, gchar *icon);
 
 void
 c2_window_set_contents						(C2Window *window, GtkWidget *widget);
@@ -84,6 +87,8 @@ c2_window_report							(C2Window *window, C2WindowReportType type, const gchar *
 
 void
 c2_window_set_activity						(C2Window *window, gboolean state);
+
+#define c2_window_set_window_icon(w,i)		gtk_object_set_data (GTK_OBJECT (w), "icon", i)
 
 #ifdef __cplusplus
 }

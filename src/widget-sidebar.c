@@ -178,7 +178,6 @@ c2_sidebar_set_contents (C2Sidebar *sidebar, C2SidebarSection *list)
 		
 		for (sl = l->subsection; sl->name; sl++)
 		{
-			GdkPixbuf *pixbuf;
 			GtkWidget *box;
 			
 			button = gtk_radio_button_new (bgroup);

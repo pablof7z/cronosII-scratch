@@ -27,6 +27,7 @@
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
+#include "main.h"
 #include "preferences.h"
 #include "widget-application.h"
 
@@ -180,7 +181,7 @@ c2_install_new (void)
 	style->fg[2] = white;
 	style->fg[3] = white;
 	style->fg[4] = white;
-	style->font = gdk_font_load ("-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1");
+	style->font = gdk_font_load (c2_font_bold);
 	gtk_widget_set_style (widget, style);
 	gtk_widget_set_style (GTK_BIN (widget)->child, style);
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
@@ -338,7 +339,7 @@ on_start_btn_clicked_thread (GladeXML *xml)
 	GtkWidget *druid, *error_page, *finish_page;
 	gint i, retval, length;
 	gchar *row[] = { NULL, NULL };
-	gchar *argv1, *argv2, *argv3, *action_str, *error_str;
+	gchar *argv1, *argv2, *argv3, *action_str = NULL, *error_str = NULL;
 
 	gdk_threads_enter ();
 

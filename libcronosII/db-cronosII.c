@@ -20,6 +20,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "i18n.h"
 #include "db.h"
@@ -50,7 +52,6 @@ c2_db_cronosII_create_structure (C2Mailbox *mailbox)
 {
 	gchar *path = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name,
 								".mbx" G_DIR_SEPARATOR_S, NULL);
-	FILE *fd;
 
 	if (mkdir (path, 0700) < 0)
 	{
@@ -71,6 +72,7 @@ c2_db_cronosII_create_structure (C2Mailbox *mailbox)
 gboolean
 c2_db_cronosII_update_structure (C2Mailbox *mailbox)
 {
+	return TRUE;
 }
 
 gboolean
@@ -194,7 +196,7 @@ c2_db_cronosII_thaw (C2Mailbox *mailbox)
 gint
 c2_db_cronosII_load (C2Mailbox *mailbox)
 {
-	C2Db *head = NULL, *current = NULL, *next;
+	C2Db *current = NULL, *next;
 	gchar *line, *buf;
 	gboolean mark;
 	FILE *fd;
@@ -389,7 +391,7 @@ c2_db_cronosII_message_set_state (C2Db *db, C2MessageState state)
 	mailbox = db->mailbox;
 	
 	if (!(fd = get_index (mailbox, READ_WRITE, NULL)))
-		return -1;
+		return;
 
 	fseek (fd, 0, SEEK_SET);
 
@@ -466,5 +468,5 @@ c2_db_cronosII_load_message (C2Db *db)
 C2Message *
 c2_db_cronosII_message_get (C2Db *db, gint mid)
 {
-	
+	return NULL;
 }

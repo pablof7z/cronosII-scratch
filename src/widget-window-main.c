@@ -38,9 +38,6 @@
 #include "widget-index.h"
 #include "widget-window-main.h"
 
-/* [NOTE]: ADD IN on_application_window_changed
- *         OTHER ICONS FOR WINDOW THAT HAVE ICONS. */
-
 #define MAILBOX_TYPE_CRONOSII				"Cronos II"
 #define MAILBOX_TYPE_IMAP					"IMAP"
 #define MAILBOX_TYPE_SPOOL					_("Spool (local)")
@@ -119,6 +116,12 @@ static void
 on_docktoolbar_button_press_event			(GtkWidget *widget, GdkEventButton *event, C2WindowMain *wmain);
 
 static void
+on_menubar_file_new_message_activate		(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_file_new_mailbox_activate		(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_menubar_file_new_window_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
@@ -150,6 +153,18 @@ on_menubar_message_move_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_menubar_message_delete_activate			(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_settings_preferences_activate	(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_help_getting_in_touch_activate	(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_help_release_information_activate	(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_help_about_activate				(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_toolbar_changed							(GtkWidget *widget, C2WindowMain *wmain);
@@ -218,19 +233,7 @@ static void
 on_mlist_button_press_event					(GtkWidget *widget, GdkEvent *event, C2WindowMain *wmain);
 
 static void
-on_file_new_mailbox_activate				(GtkWidget *widget, C2WindowMain *wmain);
-
-static void
 on_eastern_egg_separator_activate			(GtkWidget *widget, C2WindowMain *wmain);
-
-static void
-on_settings_preferences_activate			(GtkWidget *widget, C2WindowMain *wmain);
-
-static void
-on_about_activate							(GtkWidget *widget, C2WindowMain *wmain);
-
-static void
-on_help_release_information_activate		(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_mnu_toolbar_text_beside_icons_activate	(GtkWidget *widget, C2WindowMain *wmain);
@@ -467,13 +470,10 @@ void
 c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 {
 	GladeXML *xml;
-	GtkWidget *window;
+	GtkWidget *window = NULL;
 	GtkWidget *widget;
-	GtkWidget *toolbar;
 	GtkWidget *hpaned;
 	GtkWidget *vpaned;
-	GtkWidget *ctree;
-	GtkCList *clist;
 	GtkWidget *index_scroll;
 	GtkWidget *button;
 	GtkWidget *pixmap;
@@ -483,7 +483,7 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gint toolbar_style;
 	gint i;
 
-	c2_window_construct (C2_WINDOW (wmain), application, "Cronos II", "Main");
+	c2_window_construct (C2_WINDOW (wmain), application, "Cronos II", "wmain", NULL);
 	gtk_signal_connect (GTK_OBJECT (application), "window_changed",
 						GTK_SIGNAL_FUNC (on_application_window_changed), wmain);
 
@@ -622,6 +622,7 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gtk_paned_add2 (GTK_PANED (widget), wmain->mail);
 	gtk_widget_show (wmain->mail);
 	c2_mail_install_hints (C2_MAIL (wmain->mail), appbar, &C2_WINDOW (wmain)->status_lock);
+	c2_mail_set_headers_visible (C2_MAIL (wmain->mail), c2_preferences_get_widget_mail_headers_visible ());
 
 	/* Button */
 	button = glade_xml_get_widget (xml, "appbar_button");
@@ -633,8 +634,10 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "docktoolbar")), "button_press_event",
 							GTK_SIGNAL_FUNC (on_docktoolbar_button_press_event), wmain);
 	
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_new_message")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_file_new_message_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_new_mailbox")), "activate",
-							GTK_SIGNAL_FUNC (on_file_new_mailbox_activate), wmain);
+							GTK_SIGNAL_FUNC (on_menubar_file_new_mailbox_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_new_window")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_file_new_window_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_send_unsent_mails")), "activate",
@@ -662,12 +665,14 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_menubar_message_delete_activate), wmain);
 	
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "settings_preferences")), "activate",
-							GTK_SIGNAL_FUNC (on_settings_preferences_activate), wmain);
+							GTK_SIGNAL_FUNC (on_menubar_settings_preferences_activate), wmain);
 	
-	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "help_about")), "activate",
-							GTK_SIGNAL_FUNC (on_about_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "help_getting_in_touch")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_help_getting_in_touch_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "help_release_information")), "activate",
-							GTK_SIGNAL_FUNC (on_help_release_information_activate), wmain);
+							GTK_SIGNAL_FUNC (on_menubar_help_release_information_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "help_about")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_help_about_activate), wmain);
 
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (wmain->toolbar_menu, "text_beside_icons")), "activate",
 							GTK_SIGNAL_FUNC (on_mnu_toolbar_text_beside_icons_activate), wmain);
@@ -778,7 +783,8 @@ copy_thread (C2Pthread4 *data)
 		/* Configure the progress bar */
 		progress = GTK_PROGRESS (GNOME_APPBAR (widget)->progress);
 		gtk_progress_configure (progress, 0, 0, length);
-	}
+	} else
+		progress = NULL;
 
 	if (status_ownership)
 	{
@@ -832,7 +838,6 @@ copy_thread (C2Pthread4 *data)
 static void
 copy (C2WindowMain *wmain)
 {
-	GtkWidget *widget;
 	C2Mailbox *fmailbox, *tmailbox;
 	C2Pthread4 *data;
 	pthread_t thread;
@@ -903,7 +908,8 @@ delete_thread (C2Pthread3 *data)
 		/* Configure the progress bar */
 		progress = GTK_PROGRESS (GNOME_APPBAR (widget)->progress);
 		gtk_progress_configure (progress, 0, 0, length);
-	}
+	} else
+		progress = NULL;
 
 	if (status_ownership)
 	{
@@ -1018,9 +1024,9 @@ exit_ (C2WindowMain *wmain)
 static void
 expunge_thread (C2WindowMain *wmain)
 {
-	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
+/*	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
 	
-	c2_db_message_remove (mailbox, GTK_CLIST (wmain->index)->selection);
+	c2_db_message_remove (mailbox, GTK_CLIST (wmain->index)->selection);*/
 }
 
 static void
@@ -1094,7 +1100,8 @@ move_thread (C2Pthread4 *data)
 		/* Configure the progress bar */
 		progress = GTK_PROGRESS (GNOME_APPBAR (widget)->progress);
 		gtk_progress_configure (progress, 0, 0, length);
-	}
+	} else
+		progress = NULL;
 
 	if (status_ownership)
 	{
@@ -1160,7 +1167,6 @@ move_thread (C2Pthread4 *data)
 static void
 move (C2WindowMain *wmain)
 {
-	GtkWidget *widget;
 	C2Mailbox *fmailbox, *tmailbox;
 	C2Pthread4 *data;
 	pthread_t thread;
@@ -1353,7 +1359,6 @@ send_ (C2WindowMain *wmain)
 		
 		do
 		{
-			C2Message *message;
 			C2Account *account;
 			C2SMTP *smtp;
 			C2TransferItem *ti;
@@ -1379,8 +1384,6 @@ send_ (C2WindowMain *wmain)
 static gint
 on_delete_event (GtkWidget *widget, GdkEventAny *event, gpointer data)
 {
-	C2WindowMain *wmain = C2_WINDOW_MAIN (widget);
-	
 	/* Anything we should do when the main window
 	 * is closed (not the application, just the
 	 * main window):
@@ -1425,18 +1428,11 @@ on_application_window_changed (C2Application *application, GSList *list, C2Windo
 
 		if (C2_IS_WINDOW (l->data) || C2_IS_DIALOG (l->data))
 		{
-			gchar *type;
+			gchar *_file;
 
-			type = (gchar*) gtk_object_get_data (GTK_OBJECT (l->data), "type");
-			
-			/* ADD HERE OTHER ICONS FOR WINDOW THAT HAVE ICONS */
-			/* ADD HERE OTHER ICONS FOR WINDOW THAT HAVE ICONS */
-			/* ADD HERE OTHER ICONS FOR WINDOW THAT HAVE ICONS */
-			/* ADD HERE OTHER ICONS FOR WINDOW THAT HAVE ICONS */
-			if (c2_streq (type, "composer"))
-				file = PKGDATADIR "/pixmaps/mail-write.png";
-			else if (c2_streq (type, C2_WIDGET_TRANSFER_LIST_TYPE))
-				file = PKGDATADIR "/pixmaps/send-receive.png";
+			_file = (gchar*) gtk_object_get_data (GTK_OBJECT (l->data), "icon");
+			if (_file)
+				file = _file;
 		}
 		
 		image = gnome_pixmap_new_from_file (file);
@@ -1509,6 +1505,18 @@ on_docktoolbar_button_press_event (GtkWidget *widget, GdkEventButton *event, C2W
 }
 
 static void
+on_menubar_file_new_message_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->compose (wmain);
+}
+
+static void
+on_menubar_file_new_mailbox_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	c2_window_main_add_mailbox_dialog (wmain);
+}
+
+static void
 on_menubar_file_new_window_activate (GtkWidget *widget, C2WindowMain *wmain)
 {
 	GtkWidget *window;
@@ -1576,6 +1584,33 @@ static void
 on_menubar_message_delete_activate (GtkWidget *widget, C2WindowMain *wmain)
 {
 	C2_WINDOW_MAIN_CLASS_FW (wmain)->delete (wmain);
+}
+
+static void
+on_menubar_settings_preferences_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	GtkWidget *preferences;
+
+	preferences = c2_dialog_preferences_new (C2_WINDOW (wmain)->application);
+	gtk_widget_show (preferences);	
+}
+
+static void
+on_menubar_help_getting_in_touch_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	c2_application_dialog_getting_in_touch (C2_WINDOW (wmain)->application);
+}
+
+static void
+on_menubar_help_release_information_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	c2_application_dialog_release_information (C2_WINDOW (wmain)->application);
+}
+
+static void
+on_menubar_help_about_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	c2_application_dialog_about (C2_WINDOW (wmain)->application);
 }
 
 static void
@@ -1689,9 +1724,6 @@ on_toolbar_send_clicked (GtkWidget *widget, C2WindowMain *wmain)
 static void
 on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 {
-	GladeXML *xml;
-	GtkWidget *widget;
-
 	if (g_list_length (GTK_CLIST (index)->selection) > 1)
 		return;
 
@@ -1727,7 +1759,6 @@ on_mlist_object_selected_pthread (C2WindowMain *wmain)
 {
 	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
 	C2Index *index = C2_INDEX (wmain->index);
-	gchar *buf;
 	
 	gdk_threads_enter ();
 	c2_window_set_activity (C2_WINDOW (wmain), TRUE);
@@ -1828,18 +1859,13 @@ on_mlist_button_press_event (GtkWidget *widget, GdkEvent *event, C2WindowMain *w
 	}
 }
 
-static void
-on_file_new_mailbox_activate (GtkWidget *widget, C2WindowMain *wmain)
-{
-	c2_window_main_add_mailbox_dialog (wmain);
-}
-
 static gint
 eastern_egg_timeout (C2Pthread3 *data)
 {
 	/* Que onda si uso GdkPixbuf (como lo de su ejemplo)
 	 * para hacer alguna precentación onda copada?
 	 */
+	return FALSE;
 }
 
 static void
@@ -1850,7 +1876,7 @@ on_eastern_egg_separator_activate (GtkWidget *widget, C2WindowMain *wmain)
 	GladeXML *xml;
 	C2Pthread3 *data;
 
-	dialog = c2_dialog_new (window->application, _("You found the Eastern Egg!"),
+	dialog = c2_dialog_new (window->application, _("You found the Eastern Egg!"), NULL,
 							_("Neat, baby!"), NULL);
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_eastern_egg_contents");
 	C2_DIALOG (dialog)->xml = xml;
@@ -1867,52 +1893,6 @@ on_eastern_egg_separator_activate (GtkWidget *widget, C2WindowMain *wmain)
 	GPOINTER_TO_INT (data->v3) = gtk_timeout_add (100, (GtkFunction) eastern_egg_timeout, data);
 
 	gtk_widget_show (dialog);
-}
-
-static void
-on_settings_preferences_activate (GtkWidget *widget, C2WindowMain *wmain)
-{
-	GtkWidget *preferences;
-
-	preferences = c2_dialog_preferences_new (C2_WINDOW (wmain)->application);
-	gtk_widget_show (preferences);	
-}
-
-static void
-on_about_activate (GtkWidget *widget, C2WindowMain *wmain)
-{
-	c2_application_dialog_about (C2_WINDOW (wmain)->application);
-}
-
-static void
-on_help_release_information_activate (GtkWidget *widget, C2WindowMain *wmain)
-{
-	c2_application_dialog_release_information (C2_WINDOW (wmain)->application);
-}
-
-static void
-on_new_mail_activate (GtkWidget *widget, C2WindowMain *wmain)
-{
-	GtkWidget *composer;
-	GtkWidget *window;
-
-	if (!c2_application_check_account_exists (C2_WINDOW (wmain)->application))
-		return;
-
-	composer = c2_composer_new (C2_WINDOW (wmain)->application);
-
-	gtk_widget_show (window);
-}
-
-static void
-on_getting_in_touch_activated (GtkWidget *widget)
-{
-	GladeXML *xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_getting_in_touch");
-	GtkWidget *dialog = glade_xml_get_widget (xml, "dlg_getting_in_touch");
-
-	gnome_dialog_run_and_close (GNOME_DIALOG (dialog));
-
-	gtk_object_unref (GTK_OBJECT (xml));
 }
 
 static void
@@ -2055,7 +2035,9 @@ c2_window_main_add_mailbox_dialog (C2WindowMain *wmain)
 	GladeXML *xml;
 	gchar *get_path;
 
-	dialog = c2_dialog_new (C2_WINDOW (wmain)->application, _("New mailbox"), "new_mailbox", GNOME_STOCK_BUTTON_HELP,
+	dialog = c2_dialog_new (C2_WINDOW (wmain)->application, _("New mailbox"), "new_mailbox",
+							NULL,
+							GNOME_STOCK_BUTTON_HELP,
 							GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_mailbox_properties_contents");
 	C2_DIALOG (dialog)->xml = xml;
@@ -2101,10 +2083,10 @@ re_run_add_mailbox_dialog:
 	{
 		case 1:
 			{
-				C2MailboxType type;
-				gchar *name, *host, *user, *pass, *path;
-				C2Mailbox *parent, *mailbox;
-				gint port, config_id;
+				C2MailboxType type = 0;
+				gchar *name, *host = NULL, *user = NULL, *pass = NULL, *path = NULL;
+				C2Mailbox *parent, *mailbox = NULL;
+				gint port = 0, config_id;
 				gchar *query;
 
 				name = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "name")));
@@ -2370,8 +2352,6 @@ dlg_confirm_expunge_message (C2WindowMain *wmain)
 {
 	C2Application *application;
 	GtkWidget *dialog;
-	GtkWidget *pixmap;
-	GtkWidget *toggle;
 	GladeXML *xml;
 	gboolean retval;
 	
@@ -2481,7 +2461,6 @@ on_toolbar_configuration_dialog_left_btn_clicked (GtkWidget *widget, GladeXML *x
 	GdkPixmap *pixmap;
 	GdkBitmap *mask;
 	gchar *text;
-	gchar *row[] = { NULL, NULL };
 
 	data = gtk_clist_get_row_data (current_clist, n);
 	sep = get_separator_n ();
@@ -2537,15 +2516,13 @@ c2_window_main_toolbar_configuration_dialog (C2WindowMain *wmain)
 	GladeXML *xml;
 	GtkWidget *dialog;
 	GtkWidget *widget;
-	C2ToolbarItem *item;
-	gint list_length;
 	GList *available = NULL;
 	GList *current = NULL;
 	GList *l;
 	gint i;
 
 	dialog = c2_dialog_new (C2_WINDOW (wmain)->application, _("Toolbar Configuration"),
-							"toolbar_configuration", GNOME_STOCK_BUTTON_HELP,
+							"toolbar_configuration", NULL, GNOME_STOCK_BUTTON_HELP,
 							GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_toolbar_configuration_contents");
 	C2_DIALOG (dialog)->xml = xml;

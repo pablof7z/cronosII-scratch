@@ -2740,37 +2740,14 @@ in the following fields.</label>
 	<shadow_type>GTK_SHADOW_IN</shadow_type>
 
 	<widget>
-	  <class>GtkLabel</class>
-	  <name>label65</name>
-	  <label>Getting in Touch:
+	  <class>GtkVBox</class>
+	  <name>contents_box</name>
+	  <homogeneous>False</homogeneous>
+	  <spacing>0</spacing>
 
-There are several ways to get in touch with anyone
-from the Cronos II community (users or developers).
-
-Note that if you want to contact a particular developer for
-a special bug-report (or for whatever reason) you should
-check the Cronos II homepage for a list of contacts at
-_h_t_t_p_:_/_/_c_r_o_n_o_s_I_I_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t_/
-
-_E_-_M_a_i_l:
-
-To send a mail to the developers you should write to
-our mailing list: _c_r_o_n_o_s_I_I_-_d_e_v_e_l_o_p_e_r_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.
-
-To contact other users of Cronos II send mail
-to the user's mailing list: _c_r_o_n_o_s_I_I_-_u_s_e_r_s_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.
-
-_I_R_C:
-
-You can chat with both users and developers in the
-OpenProjects network by connecting to the server
-_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 and the channel _#_c_r_o_n_o_s_I_I.</label>
-	  <justify>GTK_JUSTIFY_LEFT</justify>
-	  <wrap>False</wrap>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
+	  <widget>
+	    <class>Placeholder</class>
+	  </widget>
 	</widget>
       </widget>
     </widget>
@@ -4121,6 +4098,170 @@ expunge the selected mails?</message>
 
       <widget>
 	<class>Placeholder</class>
+      </widget>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeDialog</class>
+  <name>dlg_attachments_tool</name>
+  <width>540</width>
+  <height>352</height>
+  <title>Attachments Tool</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>False</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <auto_close>False</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox25</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area25</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button121</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button122</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_APPLY</stock_button>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button123</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkVBox</class>
+      <name>dlg_attachments_tool_container</name>
+      <width>243</width>
+      <height>115</height>
+      <homogeneous>False</homogeneous>
+      <spacing>2</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkScrolledWindow</class>
+	<name>scrolledwindow15</name>
+	<height>70</height>
+	<hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
+	<vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
+	<hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+	<vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GtkCList</class>
+	  <name>clist</name>
+	  <columns>4</columns>
+	  <column_widths>17,80,80,80</column_widths>
+	  <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
+	  <show_titles>False</show_titles>
+	  <shadow_type>GTK_SHADOW_IN</shadow_type>
+
+	  <widget>
+	    <class>Placeholder</class>
+	    <child_name>CList:title</child_name>
+	  </widget>
+
+	  <widget>
+	    <class>Placeholder</class>
+	    <child_name>CList:title</child_name>
+	  </widget>
+
+	  <widget>
+	    <class>Placeholder</class>
+	    <child_name>CList:title</child_name>
+	  </widget>
+
+	  <widget>
+	    <class>Placeholder</class>
+	    <child_name>CList:title</child_name>
+	  </widget>
+	</widget>
+      </widget>
+
+      <widget>
+	<class>GtkFrame</class>
+	<name>frame4</name>
+	<label>Save selected attachments to disk</label>
+	<label_xalign>0</label_xalign>
+	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GnomeFileEntry</class>
+	  <name>save_entry</name>
+	  <border_width>2</border_width>
+	  <history_id>dlg_attachments_tool_save_entry</history_id>
+	  <max_saved>10</max_saved>
+	  <directory>True</directory>
+	  <modal>False</modal>
+
+	  <widget>
+	    <class>GtkEntry</class>
+	    <child_name>GnomeEntry:entry</child_name>
+	    <name>combo-entry5</name>
+	    <can_focus>True</can_focus>
+	    <editable>True</editable>
+	    <text_visible>True</text_visible>
+	    <text_max_length>0</text_max_length>
+	    <text></text>
+	  </widget>
+	</widget>
       </widget>
     </widget>
   </widget>

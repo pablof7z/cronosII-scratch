@@ -3,7 +3,7 @@ INCLUDES = -DBUILDING_C2 -I$(top_srcdir) -I$(includedir) \
 	`gnome-config --cflags gnome` \
 	 -DG_LOG_DOMAIN=\"CronosII\" -DGNOMELOCALEDIR=\""$(datadir)/locale"\" \
 	 -I../intl -I$(top_srcdir)/intl $(GNOME_INCLUDEDIR) -DDATADIR=\"${datadir}\" \
-	 -DPKGDATADIR=\"${pkgdatadir}\" -DGLADEDIR=\"${pkgdatadir}/ui\"
+	 -DPKGDATADIR=\"${pkgdatadir}\" -DGLADEDIR=\"${pkgdatadir}/ui\" $(GCONFCFLAGS)
 
 if USE_UI_TEXT_EDITOR
 UI_TEXT_EDITOR=ui-text-editor

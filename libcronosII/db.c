@@ -359,6 +359,9 @@ c2_db_create_structure (C2Mailbox *mailbox)
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_create_structure;
 			break;
+		default:
+			g_assert_not_reached ();
+			return FALSE;
 	}
 
 	return func (mailbox);
@@ -379,7 +382,7 @@ c2_db_create_structure (C2Mailbox *mailbox)
 gboolean
 c2_db_update_structure (C2Mailbox *mailbox)
 {
-	gboolean (*func) (C2Mailbox *mailbox);
+	gboolean (*func) (C2Mailbox *mailbox) = NULL;
 
 	switch (mailbox->type)
 	{
@@ -392,6 +395,9 @@ c2_db_update_structure (C2Mailbox *mailbox)
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_update_structure;
 			break;
+		default:
+			g_assert_not_reached ();
+			return FALSE;
 	}
 
 	return func (mailbox);
@@ -411,7 +417,7 @@ c2_db_update_structure (C2Mailbox *mailbox)
 gboolean
 c2_db_remove_structure (C2Mailbox *mailbox)
 {
-	gboolean (*func) (C2Mailbox *mailbox);
+	gboolean (*func) (C2Mailbox *mailbox) = NULL;
 
 	switch (mailbox->type)
 	{
@@ -424,6 +430,9 @@ c2_db_remove_structure (C2Mailbox *mailbox)
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_remove_structure;
 			break;
+		default:
+			g_assert_not_reached ();
+			return FALSE;
 	}
 
 	return func (mailbox);
@@ -450,6 +459,7 @@ c2_db_freeze (C2Mailbox *mailbox)
 			break;*/
 		default:
 			g_assert_not_reached ();
+			return;
 	}
 
 	func (mailbox);
@@ -475,6 +485,7 @@ c2_db_thaw (C2Mailbox *mailbox)
 			break;*/
 		default:
 			g_assert_not_reached ();
+			return;
 	}
 
 	func (mailbox);
@@ -502,7 +513,7 @@ c2_db_thaw (C2Mailbox *mailbox)
 gint
 c2_db_load (C2Mailbox *mailbox)
 {
-	gint (*func) (C2Mailbox *mailbox);
+	gint (*func) (C2Mailbox *mailbox) = NULL;
 	gint retval;
 	
 	c2_return_val_if_fail (mailbox, 1, C2EDATA);
@@ -610,10 +621,9 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 gint
 c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 {
-	gint (*func) (C2Mailbox *mailbox, C2Db *db);
-	C2Db *db;
-	gchar *buf;
-	GList *l, *dl = NULL;
+	gint (*func) (C2Mailbox *mailbox, C2Db *db) = NULL;
+	C2Db *db = NULL;
+	GList *l;
 	gboolean thaw = FALSE;
 
 	if (!mailbox->freezed)
@@ -735,11 +745,11 @@ gint
 c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 {
 	gint first;
-	gint (*func) (C2Mailbox *mailbox, GList *list);
+	gint (*func) (C2Mailbox *mailbox, GList *list) = NULL;
 	GList *sorted_list = NULL, *l;
 	
 	C2Db *db;
-	gint i, retval, pos = 0;
+	gint i, retval;
 	gboolean thaw = FALSE;
 
 	if (!mailbox->freezed)
@@ -812,6 +822,7 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 gboolean
 c2_db_message_move (C2Mailbox *fmailbox, C2Mailbox *tmailbox, GList *list)
 {
+	return FALSE;
 }
 
 /**
@@ -827,7 +838,7 @@ c2_db_message_move (C2Mailbox *fmailbox, C2Mailbox *tmailbox, GList *list)
 void
 c2_db_message_set_state (C2Db *db, C2MessageState state)
 {
-	void (*func) (C2Db *db, C2MessageState state);
+	void (*func) (C2Db *db, C2MessageState state) = NULL;
 	
 	/* Note for developers of VFUNCTIONS about this function:
 	 *   The VFunction should just update the mailbox.
@@ -863,7 +874,7 @@ c2_db_message_set_state (C2Db *db, C2MessageState state)
 void
 c2_db_message_set_mark (C2Db *db, gboolean mark)
 {
-	void (*func) (C2Db *db, gboolean mark);
+	void (*func) (C2Db *db, gboolean mark) = NULL;
 	
 	/* Note for developers of VFUNCTIONS about this function:
 	 *   The VFunction should just update the mailbox.
@@ -899,7 +910,7 @@ c2_db_message_set_mark (C2Db *db, gboolean mark)
 gint
 c2_db_load_message (C2Db *db)
 {
-	C2Message *(*func) (C2Db *db);
+	C2Message *(*func) (C2Db *db) = NULL;
 
 	switch (db->mailbox->type)
 	{

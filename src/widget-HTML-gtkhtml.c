@@ -20,6 +20,7 @@
 #ifdef USE_GTKHTML
 
 #include <gtkhtml/htmlform.h>
+#include <gtkhtml/gtkhtml-stream.h>
 #include <glade/glade.h>
 
 #include "preferences.h"
@@ -73,9 +74,7 @@ on_html_http_link_clicked (C2Pthread3 *data)
 void
 c2_html_gtkhtml_link_clicked (GtkHTML *gtkhtml, const gchar *url, gpointer data)
 {
-	C2Pthread3 *data3;
 	gchar *prefix, *buf;
-	pthread_t thread;
 
 	prefix = c2_str_get_word (0, url, ':');
 
@@ -110,7 +109,6 @@ c2_html_gtkhtml_link_clicked (GtkHTML *gtkhtml, const gchar *url, gpointer data)
 void
 c2_html_gtkhtml_on_url (GtkHTML *gtkhtml, const gchar *url, gpointer data)
 {
-	C2HTML *html = C2_HTML (data);
 }
 
 static void

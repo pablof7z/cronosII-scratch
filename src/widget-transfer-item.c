@@ -162,6 +162,11 @@ init (C2TransferItem *ti)
 	ti->application = NULL;
 }
 
+static void
+destroy (GtkObject *object)
+{
+}
+
 C2TransferItem *
 c2_transfer_item_new (C2Application *application, C2Account *account, C2TransferItemType type, ...)
 {
@@ -173,6 +178,8 @@ c2_transfer_item_new (C2Application *application, C2Account *account, C2Transfer
 	va_start (args, type);
 	c2_transfer_item_construct (ti, application, account, type, args);
 	va_end (args);
+	gtk_signal_connect (GTK_OBJECT (ti), "destroy",
+						GTK_SIGNAL_FUNC (destroy), NULL);
 
 	return ti;
 }
@@ -549,7 +556,7 @@ on_pop3_login_failed (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pa
 	ti = C2_TRANSFER_ITEM (gtk_object_get_data (GTK_OBJECT (pop3), "login_failed::data"));
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_req_pass_contents");
 	contents = glade_xml_get_widget (xml, "dlg_req_pass_contents");
-	dialog = c2_dialog_new (ti->application, _("Login failed"), "req_pass",
+	dialog = c2_dialog_new (ti->application, _("Login failed"), "req_pass", NULL,
 							GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
 	C2_DIALOG (dialog)->xml = xml;
 	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox), contents, TRUE, TRUE, 0);
@@ -596,7 +603,7 @@ on_pop3_login_failed (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pa
 		buffer = g_strdup_printf ("/"PACKAGE"/Account %d/", nth);
 		gnome_config_push_prefix (buffer);
 		gnome_config_set_string ("incoming_server_username", *user);
-		if (!(pop3->flags & C2_POP3_DO_LOSE_PASSWORD))
+		if (c2_pop3_get_save_password (pop3))
 			gnome_config_set_string ("incoming_server_password", *pass);
 		gnome_config_pop_prefix ();
 		gnome_config_sync ();
@@ -755,7 +762,7 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 		}
 
 		gtk_object_set_data (GTK_OBJECT (ti->type_info.send.db->message), "state",
-											C2_MESSAGE_READED);
+											(gpointer) C2_MESSAGE_READED);
 		c2_db_message_add (sent_items, ti->type_info.send.db->message);
 	}
 

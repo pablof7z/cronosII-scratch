@@ -140,6 +140,7 @@ init (C2Mailbox *mailbox)
 		mailbox->protocol.IMAP.noinferiors = FALSE;
 		mailbox->protocol.IMAP.noselect = FALSE;
 		mailbox->protocol.IMAP.marked = FALSE;
+		mailbox->protocol.IMAP.imap_name = NULL;
 	}
 
 	c2_mutex_init (&mailbox->lock);
@@ -158,6 +159,10 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 		case C2_MAILBOX_SPOOL:
 			g_free (mailbox->protocol.spool.path);
 			break;
+		case C2_MAILBOX_CRONOSII:
+			break;
+		case C2_MAILBOX_IMAP:
+			break;
 	}
 	
 	g_free (mailbox->name);
@@ -166,6 +171,9 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 		gtk_object_unref (GTK_OBJECT (mailbox->db));
 	if (mailbox->child)
 		gtk_object_unref (GTK_OBJECT (mailbox->child));
+	if (mailbox->type == C2_MAILBOX_IMAP)
+		if(mailbox->protocol.IMAP.imap_name)
+			g_free(mailbox->protocol.IMAP.imap_name);
 	
 	c2_mutex_unlock(&mailbox->lock);
 	c2_mutex_destroy(&mailbox->lock);
@@ -174,7 +182,7 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 static void
 destroy (GtkObject *object)
 {
-	C2Mailbox *mailbox, *l, *n;
+	C2Mailbox *mailbox;
 
 	mailbox = C2_MAILBOX (object);
 	c2_mailbox_destroy_node (mailbox);
@@ -270,9 +278,8 @@ C2Mailbox *
 c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *parent_id, C2MailboxType type,
 							C2MailboxSortBy sort_by, GtkSortType sort_type, ...)
 {
-	C2Mailbox *value;
+	C2Mailbox *value = NULL;
 	gchar *id;
-	gint port;
 	va_list edata;
 	
 	c2_return_val_if_fail (name, NULL, C2EDATA);
@@ -431,6 +438,10 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
 			g_free (mailbox->protocol.spool.path);
 			mailbox->protocol.spool.path = NULL;
 			break;
+		case C2_MAILBOX_CRONOSII:
+			break;
+		case C2_MAILBOX_IMAP:
+			break;
 	}
 
 	switch (type)
@@ -466,7 +477,7 @@ void
 c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 {
 	C2Mailbox *parent = NULL, *previous = NULL, *next;
-	gchar *parent_id, *previous_id, *next_id;
+	gchar *parent_id, *previous_id;
 	gint my_id;
 	
 	c2_return_if_fail (mailbox, C2EDATA);
@@ -567,9 +578,7 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 static C2Mailbox *
 _c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id, guint level)
 {
-	const gchar *ptr;
 	C2Mailbox *l;
-	gint pos = 0;
 	gint top_id;
 	gint ck_id;
 
@@ -775,39 +784,6 @@ c2_mailbox_get_by_name (C2Mailbox *head, const gchar *name)
 }
 
 /**
- * c2_mailbox_get_by_id
- * @head: Head where to search.
- * @id: Id of the mailbox to get
- *
- * Searches recursively for a mailbox
- * with id @id.
- *
- * Return Value:
- * The requested mailbox or NULL.
- **/
-C2Mailbox *
-c2_mailbox_get_by_id (C2Mailbox *head, const gchar *id)
-{
-	C2Mailbox *l;
-	
-	c2_return_val_if_fail (id, NULL, C2EDATA);
-
-	for (l = head; l != NULL; l = l->next)
-	{
-		if (c2_streq (l->id, id))
-			return l;
-		if (l->child)
-		{
-			C2Mailbox *s;
-			if ((s = c2_mailbox_get_by_id (l->child, id)))
-				return s;
-		}
-	}
-
-	return NULL;
-}
-
-/**
  * c2_mailbox_load_db
  * @mailbox: C2Mailbox object to load.
  *
@@ -822,7 +798,7 @@ c2_mailbox_get_by_id (C2Mailbox *head, const gchar *id)
 gboolean
 c2_mailbox_load_db (C2Mailbox *mailbox)
 {
-	c2_return_if_fail (mailbox, C2EDATA);
+	c2_return_val_if_fail (mailbox, FALSE, C2EDATA);
 
 	/* Check if it is already loaded */
 	if (mailbox->db)

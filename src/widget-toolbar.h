@@ -93,6 +93,9 @@ void
 c2_toolbar_freeze							(C2Toolbar *toolbar);
 
 void
+c2_toolbar_clear							(C2Toolbar *toolbar);
+
+void
 c2_toolbar_thaw								(C2Toolbar *toolbar);
 
 void

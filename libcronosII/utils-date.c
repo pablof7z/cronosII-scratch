@@ -329,7 +329,6 @@ c2_date_parse_fmt3 (const gchar *strtime)
 	struct tm tm = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	gchar *ptr;
 	gchar *cpy;
-	gboolean do_date = TRUE, do_time = TRUE;
 	gint i, l, tmp;
 	
 	c2_return_val_if_fail (strtime, -1, C2EDATA);

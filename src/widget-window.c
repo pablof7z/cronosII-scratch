@@ -95,34 +95,40 @@ destroy (GtkObject *object)
 
 	c2_application_window_remove (window->application, GTK_WINDOW (window));
 
-	g_free (gtk_object_get_data (GTK_OBJECT (window), "type"));
-
 	pthread_mutex_destroy (&window->status_lock);
 	pthread_mutex_destroy (&window->progress_lock);
 
-	if (window->xml)
+	if (GLADE_IS_XML (window->xml))
 		gtk_object_unref (GTK_OBJECT (window->xml));
 }
 
 GtkWidget *
-c2_window_new (C2Application *application, const gchar *title, const gchar *type)
+c2_window_new (C2Application *application, const gchar *title, gchar *type, gchar *icon)
 {
 	C2Window *window;
 
 	window = gtk_type_new (c2_window_get_type ());
 
-	c2_window_construct (window, application, title, type);
+	c2_window_construct (window, application, title, type, icon);
 
 	return GTK_WIDGET (window);
 }
 
 void
-c2_window_construct (C2Window *window, C2Application *application, const gchar *title, const gchar *type)
+c2_window_construct (C2Window *window, C2Application *application, const gchar *title, gchar *type,
+					gchar *icon)
 {
 	window->application = application;
-	gtk_object_set_data (GTK_OBJECT (window), "type", g_strdup (type));
+	gtk_object_set_data (GTK_OBJECT (window), "type", type);
 
 	gnome_app_construct (GNOME_APP (window), application->name, title ? title : "Cronos II");
+	if (icon)
+	{
+		gtk_object_set_data (GTK_OBJECT (window), "icon", icon);
+#ifdef USE_GNOME_WINDOW_ICON
+		gnome_window_icon_set_from_file (GTK_WINDOW (window), icon);
+#endif
+	}
 
 	gtk_signal_connect (GTK_OBJECT (window), "destroy",
 						GTK_SIGNAL_FUNC (destroy), NULL);

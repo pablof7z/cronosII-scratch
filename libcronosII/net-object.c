@@ -212,10 +212,8 @@ c2_net_object_construct (C2NetObject *nobj, const gchar *host, guint port, gbool
 C2NetObjectByte *
 c2_net_object_run (C2NetObject *nobj)
 {
-	GList *l;
 	C2NetObjectByte *byte;
 	gchar *ip;
-	gint i;
 
 	/* Check that the Net Object supports another connection */
 	if (nobj->max)

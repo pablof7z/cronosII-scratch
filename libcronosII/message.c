@@ -18,6 +18,7 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "db.h"
 #include "message.h"
@@ -177,7 +178,7 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 
 	/* Search for the field */
 	for (msg_ptr = message; *msg_ptr != '\0'; msg_ptr++)
-		if (msg_ptr == message || (msg_ptr > message) && *(msg_ptr-1) == '\n')
+		if ((msg_ptr == message) || (msg_ptr > message) && (*(msg_ptr-1) == '\n'))
 		{
 			if (c2_strneq (msg_ptr, field, field_length))
 				break;

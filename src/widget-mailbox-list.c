@@ -373,7 +373,6 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 	GtkCTreeNode *cnode;
 	gint unreaded;
 	GtkStyle *style;
-	C2Db *db;
 
 	if (!node)
 	{

@@ -19,6 +19,10 @@
 
 #include <libcronosII/utils.h>
 
+/* TODO
+ * 20011208 Some type of scroll when the toolbar doesn't fit in the window.
+ */
+
 static void
 class_init									(C2ToolbarClass *klass);
 
@@ -237,7 +241,6 @@ static void
 clear_toolbar (C2Toolbar *toolbar)
 {
 	GList *l;
-	struct Item *item;
 
 	/* Remove content */
 	for (l = gtk_container_children (GTK_CONTAINER (toolbar)); l; l = g_list_next (l))
@@ -252,7 +255,6 @@ create_toolbar (C2Toolbar *toolbar)
 {
 	GList *l;
 	struct Item *item;
-	gboolean text, icon;
 	
 	if (toolbar->freezed)
 		return;
@@ -291,8 +293,6 @@ static GtkWidget *
 create_item_button (C2Toolbar *toolbar, GtkWidget *button, const gchar *pixmap,
 					const gchar *label, const gchar *tooltip, gboolean force_label)
 {
-	GtkWidget *box;	
-	
 	if (!button)
 	{
 		button = gtk_button_new ();
@@ -330,7 +330,7 @@ static GtkWidget *
 create_item_button_content (C2Toolbar *toolbar, const gchar *pixmap, const gchar *label,
 					gboolean force_label)
 {
-	GtkWidget *widget, *box;
+	GtkWidget *box;
 	GtkWidget *wpixmap;
 	GtkWidget *wlabel;
 	gboolean icon, text;
@@ -352,6 +352,7 @@ create_item_button_content (C2Toolbar *toolbar, const gchar *pixmap, const gchar
 			icon = TRUE;
 			box = gtk_vbox_new (FALSE, 0);
 			break;
+		default:
 		case C2_TOOLBAR_TEXT_BESIDE_ICON:
 			text = force_label;
 			icon = TRUE;

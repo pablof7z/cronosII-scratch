@@ -54,13 +54,17 @@ struct _C2DialogClass
 	GnomeDialogClass parent_class;
 };
 
+GtkType
+c2_dialog_get_type							(void);
+
 GtkWidget *
 c2_dialog_new								(C2Application *application, const gchar *title,
-											 const gchar *type, ...);
+											 const gchar *type, const gchar *icon, ...);
 
 void
 c2_dialog_construct							(C2Dialog *dialog, C2Application *application,
-											const gchar *title, const gchar *type, const gchar **buttons);
+											const gchar *title, const gchar *type, const gchar *icon,
+											const gchar **buttons);
 
 #ifdef __cplusplus
 }

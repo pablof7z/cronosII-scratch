@@ -105,11 +105,16 @@ init (C2TransferList *tl)
 	tl->list = NULL; 
 }
 
+static void
+destroy (GtkObject *object)
+{
+}
+
 GtkWidget *
 c2_transfer_list_new (C2Application *application)
 {
 	C2TransferList *tl;
-	GtkWidget *table, *button, *vbox;
+	GtkWidget *button, *vbox;
 	const gchar *buttons[] =
 	{
 		N_("Stop all"),
@@ -132,13 +137,13 @@ c2_transfer_list_new (C2Application *application)
 	tl->close = button;
 
 	c2_dialog_construct (C2_DIALOG (tl), application, _("Send & Receive"),
-						C2_WIDGET_TRANSFER_LIST_TYPE, buttons);
-#if USE_GNOME_WINDOW_ICON
-	gnome_window_icon_set_from_file (GTK_WINDOW (tl), PKGDATADIR "/pixmaps/send-receive.png");
-#endif
+						C2_WIDGET_TRANSFER_LIST_TYPE, PKGDATADIR "/pixmaps/send-receive.png", buttons);
 
 	gnome_dialog_button_connect (GNOME_DIALOG (tl), 0, on_button0_clicked, tl);
 	gnome_dialog_button_connect (GNOME_DIALOG (tl), 1, on_button1_clicked, tl);
+
+	gtk_signal_connect (GTK_OBJECT (tl), "destroy",
+						GTK_SIGNAL_FUNC (destroy), NULL);
 
 	return GTK_WIDGET (tl);
 }
@@ -168,10 +173,6 @@ on_button1_clicked (GtkWidget *widget, C2TransferList *tl)
 void
 c2_transfer_list_add_item (C2TransferList *tl, C2TransferItem *ti)
 {
-	GtkWidget *c1, *c2, *c3, *c4, *hsep;
-	gint rows, cols, i;
-	GSList *list;
-	
 	c2_return_if_fail (C2_IS_TRANSFER_ITEM (ti), C2EDATA);
 
 	tl->list = g_slist_append (tl->list, ti);
@@ -206,10 +207,8 @@ on_last_finish_timeout (GtkWidget *widget)
 static void
 on_transfer_item_finish (C2TransferItem *ti, C2TransferList *tl)
 {
-	C2TransferItem *transfer_item;
 	GtkWidget *progress;
 	GSList *list;
-	C2Account *account = ti->account;
 
 	if (GTK_TOGGLE_BUTTON (tl->close)->active)
 	{

@@ -21,6 +21,10 @@
 #include "utils.h"
 #include "utils-net.h"
 
+/* TODO
+ * 20011208 (/me is a little bit drunk still) There's no timeout stuff! -Pablo
+ */
+
 static C2Cache *
 c2_net_get_cache							(const gchar *hostname);
 

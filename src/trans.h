@@ -139,29 +139,6 @@ gchar *s = N_("\n"
               "in the following fields.");
 gchar *s = N_("Getting in Touch");
 gchar *s = N_("Close this dialog");
-gchar *s = N_("Getting in Touch:\n"
-              "\n"
-              "There are several ways to get in touch with anyone\n"
-              "from the Cronos II community (users or developers).\n"
-              "\n"
-              "Note that if you want to contact a particular developer for\n"
-              "a special bug-report (or for whatever reason) you should\n"
-              "check the Cronos II homepage for a list of contacts at\n"
-              "_h_t_t_p_:_/_/_c_r_o_n_o_s_I_I_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t_/\n"
-              "\n"
-              "_E_-_M_a_i_l:\n"
-              "\n"
-              "To send a mail to the developers you should write to\n"
-              "our mailing list: _c_r_o_n_o_s_I_I_-_d_e_v_e_l_o_p_e_r_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n"
-              "\n"
-              "To contact other users of Cronos II send mail\n"
-              "to the user's mailing list: _c_r_o_n_o_s_I_I_-_u_s_e_r_s_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n"
-              "\n"
-              "_I_R_C:\n"
-              "\n"
-              "You can chat with both users and developers in the\n"
-              "OpenProjects network by connecting to the server\n"
-              "_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 and the channel _#_c_r_o_n_o_s_I_I.");
 gchar *s = N_("There is no account configured yet.\n"
               "You need to do this before being\n"
               "able to compose mails.");
@@ -207,3 +184,5 @@ gchar *s = N_("You selected a directory.");
 gchar *s = N_("Error");
 gchar *s = N_("About");
 gchar *s = N_("Web Site");
+gchar *s = N_("Attachments Tool");
+gchar *s = N_("Save selected attachments to disk");

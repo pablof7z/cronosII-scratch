@@ -69,6 +69,8 @@ extern "C" {
 #define C2_IS_SMTP_CLASS(klass)				(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_SMTP))
 	
 typedef enum _C2SMTPType C2SMTPType;
+typedef struct _C2SMTP C2SMTP;
+typedef struct _C2SMTPClass C2SMTPClass;
 
 enum _C2SMTPType
 {
@@ -84,9 +86,6 @@ enum
 	C2_SMTP_DO_NOT_LOSE_PASSWORD= 0 << 2	/* Will keep the password unless its wrong */
 };
 
-typedef struct _C2SMTP C2SMTP;
-typedef struct _C2SMTPClass C2SMTPClass;
-	
 struct _C2SMTP
 {
 	C2NetObject object;

@@ -18,7 +18,9 @@
 #include <glib.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 #include <config.h>
+#include <time.h>
 
 #include "i18n.h"
 #include "error.h"
@@ -32,7 +34,7 @@
  * [TODO] Add support for CRAM-MD5 authentication.
  */
 
-#define DEFAULT_FLAGS C2_POP3_DO_NOT_KEEP_COPY | C2_POP3_DO_NOT_LOSE_PASSWORD
+#define DEFAULT_FLAGS C2_POP3_DO_NOT_KEEP_COPY
 
 #define UIDL_LENGTH		70
 
@@ -260,6 +262,18 @@ c2_pop3_set_auth_method (C2POP3 *pop3, C2POP3AuthenticationMethod auth_method)
 }
 
 void
+c2_pop3_set_save_password (C2POP3 *pop3, gboolean save_password)
+{
+	pop3->save_password = save_password ? 1 : 0;
+}
+
+gboolean
+c2_pop3_get_save_password (C2POP3 *pop3)
+{
+	return pop3->save_password ? TRUE : FALSE;
+}
+
+void
 c2_pop3_set_leave_copy (C2POP3 *pop3, gboolean leave_copy, gint days)
 {
 	c2_return_if_fail (pop3, C2EDATA);
@@ -292,7 +306,6 @@ gint
 c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 {
 	GSList *download_list = NULL, *uidl_list;
-	gint mails;
 	gint retval = 0;
 
 	c2_return_val_if_fail (C2_IS_POP3 (pop3), -1, C2EDATA);
@@ -372,9 +385,6 @@ static gint
 welcome (C2POP3 *pop3)
 {
 	gchar *string = NULL;
-	gchar *logintokenpos = NULL;
-	gchar *logintoken = NULL;
-	gint  loginsize = 0;
 
 	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
 		return -1;
@@ -413,7 +423,7 @@ welcome (C2POP3 *pop3)
 static gint
 login (C2POP3 *pop3)
 {
-	gchar *string;
+	gchar *string = NULL;
 	gint i = 0;
 	gboolean logged_in = FALSE;
 	
@@ -439,7 +449,6 @@ login (C2POP3 *pop3)
 		{
 			const gchar *error;
 			gchar *newuser, *newpass;
-			gboolean ret;
 
 			error = c2_error_object_get (GTK_OBJECT (pop3));
 			
@@ -701,7 +710,7 @@ uidl_in_db (C2Account *account, const gchar *uidl)
 		C2_DEBUG (path);
 #endif
 		g_free (path);
-		return;
+		return FALSE;
 	}
 	g_free (path);
 
@@ -893,7 +902,6 @@ synchronize_search_uidl_in_list (GSList *uidl_list, const gchar *uidl)
 	GSList *l;
 	gint n, length;
 	gchar *ptr;
-	gchar fmt[] = " %%s";
 	gchar buf[UIDL_LENGTH] = { 0 };
 
 	/* [HACK]
@@ -991,10 +999,7 @@ synchronize (C2POP3 *pop3, C2Account *account, GSList *uidl_list)
 				return -1;
 			}
 		} else
-		{
-save_uidl:
 			fprintf (tmpfd, "%s\n", line);
-		}
 
 		g_free (line);
 		gtk_signal_emit (GTK_OBJECT (pop3), signals[SYNCHRONIZE], i, length);
@@ -1010,6 +1015,8 @@ save_uidl:
 	c2_file_binary_move (tmppath, path);
 	g_free (tmppath);
 	g_free (path);
+
+	return 0;
 }
 
 static void

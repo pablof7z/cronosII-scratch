@@ -110,6 +110,9 @@ c2_window_main_new							(C2Application *application);
 void
 c2_window_main_construct					(C2WindowMain *wmain, C2Application *application);
 
+void
+c2_window_main_set_mailbox					(C2WindowMain *wmain, C2Mailbox *mailbox);
+
 /*********************
  * [Common Dialogs ] *
  *********************/

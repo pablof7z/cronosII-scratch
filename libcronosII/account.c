@@ -95,7 +95,6 @@ init (C2Account *account)
 static void
 destroy (GtkObject *object)
 {
-	GSList *l;
 	C2Account *account = C2_ACCOUNT (object);
 	
 	g_free (account->name);
@@ -330,7 +329,7 @@ gint
 c2_account_check (C2Account *account)
 {
 	typedef gint (*FetchmailFunction) (C2Account *);
-	FetchmailFunction fetchmail;
+	FetchmailFunction fetchmail = 0;
 	
 	switch (account->type)
 	{
@@ -342,6 +341,7 @@ c2_account_check (C2Account *account)
 			break;
 		default:
 			g_warning ("Account is misconfigured, type = %d\n", account->type);
+			return -1;
 	}
 
 	return fetchmail (account);

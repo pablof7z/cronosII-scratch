@@ -30,12 +30,18 @@
 
 #include "preferences.h"
 #include "widget-application.h"
+#include "widget-application-utils.h"
 #include "widget-composer.h"
 #include "widget-dialog.h"
 #include "widget-dialog-preferences.h"
 #include "widget-transfer-item.h"
 #include "widget-transfer-list.h"
 #include "widget-window.h"
+
+/* TODO
+ * 20011208 We have to send a delete_event to all open window when
+ *          destroying the app and there must be a clean up.
+ */
 
 static void
 class_init									(C2ApplicationClass *klass);
@@ -141,9 +147,6 @@ load_mailbox (C2Mailbox *mailbox)
 static void
 init (C2Application *application)
 {
-	gboolean active, incoming_ssl, outgoing_authentication, outgoing_ssl, keep_copy;
-	C2AccountType account_type;
-	C2SMTPType outgoing_protocol;
 	gchar *tmp, *buf;
 	gint quantity = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL);
 	gint i;
@@ -161,7 +164,7 @@ init (C2Application *application)
 		gchar *name, *email, *buf;
 		C2AccountType account_type;
 		gint type, outgoing, l;
-		gpointer value;
+		gpointer value = NULL;
 		
 		tmp = g_strdup_printf ("/"PACKAGE"/Account %d/", i);
 		gnome_config_push_prefix (tmp);
@@ -239,7 +242,7 @@ ignore:
 			case C2_ACCOUNT_IMAP:
 				{
 					gchar *host, *user, *pass;
-					gint port, flags = 0, days;
+					gint port, flags = 0, days = 0;
 					gboolean ssl;
 					C2POP3AuthenticationMethod auth_method;
 					
@@ -249,10 +252,6 @@ ignore:
 					pass = gnome_config_get_string ("incoming_server_password");
 					ssl = gnome_config_get_bool ("incoming_server_ssl");
 					auth_method = gnome_config_get_int ("incoming_auth_method");
-					if (!gnome_config_get_bool ("incoming_auth_remember"))
-						flags |= C2_POP3_DO_NOT_LOSE_PASSWORD;
-					else
-						flags |= C2_POP3_DO_LOSE_PASSWORD;
 					if (gnome_config_get_bool ("options_multiple_access_leave"))
 					{
 						flags |= C2_POP3_DO_KEEP_COPY;
@@ -273,6 +272,7 @@ ignore:
 						c2_pop3_set_auth_method (pop3, auth_method);
 						c2_pop3_set_leave_copy (pop3, days ? TRUE : FALSE, days);
 						c2_pop3_set_flags (pop3, flags);
+						c2_pop3_set_save_password (pop3, gnome_config_get_bool ("incoming_auth_remember"));
 						c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, pop3);
 					} else if (account_type == C2_ACCOUNT_IMAP)
 					{
@@ -374,6 +374,9 @@ ignore:
 				mailbox = c2_mailbox_new (&application->mailbox, name, id, type, sort_by, sort_type, path);
 				g_free (path);
 				break;
+			default:
+				mailbox = NULL;
+				
 		}
 
 		/* [TODO]
@@ -475,7 +478,6 @@ send_ (C2Application *application)
 		
 		do
 		{
-			C2Message *message;
 			C2Account *account;
 			C2SMTP *smtp;
 			C2TransferItem *ti;
@@ -624,7 +626,7 @@ c2_application_window_remove (C2Application *application, GtkWindow *window)
 
 	if (asked_send_unsent_mails == 1)
 		return;
-	
+
 	if (GTK_OBJECT (application)->ref_count <= 1)
 	{
 		C2Mailbox *mailbox;
@@ -675,6 +677,8 @@ c2_application_window_get (C2Application *application, const gchar *type)
 		if (c2_streq ((gchar*)data, type))
 			return widget;
 	}
+
+	return NULL;
 }
 
 GSList *
@@ -687,7 +691,6 @@ static void
 on_preferences_changed (C2DialogPreferences *preferences, C2DialogPreferencesKey key, gpointer value)
 {
 	C2Application *application = C2_DIALOG (preferences)->application;
-	gchar *buf;
 
 	switch (key)
 	{

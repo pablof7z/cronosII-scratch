@@ -48,6 +48,9 @@ enum
 	C2_UNKNOWN_REASON
 };
 
+const gchar *
+c2_font_bold;
+
 #ifdef __cplusplus
 }
 #endif

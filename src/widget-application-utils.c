@@ -23,6 +23,10 @@
 #include "widget-dialog-preferences.h"
 #include "widget-mailbox-list.h"
 
+/* TODO
+ * 20011208 There's still a lack for the c2_application_dialog_select_file_get
+ */
+
 /**
  * c2_application_check_account_exists
  * @application: C2Application where to act.
@@ -119,6 +123,8 @@ c2_application_dialog_release_information (C2Application *application)
 				id = "features_box";
 				file = PKGDATADIR "/features.html";
 				break;
+			default:
+				id = file = NULL;
 		}
 		
 		widget = glade_xml_get_widget (xml, id);
@@ -168,6 +174,8 @@ c2_application_dialog_release_information (C2Application *application)
 	gtk_widget_show (widget);
 }
 
+
+
 static gboolean
 on_dialog_about_window_delete_event (GtkWidget *widget, GdkEvent *e, GladeXML *xml)
 {
@@ -202,7 +210,6 @@ c2_application_dialog_about (C2Application *application)
 {
 	GladeXML *xml;
 	GtkWidget *widget, *html, *scroll, *parent;
-	gint i;
 	gchar *buf;
 	
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_about");
@@ -245,6 +252,79 @@ c2_application_dialog_about (C2Application *application)
 						GTK_SIGNAL_FUNC (on_dialog_about_web_site_clicked), xml);
 	gnome_dialog_button_connect (GNOME_DIALOG (widget), 1,
 						GTK_SIGNAL_FUNC (on_dialog_about_close_clicked), xml);
+	c2_application_window_add (application, GTK_WINDOW (widget));
+
+	gtk_widget_show (widget);
+}
+
+static gboolean
+on_dialog_getting_in_touch_window_delete_event (GtkWidget *widget, GdkEvent *e, GladeXML *xml)
+{
+	C2Application *application = C2_APPLICATION (
+							gtk_object_get_data (GTK_OBJECT (xml), "application"));
+	c2_application_window_remove (application, GTK_WINDOW (widget));
+	gtk_object_destroy (GTK_OBJECT (xml));
+
+	return TRUE;
+}
+
+static void
+on_dialog_getting_in_touch_close_clicked (GtkWidget *widget, GladeXML *xml)
+{
+	C2Application *application = C2_APPLICATION (
+							gtk_object_get_data (GTK_OBJECT (xml), "application"));
+	GtkWidget *window = glade_xml_get_widget (xml, "dlg_getting_in_touch");
+	
+	c2_application_window_remove (application, GTK_WINDOW (window));
+	gtk_object_destroy (GTK_OBJECT (window));
+	gtk_object_destroy (GTK_OBJECT (xml));
+}
+
+void
+c2_application_dialog_getting_in_touch (C2Application *application)
+{
+	GladeXML *xml;
+	GtkWidget *widget, *html, *scroll, *parent;
+	gchar *buf;
+	
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_getting_in_touch");
+
+	widget = glade_xml_get_widget (xml, "contents_box");
+	gtk_object_set_data (GTK_OBJECT (xml), "application", application);
+		
+#ifdef USE_GTKHTML
+	scroll = gtk_viewport_new (NULL, NULL);
+	gtk_box_pack_start (GTK_BOX (widget), scroll, TRUE, TRUE, 0);
+	gtk_widget_show (scroll);
+	gtk_viewport_set_shadow_type (GTK_VIEWPORT (scroll), GTK_SHADOW_IN);
+	
+	parent = gtk_scrolled_window_new (NULL, NULL);
+	gtk_container_add (GTK_CONTAINER (scroll), parent);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (parent), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+#elif defined (USE_GTKXMHTML)
+	parent = gtk_viewport_new (NULL, NULL);
+	gtk_box_pack_start (GTK_BOX (widget), parent, TRUE, TRUE, 0);
+#else
+	parent = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (parent), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_box_pack_start (GTK_BOX (widget), parent, TRUE, TRUE, 0);
+#endif
+	gtk_widget_show (parent);
+
+	html = c2_html_new (application);
+	gtk_container_add (GTK_CONTAINER (parent), html);
+	gtk_widget_show (html);
+
+	/* Load the file */
+	if (c2_get_file (PKGDATADIR G_DIR_SEPARATOR_S "touch.html", &buf) > 0)
+		c2_html_set_content_from_string (C2_HTML (html), buf);
+	g_free (buf);
+
+	widget = glade_xml_get_widget (xml, "dlg_getting_in_touch");
+	gtk_signal_connect (GTK_OBJECT (widget), "delete_event",
+						GTK_SIGNAL_FUNC (on_dialog_getting_in_touch_window_delete_event), xml);
+	gnome_dialog_button_connect (GNOME_DIALOG (widget), 0,
+						GTK_SIGNAL_FUNC (on_dialog_getting_in_touch_close_clicked), xml);
 	c2_application_window_add (application, GTK_WINDOW (widget));
 
 	gtk_widget_show (widget);

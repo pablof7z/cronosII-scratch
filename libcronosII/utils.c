@@ -19,6 +19,7 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -387,7 +388,6 @@ gchar *
 c2_str_get_enclosed_text (const gchar *str, gchar enc1, gchar enc2, guint args, ...)
 {
 	const gchar *ptr, *start, *end;
-	gchar *enclosed_text;
 	gchar forcers[args];
 	va_list vargs;
 	gint i, level;
@@ -453,7 +453,6 @@ gchar *
 c2_str_get_enclosed_text_backward (const gchar *str, gchar enc1, gchar enc2, guint args, ...)
 {
 	const gchar *ptr, *start, *end;
-	gchar *enclosed_text;
 	gchar forcers[args];
 	va_list vargs;
 	gint i, level, length;

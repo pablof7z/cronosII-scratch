@@ -363,10 +363,10 @@ extern "C" {
 
 
 /* Widget Mail */
-#define c2_preferences_get_widget_mail_headers() \
-	gnome_config_get_string_with_default ("/"PACKAGE"/Widget-Mail/headers=normal", NULL)
-#define c2_preferences_set_widget_mail_headers(val) \
-	gnome_config_set_string ("/"PACKAGE"/Widget-Mail/headers", val)
+#define c2_preferences_get_widget_mail_headers_visible() \
+	gnome_config_get_bool_with_default ("/"PACKAGE"/Widget-Mail/headers_visible=true", NULL)
+#define c2_preferences_set_widget_mail_headers_visible(val) \
+	gnome_config_set_bool ("/"PACKAGE"/Widget-Mail/headers_visible", val)
 
 
 #define c2_preferences_commit() gnome_config_sync ()

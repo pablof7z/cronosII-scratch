@@ -18,13 +18,19 @@
 #include <config.h>
 #include <gnome.h>
 
+#ifdef USE_GCONF
+#	include <gconf/gconf.h>
+#endif
+
 #include <libcronosII/mailbox.h>
 #include <libcronosII/error.h>
 #include <libcronosII/hash.h>
 
 #include "main.h"
 #include "preferences.h"
+#include "widget-application-utils.h"
 #include "widget-composer.h"
+#include "widget-window.h"
 #include "widget-window-main.h"
 
 static gint
@@ -206,6 +212,8 @@ main (gint argc, gchar **argv)
 
 	/* Create the Application object */
 	application = c2_application_new (PACKAGE);
+	
+	c2_font_bold = "-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1";
 
 	/* Open specified windows */
 	if (flags.open_main_window)
@@ -284,5 +292,5 @@ on_window_main_show (GtkWidget *widget, C2WindowMain *wmain)
 	else
 		c2_window_main_set_mailbox (wmain, mailbox);
 	
-	return FALSE;
+	return;
 }

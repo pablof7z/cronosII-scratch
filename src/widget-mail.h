@@ -51,11 +51,14 @@ struct _C2Mail
 	
 	/* Headers */
 	GtkWidget *headers;
-	GtkWidget *from_label;
-	GtkWidget *to_label;
-	GtkWidget *cc_label;
-	GtkWidget *subject_label;
+	GtkWidget *from_label[2];
+	GtkWidget *to_label[2];
+	GtkWidget *cc_label[2];
+	GtkWidget *subject_label[2];
 	GtkWidget *attachments_button;
+	GtkWidget *attachments_list;
+	GtkWidget *attachments_scroll;
+	gint headers_visible : 1;
 
 	/* Part Shower */
 	GtkWidget *body;
@@ -82,13 +85,16 @@ C2Message *
 c2_mail_get_message								(C2Mail *mail);
 
 void
-c2_mail_set_show_field							(C2Mail *mail, const gchar *field, gboolean show);
+c2_mail_set_headers_visible						(C2Mail *mail, gboolean show);
 
 gboolean
-c2_mail_get_show_field							(C2Mail *mail, const gchar *field);
+c2_mail_get_headers_visible						(C2Mail *mail);
 
 void
 c2_mail_install_hints							(C2Mail *mail, GtkWidget *appbar, pthread_mutex_t *lock);
+
+GtkWidget *
+c2_mail_attachments_tool_new					(C2Mail *mail);
 
 #ifdef __cplusplus
 }

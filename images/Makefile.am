@@ -1,8 +1,11 @@
 pixmapdir = $(pkgdatadir)/pixmaps
 pixmap_DATA = \
 	advanced_misc.png	\
-	attachments.png		\
+	attachments24.png	\
+	attachments36.png	\
 	blue_arrow.png		\
+	check-off.png		\
+	check-on.png		\
 	close.png			\
 	contacts.png		\
 	copy-message.png	\

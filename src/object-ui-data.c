@@ -40,7 +40,7 @@ enum
 	LAST_SIGNAL
 };
 
-static gint signals[LAST_SIGNAL] = { 0 };
+static guint signals[LAST_SIGNAL] = { 0 };
 
 static GtkObjectClass *parent_class = NULL;
 

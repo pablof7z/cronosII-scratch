@@ -462,7 +462,7 @@ c2_mime_get_part_by_content_type (C2Mime *mime, const gchar *content_type)
 
 	if (!l)	
 		if ((l = mime))
-			return;
+			return NULL;
 
 	c2_mime_get_part (l);
 

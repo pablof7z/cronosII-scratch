@@ -87,7 +87,6 @@ c2_mutex_lock (C2Mutex *mutex)
 	
 	else
 	{
-		const char on=0;
 		gchar c[2] = {0, 0};
 		int pipes[2];
 		

@@ -69,6 +69,7 @@ CFLAGS = @CFLAGS@
 DATADIRNAME = @DATADIRNAME@
 DLLTOOL = @DLLTOOL@
 FEATURES = @FEATURES@
+GCONFCFLAGS = @GCONFCFLAGS@
 GCONFLIBS = @GCONFLIBS@
 GENCAT = @GENCAT@
 GLIB_CFLAGS = @GLIB_CFLAGS@
@@ -95,6 +96,7 @@ GTK_CONFIG = @GTK_CONFIG@
 GTK_LIBS = @GTK_LIBS@
 GT_NO = @GT_NO@
 GT_YES = @GT_YES@
+HACKERS_LIST = @HACKERS_LIST@
 HTMLLIBS = @HTMLLIBS@
 INCLUDE_LOCALE_H = @INCLUDE_LOCALE_H@
 INSTOBJEXT = @INSTOBJEXT@
@@ -123,6 +125,8 @@ POFILES = @POFILES@
 POSUB = @POSUB@
 PTHREAD_LIB = @PTHREAD_LIB@
 RANLIB = @RANLIB@
+URL = @URL@
+USERS_LIST = @USERS_LIST@
 USE_INCLUDED_LIBINTL = @USE_INCLUDED_LIBINTL@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
@@ -143,7 +147,7 @@ plugindir = $(pkgdatadir)/plugins
 plugin_DATA = 
 
 aboutdir = $(pkgdatadir)
-about_DATA = about.html bugs.html features.html header.png welcome.html
+about_DATA = about.html bugs.html features.html header.png touch.html welcome.html
 
 cronosincludedir = $(includedir)/cronosII
 cronosinclude_HEADERS = config.h
@@ -153,8 +157,8 @@ EXTRA_DIST =  	cronosII.spec				mkpotfiles-in				AUTHORS						COPYING						FEATU
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
-CONFIG_CLEAN_FILES =  about.html bugs.html features.html welcome.html \
-cronosII.spec cronosII-config
+CONFIG_CLEAN_FILES =  about.html bugs.html features.html touch.html \
+welcome.html cronosII.spec cronosII-config
 SCRIPTS =  $(bin_SCRIPTS)
 
 DATA =  $(about_DATA) $(plugin_DATA)
@@ -166,7 +170,7 @@ INSTALL Makefile.am Makefile.in NEWS THANKS TODO about.html.in \
 acconfig.h acinclude.m4 aclocal.m4 bugs.html.in config.guess \
 config.h.in config.sub configure configure.in cronosII-config.in \
 cronosII.spec.in features.html.in install-sh ltconfig ltmain.sh missing \
-mkinstalldirs welcome.html.in
+mkinstalldirs touch.html.in welcome.html.in
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
@@ -224,6 +228,8 @@ about.html: $(top_builddir)/config.status about.html.in
 bugs.html: $(top_builddir)/config.status bugs.html.in
 	cd $(top_builddir) && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 features.html: $(top_builddir)/config.status features.html.in
+	cd $(top_builddir) && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
+touch.html: $(top_builddir)/config.status touch.html.in
 	cd $(top_builddir) && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 welcome.html: $(top_builddir)/config.status welcome.html.in
 	cd $(top_builddir) && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status

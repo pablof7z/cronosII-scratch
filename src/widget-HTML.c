@@ -53,7 +53,7 @@ enum
 	LAST_SIGNAL
 };
 
-static gint signals[LAST_SIGNAL] = { 0 };
+static guint signals[LAST_SIGNAL] = { 0 };
 
 #ifdef USE_GTKHTML
 static GtkHTML *parent_class = NULL;
@@ -318,6 +318,7 @@ c2_html_get_line (C2HTML *html)
 #else
 	return 0;
 #endif
+	return 0;
 }
 
 void
@@ -333,4 +334,5 @@ c2_html_install_hints (C2HTML *html, GtkWidget *appbar, pthread_mutex_t *lock)
 static gchar *
 html2text (const gchar *string)
 {
+	return NULL;
 }

@@ -18,6 +18,7 @@
 #include <glib.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "error.h"
 #include "smtp.h"
@@ -399,7 +400,6 @@ static gint
 c2_smtp_connect (C2SMTP *smtp, C2NetObjectByte **byte)
 {
 	gchar *ip = NULL;
-	gchar *hostname = NULL;
 	gchar *buffer = NULL;
 	
 	if(!c2_net_object_is_offline(C2_NET_OBJECT(smtp), *byte) && smtp->flags==C2_SMTP_DO_PERSIST)
@@ -521,8 +521,6 @@ c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 {
 	gchar *buffer, *cc;
 	gchar *temp = NULL, *temp2 = NULL;
-	GList *to = NULL;
-	gint i;
 	
 	if(!(temp2 = c2_message_get_header_field(message, "From:")) 
 		 || !(temp = c2_str_get_email(temp2)))
@@ -561,7 +559,7 @@ c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 		return -1;
 	}
 	g_free(buffer);
-	if(cc  = c2_message_get_header_field(message, "CC:"))
+	if((cc  = c2_message_get_header_field(message, "CC:")))
 	{
 		buffer = g_strconcat(temp, ",", cc, NULL);
 		g_free(temp);
@@ -569,7 +567,7 @@ c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 	}
 	else buffer = temp;
 	temp = NULL;
-	if(cc  = c2_message_get_header_field(message, "BCC:"))
+	if((cc  = c2_message_get_header_field(message, "BCC:")))
 	{
 		buffer = g_strconcat(buffer, ",", cc, NULL);
 		g_free(cc);
@@ -812,10 +810,10 @@ c2_smtp_send_rcpt (C2SMTP *smtp, C2NetObjectByte *byte, gchar *to)
 			
 			/* weed out the actual address between the "<>",
 			 * for compability reasons w/ some servers */
-			if(ptr2 = strstr(buf, "<"))
+			if((ptr2 = strstr(buf, "<")))
 			{
 				gchar *ptr3;
-				if(ptr3 = strstr(buf, ">"))
+				if((ptr3 = strstr(buf, ">")))
 				{
 					gchar *final = g_strndup(ptr2+1, ptr3 - (ptr2+1));
 					g_free(buf);

@@ -1,3 +1,17 @@
+Tue Dec 11 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* Some work in the mail widget.
+	* Changed the CFLAGS args for gcc for more warnings.
+	* Clean up in many files (specially in the dialog-preferences widget).
+	* Fixed a bug in the window widget.
+	* Completly changed the "Getting in Touch" dialog.
+
+Mon Dec 10 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* A LOT of work in the mail widget.
+	* Fixed that fucking bug that caused password not to get saved.
+
+Sat Dec 08 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* I graduated from high school!!!!!!!!!!!!!!!!!!!!!!!!!
+
 Sat Dec 08 Bosko Blaogjevic <falling@users.sourceforge.net>
 	* Added function c2_mailbox_get_by_id().
 	* Working on ironing out folder managment in the IMAP object.

@@ -27,6 +27,7 @@
 #include <libcronosII/error.h>
 #include <libcronosII/message.h>
 #include <libcronosII/smtp.h>
+#include <libcronosII/utils-date.h>
 
 #include "main.h"
 #include "preferences.h"
@@ -59,6 +60,12 @@
 		else \
 			str = g_strdup_printf ("%s (%s)", account->email, account->name); \
 	}
+
+/* TODO
+ * 20011208 Spell checking, loading attachments in reply, forward and drafts,
+ *          confirming closing when body has changed and it hasn't been sabed,
+ *          address book, find/replace, gtkhtml support, open stuff.
+ */
 
 static void
 class_init									(C2ComposerClass *klass);
@@ -233,6 +240,9 @@ class_init (C2ComposerClass *klass)
 	klass->changed_title = NULL;
 	klass->add_attachment = add_attachment;
 	klass->autosave = autosave;
+	klass->find = find;
+	klass->open_draft = open_draft;
+	klass->open_file = open_file;
 	klass->save = save;
 	klass->save_file = save_file;
 	klass->save_draft = save_draft;
@@ -271,7 +281,7 @@ add_attachment (C2Composer *composer, gchar *file, gchar *description, gint nth)
 		C2ComposerAttachment *attach;
 		gchar *filename;
 		const gchar *pixmapfile;
-		gchar *dynpixmap;
+		gchar *dynpixmap = NULL;
 		
 		attach = g_new0 (C2ComposerAttachment, 1);
 		attach->file = file;
@@ -314,12 +324,30 @@ add_attachment (C2Composer *composer, gchar *file, gchar *description, gint nth)
 static void
 autosave (C2Composer *composer)
 {
-	gint id;
-	
 	/* This is how it will work
 	 * is storing its mails in a spool mailbox in
 	 * ~/.c2/autosave
 	 */
+}
+
+static void
+find (C2Composer *composer)
+{
+}
+
+static void
+open_ (C2Composer *composer, const gchar *file, C2Message *message)
+{
+}
+
+static void
+open_draft (C2Composer *composer)
+{
+}
+
+static void
+open_file (C2Composer *composer)
+{
 }
 
 static void
@@ -375,8 +403,7 @@ save_draft (C2Composer *composer)
 static void
 save_file (C2Composer *composer, gchar *efile)
 {
-	GtkWidget *dialog;
-	gchar *buf, *file;
+	gchar *file;
 	C2Message *message;
 	FILE *fd;
 
@@ -421,34 +448,33 @@ send_ (C2Composer *composer, C2ComposerSendType type)
 {
 	C2Message *message;
 	C2Mailbox *mailbox;
-	GladeXML *xml;
 	gchar *buf;
-
+L
 	gdk_threads_enter ();
 	message = create_message (composer);
-	gdk_threads_leave ();
+L	gdk_threads_leave ();
 
 	/* Set the Send Now state of the message */
 	buf = message->header;
 	message->header = g_strdup_printf ("%s\n"
 									   "X-CronosII-Send-Type: %d\n",
 									   message->header, type);
-
+L
 	mailbox = c2_mailbox_get_by_name (C2_WINDOW (composer)->application->mailbox, C2_MAILBOX_OUTBOX);
 	if (!mailbox)
 		g_assert_not_reached ();
-
+L
 	c2_db_freeze (mailbox);
 	if (!c2_db_message_add (mailbox, message))
 	{
 		c2_db_thaw (mailbox);
 
 		gdk_threads_enter ();
-		gtk_widget_destroy (GTK_WIDGET (composer));
+L		gtk_widget_destroy (GTK_WIDGET (composer));
 		gdk_threads_leave ();
 	} else
 	{
-		c2_db_thaw (mailbox);
+L		c2_db_thaw (mailbox);
 		
 		/* Make the send buttons sensitive again */
 	}
@@ -506,16 +532,14 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 {
 	GtkWidget *editor_container;
 	GtkWidget *widget;
-	gchar *str, *buf;
+	gchar *buf;
 	GladeXML *xml;
 	
-	c2_window_construct (C2_WINDOW (composer), application, _("Composer: Untitled"), "composer");
+	c2_window_construct (C2_WINDOW (composer), application, _("Composer: Untitled"), "composer",
+							PKGDATADIR "/pixmaps/mail-write.png");
 	C2_WINDOW (composer)->xml = glade_xml_new (C2_APPLICATION_GLADE_FILE (XML_FILE),
 								"wnd_composer_contents");
 	xml = C2_WINDOW (composer)->xml;
-#ifdef USE_GNOME_WINDOW_ICON
-	gnome_window_icon_set_from_file (GTK_WINDOW (composer), PKGDATADIR "/pixmaps/mail-write.png");
-#endif
 	gtk_widget_set_usize (GTK_WIDGET (composer), GET_WINDOW_WIDTH, GET_WINDOW_HEIGHT);
 	gtk_window_set_policy (GTK_WINDOW (composer), TRUE, TRUE, FALSE);
 
@@ -1260,6 +1284,8 @@ set_message_subject (C2Composer *composer, C2Message *message)
 		case C2_COMPOSER_ACTION_DRAFT:
 			buf = "";
 			break;
+		default:
+			buf = NULL;
 	}
 
 	buf = g_strdup_printf ("%s%s", buf, buf2 ? buf2 : "");
@@ -1271,7 +1297,7 @@ set_message_subject (C2Composer *composer, C2Message *message)
 static void
 set_message_in_reply_to (C2Composer *composer, C2Message *message)
 {
-	gchar *buf, *buf2;
+	gchar *buf;
 
 	buf = c2_message_get_header_field (message, "Message-ID:");
 	if (!buf)
@@ -1598,49 +1624,6 @@ c2_composer_set_message_as_forward (C2Composer *composer, C2Message *message)
 	set_message_body (composer, message);
 }
 
-void
-c2_composer_set_message_as_quote (C2Composer *composer, C2Message *message)
-{
-	GtkWidget *widget;
-	gchar *buf, *buf2, *body;
-	C2Account *account;
-	FILE *fd;
-	
-	c2_return_if_fail_obj (C2_IS_MESSAGE (message), C2EDATA, GTK_OBJECT (composer));
-	
-	
-	
-	/* Body */
-	switch (composer->action)
-	{
-		case C2_COMPOSER_ACTION_REPLY:
-		case C2_COMPOSER_ACTION_REPLY_ALL:
-		case C2_COMPOSER_ACTION_FORWARD:
-			
-		case C2_COMPOSER_ACTION_DRAFT:
-	}
-	
-	//string = create_quoted_message (message);
-	
-	if (composer->type == C2_COMPOSER_TYPE_INTERNAL)
-	{
-		
-	} else
-	{
-		FILE *fd;
-		gchar *file;
-
-//		file = (gchar*) gtk_object_get_data (GTK_OBJECT (composer), );
-
-		if (!(fd = fopen (file, "a")))
-		{
-			c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING, "%s: %s",
-								g_strerror (errno), file);
-			return;
-		}
-	}
-}
-
 static C2Message *
 create_message (C2Composer *composer)
 {
@@ -1650,8 +1633,8 @@ create_message (C2Composer *composer)
 	C2Account *account;
 	GString *header;
 	C2Mime *mime;
-	gboolean html, multipart;
-	gchar *buf, *buf1, *buf2;
+	gboolean html;
+	gchar *buf, *buf1;
 	gint i;
 	GList *l;
 
@@ -1949,7 +1932,6 @@ void
 c2_composer_set_extra_field (C2Composer *composer, const gchar *field, const gchar *data)
 {
 	GtkWidget *widget;
-	gchar *string;
 	
 	c2_return_if_fail_obj (C2_IS_COMPOSER (composer) || field, C2EDATA, GTK_OBJECT (composer));
 
@@ -2006,7 +1988,7 @@ void
 c2_composer_set_contents_from_link (C2Composer *composer, const gchar *link)
 {
 	const gchar *ptr, *ptr2;
-	gchar *buf, *subject;
+	gchar *buf;
 
 	ptr = link;
 	

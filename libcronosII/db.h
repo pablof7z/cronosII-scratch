@@ -32,8 +32,6 @@ extern "C" {
 #define C2_IS_DB(obj)							(GTK_CHECK_TYPE (obj, C2_TYPE_DB))
 #define C2_IS_DB_CLASS(klass)					(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_DB))
 
-typedef struct _C2DbNode C2DbNode;
-typedef struct _C2DbNodeClass C2DbNodeClass;
 typedef struct _C2Db C2Db;
 typedef struct _C2DbClass C2DbClass;
 

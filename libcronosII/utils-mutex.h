@@ -32,6 +32,8 @@ extern "C" {
 		
 #include <glib.h>
 
+typedef struct _C2Mutex C2Mutex;
+
 struct _C2Mutex
 {
 	gboolean dead;
@@ -39,17 +41,20 @@ struct _C2Mutex
 	GList *queue;
 };
 
-typedef struct _C2Mutex C2Mutex;
+gint
+c2_mutex_init								(C2Mutex *mutex);
 
-gint c2_mutex_init (C2Mutex *mutex);
+gint
+c2_mutex_lock								(C2Mutex *mutex);
 
-gint c2_mutex_lock (C2Mutex *mutex);
+gint
+c2_mutex_trylock							(C2Mutex *mutex);
 
-gint c2_mutex_trylock (C2Mutex *mutex);
+gint
+c2_mutex_unlock								(C2Mutex *mutex);
 
-gint c2_mutex_unlock (C2Mutex *mutex);
-
-gint c2_mutex_destroy (C2Mutex *mutex);
+gint
+c2_mutex_destroy							(C2Mutex *mutex);
 
 #ifdef __cplusplus
 }

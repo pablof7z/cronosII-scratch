@@ -536,73 +536,48 @@ in the following fields.", 445},
   {"Getting in Touch", 446},
   {"Close this dialog", 447},
   {"\
-Getting in Touch:\n\
-\n\
-There are several ways to get in touch with anyone\n\
-from the Cronos II community (users or developers).\n\
-\n\
-Note that if you want to contact a particular developer for\n\
-a special bug-report (or for whatever reason) you should\n\
-check the Cronos II homepage for a list of contacts at\n\
-_h_t_t_p_:_/_/_c_r_o_n_o_s_I_I_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t_/\n\
-\n\
-_E_-_M_a_i_l:\n\
-\n\
-To send a mail to the developers you should write to\n\
-our mailing list: \
-_c_r_o_n_o_s_I_I_-_d_e_v_e_l_o_p_e_r_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_\
-e_t.\n\
-\n\
-To contact other users of Cronos II send mail\n\
-to the user's mailing list: \
-_c_r_o_n_o_s_I_I_-_u_s_e_r_s_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n\
-\n\
-_I_R_C:\n\
-\n\
-You can chat with both users and developers in the\n\
-OpenProjects network by connecting to the server\n\
-_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 and the channel _#_c_r_o_n_o_s_I_I.", 448},
-  {"\
 There is no account configured yet.\n\
 You need to do this before being\n\
-able to compose mails.", 449},
+able to compose mails.", 448},
   {"\
 Not enough data was filled in,\n\
 complete the missing data\n\
-and try again.", 450},
-  {"Text _beside icons", 451},
-  {"Text _under icons", 452},
-  {"_Text only", 453},
-  {"_Icons only", 454},
-  {"_Tooltips", 455},
-  {"_Edit toolbar...", 456},
-  {"Toolbar configuration", 457},
-  {"Available elements", 458},
-  {"label73", 459},
-  {"label74", 460},
-  {"Current Toolbar", 461},
-  {"label75", 462},
-  {"label76", 463},
+and try again.", 449},
+  {"Text _beside icons", 450},
+  {"Text _under icons", 451},
+  {"_Text only", 452},
+  {"_Icons only", 453},
+  {"_Tooltips", 454},
+  {"_Edit toolbar...", 455},
+  {"Toolbar configuration", 456},
+  {"Available elements", 457},
+  {"label73", 458},
+  {"label74", 459},
+  {"Current Toolbar", 460},
+  {"label75", 461},
+  {"label76", 462},
   {"\
 There is a file by that name already.\n\
 \n\
-Do you want to overwrite it?", 464},
+Do you want to overwrite it?", 463},
   {"\
 Are you sure you want to\n\
-delete the selected mails?", 465},
-  {"Do not ask again.", 466},
+delete the selected mails?", 464},
+  {"Do not ask again.", 465},
   {"\
 Are you sure you want to\n\
-expunge the selected mails?", 467},
-  {"Release Information", 468},
-  {"Welcome", 469},
-  {"Known Bugs", 470},
-  {"Missing Features", 471},
-  {"Show this dialog at start.", 472},
-  {"Select Mailbox", 473},
-  {"You selected a directory.", 474},
-  {"About", 475},
-  {"Web Site", 476},
+expunge the selected mails?", 466},
+  {"Release Information", 467},
+  {"Welcome", 468},
+  {"Known Bugs", 469},
+  {"Missing Features", 470},
+  {"Show this dialog at start.", 471},
+  {"Select Mailbox", 472},
+  {"You selected a directory.", 473},
+  {"About", 474},
+  {"Web Site", 475},
+  {"Attachments Tool", 476},
+  {"Save selected attachments to disk", 477},
 };
 
-int _msg_tbl_length = 476;
+int _msg_tbl_length = 477;
