@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client  /testsuite/smtp.c
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -35,7 +35,7 @@ main (gint argc, gchar **argv)
 	smtp = c2_smtp_new(C2_SMTP_REMOTE, "smtp.arnet.com.ar", 25, FALSE, NULL, NULL);
 	
 	msg = g_new0(C2Message, 1);
-	msg->header = g_strdup("From: testing<testing@cronosii.sourceforge.net>\n"
+	msg->header = g_strdup("From: testing <testing@cronosii.sourceforge.net>\n"
 													"To: cronosII@users.sourceforge.net\n"
 													"Subject: Testing C2 smtp module!");
 	msg->body = g_strdup("Testing 1-2-3");
