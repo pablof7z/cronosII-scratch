@@ -10,9 +10,9 @@ widget-mail:
 			o Italic is not recognized/translated.
 
 dialogs:
-			o Add mailbox dialog: redisign it, is not intuitive enough, use the
+			o Add mailbox dialog: redesign it, is not intuitive enough, use the
 			  mailbox list widget.
-			o Add a new dialog that will popup when a new version is installed,
+			o Add a new dialog that will pop-up when a new version is installed,
 			  which tells the user what has changed since the previous version
 			  s/he was using.
 
@@ -23,7 +23,7 @@ supports:
 backends:
 			o An efficient hash object for IMAP (must be faster/lighter than Gtk's).
 			o Create some kind of IPC in the application widget to make it
-			  listen for actions like separated processes fireing a composer,
+			  listen for actions like separated processes firing a composer,
 			  or a main window.
 			o Add a new member to the C2Db object: C2Db *parent: this way
 			  we can implement message threading in the db module itself!

@@ -4,7 +4,7 @@ Q: What's the difference between main-window.{ch} and c2-main-window.{ch}?
 A: main-window.{ch} stores the functions that handles nearly all callbacks for
    the main window and the function that creates the main window.
    c2-main-window.{ch} stores the callbacks for the main window that will
-   create a dialog or some kind of UI interaction (except for minimal changes
+   create a dialog or some kind of USER INTERFACE interaction (except for minimal changes
    like a c2_app_report) and also stores the function that should also get called
    outside of {c2-}main-window.c.
  
@@ -14,7 +14,7 @@ A: 'That' stuff, as you call it, is a thing that gave me a little work, so
    you big fat moron!
 
 Q: Hey! Take it easy, I didn't mean to offend you!
-A: Ok, I forgive you, but, you didn't make any question, so why
+A: OK, I forgive you, but, you didn't make any question, so why
    the heck did I put a Q as a prefix of your line?!
  
 x: mmmm, I don't know, are u into some pat or drunk?
@@ -27,7 +27,7 @@ A: yeah, is probably that...
    to store and to retrieve that text (yeah, of course the storing is not
    going to be in a menu of something, that's internal...) through queries.
 
-Q: Ok, I get it, so, how do you make a query?
+Q: OK, I get it, so, how do you make a query?
 A: Like this:
    action [key] subtype [text]
 
