@@ -276,6 +276,7 @@ c2_net_object_run (C2NetObject *nobj)
 	 * 			Pablo Fernández Navarro.
 	 */
 	
+	printf("made new connection\n");
 	return byte;
 }
 
@@ -311,7 +312,7 @@ c2_net_object_send (C2NetObject *nobj, C2NetObjectByte *byte, const gchar *fmt, 
 
 	va_start (args, fmt);
 	string = g_strdup_vprintf (fmt, args);
-	printf ("C: %s", string);
+	//printf ("C: %s", string);
 	va_end (args);
 	
 	if (nobj->max == 1)
@@ -429,7 +430,7 @@ c2_net_object_read (C2NetObject *nobj, gchar **string, ...)
 		c2_error_object_set (GTK_OBJECT (nobj), -errno);
 		return -1;
 	}
-	printf ("S: %s", *string);
+	//printf ("S: %s", *string);
 	byte->state = C2_NET_OBJECT_EXCHANGE;
 	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE],
 					 C2_NET_OBJECT_EXCHANGE_READ, strlen (*string), byte);
@@ -601,7 +602,7 @@ c2_net_object_is_offline (C2NetObject *nobj, ...)
 		va_end (args);
 	}
 
-	if (byte->state & C2_NET_OBJECT_OFF)
+	if (byte->state & C2_NET_OBJECT_OFF || !byte)
 		return TRUE;
 
 	return FALSE;

@@ -27,6 +27,8 @@
 
 /* hard-hat area, in progress by bosko */
 /* feel free to mess around -- help me get this module up to spec faster! */
+/* TODO: fix smtp_update signal to work with multiple connections */
+/* TODO: make c2_smtp_send_message() break off into thread and return early */
 /* TODO: implement authentication (posted by pablo) */
 /* TODO: implement a better error handling according to RFC821 4.2.1 (posted by pablo) */
 /* (in progress) TODO: create a test-module */
@@ -273,25 +275,20 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 {
 	C2NetObjectByte *byte = NULL;
 	gchar *buffer;
-	
-	if(smtp->flags == C2_SMTP_DO_PERSIST)
-		byte = smtp->persistent;
-	
-	/* Lock the mutex */
-  c2_mutex_lock (&smtp->lock);
-	
+		
 	if(smtp->type == C2_SMTP_REMOTE) 
 	{
+		c2_mutex_lock(&smtp->lock);
+		if(smtp->flags & C2_SMTP_DO_PERSIST)
+			byte = smtp->persistent;
 		if(!byte)
 			if(c2_smtp_connect(smtp, &byte) < 0)
-		  {
 				return -1;
-			}
-		if(smtp->flags == C2_SMTP_DO_PERSIST)
+		if(smtp->flags & C2_SMTP_DO_PERSIST)
 			smtp->persistent = byte;
 		else
 			smtp->persistent = NULL;
-		c2_mutex_unlock(&smtp->lock);
+		if(smtp->flags & C2_SMTP_DO_NOT_PERSIST) c2_mutex_unlock(&smtp->lock);
 		if(c2_smtp_send_headers(smtp, byte, message) < 0)
 			return -1;
 		if(c2_smtp_send_message_contents(smtp, byte, message) < 0)
@@ -315,8 +312,10 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 			smtp_disconnect(smtp, byte);
 			return -1;
 		}
-		if(smtp->flags == C2_SMTP_DO_NOT_PERSIST)
+		if(smtp->flags & C2_SMTP_DO_NOT_PERSIST)
 			smtp_disconnect(smtp, byte);
+		else
+			c2_mutex_unlock(&smtp->lock);
 		g_free(buffer);
 	}
 	else if(smtp->type == C2_SMTP_LOCAL) 
