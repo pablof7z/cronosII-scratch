@@ -271,6 +271,7 @@ c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *pa
 							C2MailboxSortBy sort_by, GtkSortType sort_type, ...)
 {
 	C2Mailbox *value;
+	gboolean create_db_struct = TRUE;
 	gchar *id;
 	gint port;
 	va_list edata;
@@ -302,7 +303,7 @@ c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *pa
 		case C2_MAILBOX_IMAP:
 			va_start (edata, sort_type);
 			imap = va_arg (edata, C2IMAP *);
-	
+			create_db_struct = va_arg(edata, gboolean);
 			value = _c2_mailbox_new (head, name, id, FALSE, type, sort_by, sort_type, imap);
 			va_end (edata);
 			break;
@@ -317,7 +318,7 @@ c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *pa
 	g_free (id);
 
 	/* Create the structure */
-	if (c2_db_create_structure (value) < 0)
+	if (create_db_struct && !c2_db_create_structure (value))
 	{
 		gtk_object_destroy (GTK_OBJECT (value));
 		return NULL;
@@ -462,7 +463,7 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
  * 
  * TODO: Ability to delete the mailbox with ID "0".
  **/
-void
+gboolean
 c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 {
 	C2Mailbox *parent = NULL, *previous = NULL, *next;
@@ -470,6 +471,13 @@ c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 	gint my_id;
 	
 	c2_return_if_fail (mailbox, C2EDATA);
+	
+	/* Remove the structure */
+#ifdef USE_ARCHIVER
+	c2_db_archive (mailbox);
+#endif
+	if(!c2_db_remove_structure (mailbox))
+		return FALSE;
 	
 	c2_mutex_lock(&mailbox->lock);
 
@@ -480,13 +488,13 @@ c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 		if (!(parent_id = c2_mailbox_get_parent_id (mailbox->id)))
 		{	
 			c2_mutex_unlock(&mailbox->lock);
-			return;
+			return FALSE;
 		}
 		
 		if (!(parent = c2_mailbox_search_by_id (*head, parent_id)))
 		{
 			c2_mutex_unlock(&mailbox->lock);
-			return;
+			return FALSE;
 		}
 		
 		g_free (parent_id);
@@ -501,7 +509,7 @@ c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 		if (!(previous = c2_mailbox_search_by_id (*head, previous_id)))
 		{
 			c2_mutex_unlock(&mailbox->lock);
-			return;
+			return FALSE;
 		}
 		
 		g_free (previous_id);
@@ -525,14 +533,10 @@ c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 
 	gtk_signal_emit (GTK_OBJECT (*head), signals[CHANGED_MAILBOXES]);
 
-	/* Remove the structure */
-#ifdef USE_ARCHIVER
-	c2_db_archive (mailbox);
-#endif
-	c2_db_remove_structure (mailbox);
-
 	c2_mutex_unlock(&mailbox->lock);
 	gtk_object_unref (GTK_OBJECT (mailbox));
+	
+	return TRUE;
 }
 
 static void
@@ -680,7 +684,8 @@ c2_mailbox_get_complete_id (const gchar *id, guint number)
 	const gchar *ptr;
 	
 	c2_return_val_if_fail (id, NULL, C2EDATA);
-
+	if(number < 1) return NULL;
+	
 	for (ptr = id, i = 0; i < number; i++, ptr++)
 	{
 		if (!(ptr = strstr (ptr, "-")))
@@ -788,6 +793,9 @@ c2_mailbox_get_by_name (C2Mailbox *head, const gchar *name)
 C2Mailbox *
 c2_mailbox_get_by_id (C2Mailbox *head, const gchar *id)
 {
+	if(!head || !id)
+		return NULL;
+	
 	return c2_mailbox_search_by_id(head, id);
 }
 

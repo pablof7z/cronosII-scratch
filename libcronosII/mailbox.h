@@ -167,7 +167,7 @@ void
 c2_mailbox_update								(C2Mailbox *mailbox, const gchar *name, const gchar *id,
 												 C2MailboxType type, ...);
 
-void
+gboolean
 c2_mailbox_remove								(C2Mailbox **head, C2Mailbox *mailbox);
 
 #define c2_mailbox_get_parent_id(x)				c2_mailbox_get_complete_id (x, c2_mailbox_get_level (x)-1)

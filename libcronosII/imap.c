@@ -41,7 +41,7 @@
 /* (done!) TODO: Function for reading server replies */
 /* (done!) TODO: Get list of folders */
 
-const gint C2TagLen = 15; /* strlen("CronosII-XXXX "); */
+const gint C2TagLen = 14; /* strlen("CronosII-XXXX "); */
 
 /* Private GtkObject functions */
 static void
@@ -319,7 +319,6 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	tag = atoi(buf+9);
 	g_free(buf);
   /* now insert 'final' into the hash...*/
-	//printf("Now inserting data: %s in hash table for tag #%i\n", final, tag);
 	{
 		C2IMAPServerReply *data = g_new0(C2IMAPServerReply, 1);
 		data->tag = tag;
@@ -483,7 +482,7 @@ c2_imap_check_server_reply(gchar *reply, tag_t tag)
 	if(*reply != '*')
 	{
 		ptr = reply;
-		ptr += 14;
+		ptr += C2TagLen;
 		goto check;
 	}
 	
@@ -493,7 +492,7 @@ c2_imap_check_server_reply(gchar *reply, tag_t tag)
 			continue;
 		else if(c2_strneq(ptr+1, "CronosII-", 9))
 		{
-			ptr += 15; /* skip '\nCronosII-XXXX ' */
+			ptr += C2TagLen + 1; /* skip '\nCronosII-XXXX ' */
 check:			
 			if(c2_strneq(ptr, "OK ", 3))
 				return TRUE;
@@ -614,7 +613,7 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 			if(parent) id = parent->id;
 			
 			folder = c2_mailbox_new_with_parent(&imap->mailboxes, "*", id, C2_MAILBOX_IMAP,
-						C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap);
+						C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap, FALSE);
 			buf2 = g_strndup(start, ptr - start);
 			
 			for(ptr2 = buf2; *ptr2; ptr2++)
@@ -708,7 +707,7 @@ c2_imap_get_full_folder_name (C2IMAP *imap, C2Mailbox *mailbox)
 	C2Mailbox *temp;
 	gint level = c2_mailbox_get_level(mailbox->id);
 	gchar *id, *str, *name = NULL;
-	
+
 	if(level == 1)
 		return g_strdup(mailbox->name);
 	
@@ -812,47 +811,45 @@ c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name)
  * Return Value:
  * The new C2Mailbox on success, NULL on failure
  **/
-C2Mailbox *
+gboolean
 c2_imap_create_folder(C2IMAP *imap, C2Mailbox *parent, const gchar *name)
 {
 	C2Mailbox *mailbox;
-	gchar *reply, *buf = NULL, *id = NULL;
+	gchar *reply, *buf = NULL;
 	tag_t tag;
-	
+
 	c2_mutex_lock(&imap->lock);
-	
+
 	tag = c2_imap_get_tag(imap);
-	
+
 	if(parent) buf = c2_imap_get_full_folder_name(imap, parent);
-	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d CREATE " 
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d CREATE "
 		"\"%s%s%s\"\r\n", tag, buf ? buf : "", buf ? "/" : "", name) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
 		c2_mutex_unlock(&imap->lock);
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		g_free(buf);
-		return NULL;
+		return FALSE;
 	}
 	g_free(buf);
 	
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
 	{
 		c2_mutex_unlock(&imap->lock);
-		return NULL;
+		return FALSE;
 	}
 	
 	c2_mutex_unlock(&imap->lock);
 	
 	if(!c2_imap_check_server_reply(reply, tag))
-		return NULL;
-	
-	if(parent) id = parent->id;
-	mailbox = c2_mailbox_new_with_parent(&imap->mailboxes, name, id, C2_MAILBOX_IMAP,
-						C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap);
-	
-	/* fatty but a good precaution to keep folders in sync */
-	//c2_imap_populate_folders(imap);
-	return mailbox;
+	{
+		c2_imap_set_error(imap, reply+C2TagLen);
+		g_free(reply);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 /**
@@ -871,8 +868,6 @@ c2_imap_delete_folder(C2IMAP *imap, C2Mailbox *mailbox)
 {
 	gchar *reply, *name;
 	tag_t tag;
-	
-	printf("folder name is: %s, %s, %s\n", mailbox->name, mailbox->id, mailbox->child ? "not-null" : "null");
 	
 	c2_mutex_lock(&imap->lock);
 	
@@ -905,7 +900,7 @@ c2_imap_delete_folder(C2IMAP *imap, C2Mailbox *mailbox)
 	}
 	g_free(reply);
 	
-	c2_mailbox_remove(&imap->mailboxes, mailbox);
+	/*c2_mailbox_remove(&imap->mailboxes, mailbox);*/
 	c2_mutex_unlock(&imap->lock);
 	
 	return 0;

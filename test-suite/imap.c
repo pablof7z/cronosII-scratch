@@ -64,19 +64,22 @@ run_imap(C2IMAP *imap)
 		exit(-1);
 	}
 	
-	printf("listing folders: \n");
 	if(c2_imap_populate_folders(imap) < 0)
 	{
 		printf("failed to populate the IMAP Folders tree");
 		exit(-1);
 	}
-	
+ 
+	printf("listing folders: \n");
 	print_imap_tree(imap, NULL, NULL);
 
 	printf("\nCreating top-level folder CronosII...");
-	if(!(mailbox = c2_imap_create_folder(imap, NULL, "CronosII")))
+
+	if(!(mailbox = c2_mailbox_new_with_parent(&imap->mailboxes, "CronosII", "3-2-0", C2_MAILBOX_IMAP,
+								 C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap, TRUE)))
 	{
 		printf("failure!\n");
+		printf("Error was: %s\n", gtk_object_get_data(GTK_OBJECT(imap), "error"));
 		exit(-1);
 	}
 	printf("success!\n\n");
@@ -85,7 +88,7 @@ run_imap(C2IMAP *imap)
 	print_imap_tree(imap, NULL, NULL);
 	
 	printf("Deleting top-level folder CronosII...");
-  if(c2_imap_delete_folder(imap, mailbox) < 0)
+  if(c2_mailbox_remove(&imap->mailboxes, mailbox))
 	{
 		printf("failure!\n");
 		printf("Error was: %s", gtk_object_get_data(GTK_OBJECT(imap), "error"));

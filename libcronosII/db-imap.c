@@ -25,6 +25,18 @@
 gboolean
 c2_db_imap_create_structure (C2Mailbox *mailbox)
 {
+	gchar *temp;
+	C2Mailbox *parent;
+	gboolean return_val;
+	
+	temp = c2_mailbox_get_parent_id(mailbox->id);
+	parent = c2_mailbox_get_by_id(mailbox->protocol.IMAP.imap->mailboxes, temp);
+	
+	return_val = 
+		c2_imap_create_folder(mailbox->protocol.IMAP.imap, parent, mailbox->name);
+	
+	g_free(temp);
+	return return_val;
 }
 
 gboolean
@@ -35,6 +47,7 @@ c2_db_imap_update_structure (C2Mailbox *mailbox)
 gboolean
 c2_db_imap_remove_structure (C2Mailbox *mailbox)
 {
+	return c2_imap_delete_folder(mailbox->protocol.IMAP.imap, mailbox);
 }
 
 gint
