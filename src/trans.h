@@ -96,10 +96,10 @@ gchar *s = N_("Extra data");
 gchar *s = N_("Port:");
 gchar *s = N_("Type here the port where this mailbox is stored");
 gchar *s = N_("Type here the hostname where this mailbox is stored");
-gchar *s = N_("Host:");
-gchar *s = N_("User:");
-gchar *s = N_("Pass:");
-gchar *s = N_("Path:");
+gchar *s = N_("Hostname:");
+gchar *s = N_("Username:");
+gchar *s = N_("Password:");
+gchar *s = N_("Remote path:");
 gchar *s = N_("© 2000-2001 Pablo Fernández Navarro");
 gchar *s = N_("Cronos II is a fast, light, user friendly and powerful mail client for the Gnome Desktop.\n"
               "It has an extended and intuitive interface which will make life for novice easier without taking out the power to the gurus.\n"
@@ -165,3 +165,9 @@ gchar *s = N_("Tasks's list");
 gchar *s = N_("Type");
 gchar *s = N_("Account");
 gchar *s = N_("Automatically close when finished.");
+gchar *s = N_("Bad Password");
+gchar *s = N_("Password:");
+gchar *s = N_("Username:");
+gchar *s = N_("Account:");
+gchar *s = N_("The server has rejected the password\n"
+              "you seted for this account.");

@@ -36,6 +36,8 @@ typedef struct _C2Db C2Db;
 typedef struct _C2DbClass C2DbClass;
 
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
+#	include "db-cronosII.h"
+#	include "db-imap.h"
 #	include "mailbox.h"
 #	include "message.h"
 #else

@@ -47,7 +47,7 @@ enum
 };
 
 /* Own errno variable to keep track of our errors */
-int c2_errno;
+gint c2_errno;
 
 const gchar *
 c2_error_get									(gint err);

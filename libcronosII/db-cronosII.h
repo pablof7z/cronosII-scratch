@@ -24,20 +24,16 @@ extern "C" {
 
 #include <glib.h>
 
-#include "db.h"
-#include "mailbox.h"
-
-C2Db *
-c2_db_cronosII_load								(C2Mailbox *mailbox);
-
-C2Db *
-c2_db_cronosII_message_add						(C2Db *db, const C2Message *message, gint row);
+#if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
+#	include "db.h"
+#	include "mailbox.h"
+#	include "message.h"
+#else
+#	include <cronosII.h>
+#endif
 
 gint
-c2_db_cronosII_message_remove					(C2Db *db, gint row);
-
-C2Message *
-c2_db_cronosII_message_get						(C2Db *db, gint row);
+c2_db_cronosII_load								(C2Db *db);
 
 #ifdef __cplusplus
 }

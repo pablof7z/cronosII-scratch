@@ -19,11 +19,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 #include "db.h"
-#include "db-cronosII.h"
 #include "error.h"
 #include "utils.h"
 #include "utils-date.h"
@@ -129,13 +126,26 @@ c2_db_init (C2Db *db)
 C2Db *
 c2_db_new (C2Mailbox *mailbox)
 {
-	C2Db *db;
+	C2Db *db = NULL;
 	
-	if (mailbox)
-		db = c2_db_load (mailbox);
-	else
-		db = gtk_type_new (C2_TYPE_DB);
+	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
 
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			db = gtk_type_new (C2_TYPE_DB);
+			c2_db_cronosII_new (db);
+			break;
+		case C2_MAILBOX_IMAP:
+			db = gtk_type_new (C2_TYPE_DB);
+			c2_db_imap_new (db);
+			break;
+		default:
+			g_assert_not_reach ();
+	}
+
+	db->mailbox = mailbox;
+	
 	return db;
 }
 
@@ -176,13 +186,14 @@ c2_db_load (C2Mailbox *mailbox)
 	switch (mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
-			return c2_db_cronosII_load (mailbox);
+			return C2_DB (c2_db_cronosII_new (mailbox));
 		case C2_MAILBOX_IMAP:
-			/* TODO */
-			break;
+			return C2_DB (c2_db_imap_new (mailbox));
+#ifdef USE_DEBUG
 		default:
 			g_print ("Request for unsupported mailbox in %s:%s:%d: %d\n",
 							__PRETTY_FUNCTION__, __FILE__, __LINE__, mailbox->type);
+#endif
 	}
 
 	return NULL;
@@ -274,7 +285,7 @@ c2_db_message_get (C2Db *db, gint row)
 	switch (db->mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
-			if ((message = c2_db_message_get_cronosII (db, mid)))
+			if ((message = c2_db_cronosII_message_get (db, mid)))
 				l->message = *message;
 			break;
 		case C2_MAILBOX_IMAP:
@@ -285,48 +296,7 @@ c2_db_message_get (C2Db *db, gint row)
 	return message;
 }
 
-C2Message *
-c2_db_message_get_cronosII (C2Db *db, gint mid)
-{
-	C2Message *message;
-	static gchar *home = NULL;
-	gchar *path;
-	struct stat stat_buf;
-	FILE *fd;
-	gint length;
 
-	message = c2_message_new ();
-
-	if (!home)
-		home = g_get_home_dir ();
-
-	path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S ".CronosII/%s.mbx/%d",
-							home, db->mailbox->name, mid);
-	
-	if (stat (path, &stat_buf) < 0)
-	{
-		c2_error_set (-errno);
-		C2_DEBUG_ (g_print ("Stating the file failed: %s\n", path););
-		return NULL;
-	}
-
-	length = ((gint) stat_buf.st_size * sizeof (gchar));
-
-	message->message = g_new0 (gchar, length+1);
-
-	if (!(fd = fopen (path, "r")))
-	{
-		c2_error_set (-errno);
-		return NULL;
-	}
-
-	fread (message->message, sizeof (gchar), length, fd);
-	fclose (fd);
-
-	g_free (path);
-	
-	return message;
-}
 
 /**
  * c2_db_message_search_by_mid

@@ -57,6 +57,7 @@ enum
 {
 	CHANGED_MAILBOXES,
 	CHANGED_MAILBOX,
+	IMAP_EVENT,
 	LAST_SIGNAL
 };
 
@@ -115,12 +116,21 @@ c2_mailbox_class_init (C2MailboxClass *klass)
 					gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
 					GTK_TYPE_POINTER);
 
+	c2_mailbox_signals[IMAP_EVENT] =
+		gtk_signal_new ("imap_event",
+					GTK_RUN_FIRST,
+					object_class->type,
+					GTK_SIGNAL_OFFSET (C2MailboxClass, imap_event),
+					gtk_marshal_NONE__ENU, GTK_TYPE_NONE, 2,
+					GTK_TYPE_ENUM, GTK_TYPE_BOOL);
+
 	gtk_object_class_add_signals (object_class, c2_mailbox_signals, LAST_SIGNAL);
 
 	object_class->destroy = c2_mailbox_destroy;
 
 	klass->changed_mailboxes = NULL;
 	klass->changed_mailbox = NULL;
+	klass->imap_event = NULL;
 }
 
 static C2Mailbox *
@@ -238,6 +248,7 @@ c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
 			mailbox->protocol.imap.user = g_strdup (va_arg (edata, gchar *));
 			mailbox->protocol.imap.pass = g_strdup (va_arg (edata, gchar *));
 			mailbox->protocol.imap.path = g_strdup (va_arg (edata, gchar *));
+			mailbox->protocol.imap.sock = -1;
 			va_end (edata);
 			break;
 #ifdef USE_DEBUG

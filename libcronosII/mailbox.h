@@ -35,9 +35,9 @@ typedef struct _C2Mailbox C2Mailbox;
 typedef struct _C2MailboxClass C2MailboxClass;
 typedef enum _C2MailboxSortBy C2MailboxSortBy;
 typedef enum _C2MailboxType C2MailboxType;
+/*typedef enum _C2MailboxIMAPEvent C2MailboxIMAPEvent;*/
 
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
-#	include <config.h>
 #	include "db.h"
 #else
 #	include <cronosII.h>
@@ -64,6 +64,15 @@ enum _C2MailboxType
 	C2_MAILBOX_IMAP
 };
 
+/*
+enum _C2MailboxIMAPEvent
+{
+	C2_MAILBOX_IMAP_RESOLVE,
+	C2_MAILBOX_IMAP_CONNECT,
+	C2_MAILBOX_IMAP_DISCONNECT
+};
+*/
+
 struct _C2Mailbox
 {
 	GtkObject object;
@@ -86,6 +95,7 @@ struct _C2Mailbox
 			gchar *user;
 			gchar *pass;
 			gchar *path;
+			gint sock;
 		} imap;
 	} protocol;
 	
@@ -107,6 +117,9 @@ struct _C2MailboxClass
 
 	void (*changed_mailboxes) (C2Mailbox *mailbox);
 	void (*changed_mailbox) (C2Mailbox *mailbox, C2Db *db_node);
+
+	/* IMAP related events */
+	/*void (*imap_event) (C2Mailbox *mailbox, C2MailboxIMAPEvent event, gint success);*/
 };
 
 GtkType

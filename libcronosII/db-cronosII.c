@@ -16,28 +16,27 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <glib.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "db.h"
-#include "db-cronosII.h"
 #include "error.h"
 #include "mailbox.h"
 #include "utils.h"
 
-C2Db *
-c2_db_cronosII_load (C2Mailbox *mailbox)
+gint
+c2_db_cronosII_load (C2Db *db)
 {
 	C2Db *head = NULL, *current = NULL, *next;
-	
 	gchar *path, *line, *buf;
 	FILE *fd;
-
 	gint i;
 	
-	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
+	c2_return_val_if_fail (db, -1, C2EDATA);
 
 	/* Calculate the path */
 	path = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S ".CronosII" G_DIR_SEPARATOR_S,
-						mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
+						db->mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
 	
 	/* Open the file */
 	if (!(fd = fopen (path, "rt")))
@@ -45,7 +44,7 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 		C2_DEBUG (path);
 		c2_error_set (-errno);
 		g_free (path);
-		return NULL;
+		return -1;
 	}
 
 	for (i = 0;(line = c2_fd_get_line (fd)) != NULL;)
@@ -87,7 +86,7 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 		next->mid = atoi (buf);
 		g_free (buf);
 
-		next->mailbox = mailbox;
+		next->mailbox = db->mailbox;
 
 		next->next = NULL;
 		next->previous = current;
@@ -96,14 +95,14 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 			current->next = next;
 
 		if (!head)
-			head = next;
+			db = next;
 
 		current = next;
 
 		g_free (line);
 	}
 
-	return head;
+	return -1;
 }
 
 C2Message *
