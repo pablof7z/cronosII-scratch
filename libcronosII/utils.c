@@ -402,7 +402,7 @@ c2_str_get_enclosed_text (const gchar *str, gchar enc1, gchar enc2, guint args, 
 	/* Load the value of ... to forcers */
 	va_start (vargs, args);
 	for (i = 0; i < args; i++)
-		forcers[i] = va_arg (vargs, gchar);
+		forcers[i] = va_arg (vargs, gint);
 	va_end (vargs);
 	
 	/* Process */
@@ -467,7 +467,7 @@ c2_str_get_enclosed_text_backward (const gchar *str, gchar enc1, gchar enc2, gui
 	/* Load the value of ... to forcers */
 	va_start (vargs, args);
 	for (i = 0; i < args; i++)
-		forcers[i] = va_arg (vargs, gchar);
+		forcers[i] = va_arg (vargs, gint);
 	va_end (vargs);
 	
 	/* Process */

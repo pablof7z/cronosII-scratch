@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2002-01-14 09:49+0100\n"
+"POT-Creation-Date: 2002-02-22 18:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,24 +17,6 @@ msgstr ""
 #: libcronosII/db-cronosII.c:377
 #, c-format
 msgid "Unable to create structure for Cronos II Db: %s\n"
-msgstr ""
-
-#: libcronosII/db-spool.c:200 libcronosII/db-spool.c:209
-#: libcronosII/db-spool.c:377 libcronosII/db-spool.c:386
-#: libcronosII/db-spool.c:496 libcronosII/db-spool.c:535
-#: libcronosII/db-spool.c:562
-#, c-format
-msgid "Unable to update structure for Spool Db: %s\n"
-msgstr ""
-
-#: libcronosII/db-spool.c:343
-#, c-format
-msgid "Unable to create structure for Spool Db (1): %s\n"
-msgstr ""
-
-#: libcronosII/db-spool.c:352
-#, c-format
-msgid "Unable to create structure for Spool Db (2): %s\n"
 msgstr ""
 
 #. C2SUCCESS
@@ -78,29 +60,48 @@ msgstr ""
 msgid "Internal error: Net Object has reached its maximal allocated buffer"
 msgstr ""
 
-#: libcronosII/imap.c:259
+#: libcronosII/imap.c:35
+msgid "Internal socket read operation failed, connection is most likely broken"
+msgstr ""
+
+#: libcronosII/imap.c:36
+msgid ""
+"Internal socket write operation failed, connection is most likely broken"
+msgstr ""
+
+#: libcronosII/imap.c:274
 msgid "Error connecting to IMAP server."
 msgstr ""
 
-#: libcronosII/imap.c:269
-msgid "Failed to login to IMAP server."
-msgstr ""
-
-#: libcronosII/imap.c:303
+#: libcronosII/imap.c:359
 #, c-format
 msgid "Error reading from socket on IMAP host %s! Reader thread aborting!\n"
 msgstr ""
 
-#: libcronosII/imap.c:509
+#: libcronosII/imap.c:565
 #, c-format
 msgid "IMAP Server responded with 'BAD': %s\n"
 msgstr ""
 
-#: libcronosII/imap.c:515
+#: libcronosII/imap.c:571
 #, c-format
 msgid ""
-"A server reply with no tagged ending sent to c2_imap_check_server_reply(): "
-"%s\n"
+"A server reply with no tagged ending sent to c2_imap_check_server_reply(): %"
+"s\n"
+msgstr ""
+
+#: libcronosII/imap.c:934
+msgid "That IMAP mailbox is non-selectable"
+msgstr ""
+
+#: libcronosII/imap.c:940
+msgid ""
+"Invalid IMAP mailbox. Try re-starting CronosII and resycning your IMAP "
+"mailbox tree."
+msgstr ""
+
+#: libcronosII/imap.c:973
+msgid "Invalid SELECT command status returned by IMAP server"
 msgstr ""
 
 #: libcronosII/mime.c:125 libcronosII/mime.c:131
@@ -115,57 +116,69 @@ msgstr ""
 msgid "Server does not support APOP"
 msgstr ""
 
-#: libcronosII/smtp.c:317
+#: libcronosII/smtp.c:108
+msgid "Internal socket read operation failed"
+msgstr ""
+
+#: libcronosII/smtp.c:109
+msgid "Internal socket write operation failed"
+msgstr ""
+
+#: libcronosII/smtp.c:323
 msgid "SMTP server did not respond to our sent messaage in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:339
+#: libcronosII/smtp.c:347
 msgid "System Error: Unable to write message to disk for local SMTP command"
 msgstr ""
 
-#: libcronosII/smtp.c:350
+#: libcronosII/smtp.c:358
 msgid "Internal C2 Error: Unable to fetch headers in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:376
+#: libcronosII/smtp.c:384
 msgid ""
 "Problem running local SMTP command to send messages -- Check SMTP settings"
 msgstr ""
 
-#: libcronosII/smtp.c:410
+#: libcronosII/smtp.c:418
 msgid "Unable to connect to SMTP server"
 msgstr ""
 
-#: libcronosII/smtp.c:422
+#: libcronosII/smtp.c:430
 msgid "SMTP server was not friendly on our connect! May not be RFC compliant"
 msgstr ""
 
-#: libcronosII/smtp.c:481
+#: libcronosII/smtp.c:489
 msgid "SMTP server did not respond to 'EHLO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:507
+#: libcronosII/smtp.c:515
 msgid "SMTP server did not respond to HELO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:528
+#: libcronosII/smtp.c:536
 msgid "Internal C2 Error: Unable to fetch \"From:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:545
+#: libcronosII/smtp.c:553
 msgid "Internal C2 Error: Unable to fetch \"To:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:556
+#: libcronosII/smtp.c:564
 msgid "SMTP server did not reply to 'MAIL FROM:' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:595
+#: libcronosII/smtp.c:603
 msgid "SMTP server did not reply to 'DATA' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:840
+#: libcronosII/smtp.c:851
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
+msgstr ""
+
+#: libcronosII/utils-mutex.c:38
+msgid "Attempting to lock/unlock a mutex which has already been destroyed"
 msgstr ""
 
 #: libcronosII/utils-mutex.c:101
@@ -218,7 +231,7 @@ msgid "Failed: %s\n"
 msgstr ""
 
 #: src/install.c:404 src/install.c:431 src/install.c:460 src/install.c:488
-#: src/install.c:516 src/widget-transfer-item.c:739
+#: src/install.c:516 src/widget-transfer-item.c:746
 msgid "Failed"
 msgstr ""
 
@@ -299,7 +312,7 @@ msgstr ""
 msgid "Set the Account field."
 msgstr ""
 
-#: src/main.c:108 src/trans.h:80 src/widget-index.c:530
+#: src/main.c:108 src/trans.h:80 src/widget-index.c:560
 msgid "Account"
 msgstr ""
 
@@ -323,7 +336,7 @@ msgstr ""
 msgid "Set the Subject field."
 msgstr ""
 
-#: src/main.c:132 src/trans.h:81 src/widget-index.c:524
+#: src/main.c:132 src/trans.h:81 src/widget-index.c:554
 msgid "Subject"
 msgstr ""
 
@@ -343,7 +356,7 @@ msgstr ""
 msgid "Set the active mailbox at start (default=Inbox)"
 msgstr ""
 
-#: src/main.c:150
+#: src/main.c:150 src/widget-application.h:48 src/widget-application.h:53
 msgid "Inbox"
 msgstr ""
 
@@ -361,20 +374,24 @@ msgid ""
 "Cronos II instances"
 msgstr ""
 
-#: src/main.c:308
+#: src/main.c:304
 #, c-format
 msgid "The mailbox \"%s\", specified in command line, does not exist."
 msgstr ""
 
-#: src/widget-composer.c:379
+#: src/widget-composer.c:441
+msgid "Select a message"
+msgstr ""
+
+#: src/widget-composer.c:515
 msgid "Unable to find the proper mailbox"
 msgstr ""
 
-#: src/widget-composer.c:552 src/widget-composer.c:858
+#: src/widget-composer.c:688 src/widget-composer.c:997
 msgid "Composer: Untitled"
 msgstr ""
 
-#: src/widget-composer.c:657
+#: src/widget-composer.c:793
 msgid ""
 "You have choosen to use an external editor instead of the built-in with "
 "Cronos II.\n"
@@ -388,52 +405,52 @@ msgid ""
 "window.\n"
 msgstr ""
 
-#: src/widget-composer.c:854
+#: src/widget-composer.c:993
 #, c-format
 msgid "Composer: %s"
 msgstr ""
 
-#: src/widget-composer.c:934
+#: src/widget-composer.c:1073
 #, c-format
 msgid "Run external editor: %s"
 msgstr ""
 
 #. Set more info about the mime object
-#: src/widget-composer.c:1023 src/widget-composer.c:1928
+#: src/widget-composer.c:1168 src/widget-composer.c:2111
 msgid "unknown"
 msgstr ""
 
-#: src/widget-composer.c:1214
+#: src/widget-composer.c:1359
 #, c-format
 msgid "The account specified does not longer exist: %s"
 msgstr ""
 
-#: src/widget-composer.c:1219
+#: src/widget-composer.c:1364
 msgid ""
 "The message is not asociated to an account, default account will be used."
 msgstr ""
 
-#: src/widget-composer.c:1401
+#: src/widget-composer.c:1578
 #, c-format
 msgid "Unable to open temporal file for writing to external editor: %s"
 msgstr ""
 
-#: src/widget-composer.c:1495
+#: src/widget-composer.c:1672
 #, c-format
 msgid "On %s, %s wrote:\n"
 msgstr ""
 
-#: src/widget-composer.c:1906
+#: src/widget-composer.c:2089
 #, c-format
 msgid "Failed to open %s: %s"
 msgstr ""
 
-#: src/widget-composer.c:1916
+#: src/widget-composer.c:2099
 #, c-format
 msgid "Failed to stat %s: %s"
 msgstr ""
 
-#: src/widget-composer.c:2006
+#: src/widget-composer.c:2189
 #, c-format
 msgid "The account specified does not exist: %s"
 msgstr ""
@@ -492,95 +509,99 @@ msgstr ""
 msgid "APOP"
 msgstr ""
 
-#: src/trans.h:77 src/widget-index.c:526
+#: src/trans.h:77 src/widget-index.c:556
 msgid "From"
 msgstr ""
 
-#: src/trans.h:79 src/widget-index.c:528
+#: src/trans.h:79 src/widget-index.c:558
 msgid "Date"
 msgstr ""
 
 #: src/widget-mailbox-list.c:179
-msgid "Mailbox"
+msgid "Mailboxes"
 msgstr ""
 
-#: src/widget-transfer-item.c:226
+#: src/widget-transfer-item.c:231
 #, c-format
 msgid "Receive «%s»"
 msgstr ""
 
-#: src/widget-transfer-item.c:235
+#: src/widget-transfer-item.c:240
 #, c-format
 msgid "Send «%s»"
 msgstr ""
 
-#: src/widget-transfer-item.c:273
+#: src/widget-transfer-item.c:278
 msgid "Cancel the transfer"
 msgstr ""
 
-#: src/widget-transfer-item.c:415
+#: src/widget-transfer-item.c:422
 msgid "No Inbox mailbox"
 msgstr ""
 
-#: src/widget-transfer-item.c:447 src/widget-transfer-item.c:478
+#: src/widget-transfer-item.c:454 src/widget-transfer-item.c:485
 msgid "Resolving"
 msgstr ""
 
-#: src/widget-transfer-item.c:489
+#: src/widget-transfer-item.c:496
 msgid "Connecting"
 msgstr ""
 
 #. [FIXME]
 #. * Action to login? Loggining?
 #.
-#: src/widget-transfer-item.c:500
+#: src/widget-transfer-item.c:507
 msgid "Loggining"
 msgstr ""
 
-#: src/widget-transfer-item.c:559
+#: src/widget-transfer-item.c:566
 msgid "Login failed"
 msgstr ""
 
-#: src/widget-transfer-item.c:627
+#: src/widget-transfer-item.c:634
 msgid "Getting mail list"
 msgstr ""
 
-#: src/widget-transfer-item.c:645
+#: src/widget-transfer-item.c:652
 #, c-format
 msgid "%u message."
 msgstr ""
 
-#: src/widget-transfer-item.c:647
+#: src/widget-transfer-item.c:654
 #, c-format
 msgid "%u messages."
 msgstr ""
 
-#: src/widget-transfer-item.c:662
+#: src/widget-transfer-item.c:669
 msgid "Receiving %v of %u"
 msgstr ""
 
-#: src/widget-transfer-item.c:681
+#: src/widget-transfer-item.c:688
 msgid "Synchronizing"
 msgstr ""
 
-#: src/widget-transfer-item.c:692 src/widget-transfer-item.c:739
+#: src/widget-transfer-item.c:699 src/widget-transfer-item.c:746
 msgid "Completed"
 msgstr ""
 
-#: src/widget-transfer-item.c:716
+#: src/widget-transfer-item.c:723
 msgid "Sending"
 msgstr ""
 
-#: src/widget-transfer-list.c:120
+#: src/widget-transfer-list.c:123
 msgid "Stop all"
 msgstr ""
 
-#: src/widget-transfer-list.c:134
+#: src/widget-transfer-list.c:137
 msgid "Close when finished."
 msgstr ""
 
-#: src/widget-transfer-list.c:139
+#: src/widget-transfer-list.c:142
 msgid "Send & Receive"
+msgstr ""
+
+#: src/widget-window-main.c:51
+msgid "Spool (local)"
 msgstr ""
 
 #: src/widget-window-main.c:343
@@ -726,33 +747,33 @@ msgid ""
 msgstr ""
 
 #. Configure the status bar
-#: src/widget-window-main.c:980
+#: src/widget-window-main.c:956
 msgid "Deleting..."
 msgstr ""
 
-#: src/widget-window-main.c:2134
+#: src/widget-window-main.c:2173
 #, c-format
 msgid "%d messages, %d new."
 msgstr ""
 
-#: src/trans.h:160 src/widget-window-main.c:2216
+#: src/trans.h:160 src/widget-window-main.c:2255
 msgid "You found the Eastern Egg!"
 msgstr ""
 
-#: src/trans.h:161 src/widget-window-main.c:2217
+#: src/trans.h:161 src/widget-window-main.c:2256
 msgid "Neat, baby!"
 msgstr ""
 
-#: src/widget-window-main.c:2375
+#: src/widget-window-main.c:2414
 msgid "New mailbox"
 msgstr ""
 
-#: src/widget-window-main.c:2861
-msgid "Toolbar Configuration"
+#: src/widget-window-main.c:2713 src/widget-window-main.c:2947
+msgid "Separator"
 msgstr ""
 
-#: src/widget-window-main.c:2964
-msgid "Separator"
+#: src/widget-window-main.c:2844
+msgid "Toolbar Configuration"
 msgstr ""
 
 #.
@@ -2188,4 +2209,20 @@ msgstr ""
 
 #: src/trans.h:221
 msgid "_Mark"
+msgstr ""
+
+#: src/widget-application.h:49 src/widget-application.h:54
+msgid "Outbox"
+msgstr ""
+
+#: src/widget-application.h:50 src/widget-application.h:55
+msgid "Sent Items"
+msgstr ""
+
+#: src/widget-application.h:51 src/widget-application.h:56
+msgid "Trash"
+msgstr ""
+
+#: src/widget-application.h:52 src/widget-application.h:57
+msgid "Drafts"
 msgstr ""

@@ -872,7 +872,10 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 static void
 check (C2WindowMain *wmain)
 {
+	C2Application *application;
+	
 	application = C2_WINDOW (wmain)->application;
+	C2_APPLICATION_CLASS_FW (application)->check (application);
 }
 
 static void

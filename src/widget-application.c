@@ -682,17 +682,17 @@ _check (C2Application *application)
 	C2Account *account;
 	GtkWidget *wtl;
 	C2TransferItem *wti;
-	
+L	
 	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
 
 	wtl = c2_application_window_get (application, C2_WIDGET_TRANSFER_LIST_TYPE);
-
+L
 	if (!wtl || !C2_IS_TRANSFER_LIST (wtl))
 		wtl = c2_transfer_list_new (application);
-
+L
 	gtk_widget_show (wtl);
 	gdk_window_raise (wtl->window);
-
+L
 	for (account = application->account; account; account = c2_account_next (account))
 	{
 		gpointer data = c2_account_get_extra_data (account, C2_ACCOUNT_KEY_ACTIVE, NULL);
@@ -701,7 +701,7 @@ _check (C2Application *application)
 			continue;
 
 		wti = c2_transfer_item_new (application, account, C2_TRANSFER_ITEM_RECEIVE);
-		c2_transfer_list_add_item (C2_TRANSFER_LIST (wtl), wti);
+L		c2_transfer_list_add_item (C2_TRANSFER_LIST (wtl), wti);
 		c2_transfer_item_start (wti);
 	}
 }

@@ -48,7 +48,7 @@ cronosII_LDADD = \
 cronosII_LDFLAGS = \
 	./././$(top_builddir)/libcronosII/libcronosII.a \
 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) \
-	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS) -pthread
+	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS) -pthread `gnome-config --libs gnome gnomeui libglade`
 
 ui_text_editor_SOURCES = \
 	object-ui-data.c			object-ui-data.h			\
@@ -61,7 +61,7 @@ ui_text_editor_LDADD = \
 ui_text_editor_LDFLAGS = \
 	./././$(top_builddir)/libcronosII/libcronosII.a \
 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) \
-	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS) -pthread
+	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS) -pthread  `gnome-config --libs gnome gnomeui libglade`
 	
 EXTRA_DIST = \
 	README.FAQ			\

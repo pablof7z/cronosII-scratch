@@ -1,3 +1,9 @@
+Fri Feb 22 Pablo Fernández López <pablo@pablossite.net>
+	* Fixed some problems at building time.
+	* Fixed some bugs with configure stuff.
+	* Fixed the problem that made the Check button in the toolbar
+	  and the "File » Check » All Accounts" menu item useless.
+
 Tue Feb 19 Pablo Fernández López <pablo@pablossite.net>
 	* Work in the Spool module.
 
