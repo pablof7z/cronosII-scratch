@@ -4589,7 +4589,7 @@ ac_given_INSTALL="$INSTALL"
 trap 'rm -fr `echo "
 Makefile
 cronosII-config
-libmodules/Makefile
+libcronosII/Makefile
 module-test/Makefile
 src/Makefile
 plugins/Makefile
@@ -4739,7 +4739,7 @@ cat >> $CONFIG_STATUS <<EOF
 
 CONFIG_FILES=\${CONFIG_FILES-"Makefile
 cronosII-config
-libmodules/Makefile
+libcronosII/Makefile
 module-test/Makefile
 src/Makefile
 plugins/Makefile

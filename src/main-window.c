@@ -55,7 +55,31 @@ static void
 on_ctree_tree_select_row							(GtkCTree *ctree, GtkCTreeNode *row, gint column);
 
 static void
+on_ctree_tree_unselect_row							(GtkCTree *ctree, GtkCTreeNode *row, gint column);
+
+static void
 on_quit												(void);
+
+static GnomeUIInfo menu_ctree[] =
+{
+	GNOMEUIINFO_SEPARATOR,
+	{
+		GNOME_APP_UI_ITEM, N_("_New Mailbox"),
+		N_("Create a new mailbox"),
+		NULL, NULL, NULL,
+		GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_HOME
+	},
+	GNOMEUIINFO_SEPARATOR,
+	{
+		GNOME_APP_UI_ITEM, N_("_Delete"),
+		N_("Delete selected mailbox"),
+		NULL, NULL, NULL,
+		GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_TRASH_FULL,
+	},
+	GNOMEUIINFO_MENU_PROPERTIES_ITEM (NULL, NULL),
+	GNOMEUIINFO_SEPARATOR,
+	GNOMEUIINFO_END
+};
 
 void
 c2_window_new (void)
@@ -65,7 +89,7 @@ c2_window_new (void)
 	GtkWidget *vbox, *table, *hbox, *viewport, *vbox2, *button;
 	GtkStyle *style, *style2;
 
-	pthread_mutex_init (&WMain.clist_lock, NULL);
+	pthread_mutex_init (&WMain.index_lock, NULL);
 	pthread_mutex_init (&WMain.text_lock, NULL);
 	pthread_mutex_init (&WMain.appbar_lock, NULL);
 
@@ -119,9 +143,12 @@ c2_window_new (void)
 	gtk_clist_set_column_justification (GTK_CLIST(WMain.ctree), 0, GTK_JUSTIFY_CENTER);
 	gtk_clist_column_titles_passive (GTK_CLIST (WMain.ctree));
 	gtk_clist_column_titles_show (GTK_CLIST (WMain.ctree));
+	gnome_popup_menu_attach (gnome_popup_menu_new (menu_ctree), WMain.ctree, NULL);
 	c2_mailbox_tree_fill (c2_app.mailboxes, NULL, WMain.ctree, WMain.window);
 	gtk_signal_connect (GTK_OBJECT (WMain.ctree), "tree_select_row",
 								GTK_SIGNAL_FUNC (on_ctree_tree_select_row), NULL);
+	gtk_signal_connect (GTK_OBJECT (WMain.ctree), "tree_unselect_row",
+								GTK_SIGNAL_FUNC (on_ctree_tree_unselect_row), NULL);
 
 	/* Vpaned */
 	WMain.vpaned = gtk_vpaned_new ();
@@ -136,29 +163,9 @@ c2_window_new (void)
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 
 	/* Index */
-	WMain.clist = c2_index_new ();
-	gtk_container_add (GTK_CONTAINER (scroll), WMain.clist);
-	gtk_widget_show (WMain.clist);
-/*	gtk_clist_set_row_height (GTK_CLIST (WMain.clist), 16);
-	pixmap = gtk_pixmap_new (c2_app.pixmap_unread, c2_app.mask_unread);
-	gtk_clist_set_column_widget (GTK_CLIST (WMain.clist), 0, pixmap);
-	gtk_clist_set_column_title (GTK_CLIST (WMain.clist), 3, _("Subject"));
-	gtk_clist_set_column_title (GTK_CLIST (WMain.clist), 4, _("From"));
-	gtk_clist_set_column_title (GTK_CLIST (WMain.clist), 5, _("Date"));
-	gtk_clist_set_column_title (GTK_CLIST (WMain.clist), 6, _("Account"));
-	gtk_clist_set_column_width (GTK_CLIST (WMain.clist), 0, c2_app.wm_clist[0]);
-	gtk_clist_set_column_width (GTK_CLIST (WMain.clist), 1, c2_app.wm_clist[1]);
-	gtk_clist_set_column_width (GTK_CLIST (WMain.clist), 2, c2_app.wm_clist[2]);
-	gtk_clist_set_column_width (GTK_CLIST (WMain.clist), 3, c2_app.wm_clist[3]);
-	gtk_clist_set_column_width (GTK_CLIST (WMain.clist), 4, c2_app.wm_clist[4]);
-	gtk_clist_set_column_width (GTK_CLIST (WMain.clist), 5, c2_app.wm_clist[5]);
-	gtk_clist_set_column_width (GTK_CLIST (WMain.clist), 6, c2_app.wm_clist[6]);
-	gtk_clist_set_column_width (GTK_CLIST (WMain.clist), 7, c2_app.wm_clist[7]);
-	gtk_clist_set_column_visibility (GTK_CLIST (WMain.clist), 7, FALSE);
-	gtk_clist_set_column_visibility (GTK_CLIST (WMain.clist), 1, FALSE);
-	gtk_clist_set_column_visibility (GTK_CLIST (WMain.clist), 2, FALSE);
-	gtk_clist_column_titles_show (GTK_CLIST (WMain.clist));
-	gtk_clist_set_selection_mode (GTK_CLIST (WMain.clist), GTK_SELECTION_EXTENDED);*/
+	WMain.index = c2_index_new ();
+	gtk_container_add (GTK_CONTAINER (scroll), WMain.index);
+	gtk_widget_show (WMain.index);
 
 	/* Vbox */
 	vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
@@ -173,13 +180,13 @@ c2_window_new (void)
 	WMain.header_table = table;
 
 	TITLES (C2_HEADER_TITLES_FROM, _("From:"), C2_SHOWABLE_HEADER_FIELD_FROM, 0, 1, 0, 1, 1, 2, 0, 1);
-	TITLES (C2_HEADER_TITLES_ACCOUNT, _("Account:"), C2_SHOWABLE_HEADER_FIELD_ACCOUNT, 2, 3, 0, 1, 3, 4, 0, 1);
+	TITLES (C2_HEADER_TITLES_ACCOUNT, _("Account:"), C2_SHOWABLE_HEADER_FIELD_ACCOUNT,2, 3, 0, 1, 3, 4, 0, 1);
 	TITLES (C2_HEADER_TITLES_TO, _("To:"), C2_SHOWABLE_HEADER_FIELD_TO, 0, 1, 1, 2, 1, 2, 1, 2);
 	TITLES (C2_HEADER_TITLES_CC, _("CC:"), C2_SHOWABLE_HEADER_FIELD_CC, 0, 1, 2, 3, 1, 2, 2, 3);
 	TITLES (C2_HEADER_TITLES_BCC, _("BCC:"), C2_SHOWABLE_HEADER_FIELD_BCC, 0, 1, 3, 4, 1, 2, 3, 4);
 	TITLES (C2_HEADER_TITLES_DATE, _("Date:"), C2_SHOWABLE_HEADER_FIELD_DATE, 0, 1, 4, 5, 1, 2, 4, 5);
-	TITLES (C2_HEADER_TITLES_PRIORITY, _("Priority:"), C2_SHOWABLE_HEADER_FIELD_PRIORITY, 2, 3, 4, 5, 3, 4, 4, 5);
-	TITLES (C2_HEADER_TITLES_SUBJECT, _("Subject:"), C2_SHOWABLE_HEADER_FIELD_SUBJECT, 0, 1, 5, 6, 1, 2, 5, 6);
+	TITLES (C2_HEADER_TITLES_PRIORITY, _("Priority:"), C2_SHOWABLE_HEADER_FIELD_PRIORITY,2,3,4,5, 3, 4, 4, 5);
+	TITLES (C2_HEADER_TITLES_SUBJECT, _("Subject:"), C2_SHOWABLE_HEADER_FIELD_SUBJECT,0, 1, 5, 6, 1, 2, 5, 6);
 	
 	/* Hbox */
 	hbox = gtk_hbox_new (FALSE, 2);
@@ -283,7 +290,7 @@ static void
 pthread_ctree_tree_select_row (C2Mailbox *mbox)
 {
 	c2_return_if_fail (mbox, C2EDATA);
-	if (pthread_mutex_trylock (&WMain.clist_lock))
+	if (pthread_mutex_trylock (&WMain.index_lock))
 		return;
 
 	if (!mbox->db)
@@ -303,11 +310,11 @@ pthread_ctree_tree_select_row (C2Mailbox *mbox)
 	}
 	
 	gdk_threads_enter ();
-	c2_index_add_mailbox (C2_INDEX (WMain.clist), mbox);
-	gtk_widget_queue_draw (WMain.clist);
+	c2_index_add_mailbox (C2_INDEX (WMain.index), mbox);
+	gtk_widget_queue_draw (WMain.index);
 	gdk_threads_leave ();
 
-	pthread_mutex_unlock (&WMain.clist_lock);
+	pthread_mutex_unlock (&WMain.index_lock);
 }
 
 static void
@@ -321,6 +328,16 @@ on_ctree_tree_select_row (GtkCTree *ctree, GtkCTreeNode *row, gint column)
 		c2_app_report (_("Internal error in CTree listing."), C2_REPORT_ERROR);
 	else
 		pthread_create (&thread, NULL, PTHREAD_FUNC (pthread_ctree_tree_select_row), mbox);
+}
+
+static void
+on_ctree_tree_unselect_row (GtkCTree *ctree, GtkCTreeNode *row, gint column)
+{
+	if (!pthread_mutex_trylock (&WMain.index_lock))
+	{
+		c2_index_remove_mailbox (C2_INDEX (WMain.index));
+		pthread_mutex_unlock (&WMain.index_lock);
+	}
 }
 
 static void

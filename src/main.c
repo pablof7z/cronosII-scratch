@@ -130,18 +130,17 @@ load_mailboxes (void)
 	{
 		C2Mailbox *mbox = g_new0 (C2Mailbox, 1);
 		gchar *query = g_strdup_printf ("/cronosII/Mailboxes/%d", i);
-		gchar *tmp = gnome_config_get_string (query);
-		if (!tmp)
+		
+		gnome_config_push_prefix (query);
+		mbox->name = gnome_config_get_string ("::Name");
+		if (!mbox->name)
 		{
 			g_free (query);
 			g_free (mbox);
 			break;
 		}
 
-		gnome_config_push_prefix (query);
-		mbox->name = gnome_config_get_string ("::Name");
-		mbox->id = gnome_config_get_int ("::Id");
-		mbox->parent_id = gnome_config_get_int ("::Parent Id");
+		mbox->id = gnome_config_get_string ("::Id");
 		gnome_config_pop_prefix ();
 		g_free (query);
 

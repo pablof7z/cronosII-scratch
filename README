@@ -1,4 +1,4 @@
-				Cronos II 0.2.2
+				Cronos II 0.2.3
 
 ===============
 = What is it? =
@@ -31,6 +31,15 @@ You might want to check out the INSTALL file for further information.
 ======================
 = About this version =
 ======================
-This version introduces the Cronos II Address Book with an API created by Bosko Blagojevic
-and Pablo Fernández Navarro and with a UI by Pablo Fernández Navarro.
-Other great news about this version is the Queue mailbox by André Casteliano.
+Since Cronos II is growing and is getting bigger, and when I started
+this project I didn't have any experience at all, it basis weren't
+as strong as they are required to be for such a big project as this
+is, thus why this version introduces nothing really new for the
+end user, but introduces a LOT of changes for us, developers.
+Basically, this version is more than just a *recode*, is a restructuration
+of Cronos II, now the main source of Cronos II is separated from
+the modules which interact with certain tasks.
+Also, with this version, the manual I wrote (actually just
+in CVS under the directory /documentation) titled "Cronos II Development manual"
+is to start being used, so everyone of us code with the same things
+in mind: modularity and speed.

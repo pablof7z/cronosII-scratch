@@ -1,4 +1,4 @@
-SUBDIRS = intl po libmodules module-test src images pixmaps doc man plugins
+SUBDIRS = intl po libcronosII module-test src images pixmaps doc man plugins
 
 bin_SCRIPTS = cronosII-config
 

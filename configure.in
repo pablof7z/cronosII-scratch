@@ -221,7 +221,7 @@ AC_SUBST(LIBOBJS)
 AC_OUTPUT([
 Makefile
 cronosII-config
-libmodules/Makefile
+libcronosII/Makefile
 module-test/Makefile
 src/Makefile
 plugins/Makefile

@@ -105,8 +105,8 @@ typedef struct
 	GtkWidget *toolbar;
 	GtkWidget *vpaned;
 	GtkWidget *ctree;
-	GtkWidget *clist;
-	pthread_mutex_t clist_lock;
+	GtkWidget *index;
+	pthread_mutex_t index_lock;
 	GtkWidget *mime_left, *mime_right;
 	GtkWidget *menu_clist;
 	GtkWidget *header_table;

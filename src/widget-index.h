@@ -38,6 +38,7 @@ extern "C" {
 typedef struct
 {
 	GtkCList clist;
+	GtkWidget *clist_titles_arrow[C2_SORT_LAST];
 
 	C2Mailbox *mbox;
 } C2Index;
