@@ -1,3 +1,8 @@
+Sat Jul 27 Bosko Blagojevic
+	* Fixed bug that caused a crash when manually copying
+	  messages to the Outbox and then later viewing.
+	* Fixed multiple warnings in src/widget-application.c
+
 Tue Jul 23 Bosko Blagojevic
 	* Small change in libcronosII/db-cronosII.c fixed BIG bug
 	  on *bsd systesm's libc. (opening files w/ wrong mode)
