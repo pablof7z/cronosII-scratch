@@ -1,3 +1,6 @@
+Wed Oct 17 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Fixed a little error in /xml/Makefile.am, thanks gresco.
+
 Tue Oct 16 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed a crash when there're no text/plain or text/html parts
 	  in a message.
