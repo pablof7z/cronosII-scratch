@@ -1,16 +1,34 @@
-<html>
+<html> 
 <body bgcolor=#ffffff>
+<table align="center" width="80%" border="1">
+<tr>
+<td bgcolor="#000099">
 <font face="Helvetica">
-<h3 align=center>Known Bugs</h3>
-
-This is a list of the known bugs that this release
+<h1 align=left><font color="#ffffff">Known Bugs</font></h1>
+</td>
+</tr>
+<tr bgcolor="#eeeeee">
+<td>
+<font face="Helvetica">
+This is a list of the known bugs this release
 of Cronos II has.<br>
 If you find an unlisted bug, please, report it
-using our <a href="http://sourceforge.net/bugs/?group_id=7093">online forms</a>.
+using our <a href="http://sourceforge.net/bugs/?group_id=7093">online forms</a>.<br /> http://sourceforge.net/bugs/?group_id=7093
+</td>
+</tr>
+</table>
 
+<table align="center" bgcolor="#d0d0ff" width="80%" border="1">
+<tr>
+<td>
 <ul>
-<li>You can not check for mail several times in the same session.
+<li>You can not check for mail several times in the same session.</li>
+<li>Opening the about dialog crashes the app.</li>
+<li>The exit button on the file menu does not work.</li>
+<li>The close button on the preferences dialog does notwork</li>
 </ul>
 </font>
+</td>
+</tr>
 </body>
 </html>

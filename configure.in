@@ -411,3 +411,5 @@ echo  Building with Bonobo support.....: $bonobo_ver
 echo  Building with Editor type........: $editor
 echo
 echo  Run \'make\' to start compiling this software.
+echo  CronosII $version
+

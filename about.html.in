@@ -1,4 +1,4 @@
- <HTML>
+<HTML>
 <HEAD>
 <TITLE>Cronos II @VERSION@</TITLE>
 </HEAD>
@@ -28,34 +28,32 @@ Cronos II
 </FONT></B></TD></TR>
 
 <TR><TD BGCOLOR=#d0d0ff><FONT FACE="Helvetica" SIZE=-1>
-We want to welcome and thank you for trusting in us and using the e-mail
+Welcome and thank you for trusting  Cronosii,  the E-mail
 suite we designed for you.</P>
 
-<P>Cronos II comes  with a number of features that makes it a very good
-choice for your e-mail tasks on any platform, <B>GNU/Linux</B>, <B>GNU/HURD</B>,
+<P>Cronos II comes  with a number of features that make it a very good choice for your E-mail tasks on almost any platform; <B>GNU/Linux</B>, <B>GNU/HURD</B>,
 <B>Unix</B>,
-<B>FreeBSD</B>, <B>Mac-OS</B>,
+<B>FreeBSD</B>, <B>Mac-OSX</B>,
 <B>Microsoft Windows</B>, etc.</P>
 
-<P>Cronos II @VERSION@ counts with the following features:
+<P>Cronos II @VERSION@ comes with the following features:
 
 <UL>
-<LI>HTML support;
-<LI>attachments support;
-<LI>IMAP support;
-<LI>POP support;
-<LI>APOP support;
-<LI>Spool support;
-<LI>Filters support;
-<LI>Multiples identities and accounts support;
-<LI>Higly GNOME integrated interface;
+<LI>HTML support;</li>
+<LI>attachments support;</li>
+<LI>IMAP support;</li>
+<LI>POP support;</li>
+<LI>APOP support;</li>
+<LI>Spool support;</li>
+<LI>Filters support;</li>
+<LI>Multiples identities and accounts support;</li>
+<LI>Highly GNOME integrated interface;</li>
 <LI>Interface editable through <B>Glade</B>.
 </UL>
 
-<P>You are the best person to tell what your needs are,
+<P>Only you really know what <em>your needs</em> are;
 so if you have some other need from Cronos II, be sure
-to contact us, that's <B>another feature of Cronos II</B>: Open
-minded programmers.
+to contact us, (that's <B>another feature of Cronos II</B>: Open minded programmers.)
 
 <P><DIV ALIGN=RIGHT><B>The Cronos II Development Team</B></DIV>
 </FONT></TD></TR>
@@ -101,7 +99,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</P>
 <TR><TD BGCOLOR=#d0d0ff><FONT FACE="Helvetica" SIZE=-1>
 <A HREF="mailto:pablo@colegioeccleston.org.ar">Pablo Fernández Navarro</A><BR>
 <A HREF="mailto:falling@users.sourceforge.net">Bosko Blagojevic</A><BR>
-<A HREF="mailto:gossner@arcom.com.au">Peter Gossner</A><BR>
+<A HREF="mailto:petergozz@users.sourceforge.net">Peter Gossner</A><BR>
 <A HREF="mailto:mustangg@users.sourceforge.net">Mark Zaritsky</A><BR>
 <A HREF="mailto:ymettier@libertysurf.fr">Yves Mettier</A>
 </FONT></TD></TR>
@@ -111,13 +109,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</P>
 <TABLE BORDER=2 CELLSPACING=0 CELLPADDING=3 BORDERCOLOR=#0000ff WIDTH=100%>
 
 <TR><TD BGCOLOR=#000099><B><FONT FACE="Helvetica" COLOR=#ffffff SIZE=-1>
-<IMG SRC="c2dist://header.png" ALIGN=MIDDLE ALT="Oportunity"> <U>Oportunity</U>
+<IMG SRC="c2dist://header.png" ALIGN=MIDDLE ALT="Opportunity"> <U>Opportunity</U>
 </FONT></B></TD></TR>
 
 <TR><TD BGCOLOR=#d0d0ff><FONT FACE="Helvetica" SIZE=-1>
-Me, Pablo Fernández Navarro, the creator of Cronos II, need an IT
-job in any country with payments enough to maintain my self.
-I'll be grateful if you can help me.</P>
+I,  Pablo Fernández Navarro, the creator and project maintainer for Cronos II, need an IT
+job in any country with payment enough to sustain myself.
+I'd be grateful if you can help .</P>
 
 <P><A HREF="http://cronosII.sourceforge.net/people/pablo/opotunity.html">
 <B>Read more...</B></A>
@@ -132,9 +130,9 @@ I'll be grateful if you can help me.</P>
 </FONT></B></TD></TR>
 
 <TR><TD BGCOLOR=#d0d0ff><FONT FACE="Helvetica" SIZE=-1>
-Cronos II is made for users by users, no company interacts
-with it. That lets us, the developers, focus on what is
-important. Which is why we want our users to join us.<BR>
+Cronos II is made for users by users, no company influences the project.
+That lets us, the developers, focus on what is
+important for users first. Which is why we want our users to join us.<BR>
 We hope you do...
 
 <P><A HREF="http://cronosII.sourceforge.net/jobs4fun.html">
