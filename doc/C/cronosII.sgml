@@ -9,7 +9,7 @@
 <!ENTITY andre "digitalcoder@users.sourceforge.net">
 <!ENTITY arne "arnem@informatik.uni-bremen.de">
 <!ENTITY bosko "falling@users.sourceforge.net">
-<!ENTITY jason "FIXME">
+<!ENTITY jason "jcopenha@typedef.org">
 <!ENTITY jeremy "witti@onramp.net">
 <!ENTITY marc "mustangg@users.sourceforge.net">
 <!ENTITY pablo "cronosii@users.sourceforge.net">
@@ -132,6 +132,11 @@ aim for reliability, simplicity, speed and flexibility while gradually increasin
 <title>Navigation</title>
 	<para>File => Exit</para>
 	<para>Means you should select the Button "File" and then the Button "Exit" to (in this case) close &app;</para> 
+</example>
+<example>
+<title>Command Line Entry</title>
+	<para>Information needed to be entered onto a terminal command line, e.g On an Xterm or Eterm is</para>
+<programlisting>shown like this</programlisting>
 </example>
 </sect2>
 </sect1>
