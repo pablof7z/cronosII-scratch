@@ -49,6 +49,9 @@ on_sidebar_subsection_selected				(C2Sidebar *sidebar, const gchar *section, con
 											 C2DialogPreferences *preferences);
 
 static void
+on_close_clicked							(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
 on_general_options_start_check_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
 	
 static void
@@ -2171,15 +2174,15 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 				type = C2_ACCOUNT_IMAP;
 		}
 	}
-	gnome_config_private_set_int ("type", type);
+	gnome_config_set_int ("type", type);
 
 	widget = glade_xml_get_widget (xml, "options_account_name");
 	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-	gnome_config_private_set_string ("account_name", buf);
+	gnome_config_set_string ("account_name", buf);
 	
 	widget = glade_xml_get_widget (xml, "identity_email");
 	buf2 = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-	gnome_config_private_set_string ("identity_email", buf2);
+	gnome_config_set_string ("identity_email", buf2);
 
 	account = c2_account_new (type, buf, buf2);
 	C2_DIALOG (preferences)->application->account =
@@ -2188,17 +2191,17 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 	widget = glade_xml_get_widget (xml, "identity_name");
 	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_FULL_NAME, GTK_TYPE_STRING, buf);
-	gnome_config_private_set_string ("identity_name", buf);
+	gnome_config_set_string ("identity_name", buf);
 
 	widget = glade_xml_get_widget (xml, "identity_organization");
 	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_ORGANIZATION, GTK_TYPE_STRING, buf);
-	gnome_config_private_set_string ("identity_organization", buf);
+	gnome_config_set_string ("identity_organization", buf);
 
 	widget = glade_xml_get_widget (xml, "identity_reply_to");
 	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_REPLY_TO, GTK_TYPE_STRING, buf);
-	gnome_config_private_set_string ("identity_reply_to", buf);
+	gnome_config_set_string ("identity_reply_to", buf);
 
 	if (type == C2_ACCOUNT_POP3)
 	{
@@ -2208,30 +2211,30 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_hostname");
 		buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-		gnome_config_private_set_string ("incoming_server_hostname", buf);
+		gnome_config_set_string ("incoming_server_hostname", buf);
 
 		widget = glade_xml_get_widget (xml, "incoming_server_port");
 		integer = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
-		gnome_config_private_set_int ("incoming_server_port", integer);
+		gnome_config_set_int ("incoming_server_port", integer);
 
 		widget = glade_xml_get_widget (xml, "incoming_server_username");
 		user = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-		gnome_config_private_set_string ("incoming_server_username", user);
+		gnome_config_set_string ("incoming_server_username", user);
 
 		widget = glade_xml_get_widget (xml, "incoming_auth_remember");
 		boolean = GTK_TOGGLE_BUTTON (widget)->active;
-		gnome_config_private_set_bool ("incoming_auth_remember", boolean);
+		gnome_config_set_bool ("incoming_auth_remember", boolean);
 
 		if (boolean)
 		{
 			widget = glade_xml_get_widget (xml, "incoming_server_password");
 			pass = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-			gnome_config_private_set_string ("incoming_server_password", pass);
+			gnome_config_set_string ("incoming_server_password", pass);
 		}
 
 		widget = glade_xml_get_widget (xml, "incoming_server_ssl");
 		boolean = GTK_TOGGLE_BUTTON (widget)->active;
-		gnome_config_private_set_bool ("incoming_server_ssl", boolean);
+		gnome_config_set_bool ("incoming_server_ssl", boolean);
 
 		pop3 = c2_pop3_new (g_strdup (buf), integer, user, pass, boolean);
 		c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, pop3);
@@ -2248,11 +2251,11 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 				if (c2_streq (selection, _("Plain")))
 				{
 					c2_pop3_set_auth_method (pop3, C2_POP3_AUTHENTICATION_PASSWORD);
-					gnome_config_private_set_int ("incoming_auth_method", C2_POP3_AUTHENTICATION_PASSWORD);
+					gnome_config_set_int ("incoming_auth_method", C2_POP3_AUTHENTICATION_PASSWORD);
 				} else if (c2_streq (selection, _("APOP")))
 				{
 					c2_pop3_set_auth_method (pop3, C2_POP3_AUTHENTICATION_APOP);
-					gnome_config_private_set_int ("incoming_auth_method", C2_POP3_AUTHENTICATION_APOP);
+					gnome_config_set_int ("incoming_auth_method", C2_POP3_AUTHENTICATION_APOP);
 				}
 			}
 		}
@@ -2264,16 +2267,16 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 
 		widget = glade_xml_get_widget (xml, "options_multiple_access_leave");
 		boolean = GTK_TOGGLE_BUTTON (widget)->active;
-		gnome_config_private_set_bool ("options_multiple_access_leave", boolean);
+		gnome_config_set_bool ("options_multiple_access_leave", boolean);
 
 		widget = glade_xml_get_widget (xml, "options_multiple_access_remove");
-		gnome_config_private_set_bool ("options_multiple_access_remove", GTK_TOGGLE_BUTTON (widget)->active);
+		gnome_config_set_bool ("options_multiple_access_remove", GTK_TOGGLE_BUTTON (widget)->active);
 		
 		if (GTK_TOGGLE_BUTTON (widget)->active && boolean)
 		{
 			widget = glade_xml_get_widget (xml, "options_multiple_access_remove_value");
 			integer = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
-			gnome_config_private_set_int ("options_multiple_access_remove_value", integer);
+			gnome_config_set_int ("options_multiple_access_remove_value", integer);
 		} else
 		{
 			integer = 0;
@@ -2287,19 +2290,19 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_hostname");
 		buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-		gnome_config_private_set_string ("incoming_server_hostname", buf);
+		gnome_config_set_string ("incoming_server_hostname", buf);
 
 		widget = glade_xml_get_widget (xml, "incoming_server_port");
 		integer = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
-		gnome_config_private_set_int ("incoming_server_port", integer);
+		gnome_config_set_int ("incoming_server_port", integer);
 
 		widget = glade_xml_get_widget (xml, "incoming_server_username");
 		buf2 = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-		gnome_config_private_set_string ("incoming_server_username", buf2);
+		gnome_config_set_string ("incoming_server_username", buf2);
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_ssl");
 		boolean = GTK_TOGGLE_BUTTON (widget)->active;
-		gnome_config_private_set_bool ("incoming_server_ssl", boolean);
+		gnome_config_set_bool ("incoming_server_ssl", boolean);
 
 		imap = c2_imap_new (buf, integer, buf2, NULL, "", C2_IMAP_AUTHENTICATION_PLAINTEXT, boolean);
 		c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, imap);
@@ -2317,30 +2320,30 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 			if (c2_streq (selection, _("SMTP")))
 			{
 				outgoing_type = C2_SMTP_REMOTE;
-				gnome_config_private_set_int ("outgoing_server_protocol", C2_SMTP_REMOTE);
+				gnome_config_set_int ("outgoing_server_protocol", C2_SMTP_REMOTE);
 			} else if (c2_streq (selection, _("Sendmail")))
 			{
 				outgoing_type = C2_SMTP_LOCAL;
-				gnome_config_private_set_int ("outgoing_server_protocol", C2_SMTP_LOCAL);
+				gnome_config_set_int ("outgoing_server_protocol", C2_SMTP_LOCAL);
 			}
 		}
 	}
 
 	widget = glade_xml_get_widget (xml, "outgoing_server_hostname");
 	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-	gnome_config_private_set_string ("outgoing_server_hostname", buf);
+	gnome_config_set_string ("outgoing_server_hostname", buf);
 
 	widget = glade_xml_get_widget (xml, "outgoing_server_port");
 	integer = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
-	gnome_config_private_set_int ("outgoing_server_port", integer);
+	gnome_config_set_int ("outgoing_server_port", integer);
 
 	widget = glade_xml_get_widget (xml, "outgoing_server_ssl");
 	boolean = GTK_TOGGLE_BUTTON (widget)->active;
-	gnome_config_private_set_bool ("outgoing_server_ssl", boolean);
+	gnome_config_set_bool ("outgoing_server_ssl", boolean);
 
 	widget = glade_xml_get_widget (xml, "outgoing_auth_required");
 	boolean2 = GTK_TOGGLE_BUTTON (widget)->active;
-	gnome_config_private_set_bool ("outgoing_server_required", boolean2);
+	gnome_config_set_bool ("outgoing_server_required", boolean2);
 
 	widget = glade_xml_get_widget (xml, "outgoing_server_username");
 	buf2 = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
@@ -2361,18 +2364,18 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 							glade_xml_get_widget (xml, "options_signature_plain")));
 	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_SIGNATURE_PLAIN, GTK_TYPE_STRING, buf);
-	gnome_config_private_set_string ("options_signature_plain", buf);
+	gnome_config_set_string ("options_signature_plain", buf);
 
 	widget = gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (
 							glade_xml_get_widget (xml, "options_signature_html")));
 	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_SIGNATURE_HTML, GTK_TYPE_STRING, buf);
-	gnome_config_private_set_string ("options_signature_html", buf);
+	gnome_config_set_string ("options_signature_html", buf);
 
 	widget = glade_xml_get_widget (xml, "options_auto_check");
 	boolean = GTK_TOGGLE_BUTTON (widget)->active;
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_ACTIVE, GTK_TYPE_BOOL, &boolean);
-	gnome_config_private_set_bool ("options_auto_check", boolean);
+	gnome_config_set_bool ("options_auto_check", boolean);
 	
 	gnome_config_sync ();
 	gnome_config_pop_prefix ();
@@ -2398,7 +2401,7 @@ general_accounts_get_next_account_number (void)
 	{
 		buf = g_strdup_printf ("/"PACKAGE"/Account %d/", i);
 		gnome_config_push_prefix (buf);
-		name = gnome_config_private_get_string ("account_name");
+		name = gnome_config_get_string ("account_name");
 		g_free (buf);
 		gnome_config_pop_prefix ();
 		if (!name)

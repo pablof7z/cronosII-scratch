@@ -145,7 +145,7 @@ init (C2Application *application)
 	C2AccountType account_type;
 	C2SMTPType outgoing_protocol;
 	gchar *tmp, *buf;
-	gint quantity = gnome_config_private_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL);
+	gint quantity = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL);
 	gint i;
 	gboolean load_mailboxes_at_start;
 	
@@ -166,15 +166,15 @@ init (C2Application *application)
 		tmp = g_strdup_printf ("/"PACKAGE"/Account %d/", i);
 		gnome_config_push_prefix (tmp);
 
-		if (!(name = gnome_config_private_get_string ("account_name")) ||
-			!(email = gnome_config_private_get_string ("identity_email")))
+		if (!(name = gnome_config_get_string ("account_name")) ||
+			!(email = gnome_config_get_string ("identity_email")))
 		{
 			gnome_config_pop_prefix ();
 			g_free (tmp);
 			break;
 		}
 
-		account_type = gnome_config_private_get_int ("type");
+		account_type = gnome_config_get_int ("type");
 
 		account = c2_account_new (account_type, name, email);
 
@@ -213,13 +213,13 @@ init (C2Application *application)
 			switch (type)
 			{
 				case GTK_TYPE_STRING:
-					value = gnome_config_private_get_string (buf);
+					value = gnome_config_get_string (buf);
 					break;
 				case GTK_TYPE_BOOL:
-					value = (gpointer) gnome_config_private_get_bool (buf);
+					value = (gpointer) gnome_config_get_bool (buf);
 					break;
 				case GTK_TYPE_INT:
-					value = (gpointer) gnome_config_private_get_int (buf);
+					value = (gpointer) gnome_config_get_int (buf);
 					break;
 				default:
 #ifdef USE_DEBUG
@@ -243,22 +243,22 @@ ignore:
 					gboolean ssl;
 					C2POP3AuthenticationMethod auth_method;
 					
-					host = gnome_config_private_get_string ("incoming_server_hostname");
-					port = gnome_config_private_get_int ("incoming_server_port");
-					user = gnome_config_private_get_string ("incoming_server_username");
-					pass = gnome_config_private_get_string ("incoming_server_password");
-					ssl = gnome_config_private_get_bool ("incoming_server_ssl");
-					auth_method = gnome_config_private_get_int ("incoming_auth_method");
-					if (!gnome_config_private_get_bool ("incoming_auth_remember"))
+					host = gnome_config_get_string ("incoming_server_hostname");
+					port = gnome_config_get_int ("incoming_server_port");
+					user = gnome_config_get_string ("incoming_server_username");
+					pass = gnome_config_get_string ("incoming_server_password");
+					ssl = gnome_config_get_bool ("incoming_server_ssl");
+					auth_method = gnome_config_get_int ("incoming_auth_method");
+					if (!gnome_config_get_bool ("incoming_auth_remember"))
 						flags |= C2_POP3_DO_NOT_LOSE_PASSWORD;
 					else
 						flags |= C2_POP3_DO_LOSE_PASSWORD;
-					if (gnome_config_private_get_bool ("options_multiple_access_leave"))
+					if (gnome_config_get_bool ("options_multiple_access_leave"))
 					{
 						flags |= C2_POP3_DO_KEEP_COPY;
 
-						if (gnome_config_private_get_bool ("options_multiple_access_remove"))
-							days = gnome_config_private_get_int ("options_multiple_access_remove_value");
+						if (gnome_config_get_bool ("options_multiple_access_remove"))
+							days = gnome_config_get_int ("options_multiple_access_remove_value");
 						else
 							days = 0;
 					} else
@@ -287,7 +287,7 @@ ignore:
 				break;
 		}
 
-		outgoing = gnome_config_private_get_int ("outgoing_protocol");
+		outgoing = gnome_config_get_int ("outgoing_protocol");
 
 		switch (outgoing)
 		{
@@ -299,12 +299,12 @@ ignore:
 					gint port;
 					gboolean auth, ssl;
 
-					host = gnome_config_private_get_string ("outgoing_server_hostname");
-					port = gnome_config_private_get_int ("outgoing_server_port");
-					auth = gnome_config_private_get_bool ("outgoing_server_authentication");
-					user = gnome_config_private_get_string ("outgoing_server_username");
-					pass = gnome_config_private_get_string ("outgoing_server_password");
-					ssl = gnome_config_private_get_bool ("outgoing_server_ssl");
+					host = gnome_config_get_string ("outgoing_server_hostname");
+					port = gnome_config_get_int ("outgoing_server_port");
+					auth = gnome_config_get_bool ("outgoing_server_authentication");
+					user = gnome_config_get_string ("outgoing_server_username");
+					pass = gnome_config_get_string ("outgoing_server_password");
+					ssl = gnome_config_get_bool ("outgoing_server_ssl");
 
 					smtp = c2_smtp_new (outgoing, host, port, auth, user, pass, ssl);
 					c2_account_set_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, GTK_TYPE_OBJECT, smtp);
@@ -340,17 +340,17 @@ ignore:
 		C2Mailbox *mailbox;
 		
 		gnome_config_push_prefix (query);
-		if (!(name = gnome_config_private_get_string ("name")))
+		if (!(name = gnome_config_get_string ("name")))
 		{
 			gnome_config_pop_prefix ();
 			g_free (query);
 			continue;
 		}
 
-		id = gnome_config_private_get_string ("id");
-		type = gnome_config_private_get_int ("type");
-		sort_by = gnome_config_private_get_int ("sort_by");
-		sort_type = gnome_config_private_get_int ("sort_type");
+		id = gnome_config_get_string ("id");
+		type = gnome_config_get_int ("type");
+		sort_by = gnome_config_get_int ("sort_by");
+		sort_type = gnome_config_get_int ("sort_type");
 
 		switch (type)
 		{
@@ -358,11 +358,11 @@ ignore:
 				mailbox = c2_mailbox_new (&application->mailbox, name, id, type, sort_by, sort_type);
 				break;
 			case C2_MAILBOX_IMAP:
-				host = gnome_config_private_get_string ("host");
-				port = gnome_config_private_get_int ("port");
-				user = gnome_config_private_get_string ("user");
-				pass = gnome_config_private_get_string ("pass");
-				path = gnome_config_private_get_string ("path");
+				host = gnome_config_get_string ("host");
+				port = gnome_config_get_int ("port");
+				user = gnome_config_get_string ("user");
+				pass = gnome_config_get_string ("pass");
+				path = gnome_config_get_string ("path");
 				mailbox = c2_mailbox_new (&application->mailbox, name, id, type, sort_by, sort_type, host, port, user, pass, path);
 				g_free (host);
 				g_free (user);
@@ -370,7 +370,7 @@ ignore:
 				g_free (path);
 				break;
 			case C2_MAILBOX_SPOOL:
-				path = gnome_config_private_get_string ("path");
+				path = gnome_config_get_string ("path");
 				mailbox = c2_mailbox_new (&application->mailbox, name, id, type, sort_by, sort_type, path);
 				g_free (path);
 				break;
@@ -739,7 +739,7 @@ c2_app_get_mailbox_configuration_id_by_name (const gchar *name)
 {
 	gchar *prefix;
 	gchar *gname;
-	gint max = gnome_config_private_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=-1", NULL);
+	gint max = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=-1", NULL);
 	gint i;
 	
 	c2_return_val_if_fail (name, -1, C2EDATA);
@@ -749,7 +749,7 @@ c2_app_get_mailbox_configuration_id_by_name (const gchar *name)
 		prefix = g_strdup_printf ("/"PACKAGE"/Mailbox %d/", i);
 		gnome_config_push_prefix (prefix);
 
-		gname = gnome_config_private_get_string ("name");
+		gname = gnome_config_get_string ("name");
 
 		if (c2_streq (gname, name))
 		{
