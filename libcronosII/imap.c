@@ -320,7 +320,7 @@ destroy(GtkObject *object)
 	GList *ptr;
 	GSList *ptr2;
   
-	gtk_signal_emit(GTK_OBJECT(imap), signals[LOGOUT]);
+	c2_imap_on_disconnect(C2_IMAP(object));
 	c2_net_object_disconnect(C2_NET_OBJECT(imap));
 	c2_net_object_destroy_byte (C2_NET_OBJECT (imap));
 	
