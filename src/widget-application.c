@@ -618,7 +618,6 @@ c2_application_window_get (C2Application *application, const gchar *type)
 	{
 		widget = GTK_WIDGET (l->data);
 		data = gtk_object_get_data (GTK_OBJECT (widget), "type");
-		C2_DEBUG ((gchar*)data);
 		if (c2_streq ((gchar*)data, type))
 			return widget;
 	}

@@ -4,6 +4,8 @@ Fri Sep 21 Peter Gossner <gossner@arcom.com.au>
 Tue Sep 20 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work with the DB module.
 	* Work with the Transfer Item widget.
+	* Fixed bug that made the DB-Cronos II to give the same MID
+	  to all messages.
 
 Sun Sep 16 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Sending MIME attachments via SMTP seems to be stable now

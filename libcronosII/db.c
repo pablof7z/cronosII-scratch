@@ -230,11 +230,8 @@ c2_db_length_type (C2Mailbox *mailbox, gint state)
 
 		do
 		{
-			printf ("state = %d\n", l->state);
 			if (l->state == state)
-			{
 				i++;
-			}
 		} while (c2_db_lineal_next (l));
 	}
 
@@ -255,13 +252,22 @@ c2_db_length_type (C2Mailbox *mailbox, gint state)
 C2Db *
 c2_db_get_node (C2Mailbox *mailbox, gint n)
 {
-	C2Db *l;
+	C2Db *l = NULL;
 	gint i;
 	
 	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
 
-	for (l = mailbox->db, i = 0; c2_db_lineal_next (l); i++, l = l->next)
-		;
+	if (mailbox->db)
+	{
+		l = mailbox->db;
+		i = 0;
+
+		do
+		{
+			if (i++ >= n)
+				break;
+		} while (c2_db_lineal_next (l));
+	}
 
 	return l;
 }
@@ -418,7 +424,6 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 
 	if (!mailbox->db)
 		c2_mailbox_load_db (mailbox);
-	printf ("Length of mailbox is %d\n", c2_db_length (mailbox));
 
 	/* Note for developers of VFUNCTIONS about this function:
 	 *   The VFunction should just append the node to the
@@ -472,7 +477,7 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 	if (mailbox->db)
 	{
 		printf ("<%d>\n", mailbox->db->prev->position);
-L		l = mailbox->db->prev;
+		l = mailbox->db->prev;
 
 		l->next = db;
 		db->prev = l;
@@ -482,7 +487,7 @@ L		l = mailbox->db->prev;
 	} else
 	{
 		mailbox->db = db;
-L		db->prev = db; /* This is what makes the list to be circular */
+		db->prev = db; /* This is what makes the list to be circular */
 	}
 
 	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox", db->prev);

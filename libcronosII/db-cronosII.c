@@ -181,19 +181,17 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 gboolean
 c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 {
-	gint mid;
+	gint mid = 0;
 	gchar *buf;
 	FILE *fd;
 
-L
+
 	if (mailbox->db)
-	{
-L		mid = mailbox->db->prev->mid+1;
-		printf ("Latest mid is %d (%s)\n", mailbox->db->prev->mid, mailbox->db->prev->subject);
-	} else
-	{
-L		mid = 1;
-	}
+		mid = mailbox->db->prev->prev->mid+1;
+
+	printf ("About: %d\n", mid);
+	if (!mid)
+		mid = 1;
 	printf ("New mid: %d\n", mid);
 
 	db->mid = mid;
