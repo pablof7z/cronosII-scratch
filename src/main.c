@@ -90,18 +90,59 @@ c2_config_init (void)
 	gchar *tmp;
 	
 	c2_app.tooltips = gtk_tooltips_new ();
+	c2_app.open_windows = NULL;
+	c2_app.tmp_files = NULL;
 
 	/* Check if the configuration exists */
 	tmp = gnome_config_get_string ("/cronosII/CronosII/Version");
 	if (!tmp)
 	{
+#if FALSE /* TODO */
 		gdk_threads_enter ();
 		c2_install_new ();
 		gdk_threads_leave ();
+#endif
 	}
 	
 	/* Get mailboxes */
 	load_mailboxes ();
+
+	c2_app.options_check_timeout = gnome_config_get_int_with_default
+									("/c2/Options/check_timeout=" DEFAULT_OPTIONS_CHECK_TIMEOUT);
+	c2_app.options_mark_timeout = gnome_config_get_int_with_default
+									("/c2/Options/mark_timeout=" DEFAULT_OPTIONS_MARK_TIMEOUT);
+	c2_app.options_prepend_character = gnome_config_get_string_with_default
+									("/c2/Options/prepend_character=" DEFAULT_OPTIONS_PREPEND_CHARACTER);
+	c2_app.options_empty_garbage = gnome_config_get_int_with_default
+									("/c2/Options/empty_garbage=" DEFAULT_OPTIONS_EMPTY_GARBAGE);
+	c2_app.options_use_outbox = gnome_config_get_int_with_default
+									("/c2/Options/use_outbox=" DEFAULT_OPTIONS_USE_OUTBOX);
+	c2_app.options_check_at_start = gnome_config_get_int_with_default
+									("/c2/Options/check_at_start=" DEFAULT_OPTIONS_CHECK_AT_START);
+	c2_app.options_default_mime = gnome_config_get_int_with_default
+									("/c2/Options/default_mime=" DEFAULT_OPTIONS_DEFAULT_MIME);	
+	
+	c2_app.account = NULL;
+
+	c2_app.interface_title = gnome_config_get_string_with_default
+									("/c2/Interface/title=" DEFAULT_INTERFACE_TITLE);
+	c2_app.interface_toolbar = gnome_config_get_int_with_default
+									("/c2/Interface/toolbar=" DEFAULT_INTERFACE_TOOLBAR);
+	c2_app.interface_date_fmt = gnome_config_get_string_with_default
+									("/c2/Interface/date_fmt=" DEFAULT_INTERFACE_DATE_FMT);
+
+	c2_app.fonts_message_body = gnome_config_get_string_with_default
+									("/c2/Fonts/message_body=" DEFAULT_FONTS_MESSAGE_BODY);
+	c2_app.fonts_unreaded_message = gnome_config_get_string_with_default
+									("/c2/Fonts/unreaded_message=" DEFAULT_FONTS_UNREADED_MESSAGE);
+	c2_app.fonts_readed_message = gnome_config_get_string_with_default
+									("/c2/Fonts/readed_message=" DEFAULT_FONTS_READED_MESSAGE);
+	c2_app.fonts_source = gnome_config_get_int_with_default
+									("/c2/Fonts/source=" DEFAULT_FONTS_SOURCE);
+	
+	
+
+	
 
 	c2_app.default_mime = gnome_config_get_int_with_default ("/cronosII/HTML/Default Mime=1", NULL);
 

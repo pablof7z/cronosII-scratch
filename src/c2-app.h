@@ -24,6 +24,7 @@ extern "C" {
 
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <config.h>
+#	include <libcronosII/account.h>
 #	include <libcronosII/mailbox.h>
 #	include <libcronosII/utils.h>
 #else
@@ -53,16 +54,15 @@ typedef enum
 
 typedef enum
 {
-	C2_INIT_ADDRBOOK_AT_START,
-	C2_INIT_ADDRBOOK_AT_REQ,
-	C2_INIT_ADDRBOOK_AT_OPEN
-} C2InitAddrbookTime;
+	C2_FONT_USE_DOCUMENTS_FONT,
+	C2_FONT_USE_MY_FONT
+} C2FontSource;
 
 typedef enum
 {
-	C2_MIME_WINDOW_STICKY,
-	C2_MIME_WINDOW_AUTOMATIC
-} C2MimeWindowMode;
+	C2_COLOR_USE_DOCUMENTS_COLORS,
+	C2_COLOR_USE_MY_COLOR
+} C2ColorSource;
 
 typedef enum
 {
@@ -117,34 +117,47 @@ struct C2Application
 	GdkFont *gdk_font_read;
 	GdkFont *gdk_font_unread;
 
-	C2Mailbox *mailboxes;
-#if FALSE
-	C2Account *accounts;
-	C2Modules *modules;
-#endif
-	C2DefaultMimeType default_mime;
-	C2InitAddrbookTime addrbook_init;
+	C2Mailbox *mailbox;
 
-	gboolean empty_garbage;
-	gboolean check_at_start;
-	gboolean use_outbox;
-	gboolean use_persistent_smtp;
+	gint options_check_timeout;
+	gint options_mark_timeout;
+	gchar *options_prepend_character;
+	gint options_empty_garbage	: 1;
+	gint options_use_outbox		: 1;
+	gint options_check_at_start	: 1;
+	C2DefaultMimeType options_default_mime;
+		
+	C2Account *account;
+
+	gchar *interface_title;
+	GtkToolbarStyle interface_toolbar;
+	gchar *interface_date_fmt;
+
+	gchar *fonts_message_body;
+	gchar *fonts_unreaded_message;
+	gchar *fonts_readed_message;
+	C2FontSource fonts_source;
+
+	GdkColor colors_replying_original_message;
+	GdkColor colors_message_bg;
+	GdkColor colors_message_fg;
+	C2ColorSource colors_message_source;
+
+	gchar *paths_saving_entry;
+	gchar *paths_download_entry;
+	gchar *paths_get_entry;
+
+	gchar *advanced_http_proxy_addr;
+	gint advanced_http_proxy_port;
+	gint advanced_http_proxy : 1;
+	gchar *advanced_ftp_proxy_addr;
+	gint advanced_ftp_proxy_port;
+	gint advanced_ftp_proxy : 1;
+	gchar *advanced_persistent_smtp_addr;
+	gint advanced_persistent_smtp_port;
+	gint advanced_persistent_smtp : 1;
+	gint advanced_use_internal_browser : 1;
 	
-	gint check_timeout;
-	gint message_size_limit;
-	gint net_timeout;
-	gint mark_as_read_timeout;
-	gint persistent_smtp_port;
-	
-	gchar *prepend_character;
-	gchar *persistent_smtp_host;
-
-	GdkColor color_reply_original_message;
-	GdkColor color_misc_body;
-
-	C2MimeWindowMode mime_window;
-	GtkToolbarStyle toolbar;
-
 	gint wm_hpan;
 	gint wm_vpan;
 	gint wm_clist[8];
@@ -152,12 +165,6 @@ struct C2Application
 	gint wm_height;
 	
 	guint showable_headers[C2_SHOWABLE_HEADERS_LAST];
-
-	gchar *font_read;
-	gchar *font_unread;
-	gchar *font_body;
-	gchar *app_title;
-	gchar *date_fmt;
 } c2_app;
 
 gint

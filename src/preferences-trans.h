@@ -20,6 +20,10 @@ gchar *s = N_("to each line when replying a message.");
 gchar *s = N_("Empty the Garbage mailbox on exit.");
 gchar *s = N_("Store a copy of outgoing messages in the Outbox mailbox.");
 gchar *s = N_("Check for mail at start up.");
+gchar *s = N_("Default MIME part to show:");
+gchar *s = N_("Plain text\n"
+              "HTML formatted\n"
+              "");
 gchar *s = N_("Options");
 gchar *s = N_("Name");
 gchar *s = N_("Type");
@@ -75,8 +79,23 @@ gchar *s = N_("Pick a color");
 gchar *s = N_("Use document specified colors.\n"
               "Always use my colors.\n"
               "");
-gchar *s = N_("Default foreground color:");
 gchar *s = N_("Colors");
+gchar *s = N_("Default directory for saving files");
+gchar *s = N_("Browse...");
+gchar *s = N_("Default directory for downloading files");
+gchar *s = N_("Browse...");
+gchar *s = N_("Default directory for getting files");
+gchar *s = N_("Browse...");
+gchar *s = N_("Paths");
+gchar *s = N_("Proxy");
+gchar *s = N_("HTTP Proxy:");
+gchar *s = N_("Port:");
+gchar *s = N_("FTP Proxy:");
+gchar *s = N_("Port:");
+gchar *s = N_("Use persistent SMTP connection:");
+gchar *s = N_("Port:");
+gchar *s = N_("Use internal browser for following links.");
+gchar *s = N_("Advanced");
 gchar *s = N_("Cronos II : Preferences : Accounts");
 gchar *s = N_("Account Options");
 gchar *s = N_("This wizard will help you in the configuration of accounts\n"

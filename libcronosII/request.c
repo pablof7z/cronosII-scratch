@@ -79,23 +79,16 @@ c2_request_construct (C2Request *request)
 	}
 }
 
-static void
-c2_request_construct_http (C2Request *request)
+static gint
+http_connect (C2Request *request, gint *sock)
 {
-	gchar *host, *ip;
-	gchar *path;
-	gchar *tmp, *tmp2;
-	gint port = 80; /* Default to 80 */
-	guint sock;
-	gint tmplength, length = 0;
-	
-	gint bytes, total_bytes;
-	gchar *ptr;
-	gchar *retval = NULL;
-	gchar buffer[BUFSIZ];
-	
+	gchar *host, *ip, *path;
+	guint port;
+
+	/* Parse URL */
 	parse_url (request->url, &host, &port, &path);
-	
+
+	/* Resolve */
 	gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[RESOLVE]);
 	if (c2_net_resolve (host, &ip))
 	{
@@ -105,13 +98,12 @@ c2_request_construct_http (C2Request *request)
 #endif
 		g_free (host);
 		gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT], FALSE);
-		return;
+		return -1;
 	}
 
-	/* Now try to connect */
+	/* Connect */
 	gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[CONNECT]);
-
-	if (c2_net_connect (ip, port, &sock) < 0)
+	if (c2_net_connect (ip, port, sock) < 0)
 	{
 #ifdef USE_DEBUG
 		g_print ("Unable to connect: %s\n",
@@ -120,12 +112,29 @@ c2_request_construct_http (C2Request *request)
 		g_free (host);
 		g_free (ip);
 		gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT], FALSE);
-		return;
+		return -1;
 	}
 	g_free (ip);
 
+	return 0;
+}
+
+static gint
+http_retrieve (C2Request *request, gint *sock)
+{
+	gchar *host, *path;
+	guint port = 80;
+	gchar *tmp;
+	gint bytes, total_bytes;
+	gchar *ptr;
+	gchar *retval = NULL;
+	gchar buffer[BUFSIZ];
+
+	/* Parse URL */
+	parse_url (request->url, &host, &port, &path);
+	
+	/* Retrieve */
 	gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[RETRIEVE], 0);
-	/* Now try to retrieve */
 	if (c2_net_send (sock, "GET %s HTTP/1.0\r\n"
 						   "Host: %s\r\n"
 						   "\r\n", path, host) < 0)
@@ -134,9 +143,9 @@ c2_request_construct_http (C2Request *request)
 		g_print ("Unable to query the socket: %s\n", c2_error_get (c2_errno));
 #endif
 		g_free (host);
-		close (sock);
+		close (*sock);
 		gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT], FALSE);
-		return;
+		return -1;
 	}
 	g_free (host);
 	g_free (path);
@@ -145,7 +154,7 @@ c2_request_construct_http (C2Request *request)
 	request->source = NULL;
 	request->got_size = 0;
 	total_bytes = 0;
-	while ((bytes = read (sock, buffer, sizeof (buffer))) > 0)
+	while ((bytes = read (*sock, buffer, sizeof (buffer))) > 0)
 	{
 		request->source = g_realloc (request->source, total_bytes+bytes);
 		memcpy (request->source + total_bytes, buffer, bytes);
@@ -162,9 +171,22 @@ c2_request_construct_http (C2Request *request)
 	memcpy (tmp, ptr, request->got_size);
 	g_free (request->source);
 	request->source = tmp;
+
+	/* Check the answer:
+	 */ 
 	
-	gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT]);
-	c2_net_disconnect (sock);
+	gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT], TRUE);
+	c2_net_disconnect (*sock);
+}
+
+static void
+c2_request_construct_http (C2Request *request)
+{
+	gchar *tmp, *tmp2;
+	gint sock;
+	gint tmplength, length = 0;
+	
+	if (http_connect (request, &sock) && http_retrieve (request, &sock));
 }
 
 static void

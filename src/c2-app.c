@@ -42,9 +42,9 @@ c2_app_init (void)
 	c2_app.tooltips = gtk_tooltips_new ();
 	c2_app.open_windows = NULL;
 
-	c2_app.gdk_font_body = gdk_font_load (c2_app.font_body);
-	c2_app.gdk_font_read = gdk_font_load (c2_app.font_read);
-	c2_app.gdk_font_unread = gdk_font_load (c2_app.font_unread);
+	c2_app.gdk_font_body = gdk_font_load (c2_app.fonts_message_body);
+	c2_app.gdk_font_read = gdk_font_load (c2_app.fonts_readed_message);
+	c2_app.gdk_font_unread = gdk_font_load (c2_app.fonts_unreaded_message);
 
 	return 0;
 }
@@ -169,7 +169,7 @@ c2_app_start_activity (GtkWidget *progress)
 	{
 		GtkWidget *appbar = glade_xml_get_widget (WMain.xml, "appbar");
 		gtk_progress_set_activity_mode (gnome_appbar_get_progress (GNOME_APPBAR (appbar)), TRUE);
-		gtk_timeout_add (10, on_activity_update, NULL);
+		gtk_timeout_add (10, (GtkFunction) on_activity_update, NULL);
 	}
 }
 

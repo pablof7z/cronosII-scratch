@@ -78,10 +78,10 @@ c2_window_new (void)
 	pthread_mutex_init (&WMain.body_lock, NULL);
 	pthread_mutex_init (&WMain.appbar_lock, NULL);
 	
-	WMain.xml = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "WMain");
-	WMain.ctree_menu = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "ctree_menu");
+	WMain.xml = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "wnd_main");
+	WMain.ctree_menu = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "mnu_ctree");
 
-	window = glade_xml_get_widget (WMain.xml, "WMain");
+	window = glade_xml_get_widget (WMain.xml, "wnd_main");
 	gtk_widget_realize (window);
 	gtk_widget_set_usize (GTK_WIDGET (window), c2_app.wm_width, c2_app.wm_height);
 	gtk_window_set_policy (GTK_WINDOW (window), TRUE, TRUE, FALSE);
@@ -117,8 +117,8 @@ c2_window_new (void)
 								GTK_SIGNAL_FUNC (on_ctree_tree_unselect_row), NULL);
 	gtk_signal_connect (GTK_OBJECT (ctree), "button_press_event",
       			GTK_SIGNAL_FUNC (on_ctree_button_press_event), NULL);
-	if (c2_app.mailboxes)
-		gtk_signal_connect (GTK_OBJECT (c2_app.mailboxes), "changed_mailboxes",
+	if (c2_app.mailbox)
+		gtk_signal_connect (GTK_OBJECT (c2_app.mailbox), "changed_mailboxes",
 							GTK_SIGNAL_FUNC (on_ctree_changed_mailboxes), NULL);
 
 	/* Vpaned */
@@ -246,7 +246,7 @@ on_ctree_button_press_event (GtkWidget *widget, GdkEvent *event)
 			gtk_clist_unselect_all (GTK_CLIST (widget));
 
 		c2_main_window_set_sensitivity ();
-		gnome_popup_menu_do_popup (glade_xml_get_widget (WMain.ctree_menu, "ctree_menu"),
+		gnome_popup_menu_do_popup (glade_xml_get_widget (WMain.ctree_menu, "mnu_ctree"),
 									NULL, NULL, e, NULL);
 	}
 }
@@ -257,8 +257,8 @@ on_ctree_changed_mailboxes (C2Mailbox *mailbox)
 	GtkWidget *ctree = glade_xml_get_widget (WMain.xml, "ctree");
 	GtkWidget *window = glade_xml_get_widget (WMain.xml, "window");
 
-	c2_app.mailboxes = c2_mailbox_get_head ();
-	c2_mailbox_tree_fill (c2_app.mailboxes, NULL, ctree, window);
+	c2_app.mailbox = c2_mailbox_get_head ();
+	c2_mailbox_tree_fill (c2_app.mailbox, NULL, ctree, window);
 }
 
 static void
@@ -277,14 +277,14 @@ on_preferences_activated (GtkWidget *widget)
 static void
 on_about_activated (GtkWidget *widget)
 {
-	GladeXML *xml = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "about");
-	GtkWidget *about = glade_xml_get_widget (xml, "about");
+	GladeXML *xml = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "dlg_about");
+	GtkWidget *about = glade_xml_get_widget (xml, "dlg_about");
 }
 
 static void
 on_quit (void)
 {
-	GtkWidget *window = glade_xml_get_widget (WMain.xml, "WMain");
+	GtkWidget *window = glade_xml_get_widget (WMain.xml, "wnd_main");
 	GList *l;
 	
 	for (l = c2_app.open_windows; l != NULL; l = l->next)

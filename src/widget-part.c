@@ -151,10 +151,9 @@ on_gtkxmhtml_image_load_pthread_request_disconnect (C2Request *request, gboolean
 	XmImageInfo *new_image;
 	gchar *tmpfile;
 	const gchar *source;
-	gchar tmpfile2[] = "/tmp/c2-mmm-log.XXXXX";
 	FILE *fd;
 	gint fs;
-L	
+	
 	if (!success)
 	{
 		/* The fetching failed for whatever reason */

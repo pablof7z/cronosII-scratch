@@ -101,8 +101,8 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 	if (c2_mailbox_get_by_name (c2_mailbox_get_head (), name))
 	{
 		GladeXML *err_xml =
-			glade_xml_new (DATADIR "/cronosII/cronosII.glade", "mailbox_err_msg");
-		GtkWidget *err_dialog = glade_xml_get_widget (err_xml, "mailbox_err_msg");
+			glade_xml_new (DATADIR "/cronosII/cronosII.glade", "dlg_mailbox_err_msg");
+		GtkWidget *err_dialog = glade_xml_get_widget (err_xml, "dlg_mailbox_err_msg");
 		gnome_dialog_run_and_close (GNOME_DIALOG (err_dialog));
 		return;
 	}
@@ -144,7 +144,7 @@ static void
 on_new_mailbox_dlg_name_activate (GtkWidget *widget, GladeXML *gxml)
 {
 	on_new_mailbox_dlg_ok_clicked (gxml, c2_mailbox_get_head () ? FALSE : TRUE);
-	gnome_dialog_close (GNOME_DIALOG (glade_xml_get_widget (gxml, "new_mailbox_dlg")));
+	gnome_dialog_close (GNOME_DIALOG (glade_xml_get_widget (gxml, "dlg_new_mailbox")));
 }
 
 void
@@ -155,9 +155,9 @@ on_new_mailbox_dlg (void)
 	GtkWidget *entry;
 	GList *types = NULL;
 
-	gxml = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "new_mailbox_dlg");
+	gxml = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "dlg_new_mailbox");
 	
-	dialog = glade_xml_get_widget (gxml, "new_mailbox_dlg");
+	dialog = glade_xml_get_widget (gxml, "dlg_new_mailbox");
 	gnome_dialog_set_default (GNOME_DIALOG (dialog), 0);
 
 	entry = glade_xml_get_widget (gxml, "name");
@@ -225,8 +225,8 @@ on_properties_mailbox_dlg_type_menu_selection_done (GtkWidget *widget, GladeXML 
 void
 on_properties_mailbox_dlg (void)
 {
-	GladeXML *xml = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "mailbox_properties");
-	GtkWidget *dialog = glade_xml_get_widget (xml, "mailbox_properties");
+	GladeXML *xml = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "dlg_mailbox_properties");
+	GtkWidget *dialog = glade_xml_get_widget (xml, "dlg_mailbox_properties");
 	GnomePixmap *pixmap = GNOME_PIXMAP (glade_xml_get_widget (xml, "pixmap"));
 	GtkEntry *name = GTK_ENTRY (glade_xml_get_widget (xml, "name"));
 	GtkWidget *type = glade_xml_get_widget (xml, "type");

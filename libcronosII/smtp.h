@@ -41,9 +41,6 @@ typedef struct
 C2Smtp *
 c2_smtp_new (const gchar *address, gint port);
 
-void
-c2_smtp_new (C2Smtp *smtp);
-
 gint
 c2_smtp_connect (C2Smtp *smtp);
 
