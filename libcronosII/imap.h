@@ -107,29 +107,16 @@ struct _C2IMAPPending
 	tag_t tag;
 	C2Mutex lock;
 };
-	
-struct _C2IMAPFolder
-{
-	gchar *name;
-	
-	gboolean noinferiors;
-	gboolean noselect;
-	gboolean marked;
-};
 
 GtkType
 c2_imap_get_type							(void);
 
 C2IMAP *
-c2_imap_new									(gchar *host, gint port, gchar *user, gchar *pass, 
-														C2IMAPAuthenticationType auth, gboolean ssl);
+c2_imap_new									(const gchar *host, const gint port, const gchar *user, const gchar *pass, 
+														const C2IMAPAuthenticationType auth, const gboolean ssl);
 
 gint
 c2_imap_init								(C2IMAP *imap);
-	
-gint
-c2_imap_get_folder_list(C2IMAP *imap, GList **list,
-												const gchar *reference, const gchar *name);
 			
 gint
 c2_imap_create_folder(C2IMAP *imap, const gchar *reference, const gchar *name);
