@@ -186,40 +186,6 @@ destroy (GtkObject *object)
 
 	if (GTK_IS_WIDGET (ti->table))
 		gtk_widget_destroy (ti->table);
-
-	if (ti->type == C2_TRANSFER_ITEM_RECEIVE)
-	{
-		if (ti->account->type == C2_ACCOUNT_POP3)
-		{
-			C2POP3 *pop3;
-			
-			pop3 = C2_POP3 (c2_account_get_extra_data (ti->account, C2_ACCOUNT_KEY_INCOMING, NULL));
-		
-			gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
-											GTK_SIGNAL_FUNC (on_pop3_resolve), ti);
-			gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
-											GTK_SIGNAL_FUNC (on_pop3_login), ti);
-			gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
-											GTK_SIGNAL_FUNC (on_pop3_uidl), ti);
-			gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
-											GTK_SIGNAL_FUNC (on_pop3_status), ti);
-			gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
-											GTK_SIGNAL_FUNC (on_pop3_retrieve), ti);
-			gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
-											GTK_SIGNAL_FUNC (on_pop3_synchronize), ti);
-			gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
-											GTK_SIGNAL_FUNC (on_pop3_disconnect), ti);
-			
-		}
-	} else if (ti->type == C2_TRANSFER_ITEM_SEND)
-	{
-		C2SMTP *smtp;
-
-		smtp = ti->type_info.send.smtp;
-
-		gtk_signal_disconnect_by_func (GTK_OBJECT (smtp), GTK_SIGNAL_FUNC (on_smtp_smtp_update), ti);
-		gtk_signal_disconnect_by_func (GTK_OBJECT (smtp), GTK_SIGNAL_FUNC (on_smtp_finished), ti);
-	}
 }
 
 C2TransferItem *
@@ -373,6 +339,7 @@ on_cancel_clicked (GtkWidget *button, C2TransferItem *ti)
 	gtk_signal_emit (GTK_OBJECT (ti), signals[CANCEL], account);
 
 	/* [XXX] This won't be here, I'm testing */
+	
 	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
 
 #if 0
@@ -751,6 +718,8 @@ on_pop3_synchronize (GtkObject *object, gint nth, gint mails, C2TransferItem *ti
 static void
 on_pop3_disconnect (GtkObject *object, gboolean success, C2NetObjectByte *byte, C2TransferItem *ti)
 {
+	C2Account *account = ti->account;
+	C2POP3 *pop3 = C2_POP3 (c2_account_get_extra_data (account, C2_ACCOUNT_KEY_INCOMING, NULL));
 	gchar *str = NULL;
 	
 	gdk_threads_enter ();
@@ -778,6 +747,31 @@ on_pop3_disconnect (GtkObject *object, gboolean success, C2NetObjectByte *byte, 
 	g_free (str);
 
 	ti->finished = 1;
+
+	/* Disconnect the signals that we connected to the POP3 object */
+	gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
+						GTK_SIGNAL_FUNC (on_pop3_resolve), ti);
+
+	gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
+									GTK_SIGNAL_FUNC (on_pop3_login), ti);
+
+	gtk_object_set_data (GTK_OBJECT (pop3), "login_failed::data", NULL);
+	C2_POP3_CLASS_FW (pop3)->login_failed = NULL;
+
+	gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
+						GTK_SIGNAL_FUNC (on_pop3_uidl), ti);
+
+	gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
+									GTK_SIGNAL_FUNC (on_pop3_status), ti);
+
+	gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
+									GTK_SIGNAL_FUNC (on_pop3_retrieve), ti);
+
+	gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
+									GTK_SIGNAL_FUNC (on_pop3_synchronize), ti);
+
+	gtk_signal_disconnect_by_func (GTK_OBJECT (pop3),
+									GTK_SIGNAL_FUNC (on_pop3_disconnect), ti);
 
 	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
 }
@@ -812,8 +806,13 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 	C2TransferItem *_ti;
 	C2Mailbox *outbox;
 	C2Mailbox *sent_items;
+	C2SMTP *smtp = ti->type_info.send.smtp;
 	
 	gdk_threads_enter ();
+
+	gtk_signal_disconnect_by_func (GTK_OBJECT (smtp), GTK_SIGNAL_FUNC (on_smtp_smtp_update), ti);
+	gtk_signal_disconnect_by_func (GTK_OBJECT (smtp), GTK_SIGNAL_FUNC (on_smtp_finished), ti);
+	
 	if (!(_ti = smtp_get_ti_from_id (ti, id)))
 	{
 		gdk_threads_leave ();

@@ -131,6 +131,9 @@ destroy (GtkObject *object)
 	}
 	
 	g_slist_free (tl->list);
+
+	printf ("Emitiendo la señal de desconexión %d\n", __LINE__);
+	gtk_signal_emit (GTK_OBJECT (tl), signals[FINISH]);
 }
 
 GtkWidget *
@@ -179,6 +182,7 @@ static void
 on_close_button_toggled (GtkWidget *widget, gpointer data)
 {
 	c2_preferences_set_widget_transfer_list_autoclose (GTK_TOGGLE_BUTTON (widget)->active);
+	c2_preferences_commit ();
 }
 
 static void
@@ -255,10 +259,13 @@ on_transfer_item_finish (C2TransferItem *ti, C2TransferList *tl)
 	GtkWidget *progress;
 	GSList *list;
 
-	if (GTK_TOGGLE_BUTTON (tl->close)->active)
+	if (GTK_TOGGLE_BUTTON (tl->close)->active && g_slist_length (tl->list) == 1)
+		gtk_timeout_add (2500, (GtkFunction) on_last_finish_timeout, tl);
+	else
 	{
-		if (g_slist_length (tl->list) == 1)
-			gtk_timeout_add (2500, (GtkFunction) on_last_finish_timeout, tl);
+		printf ("<%d>\n", g_slist_length (tl->list));
+		tl->list = g_slist_remove (tl->list, ti);
+		printf ("<%d>\n", g_slist_length (tl->list));
 	}
 	
 	progress = ti->progress_byte;
@@ -270,8 +277,9 @@ on_transfer_item_finish (C2TransferItem *ti, C2TransferList *tl)
 	gtk_progress_set_percentage (GTK_PROGRESS (progress), 1.0);
 	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
 
-//	tl->list = g_slist_remove (tl->list, ti);
-
 	if (!g_slist_length (tl->list))
+	{
+		printf ("Emitiendo la señal de desconexión %d\n", __LINE__);
 		gtk_signal_emit (GTK_OBJECT (tl), signals[FINISH]);
+	}
 }

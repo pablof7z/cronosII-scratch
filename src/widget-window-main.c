@@ -441,7 +441,7 @@ C2ToolbarItem toolbar_items[] =
 		C2_TOOLBAR_BUTTON,
 		"toolbar_previous",
 		N_("Previous"), PKGDATADIR "/pixmaps/prev.png",
-		N_("Select previous message"), TRUE,
+		N_("Select previous message"), FALSE,
 		GTK_SIGNAL_FUNC (on_toolbar_previous_clicked), NULL,
 		NULL, NULL
 	},
@@ -449,7 +449,7 @@ C2ToolbarItem toolbar_items[] =
 		C2_TOOLBAR_BUTTON,
 		"toolbar_next",
 		N_("Next"), PKGDATADIR "/pixmaps/next.png",
-		N_("Select next message"), TRUE,
+		N_("Select next message"), FALSE,
 		GTK_SIGNAL_FUNC (on_toolbar_next_clicked), NULL,
 		NULL, NULL
 	},

@@ -42,6 +42,7 @@
 #include "widget-part.h"
 #include "widget-dialog.h"
 #include "widget-select-list.h"
+#include "widget-application-utils.h"
 
 /* [TODO]
  * 010920 Interpret some HTML symbols too.
@@ -209,8 +210,6 @@ c2_mail_construct (C2Mail *mail, C2Application *application)
 	gtk_box_pack_start (GTK_BOX (hbox), mail->headers, FALSE, FALSE, 0);
 	if (mail->headers_visible)
 		gtk_widget_show (mail->headers);
-	gtk_signal_connect (GTK_OBJECT (mail->headers), "size_allocate",
-						GTK_SIGNAL_FUNC (on_box_size_allocate), mail);
 
 	hbox = gtk_hbox_new (FALSE, 3);
 	gtk_box_pack_start (GTK_BOX (mail->headers), hbox, TRUE, TRUE, 0);
@@ -332,17 +331,21 @@ on_mail_parent_set (GtkWidget *widget, GtkWidget *prev, C2Mail *mail)
 		mail->window = w;
 	else
 		mail->window = NULL;
-}
 
-static void
-on_box_size_allocate (GtkWidget *widget, GtkAllocation *a, C2Mail *mail)
-{
+	gtk_signal_connect (GTK_OBJECT (GTK_WIDGET (mail)->parent), "size_allocate",
+						GTK_SIGNAL_FUNC (on_box_size_allocate), mail);
 }
 
 static void
 on_attachments_clicked (GtkWidget *btn, C2Mail *mail)
 {
 	c2_mail_attachments_tool_new (mail);
+}
+
+static void
+on_message_destroy (GtkObject *obj, C2Mail *mail)
+{
+	mail->message = NULL;
 }
 
 static void
@@ -362,7 +365,15 @@ set_headers_attachments (C2Mail *mail, C2Message *message)
 static void
 set_headers (C2Mail *mail, C2Message *message)
 {
-	gchar *buf;
+	gchar *buf, *buf2;
+	guint16 available_width;
+	guint16 av_w_subject;
+	guint16 av_w_dest; /* This agroups From:, To: and CC:, since they will all messure the same */
+	guint16 av_w_dest_each;
+	GtkStyle *style;
+	GdkFont *bold_font, *common_font;
+	const gchar *text;
+	gboolean display_cc;
 
 	if (!C2_IS_MESSAGE (message))
 	{
@@ -379,82 +390,178 @@ set_headers (C2Mail *mail, C2Message *message)
 	if (mail->headers_visible)
 		gtk_widget_show (mail->headers);
 
+	/* Get the fonts */
+	bold_font = gdk_font_load (c2_font_bold);
+	style = gtk_widget_get_style (mail->subject_label[1]);
+	common_font = style->font;
+
+	/* Calculate how much available width we have for the headers */
+	available_width = GTK_WIDGET (mail)->parent->allocation.width - 30;
+
+	buf = c2_message_get_header_field (message, "Content-Type:");
+	if (c2_strneq (buf, "multipart/", 10))
+		available_width -= 40;
+
+	/* Calculate space for the subject */
+	gtk_label_get (GTK_LABEL (mail->subject_label[0]), &buf);
+	av_w_subject = available_width - gdk_string_width (bold_font, buf);
+
 	/* Subject */
 	buf = c2_message_get_header_field (message, "Subject:");
 	if (!buf || !strlen (buf))
-		gtk_label_set_text (GTK_LABEL (mail->subject_label[1]), _("«No Subject»"));
+		text = _("«No Subject»");
 	else
-		gtk_label_set_text (GTK_LABEL (mail->subject_label[1]), buf);
-	C2_PRINTD (MOD, "subject = '%s'\n", buf);
+		text = buf;
+
+	/* Get the text that will fit in the space we have */
+	buf2 = c2_application_cut_text (application, common_font, text, av_w_subject);
+	gtk_label_set_text (GTK_LABEL (mail->subject_label[1]), buf2);
 	g_free (buf);
-		
-	/* From */
+	g_free (buf2);
+
+	/* Calculate space for the destinataries */
+	/* Check if we display CC */
+	buf = c2_message_get_header_field (message, "CC:");
+	if (buf && strlen (buf))
+		display_cc = TRUE;
+	else
+		display_cc = FALSE;
+	
+	av_w_dest = available_width;
+	
+	gtk_label_get (GTK_LABEL (mail->from_label[0]), &buf);
+	av_w_dest -= gdk_string_width (bold_font, buf);
+
+	gtk_label_get (GTK_LABEL (mail->to_label[0]), &buf);
+	av_w_dest -= gdk_string_width (bold_font, buf);
+
+	if (display_cc)
+	{
+		gtk_label_get (GTK_LABEL (mail->cc_label[0]), &buf);
+		av_w_dest -= gdk_string_width (bold_font, buf);
+	}
+
+	/* We have the space we have for the From:, To: and CC: labels, divide */
+	if (display_cc)
+		av_w_dest_each = av_w_dest/3;
+	else
+		av_w_dest_each = av_w_dest/2;
+	
+	/* Get what will be the From: label */
 	buf = c2_message_get_header_field (message, "From:");
 	if (buf)
 	{
-		gchar *buf2 = c2_str_get_senders (buf);
+		gchar *buf3 = c2_str_get_senders (buf);
 
-		if (buf2)
+		if (buf3)
 		{
 			g_free (buf);
-			buf = buf2;
+			buf = buf3;
 		}
-		gtk_label_set_text (GTK_LABEL (mail->from_label[1]), buf);
+		text = buf;
 	} else
-		gtk_label_set_text (GTK_LABEL (mail->from_label[1]), _("(nobody)"));
-	C2_PRINTD (MOD, "from = '%s'\n", buf);
+		text = _("(nobody)");
+
+	/* Check if From: fits in the space given */
+	if (gdk_string_width (common_font, text) < av_w_dest_each)
+	{
+		/* Recalculate the space we have for the other headers */
+		av_w_dest -= gdk_string_width (common_font, text);
+		if (display_cc)
+			av_w_dest_each = av_w_dest/2;
+		else
+			av_w_dest_each = av_w_dest/1;
+
+		gtk_label_set_text (GTK_LABEL (mail->from_label[1]), text);
+	} else
+	{
+		/* It doesn't, cut it */
+		buf2 = c2_application_cut_text (application, common_font, text, av_w_dest_each);
+		gtk_label_set_text (GTK_LABEL (mail->from_label[1]), buf2);
+		g_free (buf2);
+	}
+		
 	g_free (buf);
 
-	/* To */
+	/* Get what will be the To: label */
 	buf = c2_message_get_header_field (message, "To:");
-	printf ("To: '%s'\n", buf);
 	if (buf)
 	{
-		gchar *buf2 = c2_str_get_senders (buf);
+		gchar *buf3 = c2_str_get_senders (buf);
 
-		if (buf2)
+		if (buf3)
 		{
 			g_free (buf);
-			buf = buf2;
+			buf = buf3;
 		}
 		
-		gtk_label_set_text (GTK_LABEL (mail->to_label[1]), buf);
+		text = buf;
 	} else
-		gtk_label_set_text (GTK_LABEL (mail->to_label[1]), "");
+		text = "";
+
+	/* Check if To: fits in the space given */
+	if (gdk_string_width (common_font, text) < av_w_dest_each)
+	{
+		/* Recalculate the space we have for the other headers */
+		av_w_dest -= gdk_string_width (common_font, text);
+		if (display_cc)
+			av_w_dest_each = av_w_dest/1;
+
+		gtk_label_set_text (GTK_LABEL (mail->to_label[1]), text);
+	} else
+	{
+		/* It doesn't, cut it */
+		buf2 = c2_application_cut_text (application, common_font, text, av_w_dest_each);
+		gtk_label_set_text (GTK_LABEL (mail->to_label[1]), buf2);
+		g_free (buf2);
+	}
+	
 	g_free (buf);
 
-	/* CC */
-	buf = c2_message_get_header_field (message, "CC:");
-	if (buf && strlen (buf))
+	/* Get what will be the CC: label */
+	if (display_cc)
 	{
-		gchar *buf2 = c2_str_get_senders (buf);
-
-		if (buf2)
+		buf = c2_message_get_header_field (message, "CC:");
+		if (buf && strlen (buf))
 		{
-			g_free (buf);
-			buf = buf2;
-		}
+			gchar *buf3 = c2_str_get_senders (buf);
+	
+			if (buf3)
+			{
+				g_free (buf);
+				buf = buf3;
+			}
+	
+			gtk_widget_show (mail->cc_label[0]);
+			gtk_widget_show (mail->cc_label[1]);
+			text = buf;
 
-		gtk_widget_show (mail->cc_label[0]);
-		gtk_widget_show (mail->cc_label[1]);
-		gtk_label_set_text (GTK_LABEL (mail->cc_label[1]), buf);
+			buf2 = c2_application_cut_text (application, common_font, text, av_w_dest_each);
+			gtk_label_set_text (GTK_LABEL (mail->cc_label[1]), buf2);
+			g_free (buf2);
+		}
+		g_free (buf);
 	} else
 	{
 		gtk_label_set_text (GTK_LABEL (mail->cc_label[1]), "");
 		gtk_widget_hide (mail->cc_label[0]);
 		gtk_widget_hide (mail->cc_label[1]);
 	}
-	g_free (buf);
 
 	/* Attachments */
 	set_headers_attachments (mail, message);
 }
 
+static void
+on_box_size_allocate (GtkWidget *widget, GtkAllocation *a, C2Mail *mail)
+{
+	if (C2_IS_MESSAGE (mail->message))
+		set_headers (mail, mail->message);
+}
 
 void
 c2_mail_set_file (C2Mail *mail, const gchar *path)
 {
-	FILE *fd;
 	gchar *string;
 	
 	c2_return_if_fail (C2_IS_MAIL (mail), C2EDATA);
@@ -507,8 +614,14 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 	}
 
 	if (C2_IS_MESSAGE (mail->message) && message != mail->message)
+	{
+		gtk_signal_disconnect_by_func (GTK_OBJECT (mail->message),
+									GTK_SIGNAL_FUNC (on_message_destroy), mail);
 		gtk_object_unref (GTK_OBJECT (mail->message));
+	}
 	mail->message = message;
+	gtk_signal_connect (GTK_OBJECT (message), "destroy",
+						GTK_SIGNAL_FUNC (on_message_destroy), mail);
 
 #ifdef USE_MESSAGE_CACHE
 	/* Perhaps your machine has 10Gb of RAM memory and you want to waste 'em in Cronos II... */
@@ -541,16 +654,16 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 			text_plain = FALSE;
 		}
 	}
-
+L
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
-	if (text_plain && mime)
+L	if (text_plain && mime)
 		string = interpret_text_plain_symbols (mime->part);
 	else if (text_plain && !mime)
 		string = interpret_text_plain_symbols (message->mime ?
 											c2_mime_get_part (message->mime) :
 											message->body);
 #else
-	if (mime)
+L	if (mime)
 		string = mime->part;
 	else
 		string = message->mime ? c2_mime_get_part (message->mime) : message->body;
@@ -736,8 +849,10 @@ _commit_buffer (gchar *val, gchar *append)
 static gchar *
 _get_next_word (const gchar *ptr)
 {
-	if (ptr == ' ' || ptr == '\t')
+	if (*ptr == ' ' || *ptr == '\t')
 		return g_strndup (ptr, 1);
+
+	return NULL; /* TEMP FIX (JUST TO AVOID COMPILATION TIME WARNINGS) */
 }
 
 #if 0

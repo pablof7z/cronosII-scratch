@@ -1,5 +1,11 @@
+Thu May  2 Pablo Fernández <sandokan at pablossite dot net>
+	* Fixed a bug in the c2_str_get_senders.
+	* Fixed the crash when deleting mails.
+
 Tue Apr 30 Pablo Fernández <sandokan at pablossite dot net>
 	* Fixed an important bug in c2_message_str_get_header_field.
+	* Made a nice improvement in the mail widget to control
+	  better the way headers are displayed.
 
 Mon Apr 29 Pablo Fernández <sandokan at pablossite dot net>
 	* Work in the "Use as" mailbox stuff.

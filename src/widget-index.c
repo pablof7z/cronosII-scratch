@@ -1375,7 +1375,7 @@ on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *
 		case C2_MAILBOX_CHANGE_STATE:
 			{
 				gint row;
-L				
+				
 				if ((row = gtk_clist_find_row_from_data ((GtkCList*) index, db_node)) < 0)
 					return;
 
@@ -1383,15 +1383,15 @@ L
 				reload_node (index->application, (GtkCList*) index, row, db_node);
 				gtk_widget_queue_draw ((GtkWidget*) index);
 				gdk_threads_leave ();
-L			}
+			}
 			break;
 			
 		default:
-L			gdk_threads_enter ();
+			gdk_threads_enter ();
 			C2_INDEX_CLASS_FW (index)->reload (index);
-L			gdk_threads_leave ();
+			gdk_threads_leave ();
 	}
-L}
+}
 
 static void
 _connect (C2Index *index)

@@ -98,6 +98,56 @@ c2_application_check_checkeable_account_exists (C2Application *application)
 	return FALSE;
 }
 
+/**
+ * c2_application_cut_text
+ * @application: The C2Application object (just for compatibility, it won't be used..)
+ * @font: GdkFont to be used.
+ * @text: Text to be parsed.
+ * @av_space: Available space.
+ *
+ * This function will check if the string @text, using the font @font,
+ * fits in @av_space pixels, if not, it will cut the text (adding ...
+ * at the end) where it does fits.
+ *
+ * Return Value:
+ * The text that will fit the required space.
+ **/
+gchar *
+c2_application_cut_text (C2Application *application, GdkFont *font, const gchar *text, guint16 av_space)
+{
+	gchar *buf, *buf2;
+	guint16 tspace;
+	gint i, len;
+
+	c2_return_val_if_fail (text, NULL, C2EDATA);
+	
+	if (!av_space)
+		return g_strdup ("");
+
+	len = strlen (text);
+
+	for (i = 0; i < len; i++)
+	{
+		if (!i)
+			buf = g_strdup (text);
+		else
+		{
+			buf2 = g_strndup (text, len-i);
+			buf = g_strdup_printf ("%s...", buf2);
+			g_free (buf2);
+		}
+
+		tspace = gdk_string_width (font, buf);
+
+		if (tspace <= av_space)
+			return buf;
+
+		g_free (buf);
+	}
+
+	return g_strdup ("");
+}
+
 static void
 on_dialog_missing_mailbox_inform_fix_clicked (GtkWidget *widget, GtkWidget *dialog)
 {

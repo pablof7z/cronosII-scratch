@@ -1070,19 +1070,26 @@ c2_str_get_senders (const gchar *string)
 	c2_return_val_if_fail (string, NULL, C2EDATA);
 
 	{
-		const gchar *ptr, *sptr;
-		gint length = strlen (string), bufpos = 0;
+		const gchar *start, *end;
+		gint length = strlen (string);
 		gchar buffer[length];
 		gchar *sender;
+		gchar *buf;
 
 		memset (buffer, 0, length*sizeof (char));
 
-		for (ptr = string; ptr != NULL;)
+		for (start = end = string; *end != '\0';)
 		{
-			if (ptr != string)
-				ptr++;
+			/* Move the end pointer to the next ',', ';' or '\0' */
+			for (; *end != ',' && *end != ';' && *end != '\0'; end++)
+				;
+			
+			if (*end != '\0')
+				buf = g_strndup (start, end-start);
+			else
+				buf = g_strdup (start);
 
-			if ((sender = c2_str_get_sender (ptr)) && ptr != string)
+			if ((sender = c2_str_get_sender (buf)) && start != string)
 			{
 				strcat (buffer, ", ");
 				strcat (buffer, sender);
@@ -1091,17 +1098,12 @@ c2_str_get_senders (const gchar *string)
 				strcpy (buffer, sender);
 			}
 			g_free (sender);
+			g_free (buf);
 
-			sptr = ptr;
-			if (!(ptr = strstr (ptr, ",")))
-			{
-				ptr = sptr;
-				if (!(ptr = strstr (ptr, ";")))
-				{
-					ptr = sptr;
-					break;
-				}
-			}
+			while (*end == ' ' || *end == ',' || *end == ';')
+				end++;
+
+			start = end;
 		}
 
 		return g_strdup (buffer);

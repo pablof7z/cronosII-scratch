@@ -768,8 +768,9 @@ start:
 static void
 on_transfer_list_finish (C2TransferList *tl, C2Application *application)
 {
+	printf ("Reconectando...\n");
 	application->check_timeout = gtk_timeout_add (
-							c2_preferences_get_general_options_timeout_check () * 60000,
+							c2_preferences_get_general_options_timeout_check () * 6000,
 							(GtkFunction) on_application_timeout_check, application);
 }
 
@@ -809,15 +810,15 @@ _check_real (C2Application *application)
 	 * and connect to the "finish" signal of the transfer-list,
 	 * so we can add the timeout again.
 	 */
+	if (c2_preferences_get_general_options_timeout_check ())
+	{
+		gtk_timeout_remove (application->check_timeout);
+		gtk_signal_connect (GTK_OBJECT (wtl), "finish",
+							GTK_SIGNAL_FUNC (on_transfer_list_finish), application);
+	}
+	
 	if (!silent)
 	{
-		if (c2_preferences_get_general_options_timeout_check ())
-		{
-			gtk_timeout_remove (application->check_timeout);
-			gtk_signal_connect (GTK_OBJECT (wtl), "finish",
-								GTK_SIGNAL_FUNC (on_transfer_list_finish), application);
-		}
-
 		/* Show the dialog */
 		gtk_widget_show (wtl);
 		gdk_window_raise (wtl->window);
@@ -844,6 +845,8 @@ _check (C2Application *application)
 {
 	gboolean wait_idle = FALSE;
 	gboolean exists_account = c2_application_check_checkeable_account_exists (application);
+
+	printf ("Ejecutando _check\n");
 
 	if (gtk_object_get_data (GTK_OBJECT (application), "check::wait_idle"))
 		wait_idle = TRUE;
@@ -1206,18 +1209,18 @@ _delete_thread (C2Pthread3 *data)
 	gint length, off;
 	gboolean progress_ownership = FALSE,
 			 status_ownership = FALSE;
-L
+
 	/* Load the data */
 	tmailbox = C2_MAILBOX (data->v1);
 	list = (GList*) data->v2;
 	window = (C2Window*) (data->v3);
 	fmailbox = C2_DB (list->data)->mailbox;
 	g_free (data);
-L
+
 	/* Get the length of the list to move */
 	length = g_list_length (list);
 
-L	/* Get the appbar */
+	/* Get the appbar */
 	if (window)
 	{
 		widget = glade_xml_get_widget (window->xml, "appbar");
@@ -1233,7 +1236,7 @@ L	/* Get the appbar */
 				status_ownership = TRUE;
 		}
 	}
-L
+
 	gdk_threads_enter ();
 
 	if (progress_ownership)
@@ -1242,7 +1245,7 @@ L
 		progress = (GtkProgress*) ((GnomeAppBar*) widget)->progress;
 		gtk_progress_configure (progress, 0, 0, length);
 	}
-L	
+	
 	if (status_ownership)
 	{
 		/* Configure the statusbar */
@@ -1251,36 +1254,36 @@ L
 
 	gdk_threads_leave ();
 
-L	/* Start moving */
+	/* Start moving */
 	c2_db_freeze (fmailbox);
 	c2_db_freeze (tmailbox);
-L	for (l = list, off = 0; l; l = g_list_next (l), off++)
+	for (l = list, off = 0; l; l = g_list_next (l), off++)
 	{
 		C2Db *db;
 		
-L		/* Now do the actual copy */
+		/* Now do the actual copy */
 		db = C2_DB (l->data);
 
 		if (!db->message)
 			c2_db_load_message (db);
-L		
+		
 		gtk_object_ref (GTK_OBJECT (db->message));
 		gtk_object_set_data (GTK_OBJECT (db->message), "state", (gpointer) db->state);
 		if (c2_db_message_add (tmailbox, db->message))
 			c2_db_message_remove (fmailbox, db);
 		gtk_object_unref (GTK_OBJECT (db->message));
-L
+
 		if (progress_ownership)
 		{
 			gdk_threads_enter ();
 			gtk_progress_set_value (progress, off);
 			gdk_threads_leave ();
 		}
-L	}
-L	c2_db_thaw (fmailbox);
-L	c2_db_thaw (tmailbox);
-L
-L	g_list_free (list);
+	}
+	c2_db_thaw (fmailbox);
+	c2_db_thaw (tmailbox);
+
+	g_list_free (list);
 
 	gdk_threads_enter ();
 	
@@ -1297,14 +1300,14 @@ L	g_list_free (list);
 	}
 	
 	gdk_threads_leave ();
-L}
+}
 
 static void
 _delete (C2Application *application, GList *list, C2Window *window)
 {
 	C2Pthread3 *data;
 	pthread_t thread;
-L	
+	
 	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
 	c2_return_if_fail (list, C2EDATA);
 
@@ -1326,7 +1329,7 @@ L
 				return;
 			}
 		}
-L
+
 		/* Ok, we are ready to move everything to «Trash» */
 		/* Fire the thread */
 		data = g_new0 (C2Pthread3, 1);
@@ -1347,14 +1350,14 @@ L
 
 			return;
 		}
-L		
+		
 		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (_delete_thread), data);
 	} else
 	{ /* We have to expunge */
 expunge:
 		C2_APPLICATION_CLASS_FW (application)->expunge (application, list, window);
 	}
-L}
+}
 
 static void
 _expunge (C2Application *application, GList *list, C2Window *window)
@@ -1655,6 +1658,7 @@ on_net_speed_timeout (C2Application *application)
 static gboolean
 on_application_timeout_check (C2Application *application)
 {
+	printf ("Ejecutando on_application_timeout_check\n");
 	/* If there's no account configured we will wait for the next timeout */
 	if (!c2_application_check_checkeable_account_exists (application))
 		return TRUE;
@@ -1733,6 +1737,8 @@ c2_application_new (const gchar *name, gboolean running_as_server)
 	application->running_as_server = running_as_server;
 
 	timeout_check = c2_preferences_get_general_options_timeout_check ();
+
+	printf ("Setting timeout to %d\n", timeout_check * 60000);
 	
 	/* Check at start */
 	if (!running_as_server && c2_preferences_get_general_options_start_check () &&
@@ -1743,7 +1749,7 @@ c2_application_new (const gchar *name, gboolean running_as_server)
 		gtk_object_set_data (GTK_OBJECT (application), "check::wait_idle", NULL);
 	} else if (timeout_check)
 	{
-		application->check_timeout = gtk_timeout_add (timeout_check * 60000, /* 60000 = 60 (seconds) * 1000 */
+L		application->check_timeout = gtk_timeout_add (timeout_check * 6000, /* 60000 = 60 (seconds) * 1000 */
 							(GtkFunction) on_application_timeout_check, application);
 	}
 
