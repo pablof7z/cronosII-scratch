@@ -304,7 +304,8 @@ run (C2MessageTransfer *mt)
 	if (GTK_TOGGLE_BUTTON (glade_xml_get_widget (mt->xml, "auto_close_btn"))->active)
 	{
 		gdk_threads_enter ();
-		gtk_widget_hide (GTK_WIDGET (mt));
+		//gtk_widget_hide (GTK_WIDGET (mt));
+		gnome_dialog_close(GNOME_DIALOG(mt));
 		gdk_threads_leave ();
 	}
 	
@@ -561,7 +562,9 @@ ok_btn_clicked (GtkWidget *button, C2MessageTransfer *mt)
 static void
 cancel_btn_clicked (GtkWidget *button, C2MessageTransfer *mt)
 {
-	gnome_dialog_close(GNOME_DIALOG(mt));
+#ifdef USE_DEBUG
+	g_print ("Cancel hasn't been coded: %s:%d\n", __FILE__, __LINE__);
+#endif
 }
 
 GtkType
