@@ -1,0 +1,29 @@
+<html>
+<body bgcolor=#ffffff>
+<font face="Helvetica">
+<h3 align=center>Getting in touch</h3>
+
+<p>There are several ways to get in touch with anyone
+from the Cronos II community (both users and hackers).</p>
+
+<p>Note that if you want to contact a particular developer
+for a special bug-report (or for whatever reason you might have)
+you should check the Cronos II homepage for a list of contacts
+at <a href="@URL@">@URL@</a>.</p>
+
+<p><b>E-Mail</b></p>
+
+<p>To send a mail to the hackers you should write to our
+mailing list: <a href="mailto:@HACKERS_LIST@">@HACKERS_LIST@</a>.</p>
+
+<p>To contact other users of Cronos II you can send an email
+to the user's mailing list: <a href="mailto:@USERS_LIST@">@USERS_LIST@</a>.</p>
+
+<p><b>IRC</b></p>
+
+<p>You can chat with both users and hackers in the OpenProjects
+network by connecting to the server <b>irc.openprojects.net:6667</b>.
+in the channel <b>#cronosII</b>.</p>
+</font>
+</body>
+</html>
