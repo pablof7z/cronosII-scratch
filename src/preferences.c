@@ -605,6 +605,8 @@ on_apply_btn_clicked (void)
 			gnome_config_pop_prefix ();
 			g_free (buf);
 		}
+
+		c2_main_window_build_dynamic_menu_accounts ();
 	}
 	{ /* Interface */
 		GtkWidget *title = glade_xml_get_widget (preferences_xml, "interface_title");
@@ -783,7 +785,7 @@ on_accounts_clist_select_row (GtkCList *clist)
 	GtkWidget *accounts_delete_btn = glade_xml_get_widget (preferences_xml, "accounts_delete_btn");
 	GtkWidget *accounts_up_btn = glade_xml_get_widget (preferences_xml, "accounts_up_btn");
 	GtkWidget *accounts_down_btn = glade_xml_get_widget (preferences_xml, "accounts_down_btn");
-L	
+	
 	gtk_widget_set_sensitive (accounts_edit_btn, TRUE);
 	gtk_widget_set_sensitive (accounts_delete_btn, TRUE);
 
@@ -1075,7 +1077,6 @@ on_accounts_new_druidpagefinish1_finish (GnomeDruidPage *druid_page, GtkWidget *
 	else
 		pop3_flags = C2_POP3_DONT_KEEP_COPY;
 	
-
 	buf = glade_xml_get_widget (xml, "signature_type");
 	if (GTK_BIN (buf)->child)
 	{
@@ -1106,8 +1107,8 @@ on_accounts_new_druidpagefinish1_finish (GnomeDruidPage *druid_page, GtkWidget *
 		case C2_SMTP_LOCAL:
 			account = c2_account_new (account_name, person_name, organization, email, replyto,
 										active, account_type, smtp_type, signature_type, signature,
-										pop3_flags,
-										signature_automatic, pop3_host, pop3_port, pop3_user, pop3_pass);
+										signature_automatic, pop3_host, pop3_port, pop3_user, pop3_pass,
+										pop3_flags);
 			break;
 	}
 
@@ -1483,16 +1484,35 @@ on_accounts_edit_btn_clicked (void)
 static void
 on_accounts_delete_btn_clicked (void)
 {
+	GladeXML *xml = glade_xml_new (C2_APP_GLADE_FILE ("preferences"), "dlg_account_remote_confirm");
+	GtkWidget *accounts_clist = glade_xml_get_widget (preferences_xml, "accounts_clist");
+
+	if (gnome_dialog_run_and_close (GNOME_DIALOG (
+						glade_xml_get_widget (xml, "dlg_account_remote_confirm"))))
+		return;
+
+	gtk_clist_remove (GTK_CLIST (accounts_clist), GPOINTER_TO_INT (
+									GTK_CLIST (accounts_clist)->selection->data));
 }
 
 static void
 on_accounts_up_btn_clicked (void)
 {
+	GtkWidget *accounts_clist = glade_xml_get_widget (preferences_xml, "accounts_clist");
+	gint src_row = GPOINTER_TO_INT (GTK_CLIST (accounts_clist)->selection->data);
+
+	gtk_clist_row_move (GTK_CLIST (accounts_clist), src_row, src_row-1);
+	gtk_signal_emit_by_name (GTK_OBJECT (accounts_clist), "select_row", src_row-1, 0, NULL);
 }
 
 static void
 on_accounts_down_btn_clicked (void)
 {
+	GtkWidget *accounts_clist = glade_xml_get_widget (preferences_xml, "accounts_clist");
+	gint src_row = GPOINTER_TO_INT (GTK_CLIST (accounts_clist)->selection->data);
+
+	gtk_clist_row_move (GTK_CLIST (accounts_clist), src_row, src_row+1);
+	gtk_signal_emit_by_name (GTK_OBJECT (accounts_clist), "select_row", src_row+1, 0, NULL);
 }
 
 static void

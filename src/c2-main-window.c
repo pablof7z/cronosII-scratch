@@ -65,6 +65,14 @@ c2_main_window_set_sensitivity (void)
 
 
 
+/***********************************/
+/* Section: Dynamic Menu Functions */
+/***********************************/
+void
+c2_main_window_build_dynamic_menu_accounts (void)
+{
+}
+
 
 /*******************************/
 /* Section: New Mailbox Dialog */
