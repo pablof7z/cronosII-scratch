@@ -49,7 +49,7 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 	c2_return_if_fail (message, C2EDATA);
 
 	/* Get the part that should be displayed */
-	switch (c2_app.default_mime)
+	switch (c2_app.options_default_mime)
 	{
 		case C2_DEFAULT_MIME_PLAIN:
 			mime = c2_mime_get_part_by_content_type (message->mime, "text/plain");
@@ -59,7 +59,7 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 				mime = c2_mime_get_part_by_content_type (message->mime, "text/plain");
 			break;
 		default:
-			mime = c2_mime_get_part_by_content_type (message->mime, DEFAULT_PART);
+			mime = c2_mime_get_part_by_content_type (message->mime, "text/plain");
 			break;
 	}
 

@@ -38,19 +38,76 @@ extern "C" {
 #define MAILBOX_GARBAGE		_("Garbage"	)
 #define MAILBOX_DRAFTS		_("Drafts"	)
 
-#define DATE_FORMAT								"%d.%m.%Y %H:%M:%S %z"
+#define DEFAULT_OPTIONS_CHECK_TIMEOUT			"20"
+#define DEFAULT_OPTIONS_MARK_TIMEOUT			"1"
+#define DEFAULT_OPTIONS_PREPEND_CHARACTER		"> "
+#define DEFAULT_OPTIONS_EMPTY_GARBAGE			"0"
+#define DEFAULT_OPTIONS_USE_OUTBOX				"1"
+#define DEFAULT_OPTIONS_CHECK_AT_START			"0"
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
+#	define DEFAULT_OPTIONS_DEFAULT_MIME			"1"
+#else
+#	define DEFAULT_OPTIONS_DEFAULT_MIME			"0"
+#endif
+
+#define DEFAULT_INTERFACE_TITLE					"Cronos II v.%v - %M: %m messages, %n new"
+#define DEFAULT_INTERFACE_TOOLBAR				"2"
+#define DEFAULT_INTERFACE_DATE_FMT				"%Y.%m.%d %H:%M %z"
+	
+#define DEFAULT_FONTS_MESSAGE_BODY				"-adobe-courier-medium-r-normal-*-*-120-*-*-m-*-iso8859-1"
+#define DEFAULT_FONTS_UNREADED_MESSAGE			"-b&h-lucida-bold-r-normal-*-*-100-*-*-p-*-iso8859-1"
+#define DEFAULT_FONTS_READED_MESSAGE			"-b&h-lucida-medium-r-normal-*-*-100-*-*-p-*-iso8859-1"
+#define DEFAULT_FONTS_SOURCE					"0"
+
+#define DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_RED	"0"
+#define DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_GREEN	"0"
+#define DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_BLUE	"65535"
+#define DEFAULT_COLORS_MESSAGE_BG_RED			"65535"
+#define DEFAULT_COLORS_MESSAGE_BG_GREEN			"65535"
+#define DEFAULT_COLORS_MESSAGE_BG_BLUE			"65535"
+#define DEFAULT_COLORS_MESSAGE_FG_RED			"0"
+#define DEFAULT_COLORS_MESSAGE_FG_GREEN			"0"
+#define DEFAULT_COLORS_MESSAGE_FG_BLUE			"0"
+#define DEFAULT_COLORS_MESSAGE_SOURCE			"0"
+
+#define DEFAULT_PATHS_SAVING					"/home"
+#define DEFAULT_PATHS_DOWNLOAD					"/home"
+#define DEFAULT_PATHS_GET						"/home"
+	
+#define DEFAULT_ADVANCED_HTTP_PROXY_ADDR		""
+#define DEFAULT_ADVANCED_HTTP_PROXY_PORT		"80"
+#define DEFAULT_ADVANCED_HTTP_PROXY				"0"
+#define DEFAULT_ADVANCED_FTP_PROXY_ADDR			""
+#define DEFAULT_ADVANCED_FTP_PROXY_PORT			"80"
+#define DEFAULT_ADVANCED_FTP_PROXY				"0"
+#define DEFAULT_ADVANCED_PERSISTENT_SMTP_ADDR	"localhost"
+#define DEFAULT_ADVANCED_PERSISTENT_SMTP_PORT	"25"
+#define DEFAULT_ADVANCED_PERSISTENT_SMTP		"0"
+#define DEFAULT_ADVANCED_USE_INTERNAL_BROWSER	"1"
+
+#define DEFAULT_RC_HPAN							"150"
+#define DEFAULT_RC_VPAN							"170"
+#define DEFAULT_RC_CLIST_0						"40"
+#define DEFAULT_RC_CLIST_1						"200"
+#define DEFAULT_RC_CLIST_2						"180"
+#define DEFAULT_RC_CLIST_3						"70"
+#define DEFAULT_RC_CLIST_4						"70"
+#define DEFAULT_RC_CLIST_5						"70"
+#define DEFAULT_RC_CLIST_6						"70"
+#define DEFAULT_RC_CLIST_7						"70"
+#define DEFAULT_RC_WIDTH						"600"
+#define DEFAULT_RC_HEIGHT						"440"
+#define DEFAULT_RC_SHOWABLE_HEADERS_PREVIEW		"9"
+#define DEFAULT_RC_SHOWABLE_HEADERS_MESSAGE		"63"
+#define DEFAULT_RC_SHOWABLE_HEADERS_COMPOSE		"61"
+#define DEFAULT_RC_SHOWABLE_HEADERS_SAVE		"61"
+#define DEFAULT_RC_SHOWABLE_HEADERS_PRINT		"61"
 
 typedef enum
 {
 	C2_DEFAULT_MIME_PLAIN,
 	C2_DEFAULT_MIME_HTML
 } C2DefaultMimeType;
-
-#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
-#	define DEFAULT_PART							C2_DEFAULT_MIME_HTML
-#else
-#	define DEFAULT_PART							C2_DEFAULT_MIME_PLAIN
-#endif
 
 typedef enum
 {
@@ -143,9 +200,9 @@ struct C2Application
 	GdkColor colors_message_fg;
 	C2ColorSource colors_message_source;
 
-	gchar *paths_saving_entry;
-	gchar *paths_download_entry;
-	gchar *paths_get_entry;
+	gchar *paths_saving;
+	gchar *paths_download;
+	gchar *paths_get;
 
 	gchar *advanced_http_proxy_addr;
 	gint advanced_http_proxy_port;
@@ -158,13 +215,12 @@ struct C2Application
 	gint advanced_persistent_smtp : 1;
 	gint advanced_use_internal_browser : 1;
 	
-	gint wm_hpan;
-	gint wm_vpan;
-	gint wm_clist[8];
-	gint wm_width;
-	gint wm_height;
-	
-	guint showable_headers[C2_SHOWABLE_HEADERS_LAST];
+	gint rc_hpan;
+	gint rc_vpan;
+	gint rc_clist[8];
+	gint rc_width;
+	gint rc_height;
+	guint rc_showable_headers[C2_SHOWABLE_HEADERS_LAST];
 } c2_app;
 
 gint

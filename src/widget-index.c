@@ -259,14 +259,14 @@ c2_index_init (C2Index *index)
 	pixmap = gtk_pixmap_new (c2_app.pixmap_unread, c2_app.mask_unread);
 	gtk_clist_set_column_widget (clist, 0, pixmap);
 	
-    gtk_clist_set_column_width (clist, 0, c2_app.wm_clist[0]);
-	gtk_clist_set_column_width (clist, 1, c2_app.wm_clist[1]);
-	gtk_clist_set_column_width (clist, 2, c2_app.wm_clist[2]);
-	gtk_clist_set_column_width (clist, 3, c2_app.wm_clist[3]);
-	gtk_clist_set_column_width (clist, 4, c2_app.wm_clist[4]);
-	gtk_clist_set_column_width (clist, 5, c2_app.wm_clist[5]);
-	gtk_clist_set_column_width (clist, 6, c2_app.wm_clist[6]);
-	gtk_clist_set_column_width (clist, 7, c2_app.wm_clist[7]);
+    gtk_clist_set_column_width (clist, 0, c2_app.rc_clist[0]);
+	gtk_clist_set_column_width (clist, 1, c2_app.rc_clist[1]);
+	gtk_clist_set_column_width (clist, 2, c2_app.rc_clist[2]);
+	gtk_clist_set_column_width (clist, 3, c2_app.rc_clist[3]);
+	gtk_clist_set_column_width (clist, 4, c2_app.rc_clist[4]);
+	gtk_clist_set_column_width (clist, 5, c2_app.rc_clist[5]);
+	gtk_clist_set_column_width (clist, 6, c2_app.rc_clist[6]);
+	gtk_clist_set_column_width (clist, 7, c2_app.rc_clist[7]);
 	gtk_clist_set_column_visibility (clist, 1, FALSE);
 	gtk_clist_set_column_visibility (clist, 2, FALSE);
 	gtk_clist_set_column_visibility (clist, 7, FALSE);
@@ -314,7 +314,7 @@ c2_index_add_mailbox (C2Index *index, C2Mailbox *mbox)
 		};
 		tm = localtime (&db->date);
 		row[5] = g_new0 (gchar, 128);
-		strftime (row[5], 128, c2_app.date_fmt, tm);
+		strftime (row[5], 128, c2_app.interface_date_fmt, tm);
 
 		gtk_clist_append (clist, row);
 

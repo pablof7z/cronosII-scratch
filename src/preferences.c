@@ -24,6 +24,9 @@
 #include "c2-app.h"
 
 static void
+on_ok_btn_clicked								(void);
+
+static void
 on_accounts_clist_select_row					(GtkCList *clist);
 
 static void
@@ -59,12 +62,38 @@ on_advanced_ftp_proxy_btn_toggled				(void);
 static void
 on_advanced_persistent_smtp_btn_toggled			(void);
 
+static void
+on_ctree_tree_select_row						(GtkCTree *ctree, GtkCTreeNode *node);
+
+enum
+{
+	PAGE_GENERAL,
+	PAGE_OPTIONS,
+	PAGE_PATHS,
+	PAGE_ACCOUNTS,
+	PAGE_INTERFACE,
+	PAGE_FONTS,
+	PAGE_COLORS,
+	PAGE_ADVANCED
+};
+
 static GladeXML *preferences_xml = NULL;
+
 void
 c2_preferences_new (void)
 {
 	GtkWidget *dialog;
-	GtkWidget *tree;
+	
+	GtkCTree *ctree;
+	GtkCTreeNode *ctree_general;
+	GtkCTreeNode *ctree_options;
+	GtkCTreeNode *ctree_paths;
+	GtkCTreeNode *ctree_accounts;
+	GtkCTreeNode *ctree_interface;
+	GtkCTreeNode *ctree_fonts;
+	GtkCTreeNode *ctree_colors;
+	GtkCTreeNode *ctree_advanced;
+	gchar *ctree_string[] = { NULL, NULL };
 
 	GtkWidget *options_check_timeout;
 	GtkWidget *options_mark_timeout;
@@ -131,9 +160,42 @@ c2_preferences_new (void)
 	
 	/* Dialog */
 	dialog = glade_xml_get_widget (preferences_xml, "dlg_preferences");
+	gnome_dialog_button_connect (GNOME_DIALOG (dialog), 0,
+								GTK_SIGNAL_FUNC (on_ok_btn_clicked), NULL);
 
 	/* Tree */
-
+	ctree = GTK_CTREE (glade_xml_get_widget (preferences_xml, "tree"));
+	gtk_signal_connect (GTK_OBJECT (GTK_WIDGET (ctree)), "tree_select_row",
+						GTK_SIGNAL_FUNC (on_ctree_tree_select_row), NULL);
+	ctree_string[0] = _("General");
+	ctree_general = gtk_ctree_insert_node (ctree, NULL, NULL, ctree_string, 0,
+											NULL, NULL, NULL, NULL, FALSE, TRUE);
+	gtk_ctree_node_set_row_data (ctree, ctree_general, "General");
+	ctree_string[0] = _("Options");
+	ctree_options = gtk_ctree_insert_node (ctree, ctree_general, NULL, ctree_string, 0,
+											NULL, NULL, NULL, NULL, FALSE, TRUE);
+	gtk_ctree_node_set_row_data (ctree, ctree_options, "Options");
+	ctree_string[0] = _("Paths");
+	ctree_paths = gtk_ctree_insert_node (ctree, ctree_general, NULL, ctree_string, 0,
+											NULL, NULL, NULL, NULL, FALSE, TRUE);
+	gtk_ctree_node_set_row_data (ctree, ctree_paths, "Paths");
+	ctree_string[0] = _("Accounts");
+	ctree_accounts = gtk_ctree_insert_node (ctree, NULL, NULL, ctree_string, 0, 
+											NULL, NULL, NULL, NULL, FALSE, TRUE);
+	gtk_ctree_node_set_row_data (ctree, ctree_accounts, "Accounts");
+	ctree_string[0] = _("Interface");
+	ctree_interface = gtk_ctree_insert_node (ctree, NULL, NULL, ctree_string, 0, 
+											NULL, NULL, NULL, NULL, FALSE, TRUE);
+	gtk_ctree_node_set_row_data (ctree, ctree_interface, "Interface");
+	ctree_string[0] = _("Fonts");
+	ctree_fonts = gtk_ctree_insert_node (ctree, ctree_interface, NULL, ctree_string, 0, 
+											NULL, NULL, NULL, NULL, FALSE, TRUE);
+	gtk_ctree_node_set_row_data (ctree, ctree_fonts, "Fonts");
+	ctree_string[0] = _("Colors");
+	ctree_colors = gtk_ctree_insert_node (ctree, ctree_interface, NULL, ctree_string, 0, 
+											NULL, NULL, NULL, NULL, FALSE, TRUE);
+	gtk_ctree_node_set_row_data (ctree, ctree_colors, "Colors");
+	
 	/* options_check_timeout */
 	options_check_timeout = glade_xml_get_widget (preferences_xml, "options_check_timeout");
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (options_check_timeout),
@@ -291,7 +353,7 @@ c2_preferences_new (void)
 
 	/* paths_saving_entry */
 	paths_saving_entry = glade_xml_get_widget (preferences_xml, "paths_saving_entry");
-	gtk_entry_set_text (GTK_ENTRY (paths_saving_entry), c2_app.paths_saving_entry);
+	gtk_entry_set_text (GTK_ENTRY (paths_saving_entry), c2_app.paths_saving);
 
 	/* paths_saving_btn */
 	paths_saving_btn = glade_xml_get_widget (preferences_xml, "paths_saving_btn");
@@ -300,7 +362,7 @@ c2_preferences_new (void)
 
 	/* paths_download_entry */
 	paths_download_entry = glade_xml_get_widget (preferences_xml, "paths_download_entry");
-	gtk_entry_set_text (GTK_ENTRY (paths_download_entry), c2_app.paths_download_entry);
+	gtk_entry_set_text (GTK_ENTRY (paths_download_entry), c2_app.paths_download);
 
 	/* paths_download_btn */
 	paths_download_btn = glade_xml_get_widget (preferences_xml, "paths_download_btn");
@@ -309,7 +371,7 @@ c2_preferences_new (void)
 
 	/* paths_get_entry */
 	paths_get_entry = glade_xml_get_widget (preferences_xml, "paths_get_entry");
-	gtk_entry_set_text (GTK_ENTRY (paths_get_entry), c2_app.paths_get_entry);
+	gtk_entry_set_text (GTK_ENTRY (paths_get_entry), c2_app.paths_get);
 
 	/* paths_get_btn */
 	paths_get_btn = glade_xml_get_widget (preferences_xml, "paths_get_btn");
@@ -388,6 +450,68 @@ c2_preferences_new (void)
 }
 
 static void
+on_ok_btn_clicked (void)
+{
+	{ /* Options page */
+		gint check_timeout;
+		gint mark_timeout;
+		gchar *prepend_character;
+		gint empty_garbage;
+		gint use_outbox;
+		gint check_at_start;
+		gint options_default_mime;
+	}
+	{ /* Accounts */
+	}
+	{ /* Interface */
+	}
+	{ /* Fonts */
+	}
+	{ /* Colors */
+	}
+	{ /* Paths */
+	}
+	{ /* Advanced */
+		GtkWidget *http_proxy_btn = glade_xml_get_widget (preferences_xml, "advanced_http_proxy_btn");
+		GtkWidget *http_proxy_addr = glade_xml_get_widget (preferences_xml, "advanced_http_proxy_addr");
+		GtkWidget *http_proxy_port = glade_xml_get_widget (preferences_xml, "advanced_http_proxy_port");
+		GtkWidget *ftp_proxy_btn = glade_xml_get_widget (preferences_xml, "advanced_ftp_proxy_btn");
+		GtkWidget *ftp_proxy_addr = glade_xml_get_widget (preferences_xml, "advanced_ftp_proxy_addr");
+		GtkWidget *ftp_proxy_port = glade_xml_get_widget (preferences_xml, "advanced_ftp_proxy_port");
+		GtkWidget *persistent_smtp_btn = glade_xml_get_widget(preferences_xml, "advanced_persistent_smtp_btn");
+		GtkWidget *persistent_smtp_addr=glade_xml_get_widget(preferences_xml,"advanced_persistent_smtp_addr");
+		GtkWidget *persistent_smtp_port=glade_xml_get_widget(preferences_xml,"advanced_persistent_smtp_port");
+		GtkWidget *use_internal_browser=glade_xml_get_widget(preferences_xml,"advanced_use_internal_browser");
+
+		c2_app.advanced_http_proxy_addr = gtk_entry_get_text (GTK_ENTRY (http_proxy_addr));
+		c2_app.advanced_http_proxy_port = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (http_proxy_port));
+		c2_app.advanced_http_proxy = GTK_TOGGLE_BUTTON (http_proxy_btn)->active;
+		c2_app.advanced_ftp_proxy_addr = gtk_entry_get_text (GTK_ENTRY (ftp_proxy_addr));
+		c2_app.advanced_ftp_proxy_port = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (ftp_proxy_port));
+		c2_app.advanced_ftp_proxy = GTK_TOGGLE_BUTTON (ftp_proxy_btn)->active;
+		c2_app.advanced_persistent_smtp_addr = gtk_entry_get_text (GTK_ENTRY (persistent_smtp_addr));
+		c2_app.advanced_persistent_smtp_port = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (persistent_smtp_port));
+		c2_app.advanced_persistent_smtp = GTK_TOGGLE_BUTTON (persistent_smtp_btn)->active;
+		c2_app.advanced_use_internal_browser = GTK_TOGGLE_BUTTON (use_internal_browser)->active;
+
+
+		gnome_config_set_int ("/cronosII/Advanced/http_proxy", c2_app.advanced_http_proxy);
+		gnome_config_set_string ("/cronosII/Advanced/http_proxy_addr", c2_app.advanced_http_proxy_addr);
+		gnome_config_set_int ("/cronosII/Advanced/http_proxy_port", c2_app.advanced_http_proxy_port);
+		gnome_config_set_int ("/cronosII/Advanced/ftp_proxy", c2_app.advanced_ftp_proxy);
+		gnome_config_set_string ("/cronosII/Advanced/ftp_proxy_addr", c2_app.advanced_ftp_proxy_addr);
+		gnome_config_set_int ("/cronosII/Advanced/ftp_proxy_port", c2_app.advanced_ftp_proxy_port);
+		gnome_config_set_int ("/cronosII/Advanced/persistent_smtp", c2_app.advanced_persistent_smtp);
+		gnome_config_set_string ("/cronosII/Advanced/persistent_smtp_addr", c2_app.advanced_persistent_smtp_addr);
+		gnome_config_set_int ("/cronosII/Advanced/persistent_smtp_port", c2_app.advanced_persistent_smtp_port);
+		gnome_config_set_int ("/cronosII/Advanced/use_internal_browser", c2_app.advanced_use_internal_browser);
+		
+	}
+	
+	gnome_config_sync ();
+}
+
+static void
 on_accounts_clist_select_row (GtkCList *clist)
 {
 }
@@ -435,14 +559,56 @@ on_paths_btn_clicked (GtkWidget *widget, GtkWidget *entry)
 static void
 on_advanced_http_proxy_btn_toggled (void)
 {
+	GtkWidget *advanced_http_proxy_btn  =  glade_xml_get_widget (preferences_xml, "advanced_http_proxy_btn");
+	GtkWidget *advanced_http_proxy_addr = glade_xml_get_widget (preferences_xml, "advanced_http_proxy_addr");
+	GtkWidget *advanced_http_proxy_port = glade_xml_get_widget (preferences_xml, "advanced_http_proxy_port");
+
+	gtk_widget_set_sensitive (advanced_http_proxy_addr, GTK_TOGGLE_BUTTON (advanced_http_proxy_btn)->active);
+	gtk_widget_set_sensitive (advanced_http_proxy_port, GTK_TOGGLE_BUTTON (advanced_http_proxy_btn)->active);
 }
 
 static void
 on_advanced_ftp_proxy_btn_toggled (void)
 {
+	GtkWidget *advanced_ftp_proxy_btn  =  glade_xml_get_widget (preferences_xml, "advanced_ftp_proxy_btn");
+	GtkWidget *advanced_ftp_proxy_addr = glade_xml_get_widget (preferences_xml, "advanced_ftp_proxy_addr");
+	GtkWidget *advanced_ftp_proxy_port = glade_xml_get_widget (preferences_xml, "advanced_ftp_proxy_port");
+
+	gtk_widget_set_sensitive (advanced_ftp_proxy_addr, GTK_TOGGLE_BUTTON (advanced_ftp_proxy_btn)->active);
+	gtk_widget_set_sensitive (advanced_ftp_proxy_port, GTK_TOGGLE_BUTTON (advanced_ftp_proxy_btn)->active);
 }
 
 static void
 on_advanced_persistent_smtp_btn_toggled (void)
 {
+}
+
+static void
+on_ctree_tree_select_row (GtkCTree *ctree, GtkCTreeNode *node)
+{
+	gchar *name = (gchar *) gtk_ctree_node_get_row_data (ctree, node);
+	GtkWidget *notebook = glade_xml_get_widget (preferences_xml, "notebook");
+	gint page = 0;
+
+	if (!name)
+		return;
+
+	if (c2_streq (name, "General"))
+		page = PAGE_GENERAL;
+	else if (c2_streq (name, "Options"))
+		page = PAGE_OPTIONS;
+	else if (c2_streq (name, "Paths"))
+		page = PAGE_PATHS;
+	else if (c2_streq (name, "Accounts"))
+		page = PAGE_ACCOUNTS;
+	else if (c2_streq (name, "Interface"))
+		page = PAGE_INTERFACE;
+	else if (c2_streq (name, "Fonts"))
+		page = PAGE_FONTS;
+	else if (c2_streq (name, "Colors"))
+		page = PAGE_COLORS;
+	else if (c2_streq (name, "Advanced"))
+		page = PAGE_ADVANCED;
+	
+	gtk_notebook_set_page (GTK_NOTEBOOK (notebook), page);
 }

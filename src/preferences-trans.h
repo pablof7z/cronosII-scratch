@@ -5,6 +5,7 @@
  */
 
 gchar *s = N_("Preferences");
+gchar *s = N_("label76");
 gchar *s = N_("Check for mail every");
 gchar *s = N_("minutes.");
 gchar *s = N_("Wait");
@@ -20,7 +21,7 @@ gchar *s = N_("to each line when replying a message.");
 gchar *s = N_("Empty the Garbage mailbox on exit.");
 gchar *s = N_("Store a copy of outgoing messages in the Outbox mailbox.");
 gchar *s = N_("Check for mail at start up.");
-gchar *s = N_("Default MIME part to show:");
+gchar *s = N_("Default MIME part to display:");
 gchar *s = N_("Plain text\n"
               "HTML formatted\n"
               "");
@@ -43,9 +44,9 @@ gchar *s = N_("Conversion characters:\n"
               "%n: Number of unreaded mails in current mailbox;\n"
               "%M: Name of selected mailbox.");
 gchar *s = N_("Show toolbar with");
-gchar *s = N_("Icons & Text\n"
-              "Icons only\n"
+gchar *s = N_("Icons only\n"
               "Text only\n"
+              "Icons & Text\n"
               "");
 gchar *s = N_("Date format:");
 gchar *s = N_("%d.%m.%Y %H:%M %z\n"

@@ -83,7 +83,7 @@ c2_window_new (void)
 
 	window = glade_xml_get_widget (WMain.xml, "wnd_main");
 	gtk_widget_realize (window);
-	gtk_widget_set_usize (GTK_WIDGET (window), c2_app.wm_width, c2_app.wm_height);
+	gtk_widget_set_usize (GTK_WIDGET (window), c2_app.rc_width, c2_app.rc_height);
 	gtk_window_set_policy (GTK_WINDOW (window), TRUE, TRUE, FALSE);
 	gtk_signal_connect (GTK_OBJECT (window), "delete_event",
 							GTK_SIGNAL_FUNC (on_quit), NULL);
@@ -107,7 +107,7 @@ c2_window_new (void)
 
 	/* Hpaned */
 	hpaned = glade_xml_get_widget (WMain.xml, "hpaned");
-	gtk_paned_set_position (GTK_PANED (hpaned), c2_app.wm_hpan);
+	gtk_paned_set_position (GTK_PANED (hpaned), c2_app.rc_hpan);
 
 	/* CTree */
 	ctree = glade_xml_get_widget (WMain.xml, "ctree");
@@ -123,7 +123,7 @@ c2_window_new (void)
 
 	/* Vpaned */
 	vpaned = glade_xml_get_widget (WMain.xml, "vpaned");
-	gtk_paned_set_position (GTK_PANED (vpaned), c2_app.wm_vpan);
+	gtk_paned_set_position (GTK_PANED (vpaned), c2_app.rc_vpan);
 
 	appbar = glade_xml_get_widget (WMain.xml, "appbar");
 
