@@ -20,10 +20,15 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <pthread.h>
 
 #include "error.h"
 #include "utils.h"
+
+/* [TODO]
+ * 011014 There's a bug in c2_str_is_email, it
+ *        won't detect as mail the format "name" <email>
+ *        or <email>.
+ */
 
 /**
  * c2_mutex_init
@@ -43,8 +48,8 @@ gint
 c2_mutex_init (pthread_mutex_t *mutex)
 {
 	gint return_val;
-
-#ifdef MUTEX_TYPE_FAST
+	
+#ifdef PTHREAD_MUTEX_FAST
 	pthread_mutexattr_t attr;
 	
 	pthread_mutexattr_init (&attr);
@@ -637,6 +642,97 @@ c2_str_get_word (guint8 word_n, const gchar *str, gchar ch)
 	
 	return c;
 }
+
+#define BUFFER 4096
+#define APPEND(c) \
+	buffer[buf_pos++] = c; \
+	wcntl++;
+#define RESET \
+	/* Reset values */ \
+	wrap = FALSE; \
+	wcntl = 0; \
+	last_wrappable_position = NULL;
+#define FLUSH \
+	if (buf_pos == BUFFER) \
+	{ \
+		/* Flush everything */ \
+		if (!gstring) \
+			gstring = g_string_new (buffer); \
+		else \
+			g_string_append (gstring, buffer); \
+		buffer[0] = 0; \
+		buf_pos = 0; \
+	}
+gchar *
+c2_str_wrap (const gchar *str, guint8 position)
+{
+	const gchar *ptr;
+	GString *gstring = NULL;
+	gchar buffer[BUFFER];
+	gchar *retval;
+	guint wcntl, buf_pos;
+	gboolean wrap = FALSE;
+	gchar *last_wrappable_position = NULL;
+
+	buffer[0] = 0;
+	
+	for (ptr = str, wcntl = 0, buf_pos = 0; *ptr != '\0'; ptr++)
+	{
+		buffer[buf_pos+1] = 0;
+
+		/* Set the information if we reach the wrap point */
+		if (!wrap && wcntl > position)
+		{
+			wrap = TRUE;
+
+			/* If there are pending wrapping positions
+			 * we can use them with this code.
+			 */
+			if (last_wrappable_position)
+			{
+				*last_wrappable_position = '\n';
+				RESET;
+			}
+		}
+		
+		/* New lines will reset our wrapping code. */
+		if (*ptr == '\n')
+		{
+			RESET;
+		} else if (*ptr == ' ' ||
+				   *ptr == '\t')
+		{
+			if (wrap)
+			{
+				/* Wrap */
+				APPEND ('\n');
+				RESET;
+				FLUSH;
+				wrap = FALSE;
+			} else
+			{
+				/* Store position for future wraps */
+				last_wrappable_position = buffer+buf_pos;
+			}
+		}
+				
+		APPEND (*ptr);
+		FLUSH;
+	}
+
+	if (gstring)
+	{
+		retval = gstring->str;
+		g_string_free (gstring, FALSE);
+	} else
+		retval = g_strdup (buffer);
+	
+	return retval;
+}
+#undef BUFFER
+#undef APPEND
+#undef RESET
+#undef FLUSH
 
 /**
  * c2_str_is_email
