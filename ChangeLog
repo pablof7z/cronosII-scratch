@@ -1,16 +1,50 @@
+Mon Jan 21 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Imported Pablo's work into CVS while he is w/o net in Spain.
+
+Sun Jan 13 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* Today I move forward in so many modules that I should
+	  congratulate my self, so: congratulations /me!!
+	  (I really need to get back to Inet, I'm already talking
+	  to my self).
+
+Fri Jan 11 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* Again, work that I didn't care to report...
+	* The sort stuff in the index widget.
+
 Thu Jan 10 2002 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Some IMAP work, almost done with loading of mailboxes.
 	* Fixed a small bug in mailbox module.
+	
+Fri Jan 04 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* More and more work that I forgot to report the previous
+	  days in the Cronos II Db and in its submodule cronosII.
+	* Since I'm in Spain my new name is Pablo Fernández López,
+	  that will be the name you'll see from now...
+
+Wed Jan 02 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* Rebuilded the way the C2Db loads a database.
 
 Tue Jan 1 2002 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Happy new year, everbody!
 	* Fixed a number of compilation warnings in libcronosII/mailbox.c
 	* Some IMAP clean up's.
+	
+Tue Jan 01 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* First ChangeLog Entry from Spain and also first ChangeLog
+	  Entry in year 2002! Cheers!
+	* Goto basic functionality with caching capabilities is
+	  working in the new Cronos II DataBase: The first rock
+		is in its place, perfectly sharpen and pullid.
+	* Many bug fixes that made it act strange in front of
+	  some situations.
 
 Sun Dec 30 Bosko Blagojevic <falling@users.sourceforge.net>
 	* A lot of IMAP work. Note: IMAP mailbox loading of each
 	  individual mailbox (when building the imap tree) is kinda
 		slow (i.e. aprox. 5 seconds for 13 nested mailboxes).
+
+Mon Dec 24 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* Work in the File » Check Mail menu.
 
 Mon Dec 24 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Added a feature that will not let an SMTP object be
