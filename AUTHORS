@@ -6,12 +6,13 @@ Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 - Spanish translation.
 	
 Bosko Blagojevic <falling@users.sourceforge.net>
+- CronosII SMTP Object
 - FreeBSD porting.
 - Address Book core development.
 
 Peter Gossner <gossner@arcom.com.au>
 - Documentation.
-- Spell corrections.
+- Spelling corrections.
 
 André Casteliano <digitalcoder@users.sourceforge.net>
 - Queue Mailbox (send later ability).
@@ -21,7 +22,7 @@ Marc Zaritsky <mustangg@users.sourceforge.net>
 
 Yves Mettier <ymettier@libertysurf.fr>
 - Documentation.
-- All kind patches.
+- All kinds of patches.
 - French translation.
 
 Special thanks to:
