@@ -49,6 +49,9 @@
  * 20011208 We have to send a delete_event to all open window when
  *          destroying the app and there must be a clean up.
  */
+ 
+#define MOD "[Widget] Application"
+#define DMOD TRUE
 
 static gchar *remote_commands[] =
 {
@@ -682,17 +685,16 @@ _check (C2Application *application)
 	C2Account *account;
 	GtkWidget *wtl;
 	C2TransferItem *wti;
-L	
+	GSList *plist = NULL, *l;
+	
 	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
 
 	wtl = c2_application_window_get (application, C2_WIDGET_TRANSFER_LIST_TYPE);
-L
+
 	if (!wtl || !C2_IS_TRANSFER_LIST (wtl))
 		wtl = c2_transfer_list_new (application);
-L
-	gtk_widget_show (wtl);
-	gdk_window_raise (wtl->window);
-L
+
+	/* First put all the actions we have to process */
 	for (account = application->account; account; account = c2_account_next (account))
 	{
 		gpointer data = c2_account_get_extra_data (account, C2_ACCOUNT_KEY_ACTIVE, NULL);
@@ -701,9 +703,17 @@ L
 			continue;
 
 		wti = c2_transfer_item_new (application, account, C2_TRANSFER_ITEM_RECEIVE);
-L		c2_transfer_list_add_item (C2_TRANSFER_LIST (wtl), wti);
-		c2_transfer_item_start (wti);
+		c2_transfer_list_add_item (C2_TRANSFER_LIST (wtl), wti);
+		plist = g_slist_prepend (plist, (gpointer) wti);
 	}
+
+	/* Show the dialog */
+	gtk_widget_show (wtl);
+	gdk_window_raise (wtl->window);
+	
+	/* And now fire the processes */
+	for (l = plist; l; l = g_slist_next (l))
+		c2_transfer_item_start ((C2TransferItem*) l->data);
 }
 
 static void
@@ -901,6 +911,7 @@ _delete_thread (C2Pthread3 *data)
 			c2_db_load_message (db);
 		
 		gtk_object_ref (GTK_OBJECT (db->message));
+		gtk_object_set_data (GTK_OBJECT (db->message), "state", db->state);
 		if (c2_db_message_add (tmailbox, db->message))
 			c2_db_message_remove (fmailbox, db);
 		gtk_object_unref (GTK_OBJECT (db->message));

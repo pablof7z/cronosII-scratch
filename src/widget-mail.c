@@ -439,7 +439,10 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 											c2_mime_get_part (message->mime) :
 											message->body);
 #else
-	string = mime->part;
+	if (mime)
+		string = mime->part;
+	else
+		string = message->mime ? c2_mime_get_part (message->mime) : message->body;
 #endif
 
 	gtk_object_set_data (GTK_OBJECT (mail->body), "message", message);

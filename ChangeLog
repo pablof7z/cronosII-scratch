@@ -1,3 +1,10 @@
+Sat Feb 23 Pablo Fernández López <pablo@pablossite.net>
+	* Fixed a bug in the mail widget: crashed when
+	  no HTML is supported and a mail is displayed with
+	  no text/plain part.
+	* Fixed the bug that caused deleted mails to appear
+	  always as unreaded in the Trash mailbox.
+
 Fri Feb 22 Pablo Fernández López <pablo@pablossite.net>
 	* Fixed some problems at building time.
 	* Fixed some bugs with configure stuff.

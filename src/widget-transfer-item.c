@@ -18,6 +18,7 @@
 #include <pthread.h>
 
 #include <libcronosII/pop3.h>
+#include <libcronosII/error.h>
 
 #include "preferences.h"
 #include "widget-transfer-item.h"
@@ -204,6 +205,7 @@ C2TransferItemType type, va_list args)
 	/* Store the extra-information */
 	if (type == C2_TRANSFER_ITEM_RECEIVE)
 	{
+		ti->type_info.receive.mails_r = 0;
 	} else if (type == C2_TRANSFER_ITEM_SEND)
 	{
 		ti->type_info.send.smtp = va_arg (args, C2SMTP *);
@@ -261,7 +263,7 @@ C2TransferItemType type, va_list args)
 	gtk_widget_show (box);
 
 	ti->progress_mail = gtk_progress_bar_new ();
-	gtk_box_pack_start (GTK_BOX (box), ti->progress_mail, FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (box), ti->progress_mail, TRUE, TRUE, 0);
 	gtk_widget_show (ti->progress_mail);
 
 	ti->progress_byte = gtk_progress_bar_new ();
@@ -643,6 +645,8 @@ on_pop3_status (GtkObject *object, gint mails, C2TransferItem *ti)
 {
 	gdk_threads_enter ();
 	gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
+	
+	ti->type_info.receive.mails_r = mails;
 
 	if (!mails)
 		gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
@@ -695,11 +699,29 @@ on_pop3_synchronize (GtkObject *object, gint nth, gint mails, C2TransferItem *ti
 static void
 on_pop3_disconnect (GtkObject *object, gboolean success, C2NetObjectByte *byte, C2TransferItem *ti)
 {
+	gchar *str = NULL;
+	
 	gdk_threads_enter ();
-	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Completed"));
+	if (success)
+	{
+		if (ti->type_info.receive.mails_r)
+			str = g_strdup_printf (_("Received %d new mail%s"), ti->type_info.receive.mails_r,
+					(ti->type_info.receive.mails_r>1)?"s":"");
+		else
+			str = g_strdup_printf (_("No new mails"), ti->type_info.receive.mails_r,
+					(ti->type_info.receive.mails_r>1)?"s":"");
+	} else
+	{
+		if (c2_error_object_get_id (object))
+			str = g_strdup_printf (_("Failure: %s"), c2_error_object_get (object));
+		else
+			str = g_strdup (_("Failure"));
+	}
+	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), str);
 	gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
 	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
 	gdk_threads_leave ();
+	g_free (str);
 
 	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
 }

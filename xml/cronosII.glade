@@ -482,6 +482,19 @@
 	      </accelerator>
 	      <label>Network _Traffic</label>
 	      <right_justify>False</right_justify>
+	      <icon>graph.xpm</icon>
+	    </widget>
+
+	    <widget>
+	      <class>GtkPixmapMenuItem</class>
+	      <name>view_dialog_send_receive</name>
+	      <accelerator>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
+		<key>GDK_H</key>
+		<signal>activate</signal>
+	      </accelerator>
+	      <label>Send &amp; Re_ceive</label>
+	      <right_justify>False</right_justify>
 	      <icon>send-receive.xpm</icon>
 	    </widget>
 	  </widget>

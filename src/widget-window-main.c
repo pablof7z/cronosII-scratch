@@ -173,6 +173,9 @@ static void
 on_menubar_view_dialog_network_traffic_activate	(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
+on_menubar_view_dialog_send_receive_activate	(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_menubar_message_reply_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
@@ -807,6 +810,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_menubar_view_mail_source_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_dialog_network_traffic")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_view_dialog_network_traffic_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_dialog_send_receive")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_view_dialog_send_receive_activate), wmain);
 
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_reply")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_message_reply_activate), wmain);
@@ -1621,6 +1626,21 @@ static void
 on_menubar_view_dialog_network_traffic_activate (GtkWidget *widget, C2WindowMain *wmain)
 {
 	c2_application_dialog_network_traffic (C2_WINDOW (wmain)->application);
+}
+
+static void
+on_menubar_view_dialog_send_receive_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	GtkWidget *wtl;
+	
+	wtl = c2_application_window_get (application, C2_WIDGET_TRANSFER_LIST_TYPE);
+
+	if (!wtl || !C2_IS_TRANSFER_LIST (wtl))
+		wtl = c2_transfer_list_new (application);
+	
+	/* Show the dialog */
+	gtk_widget_show (wtl);
+	gdk_window_raise (wtl->window);
 }
 
 static void

@@ -15,6 +15,7 @@ Pmap_DATA = \
 	filter.xpm		\
 	forward.xpm		\
 	forward-big.xpm	\
+	graph.xpm		\
 	mail-forward16.xpm	\
 	mail-reply16.xpm	\
 	mail-reply-all16.xpm	\

@@ -73,9 +73,14 @@ struct _C2TransferItem
 	{
 		struct
 		{
+			/* Extra information (passed as ... in _new () */
+			
+			/* Required information */
+			gint mails_r;
 		} receive;
 		struct
 		{
+			/* Extra information (passed as ... in _new () */
 			C2SMTP *smtp;
 			C2Db *db;
 			gint id;
