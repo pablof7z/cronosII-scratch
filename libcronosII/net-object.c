@@ -373,7 +373,7 @@ c2_net_object_send (C2NetObject *nobj, C2NetObjectByte *byte, const gchar *fmt, 
 	va_end (args);
 
 	byte->state = C2_NET_OBJECT_EXCHANGE;
-	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE], byte, C2_NET_OBJECT_EXCHANGE_SEND, value);
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE], C2_NET_OBJECT_EXCHANGE_SEND, value, byte);
 
 	return value;
 }
@@ -444,7 +444,7 @@ c2_net_object_read (C2NetObject *nobj, gchar **string, ...)
 	}
 	byte->state = C2_NET_OBJECT_EXCHANGE;
 	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE],
-					 byte, C2_NET_OBJECT_EXCHANGE_READ, strlen (*string));
+					 C2_NET_OBJECT_EXCHANGE_READ, strlen (*string), byte);
 	return ret;
 }
 
