@@ -232,6 +232,7 @@ init (C2IMAP *imap)
 	imap->login = NULL;
 	imap->auth_remember = TRUE;
 	imap->only_subscribed = TRUE;
+	imap->data = NULL;
 	imap->state = C2IMAPDisconnected;
 	c2_mutex_init(&imap->lock);
 }
@@ -977,7 +978,7 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 	gchar *reply, *ptr, *ptr2, *str;
 	gchar *from = NULL, *subject = NULL, *date = NULL;
 	time_t unixdate;
-	gboolean seen = FALSE, answered = FALSE;
+	gboolean seen = FALSE, answered = FALSE, forwarded = FALSE;
 	C2Db *db;
 	
 	if((messages = c2_imap_select_mailbox(imap, mailbox)) < 0)
@@ -1012,6 +1013,8 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 				seen = TRUE;
 			if(c2_strstr_case_insensitive(str, "\\Answered"))
 				answered = TRUE;
+			if(c2_strstr_case_insensitive(str, "\\Forwarded"))
+				forwarded = TRUE;
 			if((ptr = strstr(str, "UID")))
 				uid = atoi(ptr + 4);
 			g_free(str);
@@ -1057,6 +1060,8 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 			db = c2_db_new(mailbox, !seen, subject, from, NULL, unixdate, uid, messages);
 			if(answered)
 				db->state = C2_MESSAGE_REPLIED;
+			if(forwarded)
+				db->state = C2_MESSAGE_FORWARDED;
 			messages++;
 			if(date) g_free(date);
 			date = NULL;
@@ -1800,8 +1805,10 @@ GET_BODY:
  * 0 on success, -1 otherwise.
  **/
 gint
-c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState state)
+c2_imap_message_set_state (C2Db *db)
 {
+	C2IMAP *imap = db->mailbox->protocol.IMAP.imap;
+	C2MessageState state = *(C2MessageState*)(imap->data);
 	gchar *cmd = NULL;
 	tag_t tag;
 	

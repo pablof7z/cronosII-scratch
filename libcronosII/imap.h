@@ -92,7 +92,7 @@ struct _C2IMAP
 	tag_t cmnd : 10;
 	gint input_tag;
 
-	gint auth_remember   :1;	 /* %TRUE = Store password */
+	gint auth_remember   :1;   /* %TRUE = Store password */
 	gint only_subscribed :1;   /* %TRUE = list only subscribed mailboxes */
 
 	gint (*login) (C2IMAP *imap);
@@ -100,8 +100,10 @@ struct _C2IMAP
 	GList *hash;      /* hash to store server replies...*/
 	
 	GSList *pending;   /* linked list to store process mutex locks	for processes
-										 * that are expecting a tagged response from the server */
-	
+	                    * that are expecting a tagged response from the server */
+
+	gpointer data;	
+
 	C2IMAPState state;
 	C2Mutex lock;
 	
@@ -178,7 +180,7 @@ C2Message *
 c2_imap_load_message (C2IMAP *imap, C2Db *db);
 
 gint
-c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState state);
+c2_imap_message_set_state (C2Db *db);
 
 #ifdef __cplusplus
 }

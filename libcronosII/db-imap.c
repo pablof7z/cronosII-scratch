@@ -21,6 +21,8 @@
  * Code of this file by:
  * 		* Bosko Blagojevic
  */
+#include <pthread.h>
+
 #include "db.h"
 #include "db-imap.h"
 #include "error.h"
@@ -132,10 +134,16 @@ c2_db_imap_thaw (C2Mailbox *mailbox)
 void
 c2_db_imap_message_set_state (C2Db *db, C2MessageState state)
 {
+	C2MessageState *state2;
 	C2IMAP *imap = db->mailbox->protocol.IMAP.imap;
-	
+	pthread_t thread;
+
 	c2_mutex_lock(&imap->lock);
-	c2_imap_message_set_state(imap, db, state);
+	state2 = g_new0(C2MessageState, 1);
+	*state2 = state;
+	imap->data = state2;
+	//c2_imap_message_set_state(imap, db, state);
+	pthread_create(&thread, NULL, (void*)c2_imap_message_set_state, db);
 	c2_mutex_unlock(&imap->lock);
 	return;
 }
@@ -146,7 +154,7 @@ c2_db_imap_message_set_mark (C2Db *db, gboolean mark)
 	C2IMAP *imap = db->mailbox->protocol.IMAP.imap;
 
 	c2_mutex_lock(&imap->lock);
-	c2_imap_message_set_state(imap, db, 0);
+	//c2_imap_message_set_state(imap, db, 0);
 	c2_mutex_unlock(&imap->lock);
 	return;
 }
