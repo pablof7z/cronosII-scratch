@@ -1,5 +1,5 @@
-/*  Cronos II - The GNOME Mail Client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+/*  Cronos II - The GNOME mail client
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -85,9 +85,11 @@ c2_html_gtkhtml_link_clicked (GtkHTML *gtkhtml, const gchar *url, gpointer data)
 		{
 			GtkWidget *composer;
 
-			composer = c2_composer_new (C2_HTML (data)->application);
-			c2_composer_set_contents_from_link (C2_COMPOSER (composer), url);
-			gtk_widget_show (composer);
+			if ((composer = c2_composer_new (C2_HTML (data)->application)))
+			{
+				c2_composer_set_contents_from_link (C2_COMPOSER (composer), url);
+				gtk_widget_show (composer);
+			}
 		} else
 			gnome_url_show (url);
 	} else

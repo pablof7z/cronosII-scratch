@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -71,6 +71,7 @@ static struct {
 
 	gboolean check;
 	gboolean open_main_window;
+	gboolean be_server;
 } flags =
 {
 	FALSE,
@@ -86,6 +87,7 @@ static struct {
 
 	NULL,
 
+	FALSE,
 	FALSE,
 	FALSE
 };
@@ -124,7 +126,7 @@ c2_init (gint argc, gchar **argv)
 			N_("Address")
 		},
 		{
-			"subject", 's', POPT_ARG_STRING,
+			"subject", 'u', POPT_ARG_STRING,
 			&(flags.subject), 0,
 			N_("Set the Subject field."),
 			N_("Subject")
@@ -156,6 +158,12 @@ c2_init (gint argc, gchar **argv)
 			"wmain", 0, POPT_ARG_NONE,
 			&(flags.open_main_window), 0,
 			N_("Open the main window (default)"), NULL
+		},
+		{
+			"server", 's', POPT_ARG_NONE,
+			&(flags.be_server), 0,
+			N_("Don't open any windows; instead act as a server for quick startup of new Cronos II instances"),
+			NULL
 		}
 	};
 
@@ -172,10 +180,6 @@ c2_init (gint argc, gchar **argv)
 #endif
 	
 	gnome_init_with_popt_table ("Cronos II", VERSION, argc, argv, options, 0, NULL);
-	
-#ifdef USE_GCONF
-	gconf_init (argc, argv, NULL);
-#endif
 	
 	glade_gnome_init ();
 	c2_hash_init ();
@@ -213,48 +217,58 @@ main (gint argc, gchar **argv)
 	}
 
 	/* Create the Application object */
-	application = c2_application_new (PACKAGE);
-	
-	/* Open specified windows */
-	if (flags.open_main_window)
-		CREATE_WINDOW_MAIN;
+	if (!(application = c2_application_new (PACKAGE)))
+		return 0;
 
-	if (flags.open_composer || flags.account || flags.to || flags.cc ||
-		flags.bcc || flags.subject || flags.body || flags.mailto)
+	if (flags.be_server)
 	{
-		widget = c2_composer_new (application);
-
-		if (flags.mailto)
-			c2_composer_set_contents_from_link (C2_COMPOSER (widget), flags.mailto);
-		else
+		c2_application_running_as_server (application);
+	} else
+	{
+		/* Open specified windows */
+		if (flags.open_main_window)
+			CREATE_WINDOW_MAIN;
+	
+		if (flags.open_composer || flags.account || flags.to || flags.cc ||
+			flags.bcc || flags.subject || flags.body || flags.mailto)
 		{
-			if (flags.account)
-				c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_ACCOUNT,
-											flags.account);
-			if (flags.to)
-				c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_TO,
-											flags.to);
-			if (flags.cc)
-				c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_CC,
-											flags.cc);
-			if (flags.bcc)
-				c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_BCC,
-											flags.bcc);
-			if (flags.subject)
-				c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_SUBJECT,
-											flags.subject);
-			if (flags.body)
-				c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_BODY,
-											flags.body);
+			if ((widget = c2_composer_new (application)))
+			{
+				if (flags.mailto)
+					c2_composer_set_contents_from_link (C2_COMPOSER (widget), flags.mailto);
+				else
+				{
+					if (flags.account)
+						c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_ACCOUNT,
+													flags.account);
+					if (flags.to)
+						c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_TO,
+													flags.to);
+					if (flags.cc)
+					c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_CC,
+													flags.cc);
+					if (flags.bcc)
+						c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_BCC,
+													flags.bcc);
+					if (flags.subject)
+						c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_SUBJECT,
+													flags.subject);
+					if (flags.body)
+						c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_BODY,
+													flags.body);
+				}
+				
+				gtk_widget_show (widget);
+			}
+	
+			something_opened = TRUE;
 		}
-		gtk_widget_show (widget);
-		something_opened = TRUE;
+	
+		/* If nothing opened we will open the defaults window */
+		if (!something_opened)
+			CREATE_WINDOW_MAIN;
 	}
-
-	/* If nothing opened we will open the defaults window */
-	if (!something_opened)
-		CREATE_WINDOW_MAIN;
-
+	
 	/* Release Information Dialog */
 	if (c2_preferences_get_extra_release_information_show ())
 		gtk_idle_add (on_release_information_idle, application);

@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -1046,8 +1046,8 @@ skip_imap:
 			goto skip_smtp;
 		
 		gnome_config_set_int ("outgoing_server_protocol", smtp->type);
-		gnome_config_set_string ("outgoing_server_hostname", smtp->host);
-		gnome_config_set_int ("outgoing_server_port", smtp->port);
+		gnome_config_set_string ("outgoing_server_hostname", C2_NET_OBJECT(smtp)->host);
+		gnome_config_set_int ("outgoing_server_port", C2_NET_OBJECT(smtp)->port);
 		gnome_config_set_bool ("outgoing_server_ssl", smtp->ssl);
 		gnome_config_set_bool ("outgoing_auth_required", smtp->authentication);
 		gnome_config_set_string ("outgoing_server_username", smtp->user);
@@ -1481,10 +1481,10 @@ c2_dialog_preferences_account_editor_new (C2Application *application, C2DialogPr
 			gtk_option_menu_set_history (GTK_OPTION_MENU (widget), 0);
 
 			widget = glade_xml_get_widget (xml, "outgoing_server_hostname");
-			gtk_entry_set_text (GTK_ENTRY (widget), smtp->host);
+			gtk_entry_set_text (GTK_ENTRY (widget), C2_NET_OBJECT(smtp)->host);
 
 			widget = glade_xml_get_widget (xml, "outgoing_server_port");
-			gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), smtp->port);
+			gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), C2_NET_OBJECT(smtp)->port);
 
 			widget = glade_xml_get_widget (xml, "outgoing_server_username");
 			gtk_entry_set_text (GTK_ENTRY (widget), smtp->user);
@@ -1524,9 +1524,9 @@ c2_dialog_preferences_account_editor_new (C2Application *application, C2DialogPr
 			if (smtp->type == C2_SMTP_REMOTE)
 			{
 				widget = glade_xml_get_widget (xml, "outgoing_server_hostname");
-				gtk_entry_set_text (GTK_ENTRY (widget), smtp->host);
+				gtk_entry_set_text (GTK_ENTRY (widget), C2_NET_OBJECT(smtp)->host);
 				widget = glade_xml_get_widget (xml, "outgoing_server_port");
-				gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), smtp->port);
+				gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), C2_NET_OBJECT(smtp)->port);
 			}
 		}
 	}
@@ -2066,7 +2066,7 @@ on_account_editor_druid_page3_next(GnomeDruidPage *druid_page, GtkWidget *druid,
 static void
 on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *druid, C2Window *window)
 {
-	C2DialogPreferences *preferences = C2_DIALOG_PREFERENCES (gtk_object_get_data (GTK_OBJECT (window), "preferences"));
+	C2DialogPreferences *preferences = (C2DialogPreferences*) gtk_object_get_data (GTK_OBJECT (window), "preferences");
 	GtkWidget *widget;
 	GladeXML *xml;
 	C2Account *account;
@@ -2078,7 +2078,7 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 	C2SMTP *smtp;
 	gint nth;
 
-	xml = C2_WINDOW (window)->xml;
+	xml = window->xml;
 
 	nth = general_accounts_get_next_account_number ();
 	
@@ -2112,8 +2112,8 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 	gnome_config_set_string ("identity_email", buf2);
 
 	account = c2_account_new (type, buf, buf2);
-	C2_DIALOG (preferences)->application->account =
-			c2_account_append (C2_DIALOG (preferences)->application->account, account);
+	window->application->account =
+			c2_account_append (window->application->account, account);
 
 	widget = glade_xml_get_widget (xml, "identity_name");
 	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
@@ -2306,7 +2306,7 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 	if (preferences)
 		set_values_accounts (preferences);
 	gtk_widget_destroy (GTK_WIDGET (window));
-	
+		
 	if (preferences)
 		gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 							C2_DIALOG_PREFERENCES_KEY_GENERAL_ACCOUNTS,

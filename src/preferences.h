@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -323,34 +323,26 @@ extern "C" {
 #define c2_preferences_set_window_main_network_traffic_visible(val) \
 	gnome_config_set_bool ("/"PACKAGE"/Window-Main/network_traffic_visible", val)
 	
-#define c2_preferences_get_window_main_index_width_0() \
-	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_0=30", NULL)
-#define c2_preferences_set_window_main_index_width_0(val) \
-	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_0", val)
-#define c2_preferences_get_window_main_index_width_1() \
-	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_1=0", NULL)
-#define c2_preferences_set_window_main_index_width_1(val) \
-	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_1", val)
-#define c2_preferences_get_window_main_index_width_2() \
-	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_2=0", NULL)
-#define c2_preferences_set_window_main_index_width_2(val) \
-	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_2", val)
-#define c2_preferences_get_window_main_index_width_3() \
-	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_3=120", NULL)
-#define c2_preferences_set_window_main_index_width_3(val) \
-	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_3", val)
-#define c2_preferences_get_window_main_index_width_4() \
-	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_4=120", NULL)
-#define c2_preferences_set_window_main_index_width_4(val) \
-	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_4", val)
-#define c2_preferences_get_window_main_index_width_5() \
-	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_5=80", NULL)
-#define c2_preferences_set_window_main_index_width_5(val) \
-	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_5", val)
-#define c2_preferences_get_window_main_index_width_6() \
-	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_6=80", NULL)
-#define c2_preferences_set_window_main_index_width_6(val) \
-	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_6", val)
+#define c2_preferences_get_window_main_index_width_column_style() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_column_style=20", NULL)
+#define c2_preferences_set_window_main_index_width_column_style(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_column_style", val)
+#define c2_preferences_get_window_main_index_width_column_subject() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_column_subject=240", NULL)
+#define c2_preferences_set_window_main_index_width_column_subject(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_column_subject", val)
+#define c2_preferences_get_window_main_index_width_column_from() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_column_from=200", NULL)
+#define c2_preferences_set_window_main_index_width_column_from(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_column_from", val)
+#define c2_preferences_get_window_main_index_width_column_date() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_column_date=164", NULL)
+#define c2_preferences_set_window_main_index_width_column_date(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_column_date", val)
+#define c2_preferences_get_window_main_index_width_column_account() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_column_account=42", NULL)
+#define c2_preferences_set_window_main_index_width_column_account(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_column_account", val)
 
 #define c2_preferences_get_window_main_vpaned() \
 	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/vpaned=180", NULL)

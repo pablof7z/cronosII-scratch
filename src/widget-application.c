@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <sys/poll.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 #include <libcronosII/account.h>
 #include <libcronosII/pop3.h>
@@ -28,6 +34,7 @@
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
+#include "main.h"
 #include "preferences.h"
 #include "widget-application.h"
 #include "widget-application-utils.h"
@@ -43,6 +50,16 @@
  *          destroying the app and there must be a clean up.
  */
 
+static gchar *remote_commands[] =
+{
+	C2_REMOTE_COMMAND_WINDOW_MAIN_NEW,
+	C2_REMOTE_COMMAND_WINDOW_MAIN_RAISE,
+	C2_REMOTE_COMMAND_COMPOSER_NEW,
+	C2_REMOTE_COMMAND_CHECK_MAIL,
+	C2_REMOTE_COMMAND_EXIT,
+	NULL
+};
+
 static void
 class_init									(C2ApplicationClass *klass);
 
@@ -53,7 +70,43 @@ static void
 destroy										(GtkObject *object);
 
 static void
-send_										(C2Application *application);
+on_server_read								(C2Application *application, gint sock, GdkInputCondition cond);
+
+static void
+_check										(C2Application *application);
+
+static void
+_copy										(C2Application *application, GList *list, C2Window *window);
+
+static void
+_delete										(C2Application *application, GList *list, C2Window *window);
+
+static void
+_expunge									(C2Application *application, GList *list);
+
+static void
+_forward									(C2Application *application, C2Db *db, C2Message *message);
+
+static void
+_move										(C2Application *application, GList *list, C2Window *window);
+
+static void
+_open_message								(C2Application *application, C2Db *db, C2Message *message);
+
+static void
+_print										(C2Application *application, C2Message *message);
+
+static void
+_reply										(C2Application *application, C2Db *db, C2Message *message);
+
+static void
+_reply_all									(C2Application *application, C2Db *db, C2Message *message);
+
+static void
+_save										(C2Application *application, C2Message *message, C2Window *window);
+
+static void
+_send										(C2Application *application);
 
 void
 on_mailbox_changed_mailboxes				(C2Mailbox *mailbox, C2Application *application);
@@ -135,7 +188,18 @@ class_init (C2ApplicationClass *klass)
 	klass->reload_mailboxes = NULL;
 	klass->window_changed = NULL;
 
-	klass->send = send_;
+	klass->check = _check;
+	klass->copy = _copy;
+	klass->delete = _delete;
+	klass->expunge = _expunge;
+	klass->forward = _forward;
+	klass->move = _move;
+	klass->open_message = _open_message;
+	klass->print = _print;
+	klass->reply = _reply;
+	klass->reply_all = _reply_all;
+	klass->save = _save;
+	klass->send = _send;
 }
 
 static void
@@ -147,16 +211,67 @@ load_mailbox (C2Mailbox *mailbox)
 static void
 init (C2Application *application)
 {
-	gchar *tmp, *buf;
+	gchar *tmp, *buf, *path = NULL;
 	gint quantity = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL);
 	gint i;
 	gboolean load_mailboxes_at_start;
+	struct sockaddr_un sa;
 
 	application->open_windows = NULL;
 	application->tmp_files = NULL;
 	application->account = NULL;
 	application->mailbox = NULL;
 
+	/* Before creating the application object lets
+	 * try to connect to the Cronos II Server.
+	 */
+	if ((application->server_socket = socket (AF_UNIX, SOCK_STREAM, 0)) < 0)
+	{
+		perror ("socket");
+		application->acting_as_server = 0;
+		goto _init;
+	}
+
+	memset (&sa, 0, sizeof (sa));
+	sa.sun_family = AF_UNIX;
+	strncpy (sa.sun_path, C2_UNIX_SOCKET, sizeof (sa.sun_path) -1);
+
+	path = g_strdup_printf ("%s" C2_HOME, g_get_home_dir ());
+	chdir (path);
+	g_free (path);
+
+	path = g_strdup_printf ("%s" C2_HOME C2_UNIX_SOCKET, g_get_home_dir ());
+	
+	if (connect (application->server_socket, (struct sockaddr*) &sa, sizeof (sa)) < 0)
+	{
+		/* We couldn't connect, we'll act as server */
+		unlink (path);
+
+		if (bind (application->server_socket, (struct sockaddr*) &sa, sizeof (sa)) < 0)
+		{
+			application->acting_as_server = 0;
+			perror ("bind");
+			goto _init;
+		}
+
+		if (listen (application->server_socket, 10) < 0)
+		{
+			application->acting_as_server = 0;
+			perror ("listen");
+			goto _init;
+		}
+
+		gdk_input_add (application->server_socket, GDK_INPUT_READ, on_server_read, application);
+		application->acting_as_server = 1;
+	} else
+	{
+		application->acting_as_server = 0;
+		return;
+	}
+
+_init:
+	g_free (path);
+	
 	/* Load accounts */
 	for (i = 1;; i++)
 	{
@@ -454,12 +569,485 @@ destroy (GtkObject *object)
 	gtk_main_quit ();
 }
 
+
+#if 0
+	FD_ZERO (&rset);
+	FD_SET (application->server_socket, &rset);
+
+	if (select (application->server_socket+1, &rset, NULL, NULL, NULL) < 0)
+	{
+		perror ("select");
+		return;
+	}
+	
+	memset (&sa, 0, sizeof (sa));
+	sa.sun_family = AF_UNIX;
+	strncpy (sa.sun_path, C2_UNIX_SOCKET, sizeof (sa.sun_path) -1);
+
+	path = g_strdup_printf ("%s" C2_HOME, g_get_home_dir ());
+	chdir (path);
+	g_free (path);
+
+	size = sizeof (sa);
+	
+	if ((sock = accept (application->server_socket, (struct sockaddr*) &sa, &size)) < 0)
+		perror ("accept");
+	g_free (path);
+}
+#endif
+
 static void
-send_ (C2Application *application)
+on_server_read (C2Application *application, gint sock, GdkInputCondition cond)
+{
+	gchar *buffer;
+	struct sockaddr_un sa;
+	size_t size;
+	gchar *path;
+
+	
+start:
+	if (c2_net_read (sock, &buffer) < 0)
+	{
+		if (errno == EINVAL)
+		{
+			struct sockaddr_un sa;
+			size_t size;
+			gchar *path;
+			
+			memset (&sa, 0, sizeof (sa));
+			sa.sun_family = AF_UNIX;
+			strncpy (sa.sun_path, C2_UNIX_SOCKET, sizeof (sa.sun_path) -1);
+
+			path = g_strdup_printf ("%s" C2_HOME, g_get_home_dir ());
+			chdir (path);
+			g_free (path);
+	
+			size = sizeof (sa);
+	
+			if ((sock = accept (application->server_socket, (struct sockaddr*) &sa, &size)) < 0)
+				perror ("accept");
+			else
+				goto start;
+		}
+		
+		perror ("read");
+		return;
+	}
+/*
+	for (i = 0; remote_commands[i]; i++)
+	{
+		if (c2_streq (
+	}*/
+
+	C2_DEBUG (buffer);
+	g_free (buffer);
+	perror ("read");
+
+	gdk_input_add (sock, GDK_INPUT_READ, on_server_read, application);
+}
+
+static void
+_check (C2Application *application)
+{
+	C2Account *account;
+	GtkWidget *wtl;
+	C2TransferItem *wti;
+	
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+
+	wtl = c2_application_window_get (application, C2_WIDGET_TRANSFER_LIST_TYPE);
+
+	if (!wtl || !C2_IS_TRANSFER_LIST (wtl))
+		wtl = c2_transfer_list_new (application);
+
+	gtk_widget_show (wtl);
+	gdk_window_raise (wtl->window);
+
+	for (account = application->account; account; account = c2_account_next (account))
+	{
+		gpointer data = c2_account_get_extra_data (account, C2_ACCOUNT_KEY_ACTIVE, NULL);
+
+		if (!GPOINTER_TO_INT (data) || account->type == C2_ACCOUNT_IMAP)
+			continue;
+
+		wti = c2_transfer_item_new (application, account, C2_TRANSFER_ITEM_RECEIVE);
+		c2_transfer_list_add_item (C2_TRANSFER_LIST (wtl), wti);
+		c2_transfer_item_start (wti);
+	}
+}
+
+static void
+_copy_thread (C2Pthread3 *data)
+{
+	C2Mailbox *mailbox;
+	GList *list, *l;
+	C2Window *window;
+	GtkWidget *widget = NULL;
+	GtkProgress *progress = NULL;
+	gint length, off;
+	gboolean progress_ownership = FALSE,
+			 status_ownership = FALSE;
+
+	/* Load the data */
+	mailbox = C2_MAILBOX (data->v1);
+	list = (GList*) data->v2;
+	window = C2_WINDOW (data->v3);
+	g_free (data);
+
+	/* Get the length of the list to copy */
+	length = g_list_length (list);
+
+	/* Get the appbar */
+	if (window)
+	{
+		widget = glade_xml_get_widget (window->xml, "appbar");
+
+		if (GNOME_IS_APPBAR (widget))
+		{
+			/* Try to reserve ownership over the progress bar */
+			if (!c2_mutex_trylock (&window->progress_lock))
+				progress_ownership = TRUE;
+
+			/* Try to reserve ownership over the status bar */
+			if (!c2_mutex_trylock (&window->status_lock))
+				status_ownership = TRUE;
+		}
+	}
+
+	gdk_threads_enter ();
+
+	if (progress_ownership)
+	{
+		/* Configure the progressbar */
+		progress = (GtkProgress*) ((GnomeAppBar*) widget)->progress;
+		gtk_progress_configure (progress, 0, 0, length);
+	}
+	
+	if (status_ownership)
+	{
+		/* Configure the statusbar */
+		gnome_appbar_push (GNOME_APPBAR (widget), _("Copying..."));
+	}
+
+	gdk_threads_leave ();
+
+	/* Start copying */
+	c2_db_freeze (mailbox);
+	for (l = list, off = 0; l; l = g_list_next (l), off++)
+	{
+		C2Db *db;
+		
+		/* Now do the actual copy */
+		db = C2_DB (l->data);
+
+		if (!db->message)
+			c2_db_load_message (db);
+		
+		gtk_object_ref (GTK_OBJECT (db->message));
+		c2_db_message_add (mailbox, db->message);
+		gtk_object_unref (GTK_OBJECT (db->message));
+
+		if (progress_ownership)
+		{
+			gdk_threads_enter ();
+			gtk_progress_set_value (progress, off);
+			gdk_threads_leave ();
+		}
+	}
+	c2_db_thaw (mailbox);
+
+	g_list_free (list);
+
+	gdk_threads_enter ();
+	
+	if (status_ownership)
+	{
+		gnome_appbar_pop (GNOME_APPBAR (widget));
+		c2_mutex_unlock (&window->status_lock);
+	}
+
+	if (progress_ownership)
+	{
+		gtk_progress_set_percentage (progress, 1.0);
+		c2_mutex_unlock (&window->progress_lock);
+	}
+	
+	gdk_threads_leave ();
+}
+
+static void
+_copy (C2Application *application, GList *list, C2Window *window)
+{
+	C2Mailbox *mailbox;
+	C2Pthread3 *data;
+	pthread_t thread;
+	
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+	c2_return_if_fail (list, C2EDATA);
+
+	/* Get the mailbox where to copy to */
+	if (!(mailbox = c2_application_dialog_select_mailbox (application, (GtkWindow*) window)))
+	{
+		if (window)
+			c2_window_report (window, C2_WINDOW_REPORT_MESSAGE, error_list[C2_CANCEL_USER]);
+		return;
+	}
+
+	/* Fire the thread */
+	data = g_new0 (C2Pthread3, 1);
+	data->v1 = mailbox;
+	data->v2 = g_list_copy (list);
+	data->v3 = window;
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (_copy_thread), data);
+}
+
+static void
+_delete (C2Application *application, GList *list, C2Window *window)
+{
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+	c2_return_if_fail (list, C2EDATA);
+}
+
+static void
+_expunge (C2Application *application, GList *list)
+{
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+	c2_return_if_fail (list, C2EDATA);
+}
+
+static void
+_forward (C2Application *application, C2Db *db, C2Message *message)
+{
+	GtkWidget *composer;
+	
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+	c2_return_if_fail (!(!C2_IS_DB (db) && !C2_IS_MESSAGE (message)), C2EDATA);
+
+	if ((composer = c2_composer_new (application)))
+	{
+		c2_composer_set_message_as_forward (C2_COMPOSER (composer), db, message);
+		gtk_widget_show (composer);
+	}
+}
+
+static void
+_move_thread (C2Pthread3 *data)
+{
+	C2Mailbox *fmailbox, *tmailbox;
+	GList *list, *l;
+	C2Window *window;
+	GtkWidget *widget = NULL;
+	GtkProgress *progress = NULL;
+	gint length, off;
+	gboolean progress_ownership = FALSE,
+			 status_ownership = FALSE;
+
+	/* Load the data */
+	tmailbox = C2_MAILBOX (data->v1);
+	list = (GList*) data->v2;
+	window = C2_WINDOW (data->v3);
+	fmailbox = C2_DB (list->data)->mailbox;
+	g_free (data);
+
+	/* Get the length of the list to move */
+	length = g_list_length (list);
+
+	/* Get the appbar */
+	if (window)
+	{
+		widget = glade_xml_get_widget (window->xml, "appbar");
+
+		if (GNOME_IS_APPBAR (widget))
+		{
+			/* Try to reserve ownership over the progress bar */
+			if (!c2_mutex_trylock (&window->progress_lock))
+				progress_ownership = TRUE;
+
+			/* Try to reserve ownership over the status bar */
+			if (!c2_mutex_trylock (&window->status_lock))
+				status_ownership = TRUE;
+		}
+	}
+
+	gdk_threads_enter ();
+
+	if (progress_ownership)
+	{
+		/* Configure the progressbar */
+		progress = (GtkProgress*) ((GnomeAppBar*) widget)->progress;
+		gtk_progress_configure (progress, 0, 0, length);
+	}
+	
+	if (status_ownership)
+	{
+		/* Configure the statusbar */
+		gnome_appbar_push (GNOME_APPBAR (widget), _("Moving..."));
+	}
+
+	gdk_threads_leave ();
+
+	/* Start moving */
+	c2_db_freeze (fmailbox);
+	c2_db_freeze (tmailbox);
+	for (l = list, off = 0; l; l = g_list_next (l), off++)
+	{
+		C2Db *db;
+		
+		/* Now do the actual copy */
+		db = C2_DB (l->data);
+
+		if (!db->message)
+			c2_db_load_message (db);
+		
+		gtk_object_ref (GTK_OBJECT (db->message));
+		if (c2_db_message_add (tmailbox, db->message))
+			c2_db_message_remove (fmailbox, db);
+		gtk_object_unref (GTK_OBJECT (db->message));
+
+		if (progress_ownership)
+		{
+			gdk_threads_enter ();
+			gtk_progress_set_value (progress, off);
+			gdk_threads_leave ();
+		}
+	}
+	c2_db_thaw (fmailbox);
+	c2_db_thaw (tmailbox);
+
+	g_list_free (list);
+
+	gdk_threads_enter ();
+	
+	if (status_ownership)
+	{
+		gnome_appbar_pop (GNOME_APPBAR (widget));
+		c2_mutex_unlock (&window->status_lock);
+	}
+
+	if (progress_ownership)
+	{
+		gtk_progress_set_percentage (progress, 1.0);
+		c2_mutex_unlock (&window->progress_lock);
+	}
+	
+	gdk_threads_leave ();
+}
+
+static void
+_move (C2Application *application, GList *list, C2Window *window)
+{
+	C2Mailbox *mailbox;
+	C2Pthread3 *data;
+	pthread_t thread;
+	
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+	c2_return_if_fail (list, C2EDATA);
+
+	/* Get the mailbox where to move to */
+	if (!(mailbox = c2_application_dialog_select_mailbox (application, (GtkWindow*) window)))
+	{
+		if (window)
+			c2_window_report (window, C2_WINDOW_REPORT_MESSAGE, error_list[C2_CANCEL_USER]);
+		return;
+	}
+
+	/* Fire the thread */
+	data = g_new0 (C2Pthread3, 1);
+	data->v1 = mailbox;
+	data->v2 = g_list_copy (list);
+	data->v3 = window;
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (_move_thread), data);
+}
+
+static void
+_open_message (C2Application *application, C2Db *db, C2Message *message)
+{
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+	c2_return_if_fail (!(!C2_IS_DB (db) && !C2_IS_MESSAGE (message)), C2EDATA);
+}
+
+static void
+_print (C2Application *application, C2Message *message)
+{
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+	c2_return_if_fail (C2_IS_MESSAGE (message), C2EDATA);
+}
+
+static void
+_reply (C2Application *application, C2Db *db, C2Message *message)
+{
+	GtkWidget *composer;
+	
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+	c2_return_if_fail (!(!C2_IS_DB (db) && !C2_IS_MESSAGE (message)), C2EDATA);
+
+	if ((composer = c2_composer_new (application)))
+	{
+		c2_composer_set_message_as_reply (C2_COMPOSER (composer), db, message);
+		gtk_widget_show (composer);
+	}
+}
+
+static void
+_reply_all (C2Application *application, C2Db *db, C2Message *message)
+{
+	GtkWidget *composer;
+	
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+	c2_return_if_fail (!(!C2_IS_DB (db) && !C2_IS_MESSAGE (message)), C2EDATA);
+
+	if ((composer = c2_composer_new (application)))
+	{
+		c2_composer_set_message_as_reply_all (C2_COMPOSER (composer), db, message);
+		gtk_widget_show (composer);
+	}
+}
+
+static void
+_save (C2Application *application, C2Message *message, C2Window *window)
+{
+	FILE *fd;
+	
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+	c2_return_if_fail (C2_IS_MESSAGE (message), C2EDATA);
+
+	gtk_object_ref (GTK_OBJECT (message));
+	if (!message)
+	{
+		if (window)
+			c2_window_report (window, C2_WINDOW_REPORT_WARNING,
+								error_list[C2_FAIL_MESSAGE_SAVE], _("Unable to find message."));
+		goto no_name;
+	}
+
+	fd = c2_application_dialog_select_file_save (application, NULL);
+	
+	if (!fd)
+	{
+		if (window)
+			c2_window_report (window, C2_WINDOW_REPORT_WARNING,
+								error_list[C2_FAIL_MESSAGE_SAVE], c2_error_get ());
+		goto no_name;
+	}
+
+	fprintf (fd, "%s\n\n%s", message->header, message->body);
+	fclose (fd);
+
+	if (window)
+		c2_window_report (window, C2_WINDOW_REPORT_MESSAGE,
+							error_list[C2_SUCCESS_MESSAGE_SAVE]);
+no_name:
+	gtk_object_unref (GTK_OBJECT (message));
+}
+
+static void
+_send (C2Application *application)
 {
 	C2Mailbox *outbox;
 	C2Db *db;
 
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+	
 	outbox = c2_mailbox_get_by_name (application->mailbox, C2_MAILBOX_OUTBOX);
 	if (!C2_IS_MAILBOX (outbox))
 		return;
@@ -585,6 +1173,13 @@ c2_application_new (const gchar *name)
 	return application;
 }
 
+void
+c2_application_running_as_server (C2Application *application)
+{
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+
+	application->running_as_server = 1;
+}
 
 /**
  * c2_application_window_add

@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -51,12 +51,17 @@ c2_application_check_account_exists (C2Application *application)
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_no_accounts");
 	window = glade_xml_get_widget (xml, "dlg_no_accounts");
 
+	if (gnome_preferences_get_dialog_centered ())
+		gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
+
 	switch (gnome_dialog_run_and_close (GNOME_DIALOG (window)))
 	{
 		case 0:
-			widget = c2_dialog_preferences_new (application);
+			widget = c2_dialog_preferences_account_editor_new (application, NULL, NULL);
 			gtk_widget_show (widget);
 	}
+
+	gtk_object_destroy (GTK_OBJECT (xml));
 
 	return FALSE;
 }
@@ -589,7 +594,7 @@ c2_application_dialog_select_file_save (C2Application *application, gchar **file
 	if (file)
 		*file = NULL;
 
-	filesel = gtk_file_selection_new (NULL);
+	filesel = gtk_file_selection_new (_("Save message"));
 	gtk_window_set_modal (GTK_WINDOW (filesel), TRUE);
 	
 	c2_application_window_add (application, GTK_WINDOW (filesel));

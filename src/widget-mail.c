@@ -392,7 +392,12 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 	gboolean text_plain = TRUE, default_is_text_plain;
 	gchar *string, *buf, *default_mime;
 
-	c2_return_if_fail (message, C2EDATA);
+	if (!C2_IS_MESSAGE (message))
+	{
+		gtk_widget_hide ((GtkWidget*) mail);
+		return;
+	} else
+		gtk_widget_show ((GtkWidget*) mail);
 
 	if (C2_IS_MESSAGE (mail->message) && message != mail->message)
 		gtk_object_unref (GTK_OBJECT (mail->message));

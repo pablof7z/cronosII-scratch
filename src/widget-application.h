@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,8 +34,14 @@ extern "C" {
 
 #define C2_APPLICATION_GLADE_FILE(x)		(GLADEDIR G_DIR_SEPARATOR_S x ".glade")
 
-#define C2_APPLICATION(obj)					(GTK_CHECK_CAST (obj, c2_application_get_type (), C2Application))
-#define C2_APPLICATION_CLASS(klass)			(GTK_CHECK_CLASS_CAST (klass, c2_application_get_type (), C2ApplicationClass))
+#ifdef USE_DEBUG
+#	define C2_APPLICATION(obj)				(GTK_CHECK_CAST (obj, c2_application_get_type (), C2Application))
+#	define C2_APPLICATION_CLASS(klass)		(GTK_CHECK_CLASS_CAST (klass, c2_application_get_type (), C2ApplicationClass))
+#else
+#	define C2_APPLICATION(obj)				((C2Application*)obj)
+#	define C2_APPLICATION_CLASS(klass)		((C2ApplicationClass*)klass)
+#endif
+
 #define C2_IS_APPLICATION(obj)				(GTK_CHECK_TYPE (obj, c2_application_get_type ()))
 #define C2_APPLICATION_CLASS_FW(obj)		(C2_APPLICATION_CLASS (((GtkObject*)(obj))->klass))
 
@@ -50,71 +56,22 @@ extern "C" {
 #define C2_MAILBOX_N_TRASH					N_("Trash")
 #define C2_MAILBOX_N_DRAFTS					N_("Drafts")
 
-#define DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_RED	"0"
-#define DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_GREEN	"0"
-#define DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_BLUE	"65535"
-#define DEFAULT_COLORS_MESSAGE_BG_RED		"65535"
-#define DEFAULT_COLORS_MESSAGE_BG_GREEN		"65535"
-#define DEFAULT_COLORS_MESSAGE_BG_BLUE		"65535"
-#define DEFAULT_COLORS_MESSAGE_FG_RED		"0"
-#define DEFAULT_COLORS_MESSAGE_FG_GREEN		"0"
-#define DEFAULT_COLORS_MESSAGE_FG_BLUE		"0"
-#define DEFAULT_COLORS_MESSAGE_SOURCE		"0"
+#define C2_UNIX_SOCKET						"server"
+
+#define C2_REMOTE_COMMAND_WINDOW_MAIN_NEW	"window main::new"
+#define C2_REMOTE_COMMAND_WINDOW_MAIN_RAISE	"window main::raise"
+#define C2_REMOTE_COMMAND_COMPOSER_NEW		"composer::new"
+#define C2_REMOTE_COMMAND_CHECK_MAIL		"check mail"
+#define C2_REMOTE_COMMAND_EXIT				"exit"
 
 typedef struct _C2Application C2Application;
 typedef struct _C2ApplicationClass C2ApplicationClass;
-typedef struct _C2ApplicationReportType C2ApplicationReportType;
 
 #ifdef BUILDING_C2
 #	include "widget-window.h"
 #else
 #	include <cronosII.h>
 #endif
-
-typedef enum
-{
-	C2_DEFAULT_MIME_PLAIN,
-	C2_DEFAULT_MIME_HTML
-} C2DefaultMimeType;
-
-typedef enum
-{
-	C2_SHOWABLE_HEADER_FIELD_TO		= 1 << 1,
-	C2_SHOWABLE_HEADER_FIELD_DATE		= 1 << 2,
-	C2_SHOWABLE_HEADER_FIELD_FROM		= 1 << 3,
-	C2_SHOWABLE_HEADER_FIELD_SUBJECT	= 1 << 4,
-	C2_SHOWABLE_HEADER_FIELD_ACCOUNT	= 1 << 5,
-	C2_SHOWABLE_HEADER_FIELD_CC		= 1 << 6,
-	C2_SHOWABLE_HEADER_FIELD_BCC		= 1 << 7,
-	C2_SHOWABLE_HEADER_FIELD_PRIORITY	= 1 << 8
-} C2ShowableHeaderField;
-
-enum
-{
-	C2_SHOWABLE_HEADERS_PREVIEW,
-	C2_SHOWABLE_HEADERS_MESSAGE,
-	C2_SHOWABLE_HEADERS_COMPOSE,
-	C2_SHOWABLE_HEADERS_SAVE,
-	C2_SHOWABLE_HEADERS_PRINT,
-	C2_SHOWABLE_HEADERS_LAST
-};
-
-enum _C2ApplicationReportType
-{
-	C2_APPLICATION_REPORT_MESSAGE,
-	C2_APPLICATION_REPORT_WARNING,
-	C2_APPLICATION_REPORT_ERROR,
-	C2_APPLICATION_REPORT_CRITICAL	/* Will finish the application */
-};
-
-typedef struct
-{
-	gchar *font;
-	gboolean use_my_fonts;
-	
-	GdkColor bg_color;
-	GdkColor fg_color;
-} C2HTMLOptions;
 
 struct _C2Application
 {
@@ -125,12 +82,27 @@ struct _C2Application
 	GSList *open_windows;
 	GSList *tmp_files;
 
-	GdkBitmap *mask_unread, *mask_read, *mask_reply, *mask_forward;
-	GdkPixmap *pixmap_unread, *pixmap_read, *pixmap_reply, *pixmap_forward;
+	GdkBitmap *mask_i_unread, *mask_i_read, *mask_i_reply, *mask_i_forward,
+			  *mask_unread, *mask_read, *mask_reply, *mask_forward;
+	GdkPixmap *pixmap_i_unread, *pixmap_i_read, *pixmap_i_reply, *pixmap_i_forward,
+			  *pixmap_unread, *pixmap_read, *pixmap_reply, *pixmap_forward;
 	GdkCursor *cursor_busy;
 	GdkCursor *cursor_normal;
 
 	gchar *name;
+
+	gint server_socket;
+	/* The difference between the following two booleans is that
+	 * acting_as_server is %TRUE when this application is being
+	 * the server (owner of ~/.c2/server), but that the once the
+	 * last window is closed it will be shutdown.
+	 * The running_as_server is %TRUE when the porpose of its
+	 * existence is to be a server. When running_as_server is %TRUE
+	 * the application won't exit until the remote command Exit
+	 * is called.
+	 */
+	gint acting_as_server : 1;
+	gint running_as_server : 1;
 
 	C2Mailbox *mailbox;
 
@@ -152,6 +124,22 @@ struct _C2ApplicationClass
 	void (*reload_mailboxes) (C2Application *application);
 	void (*window_changed) (C2Application *application, GSList *list);
 
+	/* Pre-packed functions */
+	/* "open_message", "reply", "reply_all", "forward":
+	 *      If you know the @db arg, use it and set @message to %NULL,
+	 *      if you don't set the @db arg to %NULL and use the @message arg.
+	 */
+	void (*check) (C2Application *application);
+	void (*copy) (C2Application *application, GList *list, C2Window *window);
+	void (*delete) (C2Application *application, GList *list, C2Window *window);
+	void (*expunge) (C2Application *application, GList *list, C2Window *window);
+	void (*forward) (C2Application *application, C2Db *db, C2Message *message);
+	void (*move) (C2Application *application, GList *list, C2Window *window);
+	void (*open_message) (C2Application *application, C2Db *db, C2Message *message);
+	void (*print) (C2Application *application, C2Message *message);
+	void (*reply) (C2Application *application, C2Db *db, C2Message *message);
+	void (*reply_all) (C2Application *application, C2Db *db, C2Message *message);
+	void (*save) (C2Application *application, C2Message *message, C2Window *window);
 	void (*send) (C2Application *application);
 };
 
@@ -160,6 +148,9 @@ c2_application_get_type						(void);
 
 C2Application *
 c2_application_new							(const gchar *name);
+
+void
+c2_application_running_as_server			(C2Application *application);
 
 /********************
  * [Window Actions] *

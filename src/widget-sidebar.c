@@ -265,7 +265,7 @@ c2_sidebar_set_contents (C2Sidebar *sidebar, C2SidebarSection *list)
 static gint
 timeout (C2Pthread4 *data)
 {
-	GtkWidget *hide, *show;
+	GtkWidget *hide = NULL, *show = NULL;
 	gint hside = -1, sside = -1;
 	gint numcntl = 0;
 	gint retcntl = 0;

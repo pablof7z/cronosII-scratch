@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +15,12 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández López
+ * Code of this file by:
+ * 		* Pablo Fernández López
+ **/
 #ifndef __CRONOSII_WIDGET_INDEX_H__
 #define __CRONOSII_WIDGET_INDEX_H__
 
@@ -57,6 +63,10 @@ struct _C2Index
 	C2Application *application;
 	C2IndexMode mode;
 
+	GtkWidget *menu;
+
+	gint signal_id_for_marking_unread;
+
 	C2Mailbox *mailbox;
 };
 
@@ -70,7 +80,7 @@ struct _C2IndexClass
 
 	/* Not functions */
 	void (*reload) (C2Index *index);
-	void (*sort) (C2Index *index);
+	void (*sort) (C2Index *index, C2MailboxSortBy sort_by, GtkSortType sort_type);
 };
 
 /* Widget crap */
@@ -85,19 +95,13 @@ c2_index_construct							(C2Index *index, C2Application *application, C2IndexMod
 
 /* Content handling */
 void
-c2_index_add_mailbox						(C2Index *index, C2Mailbox *mailbox);
+c2_index_set_mailbox						(C2Index *index, C2Mailbox *mailbox);
 
 void
-c2_index_remove_mailbox						(C2Index *index);
+c2_index_add_mail							(C2Index *index, C2Db *db_node);
 
 void
-c2_index_add_message						(C2Index *index, C2Db *db, const gchar *date_fmt);
-
-void
-c2_index_remove_message						(C2Index *index, C2Db *db);
-
-void
-c2_index_update_message						(C2Index *index, C2Db *db);
+c2_index_clear								(C2Index *index);
 
 void
 c2_index_select_message						(C2Index *index, C2Db *db);
@@ -108,10 +112,18 @@ c2_index_select_next_message				(C2Index *index);
 void
 c2_index_select_previous_message			(C2Index *index);
 
+/* Content Querying */
+C2Db *
+c2_index_selection_main						(C2Index *index);
+
+GList *
+c2_index_selection							(C2Index *index);
+
 /* Sorting */
 void
-c2_index_sort								(C2Index *index);
+c2_index_sort								(C2Index *index, C2MailboxSortBy sort_by, GtkSortType sort_type);
 
+/* Misc */
 void
 c2_index_install_hints						(C2Index *index, GtkWidget *appbar, C2Mutex *lock);
 
