@@ -662,7 +662,6 @@ on_apply_btn_clicked (void)
 		for (;;i++)
 		{
 			buf = g_strdup_printf ("/cronosII/Account %d/", i);
-			C2_DEBUG (buf);
 			gnome_config_push_prefix (buf);
 			if (!gnome_config_get_string ("name"))
 			{

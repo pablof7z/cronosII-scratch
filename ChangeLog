@@ -1,3 +1,18 @@
+2001-06-19 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Message Transfer Widget: And even more work. We are ready to
+			start coding the fetching of mails, probably tomorrow.
+	* Account module: Changes in order to define the path to develop
+			the first protocol in Cronos II Scratch: POP3.
+	* POP3 module: Changes in order to use the useful Net-Object
+			(thanks me! it's great! :) ), everything is set to start
+			developing c2_pop3_fetchmail function, but I leave it for
+			tomorrow, is 2 AM and I have school tomorrow morning. :(
+
+2001-06-18 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Message Transfer Widget: More work.
+
 2001-06-17 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
 	* Message Transfer Widget: Init.

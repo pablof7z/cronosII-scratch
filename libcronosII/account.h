@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/account.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -96,9 +96,6 @@ struct _C2Account
 struct _C2AccountClass
 {
 	GtkObjectClass parent_class;
-
-	void (*update_check) (C2Account *account, gint total_messages, gint current_message,
-							glong total_bytes, glong current_byte);
 };
 
 GtkType
@@ -129,8 +126,8 @@ c2_account_append									(C2Account *head, C2Account *obj);
 C2Account *
 c2_account_last										(C2Account *head);
 
-void
-c2_account_check									(void);
+gint
+c2_account_check									(const C2Account *account);
 
 #ifdef __cplusplus
 }

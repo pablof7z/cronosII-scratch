@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/account.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,75 +25,87 @@
 #include "utils.h"
 
 static void
-c2_account_class_init							(C2AccountClass *klass);
+class_init										(C2AccountClass *klass);
 
 static void
-c2_account_init									(C2Account *account);
+init											(C2Account *account);
 
 static void
-c2_account_destroy								(GtkObject *object);
+destroy											(GtkObject *object);
 
 enum
 {
-	UPDATE_CHECK,
 	LAST_SIGNAL
 };
 
-static guint c2_account_signals[LAST_SIGNAL] = { 0 };
+static guint signals[LAST_SIGNAL] = { 0 };
 
 static GtkObjectClass *parent_class = NULL;
+
+/**
+ * c2_account_check
+ * @account: The C2Account object to work on.
+ *
+ * This function will start the checking
+ * of an account.
+ *
+ * Return Value:
+ * 0 on success, -1 on error.
+ **/
+gint
+c2_account_check (const C2Account *account)
+{
+	gpointer obj;
+	typedef gint (*FetchmailFunction) (gpointer);
+	FetchmailFunction fetchmail;
+	
+	switch (account->type)
+	{
+		case C2_ACCOUNT_POP3:
+			obj = GTK_OBJECT (account->protocol.pop3);
+			fetchmail = (FetchmailFunction) c2_pop3_fetchmail;
+			break;
+	}
+
+	return fetchmail (obj);
+}
 
 GtkType
 c2_account_get_type (void)
 {
-	static GtkType c2_account_type = 0;
+	static GtkType type = 0;
 
-	if (!c2_account_type)
+	if (!type)
 	{
-		static const GtkTypeInfo c2_account_info = {
+		static const GtkTypeInfo info = {
 			"C2Account",
 			sizeof (C2Account),
 			sizeof (C2AccountClass),
-			(GtkClassInitFunc) c2_account_class_init,
-			(GtkObjectInitFunc) c2_account_init,
+			(GtkClassInitFunc) class_init,
+			(GtkObjectInitFunc) init,
 			/* reserved_1 */ NULL,
 			/* reserved_2 */ NULL,
 			(GtkClassInitFunc) NULL
 		};
 
-		c2_account_type = gtk_type_unique (gtk_object_get_type (), &c2_account_info);
-
+		type = gtk_type_unique (gtk_object_get_type (), &info);
 	}
 
-	return c2_account_type;
+	return type;
 }
 
 static void
-c2_account_class_init (C2AccountClass *klass)
+class_init (C2AccountClass *klass)
 {
 	GtkObjectClass *object_class;
-
 	object_class = (GtkObjectClass *) klass;
-
 	parent_class = gtk_type_class (gtk_object_get_type ());
-
-	c2_account_signals[UPDATE_CHECK] =
-		gtk_signal_new ("update_check",
-					GTK_RUN_FIRST,
-					object_class->type,
-					GTK_SIGNAL_OFFSET (C2AccountClass, update_check),
-					gtk_marshal_NONE__INT, GTK_TYPE_NONE, 4,
-					GTK_TYPE_INT, GTK_TYPE_INT, GTK_TYPE_LONG, GTK_TYPE_LONG);
-
-	gtk_object_class_add_signals (object_class, c2_account_signals, LAST_SIGNAL);
-
-	object_class->destroy = c2_account_destroy;
-
-	klass->update_check = NULL;
+	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
+	object_class->destroy = destroy;
 }
 
 static void
-c2_account_init (C2Account *account)
+init (C2Account *account)
 {
 	account->name = NULL;
 	account->per_name = NULL;
@@ -174,7 +186,7 @@ c2_account_new (const gchar *name, const gchar *per_name, const gchar *organizat
 }
 
 static void
-c2_account_destroy (GtkObject *object)
+destroy (GtkObject *object)
 {
 	C2Account *account = C2_ACCOUNT (object);
 	g_free (account->name);
@@ -183,7 +195,7 @@ c2_account_destroy (GtkObject *object)
 	g_free (account->email);
 	g_free (account->reply_to);
 	if (account->type == C2_ACCOUNT_POP3)
-		c2_pop3_free (account->protocol.pop3);
+		gtk_object_destroy (GTK_OBJECT (account->protocol.pop3));
 	c2_smtp_free (account->smtp);
 	g_free (account->signature.string);
 	g_free (account);

@@ -50,7 +50,7 @@ static void
 reset											(C2MessageTransfer *mt);
 
 static gint
-check											(C2Pthread2 *data);
+check											(C2Pthread3 *data);
 
 static void
 clist_select_row								(GtkCList *clist, gint row, gint column,
@@ -195,7 +195,7 @@ run (C2MessageTransfer *mt)
 	gboolean success = TRUE;
 	gint row;
 	const gchar *line[] = { NULL, NULL, NULL };
-	C2Pthread2 *data;
+	C2Pthread3 *data;
 	pthread_t thread;
 
 	/* We need to block here because we don't want
@@ -225,7 +225,7 @@ run (C2MessageTransfer *mt)
 	gtk_clist_thaw (clist);
 	gdk_threads_leave ();
 
-	for (s = mt->queue, row = 0; s; s = s->next)
+	for (s = mt->queue, row = 0; s; s = s->next, row++)
 	{
 		if (s->action == C2_MESSAGE_TRANSFER_CHECK)
 		{
@@ -234,9 +234,10 @@ run (C2MessageTransfer *mt)
 			 * o C2MessageTransfer,
 			 * o C2MessageTransferQueue (or row)
 			 */
-			data = g_new0 (C2Pthread2, 1);
+			data = g_new0 (C2Pthread3, 1);
 			data->v1 = (gpointer) mt;
 			data->v2 = (gpointer) s;
+			data->v3 = (gpointer) row;
 			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (check), data);
 			
 			if (c2_app.options_mt_mode == C2_MESSAGE_TRANSFER_MONOTHREAD)
@@ -291,13 +292,13 @@ reset (C2MessageTransfer *mt)
 }
 
 static gint
-check (C2Pthread2 *data)
+check (C2Pthread3 *data)
 {
 	C2MessageTransfer *mt = data->v1;
 	C2MessageTransferQueue *queue = data->v2;
+	gint row = GPOINTER_TO_INT (data->v3);
 
-	sleep (5);
-	printf ("Checking %d\n", (gint) queue);
+	c2_account_check (queue->account);
 }
 
 static void

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/pop3.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,27 @@
 #include "pop3.h"
 
 #define DEFAULT_FLAGS C2_POP3_DONT_KEEP_COPY | C2_POP3_DONT_LOSE_PASSWORD
+
+static void
+class_init										(C2Pop3Class *klass);
+
+static void
+init											(C2Pop3 *pop3);
+
+static void
+destroy											(GtkObject *object);
+
+enum
+{
+	STATUS,
+	RETRIEVE,
+	LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL] = { 0 };
+
+static C2NetObject *parent_class = NULL;
+
 /**
  * c2_pop3_new
  * @user: Username.
@@ -43,15 +64,12 @@ c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port)
 	
 	c2_return_val_if_fail (user || host, NULL, C2EDATA);
 	
-	pop3 = g_new0 (C2Pop3, 1);
+	pop3 = gtk_type_new (C2_TYPE_POP3);
 
 	pop3->user = g_strdup (user);
 	pop3->pass = g_strdup (pass);
 	pop3->host = g_strdup (host);
 	pop3->port = port;
-	pop3->flags = DEFAULT_FLAGS;
-	pop3->wrong_pass_cb = NULL;
-	pop3->sock = -1;
 
 	return pop3;
 }
@@ -93,15 +111,90 @@ c2_pop3_set_wrong_pass_cb (C2Pop3 *pop3, C2Pop3GetPass func)
 }
 
 /**
- * c2_pop3_free
- * @pop3: C2Pop3 object.
+ * c2_pop3_fetchmail
+ * @pop3: Loaded C2Pop3 object.
  *
- * This functions frees the C2Pop3 object.
+ * This function will download
+ * messages from 
  **/
-void
-c2_pop3_free (C2Pop3 *pop3)
+gint
+c2_pop3_fetchmail (C2Pop3 *pop3)
 {
-	c2_return_if_fail (pop3, C2EDATA);
+	c2_return_val_if_fail (pop3, -1, C2EDATA);
+
+	printf ("Ok, I'm supposed to connect to %s:%d, with user %s and password %s"
+			" and get all mails!\n", pop3->host, pop3->port, pop3->user, pop3->pass);
+}
+
+GtkType
+c2_pop3_get_type (void)
+{
+	static GtkType type = 0;
+
+	if (!type)
+	{
+		static const GtkTypeInfo info = {
+			"C2Pop3",
+			sizeof (C2Pop3),
+			sizeof (C2Pop3Class),
+			(GtkClassInitFunc) class_init,
+			(GtkObjectInitFunc) init,
+			/* reserved_1 */ NULL,
+			/* reserved_2 */ NULL,
+			(GtkClassInitFunc) NULL
+		};
+
+		type = gtk_type_unique (c2_net_object_get_type (), &info);
+	}
+
+	return type;
+}
+
+static void
+class_init (C2Pop3Class *klass)
+{
+	GtkObjectClass *object_class;
+	
+	object_class = (GtkObjectClass *) klass;
+	
+	parent_class = gtk_type_class (c2_net_object_get_type ());
+
+	signals[STATUS] =
+		gtk_signal_new ("status",
+					GTK_RUN_FIRST,
+					object_class->type,
+					GTK_SIGNAL_OFFSET (C2Pop3Class, status),
+					gtk_marshal_NONE__INT, GTK_TYPE_NONE, 1,
+					GTK_TYPE_INT);
+
+	signals[RETRIEVE] =
+		gtk_signal_new ("retrieve",
+					GTK_RUN_FIRST,
+					object_class->type,
+					GTK_SIGNAL_OFFSET (C2Pop3Class, retrieve),
+					gtk_marshal_NONE__INT, GTK_TYPE_NONE, 3,
+					GTK_TYPE_INT, GTK_TYPE_INT, GTK_TYPE_INT);
+	
+	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
+	
+	object_class->destroy = destroy;
+}
+
+static void
+init (C2Pop3 *pop3)
+{
+	pop3->user = pop3->pass = pop3->host = NULL;
+	pop3->port = 0;
+	pop3->flags = DEFAULT_FLAGS;
+	pop3->wrong_pass_cb = NULL;
+	pop3->sock = 0;
+	pthread_mutex_init (&pop3->run_lock, NULL);
+}
+
+static void
+destroy (GtkObject *object)
+{
+	C2Pop3 *pop3 = C2_POP3 (object);
 
 	if (pop3->sock > 0)
 #ifdef USE_DEBUG
@@ -116,18 +209,5 @@ c2_pop3_free (C2Pop3 *pop3)
 	g_free (pop3->user);
 	g_free (pop3->pass);
 	g_free (pop3->host);
-	g_free (pop3);
-}
-
-/**
- * c2_pop3_fetchmail
- * @pop3: Loaded C2Pop3 object.
- *
- * This function will download
- * messages from 
- **/
-gint
-c2_pop3_fetchmail (C2Pop3 *pop3)
-{
-	c2_return_val_if_fail (pop3, -1, C2EDATA);
+	pthread_mutex_destroy (&pop3->run_lock);
 }

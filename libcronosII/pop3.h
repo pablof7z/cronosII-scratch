@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/pop3.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,8 +23,29 @@ extern "C" {
 #endif
 
 #include <glib.h>
+#include <pthread.h>
 
-enum
+#ifdef BUILDING_C2
+#	include "net-object.h"
+#else
+#	include <cronosII.h>
+#endif
+
+#define C2_TYPE_POP3							(c2_pop3_get_type ())
+#define C2_POP3(obj)							(GTK_CHECK_CAST (obj, C2_TYPE_POP3, C2Pop3))
+#define C2_POP3_CLASS(klass)					(GTK_CHECK_CLASS (klass, C2_TYPE_POP3, C2Pop3))
+#define C2_IS_POP3(obj)							(GTK_CHECK_TYPE (obj, C2_TYPE_POP3))
+#define C2_IS_POP3_CLASS(klass)					(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_POP3))
+
+#define C2_POP3_GET_PASS_FUNC(x)				((C2Pop3GetPass)x)
+
+typedef struct _C2Pop3 C2Pop3;
+typedef struct _C2Pop3Class C2Pop3Class;
+typedef enum _C2Pop3Flags C2Pop3Flags;
+
+typedef gchar* (*C2Pop3GetPass) 				(C2Pop3 *pop3, const gchar *error);
+
+enum _C2Pop3Flags
 {
 	C2_POP3_DO_KEEP_COPY			= 1 << 0,	/* Will get a mail and leave a copy on server */
 	C2_POP3_DONT_KEEP_COPY			= 1 << 1,	/* Will get a mail and delete it on server */
@@ -32,14 +53,10 @@ enum
 	C2_POP3_DONT_LOSE_PASSWORD		= 1 << 3	/* Will keep the password unless its wrong */
 };
 
-typedef struct _C2Pop3 C2Pop3;
-
-typedef gchar *(*C2Pop3GetPass) 				(C2Pop3 *pop3, const gchar *error);
-
-#define C2_POP3_GET_PASS_FUNC(x)				((C2Pop3GetPass)x)
-
 struct _C2Pop3
 {
+	C2NetObject object;
+	
 	gchar *user;
 	gchar *pass;
 	gchar *host;
@@ -50,22 +67,33 @@ struct _C2Pop3
 	C2Pop3GetPass wrong_pass_cb;
 
 	guint sock;
+
+	pthread_mutex_t run_lock;
 };
 
+struct _C2Pop3Class
+{
+	C2NetObjectClass parent_class;
+
+	void (*status) (C2Pop3 *pop3, gint mails);
+	void (*retrieve) (C2Pop3 *pop3, gint16 nth, gint32 received, gint32 total);
+};
+
+GtkType
+c2_pop3_get_type								(void);
+
 C2Pop3 *
-c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port);
+c2_pop3_new										(const gchar *user, const gchar *pass,
+												 const gchar *host, gint port);
 
 void
-c2_pop3_set_flags (C2Pop3 *pop3, gint flags);
+c2_pop3_set_flags								(C2Pop3 *pop3, gint flags);
 
 void
-c2_pop3_set_wrong_pass_cb (C2Pop3 *pop3, C2Pop3GetPass func);
-
-void
-c2_pop3_free (C2Pop3 *pop3);
+c2_pop3_set_wrong_pass_cb						(C2Pop3 *pop3, C2Pop3GetPass func);
 
 gint
-c2_pop3_fetchmail (C2Pop3 *pop3);
+c2_pop3_fetchmail								(C2Pop3 *pop3);
 
 #ifdef __cplusplus
 }
