@@ -60,6 +60,10 @@ main (gint argc, gchar **argv)
 
 	printf ("Test table is %d length\n", g_hash_table_size (c2_hash_get_module_table (module)));
 
+	printf ("\n\n--------------------\n"
+			"Creating a Dynamic Key: %d\n", c2_hash_new_key (module));
+	printf ("Creating a Dynamic Key: %d\n", c2_hash_new_key (module));
+
 	return 0;
 }
 

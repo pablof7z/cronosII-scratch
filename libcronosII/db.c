@@ -27,6 +27,8 @@
 #include "utils.h"
 #include "utils-date.h"
 
+#define FIRST_MID			1
+
 static void
 c2_db_init										(C2Db *db);
 
@@ -248,6 +250,7 @@ c2_db_message_load (C2Db *db)
 {
 	c2_return_if_fail (db, C2EDATA);
 
+	printf ("%s: %d\n", __PRETTY_FUNCTION__, db->mid);
 	db->message = *c2_db_message_get (db->mailbox->db, db->position);
 	C2_MESSAGE (db)->mime = c2_mime_new (C2_MESSAGE (db));
 }
@@ -260,9 +263,8 @@ c2_db_message_get (C2Db *db, gint row)
 	gint mid, i;
 	
 	/* Get the mid of the message */
-	printf ("%d\n", row);
-	for (l = db, i = 1; i < row && l != NULL; i++, l = l->next)
-		L
+	for (l = db, i = 0; i < row && l != NULL; i++, l = l->next)
+		;
 	c2_return_val_if_fail (l, NULL, C2EDATA);
 
 	if (C2_MESSAGE (l)->header)

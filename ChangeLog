@@ -1,3 +1,8 @@
+2001-08-12 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* HTML Widget: GtkHTML support is partial working: first HTML message
+					succesfully displayed.
+	* MIME: Lot of work to get it to do its jobs.
+
 2001-08-07 Jason Copenhaver <jcopenha@users.sourceforge.net>
 	* C2_POP3_DO_USE_APOP flag in the _C2Pop3Flags struct now enables APOP support =)
 

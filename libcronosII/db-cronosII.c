@@ -88,6 +88,7 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 		buf = c2_str_get_word (7, line, '\r');
 		next->mid = atoi (buf);
 		g_free (buf);
+		printf ("Appending MID %d\n", next->mid);
 
 		next->next = NULL;
 		next->previous = current;
@@ -115,6 +116,8 @@ c2_db_cronosII_message_get (C2Db *db, gint mid)
 	struct stat stat_buf;
 	FILE *fd;
 	gint length;
+
+	printf ("Requesting mid %d\n", mid);
 
 	message = c2_message_new ();
 

@@ -52,6 +52,7 @@ extern "C" {
 typedef struct _C2Html C2Html;
 typedef struct _C2HtmlClass C2HtmlClass;
 typedef enum _C2HtmlProxyType C2HtmlProxyType;
+typedef void (*C2HtmlLinkManager)			(C2Html *html, const gchar *url, GtkHTMLStream *stream);
 
 enum _C2HtmlProxyType
 {
@@ -70,6 +71,8 @@ struct _C2Html
 	GtkText parent;
 #endif
 	pthread_mutex_t lock;
+
+	GData *link_manager_data;
 
 	GdkColor *fore;
 	GdkFont *font;
@@ -97,10 +100,13 @@ struct _C2HtmlClass
 };
 
 GtkType
-c2_html_get_type								(void);
+c2_html_get_type							(void);
 
 GtkWidget *
-c2_html_new										(void);
+c2_html_new									(void);
+
+void
+c2_html_set_link_manager					(C2Html *html, const gchar *prefix, C2HtmlLinkManager lm);
 
 void
 c2_html_freeze									(C2Html *html);

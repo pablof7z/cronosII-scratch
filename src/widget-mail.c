@@ -36,6 +36,9 @@ c2_mail_class_init							(C2MailClass *klass);
 static void
 c2_mail_init								(C2Mail *mail);
 
+void
+html_link_manager_cid						(C2Html *html, const gchar *url, GtkHTMLStream *stream);
+
 enum
 {
 	LAST_SIGNAL
@@ -65,6 +68,7 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 			break;
 	}
 
+	gtk_object_set_data (GTK_OBJECT (mail->body), "message", message);
 	c2_html_set_content_from_string (C2_HTML (mail->body), mime->part);
 }
 
@@ -100,6 +104,9 @@ c2_mail_construct (C2Mail *mail)
 	mail->body = c2_html_new ();
 	gtk_container_add (GTK_CONTAINER (parent), mail->body);
 	gtk_widget_show (mail->body);
+#ifdef USE_GTKHTML
+	c2_html_set_link_manager (C2_HTML (mail->body), "cid", html_link_manager_cid);
+#endif
 }
 
 GtkWidget *
@@ -179,4 +186,29 @@ c2_mail_init (C2Mail *mail)
 	mail->showing_bcc		= 0;
 	mail->showing_subject	= 0;
 	mail->showing_priority	= 0;
+}
+
+void
+html_link_manager_cid (C2Html *html, const gchar *url, GtkHTMLStream *stream)
+{
+	C2Message *message = C2_MESSAGE (gtk_object_get_data (GTK_OBJECT (html), "message"));
+	C2Mime *mime;
+
+	if (!message)
+	{
+		g_print ("Internal error, unable to get message from Widget.\n");
+		return;
+	}
+
+	for (mime = message->mime; mime; mime = mime->next)
+		if (c2_streq (mime->id, url+4))
+			break;
+
+	if (!mime)
+	{
+		L
+		return;
+	}
+	
+	gtk_html_stream_write (stream, c2_mime_get_part (mime), mime->length);
 }

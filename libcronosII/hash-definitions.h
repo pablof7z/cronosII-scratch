@@ -33,6 +33,7 @@ extern "C" {
 #define C2_HASH_NULL	0	/* Null key */
 #define C2_HASH_TEST	1	/* Test key */
 #define C2_HASH_IMAP	2	/* DB IMAP module access key */
+#define C2_HASH_DKEY	3	/* Dynamic Key Creation key */
 
 #ifdef __cplusplus
 }

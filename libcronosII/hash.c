@@ -73,6 +73,46 @@ c2_hash_destroy (void)
 	destroy ();
 }
 
+/**
+ * c2_hash_new_key
+ * @module: The module where the key will exist.
+ *
+ * This function will create a dynamic key for use with
+ * the c2_hash_* family functions, which will be owned by
+ * the module @module.
+ *
+ * Return Value:
+ * The new dynamic key.
+ **/
+gint
+c2_hash_new_key (gint module)
+{
+	static gint modid = C2_HASH_DKEY;
+	gchar *strmod = g_strdup_printf ("%d", module);
+	gchar *value, *new_value;
+	gint new_key;
+
+	value = c2_hash_search_key (modid, strmod);	
+
+	if (value)
+	{
+		C2_DEBUG (value);
+		new_key = atoi (value)+1;
+		new_value = g_strdup_printf ("%d", new_key);
+	} else
+	{
+L		new_key = 1;
+		new_value = g_strdup ("1");
+	}
+
+	c2_hash_insert_key (modid, strmod, new_value);
+
+	g_free (value);
+	g_free (strmod);
+
+	return new_key;
+}
+
 void
 c2_hash_insert_key (gint module, const gchar *key, gpointer value)
 {

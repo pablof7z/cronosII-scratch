@@ -3280,4 +3280,9 @@ able to compose mails.</message>
   </widget>
 </widget>
 
+<widget>
+  <class>GtkMenu</class>
+  <name>html_menu</name>
+</widget>
+
 </GTK-Interface>

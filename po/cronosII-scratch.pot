@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-08-12 12:28-0300\n"
+"POT-Creation-Date: 2001-08-14 14:12-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -324,80 +324,80 @@ msgstr ""
 msgid "Internal error in CTree listing."
 msgstr ""
 
-#: src/main.c:36
+#: src/main.c:37
 msgid "compose"
 msgstr ""
 
-#: src/main.c:38
+#: src/main.c:39
 msgid "Compose a new email."
 msgstr ""
 
-#: src/main.c:41
+#: src/main.c:42
 msgid "account"
 msgstr ""
 
-#: src/main.c:43
+#: src/main.c:44
 msgid "Set the Account field."
 msgstr ""
 
-#: src/main.c:44 src/preferences-trans.h:41 src/trans.h:168
+#: src/main.c:45 src/preferences-trans.h:41 src/trans.h:168
 #: src/widget-index.c:242
 msgid "Account"
 msgstr ""
 
-#: src/main.c:47
+#: src/main.c:48
 msgid "to"
 msgstr ""
 
-#: src/main.c:49
+#: src/main.c:50
 msgid "Set the To field."
 msgstr ""
 
-#: src/main.c:50 src/main.c:56 src/main.c:62
+#: src/main.c:51 src/main.c:57 src/main.c:63
 msgid "Address"
 msgstr ""
 
-#: src/main.c:53
+#: src/main.c:54
 msgid "cc"
 msgstr ""
 
-#: src/main.c:55
+#: src/main.c:56
 msgid "Set the CC field."
 msgstr ""
 
-#: src/main.c:59
+#: src/main.c:60
 msgid "bcc"
 msgstr ""
 
-#: src/main.c:61
+#: src/main.c:62
 msgid "Set the BCC field."
 msgstr ""
 
-#: src/main.c:65
+#: src/main.c:66
 msgid "subject"
 msgstr ""
 
-#: src/main.c:67
+#: src/main.c:68
 msgid "Set the Subject field."
 msgstr ""
 
-#: src/main.c:68 src/widget-index.c:236
+#: src/main.c:69 src/widget-index.c:236
 msgid "Subject"
 msgstr ""
 
-#: src/main.c:71
+#: src/main.c:72
 msgid "body"
 msgstr ""
 
-#: src/main.c:73
+#: src/main.c:74
 msgid "Set the Body."
 msgstr ""
 
-#: src/main.c:74
+#: src/main.c:75
 msgid "Text"
 msgstr ""
 
-#: src/main.c:79
+#: src/main.c:80
 msgid "Compose a new email decoding the argument as a mailto: link"
 msgstr ""
 

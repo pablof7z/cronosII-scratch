@@ -93,7 +93,8 @@ c2_window_new (void)
 	{
 #ifdef USE_DEBUG
 		g_warning ("Unable to find Glade files, check that you 'make install' "
-			   "the directories /xml and /images in the source distribution.\n");
+			   "the directories /xml and /images in the source distribution.\n"
+			   "The file that failed to load was '%s'.\n", C2_APP_GLADE_FILE ("cronosII"));
 #else
 		g_print (_("Cronos II was not able to load the UI, you should check "
 			   "your installation.\nAborting.\n"));

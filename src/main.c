@@ -20,6 +20,7 @@
 
 #include <libcronosII/mailbox.h>
 #include <libcronosII/error.h>
+#include <libcronosII/hash.h>
 
 #include "c2-app.h"
 #include "c2-main-window.h"
@@ -82,6 +83,7 @@ c2_init (gint argc, gchar **argv)
 	};
 	gnome_init_with_popt_table ("Cronos II", VERSION, argc, argv, options, 0, NULL);
 	glade_gnome_init ();
+	c2_hash_init ();
 }
 
 gint
@@ -111,6 +113,7 @@ main (gint argc, gchar **argv)
 		gtk_main ();
 		gdk_threads_leave ();
 		gnome_config_sync ();
+		c2_hash_destroy ();
 	}
 
 	return 0;

@@ -34,6 +34,9 @@ c2_hash_init									(void);
 void
 c2_hash_destroy									(void);
 
+gint
+c2_hash_new_key									(gint module);
+
 void
 c2_hash_insert_key								(gint module, const gchar *key, gpointer value);
 
