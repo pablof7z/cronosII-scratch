@@ -348,23 +348,23 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 		g_slist_free (uidl_list);
 	}
 
-	quit (pop3);
+L	quit (pop3);
 	
 after_quit:
 	if (!retval)
 		c2_net_object_disconnect (C2_NET_OBJECT (pop3));
 	else
 		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
-	c2_net_object_destroy_byte (C2_NET_OBJECT (pop3));
-	
+L	c2_net_object_destroy_byte (C2_NET_OBJECT (pop3));
+L	
 	g_slist_free (download_list);
-	
+L	
 shutdown:
 
 	/* Unlock the mutex */
 	gtk_object_remove_data (GTK_OBJECT (pop3), "account");
 	c2_mutex_unlock (&pop3->run_lock);
-
+L
 	return retval;
 }
 
