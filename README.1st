@@ -10,23 +10,24 @@ instructions.
 ========================================================
 
 Many changes have been made since the last release (actually
-EVERYTHING changed, there's not even one line of code from
+EVERYTHING has changed, there's not even one line of code from
 the old versions (we are not Windows =) ).
 
 There's one little thing that I guess will be the most common
 building problem and the problem that we will receive more
-Support Request for, so I start answering and clearing things
-for everybody right now (I'll keep it short, I know you don't
-want to read me but use the software).
-The problem is the HTML support.
-HTML support is built-in in Cronos II. The problem is that
-there are many HTML widgets. There is one particulary that I
-like: GtkHTML. THe problem with this widget is that it requires
+Support Request for. So I'll start answering and clearing things
+up for everybody right now. (I'll keep it short, I know you don't
+want to read me but use the software)
+
+The problem is  HTML support.
+HTML support is built-in in Cronos II. The issue is that
+there are many HTML widgets. There is one particularly that I
+like: GtkHTML. The disadvantage with this widget is that it requires
 a LOT of packages and that, in slow computers, it doesn't work
 very nice either. Cronos II has become popular for depending
 on so little packages and on its fast speed. We don't want
 to lose this reputation, but we want to provide our users that
-don't mind about dependecies (both software and hardware)
+don't mind about dependencies (both software and hardware)
 with good things too.
 
 That's why we decided to support GtkHTML but not require it,
@@ -36,35 +37,29 @@ the good old GtkText widget (the one that we used to use
 in the previous versions of Cronos II).
 
 Since this version of Cronos II is still experimental there
-are probably some problems with this supports. The widget that
+are probably some problems with this support. The widget that
 has been more tested is GtkHTML. The second one is GtkText.
 You can use any of this widgets already. GtkXmHTML will
-defenitly don't work yet, we haven't work on it very hard.
+definitely not work yet, we haven't worked on it very hard.
 
 Now, HOW YOU CAN CHOOSE WHICH WIDGET TO USE?
 
-Well, Cronos II will automagically determin which widget should
-be use. If it finds GtkHTML it will use it. If it doesn't but
-it finds GtkXmHTML it will use it. If either the one nor the
-sencond is installed in your system it will use GtkText (which
+Well, Cronos II will auto-magically determine which widget should
+be used.
+ If it finds GtkHTML it will use it. If it doesn't but
+it finds GtkXmHTML it will use that. If neither one nor the
+other is installed in your system it will use GtkText (which
 comes in Gtk+).
 
 Now, as we said, GtkXmHTML isn't supported yet, so you should
 say to the ./configure script that you don't want it. The switch
 for this is --disable-gtkxmhtml
 
-There's other particullarity that you should keep in mind.
+There's other particularity that you should keep in mind.
 GtkHTML is a widget that can be used for HTML composing too,
-but this is not working yet (it is, but is missing many features
-yet).
+but this is not working yet (it is, but is missing many features).
 We encourage you NOT to use it, by giving ./configure the flag
 --disable-htmleditor
-
-
-
-
-
-
 
 
 To sum up. You should start building Cronos II by running:
