@@ -16,6 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <gnome.h>
+#include <time.h>
 
 #include <libmodules/db.h>
 #include <libmodules/error.h>
@@ -55,7 +56,7 @@ c2_main_window_list_mails (C2Mailbox *mbox)
 	if (!mbox->db)
 	{
 		/* Load the database */
-		if (!(mbox->db = c2_db_load (mbox->name)))
+		if (!(mbox->db = c2_db_load (mbox->name, C2_METHOD_CRONOSII)))
 		{
 			gchar *string;
 
@@ -74,11 +75,15 @@ c2_main_window_list_mails (C2Mailbox *mbox)
 	for (l = mbox->db->head; l != NULL; l = g_list_next (l))
 	{
 		C2DBNode *node = l->data;
+		struct tm *tm;
 		gchar *tmp = g_strdup_printf ("%d", node->mid);
 		gchar *info[] = {
-			NULL, NULL, NULL, node->headers[0], node->headers[1], node->headers[2],
-			node->headers[3], tmp
+			NULL, NULL, NULL, node->headers[0], node->headers[1], NULL,
+			node->headers[2], tmp
 		};
+		tm = node->date;
+		info[5] = g_new0 (gchar, 128);
+		strftime (info[5], 128, DATE_FORMAT, tm);
 		gtk_clist_append (GTK_CLIST (WMain.clist), info);
 		if (!style)
 			style = gtk_widget_get_style (WMain.clist);

@@ -21,9 +21,10 @@
 #include <libmodules/error.h>
 #include <libmodules/utils.h>
 
+#include "c2-app.h"
 #include "main-window.h"
 #include "c2-main-window.h"
-#include "c2-app.h"
+#include "widget-index.h"
 
 #include "xpm/read.xpm"
 #include "xpm/unread.xpm"
@@ -134,11 +135,11 @@ c2_window_new (void)
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll),
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 
-	/* CList */
-	WMain.clist = gtk_clist_new (8);
+	/* Index */
+	WMain.clist = c2_index_new ();
 	gtk_container_add (GTK_CONTAINER (scroll), WMain.clist);
 	gtk_widget_show (WMain.clist);
-	gtk_clist_set_row_height (GTK_CLIST (WMain.clist), 16);
+/*	gtk_clist_set_row_height (GTK_CLIST (WMain.clist), 16);
 	pixmap = gtk_pixmap_new (c2_app.pixmap_unread, c2_app.mask_unread);
 	gtk_clist_set_column_widget (GTK_CLIST (WMain.clist), 0, pixmap);
 	gtk_clist_set_column_title (GTK_CLIST (WMain.clist), 3, _("Subject"));
@@ -157,7 +158,7 @@ c2_window_new (void)
 	gtk_clist_set_column_visibility (GTK_CLIST (WMain.clist), 1, FALSE);
 	gtk_clist_set_column_visibility (GTK_CLIST (WMain.clist), 2, FALSE);
 	gtk_clist_column_titles_show (GTK_CLIST (WMain.clist));
-	gtk_clist_set_selection_mode (GTK_CLIST (WMain.clist), GTK_SELECTION_EXTENDED);
+	gtk_clist_set_selection_mode (GTK_CLIST (WMain.clist), GTK_SELECTION_EXTENDED);*/
 
 	/* Vbox */
 	vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
@@ -279,6 +280,37 @@ c2_window_new (void)
 }
 
 static void
+pthread_ctree_tree_select_row (C2Mailbox *mbox)
+{
+	c2_return_if_fail (mbox, C2EDATA);
+	if (pthread_mutex_trylock (&WMain.clist_lock))
+		return;
+
+	if (!mbox->db)
+	{
+		/* Load the database */
+		if (!(mbox->db = c2_db_load (mbox->name, C2_METHOD_CRONOSII)))
+		{
+			gchar *string;
+
+			string = g_strdup_printf (_("Couldn't load db: %s"), c2_error_get (c2_errno));
+			gdk_threads_enter ();
+			c2_app_report (string, C2_REPORT_ERROR);
+			gdk_threads_leave ();
+			g_free (string);
+			return;
+		}
+	}
+	
+	gdk_threads_enter ();
+	c2_index_add_mailbox (C2_INDEX (WMain.clist), mbox);
+	gtk_widget_queue_draw (WMain.clist);
+	gdk_threads_leave ();
+
+	pthread_mutex_unlock (&WMain.clist_lock);
+}
+
+static void
 on_ctree_tree_select_row (GtkCTree *ctree, GtkCTreeNode *row, gint column)
 {
 	C2Mailbox *mbox;
@@ -288,7 +320,7 @@ on_ctree_tree_select_row (GtkCTree *ctree, GtkCTreeNode *row, gint column)
 	if (!mbox)
 		c2_app_report (_("Internal error in CTree listing."), C2_REPORT_ERROR);
 	else
-		pthread_create (&thread, NULL, PTHREAD_FUNC (c2_main_window_list_mails), mbox);
+		pthread_create (&thread, NULL, PTHREAD_FUNC (pthread_ctree_tree_select_row), mbox);
 }
 
 static void

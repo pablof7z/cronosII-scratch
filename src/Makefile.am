@@ -11,7 +11,8 @@ cronos_SOURCES = \
 	c2-main-window.c			c2-main-window.h			\
 	install-wizard.c										\
 	main-window.c				main-window.h				\
-	main.c										
+	main.c													\
+	widget-index.c				widget-index.h				
 	
 
 cronos_LDADD = \

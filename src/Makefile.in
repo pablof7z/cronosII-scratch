@@ -115,7 +115,7 @@ INCLUDES = -I$(top_srcdir) -I$(includedir) 	`gnome-config --cflags gnome` 	 -DG_
 
 bin_PROGRAMS = cronos
 
-cronos_SOURCES =  	c2-app.c					c2-app.h						c2-main-window.c			c2-main-window.h				install-wizard.c											main-window.c				main-window.h					main.c										
+cronos_SOURCES =  	c2-app.c					c2-app.h						c2-main-window.c			c2-main-window.h				install-wizard.c											main-window.c				main-window.h					main.c														widget-index.c				widget-index.h				
 
 
 cronos_LDADD =  	$(top_builddir)/libmodules/libmodules.a 	$(LIBS) $(INTLLIBS)
@@ -131,7 +131,7 @@ PROGRAMS =  $(bin_PROGRAMS)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 cronos_OBJECTS =  c2-app.o c2-main-window.o install-wizard.o \
-main-window.o main.o
+main-window.o main.o widget-index.o
 cronos_DEPENDENCIES =  $(top_builddir)/libmodules/libmodules.a
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -145,7 +145,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = gtar
 GZIP_ENV = --best
 DEP_FILES =  .deps/c2-app.P .deps/c2-main-window.P \
-.deps/install-wizard.P .deps/main-window.P .deps/main.P
+.deps/install-wizard.P .deps/main-window.P .deps/main.P \
+.deps/widget-index.P
 SOURCES = $(cronos_SOURCES)
 OBJECTS = $(cronos_OBJECTS)
 

@@ -1,3 +1,9 @@
+º Thu Apr 24 2001 Pablo Fernández Navarro <cronosII@users.sourceforge.net> º
+- Coded the c2_date_parse_fmt2 function.
+
+º Mon Apr 23 2001 Pablo Fernández Navarro <cronosII@users.sourceforge.net> º
+- Coded the c2_date_parse function.
+
 <RELEASE>0.2.2</RELEASE>
 º Sun Apr 15 2001 Pablo Fernández Navarro <cronosII@users.sourceforge.net> º
 - Spanish translation.

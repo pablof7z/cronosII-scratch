@@ -21,12 +21,15 @@
 
 #include <libmodules/utils.h>
 #include <libmodules/error.h>
+#include <libmodules/db.h>
+#include <libmodules/date-utils.h>
 
 #include "c2-app.h"
 
 #include "xpm/mini_about.xpm"
 #include "xpm/mini_error.xpm"
 
+#if TRUE
 #define REPORT(x) { \
 	gchar *n[] = { "", x, NULL }; \
 	gtk_clist_freeze (GTK_CLIST (clist)); \
@@ -48,6 +51,11 @@
 	gtk_clist_set_text (GTK_CLIST (clist), GTK_CLIST (clist)->rows-1, 1, n); \
 	RESULT (status); \
 }
+#else
+#define REPORT(x)
+#define RESULT(status)
+#define REPORT_RESULT(x, status)
+#endif
 
 static void
 on_close (void);
@@ -118,6 +126,94 @@ detect_old_configuration (void)
 	return val;
 }
 
+enum
+{
+	SOURCE,
+	TEMP
+};
+
+static gchar *
+upgrade_database (const gchar *mbox)
+{
+	gchar *path[2];
+	FILE *fd;
+	GList *l;
+	C2DB *db;
+	gint i;
+
+	c2_return_val_if_fail (mbox, _("Wrong upgrade_database parameters"), C2EDATA);
+	
+	/* Calculate paths */
+	path[SOURCE] = g_strdup_printf ("%s" G_DIR_SEPARATOR_S ".CronosII" G_DIR_SEPARATOR_S
+									"%s" G_DIR_SEPARATOR_S "index", g_get_home_dir (), mbox);
+	path[TEMP] = c2_get_tmp_file ();
+
+	/* Open files */
+	if (!(fd = fopen (path[TEMP], "wb")))
+	{
+		g_free (path[SOURCE]);
+		g_free (path[TEMP]);
+		c2_error_set (-errno);
+		return g_strdup_printf (_("Unable to open index file: %s"), c2_error_get (c2_errno));
+	}
+
+	/* Load db */
+	if (!(db = c2_db_load (mbox, C2_METHOD_CRONOSII)))
+	{
+		g_free (path[SOURCE]);
+		g_free (path[TEMP]);
+		return g_strdup_printf (_("Unable to load db: %s"), c2_error_get (c2_errno));
+	}
+
+	/* Process */
+	for (l = db->head, i = 0; l != NULL; l = g_list_next (l))
+	{
+		/* Get the message */
+		C2Message *message = c2_db_message_get (db, i++);
+		gchar *from, *strdate, *account;
+		time_t date;
+		C2DBNode *node = l->data;
+		
+		if (!message)
+			continue;
+		
+		/* Get fields and write them */
+		from = c2_message_get_header_field (message, NULL, "From:");
+		account = c2_message_get_header_field (message, NULL, "X-CronosII-Account:");
+		strdate = c2_message_get_header_field (message, NULL, "Date:");
+
+		/* Get the date */
+		if (strdate)
+		{
+			if ((date = c2_date_parse (strdate)) < 0)
+				if ((date = c2_date_parse_fmt2 (strdate)) < 0)
+					date = time (NULL);
+		} else
+			date = time (NULL);
+		
+		fprintf (fd, "%c\r%s\r%s\r%s\r%s\r%d\r%s\r%d\n",
+					node->status, (node->marked) ? "MARK" : "", "", node->headers[0],
+					node->headers[1], (gint) date, account, node->mid);
+
+		g_free (from);
+		g_free (account);
+		g_free (strdate);
+	}
+	fclose (fd);
+
+	/* Unload the database */
+	c2_db_unload (db);
+
+	/* Move the file to the right location */
+	c2_file_binary_mv (path[TEMP], path[SOURCE]);
+
+	g_free (path[TEMP]);
+	g_free (path[SOURCE]);
+
+	return NULL;
+}
+	
+
 static gboolean
 import_old_configuration (void)
 {
@@ -154,6 +250,7 @@ import_old_configuration (void)
 		{
 			C2Mailbox *mbox;
 			gchar *tmp;
+			gchar *err;
 			
 			REPORT (N_("Registering in the new configuration 'mailbox'"));
 			mbox = c2_mailbox_parse (val);
@@ -174,10 +271,18 @@ import_old_configuration (void)
 			
 			g_free (tmp);
 			g_free (val);
-			c2_mailbox_free (mbox);
 			
 			mailboxes++;
 			REPORT_RESULT (N_("Success."), TRUE);
+
+			REPORT (N_("Upgrading database"));
+			if ((err = upgrade_database (mbox->name)))
+			{
+				REPORT_RESULT (err, FALSE);
+			} else
+				REPORT_RESULT (N_("Success."), TRUE);
+			c2_mailbox_free (mbox);
+			
 		} else if (c2_streq (key, "addrbook_init"))
 		{
 			REPORT (N_("Registering in the new configuration 'addrbook_init'"));

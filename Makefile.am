@@ -1,10 +1,4 @@
-if COMPILE_MODULE_TEST
-test_modules = module-test
-else
-test_modules =
-endif
-
-SUBDIRS = intl po libmodules $(test_modules) src images pixmaps doc man plugins
+SUBDIRS = intl po libmodules module-test src images pixmaps doc man plugins
 
 bin_SCRIPTS = cronosII-config
 

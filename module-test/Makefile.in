@@ -109,7 +109,7 @@ l = @l@
 sedpath = @sedpath@
 unamepath = @unamepath@
 
-bin_PROGRAMS = db mailbox
+bin_PROGRAMS = db mailbox date
 
 INCLUDES = -I.. -I$(srcdir) -I$(top_srcdir)/libmodules $(GNOME_INCLUDEDIR)
 
@@ -122,6 +122,11 @@ mailbox_SOURCES =  	mailbox.c
 
 
 mailbox_LDADD = $(db_LDADD)
+
+date_SOURCES =  	date.c
+
+
+date_LDADD = $(db_LDADD)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -137,6 +142,9 @@ db_LDFLAGS =
 mailbox_OBJECTS =  mailbox.o
 mailbox_DEPENDENCIES =  $(top_builddir)/libmodules/libmodules.a
 mailbox_LDFLAGS = 
+date_OBJECTS =  date.o
+date_DEPENDENCIES =  $(top_builddir)/libmodules/libmodules.a
+date_LDFLAGS = 
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -148,9 +156,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = gtar
 GZIP_ENV = --best
-DEP_FILES =  .deps/db.P .deps/mailbox.P
-SOURCES = $(db_SOURCES) $(mailbox_SOURCES)
-OBJECTS = $(db_OBJECTS) $(mailbox_OBJECTS)
+DEP_FILES =  .deps/date.P .deps/db.P .deps/mailbox.P
+SOURCES = $(db_SOURCES) $(mailbox_SOURCES) $(date_SOURCES)
+OBJECTS = $(db_OBJECTS) $(mailbox_OBJECTS) $(date_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -227,6 +235,10 @@ db: $(db_OBJECTS) $(db_DEPENDENCIES)
 mailbox: $(mailbox_OBJECTS) $(mailbox_DEPENDENCIES)
 	@rm -f mailbox
 	$(LINK) $(mailbox_LDFLAGS) $(mailbox_OBJECTS) $(mailbox_LDADD) $(LIBS)
+
+date: $(date_OBJECTS) $(date_DEPENDENCIES)
+	@rm -f date
+	$(LINK) $(date_LDFLAGS) $(date_OBJECTS) $(date_LDADD) $(LIBS)
 
 tags: TAGS
 

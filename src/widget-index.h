@@ -24,28 +24,75 @@ extern "C" {
 
 #include <gtk/gtkclist.h>
 
+#ifdef HAVE_CONFIG_H
+#	include <libmodules/mailbox.h>
+#	include <libmodules/db.h>
+#else
+#	include <cronosII.h>
+#endif
+
 #define C2_INDEX(obj)						GTK_CHECK_CAST (obj, c2_index_get_type (), C2Index)
 #define C2_INDEX_CLASS(klass)				GTK_CHECK_CLASS_CAST (klass, c2_index_get_type (), C2IndexClass)
 #define C2_IS_INDEX(obj)				    GTK_CHECK_TYPE (obj, c2_index_get_type ())
-
-typedef enum
-{
-	C2_INDEX_ACCESS_C2,
-	C2_INDEX_ACCESS_IMAP /* TODO */
-} C2IndexAccessType;
 
 typedef struct
 {
 	GtkCList clist;
 
-	C2IndexAccessType access_type;
+	C2Mailbox *mbox;
 } C2Index;
 
 typedef struct
 {
 	GtkCListClass parent_class;
 
-	
+	void (*select_message) (C2Index *index, C2Method access_method, C2Message *message);
+	void (*open_message) (C2Index *index, C2Method access_method, C2Message *message);
+
+	void (*delete_message) (C2Index *index, C2Method access_method, C2Message *message);
+	void (*expunge_message) (C2Index *index, C2Method access_method, C2Message *message);
+	void (*move_message) (C2Index *index, C2Method access_method, C2Message *message);
+	void (*copy_message) (C2Index *index, C2Method access_method, C2Message *message);
+
+	void (*reply_message) (C2Index *index, C2Method access_method, C2Message *message);
+	void (*reply_all_message) (C2Index *index, C2Method access_method, C2Message *message);
+	void (*forward_message) (C2Index *index, C2Method access_method, C2Message *message);
+
+	void (*print_message) (C2Index *index, C2Method access_method, C2Message *message);
+	void (*save_message) (C2Index *index, C2Method access_method, C2Message *message);
+
+	void (*add_contact) (C2Index *index, C2Method access_method, C2Message *message);
+} C2IndexClass;
+
+guint
+c2_index_get_type									(void);
+
+GtkWidget *
+c2_index_new										(void);
+
+void
+c2_index_add_mailbox								(C2Index *index, C2Mailbox *mbox);
+
+void
+c2_index_remove_mailbox								(C2Index *index);
+
+void
+c2_index_add_message								(C2Index *index, const C2Message *message);
+
+void
+c2_index_remove_message								(C2Index *index, const C2Message *message);
+
+void
+c2_index_select_previous_message					(C2Index *index);
+
+void
+c2_index_select_next_message						(C2Index *index);
+
+gboolean
+c2_index_exists_previous_message					(C2Index *index);
+
+gboolean
+c2_index_exists_next_message						(C2Index *index);
 
 #ifdef __cplusplus
 }

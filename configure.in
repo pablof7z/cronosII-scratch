@@ -20,8 +20,6 @@ AM_PROG_LIBTOOL
 ALL_LINGUAS="br de es fr it"
 AM_GNU_GETTEXT
 
-dnl CFLAGS="-Wall"
-
 dnl *************************************************************************
 dnl ** configure switches ***************************************************
 dnl *************************************************************************
@@ -46,14 +44,6 @@ AC_ARG_ENABLE(cache,
 AC_ARG_ENABLE(addrbook,
 [  --disable-address-book  don't build the Cronos II Address Book],
 	addrbook=$enableval, addrbook=yes)
-
-AC_ARG_ENABLE(old_mbox_mode,
-[  --disable-new-mbox-mode don't use the new mailbox handling],
-	old_mbox_mode=$enableval, old_mbox_mode=no)
-
-AC_ARG_ENABLE(module-test,
-[  --compile-tests         compile the tests],[c_test="$enableval"],[c_test=no])
-AM_CONDITIONAL(COMPILE_MODULE_TEST, test x$c_test = xyes)
 
 AC_PATH_PROG(sedpath, sed)
 
@@ -215,9 +205,6 @@ if test "x$addrbook" = "xyes"; then
   FEATURES="$FEATURES 'address book'"
 fi
 
-if test "$old_mbox_mode" = "yes"; then
-  AC_DEFINE(USE_OLD_MBOX_HANDLERS)
-fi
 FEATURES="$FEATURES\""
 
 AC_DEFINE_UNQUOTED(C2_PLUGIN_MAJOR_VERSION, $C2_PLUGIN_MAJOR_VERSION)
@@ -264,11 +251,6 @@ fi
   echo Building with debug.............. : $debug
   echo Building with cache.............. : $cache
   echo Building with address book....... : $addrbook
-if test "$old_mbox_mode" = "yes"; then
-  echo Building with the slower mailbox handling algorithm
-else
-  echo Building with the faster mailbox handling algorithm
-fi
 
 echo configure complete, type \'make\' to start compiling
 echo

@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 #ifdef HAVE_CONFIG_H
+#	include <config.h>
 #	include <libmodules/mailbox.h>
 #else
 #	include <cronosII.h>
@@ -34,6 +35,8 @@ extern "C" {
 #define MAILBOX_QUEUE		N_("Queue"	)
 #define MAILBOX_GARBAGE		N_("Garbage")
 #define MAILBOX_DRAFTS		N_("Drafts"	)
+
+#define DATE_FORMAT									"%Y.%m.%d %H:%M:%S %z"
 
 #ifdef USE_DEBUG
 #	define L				g_print ("%s:%d:%s\n", __FILE__, __LINE__, __PRETTY_FUNCTION__);

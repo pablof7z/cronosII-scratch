@@ -25,16 +25,17 @@ int
 main (int argc, char **argv)
 {
 	C2DB *db;
-	C2DBMessage *message;
+	C2Message *message;
 	const char *err;
+	gchar *field;
 
-	if (argc < 2) {
-		printf ("Usage: %s Database\n", argv[0]);
+	if (argc < 4) {
+		printf ("Usage: %s Database # Field\n", argv[0]);
 		return 0;
 	}
 
 	/* Load the database */
-	if (!(db = c2_db_load (argv[1])) && c2_errno) {
+	if (!(db = c2_db_load (argv[1], C2_METHOD_CRONOSII)) && c2_errno) {
 		err = c2_error_get (c2_errno);
 		printf ("Database couldn't been loaded: %s\n", err);
 		return 0;
@@ -42,15 +43,15 @@ main (int argc, char **argv)
 
 	printf ("%d mensajes\n", g_list_length (db->head));
 
-	if (!(message = c2_db_message_get (db, 0))) {
+	if (!(message = c2_db_message_get (db, atoi (argv[2])))) {
 		err = c2_error_get (c2_errno);
 		printf ("Couldn't get message: %s\n", err);
 		return 0;
 	}
-	printf ("%s\n", message->message);
+	field = c2_message_get_header_field (message, NULL, argv[3]);
+	printf ("%s\n", field);
 
 	c2_db_unload (db);
 	printf ("Database unloaded\n");
-	
 	return 0;
 }

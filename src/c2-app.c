@@ -49,7 +49,6 @@ c2_app_init (void)
 	c2_app.tooltips = gtk_tooltips_new ();
 	c2_app.open_windows = NULL;
 
-	DEBUG(c2_app.font_body);
 	c2_app.gdk_font_body = gdk_font_load (c2_app.font_body);
 	c2_app.gdk_font_read = gdk_font_load (c2_app.font_read);
 	c2_app.gdk_font_unread = gdk_font_load (c2_app.font_unread);
@@ -117,14 +116,21 @@ on_report_expirate (gpointer data)
 void
 c2_app_report (const gchar *msg, C2ReportSeverity severity)
 {
+	gchar *realmsg;
+	
 	c2_return_if_fail (msg, C2EDATA);
 
 	/* TODO Here we should ask which way to make a report: Statusbar, dialog, etc. TODO 
 	 * We assume statusbar */
 	if (!pthread_mutex_trylock (&WMain.appbar_lock))
 	{
+		if (severity == C2_REPORT_WARNING || severity == C2_REPORT_ERROR)
+			realmsg = g_strdup_printf ("%s: %s", msg, c2_error_get (c2_errno));
+		else
+			realmsg = g_strdup (msg);
 		gnome_appbar_push (GNOME_APPBAR (WMain.appbar), msg);
 		gtk_timeout_add (5000, on_report_expirate, NULL);
+		g_free (realmsg);
 		pthread_mutex_unlock (&WMain.appbar_lock);
 	}
 }
