@@ -74,9 +74,9 @@ extern "C" {
 #define DEFAULT_COLORS_MESSAGE_FG_BLUE			"0"
 #define DEFAULT_COLORS_MESSAGE_SOURCE			"0"
 
-#define DEFAULT_PATHS_SAVING					"/home"
-#define DEFAULT_PATHS_DOWNLOAD					"/home"
-#define DEFAULT_PATHS_GET						"/home"
+#define DEFAULT_PATHS_SAVING					g_get_home_dir ()
+#define DEFAULT_PATHS_DOWNLOAD					g_get_home_dir ()
+#define DEFAULT_PATHS_GET						g_get_home_dir ()
 #define DEFAULT_PATHS_ALWAYS_USE				"1"
 	
 #define DEFAULT_ADVANCED_HTTP_PROXY_ADDR		""

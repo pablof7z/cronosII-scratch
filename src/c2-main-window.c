@@ -71,8 +71,121 @@ c2_main_window_set_sensitivity (void)
 void
 c2_main_window_build_dynamic_menu_accounts (void)
 {
+	GtkWidget *item;
+	GtkWidget *pixmap;
+	GtkWidget *box;
+	GtkWidget *label;
+	GtkWidget *submenu;
+	GList *l, *s;
+	C2Account *account;
+	
+	/* First remove everything after the separator */
+	submenu = GTK_MENU_ITEM (glade_xml_get_widget (WMain.xml, "file_check_mail"))->submenu;
+	l = gtk_container_children (GTK_CONTAINER (submenu));
+	
+	/* Find the separator... */
+	for (s = l; s != NULL; s = s->next)
+		if (s->data == glade_xml_get_widget (WMain.xml, "file_check_mail_sep"))
+			break;
+	
+	/* ... and remove */
+	for (s = g_list_next (s); s != NULL; s = s->next)
+		if (GTK_IS_WIDGET (s->data))
+			gtk_widget_destroy (GTK_WIDGET (s->data));
+	g_list_free (l);
+	
+	if (!submenu)
+	{
+		submenu = gtk_menu_new ();
+		gtk_menu_item_set_submenu (GTK_MENU_ITEM (glade_xml_get_widget (WMain.xml, "file_check_mail")),
+									submenu);
+	}
+	
+	for (account = c2_app.account; account != NULL; account = account->next)
+	{
+		item = gtk_pixmap_menu_item_new ();
+		
+		pixmap = gnome_stock_pixmap_widget_at_size (submenu, GNOME_STOCK_PIXMAP_MAIL, 18, 18);
+		box = gtk_hbox_new (FALSE, 0);
+		if (strlen (account->name) > 40)
+		{
+			char *s = g_strndup (account->name, 40);
+			char *t = g_strconcat (s, "...", NULL);
+			label = gtk_label_new (t);
+			g_free (s);
+			g_free (t);
+		} else
+			label = gtk_label_new (account->name);
+		
+		gtk_box_pack_start (GTK_BOX (box), label, FALSE, FALSE, 0);
+		gtk_container_add (GTK_CONTAINER (item), box);
+		gtk_pixmap_menu_item_set_pixmap (GTK_PIXMAP_MENU_ITEM (item), pixmap);
+		gtk_widget_show (label);
+		gtk_widget_show (box);
+		if (gnome_preferences_get_menus_have_icons ())
+			gtk_widget_show (pixmap);
+		gtk_menu_append (GTK_MENU (submenu), item);
+		gtk_widget_show (item);
+	}
+	
+	item = gtk_menu_item_new ();
+	gtk_menu_append (GTK_MENU (submenu), item);
+	gtk_widget_set_sensitive (GTK_WIDGET (item), FALSE);
+	gtk_widget_show (item);
 }
 
+void
+c2_main_window_build_dynamic_menu_windows (void)
+{
+	GtkWidget *submenu, *item, *box, *pixmap, *label;
+	GList *list, *s;
+	GtkWindow *window;
+
+	/* First clean whatever was before */
+	submenu = GTK_MENU_ITEM (glade_xml_get_widget (WMain.xml, "windows"))->submenu;
+	list = gtk_container_children (GTK_CONTAINER (submenu));
+	for (s = list; s != NULL; s = s->next)
+		if (GTK_IS_WIDGET (s->data))
+			gtk_widget_destroy (GTK_WIDGET (s->data));
+	g_list_free (list);
+
+	if (!submenu)
+	{
+		submenu = gtk_menu_new ();
+		gtk_menu_item_set_submenu (GTK_MENU_ITEM (glade_xml_get_widget (WMain.xml, "windows")), submenu);
+	}
+
+	for (list = c2_app.open_windows; list != NULL; list = list->next)
+	{
+		if (!GTK_IS_WINDOW (list->data))
+			continue;
+		window = GTK_WINDOW (list->data);
+
+		item = gtk_pixmap_menu_item_new ();
+		pixmap = gnome_stock_pixmap_widget_at_size (submenu, GNOME_STOCK_PIXMAP_MAIL, 18, 18);
+		box = gtk_hbox_new (FALSE, 0);
+		
+		if (strlen (window->title) > 40) {
+			char *s = g_strndup (window->title, 40);
+			char *t = g_strconcat (s, "...", NULL);
+			label = gtk_label_new (t);
+			g_free (s);
+			g_free (t);
+		} else
+			label = gtk_label_new (window->title);
+		
+		gtk_box_pack_start (GTK_BOX (box), label, FALSE, FALSE, 0);
+		gtk_container_add (GTK_CONTAINER (item), box);
+		gtk_pixmap_menu_item_set_pixmap (GTK_PIXMAP_MENU_ITEM (item), pixmap);
+		gtk_widget_show (label);
+		gtk_widget_show (box);
+		
+		if (gnome_preferences_get_menus_have_icons ())
+			gtk_widget_show (pixmap);
+		gtk_menu_append (GTK_MENU (submenu), item);
+		gtk_widget_show (item);
+	}
+}
 
 /*******************************/
 /* Section: New Mailbox Dialog */

@@ -41,6 +41,7 @@ extern "C" {
 
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <libcronosII/mime.h>
+#	include "widget-html.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -54,21 +55,12 @@ typedef struct _C2PartClass C2PartClass;
 
 struct _C2Part
 {
-#ifdef USE_GTKHTML
-#elif defined (USE_GTKXMHTML)
-	GtkXmHTML parent;
-#else
-#endif
-	GtkWidget *appbar;
+	C2Html object;
 };
 
 struct _C2PartClass
 {
-#ifdef USE_GTKHTML
-#elif defined (USE_GTKXMHTML)
-	GtkXmHTMLClass parent_class;
-#else
-#endif
+	C2HtmlClass parent_class;
 };
 
 guint
@@ -79,12 +71,6 @@ c2_part_new										(void);
 
 void
 c2_part_set_part								(C2Part *part, C2Mime *mime);
-
-void
-c2_part_set_contents_from_url					(C2Part *part, const gchar *url);
-
-void
-c2_part_install_hints							(C2Part *part, GtkWidget *appbar);
 
 #ifdef __cplusplus
 }

@@ -6,6 +6,18 @@
 
 gchar *s = N_("Preferences");
 gchar *s = N_("label76");
+gchar *s = N_("Through this dialog you will be able to configure Cronos II\n"
+              "to behave the way you want it too.\n"
+              "\n"
+              "When you don't know what a field is for, you can get help by\n"
+              "keeping your mouse for a couple of seconds over it, then a\n"
+              "little help will pop-up describing what that field is all about.\n"
+              "\n"
+              "If you need extra help you should get in touch with other users\n"
+              "or with the developers.\n"
+              "To have the information of how to get in touch you should\n"
+              "click on 'Getting in Touch' in the Help menu of the main window.");
+gchar *s = N_("General");
 gchar *s = N_("Check for mail every");
 gchar *s = N_("minutes.");
 gchar *s = N_("Wait");

@@ -33,7 +33,7 @@ static gint
 c2_smtp_connect (C2Smtp *smtp)
 {
 	c2_return_val_if_fail (smtp, -1, C2EDATA);
-L	
+	
 	return 0;
 }
 

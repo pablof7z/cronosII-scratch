@@ -14,8 +14,10 @@ cronos_SOURCES = \
 	main.c													\
 	preferences.c											\
 	widget-index.c				widget-index.h				\
+	widget-html.c				widget-html.h				\
 	widget-mail.c				widget-mail.h				\
-	widget-part.c				widget-part.h
+	widget-part.c				widget-part.h				\
+	widget-xtext.c				widget-xtext.h
 	
 
 cronos_LDADD = \

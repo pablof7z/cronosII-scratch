@@ -11,6 +11,7 @@ libcronosII_a_SOURCES = \
 	mailbox.c			mailbox.h					\
 	message.c			message.h					\
 	mime.c				mime.h						\
+	net-object.c		net-object.h				\
 	pop3.c				pop3.h						\
 	request.c			request.h					\
 	smtp.c				smtp.h						\

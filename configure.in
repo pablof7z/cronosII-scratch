@@ -265,6 +265,7 @@ plugins/Makefile
 po/Makefile.in
 src/Makefile
 Makefile
+about.html
 cronosII.spec
 cronosII-config
 ])

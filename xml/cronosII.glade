@@ -715,6 +715,17 @@
 
 	<widget>
 	  <class>GtkMenuItem</class>
+	  <name>windows</name>
+	  <signal>
+	    <name>activate</name>
+	    <handler>on_windows_activate</handler>
+	    <last_modification_time>Mon, 11 Jun 2001 21:05:40 GMT</last_modification_time>
+	  </signal>
+	  <stock_item>GNOMEUIINFO_MENU_WINDOWS_TREE</stock_item>
+	</widget>
+
+	<widget>
+	  <class>GtkMenuItem</class>
 	  <name>help1</name>
 	  <stock_item>GNOMEUIINFO_MENU_HELP_TREE</stock_item>
 
@@ -741,6 +752,24 @@
 	      <label>_Quick Tips</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_BLANK</stock_icon>
+	    </widget>
+
+	    <widget>
+	      <class>GtkPixmapMenuItem</class>
+	      <name>help_getting_in_touch</name>
+	      <accelerator>
+		<modifiers>0</modifiers>
+		<key>GDK_F3</key>
+		<signal>activate</signal>
+	      </accelerator>
+	      <signal>
+		<name>activate</name>
+		<handler>on_getting_in_touch1_activate</handler>
+		<last_modification_time>Mon, 11 Jun 2001 20:21:32 GMT</last_modification_time>
+	      </signal>
+	      <label>_Getting in Touch</label>
+	      <right_justify>False</right_justify>
+	      <stock_icon>GNOME_STOCK_MENU_VOLUME</stock_icon>
 	    </widget>
 
 	    <widget>
@@ -1020,9 +1049,10 @@
 	    <name>mail</name>
 	    <creation_function>c2_mail_new</creation_function>
 	    <string1></string1>
+	    <string2></string2>
 	    <int1>0</int1>
 	    <int2>0</int2>
-	    <last_modification_time>Wed, 09 May 2001 21:18:19 GMT</last_modification_time>
+	    <last_modification_time>Wed, 13 Jun 2001 22:19:55 GMT</last_modification_time>
 	    <child>
 	      <shrink>True</shrink>
 	      <resize>True</resize>
@@ -1139,7 +1169,7 @@ is already taken.</message>
   <title>Mailbox properties</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_CENTER</position>
-  <modal>True</modal>
+  <modal>False</modal>
   <allow_shrink>False</allow_shrink>
   <allow_grow>False</allow_grow>
   <auto_shrink>False</auto_shrink>
@@ -3361,6 +3391,116 @@ you seted for this account.</label>
 	  <xfill>True</xfill>
 	  <yfill>False</yfill>
 	</child>
+      </widget>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeDialog</class>
+  <name>dlg_getting_in_touch</name>
+  <width>400</width>
+  <height>480</height>
+  <visible>False</visible>
+  <title>Getting in Touch</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_CENTER</position>
+  <modal>True</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>False</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <auto_close>False</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox11</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area11</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_CLOSE</stock_button>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkScrolledWindow</class>
+      <name>scrolledwindow12</name>
+      <hscrollbar_policy>GTK_POLICY_NEVER</hscrollbar_policy>
+      <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
+      <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+      <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkViewport</class>
+	<name>viewport2</name>
+	<shadow_type>GTK_SHADOW_IN</shadow_type>
+
+	<widget>
+	  <class>GtkLabel</class>
+	  <name>label65</name>
+	  <label>You can easily get in touch for help (or just for chating)
+with anyone of the Cronos II comunity (users or developers).
+
+There're several methods for getting in touch with us,
+you should select whatever is better for you.
+
+_E_-_M_a_i_l:
+
+To send a mail to de developers you should write to
+our mailing list: _c_r_o_n_o_s_I_I_-_d_e_v_e_l_o_p_e_r_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.
+
+To contact other users of Cronos II you better send it
+to the user's mailing list: _c_r_o_n_o_s_I_I_-_u_s_e_r_s_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.
+
+Note that if you want to contact a special developer for
+a special bug-report or for whatever reason you should
+check the Cronos II homepage for a list of contacts.
+
+_I_R_C:
+
+You can chat with both users and developers in the
+OpenProjects network by connecting to the server
+_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 to the channel _#_c_r_o_n_o_s_I_I.</label>
+	  <justify>GTK_JUSTIFY_LEFT</justify>
+	  <wrap>False</wrap>
+	  <xalign>0.5</xalign>
+	  <yalign>0.5</yalign>
+	  <xpad>0</xpad>
+	  <ypad>0</ypad>
+	</widget>
       </widget>
     </widget>
   </widget>

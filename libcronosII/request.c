@@ -25,13 +25,13 @@
 #include "utils-net.h"
 
 static void
-c2_request_class_init							(C2RequestClass *klass);
+class_init										(C2RequestClass *klass);
 
 static void
-c2_request_init									(C2Request *request);
+init											(C2Request *request);
 
 static void
-c2_request_destroy								(GtkObject *object);
+destroy											(GtkObject *object);
 
 static void
 c2_request_construct_http						(C2Request *request);
@@ -47,20 +47,17 @@ parse_url										(const gchar *or_url, gchar **host, guint *port, gchar **path
 
 enum
 {
-	RESOLVE,
-	CONNECT,
-	RETRIEVE,
-	DISCONNECT,
 	LAST_SIGNAL
 };
 
-static guint c2_request_signals[LAST_SIGNAL] = { 0 };
+static guint signals[LAST_SIGNAL] = { 0 };
 
-static GtkObjectClass *parent_class = NULL;
+static C2NetObjectClass *parent_class = NULL;
 
-static C2Proxy *proxy = NULL;
+static C2Proxy *http_proxy = NULL;
+static C2Proxy *ftp_proxy = NULL;
 
-void
+static void
 c2_request_construct (C2Request *request)
 {
 	c2_return_if_fail (request, C2EDATA);
@@ -80,64 +77,20 @@ c2_request_construct (C2Request *request)
 }
 
 static gint
-http_connect (C2Request *request, gint *sock)
-{
-	gchar *host, *ip, *path;
-	guint port;
-
-	/* Parse URL */
-	parse_url (request->url, &host, &port, &path);
-
-	/* Resolve */
-	gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[RESOLVE]);
-	if (c2_net_resolve (host, &ip))
-	{
-#ifdef USE_DEBUG
-		g_print ("Unable to resolve hostname: %s\n",
-					c2_error_get (c2_errno));
-#endif
-		g_free (host);
-		gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT], FALSE);
-		return -1;
-	}
-
-	/* Connect */
-	gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[CONNECT]);
-	if (c2_net_connect (ip, port, sock) < 0)
-	{
-#ifdef USE_DEBUG
-		g_print ("Unable to connect: %s\n",
-					c2_error_get (c2_errno));
-#endif
-		g_free (host);
-		g_free (ip);
-		gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT], FALSE);
-		return -1;
-	}
-	g_free (ip);
-
-	return 0;
-}
-
-static gint
 http_retrieve (C2Request *request, gint *sock)
 {
-	gchar *host, *path;
-	guint port = 80;
 	gchar *tmp;
 	gint bytes, total_bytes;
 	gchar *ptr;
 	gchar *retval = NULL;
 	gchar buffer[BUFSIZ];
 
-	/* Parse URL */
-	parse_url (request->url, &host, &port, &path);
-	
 	/* Retrieve */
 	gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[RETRIEVE], 0);
-	if (c2_net_send (sock, "GET %s HTTP/1.0\r\n"
+	if (c2_net_object_send (C2_NET_OBJECT (request), "GET %s HTTP/1.0\r\n"
 						   "Host: %s\r\n"
-						   "\r\n", path, host) < 0)
+						   "\r\n", gtk_object_get_data (GTK_OBJECT (request), "path"),
+						   C2_NET_OBJECT (request)->host) < 0)
 	{
 #ifdef USE_DEBUG
 		g_print ("Unable to query the socket: %s\n", c2_error_get (c2_errno));
@@ -185,7 +138,20 @@ c2_request_construct_http (C2Request *request)
 	gchar *tmp, *tmp2;
 	gint sock;
 	gint tmplength, length = 0;
+
+	/* Parse URL */
+	parse_url (request->url, &host, &port, &path);
+
+	C2_NET_OBJECT (request)->host = host;
+	C2_NET_OBJECT (request)->port = port;
+
+	gtk_object_set_data (GTK_OBJECT (request), "path", path);
 	
+	if (c2_net_object_run (C2_NET_OBJECT (request)) < 0)
+	{
+		gtk_object_unref (GTK_OBJECT (request));
+		return;
+	}
 	if (http_connect (request, &sock) && http_retrieve (request, &sock));
 }
 
@@ -197,99 +163,6 @@ c2_request_construct_ftp (C2Request *request)
 static void
 c2_request_construct_file (C2Request *request)
 {
-}
-
-GtkType
-c2_request_get_type (void)
-{
-	static GtkType c2_request_type = 0;
-
-	if (!c2_request_type)
-	{
-		static const GtkTypeInfo c2_request_info =
-		{
-			"C2Request",
-			sizeof (C2Request),
-			sizeof (C2RequestClass),
-			(GtkClassInitFunc) c2_request_class_init,
-			(GtkObjectInitFunc) c2_request_init,
-			/* reserved_1 */ NULL,
-			/* reserved_2 */ NULL,
-			(GtkClassInitFunc) NULL
-		};
-
-		c2_request_type = gtk_type_unique (gtk_object_get_type (), &c2_request_info);
-	}
-
-	return c2_request_type;
-}
-
-static void
-c2_request_class_init (C2RequestClass *klass)
-{
-	GtkObjectClass *object_class;
-
-	object_class = (GtkObjectClass *) klass;
-
-	parent_class = gtk_type_class (gtk_object_get_type ());
-
-	c2_request_signals[RESOLVE] =
-		gtk_signal_new ("resolve",
-					GTK_RUN_FIRST,
-					object_class->type,
-					GTK_SIGNAL_OFFSET (C2RequestClass, resolve),
-					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-
-	c2_request_signals[CONNECT] =
-		gtk_signal_new ("connect",
-					GTK_RUN_FIRST,
-					object_class->type,
-					GTK_SIGNAL_OFFSET (C2RequestClass, connect),
-					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-	
-	c2_request_signals[RETRIEVE] =
-		gtk_signal_new ("retrieve",
-					GTK_RUN_FIRST,
-					object_class->type,
-					GTK_SIGNAL_OFFSET (C2RequestClass, retrieve),
-					gtk_marshal_NONE__INT, GTK_TYPE_NONE, 1,
-					GTK_TYPE_INT);
-	
-	c2_request_signals[DISCONNECT] =
-		gtk_signal_new ("disconnect",
-					GTK_RUN_FIRST,
-					object_class->type,
-					GTK_SIGNAL_OFFSET (C2RequestClass, disconnect),
-					gtk_marshal_NONE__BOOL, GTK_TYPE_NONE, 1,
-					GTK_TYPE_BOOL);
-
-	gtk_object_class_add_signals (object_class, c2_request_signals, LAST_SIGNAL);
-
-	object_class->destroy = c2_request_destroy;
-
-	klass->resolve = NULL;
-	klass->connect = NULL;
-	klass->retrieve = NULL;
-	klass->disconnect = NULL;
-}
-
-static void
-c2_request_init (C2Request *request)
-{
-	request->url = NULL;
-	request->request_size = 0;
-	request->got_size = 0;
-	request->source = NULL;
-}
-
-static void
-c2_request_destroy (GtkObject *object)
-{
-	C2Request *request;
-	
-	request = C2_REQUEST (object);
-	g_free (request->url);
-	g_free (request->source);
 }
 
 void
@@ -320,38 +193,6 @@ c2_request_get_proxy (const gchar **addr, const gint *port, const gchar **ignore
 		port = &proxy->port;
 		ignore = &proxy->ignore;
 	}
-}
-
-C2Request *
-c2_request_new (const gchar *url)
-{
-	C2Request *request;
-	
-	c2_return_val_if_fail (url, NULL, C2EDATA);
-
-	request = gtk_type_new (C2_TYPE_REQUEST);
-
-	/* Load the URL */
-	request->url = g_strdup (url);
-
-	/* Load the type */
-	if (c2_strneq (url, "http:", 5))
-		request->protocol = C2_REQUEST_HTTP;
-	else if (c2_strneq (url, "ftp:", 4))
-		request->protocol = C2_REQUEST_FTP;
-	else if (c2_strneq (url, "file:", 5))
-		request->protocol = C2_REQUEST_FILE;
-	else
-	{
-		gtk_object_unref (GTK_OBJECT (request));
-#ifdef USE_DEBUG
-		g_print ("Unknown protocol '%s' in %s\n",
-							url, __PRETTY_FUNCTION__);
-#endif
-		return NULL;
-	}
-
-	return request;
 }
 
 void
@@ -403,4 +244,96 @@ parse_url (const gchar *or_url, gchar **host, guint *port, gchar **path)
 		*path = g_strdup (end);
 	else
 		*path = g_strdup_printf ("/");
+}
+
+C2Request *
+c2_request_new (const gchar *url)
+{
+	C2Request *request;
+	
+	c2_return_val_if_fail (url, NULL, C2EDATA);
+
+	request = gtk_type_new (C2_TYPE_REQUEST);
+
+	/* Load the URL */
+	request->url = g_strdup (url);
+
+	/* Load the type */
+	if (c2_strneq (url, "http:", 5))
+		request->protocol = C2_REQUEST_HTTP;
+	else if (c2_strneq (url, "ftp:", 4))
+		request->protocol = C2_REQUEST_FTP;
+	else if (c2_strneq (url, "file:", 5))
+		request->protocol = C2_REQUEST_FILE;
+	else
+	{
+		gtk_object_unref (GTK_OBJECT (request));
+#ifdef USE_DEBUG
+		g_print ("Unknown protocol '%s' in %s\n", url, __PRETTY_FUNCTION__);
+#endif
+		return NULL;
+	}
+
+	return request;
+}
+
+GtkType
+c2_request_get_type (void)
+{
+	static GtkType c2_request_type = 0;
+
+	if (!c2_request_type)
+	{
+		static const GtkTypeInfo c2_request_info =
+		{
+			"C2Request",
+			sizeof (C2Request),
+			sizeof (C2RequestClass),
+			(GtkClassInitFunc) class_init,
+			(GtkObjectInitFunc) init,
+			/* reserved_1 */ NULL,
+			/* reserved_2 */ NULL,
+			(GtkClassInitFunc) NULL
+		};
+
+		c2_request_type = gtk_type_unique (gtk_object_get_type (), &c2_request_info);
+	}
+
+	return c2_request_type;
+}
+
+static void
+class_init (C2RequestClass *klass)
+{
+	GtkObjectClass *object_class;
+
+	object_class = (GtkObjectClass *) klass;
+
+	parent_class = gtk_type_class (c2_net_object_get_type ());
+
+	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
+
+	object_class->destroy = destroy;
+}
+
+static void
+init (C2Request *request)
+{
+	request->url = NULL;
+	request->request_size = 0;
+	request->got_size = 0;
+	request->source = NULL;
+}
+
+static void
+destroy (GtkObject *object)
+{
+	C2Request *request;
+	gchar *path = (gchar*) gtk_object_get_data (object, "path");
+	
+	request = C2_REQUEST (object);
+	if (path)
+		g_free (path);
+	g_free (request->url);
+	g_free (request->source);
 }

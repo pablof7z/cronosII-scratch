@@ -11,6 +11,9 @@ bin_SCRIPTS = cronosII-config
 plugindir = $(pkgdatadir)/plugins
 plugin_DATA =
 
+aboutdir = $(pkgdatadir)
+about_DATA = about.html
+
 cronosincludedir = $(includedir)/cronosII
 cronosinclude_HEADERS = config.h
 
@@ -27,7 +30,8 @@ EXTRA_DIST =				\
 	NEWS					\
 	README					\
 	TODO					\
-	ChangeLog
+	ChangeLog				\
+	$(about_DATA)
 
 Internetdir = $(datadir)/gnome/apps/Internet
 Internet_DATA = cronosII.desktop

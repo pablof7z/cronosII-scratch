@@ -21,6 +21,7 @@
 
 #include <libcronosII/account.h>
 #include <libcronosII/smtp.h>
+#include <libcronosII/utils.h>
 
 #include "c2-app.h"
 #include "main-window.h"
@@ -88,11 +89,11 @@ enum
 {
 	PAGE_GENERAL,
 	PAGE_OPTIONS,
-	PAGE_PATHS,
 	PAGE_ACCOUNTS,
 	PAGE_INTERFACE,
 	PAGE_FONTS,
 	PAGE_COLORS,
+	PAGE_PATHS,
 	PAGE_ADVANCED
 };
 
@@ -174,7 +175,6 @@ c2_preferences_new (void)
 	if (preferences_xml)
 	{
 		dialog = glade_xml_get_widget (preferences_xml, "dlg_preferences");
-		gtk_clist_clear (GTK_CLIST (glade_xml_get_widget (preferences_xml, "accounts_clist")));
 		gtk_widget_show (dialog);
 		return;
 	}
@@ -272,18 +272,18 @@ c2_preferences_new (void)
 						GTK_SIGNAL_FUNC (on_accounts_clist_select_row), NULL);
 	gtk_signal_connect (GTK_OBJECT (accounts_clist), "unselect_row",
 						GTK_SIGNAL_FUNC (on_accounts_clist_unselect_row), NULL);
-	for (account = c2_app.account; account != NULL; account = account->next)
+	for (account = c2_app.account; account != NULL; account = c2_account_next (account))
 	{
 		gchar *row[] =
 		{
 			account->name,
-			(account->type == C2_ACCOUNT_POP3) ? "POP" : "Spool",
 			account->per_name,
 			account->email,
 			NULL
 		};
+		C2_DEBUG (account->name);
 		gtk_clist_append (accounts_clist, row);
-		gtk_clist_set_row_data (accounts_clist, accounts_clist->rows-1, account);
+		gtk_clist_set_row_data (accounts_clist, accounts_clist->rows-1, c2_account_copy (account));
 	}
 
 	/* accounts_new_btn */
@@ -519,6 +519,9 @@ on_ok_btn_clicked (void)
 static void
 on_apply_btn_clicked (void)
 {
+	{ /* Version */
+		gnome_config_set_string ("/cronosII/Cronos II/Version", VERSION);
+	}
 	{ /* Options page */
 		GtkWidget *check_timeout = glade_xml_get_widget (preferences_xml, "options_check_timeout");
 		GtkWidget *mark_timeout = glade_xml_get_widget (preferences_xml, "options_mark_timeout");
@@ -535,8 +538,8 @@ on_apply_btn_clicked (void)
 										GTK_SPIN_BUTTON (mark_timeout));
 
 		g_free (c2_app.options_prepend_character);
-		c2_app.options_prepend_character = g_strdup (gtk_entry_get_text (
-											GTK_ENTRY (GTK_COMBO (prepend_character)->entry)));
+		c2_app.options_prepend_character = g_strdup (gtk_entry_get_text (GTK_ENTRY (
+									GTK_COMBO (prepend_character)->entry)));
 		
 		c2_app.options_empty_garbage = GTK_TOGGLE_BUTTON (empty_garbage)->active;
 		c2_app.options_use_outbox = GTK_TOGGLE_BUTTON (use_outbox)->active;
@@ -570,39 +573,77 @@ on_apply_btn_clicked (void)
 		gint i;
 		gchar *buf;
 
-		/* Free the c2_app.account list */
-		c2_account_free_all (c2_app.account);
-		c2_app.account = NULL;
-		
 		for (i = 0; i < accounts_clist->rows; i++)
 		{
 			account = gtk_clist_get_row_data (accounts_clist, i);
+
+			/* PATCH: For preventing c2 to crash when the Ok or Apply buttons are pressed
+			 * after an Apply button has been pressed
+			 */
+			if (!i && c2_app.account != account)
+			{
+				/* Free the c2_app.account list */
+				c2_account_free_all (c2_app.account);
+				c2_app.account = account;
+			}
 			account->next = gtk_clist_get_row_data (accounts_clist, i+1);
 			
-			if (!c2_app.account)
-				c2_app.account = account;
-
 			buf = g_strdup_printf ("/cronosII/Account %d/", i);
 			gnome_config_push_prefix (buf);
 			gnome_config_set_string ("name", account->name);
 			gnome_config_set_string ("per_name", account->per_name);
+			gnome_config_set_string ("organization", account->organization);
 			gnome_config_set_string ("email", account->email);
-			gnome_config_set_int ("options.active", account->options.active),
-			gnome_config_set_string ("signature.string", account->signature.string);
-			gnome_config_set_int ("signature.automatically", account->signature.automatic);
-			gnome_config_set_int ("type", account->type);
+			gnome_config_set_string ("reply_to", account->reply_to);
+			gnome_config_set_int ("options.active", account->options.active);
+			gnome_config_set_int ("protocol_type", account->type);
 
 			switch (account->type)
 			{
 				case C2_ACCOUNT_POP3:
-					gnome_config_set_string ("pop3.username", account->protocol.pop3->user);
-					gnome_config_set_string ("pop3.password", account->protocol.pop3->pass);
-					gnome_config_set_string ("pop3.hostname", account->protocol.pop3->host);
-					gnome_config_set_int ("pop3.port", account->protocol.pop3->port);
-					gnome_config_set_int ("pop3.flags", account->protocol.pop3->flags);
+					gnome_config_set_string ("pop3_hostname", account->protocol.pop3->host);
+					gnome_config_set_int ("pop3_port", account->protocol.pop3->port);
+					gnome_config_set_string ("pop3_username", account->protocol.pop3->user);
+					gnome_config_set_string ("pop3_password", account->protocol.pop3->pass);
 					break;
 			}
+
+			gnome_config_set_int ("smtp_type", account->smtp->type);
+			
+			switch (account->smtp->type)
+			{
+				case C2_SMTP_REMOTE:
+					gnome_config_set_string ("smtp_hostname", account->smtp->host);
+					gnome_config_set_int ("smtp_port", account->smtp->port);
+					gnome_config_set_bool ("smtp_authentication", account->smtp->authentication);
+					gnome_config_set_string ("smtp_username", account->smtp->user);
+					gnome_config_set_string ("smtp_password", account->smtp->pass);
+					break;
+			}
+
+			gnome_config_set_int ("signature.type", account->signature.type);
+			gnome_config_set_string ("signature.string", account->signature.string);
+			gnome_config_set_int ("signature.automatic", account->signature.automatic);
+
 			gnome_config_pop_prefix ();
+			g_free (buf);
+		}
+
+		/* Now we must remove every section labeled 'Account ${>i}' */
+		for (;;i++)
+		{
+			buf = g_strdup_printf ("/cronosII/Account %d/", i);
+			C2_DEBUG (buf);
+			gnome_config_push_prefix (buf);
+			if (!gnome_config_get_string ("name"))
+			{
+				gnome_config_pop_prefix ();
+				g_free (buf);
+				break;
+			}
+
+			gnome_config_pop_prefix ();
+			gnome_config_clean_section (buf);
 			g_free (buf);
 		}
 
@@ -614,7 +655,8 @@ on_apply_btn_clicked (void)
 		GtkWidget *date_fmt = glade_xml_get_widget (preferences_xml, "interface_date_fmt");
 		gchar *selection;
 
-		c2_app.interface_title = gtk_entry_get_text (GTK_ENTRY (title));
+		g_free (c2_app.interface_title);
+		c2_app.interface_title = g_strdup (gtk_entry_get_text (GTK_ENTRY (title)));
 
 		if (GTK_BIN (toolbar)->child)
 		{
@@ -633,7 +675,7 @@ on_apply_btn_clicked (void)
 		}
 
 		g_free (c2_app.interface_date_fmt);
-		c2_app.interface_date_fmt = gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (date_fmt)->entry));
+		c2_app.interface_date_fmt = g_strdup (gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (date_fmt)->entry)));
 
 		gtk_toolbar_set_style (GTK_TOOLBAR (glade_xml_get_widget (WMain.xml, "toolbar")),
 								c2_app.interface_toolbar);
@@ -654,9 +696,12 @@ on_apply_btn_clicked (void)
 		g_free (c2_app.fonts_unreaded_message);
 		g_free (c2_app.fonts_readed_message);
 
-		c2_app.fonts_message_body = gnome_font_picker_get_font_name (GNOME_FONT_PICKER (message_body));
-		c2_app.fonts_unreaded_message = gnome_font_picker_get_font_name (GNOME_FONT_PICKER (unreaded_message));
-		c2_app.fonts_readed_message = gnome_font_picker_get_font_name (GNOME_FONT_PICKER (readed_message));
+		c2_app.fonts_message_body = g_strdup (gnome_font_picker_get_font_name (
+												GNOME_FONT_PICKER (message_body)));
+		c2_app.fonts_unreaded_message = g_strdup (gnome_font_picker_get_font_name (
+												GNOME_FONT_PICKER (unreaded_message)));
+		c2_app.fonts_readed_message = g_strdup (gnome_font_picker_get_font_name (
+												GNOME_FONT_PICKER (readed_message)));
 
 		gdk_font_unref (c2_app.fonts_gdk_message_body);
 		c2_app.fonts_gdk_message_body = gnome_font_picker_get_font (GNOME_FONT_PICKER (message_body));
@@ -722,9 +767,9 @@ on_apply_btn_clicked (void)
 		g_free (c2_app.paths_download);
 		g_free (c2_app.paths_get);
 
-		c2_app.paths_saving = gtk_entry_get_text (GTK_ENTRY (saving_entry));
-		c2_app.paths_download = gtk_entry_get_text (GTK_ENTRY (download_entry));
-		c2_app.paths_get = gtk_entry_get_text (GTK_ENTRY (get_entry));
+		c2_app.paths_saving = g_strdup (gtk_entry_get_text (GTK_ENTRY (saving_entry)));
+		c2_app.paths_download = g_strdup (gtk_entry_get_text (GTK_ENTRY (download_entry)));
+		c2_app.paths_get = g_strdup (gtk_entry_get_text (GTK_ENTRY (get_entry)));
 		c2_app.paths_always_use = GTK_TOGGLE_BUTTON (always_use)->active;
 
 		gnome_config_set_string ("/cronosII/Paths/saving", c2_app.paths_saving);
@@ -744,13 +789,17 @@ on_apply_btn_clicked (void)
 		GtkWidget *persistent_smtp_port=glade_xml_get_widget(preferences_xml,"advanced_persistent_smtp_port");
 		GtkWidget *use_internal_browser=glade_xml_get_widget(preferences_xml,"advanced_use_internal_browser");
 
-		c2_app.advanced_http_proxy_addr = gtk_entry_get_text (GTK_ENTRY (http_proxy_addr));
+		g_free (c2_app.advanced_http_proxy_addr);
+		g_free (c2_app.advanced_ftp_proxy_addr);
+		g_free (c2_app.advanced_persistent_smtp_addr);
+		
+		c2_app.advanced_http_proxy_addr = g_strdup (gtk_entry_get_text (GTK_ENTRY (http_proxy_addr)));
 		c2_app.advanced_http_proxy_port = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (http_proxy_port));
 		c2_app.advanced_http_proxy = GTK_TOGGLE_BUTTON (http_proxy_btn)->active;
-		c2_app.advanced_ftp_proxy_addr = gtk_entry_get_text (GTK_ENTRY (ftp_proxy_addr));
+		c2_app.advanced_ftp_proxy_addr = g_strdup (gtk_entry_get_text (GTK_ENTRY (ftp_proxy_addr)));
 		c2_app.advanced_ftp_proxy_port = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (ftp_proxy_port));
 		c2_app.advanced_ftp_proxy = GTK_TOGGLE_BUTTON (ftp_proxy_btn)->active;
-		c2_app.advanced_persistent_smtp_addr = gtk_entry_get_text (GTK_ENTRY (persistent_smtp_addr));
+		c2_app.advanced_persistent_smtp_addr = g_strdup (gtk_entry_get_text (GTK_ENTRY (persistent_smtp_addr)));
 		c2_app.advanced_persistent_smtp_port = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (persistent_smtp_port));
 		c2_app.advanced_persistent_smtp = GTK_TOGGLE_BUTTON (persistent_smtp_btn)->active;
 		c2_app.advanced_use_internal_browser = GTK_TOGGLE_BUTTON (use_internal_browser)->active;
@@ -775,6 +824,17 @@ on_apply_btn_clicked (void)
 static void
 on_cancel_btn_clicked (void)
 {
+	GtkCList *clist = GTK_CLIST (glade_xml_get_widget (preferences_xml, "accounts_clist"));
+	C2Account *account;
+	gint i;
+	
+	/* Unref the accounts */
+/*	for (i = 0; i < clist->rows; i++)
+	{
+		account = C2_ACCOUNT (gtk_clist_get_row_data (clist, i));
+		gtk_object_unref (GTK_OBJECT (account));
+	}
+*/	
 	gnome_dialog_close (GNOME_DIALOG (glade_xml_get_widget (preferences_xml, "dlg_preferences")));
 }
 
@@ -1124,10 +1184,18 @@ on_accounts_new_druidpagefinish1_finish (GnomeDruidPage *druid_page, GtkWidget *
 }
 
 static void
+on_accounts_new_btn_druid_cancel (GnomeDruid *druid, GladeXML *xml)
+{
+	GtkWidget *dialog = glade_xml_get_widget (xml, "dlg_account_new");
+	gtk_widget_destroy (dialog);
+}
+
+static void
 on_accounts_new_btn_clicked (void)
 {
 	GladeXML *xml = glade_xml_new (C2_APP_GLADE_FILE ("preferences"), "dlg_account_new");
 	GtkWidget *dialog = glade_xml_get_widget (xml, "dlg_account_new");
+	GtkWidget *druid = glade_xml_get_widget (xml, "druid");
 	GtkWidget *druidpagestandard1 = glade_xml_get_widget (xml, "druidpagestandard1");
 	GtkWidget *druidpagestandard2 = glade_xml_get_widget (xml, "druidpagestandard2");
 	GtkWidget *druidpagefinish1 = glade_xml_get_widget (xml, "druidpagefinish1");
@@ -1151,6 +1219,8 @@ on_accounts_new_btn_clicked (void)
 	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (signature_type)->menu), menu);
 	gtk_option_menu_set_history (GTK_OPTION_MENU (signature_type), 0);
 	
+	gtk_signal_connect (GTK_OBJECT (druid), "cancel",
+						GTK_SIGNAL_FUNC (on_accounts_new_btn_druid_cancel), xml);
 	gtk_signal_connect (GTK_OBJECT (druidpagestandard1), "next",
 						GTK_SIGNAL_FUNC (on_accounts_new_druidpagestandard1_next), xml);
 	gtk_signal_connect (GTK_OBJECT (druidpagestandard2), "next",
@@ -1379,9 +1449,8 @@ on_accounts_edit_btn_clicked (void)
 	GtkWidget *clist = glade_xml_get_widget (preferences_xml, "accounts_clist");
 	C2Account *account = C2_ACCOUNT (gtk_clist_get_row_data (GTK_CLIST (clist),
 								GPOINTER_TO_INT (GTK_CLIST (clist)->selection->data)));
-	
-	
 	GtkWidget *dialog = glade_xml_get_widget (xml, "dlg_account_new");
+	GtkWidget *druid = glade_xml_get_widget (xml, "druid");
 	GtkWidget *druidpagestandard1 = glade_xml_get_widget (xml, "druidpagestandard1");
 	GtkWidget *druidpagestandard2 = glade_xml_get_widget (xml, "druidpagestandard2");
 	GtkWidget *druidpagefinish1 = glade_xml_get_widget (xml, "druidpagefinish1");
@@ -1424,6 +1493,8 @@ on_accounts_edit_btn_clicked (void)
 	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (signature_type)->menu), menu);
 	gtk_option_menu_set_history (GTK_OPTION_MENU (signature_type), account->signature.type);
 	
+	gtk_signal_connect (GTK_OBJECT (druid), "cancel",
+						GTK_SIGNAL_FUNC (on_accounts_new_btn_druid_cancel), xml);
 	gtk_signal_connect (GTK_OBJECT (druidpagestandard1), "next",
 						GTK_SIGNAL_FUNC (on_accounts_edit_druidpagestandard1_next), xml);
 	gtk_signal_connect (GTK_OBJECT (druidpagestandard2), "next",
@@ -1516,8 +1587,16 @@ on_accounts_down_btn_clicked (void)
 }
 
 static void
+on_interface_help_btn_clicked_pthread (void)
+{
+	system ("gnome-help-browser \"man:strftime(3)\"");
+}
+
+static void
 on_interface_help_btn_clicked (void)
 {
+	pthread_t thread;
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_interface_help_btn_clicked_pthread), NULL);
 }
 
 static void
@@ -1528,7 +1607,7 @@ on_paths_btn_clicked (GtkWidget *widget, GtkWidget *entry)
 static void
 on_advanced_http_proxy_btn_toggled (void)
 {
-	GtkWidget *advanced_http_proxy_btn  =  glade_xml_get_widget (preferences_xml, "advanced_http_proxy_btn");
+	GtkWidget *advanced_http_proxy_btn  = glade_xml_get_widget (preferences_xml, "advanced_http_proxy_btn");
 	GtkWidget *advanced_http_proxy_addr = glade_xml_get_widget (preferences_xml, "advanced_http_proxy_addr");
 	GtkWidget *advanced_http_proxy_port = glade_xml_get_widget (preferences_xml, "advanced_http_proxy_port");
 
@@ -1550,6 +1629,12 @@ on_advanced_ftp_proxy_btn_toggled (void)
 static void
 on_advanced_persistent_smtp_btn_toggled (void)
 {
+	GtkWidget *persistent_smtp_btn = glade_xml_get_widget (preferences_xml, "advanced_persistent_smtp_btn");
+	GtkWidget *persistent_smtp_addr = glade_xml_get_widget (preferences_xml, "advanced_persistent_smtp_addr");
+	GtkWidget *persistent_smtp_port = glade_xml_get_widget (preferences_xml, "advanced_persistent_smtp_port");
+
+	gtk_widget_set_sensitive (persistent_smtp_addr, GTK_TOGGLE_BUTTON (persistent_smtp_btn)->active);
+	gtk_widget_set_sensitive (persistent_smtp_port, GTK_TOGGLE_BUTTON (persistent_smtp_btn)->active);
 }
 
 static void
@@ -1562,9 +1647,7 @@ on_ctree_tree_select_row (GtkCTree *ctree, GtkCTreeNode *node)
 	if (!name)
 		return;
 
-	if (c2_streq (name, "General"))
-		page = PAGE_GENERAL;
-	else if (c2_streq (name, "Options"))
+	if (c2_streq (name, "Options"))
 		page = PAGE_OPTIONS;
 	else if (c2_streq (name, "Paths"))
 		page = PAGE_PATHS;

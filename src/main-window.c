@@ -58,6 +58,9 @@ static void
 on_about_activated									(GtkWidget *widget);
 
 static void
+on_getting_in_touch_activated						(GtkWidget *widget);
+
+static void
 on_quit												(void);
 
 void
@@ -141,8 +144,8 @@ c2_window_new (void)
 							GTK_SIGNAL_FUNC (on_index_select_message), NULL);
 
 	/* Mail */
-	mail = glade_xml_get_widget (WMain.xml, "mail");
-	c2_mail_install_hints (C2_MAIL (mail), appbar);
+	/*mail = glade_xml_get_widget (WMain.xml, "mail");
+	c2_mail_install_hints (C2_MAIL (mail), appbar, &WMain.appbar_lock);*/
 
 	/* Button */
 	button = glade_xml_get_widget (WMain.xml, "appbar_button");
@@ -157,6 +160,8 @@ c2_window_new (void)
 							GTK_SIGNAL_FUNC (on_preferences_activated), NULL);
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.xml, "help_about")), "activate",
 							GTK_SIGNAL_FUNC (on_about_activated), NULL);
+	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.xml, "help_getting_in_touch")),
+							"activate",	GTK_SIGNAL_FUNC (on_getting_in_touch_activated), NULL);
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.ctree_menu, "new_mailbox")), "activate",
 							GTK_SIGNAL_FUNC (on_new_mailbox_dlg), NULL);
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.ctree_menu, "properties")), "activate",
@@ -302,7 +307,22 @@ static void
 on_about_activated (GtkWidget *widget)
 {
 	GladeXML *xml = glade_xml_new (C2_APP_GLADE_FILE ("cronosII"), "dlg_about");
-	GtkWidget *about = glade_xml_get_widget (xml, "dlg_about");
+	GtkWidget *dialog = glade_xml_get_widget (xml, "dlg_about");
+
+	gnome_dialog_run_and_close (GNOME_DIALOG (dialog));
+
+	gtk_object_unref (GTK_OBJECT (xml));
+}
+
+static void
+on_getting_in_touch_activated (GtkWidget *widget)
+{
+	GladeXML *xml = glade_xml_new (C2_APP_GLADE_FILE ("cronosII"), "dlg_getting_in_touch");
+	GtkWidget *dialog = glade_xml_get_widget (xml, "dlg_getting_in_touch");
+
+	gnome_dialog_run_and_close (GNOME_DIALOG (dialog));
+
+	gtk_object_unref (GTK_OBJECT (xml));
 }
 
 static void

@@ -32,12 +32,53 @@ static void
 c2_init (gint argc, gchar **argv)
 {
 	static struct poptOption options[] = {
-		{"checkmail", 'c', POPT_ARG_NONE,
+		{
+			N_("compose"), 'm', POPT_ARG_NONE,
 			NULL, 0,
-			N_("Get new mail on startup"), NULL},
-		{"compose", 'm', POPT_ARG_STRING,
+			N_("Compose a new email."), NULL
+		},
+		{
+			N_("account"), 'a', POPT_ARG_STRING,
 			NULL, 0,
-			N_("Compose a new email to EMAIL@ADDRESS"), "EMAIL@ADDRESS"}
+			N_("Set the Account field."),
+			N_("Account")
+		},
+		{
+			N_("to"), 't', POPT_ARG_STRING,
+			NULL, 0,
+			N_("Set the To field."),
+			N_("Address")
+		},
+		{
+			N_("cc"), 'c', POPT_ARG_STRING,
+			NULL, 0,
+			N_("Set the CC field."),
+			N_("Address")
+		},
+		{
+			N_("bcc"), 'b', POPT_ARG_STRING,
+			NULL, 0,
+			N_("Set the BCC field."),
+			N_("Address")
+		},
+		{
+			N_("subject"), 's', POPT_ARG_STRING,
+			NULL, 0,
+			N_("Set the Subject field."),
+			N_("Subject")
+		},
+		{
+			N_("body"), 'o', POPT_ARG_STRING,
+			NULL, 0,
+			N_("Set the Body."),
+			N_("Text")
+		},
+		{
+			"mailto", 'l', POPT_ARG_STRING,
+			NULL, 0,
+			N_("Compose a new email decoding the argument as a mailto: link"),
+			"mailto:email@somewhere."
+		}
 	};
 	gnome_init_with_popt_table ("Cronos II", VERSION, argc, argv, options, 0, NULL);
 	glade_gnome_init ();
@@ -89,7 +130,17 @@ load_mailboxes								(void);
 static gint
 c2_config_init (void)
 {
-	gchar *tmp;
+	C2Account *account;
+	gchar *account_name, *person_name, *organization, *email, *reply_to, *pop3_host,
+			*pop3_user, *pop3_pass, *smtp_host, *smtp_user, *smtp_pass,
+			*signature;
+	gint pop3_port, pop3_flags, smtp_port;
+	gboolean active, smtp_authentication, keep_copy, signature_automatic;
+	C2AccountType account_type;
+	C2AccountSignatureType signature_type;
+	C2SMTPType smtp_type;
+	gchar *tmp, *buf;
+	gint i;
 	
 	c2_app.tooltips = gtk_tooltips_new ();
 	c2_app.open_windows = NULL;
@@ -109,6 +160,77 @@ c2_config_init (void)
 	/* Get mailboxes */
 	load_mailboxes ();
 
+	/* Get accounts */
+	c2_app.account = NULL;
+	
+	for (i = 0;; i++)
+	{
+		tmp = g_strdup_printf ("/cronosII/Account %d/", i);
+		gnome_config_push_prefix (tmp);
+
+		if (!(account_name = gnome_config_get_string ("name")))
+			break;
+
+		person_name = gnome_config_get_string ("per_name");
+		organization = gnome_config_get_string ("organization");
+		email = gnome_config_get_string ("email");
+		reply_to = gnome_config_get_string ("reply_to");
+		active = gnome_config_get_bool ("options.active");
+
+		account_type = gnome_config_get_int ("protocol_type");
+
+		switch (account_type)
+		{
+			case C2_ACCOUNT_POP3:
+				pop3_host = gnome_config_get_string ("pop3_hostname");
+				pop3_port = gnome_config_get_int ("pop3_port");
+				pop3_user = gnome_config_get_string ("pop3_username");
+				pop3_pass = gnome_config_get_string ("pop3_password");
+				pop3_flags = gnome_config_get_int ("pop3_flags");
+				break;
+		}
+
+		smtp_type = gnome_config_get_int ("smtp_type");
+
+		switch (smtp_type)
+		{
+			case C2_SMTP_REMOTE:
+				smtp_host = gnome_config_get_string ("smtp_hostname");
+				smtp_port = gnome_config_get_int ("smtp_port");
+				smtp_authentication = gnome_config_get_bool ("smtp_authentication");
+				smtp_user = gnome_config_get_string ("smtp_username");
+				smtp_pass = gnome_config_get_string ("smtp_password");
+				break;
+		}
+
+		signature_type = gnome_config_get_int ("signature.type");
+		signature = gnome_config_get_string ("signature.string");
+		signature_automatic = gnome_config_get_bool ("signature.automatic");
+
+		switch (smtp_type)
+		{
+			case C2_SMTP_REMOTE:
+				account = c2_account_new (account_name, person_name, organization, email, reply_to,
+											active, account_type, smtp_type, signature_type, signature,
+											signature_automatic, pop3_host, pop3_port, pop3_user, pop3_pass,
+											pop3_flags,
+											smtp_host, smtp_port, smtp_authentication, smtp_user, smtp_pass);
+				break;
+			case C2_SMTP_LOCAL:
+				account = c2_account_new (account_name, person_name, organization, email, reply_to,
+											active, account_type, smtp_type, signature_type, signature,
+											signature_automatic, pop3_host, pop3_port, pop3_user, pop3_pass,
+											pop3_flags);
+				break;
+		}
+		
+		c2_app.account = c2_account_append (c2_app.account, account);
+
+		gnome_config_pop_prefix ();
+		g_free (tmp);
+	}
+	
+
 	c2_app.options_check_timeout = gnome_config_get_int_with_default
 									("/cronosII/Options/check_timeout=" DEFAULT_OPTIONS_CHECK_TIMEOUT, NULL);
 	c2_app.options_mark_timeout = gnome_config_get_int_with_default
@@ -124,8 +246,6 @@ c2_config_init (void)
 	c2_app.options_default_mime = gnome_config_get_int_with_default
 									("/cronosII/Options/default_mime=" DEFAULT_OPTIONS_DEFAULT_MIME, NULL);	
 	
-	c2_app.account = NULL;
-
 	c2_app.interface_title = gnome_config_get_string_with_default
 									("/cronosII/Interface/title=" DEFAULT_INTERFACE_TITLE, NULL);
 	c2_app.interface_toolbar = gnome_config_get_int_with_default
@@ -163,12 +283,18 @@ c2_config_init (void)
 	c2_app.colors_message_source = gnome_config_get_int_with_default
 									("/cronosII/Colors/message_source=" DEFAULT_COLORS_MESSAGE_SOURCE, NULL);
 
+	buf = g_strconcat ("/cronosII/Paths/saving=", g_get_home_dir (), NULL);
 	c2_app.paths_saving = gnome_config_get_string_with_default
-									("/cronosII/Paths/saving=" DEFAULT_PATHS_SAVING, NULL);
+									(buf, NULL);
+	g_free (buf);
+	buf = g_strconcat ("/cronosII/Paths/download=", g_get_home_dir (), NULL);
 	c2_app.paths_download = gnome_config_get_string_with_default
-									("/cronosII/Paths/download=" DEFAULT_PATHS_DOWNLOAD, NULL);
+									(buf, NULL);
+	g_free (buf);
+	buf = g_strconcat ("/cronosII/Paths/get=", g_get_home_dir (), NULL);
 	c2_app.paths_get = gnome_config_get_string_with_default
-									("/cronosII/Paths/get=" DEFAULT_PATHS_GET, NULL);
+									(buf, NULL);
+	g_free (buf);
 	c2_app.paths_always_use = gnome_config_get_int_with_default
 									("/cronosII/Paths/always_use=" DEFAULT_PATHS_ALWAYS_USE, NULL);
 
@@ -189,7 +315,7 @@ c2_config_init (void)
 	c2_app.advanced_persistent_smtp_port = gnome_config_get_int_with_default
 							("/cronosII/Advanced/persistent_smtp_port=" DEFAULT_ADVANCED_PERSISTENT_SMTP_PORT, NULL);
 	c2_app.advanced_persistent_smtp = gnome_config_get_int_with_default
-									("/c2/Advanced/persistent_smtp=" DEFAULT_ADVANCED_PERSISTENT_SMTP, NULL);
+									("/cronosII/Advanced/persistent_smtp=" DEFAULT_ADVANCED_PERSISTENT_SMTP, NULL);
 	c2_app.advanced_use_internal_browser = gnome_config_get_int_with_default
 							("/cronosII/Advanced/use_internal_browser=" DEFAULT_ADVANCED_USE_INTERNAL_BROWSER, NULL);
 

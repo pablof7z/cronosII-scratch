@@ -69,7 +69,8 @@ c2_app_register_window (GtkWindow *window)
 
 	c2_app.open_windows = g_list_append (c2_app.open_windows, window);
 
-	/* TODO Now we should update the Windows menu TODO */
+	/* Update the Windows menu */
+	c2_main_window_build_dynamic_menu_windows ();
 }
 
 /**
@@ -88,7 +89,8 @@ c2_app_unregister_window (GtkWindow *window)
 
 	c2_app.open_windows = g_list_remove (c2_app.open_windows, window);
 
-	/* TODO Now we should update the Windows menu TODO */
+	/* Update the Windows menu */
+	c2_main_window_build_dynamic_menu_windows ();
 }
 
 static gint

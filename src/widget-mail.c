@@ -20,6 +20,7 @@
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
+#include "widget-html.h"
 #include "widget-mail.h"
 #include "widget-part.h"
 
@@ -80,11 +81,13 @@ c2_mail_construct (C2Mail *mail)
 #elif defined (USE_GTKXMHTML)
 	parent = gtk_viewport_new (NULL, NULL);
 #else
+	parent = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (parent), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 #endif
 	gtk_box_pack_start (GTK_BOX (mail), parent, TRUE, TRUE, 0);
 	gtk_widget_show (parent);
 	
-	mail->body = c2_part_new ();
+	mail->body = c2_html_new ();
 	gtk_container_add (GTK_CONTAINER (parent), mail->body);
 	gtk_widget_show (mail->body);
 }
@@ -99,9 +102,9 @@ c2_mail_new (void)
 }
 
 void
-c2_mail_install_hints (C2Mail *mail, GtkWidget *appbar)
+c2_mail_install_hints (C2Mail *mail, GtkWidget *appbar, pthread_mutex_t *lock)
 {
-	c2_part_install_hints (C2_PART (mail->body), appbar);
+	c2_html_install_hints (C2_HTML (mail->body), appbar, lock);
 }
 
 static void

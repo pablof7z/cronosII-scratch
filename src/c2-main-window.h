@@ -36,6 +36,9 @@ c2_main_window_set_sensitivity					(void);
 
 void
 c2_main_window_build_dynamic_menu_accounts		(void);
+
+void
+c2_main_window_build_dynamic_menu_windows		(void);
 	
 void
 on_new_mailbox_dlg								(void);

@@ -1,4 +1,13 @@
-2001-05-27 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+2001-06-13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
-	* libcronosII: Splited the Db module into Cronos II-Db submodule
-	  and IMAP-Db submodule.
+	* Net-Object.
+	* Request module: New coding to use the Net-Object.
+
+2001-06-11 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Preferences: Work around everything.
+	* Getting in Touch: Everything.
+
+2001-06-10 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Preferences: Account's work around.

@@ -59,6 +59,7 @@ gchar *s = N_("Try to recover an expunged message");
 gchar *s = N_("Reco_very");
 gchar *s = N_("_User Manual");
 gchar *s = N_("_Quick Tips");
+gchar *s = N_("_Getting in Touch");
 gchar *s = N_("Check all accounts for new mails");
 gchar *s = N_("Check");
 gchar *s = N_("Send unset messages");
@@ -174,3 +175,27 @@ gchar *s = N_("Username:");
 gchar *s = N_("Account:");
 gchar *s = N_("The server has rejected the password\n"
               "you seted for this account.");
+gchar *s = N_("Getting in Touch");
+gchar *s = N_("You can easily get in touch for help (or just for chating)\n"
+              "with anyone of the Cronos II comunity (users or developers).\n"
+              "\n"
+              "There're several methods for getting in touch with us,\n"
+              "you should select whatever is better for you.\n"
+              "\n"
+              "_E_-_M_a_i_l:\n"
+              "\n"
+              "To send a mail to de developers you should write to\n"
+              "our mailing list: _c_r_o_n_o_s_I_I_-_d_e_v_e_l_o_p_e_r_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n"
+              "\n"
+              "To contact other users of Cronos II you better send it\n"
+              "to the user's mailing list: _c_r_o_n_o_s_I_I_-_u_s_e_r_s_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n"
+              "\n"
+              "Note that if you want to contact a special developer for\n"
+              "a special bug-report or for whatever reason you should\n"
+              "check the Cronos II homepage for a list of contacts.\n"
+              "\n"
+              "_I_R_C:\n"
+              "\n"
+              "You can chat with both users and developers in the\n"
+              "OpenProjects network by connecting to the server\n"
+              "_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 to the channel _#_c_r_o_n_o_s_I_I.");

@@ -39,6 +39,8 @@ extern "C" {
 #define C2_IS_ACCOUNT(obj)						(GTK_CHECK_TYPE (obj, C2_TYPE_ACCOUNT))
 #define C2_IS_ACCOUNT_CLASS(klass)				(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_ACCOUNT))
 
+#define c2_account_next(obj)					(obj ? obj->next : NULL)
+
 typedef struct _C2Account C2Account;
 typedef struct _C2AccountClass C2AccountClass;
 typedef enum _C2AccountType C2AccountType;
@@ -122,7 +124,10 @@ C2Account *
 c2_account_copy										(C2Account *account);
 
 C2Account *
-c2_account_append									(C2Account *head);
+c2_account_append									(C2Account *head, C2Account *obj);
+
+C2Account *
+c2_account_last										(C2Account *head);
 
 void
 c2_account_check									(void);

@@ -230,15 +230,73 @@ c2_account_copy (C2Account *account)
 										account->signature.string,
 										account->signature.automatic,
 										account->protocol.pop3->host, account->protocol.pop3->port,
+										account->protocol.pop3->flags,
 										account->protocol.pop3->user, account->protocol.pop3->pass,
 										account->smtp->host, account->smtp->port,
 										account->smtp->authentication, account->smtp->user,
 										account->smtp->pass);
+				break;
+			case C2_SMTP_LOCAL:
+				copy = c2_account_new (account->name, account->per_name, account->organization,
+										account->email, account->reply_to, account->options.active,
+										account->type, account->smtp->type, 
+										account->signature.type,
+										account->signature.string,
+										account->signature.automatic,
+										account->protocol.pop3->host, account->protocol.pop3->port,
+										account->protocol.pop3->flags,
+										account->protocol.pop3->user, account->protocol.pop3->pass);
 		}
 		
-		c2_pop3_set_flags (copy->protocol.pop3, account->protocol.pop3->flags);
 		c2_smtp_set_flags (copy->smtp, account->smtp->flags);
 	}
 
 	return copy;
+}
+
+/**
+ * c2_account_append
+ * @head: A C2Account object.
+ * @obj: The object that wants to be appended.
+ *
+ * This function will append @obj to @head.
+ *
+ * Return Value:
+ * The new linked list with @obj at the end.
+ **/
+C2Account *
+c2_account_append (C2Account *head, C2Account *obj)
+{
+	C2Account *s;
+	
+	c2_return_val_if_fail (obj, head, C2EDATA);
+
+	if (!(s = c2_account_last (head)))
+		return obj;
+	else
+		s->next = obj;
+
+	return head;
+}
+
+/**
+ * c2_account_last
+ * @head: A C2Account object list.
+ *
+ * This function will find the last element
+ * of a C2Account linked list.
+ *
+ * Return Value:
+ * The last element of the linked list.
+ **/
+C2Account *
+c2_account_last (C2Account *head)
+{
+	C2Account *s, *c;
+
+	for (s = c = head; s; s = c2_account_next (s))
+		if (c != s)
+			c = c2_account_next (c);
+
+	return c;
 }

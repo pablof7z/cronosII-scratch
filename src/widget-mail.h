@@ -100,7 +100,8 @@ gboolean
 c2_mail_get_show_field							(C2Mail *mail, const gchar *field);
 
 void
-c2_mail_install_hints							(C2Mail *mail, GtkWidget *appbar);
+c2_mail_install_hints							(C2Mail *mail, GtkWidget *appbar, pthread_mutex_t *lock);
+
 
 #ifdef __cplusplus
 }

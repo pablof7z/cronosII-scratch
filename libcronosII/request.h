@@ -37,7 +37,7 @@ typedef enum _C2RequestProtocol C2RequestProtocol;
 
 struct _C2Proxy
 {
-	const gchar *addr;
+	const gchar *host;
 	gint port;
 	const gchar *ignore;
 };
@@ -51,7 +51,7 @@ enum _C2RequestProtocol
 
 struct _C2Request
 {
-	GtkObject object;
+	C2NetObject object;
 
 	gchar *url;
 	C2RequestProtocol protocol;
@@ -62,15 +62,10 @@ struct _C2Request
 
 struct _C2RequestClass
 {
-	GtkObjectClass parent_class;
-
-	void (*resolve) (C2Request *request);
-	void (*connect) (C2Request *request);
-	void (*retrieve) (C2Request *request, gint length);
-	void (*disconnect) (C2Request *request, gboolean success);
+	C2NetObjectClass parent_class;
 };
 
-guint
+GtkType
 c2_request_get_type								(void);
 
 C2Request *
@@ -87,9 +82,6 @@ c2_request_get_proxy							(const gchar **addr, const gint *port, const gchar **
 
 const gchar *
 c2_request_get_source							(C2Request *request);
-
-void
-c2_request_construct							(C2Request *request);
 
 #ifdef __cplusplus
 }
