@@ -39,7 +39,8 @@ typedef struct _C2IMAP C2IMAP;
 typedef struct _C2IMAPClass C2IMAPClass;
 typedef enum _C2IMAPAuthenticationType C2IMAPAuthenticationType;
 typedef unsigned int tag_t;
-
+typedef struct _C2IMAPPending C2IMAPPending;
+	
 #ifdef BUILDING_C2
 #	include "net-object.h"
 #	include "mailbox.h"
@@ -72,6 +73,9 @@ struct _C2IMAP
 	GHashTable *hash; /* TEMP hash to store server replies...*/
 	                  /* will be replaced with our own native C2Hash */
 	
+	GSList *pending;   /* linked list to store process mutex locks	for processes
+										 * that are expecting a tagged response from the server */
+	
 	pthread_mutex_t lock;
 	
 	C2Mailbox *mailboxes;
@@ -89,6 +93,12 @@ struct _C2IMAPClass
 	void (*incoming_mail) (C2IMAP *imap);
 	void (*logout) (C2IMAP *imap);
 	void (*net_error)  (C2IMAP *imap);
+};
+	
+struct _C2IMAPPending
+{
+	tag_t tag;
+	pthread_mutex_t lock;
 };
 
 GtkType
