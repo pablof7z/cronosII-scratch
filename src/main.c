@@ -167,7 +167,9 @@ main (gint argc, gchar **argv)
 	{
 		widget = c2_composer_new (application);
 
-		if (flags.account)
+		if (flags.mailto)
+			c2_composer_set_contents_from_link (C2_COMPOSER (widget), flags.mailto);
+		else if (flags.account)
 			c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_ACCOUNT,
 										flags.account);
 		gtk_widget_show (widget);

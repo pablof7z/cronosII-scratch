@@ -45,16 +45,16 @@ main (gint argc, gchar **argv)
 	msg->header = g_strdup("From: testing <testing@cronosii.sourceforge.net>\n"
 						   "To: cronosII@users.sourceforge.net\n"
 						   "Subject: Testing C2 smtp module!");
-	msg->body = g_strdup("Testing 1-2-3");
+	msg->body = g_strdup("Testing 1-2-3\n");
 	
 	/* sending the message... please work!! */
-L	if(c2_smtp_send_message(smtp, msg) == 0)
+	if(c2_smtp_send_message(smtp, msg) == 0)
 		printf("Sending mail via SMTP worked! Check your email\n");
 	else {
 		printf("Sending message via SMTP failed... back to the drawing board\n");
 		printf("the error was: %s\n", gtk_object_get_data(GTK_OBJECT(smtp), "error"));
 	}
-L		
+		
 	gtk_object_destroy(GTK_OBJECT(smtp));
 	
 	smtp = c2_smtp_new(C2_SMTP_LOCAL, "sendmail -t < %m");

@@ -305,7 +305,7 @@ c2_net_object_send (C2NetObject *nobj, C2NetObjectByte *byte, const gchar *fmt, 
 
 	va_start (args, fmt);
 	string = g_strdup_vprintf (fmt, args);
-	C2_DEBUG (string);
+	printf ("C: %s", string);
 	va_end (args);
 	
 	if (nobj->max == 1)
@@ -334,11 +334,10 @@ c2_net_object_send (C2NetObject *nobj, C2NetObjectByte *byte, const gchar *fmt, 
 			byte->state |= C2_NET_OBJECT_OFF;
 			gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE, byte);
 		}
-L		return -1;
+		return -1;
 	}
 
-	printf ("%d %d<<\n", byte->sock, byte->state);
-L	if ((value = send (byte->sock, string, strlen (string), 0)) < 0)
+	if ((value = send (byte->sock, string, strlen (string), 0)) < 0)
 	{
 		/* There was a problem in the sending,
 		 * the socket is closed, the state will be set off | error
@@ -350,7 +349,7 @@ L	if ((value = send (byte->sock, string, strlen (string), 0)) < 0)
 		c2_error_object_set (GTK_OBJECT (nobj), -errno);
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
 		g_free (string);
-L		return -1;
+		return -1;
 	}
 
 	byte->state = C2_NET_OBJECT_EXCHANGE;
@@ -424,7 +423,7 @@ c2_net_object_read (C2NetObject *nobj, gchar **string, ...)
 		c2_error_object_set (GTK_OBJECT (nobj), -errno);
 		return -1;
 	}
-	C2_DEBUG (*string);
+	printf ("S: %s", *string);
 	byte->state = C2_NET_OBJECT_EXCHANGE;
 	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE],
 					 C2_NET_OBJECT_EXCHANGE_READ, strlen (*string), byte);

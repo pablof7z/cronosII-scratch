@@ -28,6 +28,7 @@
 /* hard-hat area, in progress by bosko */
 /* feel free to mess around -- help me get this module up to spec faster! */
 /* TODO: implement authentication (posted by pablo) */
+/* TODO: implement a better error handling according to RFC821 4.2.1 (posted by pablo) */
 /* (in progress) TODO: implement multiple connections via Net-Object */
 /* (in progress) TODO: create a test-module */
 /* (done!) TODO: update C2 SMTP to be a real GtkObject w/ signals etc */
@@ -275,16 +276,16 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 	
 	if(smtp->flags == C2_SMTP_DO_PERSIST)
 		byte = smtp->persistent;
-L	
+	
 	/* Lock the mutex */
 	/* pthread_mutex_lock (&smtp->lock); */
 	
 	if(smtp->type == C2_SMTP_REMOTE) 
 	{
-L		if(!byte)
+		if(!byte)
 			if(c2_smtp_connect(smtp, &byte) < 0)
 				return -1;
-L		if(smtp->flags == C2_SMTP_DO_PERSIST)
+		if(smtp->flags == C2_SMTP_DO_PERSIST)
 			smtp->persistent = byte;
 		else
 			smtp->persistent = NULL;
@@ -438,7 +439,6 @@ c2_smtp_send_helo (C2SMTP *smtp, C2NetObjectByte *byte, gboolean esmtp)
 	
 	if(esmtp)
 	{
-		printf ("%d %d>>\n", byte->sock, byte->state);
 		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "EHLO %s\r\n", hostname) < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);

@@ -523,10 +523,14 @@ on_run_external_editor_clicked (GtkWidget *widget, C2Composer *composer)
 	gchar *filename;
 	pid_t pid;
 
-	cmnd = gnome_config_get_string ("/"PACKAGE"/Interface-Composer/editor_external_cmnd");
-	filename = c2_get_tmp_file ("c2-editor-XXXXXX");
+	filename = gtk_object_get_data (GTK_OBJECT (composer), "external editor::file");
+	if (!filename)
+	{
+		filename = c2_get_tmp_file ("c2-editor-XXXXXX");
+		gtk_object_set_data (GTK_OBJECT (composer), "external editor::file", filename);
+	}
 
-	gtk_object_set_data (GTK_OBJECT (composer), "external editor::file", filename);
+	cmnd = gnome_config_get_string ("/"PACKAGE"/Interface-Composer/editor_external_cmnd");
 
 	pid = fork ();
 
@@ -922,13 +926,13 @@ get_account (C2Composer *composer)
 void
 c2_composer_set_extra_field (C2Composer *composer, const gchar *field, const gchar *data)
 {
+	GtkWidget *widget;
 	gchar *string;
 	
 	c2_return_if_fail_obj (C2_IS_COMPOSER (composer) || field, C2EDATA, GTK_OBJECT (composer));
 
 	if (c2_streq (field, C2_COMPOSER_ACCOUNT))
 	{
-		GtkWidget *widget;
 		C2Account *account;
 		gchar *str;
 
@@ -945,8 +949,81 @@ c2_composer_set_extra_field (C2Composer *composer, const gchar *field, const gch
 		
 		widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "account");
 		gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (widget)->entry), str);
+	} else if (c2_streq (field, C2_COMPOSER_TO))
+	{
+		widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "to");
+		gtk_entry_set_text (GTK_ENTRY (widget), data);
+	} else if (c2_streq (field, C2_COMPOSER_CC))
+	{
+		widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "cc");
+		gtk_entry_set_text (GTK_ENTRY (widget), data);
+	} else if (c2_streq (field, C2_COMPOSER_BCC))
+	{
+		widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "bcc");
+		gtk_entry_set_text (GTK_ENTRY (widget), data);
+	} else if (c2_streq (field, C2_COMPOSER_SUBJECT))
+	{
+		widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "subject");
+		gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (widget)->entry), data);
+	} else
+	{
+		gchar *string;
+		
+		string = g_strdup_printf ("%s: %s", field, data);
+		composer->eheaders = g_list_append (composer->eheaders, string);
 	}
+}
+
+/* This can be in the form of:
+ * [mailto:]em@il[?[subject=Subject][&...]
+ *               [?[cc=CC][&...]
+ *               [?[bcc=BCC][&...]
+ *               [?[contents=Body][&...]]
+ */
+void
+c2_composer_set_contents_from_link (C2Composer *composer, const gchar *link)
+{
+	const gchar *ptr, *ptr2;
+	gchar *buf, *subject;
+
+	ptr = link;
 	
-	string = g_strdup_printf ("%s: %s", field, data);
-	composer->eheaders = g_list_append (composer->eheaders, string);
+	if (c2_strneq (link, "mailto:", 7))
+		ptr += 7;
+
+	ptr2 = strstr (ptr, "?");
+
+	if (ptr2)
+		buf = g_strndup (ptr, ptr2-ptr);
+	else
+		buf = g_strdup (ptr);
+
+	c2_composer_set_extra_field (composer, C2_COMPOSER_TO, buf);
+	g_free (buf);
+
+	if (ptr2++)
+		for (;;)
+		{
+			ptr = strstr (ptr2, "&");
+
+			if (ptr)
+				buf = g_strndup (ptr2, ptr-ptr2);
+			else
+				buf = g_strdup (ptr2);
+
+			if (c2_strneq (buf, "subject=", 8))
+				c2_composer_set_extra_field (composer, C2_COMPOSER_SUBJECT, buf+8);
+			else if (c2_strneq (buf, "cc=", 3))
+				c2_composer_set_extra_field (composer, C2_COMPOSER_CC, buf+3);
+			else if (c2_strneq (buf, "bcc=", 4))
+				c2_composer_set_extra_field (composer, C2_COMPOSER_BCC, buf+4);
+			else if (c2_strneq (buf, "contents=", 9))
+				c2_composer_set_extra_field (composer, C2_COMPOSER_BODY, buf+9);
+			g_free (buf);
+			
+			if (!ptr)
+				break;
+
+			ptr2 = ptr+1;
+		}
 }

@@ -385,7 +385,7 @@ c2_db_cronosII_load_message (C2Db *db)
 	if (!home)
 		home = g_get_home_dir ();
 
-	path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S C2_HOME G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "%d",
+	path = g_strdup_printf ("%s" C2_HOME "%s.mbx" G_DIR_SEPARATOR_S "%d",
 							home, db->mailbox->name, mid);
 	
 	if (stat (path, &stat_buf) < 0)

@@ -653,7 +653,7 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 			error = c2_error_object_get (GTK_OBJECT (node));
 			if (error)
 				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-								_("Message failed to load: %s"), error);
+								_("Message failed to load: %s."), error);
 			else
 				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
 								_("Message failed to load"));

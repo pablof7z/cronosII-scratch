@@ -136,6 +136,9 @@ void
 c2_composer_set_extra_field					(C2Composer *composer, const gchar *field,
 											 const gchar *data);
 
+void
+c2_composer_set_contents_from_link			(C2Composer *composer, const gchar *link);
+
 #ifdef __cplusplus
 }
 #endif
