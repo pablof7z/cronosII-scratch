@@ -71,6 +71,9 @@ c2_mime_new										(C2Message *message);
 void
 c2_mime_construct								(C2Mime **head, C2Message *message);
 
+gint
+c2_mime_length								(C2Mime *mime);
+
 C2Mime *
 c2_mime_append									(C2Mime *head, C2Mime *mime);
 

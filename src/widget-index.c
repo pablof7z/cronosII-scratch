@@ -21,6 +21,7 @@
 #include <libcronosII/error.h>
 
 #include "widget-application.h"
+#include "widget-dialog-preferences.h"
 #include "widget-index.h"
 
 #define SELECTED_MAIL	"mailbox::selected mail"
@@ -55,6 +56,10 @@ select_row									(C2Index *index, gint row, gint column, GdkEvent *event);
 
 static void
 on_resize_column							(C2Index *index, gint column, gint width);
+
+static void
+on_application_preferences_changed			(C2Application *application, gint key, gpointer value,
+											 C2Index *index);
 
 /* signals */
 enum
@@ -140,6 +145,9 @@ c2_index_new (C2Application *application)
 	
     index = gtk_type_new (c2_index_get_type());
 	c2_index_construct (index, application);
+
+	gtk_signal_connect (GTK_OBJECT (application), "application_preferences_changed",
+							GTK_SIGNAL_FUNC (on_application_preferences_changed), index);
 	
     return GTK_WIDGET (index);
 }
@@ -265,23 +273,23 @@ add_message (C2Application *application, GtkCList *clist, C2Db *db, const gchar 
 	{
 		case C2_MESSAGE_READED:
 			gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_read, application->mask_read);
-			style->font = application->fonts_gdk_readed_message;
+			style->font = application->fonts_gdk_readed_mails;
 			break;
 		case C2_MESSAGE_UNREADED:
 			gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_unread, application->mask_unread);
-			style->font = application->fonts_gdk_unreaded_message;
+			style->font = application->fonts_gdk_unreaded_mails;
 			break;
 		case C2_MESSAGE_FORWARDED:
 			gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_forward, application->mask_forward);
-			style->font = application->fonts_gdk_readed_message;
+			style->font = application->fonts_gdk_readed_mails;
 			break;
 		case C2_MESSAGE_REPLIED:
 			gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_reply, application->mask_reply);
-			style->font = application->fonts_gdk_readed_message;
+			style->font = application->fonts_gdk_readed_mails;
 			break;
 		default:
 			gtk_clist_set_pixmap (clist, clist->rows-1, 0, application->pixmap_read, application->mask_read);
-			style->font = application->fonts_gdk_readed_message;
+			style->font = application->fonts_gdk_readed_mails;
 	}
 
 	/* [TODO] Get the BG color for this row */
@@ -310,6 +318,7 @@ reload (C2Index *index)
 	db = index->mailbox->db;
 
 	gtk_clist_freeze (clist);
+	gtk_clist_clear (clist);
 	if (db)
 	{
 		do
@@ -459,6 +468,15 @@ on_index_click_column (GtkCList *clist, gint column, gpointer data)
 	gtk_clist_sort (clist);
 }
 
+static void
+on_application_preferences_changed (C2Application *application, gint key, gpointer value,
+	 C2Index *index)
+{
+	if (key == C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_UNREADED_MAILS ||
+		key == C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_READED_MAILS)
+		reload (index);
+}
+
 void
 c2_index_add_mailbox (C2Index *index, C2Mailbox *mailbox)
 {
@@ -492,4 +510,5 @@ c2_index_add_message (C2Index *index, C2Db *db)
 void
 c2_index_remove_message (C2Index *index, C2Db *db)
 {
+		
 }

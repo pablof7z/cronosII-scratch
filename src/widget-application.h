@@ -217,10 +217,10 @@ struct _C2Application
 	gchar *fonts_unreaded_message;
 	gchar *fonts_readed_message;
 	gchar *fonts_unreaded_mailbox;
-	GdkFont *fonts_gdk_message_body;
-	GdkFont *fonts_gdk_unreaded_message;
-	GdkFont *fonts_gdk_readed_message;
+	GdkFont *fonts_gdk_readed_mails;
+	GdkFont *fonts_gdk_unreaded_mails;
 	GdkFont *fonts_gdk_unreaded_mailbox;
+	GdkFont *fonts_gdk_message_body;
 	C2FontSource fonts_source;
 
 	GdkColor colors_replying_original_message;

@@ -20,6 +20,7 @@
 #include <libcronosII/pop3.h>
 
 #include "widget-transfer-item.h"
+#include "widget-transfer-list.h"
 
 #define MAX_CHARS_IN_LABEL		33
 #define WIDGET_WIDTH			210
@@ -62,6 +63,10 @@ on_pop3_synchronize							(GtkObject *object, gint nth, gint mails, C2TransferIt
 static void
 on_pop3_disconnect							(GtkObject *object, gboolean success, C2NetObjectByte *byte,
 											 C2TransferItem *ti);
+
+static void
+on_smtp_smtp_update							(C2SMTP *smtp, gint id,
+											 guint length, guint bytes, C2TransferItem *ti);
 
 enum
 {
@@ -281,10 +286,53 @@ c2_transfer_item_start_pop3_thread (C2Pthread3 *data)
 	c2_pop3_fetchmail (pop3, account, inbox);
 }
 
+static gint
+smtp_get_id_from_ti (C2TransferItem *ti)
+{
+	C2TransferList *tl;
+	GSList *l;
+	gint id = 1;
+
+	tl = C2_TRANSFER_LIST (gtk_object_get_data (GTK_OBJECT (ti), "transfer list"));
+
+	for (l = tl->list; l; l = g_slist_next (l))
+	{
+		C2TransferItem *lti = C2_TRANSFER_ITEM (l->data);
+
+		if (lti->type == C2_TRANSFER_ITEM_SEND)
+			id = lti->type_info.send.id+1;
+	}
+
+	return id;
+}
+
+static C2TransferItem *
+smtp_get_ti_from_id (C2TransferItem *ti, gint id)
+{
+	C2TransferList *tl;
+	GSList *l;
+
+	tl = C2_TRANSFER_LIST (gtk_object_get_data (GTK_OBJECT (ti), "transfer list"));
+
+	for (l = tl->list; l; l = g_slist_next (l))
+	{
+		C2TransferItem *lti = C2_TRANSFER_ITEM (l->data);
+
+		if (id == lti->type_info.send.id)
+			return lti;
+	}
+
+	return NULL;
+}
+
 static void
 c2_transfer_item_start_smtp_thread (C2TransferItem *ti)
 {
-	c2_smtp_send_message (ti->type_info.send.smtp, ti->type_info.send.message, 0);
+	gint id;
+
+	id = smtp_get_id_from_ti (ti);
+	ti->type_info.send.id = id;
+	c2_smtp_send_message (ti->type_info.send.smtp, ti->type_info.send.message, id);
 }
 
 void
@@ -365,6 +413,8 @@ c2_transfer_item_start (C2TransferItem *ti)
 	{
 		pthread_t thread;
 
+		gtk_signal_connect (GTK_OBJECT (ti->type_info.send.smtp), "smtp_update",
+							GTK_SIGNAL_FUNC (on_smtp_smtp_update), ti);
 		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_transfer_item_start_smtp_thread), ti);
 	} else
 		g_assert_not_reached ();
@@ -587,5 +637,24 @@ on_pop3_disconnect (GtkObject *object, gboolean success, C2NetObjectByte *byte, 
 //	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
 }
 
-//static void
-//on_smtp_smtp_update (C2SMTP *smtp, C2Message *message, guint length, guint bytes, 
+static void
+on_smtp_smtp_update (C2SMTP *smtp, gint id, guint length, guint bytes, C2TransferItem *ti)
+{
+	C2TransferItem *_ti;
+	
+	gdk_threads_enter ();
+	if (!(_ti = smtp_get_ti_from_id (ti, id)))
+	{
+		gdk_threads_leave ();
+		return;
+	}
+
+	if (!bytes)
+	{
+		gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, length);
+		gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Sending"));
+	}
+
+	gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), bytes);
+	gdk_threads_leave ();
+}

@@ -40,6 +40,7 @@
 #define SET_WINDOW_HEIGHT(x)gnome_config_set_int ("/"PACKAGE"/Composer/height", x)
 
 #define EXTERNAL_EDITOR_FILE	"external editor::file"
+#define MESSAGE_CONTENT_TYPE	"message::content type"
 
 #define ACCOUNT_ENTRY(account, str)	\
 	{ \
@@ -47,7 +48,7 @@
 		__name__ = c2_account_get_extra_data (account, C2_ACCOUNT_KEY_FULL_NAME, NULL); \
 		 \
 		if (__name__) \
-			str = g_strdup_printf ("\"%s\" <%s> (%s)", __name__, account->email, account->name); \
+			str = g_strdup_printf ("%s <%s> (%s)", __name__, account->email, account->name); \
 		else \
 			str = g_strdup_printf ("%s (%s)", account->email, account->name); \
 	}
@@ -60,6 +61,32 @@ init										(C2Composer *composer);
 
 static void
 destroy										(GtkObject *object);
+
+static void
+add_attachment								(C2Composer *composer, gchar *file, gchar *description, gint nth);
+
+static void
+find										(C2Composer *composer);
+
+static void
+open_										(C2Composer *composer, const gchar *file, C2Message *message);
+
+static void
+open_draft									(C2Composer *composer);
+
+static void
+open_file									(C2Composer *composer);
+
+static void
+send_										(C2Composer *composer, C2ComposerSendType type);
+
+static void
+send_now									(C2Composer *composer);
+
+static void
+send_later									(C2Composer *composer);
+
+
 
 static void
 on_composer_size_allocate					(C2Composer *composer, GtkAllocation *alloc);
@@ -75,9 +102,6 @@ on_icon_list_button_press_event				(GtkWidget *widget, GdkEventButton *e, C2Comp
 
 static void
 on_send_now_clicked							(GtkWidget *widget, C2Composer *composer);
-
-static void
-add_attachment								(C2Composer *composer, gchar *file, gchar *description, gint nth);
 
 static void
 on_application_preferences_changed_account	(C2Application *application, gint key, gpointer value,
@@ -108,9 +132,6 @@ create_message								(C2Composer *composer);
 enum
 {
 	CHANGED_TITLE,
-	SEND_NOW,
-	SEND_LATER,
-	SAVE_DRAFT,
 	LAST_SIGNAL
 };
 
@@ -159,32 +180,12 @@ class_init (C2ComposerClass *klass)
 						GTK_SIGNAL_OFFSET (C2ComposerClass, changed_title),
 						gtk_marshal_NONE__STRING, GTK_TYPE_NONE, 1,
 						GTK_TYPE_STRING);
-	signals[SEND_NOW] =
-		gtk_signal_new ("send_now",
-						GTK_RUN_FIRST,
-						object_class->type,
-						GTK_SIGNAL_OFFSET (C2ComposerClass, send_now),
-						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-	signals[SEND_LATER] =
-		gtk_signal_new ("send_later",
-						GTK_RUN_FIRST,
-						object_class->type,
-						GTK_SIGNAL_OFFSET (C2ComposerClass, send_later),
-						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-	signals[SAVE_DRAFT] =
-		gtk_signal_new ("save_draft",
-						GTK_RUN_FIRST,
-						object_class->type,
-						GTK_SIGNAL_OFFSET (C2ComposerClass, save_draft),
-						gtk_marshal_NONE__INT, GTK_TYPE_NONE, 1,
-						GTK_TYPE_INT);
-
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 	
 	klass->changed_title = NULL;
-	klass->send_now = NULL;
-	klass->send_later = NULL;
-	klass->save_draft = NULL;
+	klass->send_now = send_now;
+/*	klass->send_later = send_later;
+	klass->save_draft = save_draft; */
 	klass->add_attachment = add_attachment;
 }
 
@@ -202,6 +203,45 @@ init (C2Composer *composer)
 static void
 destroy (GtkObject *object)
 {
+}
+
+static void
+send_ (C2Composer *composer, C2ComposerSendType type)
+{
+	C2Message *message = create_message (composer);
+	C2Mailbox *mailbox;
+	GladeXML *xml;
+	gchar *buf;
+
+	/* Set the Send Now state of the message */
+	buf = message->header;
+	message->header = g_strdup_printf ("%s\n"
+									   "X-CronosII-Send-Type: %d\n",
+									   message->header, type);
+	gtk_object_set_data (GTK_OBJECT (message), "state", (gpointer) C2_MESSAGE_UNREADED);
+
+	mailbox = c2_mailbox_get_by_name (C2_WINDOW (composer)->application->mailbox, C2_MAILBOX_OUTBOX);
+	if (!mailbox)
+		g_assert_not_reached ();
+
+	if (!c2_db_message_add (mailbox, message))
+	{
+		gtk_widget_destroy (GTK_WIDGET (composer));
+		gtk_object_unref (GTK_OBJECT (message));
+	}
+	gtk_object_remove_data (GTK_OBJECT (message), "state");
+}
+
+static void
+send_now (C2Composer *composer)
+{
+	send_ (composer, C2_COMPOSER_SEND_NOW);
+}
+
+static void
+send_later (C2Composer *composer)
+{
+	send_ (composer, C2_COMPOSER_SEND_LATER);
 }
 
 GtkWidget *
@@ -231,6 +271,7 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	gnome_window_icon_set_from_file (GTK_WINDOW (composer), PKGDATADIR "/pixmaps/mail-write.png");
 #endif
 	gtk_widget_set_usize (GTK_WIDGET (composer), GET_WINDOW_WIDTH, GET_WINDOW_HEIGHT);
+	gtk_window_set_policy (GTK_WINDOW (composer), TRUE, TRUE, FALSE);
 
 	c2_window_set_contents_from_glade (C2_WINDOW (composer), "wnd_composer_contents");
 
@@ -478,6 +519,8 @@ add_attachment (C2Composer *composer, gchar *file, gchar *description, gint nth)
 			g_free (dynpixmap);
 	}
 
+	gtk_object_set_data (GTK_OBJECT (composer), MESSAGE_CONTENT_TYPE, "multipart/mixed");
+
 	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_label");
 	gtk_widget_show (widget);
 	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_container");
@@ -600,36 +643,7 @@ on_run_external_editor_clicked (GtkWidget *widget, C2Composer *composer)
 static void
 on_send_now_clicked (GtkWidget *widget, C2Composer *composer)
 {
-	C2Message *message = create_message (composer);
-	C2Mailbox *mailbox;
-	GladeXML *xml;
-	gchar *buf;
-
-	/* Set the Send Now state of the message */
-	buf = message->header;
-	message->header = g_strdup_printf ("%s"
-									   "X-CronosII-Send-Type: %d\n",
-									   message->header, C2_COMPOSER_SEND_NOW);
-	g_free (buf);
-	C2_DEBUG (message->header);
-	gtk_object_set_data (GTK_OBJECT (message), "state", (gpointer) C2_MESSAGE_UNREADED);
-
-	xml = C2_WINDOW (composer)->xml;
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "file_send_now"), FALSE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "file_send_later"), FALSE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "send_now_btn"), FALSE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "send_later_btn"), FALSE);
-
-	mailbox = c2_mailbox_get_by_name (C2_WINDOW (composer)->application->mailbox, C2_MAILBOX_OUTBOX);
-	if (!mailbox)
-		g_assert_not_reached ();
-
-	if (!c2_db_message_add (mailbox, message))
-	{
-		gtk_widget_destroy (GTK_WIDGET (composer));
-		gtk_object_unref (GTK_OBJECT (message));
-	}
-	gtk_object_remove_data (GTK_OBJECT (message), "state");
+	C2_COMPOSER_CLASS_FW (composer)->send_now (composer);
 }
 
 static void
@@ -773,6 +787,7 @@ on_mnu_attachments_remove_activate (GtkWidget *widget, C2Composer *composer)
 		il = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_container");
 		gtk_widget_hide (il);
 		gtk_widget_queue_resize (GTK_WIDGET (composer));
+		gtk_object_remove_data (GTK_OBJECT (composer), MESSAGE_CONTENT_TYPE);
 	}
 }
 
@@ -931,11 +946,13 @@ create_message (C2Composer *composer)
 {
 	GladeXML *xml;
 	GtkWidget *widget;
-	C2Message *message;
+	C2Message *message, *fmessage;
 	C2Account *account;
 	GString *header;
-	gboolean multipart;
+	C2Mime *mime;
+	gboolean html, multipart;
 	gchar *buf, *buf1, *buf2;
+	gint i;
 
 	/* Create message */
 	message = c2_message_new ();
@@ -950,7 +967,7 @@ create_message (C2Composer *composer)
 	account = get_account (composer);
 	buf1 = (gchar*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_FULL_NAME, NULL);
 	if (buf1)
-		buf = g_strdup_printf ("From: \"%s\" <%s>\n", buf1, account->email);
+		buf = g_strdup_printf ("From: %s <%s>\n", buf1, account->email);
 	else
 		buf = g_strdup (account->email);
 	g_string_append (header, buf);
@@ -1008,6 +1025,34 @@ create_message (C2Composer *composer)
 		g_free (buf);
 	}
 
+	/* Check if message is in HTML or PLAIN */
+	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "format_html");
+	if (GTK_CHECK_MENU_ITEM (widget)->active)
+		html = TRUE;
+	else
+		html = FALSE;
+
+	/* MIME-Version */
+	g_string_append (header, "MIME-Version: 1.0\n");
+		
+	/* Content-Type */
+	buf1 = (gchar*) gtk_object_get_data (GTK_OBJECT (composer), MESSAGE_CONTENT_TYPE);
+	if (!buf1 || !strlen (buf1))
+	{
+		/* This can be text/plain or multipart/alternative */
+		if (html)
+			buf1 = g_strdup ("Content-Type: multipart/alternative\n");
+		else
+			buf1 = g_strdup ("Content-Type: text/plain\n");
+		g_string_append (header, buf1);
+		g_free (buf1);
+	} else
+	{
+		buf = g_strdup_printf ("Content-Type: %s\n", buf1);
+		g_string_append (header, buf);
+		g_free (buf);
+	}
+
 	/* X-Mailer
 	 * User-Agent
 	 */
@@ -1043,10 +1088,11 @@ create_message (C2Composer *composer)
 	g_string_append (header, buf1);
 	g_free (buf1);
 
+
 	/* Body */
 	if (composer->type == C2_COMPOSER_TYPE_INTERNAL)
 	{
-		message->body = c2_editor_get_text (C2_EDITOR (composer->editor));
+		buf = c2_editor_get_text (C2_EDITOR (composer->editor));
 	} else
 	{
 		struct stat stat_buf;
@@ -1055,7 +1101,6 @@ create_message (C2Composer *composer)
 
 		buf = (gchar*) gtk_object_get_data (GTK_OBJECT (composer), EXTERNAL_EDITOR_FILE);
 
-		C2_DEBUG (buf);
 		if (stat (buf, &stat_buf) < 0)
 		{
 			c2_error_object_set (GTK_OBJECT (composer), -errno);
@@ -1072,18 +1117,98 @@ create_message (C2Composer *composer)
 
 		length = ((gint) stat_buf.st_size * sizeof (gchar));
 
-		message->body = g_new0 (gchar, length+1);
-		fread (message->body, sizeof (gchar), length, fd);
+		buf = g_new0 (gchar, length+1);
+		fread (buf, sizeof (gchar), length, fd);
 		fclose (fd);
+	}
+	
+	/* The body is the first attachment */
+	mime = c2_mime_new (NULL);
+	mime->part = buf;
+	mime->type = g_strdup ("text");
+	mime->subtype = g_strdup (!html ? "plain" : "html");
+	mime->disposition = g_strdup ("inline");
+	mime->encoding = g_strdup ("8bit");
+	message->mime = c2_mime_append (message->mime, mime);
+
+	/* Attachments */
+	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_list");
+	for (i = 0; i < GNOME_ICON_LIST (widget)->icons; i++)
+	{
+		C2ComposerAttachment *attach = (C2ComposerAttachment*)
+						gnome_icon_list_get_icon_data (GNOME_ICON_LIST (widget), i);
+		C2Mime *mime;
+		struct stat stat_buf;
+		FILE *fd;
+		gint length;
+
+		if (!attach)
+			continue;
+
+		/* Create the MIME object */
+		mime = c2_mime_new (NULL);
+
+		/* Load the file into the mime object */
+		if (!(fd = fopen (attach->file, "r")))
+		{
+			c2_error_object_set (GTK_OBJECT (composer), -errno);
+			gtk_object_unref (GTK_OBJECT (mime));
+			c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING,
+								_("Failed to open %s: %s"), attach->file,
+								c2_error_object_get (GTK_OBJECT (composer)));
+			c2_error_object_set (GTK_OBJECT (composer), C2SUCCESS);
+			continue;
+		}
+
+		if (stat (attach->file, &stat_buf) < 0)
+		{
+			c2_error_object_set (GTK_OBJECT (composer), -errno);
+			c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING,
+								_("Failed to stat %s: %s"), attach->file,
+								c2_error_object_get (GTK_OBJECT (composer)));
+			gtk_object_destroy (GTK_OBJECT (mime));
+			continue;
+		}
+
+		length = ((gint) stat_buf.st_size * sizeof (gchar));
+		mime->part = g_new0 (gchar, length+1);
+		fread (mime->part, sizeof (gchar), length, fd);
+		fclose (fd);
+
+		/* Set more info about the mime object */
+		if (c2_strne (attach->type, _("unknown")))
+			buf = g_strdup (attach->type );
+		else
+		{
+autodefine_type:
+			buf = g_strdup ("application/octet-stream");
+		}
+		
+		if (!(buf1 = strchr (buf, '/')))
+			goto autodefine_type;
+		
+		mime->type = g_strndup (buf, buf1-buf);
+		mime->subtype = g_strdup (buf1);
+		g_free (buf);
+		
+		buf = g_basename (attach->file);
+		mime->disposition = g_strdup_printf ("attachment; filename=\"%s\"", buf);
+		g_free (buf);
+
+		mime->description = g_strdup (attach->description);
+		mime->encoding = g_strdup ("base64");
+		mime->length = length;
+
+		message->mime = c2_mime_append (message->mime, mime);
 	}
 
 	message->header = header->str;
 	g_string_free (header, FALSE);
 
-	C2_DEBUG (message->header);
-	C2_DEBUG (message->body);
+	fmessage = c2_message_fix_broken_message (message);
+	gtk_object_destroy (GTK_OBJECT (message));
 	
-	return message;
+	return fmessage;
 }
 
 static C2Account *

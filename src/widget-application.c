@@ -28,6 +28,7 @@
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
+#include "preferences.h"
 #include "widget-application.h"
 #include "widget-dialog.h"
 #include "widget-dialog-preferences.h"
@@ -503,10 +504,18 @@ ignore:
 #endif
 	}
 
-	application->fonts_gdk_message_body = gdk_font_load (application->fonts_message_body);
-	application->fonts_gdk_readed_message = gdk_font_load (application->fonts_readed_message);
-	application->fonts_gdk_unreaded_message = gdk_font_load (application->fonts_unreaded_message);
-	application->fonts_gdk_unreaded_mailbox = gdk_font_load (application->fonts_unreaded_mailbox);
+	buf = c2_preferences_get_interface_fonts_readed_mails ();
+	application->fonts_gdk_readed_mails = gdk_font_load (buf);
+	g_free (buf);
+	buf = c2_preferences_get_interface_fonts_unreaded_mails ();
+	application->fonts_gdk_unreaded_mails = gdk_font_load (buf);
+	g_free (buf);
+	buf = c2_preferences_get_interface_fonts_unreaded_mailbox ();
+	application->fonts_gdk_unreaded_mailbox = gdk_font_load (buf);
+	g_free (buf);
+	buf = c2_preferences_get_interface_fonts_message_body ();
+	application->fonts_gdk_message_body = gdk_font_load (buf);
+	g_free (buf);
 
 	gdk_color_alloc (gdk_colormap_get_system (), &application->colors_replying_original_message);
 	gdk_color_alloc (gdk_colormap_get_system (), &application->colors_message_bg);
@@ -703,7 +712,29 @@ c2_application_window_get (C2Application *application, const gchar *type)
 static void
 on_preferences_changed (C2DialogPreferences *preferences, C2DialogPreferencesKey key, gpointer value)
 {
-	gtk_signal_emit (GTK_OBJECT (C2_DIALOG (preferences)->application), signals[PREFERENCES_CHANGED],
+	C2Application *application = C2_DIALOG (preferences)->application;
+	gchar *buf;
+
+	switch (key)
+	{
+		case C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_READED_MAILS:
+			application->fonts_gdk_readed_mails = gdk_font_load ((gchar*)value);
+			break;
+		case C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_UNREADED_MAILS:
+			application->fonts_gdk_unreaded_mails = gdk_font_load ((gchar*)value);
+			break;
+		case C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_UNREADED_MAILBOX:
+			application->fonts_gdk_unreaded_mailbox = gdk_font_load ((gchar*)value);
+			break;
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
+#else
+		case C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_MESSAGE_BODY:
+			application->fonts_gdk_message_body = gdk_font_load ((gchar*)value);
+			break;
+#endif
+	}
+	
+	gtk_signal_emit (GTK_OBJECT (application), signals[PREFERENCES_CHANGED],
 					key, value);
 }
 

@@ -15,9 +15,10 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#include "widget-mailbox-list.h"
-
 #include <libcronosII/imap.h>
+
+#include "widget-dialog-preferences.h"
+#include "widget-mailbox-list.h"
 
 static void
 class_init									(C2MailboxListClass *klass);
@@ -41,6 +42,10 @@ on_tree_collapse							(GtkCTree *ctree, GtkCTreeNode *node);
 
 static void
 on_application_reload_mailboxes				(C2Application *application, C2MailboxList *mlist);
+
+static void
+on_application_preferences_changed			(C2Application *application, gint key, gpointer value,
+											 C2MailboxList *mlist);
 
 static C2Mailbox *
 get_mailbox_from_node						(C2MailboxList *mlist, GtkCTreeNode *node);
@@ -153,7 +158,9 @@ c2_mailbox_list_new (C2Application *application)
 
 	gtk_signal_connect (GTK_OBJECT (application), "reload_mailboxes",
 							GTK_SIGNAL_FUNC (on_application_reload_mailboxes), mlist);
-
+	gtk_signal_connect (GTK_OBJECT (application), "application_preferences_changed",
+							GTK_SIGNAL_FUNC (on_application_preferences_changed), mlist);
+	
 	return GTK_WIDGET (mlist);
 }
 
@@ -218,6 +225,14 @@ static void
 on_application_reload_mailboxes (C2Application *application, C2MailboxList *mlist)
 {
 	tree_fill (mlist, application->mailbox, application->account, NULL);
+}
+
+static void
+on_application_preferences_changed (C2Application *application, gint key, gpointer value,
+	 C2MailboxList *mlist)
+{
+	if (key == C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_UNREADED_MAILBOX)
+		tree_fill (mlist, application->mailbox, application->account, NULL);
 }
 
 static C2Mailbox *

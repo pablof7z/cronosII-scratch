@@ -178,6 +178,7 @@ c2_transfer_list_add_item (C2TransferList *tl, C2TransferItem *ti)
 
 	gtk_box_pack_start (GTK_BOX (tl->vbox), ti->table, FALSE, TRUE, 0);
 
+	gtk_object_set_data (GTK_OBJECT (ti), "transfer list", tl);
 	gtk_signal_connect (GTK_OBJECT (ti), "finish",
 						GTK_SIGNAL_FUNC (on_transfer_item_finish), tl);
 }

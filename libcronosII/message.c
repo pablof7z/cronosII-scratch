@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -19,18 +19,30 @@
 #include <gtk/gtk.h>
 #include <string.h>
 
+#include "db.h"
 #include "message.h"
 #include "error.h"
 #include "utils.h"
 
-static void
-c2_message_class_init							(C2MessageClass *klass);
+#define BOUNDARY_LENGTH 50
+
+#define MIME_UNCAPABLE_WARNING "This is a multipart message in MIME format.\n" \
+							   "Since your mail client is not MIME compatible\n" \
+							   "you will not be able to see this message properly.\n" \
+							   "You should strongly consider changing your\n" \
+							   "mail client.\n" \
+							   "You might want to send a mail to\n" \
+							   "cronosII-hackers@lists.sourceforge.net for help\n" \
+							   "or visit http://www.cronosII.net/\n"
 
 static void
-c2_message_init									(C2Message *message);
+class_init									(C2MessageClass *klass);
 
 static void
-c2_message_destroy								(GtkObject *object);
+init										(C2Message *message);
+
+static void
+destroy										(GtkObject *object);
 
 enum
 {
@@ -38,37 +50,37 @@ enum
 	LAST_SIGNAL
 };
 
-static guint c2_message_signals[LAST_SIGNAL] = { 0 };
+static guint signals[LAST_SIGNAL] = { 0 };
 
 static GtkObjectClass *parent_class = NULL;
 
 GtkType
 c2_message_get_type (void)
 {
-	static GtkType c2_message_type = 0;
+	static GtkType type = 0;
 
-	if (!c2_message_type)
+	if (!type)
 	{
-		static const GtkTypeInfo c2_message_info =
+		static const GtkTypeInfo info =
 		{
 			"C2Message",
 			sizeof (C2Message),
 			sizeof (C2MessageClass),
-			(GtkClassInitFunc) c2_message_class_init,
-			(GtkObjectInitFunc) c2_message_init,
+			(GtkClassInitFunc) class_init,
+			(GtkObjectInitFunc) init,
 			/* reserved_1 */ NULL,
 			/* reserved_2 */ NULL,
 			(GtkClassInitFunc) NULL
 		};
 
-		c2_message_type = gtk_type_unique (gtk_object_get_type (), &c2_message_info);
+		type = gtk_type_unique (gtk_object_get_type (), &info);
 	}
 
-	return c2_message_type;
+	return type;
 }
 
 static void
-c2_message_class_init (C2MessageClass *klass)
+class_init (C2MessageClass *klass)
 {
 	GtkObjectClass *object_class;
 
@@ -76,22 +88,21 @@ c2_message_class_init (C2MessageClass *klass)
 
 	parent_class = gtk_type_class (gtk_object_get_type ());
 
-	c2_message_signals[MESSAGE_DIE] =
+	signals[MESSAGE_DIE] =
 		gtk_signal_new ("message_die",
 					GTK_RUN_FIRST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2MessageClass, message_die),
 					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-	
-	gtk_object_class_add_signals (object_class, c2_message_signals, LAST_SIGNAL);
+	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 
-	object_class->destroy = c2_message_destroy;
+	object_class->destroy = destroy;
 
 	klass->message_die = NULL;
 }
 
 static void
-c2_message_init (C2Message *message)
+init (C2Message *message)
 {
 	message->body = NULL;
 	message->header = NULL;
@@ -128,7 +139,7 @@ c2_message_set_message (C2Message *message, const gchar *string)
 }
 
 static void
-c2_message_destroy (GtkObject *object)
+destroy (GtkObject *object)
 {
 	C2Message *message;
 	
@@ -259,4 +270,196 @@ const gchar *
 c2_message_get_message_body (const C2Message *message)
 {
 	return message->body;
+}
+
+gchar *
+create_boundary (void)
+{
+	gchar *boundary;
+	gchar *ptr;
+	gint i;
+	
+	srand (time (NULL));
+	boundary = g_new0 (gchar, BOUNDARY_LENGTH);
+	sprintf (boundary, "Cronos-II=");
+	ptr = boundary+10;
+	
+	for (i = 0; i < BOUNDARY_LENGTH-11; i++) 
+		*(ptr+i) = (rand () % 26)+97; /* From a to z */
+	
+	if (*(ptr+i-1) == '-')
+		*(ptr+i-1) = '.';
+	
+	*(ptr+i) = '\0';
+	
+	return boundary;
+}
+
+C2Message *
+c2_message_fix_broken_message (C2Message *message)
+{
+	C2Message *fmessage;
+	C2Mime *mime;
+	gchar *buf, *ptr;
+	gchar *tmpfile;
+	gchar *boundary = NULL;
+	FILE *fd;
+	
+	c2_return_val_if_fail (C2_IS_MESSAGE (message), NULL, C2EDATA);
+
+	/* Get a tmp file */
+	tmpfile = c2_get_tmp_file (NULL);
+
+	/* Open the tmp file */
+	if (!(fd = fopen (tmpfile, "w")))
+	{
+		c2_error_set (-errno);
+		return NULL;
+	}
+
+	buf = c2_message_get_header_field (message, "\nContent-Type:");
+	
+	if (c2_strneq (buf, "multipart", 9))
+	{
+		/* Try to get the boundary */
+		boundary = strstr (buf, "boundary=");
+		if (boundary)
+		{
+			boundary += 9;
+			ptr = g_strdup (boundary);
+			boundary = c2_str_strip_enclosed (ptr, '"', '"');
+			g_free (ptr);
+		}
+	} else
+		/* We just point it somewhere so we don't
+		 * get confused later
+		 */
+		boundary = message->header;
+
+	g_free (buf);
+
+	for (ptr = message->header; ptr;)
+	{
+		gchar *ptrn = strchr (ptr, '\n');
+		gint length = ptrn ? (ptrn - ptr) : strlen (ptr);
+		gboolean finish = ptrn ? FALSE : TRUE;
+
+		fwrite (ptr, sizeof (gchar), length, fd);
+			
+		/* Check if this is the Content-Type header */
+		if (c2_strneq (ptr, "Content-Type:", 13) && !boundary)
+		{
+			/* It's not, finish the line and continue */
+			fwrite ("; boundary=\"", sizeof (gchar), 12, fd);
+			boundary = create_boundary ();
+			fwrite (boundary, sizeof (gchar), BOUNDARY_LENGTH-1, fd);
+			fwrite ("\"", sizeof (gchar), 1, fd);
+			
+		}
+		
+		fwrite ("\n", sizeof (gchar), 1, fd);
+		ptr += length+1;
+
+		if (finish)
+			break;
+	}
+
+	/* Write the separator */
+//	fwrite ("\n", sizeof (gchar), 1, fd); I'm getting an extra '\n'...
+
+	/* Now work over the body */
+	if (c2_mime_length (message->mime) > 1)
+	{
+		/* Write the MIME_UNCAPABLE_WARNING */
+		fprintf (fd, MIME_UNCAPABLE_WARNING "\n\n");
+	
+		for (mime = message->mime; mime; mime = mime->next)
+		{
+			gint len;
+			gboolean free_space = TRUE;
+		
+			if (mime->part)
+				free_space = FALSE;
+			else
+			{
+#ifdef USE_DEBUG
+				g_error ("The thing you thought would never get true "
+						 "got true, so see what's going on!\n");
+#endif
+				c2_mime_get_part (mime);
+			}
+
+			/* Encode the part */
+			if (c2_streq (mime->encoding, "7bit") || c2_streq (mime->encoding, "8bit"))
+			{
+				buf = g_strdup (mime->part);
+
+				if (buf)
+					len = strlen (buf);
+			} else if (c2_streq (mime->encoding, "base64"))
+			{
+encode_base64:
+				len = mime->length;
+				buf = c2_mime_encode_base64 (mime->part, &len);
+			} else
+			{
+				/* [TODO] Add more supports */
+#ifdef USE_DEBUG
+				g_print ("There is no support for encoding in type %s (%s, %d)\n",
+							mime->encoding, __FILE__, __LINE__);
+#endif
+				mime->encoding = g_strdup ("base64");
+				goto encode_base64;
+			}
+			
+			fprintf (fd, "--%s\n"
+						 "Content-Type: %s/%s\n"
+						 "Content-Transfer-Encoding: %s\n",
+						 boundary, mime->type, mime->subtype, mime->encoding);
+
+			if (mime->disposition && strlen (mime->disposition))
+				fprintf (fd, "Content-Disposition: %s\n",
+								mime->disposition);
+
+			if (mime->description && strlen (mime->description))
+				fprintf (fd, "Content-Description: %s\n",
+								mime->description);
+
+			fprintf (fd, "\n");
+			fwrite (buf, sizeof (gchar), len, fd);
+			/* fprintf (fd, "\n"); I'm getting an extra space */
+
+			g_free (buf);
+
+			if (free_space)
+			{
+				g_free (mime->part);
+				mime->part = NULL;
+			}
+		}
+
+		fprintf (fd, "--%s--", boundary);
+	} else if (message->mime)
+	{
+		/* This is just one part */
+		fprintf (fd, "%s", message->mime->part);
+	} else
+	{
+		/* No attachments, just write what we
+		 * have in body
+		 */
+		fprintf (fd, "%s", message->body);
+	}
+	
+	/* Close the tmpfile */
+	fclose (fd);
+
+	/* Now, load the message and return it */
+	fmessage = c2_db_message_get_from_file (tmpfile);
+
+	/* And now delete the file */
+	unlink (tmpfile);
+	g_free (tmpfile);
+
+	return fmessage;
 }

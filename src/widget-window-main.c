@@ -45,6 +45,57 @@ class_init									(C2WindowMainClass *klass);
 static void
 init										(C2WindowMain *wmain);
 
+static void
+check										(C2WindowMain *wmain);
+
+static void
+close_										(C2WindowMain *wmain);
+
+static void
+compose										(C2WindowMain *wmain);
+
+static void
+contacts									(C2WindowMain *wmain);
+
+static void
+copy										(C2WindowMain *wmain);
+
+static void
+delete										(C2WindowMain *wmain);
+
+static void
+exit_										(C2WindowMain *wmain);
+
+static void
+forward										(C2WindowMain *wmain);
+
+static void
+move										(C2WindowMain *wmain);
+
+static void
+next										(C2WindowMain *wmain);
+
+static void
+previous									(C2WindowMain *wmain);
+
+static void
+print										(C2WindowMain *wmain);
+
+static void
+reply										(C2WindowMain *wmain);
+
+static void
+reply_all									(C2WindowMain *wmain);
+
+static void
+save										(C2WindowMain *wmain);
+
+static void
+search										(C2WindowMain *wmain);
+
+static void
+send_										(C2WindowMain *wmain);
+
 static gint
 on_delete_event								(GtkWidget *widget, GdkEventAny *event, gpointer data);
 
@@ -58,19 +109,52 @@ static void
 on_toolbar_check_clicked					(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
-on_toolbar_save_clicked						(GtkWidget *widget, C2WindowMain *wmain);
-
-static void
-on_toolbar_delete_clicked					(GtkWidget *widget, C2WindowMain *wmain);
+on_toolbar_close_clicked					(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_toolbar_compose_clicked					(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
-on_toolbar_reply_clicked					(GtkWidget *widget, C2WindowMain *wmain);
+on_toolbar_contacts_clicked					(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_toolbar_copy_clicked						(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_toolbar_delete_clicked					(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_toolbar_exit_clicked						(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_toolbar_forward_clicked					(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_toolbar_move_clicked						(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_toolbar_next_clicked						(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_toolbar_previous_clicked					(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_toolbar_print_clicked					(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_toolbar_reply_clicked					(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_toolbar_reply_all_clicked				(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_toolbar_save_clicked						(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_toolbar_search_clicked					(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_toolbar_send_clicked						(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_index_select_message						(GtkWidget *index, C2Db *node, C2WindowMain *wmain);
@@ -140,14 +224,14 @@ C2ToolbarItem toolbar_items[] =
 		C2_TOOLBAR_BUTTON,
 		N_("Send"), PKGDATADIR "/pixmaps/send.png",
 		N_("Send outgoing mails"), TRUE,
-		NULL, NULL,
+		GTK_SIGNAL_FUNC (on_toolbar_send_clicked), NULL,
 		NULL, NULL
 	},
 	{
 		C2_TOOLBAR_BUTTON,
 		N_("Search"), PKGDATADIR "/pixmaps/find.png",
 		N_("Search a message in existent mailboxes"), TRUE,
-		NULL, NULL,
+		GTK_SIGNAL_FUNC (on_toolbar_search_clicked), NULL,
 		NULL, NULL
 	},
 	{
@@ -161,7 +245,7 @@ C2ToolbarItem toolbar_items[] =
 		C2_TOOLBAR_BUTTON,
 		N_("Print"), PKGDATADIR "/pixmaps/print.png",
 		N_("Print selected message"), TRUE,
-		NULL, NULL,
+		GTK_SIGNAL_FUNC (on_toolbar_print_clicked), NULL,
 		NULL, NULL
 	},
 	{
@@ -175,14 +259,14 @@ C2ToolbarItem toolbar_items[] =
 		C2_TOOLBAR_BUTTON,
 		N_("Copy"), PKGDATADIR "/pixmaps/copy-message.png",
 		N_("Copy selected mails"), TRUE,
-		NULL, NULL,
+		GTK_SIGNAL_FUNC (on_toolbar_copy_clicked), NULL,
 		NULL, NULL
 	},
 	{
 		C2_TOOLBAR_BUTTON,
 		N_("Move"), PKGDATADIR "/pixmaps/move-message.png",
 		N_("Move selected mails"), TRUE,
-		NULL, NULL,
+		GTK_SIGNAL_FUNC (on_toolbar_move_clicked), NULL,
 		NULL, NULL
 	},
 	{
@@ -203,42 +287,42 @@ C2ToolbarItem toolbar_items[] =
 		C2_TOOLBAR_BUTTON,
 		N_("Reply All"), PKGDATADIR "/pixmaps/reply-all.png",
 		N_("Reply selected message to all recipients"), TRUE,
-		NULL, NULL,
+		GTK_SIGNAL_FUNC (on_toolbar_reply_all_clicked), NULL,
 		NULL, NULL,
 	},
 	{
 		C2_TOOLBAR_BUTTON,
 		N_("Forward"), PKGDATADIR "/pixmaps/forward.png",
 		N_("Forward selected message"), TRUE,
-		NULL, NULL,
+		GTK_SIGNAL_FUNC (on_toolbar_forward_clicked), NULL,
 		NULL, NULL
 	},
 	{
 		C2_TOOLBAR_BUTTON,
 		N_("Previous"), PKGDATADIR "/pixmaps/prev.png",
 		N_("Select previous message"), FALSE,
-		NULL, NULL,
+		GTK_SIGNAL_FUNC (on_toolbar_previous_clicked), NULL,
 		NULL, NULL
 	},
 	{
 		C2_TOOLBAR_BUTTON,
 		N_("Next"), PKGDATADIR "/pixmaps/next.png",
 		N_("Select next message"), FALSE,
-		NULL, NULL,
+		GTK_SIGNAL_FUNC (on_toolbar_next_clicked), NULL,
 		NULL, NULL
 	},
 	{
 		C2_TOOLBAR_BUTTON,
 		N_("Contacts"), PKGDATADIR "/pixmaps/contacts.png",
 		N_("Open the Contacts Address Book"), TRUE,
-		NULL, NULL,
+		GTK_SIGNAL_FUNC (on_toolbar_contacts_clicked), NULL,
 		NULL, NULL
 	},
 	{
 		C2_TOOLBAR_BUTTON,
 		N_("Close"), PKGDATADIR "/pixmaps/close.png",
 		N_("Close the main window of Cronos II"), TRUE,
-		NULL, NULL,
+		GTK_SIGNAL_FUNC (on_toolbar_close_clicked), NULL,
 		NULL, NULL
 	},
 	{
@@ -281,6 +365,24 @@ static void
 class_init (C2WindowMainClass *klass)
 {
 	parent_class = gtk_type_class (c2_window_get_type ());
+
+	klass->check = check;
+	klass->close = close_;
+	klass->compose = compose;
+	klass->contacts = contacts;
+	klass->copy = copy;
+	klass->delete = delete;
+	klass->exit = exit_;
+	klass->forward = forward;
+	klass->move = move;
+	klass->next = next;
+	klass->previous = previous;
+	klass->print = print;
+	klass->reply = reply;
+	klass->reply_all = reply_all;
+	klass->save = save;
+	klass->search = search;
+	klass->send = send_;
 }
 
 static void
@@ -487,19 +589,260 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 //	c2_main_window_build_dynamic_menu_accounts ();
 }
 
-/**
- * c2_window_main_set_mailbox
- * @wmain: Object where to act.
- * @mailbox: Mailbox to set.
- *
- * This function sets the active mailbox in the main window.
- **/
-void
-c2_window_main_set_mailbox (C2WindowMain *wmain, C2Mailbox *mailbox)
+static void
+check (C2WindowMain *wmain)
 {
-	c2_return_if_fail_obj (mailbox, C2EDATA, GTK_OBJECT (wmain));
+	C2Application *application;
+	C2Account *account;
+	GtkWidget *wtl;
+	C2TransferItem *wti;
 
-	c2_mailbox_list_set_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist), mailbox);
+	application = C2_WINDOW (wmain)->application;
+	wtl = c2_application_window_get (application, C2_WIDGET_TRANSFER_LIST_TYPE);
+
+	if (!wtl || !C2_IS_TRANSFER_LIST (wtl))
+		wtl = c2_transfer_list_new (application);
+
+	gtk_widget_show (wtl);
+	gdk_window_raise (wtl->window);
+
+	for (account = application->account; account; account = c2_account_next (account))
+	{
+		gpointer data = c2_account_get_extra_data (account, C2_ACCOUNT_KEY_ACTIVE, NULL);
+
+		if (!GPOINTER_TO_INT (data))
+			continue;
+
+		wti = c2_transfer_item_new (application, account, C2_TRANSFER_ITEM_RECEIVE);
+		c2_transfer_list_add_item (C2_TRANSFER_LIST (wtl), wti);
+		c2_transfer_item_start (wti);
+	}
+}
+
+static void
+close_ (C2WindowMain *wmain)
+{
+	gtk_object_destroy (GTK_OBJECT (wmain));
+}
+
+static void
+compose (C2WindowMain *wmain)
+{
+	GtkWidget *composer;
+	
+	composer = c2_composer_new (C2_WINDOW (wmain)->application);
+	gtk_widget_show (composer);
+}
+
+static void
+contacts (C2WindowMain *wmain)
+{
+}
+
+static void
+copy (C2WindowMain *wmain)
+{
+}
+
+static void
+on_delete_thread (C2WindowMain *wmain)
+{
+	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
+	C2Mailbox *trash = c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox,
+												C2_MAILBOX_GARBAGE);
+	GList *list;
+
+	list = GTK_CLIST (wmain->index)->selection;
+
+	if (gnome_config_get_bool_with_default ("/"PACKAGE"/General-Options/delete_use_trash=true", NULL))
+	{
+		/* Ask for confirmation (if we should) */
+		if (gnome_config_get_bool_with_default ("/"PACKAGE"/General-Options/delete_confirmation", NULL))
+		{
+/*			if (!dlg_confirm_delete_message (GTK_WINDOW (wmain)))
+				return;*/
+		}
+		
+//		cd_db_message_move (mailbox, trash, list);
+	} else
+	{
+		/* Ask for confirmation */
+/*		if (!dlg_confirm_permanently_delete_message (GTK_WINDOW (wmain)))
+			return;*/
+
+		c2_db_message_remove (mailbox, list);
+	}
+}
+
+static void
+delete (C2WindowMain *wmain)
+{
+	pthread_t thread;
+
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_delete_thread), wmain);
+}
+
+static void
+exit_ (C2WindowMain *wmain)
+{
+/* TODO	c2_application_finish (C2_WINDOW (wmain)->application); */
+	gtk_object_destroy (GTK_OBJECT (wmain));
+}
+
+static void
+forward (C2WindowMain *wmain)
+{
+}
+
+static void
+move (C2WindowMain *wmain)
+{
+}
+
+static void
+next (C2WindowMain *wmain)
+{
+}
+
+static void
+previous (C2WindowMain *wmain)
+{
+}
+
+static void
+print (C2WindowMain *wmain)
+{
+}
+
+static void
+reply (C2WindowMain *wmain)
+{
+	GtkWidget *composer;
+	GtkWidget *mail;
+	C2Message *message;
+	
+	mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
+	message = c2_mail_get_message (C2_MAIL (mail));
+	composer = c2_composer_new (C2_WINDOW (wmain)->application);
+	c2_composer_set_message_as_quote (C2_COMPOSER (composer), message);
+	gtk_widget_show (composer);
+}
+
+static void
+reply_all (C2WindowMain *wmain)
+{
+}
+
+static void
+on_save_ok_clicked (GtkWidget *widget, gint *button)
+{
+	*button = 1;
+	gtk_main_quit ();
+}
+
+static void
+on_save_cancel_clicked (GtkWidget *widget, gint *button)
+{
+	*button = 0;
+	gtk_main_quit ();
+}
+
+static void
+on_save_delete_event (GtkWidget *widget, GdkEvent *e, gint *button)
+{
+	*button = 0;
+	gtk_main_quit ();
+}
+
+static void
+save (C2WindowMain *wmain)
+{
+	C2Message *message;
+	GtkWidget *mail;
+	GtkWidget *dialog;
+	gint button;
+
+	mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
+	message = c2_mail_get_message (C2_MAIL (mail));
+	gtk_object_ref (GTK_OBJECT (message));
+
+	dialog = gtk_file_selection_new (NULL);
+	gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog),
+									C2_WINDOW (wmain)->application->paths_saving);
+
+	c2_application_window_add (C2_WINDOW (wmain)->application, GTK_WINDOW (dialog));
+
+	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->ok_button), "clicked",
+						GTK_SIGNAL_FUNC (on_save_ok_clicked), &button);
+	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->cancel_button), "clicked",
+						GTK_SIGNAL_FUNC (on_save_cancel_clicked), &button);
+	gtk_signal_connect (GTK_OBJECT (dialog), "delete_event",
+						GTK_SIGNAL_FUNC (on_save_delete_event), &button);
+	
+	gtk_widget_show (dialog);
+	gtk_main ();
+
+	if (!button)
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+							_("Message saving aborted."));
+	else
+	{
+		const gchar *file;
+		FILE *fd;
+
+		file = gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog));
+
+		if (!strlen (file))
+			goto no_name;
+
+		if (gnome_config_get_bool_with_default ("/"PACKAGE"/Paths/smart=true", NULL))
+		{
+			gchar *dir, *buf;
+
+			buf = g_dirname (file);
+			dir = g_strdup_printf ("%s" G_DIR_SEPARATOR_S, buf);
+			g_free (buf);
+			gnome_config_set_string ("/"PACKAGE"/Paths/saving", dir);
+			g_free (C2_WINDOW (wmain)->application->paths_saving);
+			C2_WINDOW (wmain)->application->paths_saving = dir;
+		}	
+
+		if (!message)
+		{
+			c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+								_("Message saving failed: Unable to find message."));
+			goto no_name;
+		}
+
+		if (!(fd = fopen (file, "w")))
+		{
+			c2_error_set (-errno);
+
+			c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+								_("Message saving failed: %s"), c2_error_get ());
+			goto no_name;
+		}
+
+		fprintf (fd, "%s\n\n%s", message->header, message->body);
+		fclose (fd);
+
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
+								_("Message saved successfully."));
+	}
+no_name:
+	c2_application_window_remove (C2_WINDOW (wmain)->application, GTK_WINDOW (dialog));
+	gtk_widget_destroy (dialog);
+	gtk_object_unref (GTK_OBJECT (message));
+}
+
+static void
+search (C2WindowMain *wmain)
+{
+}
+
+static void
+send_ (C2WindowMain *wmain)
+{
 }
 
 static gint
@@ -513,6 +856,21 @@ on_delete_event (GtkWidget *widget, GdkEventAny *event, gpointer data)
 	 * i.e. unref any loaded message.
 	 */
 	return FALSE;
+}
+
+/**
+ * c2_window_main_set_mailbox
+ * @wmain: Object where to act.
+ * @mailbox: Mailbox to set.
+ *
+ * This function sets the active mailbox in the main window.
+ **/
+void
+c2_window_main_set_mailbox (C2WindowMain *wmain, C2Mailbox *mailbox)
+{
+	c2_return_if_fail_obj (mailbox, C2EDATA, GTK_OBJECT (wmain));
+
+	c2_mailbox_list_set_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist), mailbox);
 }
 
 static void
@@ -557,185 +915,103 @@ on_toolbar_changed (GtkWidget *widget, C2WindowMain *wmain)
 static void
 on_toolbar_check_clicked (GtkWidget *widget, C2WindowMain *wmain)
 {
-	C2Application *application;
-	C2Account *account;
-	GtkWidget *wtl;
-	C2TransferItem *wti;
-
-	application = C2_WINDOW (wmain)->application;
-	wtl = c2_application_window_get (application, C2_WIDGET_TRANSFER_LIST_TYPE);
-
-	if (!wtl || !C2_IS_TRANSFER_LIST (wtl))
-		wtl = c2_transfer_list_new (application);
-
-	gtk_widget_show (wtl);
-	gdk_window_raise (wtl->window);
-
-	for (account = application->account; account; account = c2_account_next (account))
-	{
-		gpointer data = c2_account_get_extra_data (account, C2_ACCOUNT_KEY_ACTIVE, NULL);
-
-		if (!GPOINTER_TO_INT (data))
-			continue;
-
-		wti = c2_transfer_item_new (application, account, C2_TRANSFER_ITEM_RECEIVE);
-		c2_transfer_list_add_item (C2_TRANSFER_LIST (wtl), wti);
-		c2_transfer_item_start (wti);
-	}
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->check (wmain);
 }
 
 static void
-on_toolbar_save_clicked_ok_clicked (GtkWidget *widget, gint *button)
+on_toolbar_close_clicked (GtkWidget *widget, C2WindowMain *wmain)
 {
-	*button = 1;
-	gtk_main_quit ();
-}
-
-static void
-on_toolbar_save_clicked_cancel_clicked (GtkWidget *widget, gint *button)
-{
-	*button = 0;
-	gtk_main_quit ();
-}
-
-static void
-on_toolbar_save_clicked_delete_event (GtkWidget *widget, GdkEvent *e, gint *button)
-{
-	*button = 0;
-	gtk_main_quit ();
-}
-
-static void
-on_toolbar_save_clicked (GtkWidget *widget, C2WindowMain *wmain)
-{
-	GtkWidget *dialog;
-	gint button;
-
-	dialog = gtk_file_selection_new (NULL);
-	gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog),
-									C2_WINDOW (wmain)->application->paths_saving);
-
-	c2_application_window_add (C2_WINDOW (wmain)->application, GTK_WINDOW (dialog));
-
-	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->ok_button), "clicked",
-						GTK_SIGNAL_FUNC (on_toolbar_save_clicked_ok_clicked), &button);
-	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->cancel_button), "clicked",
-						GTK_SIGNAL_FUNC (on_toolbar_save_clicked_cancel_clicked), &button);
-	gtk_signal_connect (GTK_OBJECT (dialog), "delete_event",
-						GTK_SIGNAL_FUNC (on_toolbar_save_clicked_delete_event), &button);
-	
-	gtk_widget_show (dialog);
-	gtk_main ();
-
-	if (!button)
-		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-							_("Message saving aborted."));
-	else
-	{
-		C2Message *message;
-		GtkWidget *mail;
-		const gchar *file;
-		FILE *fd;
-
-		file = gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog));
-
-		if (!strlen (file))
-			goto no_name;
-
-		if (gnome_config_get_bool_with_default ("/"PACKAGE"/Paths/smart=true", NULL))
-		{
-			gchar *dir, *buf;
-
-			buf = g_dirname (file);
-			dir = g_strdup_printf ("%s" G_DIR_SEPARATOR_S, buf);
-			g_free (buf);
-			gnome_config_set_string ("/"PACKAGE"/Paths/saving", dir);
-			g_free (C2_WINDOW (wmain)->application->paths_saving);
-			C2_WINDOW (wmain)->application->paths_saving = dir;
-		}
-
-		mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
-		message = c2_mail_get_message (C2_MAIL (mail));
-
-		if (!message)
-		{
-			c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-								_("Message saving failed: Unable to find message."));
-			goto no_name;
-		}
-
-		if (!(fd = fopen (file, "w")))
-		{
-			c2_error_set (-errno);
-
-			c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-								_("Message saving failed: %s"), c2_error_get ());
-			goto no_name;
-		}
-
-		fprintf (fd, "%s\n\n%s", message->header, message->body);
-		fclose (fd);
-
-		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
-								_("Message saved successfully."));
-	}
-no_name:
-	c2_application_window_remove (C2_WINDOW (wmain)->application, GTK_WINDOW (dialog));
-	gtk_widget_destroy (dialog);
-}
-
-static void
-on_toolbar_delete_clicked_thread (C2WindowMain *wmain)
-{
-	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
-	C2Mailbox *trash = c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox,
-												C2_MAILBOX_GARBAGE);
-	GList *list;
-
-	list = GTK_CLIST (wmain->index)->selection;
-
-	if (gnome_config_get_bool_with_default ("/"PACKAGE"/General-Options/delete_use_trash=false", NULL))
-		;
-//		cd_db_message_move (mailbox, trash, list);
-	else
-		c2_db_message_remove (mailbox, list);
-}
-
-static void
-on_toolbar_delete_clicked (GtkWidget *widget, C2WindowMain *wmain)
-{
-	pthread_t thread;
-
-	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_toolbar_delete_clicked_thread), wmain);
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->close (wmain);
 }
 
 static void
 on_toolbar_compose_clicked (GtkWidget *widget, C2WindowMain *wmain)
 {
-	GtkWidget *composer;
-	
-	composer = c2_composer_new (C2_WINDOW (wmain)->application);
-	gtk_widget_show (composer);
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->compose (wmain);
 }
 
 static void
-on_toolbar_reply_clicked (GtkWidget *widget, C2WindowMain *wmain)
+on_toolbar_contacts_clicked (GtkWidget *widget, C2WindowMain *wmain)
 {
-	GtkWidget *composer;
-	GtkWidget *mail;
-	C2Message *message;
-	
-	mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
-	message = c2_mail_get_message (C2_MAIL (mail));
-	composer = c2_composer_new (C2_WINDOW (wmain)->application);
-	c2_composer_set_message_as_quote (C2_COMPOSER (composer), message);
-	gtk_widget_show (composer);
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->contacts (wmain);
+}
+
+static void
+on_toolbar_copy_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->copy (wmain);
+}
+
+static void
+on_toolbar_delete_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->delete (wmain);
 }
 
 static void
 on_toolbar_exit_clicked (GtkWidget *widget, C2WindowMain *wmain)
 {
-	gtk_object_destroy (GTK_OBJECT (wmain));
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->exit (wmain);
+}
+
+static void
+on_toolbar_forward_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->forward (wmain);
+}
+
+static void
+on_toolbar_move_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->move (wmain);
+}
+
+static void
+on_toolbar_next_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->next (wmain);
+}
+
+static void
+on_toolbar_previous_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->previous (wmain);
+}
+
+static void
+on_toolbar_print_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->print (wmain);
+}
+
+static void
+on_toolbar_reply_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->reply (wmain);
+}
+
+static void
+on_toolbar_reply_all_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->reply_all (wmain);
+}
+
+static void
+on_toolbar_save_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->save (wmain);
+}
+
+static void
+on_toolbar_search_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->search (wmain);
+}
+
+static void
+on_toolbar_send_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->send (wmain);
 }
 
 static void
@@ -768,27 +1044,6 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 	c2_mail_set_message (C2_MAIL (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail")), node->message);
 
 	/* Set some widgets sensivity */
-	xml = C2_WINDOW (wmain)->xml;
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "toolbar_save"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "toolbar_print"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "toolbar_delete"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "toolbar_reply"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "toolbar_reply_all"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "toolbar_forward"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "file_save"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "file_print"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_reply"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_reply_all"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_forward"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_copy"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_move"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_delete"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_expunge"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_mark_important"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_mark_unread"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_mark_read"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_mark_replied"), TRUE);
-	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_mark_forward"), TRUE);
 }
 
 static gint

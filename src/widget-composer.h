@@ -111,12 +111,16 @@ struct _C2ComposerClass
 
 	void (*changed_title) (C2Composer *composer, const gchar *title);
 
+	void (*add_attachment) (C2Composer *composer, gchar *file, gchar *description, gint nth);
+	void (*find) (C2Composer *composer);
+	void (*open_draft) (C2Composer *composer);
+	void (*open_file) (C2Composer *composer);
+	void (*replace) (C2Composer *composer);
+	void (*save) (C2Composer *composer);
+	void (*save_as) (C2Composer *composer);
 	void (*send_now) (C2Composer *composer);
 	void (*send_later) (C2Composer *composer);
-	
-	void (*save_draft) (C2Composer *composer, gint draft_id);
-
-	void (*add_attachment) (C2Composer *composer, gchar *file, gchar *description, gint nth);
+	void (*spell_check) (C2Composer *composer);
 };
 
 /* GTK+ general functions */

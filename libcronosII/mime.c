@@ -146,6 +146,18 @@ no_mime_information:
 	}
 }
 
+gint
+c2_mime_length (C2Mime *mime)
+{
+	C2Mime *l;
+	gint count = 0;
+
+	for (l = mime; l; l = l->next)
+		count++;
+
+	return count;
+}
+
 static void
 parse_content_type (const gchar *content_type, gchar **type, gchar **subtype, gchar **parameter)
 {

@@ -25,6 +25,7 @@
 #include <libcronosII/smtp.h>
 #include <libcronosII/utils.h>
 
+#include "preferences.h"
 #include "widget-application.h"
 #include "widget-dialog-preferences.h"
 #include "widget-sidebar.h"
@@ -71,15 +72,17 @@ on_general_options_timeout_check_activate	(GtkWidget *widget, C2DialogPreference
 static void
 on_general_options_incoming_warn_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
 
-static gint
-on_general_options_outgoing_wrap_focus_out_event	(GtkWidget *widget, GdkEventFocus *event,
-											C2DialogPreferences *preferences);
+static void
+on_general_options_outgoing_sent_items_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
-on_general_options_outgoing_wrap_activate	(GtkWidget *widget, C2DialogPreferences *preferences);
+on_general_options_delete_use_trash_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
-on_general_options_outgoing_outbox_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
+on_general_options_delete_confirmation_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_general_options_delete_archive_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
 on_general_accounts_clist_select_row		(GtkWidget *widget, gint row, gint column,
@@ -109,6 +112,30 @@ on_general_paths_save_changed				(GtkWidget *widget, C2DialogPreferences *prefer
 
 static void
 on_general_paths_get_changed				(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_general_paths_smart_toggled				(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_interface_fonts_readed_mails_font_set	(GtkWidget *widget, gchar *font, C2DialogPreferences *preferences);
+
+static void
+on_interface_fonts_unreaded_mails_font_set	(GtkWidget *widget, gchar *font, C2DialogPreferences *preferences);
+
+static void
+on_interface_fonts_unreaded_mailbox_font_set(GtkWidget *widget, gchar *font, C2DialogPreferences *preferences);
+
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
+static void
+on_interface_fonts_readed_mails_activate	(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_interface_fonts_readed_mails_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
+												 C2DialogPreferences *preferences);
+#else
+static void
+on_interface_fonts_message_body_font_set	(GtkWidget *widget, gchar *font, C2DialogPreferences *preferences);
+#endif
 
 static void
 on_interface_html_links_default_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
@@ -298,15 +325,21 @@ set_signals (C2DialogPreferences *preferences)
 	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
 						GTK_SIGNAL_FUNC (on_general_options_incoming_warn_toggled), preferences);
 
-	widget = glade_xml_get_widget (xml, "general_options_outgoing_wrap");
-	gtk_signal_connect (GTK_OBJECT (widget), "focus_out_event",
-						GTK_SIGNAL_FUNC (on_general_options_outgoing_wrap_focus_out_event), preferences);
-	gtk_signal_connect (GTK_OBJECT (widget), "activate",
-						GTK_SIGNAL_FUNC (on_general_options_outgoing_wrap_activate), preferences);
-
-	widget = glade_xml_get_widget (xml, "general_options_outgoing_outbox");
+	widget = glade_xml_get_widget (xml, "general_options_outgoing_sent_items");
 	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
-						GTK_SIGNAL_FUNC (on_general_options_outgoing_outbox_toggled), preferences);
+						GTK_SIGNAL_FUNC (on_general_options_outgoing_sent_items_toggled), preferences);
+
+	widget = glade_xml_get_widget (xml, "general_options_delete_use_trash");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_general_options_delete_use_trash_toggled), preferences);
+
+	widget = glade_xml_get_widget (xml, "general_options_delete_confirmation");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_general_options_delete_confirmation_toggled), preferences);
+
+	widget = glade_xml_get_widget (xml, "general_options_delete_archive");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_general_options_delete_archive_toggled), preferences);
 
 	widget = glade_xml_get_widget (xml, "general_accounts_clist");
 	gtk_signal_connect (GTK_OBJECT (widget), "select_row",
@@ -338,6 +371,35 @@ set_signals (C2DialogPreferences *preferences)
 	gtk_signal_connect (GTK_OBJECT (widget), "changed",
 						GTK_SIGNAL_FUNC (on_general_paths_get_changed), preferences);
 
+	widget = glade_xml_get_widget (xml, "general_paths_smart");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_general_paths_smart_toggled), preferences);
+
+	widget = glade_xml_get_widget (xml, "interface_fonts_readed_mails");
+	gtk_signal_connect (GTK_OBJECT (widget), "font_set",
+						GTK_SIGNAL_FUNC (on_interface_fonts_readed_mails_font_set), preferences);
+
+	widget = glade_xml_get_widget (xml, "interface_fonts_unreaded_mails");
+	gtk_signal_connect (GTK_OBJECT (widget), "font_set",
+						GTK_SIGNAL_FUNC (on_interface_fonts_unreaded_mails_font_set), preferences);
+
+	widget = glade_xml_get_widget (xml, "interface_fonts_unreaded_mailbox");
+	gtk_signal_connect (GTK_OBJECT (widget), "font_set",
+						GTK_SIGNAL_FUNC (on_interface_fonts_unreaded_mailbox_font_set), preferences);
+
+	widget = preferences->interface_fonts_message_body;
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
+	gtk_signal_connect (GTK_OBJECT (widget), "activate",
+						GTK_SIGNAL_FUNC (on_interface_fonts_readed_mails_activate), preferences);
+
+	gtk_signal_connect (GTK_OBJECT (widget), "focus_out_event",
+						GTK_SIGNAL_FUNC (on_interface_fonts_readed_mails_focus_out_event), preferences);
+#else
+	gtk_signal_connect (GTK_OBJECT (widget), "font_set",
+						GTK_SIGNAL_FUNC (on_interface_fonts_readed_mails_font_set), preferences);
+#endif
+
+
 	widget = glade_xml_get_widget (xml, "interface_html_links_default");
 	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
 						GTK_SIGNAL_FUNC (on_interface_html_links_default_toggled), preferences);
@@ -359,33 +421,27 @@ set_signals (C2DialogPreferences *preferences)
 						GTK_SIGNAL_FUNC (on_interface_composer_editor_external_cmnd_changed), preferences);
 }
 
-#define SET_BOOLEAN(section, subsection, key, value, wkey)	\
-	boolv = gnome_config_get_bool_with_default \
-				("/"PACKAGE"/"section"-"subsection"/"key"="value, NULL); \
-	widgetv = glade_xml_get_widget (xml, wkey"_"key); \
+#define SET_BOOLEAN(func, wkey)	\
+	boolv = func (); \
+	widgetv = glade_xml_get_widget (xml, wkey); \
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widgetv), boolv)
-#define SET_FLOAT(section, subsection, key, value, wkey)	\
-	floatv = gnome_config_get_float_with_default \
-				("/"PACKAGE"/"section"-"subsection"/"key"="value, NULL); \
-	widgetv = glade_xml_get_widget (xml, wkey"_"key); \
+#define SET_FLOAT(func, wkey)	\
+	floatv = func (); \
+	widgetv = glade_xml_get_widget (xml, wkey); \
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (widgetv), floatv)
-#define SET_INT(section, subsection, key, value, wkey)	\
-	intv = gnome_config_get_float_with_default \
-				("/"PACKAGE"/"section"-"subsection"/"key"="value, NULL); \
-	widgetv = glade_xml_get_widget (xml, wkey"_"key); \
+#define SET_INT(func, wkey)	\
+	intv = func (); \
+	widgetv = glade_xml_get_widget (xml, wkey); \
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (widgetv), intv)
-#define SET_STRING(section, subsection, key, value, wkey)	\
-	charv = gnome_config_get_string_with_default \
-				("/"PACKAGE"/"section"-"subsection"/"key"="value, NULL); \
-	widgetv = glade_xml_get_widget (xml, wkey"_"key); \
+#define SET_STRING(func, wkey)	\
+	charv = func (); \
+	widgetv = glade_xml_get_widget (xml, wkey); \
 	gtk_entry_set_text (GTK_ENTRY (widgetv), charv); \
 	g_free (charv)
-#define SET_COLOR(section, subsection, key, red, green, blue, wkey)	\
-	widgetv = glade_xml_get_widget (xml, wkey"_"key); \
-	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (widgetv), \
-		gnome_config_get_int_with_default ("/"PACKAGE"/"section"-"key".red="red, NULL), \
-		gnome_config_get_int_with_default ("/"PACKAGE"/"section"-"key".green="green, NULL), \
-		gnome_config_get_int_with_default ("/"PACKAGE"/"section"-"key".blue="blue, NULL), 0);\
+#define SET_COLOR(func, wkey)	\
+	func (r, g, b); \
+	widgetv = glade_xml_get_widget (xml, wkey); \
+	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (widgetv), r, g, b, 0);
 	
 
 static void
@@ -432,92 +488,93 @@ set_values (C2DialogPreferences *preferences)
 	GtkWidget *widgetv;
 	GladeXML *xml;
 	gchar *buf;
+	gint r, g, b;
 
 	xml = C2_DIALOG (preferences)->xml;
-	
-	SET_BOOLEAN ("General", "Options", "start_check", "false", "general_options");
-	SET_BOOLEAN ("General", "Options", "start_load", "true", "general_options");
-	SET_BOOLEAN ("General", "Options", "exit_expunge", "false", "general_options");
-	SET_FLOAT ("General", "Options", "timeout_mark", "1.5", "general_options");	
-	SET_INT ("General", "Options", "timeout_check", "20", "general_options");
-	SET_BOOLEAN ("General", "Options", "incoming_warn", "false", "general_options");
-	SET_INT ("General", "Options", "outgoing_wrap", "72", "general_options");
-	SET_BOOLEAN ("General", "Options", "outgoing_outbox", "true", "general_options");
+
+	SET_BOOLEAN (c2_preferences_get_general_options_start_check, "general_options_start_check");
+	SET_BOOLEAN (c2_preferences_get_general_options_start_load, "general_options_start_load");
+	SET_BOOLEAN (c2_preferences_get_general_options_exit_expunge, "general_options_exit_expunge");
+	SET_FLOAT (c2_preferences_get_general_options_timeout_mark, "general_options_timeout_mark");	
+	SET_INT (c2_preferences_get_general_options_timeout_check, "general_options_timeout_check");
+	SET_BOOLEAN (c2_preferences_get_general_options_incoming_warn, "general_options_incoming_warn");
+	SET_BOOLEAN (c2_preferences_get_general_options_outgoing_sent_items,"general_options_outgoing_sent_items");
+	SET_BOOLEAN (c2_preferences_get_general_options_delete_use_trash, "general_options_delete_use_trash");
+	SET_BOOLEAN (c2_preferences_get_general_options_delete_confirmation,"general_options_delete_confirmation");
+	SET_BOOLEAN (c2_preferences_get_general_options_delete_archive, "general_options_delete_archive");
 
 	widgetv = glade_xml_get_widget (xml, "general_accounts_clist");
 	gtk_clist_set_column_auto_resize (GTK_CLIST (widgetv), 0, TRUE);
 	set_values_accounts (preferences);
 	
-	buf = g_strdup_printf ("/"PACKAGE"/General-Paths/save=%s/", g_get_home_dir ());
-	charv = gnome_config_get_string_with_default (buf, NULL);
+	c2_preferences_get_general_paths_save (charv);
 	widgetv = glade_xml_get_widget (xml, "general_paths_save");
 	gtk_entry_set_text (GTK_ENTRY (gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (widgetv))),
 						charv);
-	g_free (buf);
 	g_free (charv);
 	
-	buf = g_strdup_printf ("/"PACKAGE"/General-Paths/get=%s/", g_get_home_dir ());
-	charv = gnome_config_get_string_with_default (buf, NULL);
+	c2_preferences_get_general_paths_get (charv);
 	widgetv = glade_xml_get_widget (xml, "general_paths_get");
 	gtk_entry_set_text (GTK_ENTRY (gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (widgetv))),
 						charv);
-	g_free (buf);
 	g_free (charv);
 	
-	SET_BOOLEAN ("General", "Paths", "smart", "true", "general_paths");
+	SET_BOOLEAN (c2_preferences_get_general_paths_smart, "general_paths_smart");
 
 
 	
-	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-Fonts/readed_mails="
-							"-adobe-helvetica-medium-r-normal-*-*-120-*-*-p-*-iso8859-1", NULL);
+	charv = c2_preferences_get_interface_fonts_readed_mails ();
 	widgetv = glade_xml_get_widget (xml, "interface_fonts_readed_mails");
 	gnome_font_picker_set_font_name (GNOME_FONT_PICKER (widgetv), charv);
 	g_free (charv);
-	
-	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-Fonts/unreaded_mails="
-							"-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1", NULL);
+
+	charv = c2_preferences_get_interface_fonts_unreaded_mails ();
 	widgetv = glade_xml_get_widget (xml, "interface_fonts_unreaded_mails");
 	gnome_font_picker_set_font_name (GNOME_FONT_PICKER (widgetv), charv);
 	g_free (charv);
 	
-	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-Fonts/unreaded_mails="
-							"-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1", NULL);
+	charv = c2_preferences_get_interface_fonts_unreaded_mailbox ();
 	widgetv = glade_xml_get_widget (xml, "interface_fonts_unreaded_mailbox");
 	gnome_font_picker_set_font_name (GNOME_FONT_PICKER (widgetv), charv);
 	g_free (charv);
 
-
+	charv = c2_preferences_get_interface_fonts_message_body ();
+	widgetv = preferences->interface_fonts_message_body;
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
+	gtk_entry_set_text (GTK_ENTRY (widgetv), charv);
+#else
+	gnome_font_picker_set_font_name (GNOME_FONT_PICKER (widgetv), charv);
+#endif
+	g_free (charv);
 	
-	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-HTML/images=full_download", NULL);
+
+
+	charv = c2_preferences_get_interface_html_image ();
 	if (c2_streq (charv, "full_download"))
 		widgetv = glade_xml_get_widget (xml, "interface_html_images_full_download");
-/*	else if (c2_streq (charv, "partial_download"))
-		widgetv = glade_xml_get_widget (xml, "interface_html_images_partial_download");*/
 	else if (c2_streq (charv, "user_download"))
 		widgetv = glade_xml_get_widget (xml, "interface_html_images_user_download");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widgetv), TRUE);
 	g_free (charv);
 	
-	SET_BOOLEAN ("Interface", "HTML", "images_confirm", "false", "interface_html");
+	SET_BOOLEAN (c2_preferences_get_interface_html_image_confirmation, "interface_html_images_confirm");
 	
-	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-HTML/links=default", NULL);
+	charv = c2_preferences_get_interface_html_links ();
 	if (c2_streq (charv, "default"))
 		widgetv = glade_xml_get_widget (xml, "interface_html_links_default");
-/*	else if (c2_streq (charv, "internal"))
-		widgetv = glade_xml_get_widget (xml, "interface_html_links_internal");*/
 	else if (c2_streq (charv, "mailto"))
 		widgetv = glade_xml_get_widget (xml, "interface_html_links_mailto");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widgetv), TRUE);
 	g_free (charv);
 	
-	SET_BOOLEAN ("Interface", "HTML", "links_confirm", "false", "interface_html");
-	SET_BOOLEAN ("Interface", "HTML", "interpret_text_plain", "false", "interface_html");
+	SET_BOOLEAN (c2_preferences_get_interface_html_links_confirmation, "interface_html_links_confirm");
+	SET_BOOLEAN (c2_preferences_get_interface_html_interpret_text_plain,"interface_html_interpret_text_plain");
 
 
-	SET_STRING ("Interface", "Composer", "quote_character", "> ", "interface_composer");
-	SET_COLOR ("Interface", "Composer", "quote_color", "52428", "52428", "52428", "interface_composer");
+	SET_STRING (c2_preferences_get_interface_composer_quote_character, "interface_composer_quote_character");
+	SET_COLOR (c2_preferences_get_interface_composer_quote_color, "interface_composer_quote_color");
 
-	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-Composer/editor=internal", NULL);
+	charv = c2_preferences_get_interface_composer_editor ();
 	if (c2_streq (charv, "internal"))
 		widgetv = glade_xml_get_widget (xml, "interface_composer_editor_internal");
 	else if (c2_streq (charv, "external"))
@@ -525,15 +582,15 @@ set_values (C2DialogPreferences *preferences)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widgetv), TRUE);
 	gtk_signal_emit_by_name (GTK_OBJECT (widgetv), "toggled");
 
-	SET_STRING ("Interface", "Composer", "editor_external_cmnd", "gnome-edit", "interface_composer");
+	SET_STRING (c2_preferences_get_interface_composer_editor_external_cmnd,
+							"interface_composer_editor_external_cmnd");
 
 
 	
-	SET_STRING ("Interface", "Misc", "title", "%M - %a %v", "interface_misc");
-	SET_STRING ("Interface", "Misc", "date", "%d.%m.%Y %H:%M %z", "interface_misc");
+	SET_STRING (c2_preferences_get_interface_misc_title, "interface_misc_title");
+	SET_STRING (c2_preferences_get_interface_misc_date, "interface_misc_date");
 
-	charv = gnome_config_get_string_with_default
-				("/"PACKAGE"/Interface-Misc/attachments_default=text/html", NULL);
+	charv = c2_preferences_get_interface_misc_attachments_default ();
 	widgetv = glade_xml_get_widget (xml, "interface_misc_attachments_default");
 	if (c2_streq (charv, "text/plain"))
 		gtk_option_menu_set_history (GTK_OPTION_MENU (widgetv), 0);
@@ -541,12 +598,12 @@ set_values (C2DialogPreferences *preferences)
 		gtk_option_menu_set_history (GTK_OPTION_MENU (widgetv), 1);
 
 
-	SET_BOOLEAN ("Advanced", "Misc", "proxy_http", "false", "advanced_misc");
-	SET_STRING ("Advanced", "Misc", "proxy_http_host", "", "advanced_misc");
-	SET_INT ("Advanced", "Misc", "proxy_http_port", "8080", "advanced_misc");
-	SET_BOOLEAN ("Advanced", "Misc", "proxy_ftp", "false", "advanced_misc");
-	SET_STRING ("Advanced", "Misc", "proxy_ftp_host", "", "advanced_misc");
-	SET_INT ("Advanced", "Misc", "proxy_ftp_port", "8080", "advanced_misc");
+	SET_BOOLEAN (c2_preferences_get_advanced_misc_proxy_http, "advanced_misc_proxy_http");
+	SET_STRING (c2_preferences_get_advanced_misc_proxy_http_addr, "advanced_misc_proxy_http_addr");
+	SET_INT (c2_preferences_get_advanced_misc_proxy_http_port, "advanced_misc_proxy_http_port");
+	SET_BOOLEAN (c2_preferences_get_advanced_misc_proxy_ftp, "advanced_misc_proxy_ftp");
+	SET_STRING (c2_preferences_get_advanced_misc_proxy_ftp_addr, "advanced_misc_proxy_ftp_addr");
+	SET_INT (c2_preferences_get_advanced_misc_proxy_ftp_port, "advanced_misc_proxy_ftp_port");
 }
 
 #define GENERAL_OPTIONS		"Options"
@@ -652,6 +709,15 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 	gtk_box_pack_start (GTK_BOX (container), widget, TRUE, TRUE, 0);
 	gtk_widget_show (widget);
 
+	widget = glade_xml_get_widget (xml, "interface_fonts_message_body_container");
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
+	preferences->interface_fonts_message_body = gtk_entry_new ();
+#else
+	preferences->interface_fonts_message_body = gnome_font_picker_new ();
+#endif
+	gtk_box_pack_start (GTK_BOX (widget), preferences->interface_fonts_message_body, TRUE, TRUE, 0);
+	gtk_widget_show (preferences->interface_fonts_message_body);
+
 	/* Sidebar */
 	sidebar = glade_xml_get_widget (xml, "sidebar");
 	c2_sidebar_set_buttons_type (C2_SIDEBAR (sidebar), C2_SIDEBAR_BUTTON_TEXT_NEXT_TO_ICON);
@@ -703,9 +769,10 @@ on_general_options_start_check_toggled (GtkWidget *widget, C2DialogPreferences *
 {
 	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
 	
+	c2_preferences_set_general_options_start_check (bool);
+	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_START_CHECK, bool);
-	gnome_config_set_bool ("/"PACKAGE"/General-Options/start_check", bool);
 }
 	
 static void
@@ -713,9 +780,10 @@ on_general_options_start_load_toggled (GtkWidget *widget, C2DialogPreferences *p
 {
 	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
 
+	c2_preferences_set_general_options_start_load (bool);
+	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_START_LOAD, bool);
-	gnome_config_set_bool ("/"PACKAGE"/General-Options/start_load", bool);
 }
 	
 static void
@@ -723,9 +791,10 @@ on_general_options_exit_expunge_toggled (GtkWidget *widget, C2DialogPreferences 
 {
 	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
 	
+	c2_preferences_set_general_options_exit_expunge (bool);
+	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_EXIT_EXPUNGE, bool);
-	gnome_config_set_bool ("/"PACKAGE"/General-Options/exit_expunge", bool);
 }
 	
 static gint
@@ -734,9 +803,10 @@ on_general_options_timeout_mark_focus_out_event (GtkWidget *widget, GdkEventFocu
 {
 	gfloat value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (widget));
 	
+	c2_preferences_set_general_options_timeout_mark (value);
+	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_TIMEOUT_MARK, value);
-	gnome_config_set_float ("/"PACKAGE"/General-Options/timeout_mark", value);
 	return FALSE;
 }
 
@@ -745,9 +815,10 @@ on_general_options_timeout_mark_activate (GtkWidget *widget, C2DialogPreferences
 {
 	gfloat value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (widget));
 	
+	c2_preferences_set_general_options_timeout_mark (value);
+	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_TIMEOUT_MARK, value);
-	gnome_config_set_float ("/"PACKAGE"/General-Options/timeout_mark", value);
 }
 	
 static gint
@@ -755,9 +826,11 @@ on_general_options_timeout_check_focus_out_event (GtkWidget *widget, GdkEventFoc
 											C2DialogPreferences *preferences)
 {
 	gint value = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+
+	c2_preferences_set_general_options_timeout_check (value);
+	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_TIMEOUT_CHECK, value);
-	gnome_config_set_int ("/"PACKAGE"/General-Options/timeout_check", value);
 	return FALSE;
 }
 
@@ -766,52 +839,65 @@ on_general_options_timeout_check_activate (GtkWidget *widget, C2DialogPreference
 {
 	gint value = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
 	
+	c2_preferences_set_general_options_timeout_check (value);
+	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_TIMEOUT_CHECK, value);
-	gnome_config_set_int ("/"PACKAGE"/General-Options/timeout_check", value);
 }
 	
 static void
 on_general_options_incoming_warn_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
 {
 	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
-	
+
+	c2_preferences_set_general_options_incoming_warn (bool);
+	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_INCOMING_WARN, bool);
-	gnome_config_set_bool ("/"PACKAGE"/General-Options/incoming_warn", bool);
-}
-
-static gint
-on_general_options_outgoing_wrap_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
-											C2DialogPreferences *preferences)
-{
-	gint value = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
-	
-	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
-						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_OUTGOING_WRAP, value);
-	gnome_config_set_int ("/"PACKAGE"/General-Options/outgoing_wrap", value);
-	return FALSE;
 }
 
 static void
-on_general_options_outgoing_wrap_activate (GtkWidget *widget, C2DialogPreferences *preferences)
-{
-	gint value = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
-	
-	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
-						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_OUTGOING_WRAP, value);
-	gnome_config_set_int ("/"PACKAGE"/General-Options/outgoing_wrap", value);
-}
-
-static void
-on_general_options_outgoing_outbox_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+on_general_options_outgoing_sent_items_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
 {
 	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
 	
-	gnome_config_set_bool ("/"PACKAGE"/General-Options/outgoing_outbox", bool);
+	c2_preferences_set_general_options_outgoing_sent_items (bool);
 	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
-						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_OUTGOING_OUTBOX, bool);
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_OUTGOING_SENT_ITEMS, bool);
+}
+
+static void
+on_general_options_delete_use_trash_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
+	
+	c2_preferences_set_general_options_delete_use_trash (bool);
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_DELETE_USE_TRASH, bool);
+}
+
+static void
+on_general_options_delete_confirmation_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
+	
+	c2_preferences_set_general_options_delete_confirmation (bool);
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_DELETE_CONFIRMATION, bool);
+}
+
+static void
+on_general_options_delete_archive_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
+	
+	c2_preferences_set_general_options_delete_archive (bool);
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_DELETE_ARCHIVE, bool);
 }
 
 static void
@@ -1148,7 +1234,7 @@ on_general_paths_save_changed (GtkWidget *widget, C2DialogPreferences *preferenc
 {
 	gchar *value = gtk_entry_get_text (GTK_ENTRY (widget));
 
-	gnome_config_set_string ("/"PACKAGE"/General-Paths/save", value);
+	c2_preferences_set_general_paths_save (value);
 	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 					C2_DIALOG_PREFERENCES_KEY_GENERAL_PATHS_SAVE, value);
@@ -1159,11 +1245,78 @@ on_general_paths_get_changed (GtkWidget *widget, C2DialogPreferences *preference
 {
 	gchar *value = gtk_entry_get_text (GTK_ENTRY (widget));
 
-	gnome_config_set_string ("/"PACKAGE"/General-Paths/get", value);
+	c2_preferences_set_general_paths_get (value);
 	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 					C2_DIALOG_PREFERENCES_KEY_GENERAL_PATHS_GET, value);
 }
+
+static void
+on_general_paths_smart_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gboolean value = GTK_TOGGLE_BUTTON (widget)->active;
+
+	c2_preferences_set_general_paths_smart (value);
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_GENERAL_PATHS_SMART, value);
+}
+
+static void
+on_interface_fonts_readed_mails_font_set (GtkWidget *widget, gchar *font, C2DialogPreferences *preferences)
+{
+	c2_preferences_set_interface_fonts_readed_mails (font);
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_READED_MAILS, font);
+}
+
+static void
+on_interface_fonts_unreaded_mails_font_set (GtkWidget *widget, gchar *font, C2DialogPreferences *preferences)
+{
+	c2_preferences_set_interface_fonts_unreaded_mails (font);
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_UNREADED_MAILS, font);
+}
+
+static void
+on_interface_fonts_unreaded_mailbox_font_set (GtkWidget *widget, gchar *font, C2DialogPreferences *preferences)
+{
+	c2_preferences_set_interface_fonts_unreaded_mailbox (font);
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_UNREADED_MAILBOX, font);
+}
+
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
+static void
+on_interface_fonts_readed_mails_activate (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gchar *font = gtk_entry_get_text (GTK_ENTRY (widget));
+
+	c2_preferences_set_interface_fonts_message_body (font);
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_MESSAGE_BODY, font);
+}
+
+static void
+on_interface_fonts_readed_mails_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
+			C2DialogPreferences *preferences)
+{
+	on_interface_fonts_readed_mails_activate (widget, preferences);
+}
+#else
+static void
+on_interface_fonts_message_body_font_set (GtkWidget *widget, gchar *font, C2DialogPreferences *preferences)
+{
+	c2_preferences_set_interface_fonts_message_body (font);
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_MESSAGE_BODY, font);
+}
+#endif
 
 static void
 on_interface_html_links_default_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
@@ -1176,7 +1329,7 @@ on_interface_html_links_default_toggled (GtkWidget *widget, C2DialogPreferences 
 	else
 		gtk_widget_set_sensitive (confirm_btn, FALSE);
 
-	gnome_config_set_string ("/"PACKAGE"/Interface-HTML/links", "default");
+	c2_preferences_set_interface_html_links ("default");
 	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 					C2_DIALOG_PREFERENCES_KEY_INTERFACE_HTML_LINKS, "default");
@@ -1193,7 +1346,7 @@ on_interface_html_links_mailto_toggled (GtkWidget *widget, C2DialogPreferences *
 	else
 		gtk_widget_set_sensitive (confirm_btn, FALSE);
 
-	gnome_config_set_string ("/"PACKAGE"/Interface-HTML/links", "mailto");
+	c2_preferences_set_interface_html_links ("mailto");
 	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 					C2_DIALOG_PREFERENCES_KEY_INTERFACE_HTML_LINKS, "mailto");
@@ -1210,7 +1363,7 @@ on_interface_composer_editor_internal_toggled (GtkWidget *widget, C2DialogPrefer
 	else
 		gtk_widget_set_sensitive (combo, FALSE);
 
-	gnome_config_set_string ("/"PACKAGE"/Interface-Composer/editor", "internal");
+	c2_preferences_set_interface_composer_editor ("internal");
 	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 					C2_DIALOG_PREFERENCES_KEY_INTERFACE_COMPOSER_EDITOR, "internal");
@@ -1226,7 +1379,7 @@ on_interface_composer_editor_external_toggled (GtkWidget *widget, C2DialogPrefer
 		gtk_widget_set_sensitive (combo, TRUE);
 	else
 		gtk_widget_set_sensitive (combo, FALSE);
-	gnome_config_set_string ("/"PACKAGE"/Interface-Composer/editor", "external");
+	c2_preferences_set_interface_composer_editor ("external");
 	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 					C2_DIALOG_PREFERENCES_KEY_INTERFACE_COMPOSER_EDITOR, "external");
@@ -1237,7 +1390,7 @@ on_interface_composer_editor_external_cmnd_changed (GtkWidget *widget, C2DialogP
 {
 	gchar *cmnd = gtk_entry_get_text (GTK_ENTRY (widget));
 
-	gnome_config_set_string ("/"PACKAGE"/Interface-Composer/editor_external_cmnd", cmnd);
+	c2_preferences_set_interface_composer_editor_external_cmnd (cmnd);
 	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 					C2_DIALOG_PREFERENCES_KEY_INTERFACE_COMPOSER_EDITOR_CMND, cmnd);

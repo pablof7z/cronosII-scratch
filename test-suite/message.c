@@ -19,13 +19,24 @@
 #include <time.h>
 
 #include <libcronosII/message.h>
+#include <libcronosII/mime.h>
+#include <libcronosII/db.h>
 
 gint
 main (gint argc, gchar **argv)
 {
-	C2Message *message;
+	C2Message *message, *fmessage;
 	
 	gtk_init (&argc, &argv);
 
-	message = c2_message_new ();
+	message = c2_db_message_get_from_file ("message.elm");
+	message->mime = c2_mime_new (message);
+
+	g_print ("Fixed Message:\n"
+			 "%s\n"
+			 "\n"
+			 "%s\n",
+			 (fmessage = c2_message_fix_broken_message (message))->header, fmessage->body);
+
+	return 0;
 }

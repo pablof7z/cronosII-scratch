@@ -1,4 +1,28 @@
-Thurs Oct 18 Peter "Bill" Gossner <gossner@arcom.com.au>
+Sun Oct 21 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Changed the MIME_UNCAPABLE_WARNING constant to something more
+	  friendly and less agresive than "Your mail client sucks".
+
+Sat Oct 20 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* A LOT of work in the message module, in the mime module and
+	  in the composer widget to add support for sending attachments.
+
+Fri Oct 19 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Many nice changes in the window main widget.
+	* A lot of work around the Preferences dialog and the
+	  new file preferences.h.
+
+Thu Oct 18 Bosko Blagojevic <falling@users.sourceforge.net>
+	* SMTP module become useful.
+
+Thu Oct 18 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Coded the routines to save a message.
+	* Work along the Index widget.
+	* Changed the default font to use Helvetica
+	* Work in the widget transfer item to deliver messages
+	  (just a temporary patch, will get much better).
+	* Delivered the first messages with Cronos II Scratch!
+
+Thu Oct 18 Peter "Bill" Gossner <gossner@arcom.com.au>
 	* Removed line 35 of src/widget-editor.h which was asking for some 
   	  Bonobo Gnome stuff. Now C2 compiles and installs I think.
 

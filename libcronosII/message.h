@@ -76,25 +76,28 @@ struct _C2MessageClass
 };
 
 GtkType
-c2_message_get_type									(void);
+c2_message_get_type							(void);
 
 C2Message *
-c2_message_new										(void);
+c2_message_new								(void);
 
 void
-c2_message_set_message								(C2Message *message, const gchar *string);
+c2_message_set_message						(C2Message *message, const gchar *string);
 
 const gchar *
-c2_message_get_message_header						(const C2Message *message);
+c2_message_get_message_header				(const C2Message *message);
 
 const gchar *
-c2_message_get_message_body							(const C2Message *message);
+c2_message_get_message_body					(const C2Message *message);
 
 gchar *
-c2_message_get_header_field							(C2Message *message, const gchar *field);
+c2_message_get_header_field					(C2Message *message, const gchar *field);
 
 gchar *
-c2_message_str_get_header_field						(const gchar *message, const gchar *field);
+c2_message_str_get_header_field				(const gchar *message, const gchar *field);
+
+C2Message *
+c2_message_fix_broken_message				(C2Message *message);
 
 #ifdef __cplusplus
 }

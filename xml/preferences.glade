@@ -420,8 +420,8 @@ Are you sure you want this?</message>
 	<width>451</width>
 	<show_tabs>False</show_tabs>
 	<show_border>False</show_border>
-	<tab_pos>GTK_POS_LEFT</tab_pos>
-	<scrollable>False</scrollable>
+	<tab_pos>GTK_POS_TOP</tab_pos>
+	<scrollable>True</scrollable>
 	<tab_hborder>2</tab_hborder>
 	<tab_vborder>2</tab_vborder>
 	<popup_enable>False</popup_enable>
@@ -565,7 +565,7 @@ Are you sure you want this?</message>
 		      <class>GtkCheckButton</class>
 		      <name>general_options_exit_expunge</name>
 		      <can_focus>True</can_focus>
-		      <label>Expunge mails in Garbage mailbox.</label>
+		      <label>Expunge mails in «Trash» mailbox.</label>
 		      <active>False</active>
 		      <draw_indicator>True</draw_indicator>
 		      <child>
@@ -804,7 +804,7 @@ Are you sure you want this?</message>
 
 		    <widget>
 		      <class>GtkCheckButton</class>
-		      <name>general_options_outgoing_outbox</name>
+		      <name>general_options_outgoing_sent_items</name>
 		      <can_focus>True</can_focus>
 		      <label>Save copy in «Sent Items» mailbox.</label>
 		      <active>False</active>
@@ -1880,9 +1880,9 @@ Are you sure you want this?</message>
 
 	    <widget>
 	      <class>GtkTable</class>
-	      <name>table9</name>
+	      <name>interface_fonts_table</name>
 	      <border_width>2</border_width>
-	      <rows>3</rows>
+	      <rows>4</rows>
 	      <columns>2</columns>
 	      <homogeneous>False</homogeneous>
 	      <row_spacing>4</row_spacing>
@@ -1943,7 +1943,7 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GtkLabel</class>
 		<name>label139</name>
-		<label>Unreaded mailbox:</label>
+		<label>Unreaded mailboxes:</label>
 		<justify>GTK_JUSTIFY_CENTER</justify>
 		<wrap>False</wrap>
 		<xalign>0</xalign>
@@ -2046,6 +2046,57 @@ Are you sure you want this?</message>
 		  <yfill>False</yfill>
 		</child>
 	      </widget>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<name>label181</name>
+		<label>Message body:</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>0</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<child>
+		  <left_attach>0</left_attach>
+		  <right_attach>1</right_attach>
+		  <top_attach>3</top_attach>
+		  <bottom_attach>4</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkVBox</class>
+		<name>interface_fonts_message_body_container</name>
+		<homogeneous>False</homogeneous>
+		<spacing>0</spacing>
+		<child>
+		  <left_attach>1</left_attach>
+		  <right_attach>2</right_attach>
+		  <top_attach>3</top_attach>
+		  <bottom_attach>4</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>True</yfill>
+		</child>
+
+		<widget>
+		  <class>Placeholder</class>
+		</widget>
+	      </widget>
 	    </widget>
 	  </widget>
 
@@ -2109,22 +2160,6 @@ Are you sure you want this?</message>
 
 	      <widget>
 		<class>GtkRadioButton</class>
-		<name>interface_html_images_partial_download</name>
-		<visible>False</visible>
-		<can_focus>True</can_focus>
-		<label>Download if remitent is in address book.</label>
-		<active>False</active>
-		<draw_indicator>True</draw_indicator>
-		<group>interface_html_images</group>
-		<child>
-		  <padding>0</padding>
-		  <expand>False</expand>
-		  <fill>False</fill>
-		</child>
-	      </widget>
-
-	      <widget>
-		<class>GtkRadioButton</class>
 		<name>interface_html_images_user_download</name>
 		<can_focus>True</can_focus>
 		<label>Do not download.</label>
@@ -2140,7 +2175,7 @@ Are you sure you want this?</message>
 
 	      <widget>
 		<class>GtkCheckButton</class>
-		<name>images_html_images_confirm</name>
+		<name>interface_html_images_confirm</name>
 		<can_focus>True</can_focus>
 		<label>Ask for confirmation before downloading.</label>
 		<active>False</active>
@@ -2178,22 +2213,6 @@ Are you sure you want this?</message>
 		<name>interface_html_links_default</name>
 		<can_focus>True</can_focus>
 		<label>Open using default Gnome browser.</label>
-		<active>False</active>
-		<draw_indicator>True</draw_indicator>
-		<group>interface_html_links</group>
-		<child>
-		  <padding>0</padding>
-		  <expand>False</expand>
-		  <fill>False</fill>
-		</child>
-	      </widget>
-
-	      <widget>
-		<class>GtkRadioButton</class>
-		<name>interface_html_links_internal</name>
-		<sensitive>False</sensitive>
-		<can_focus>True</can_focus>
-		<label>Open using internal browser.</label>
 		<active>False</active>
 		<draw_indicator>True</draw_indicator>
 		<group>interface_html_links</group>
@@ -2785,7 +2804,7 @@ text/html
 
 	      <widget>
 		<class>GtkEntry</class>
-		<name>advanced_misc_proxy_http_host</name>
+		<name>advanced_misc_proxy_http_addr</name>
 		<sensitive>False</sensitive>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
@@ -2810,7 +2829,7 @@ text/html
 
 	      <widget>
 		<class>GtkEntry</class>
-		<name>advanced_misc_proxy_ftp_host</name>
+		<name>advanced_misc_proxy_ftp_addr</name>
 		<sensitive>False</sensitive>
 		<can_focus>True</can_focus>
 		<editable>True</editable>

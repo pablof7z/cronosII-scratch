@@ -37,6 +37,7 @@ extern "C" {
 #define C2_WINDOW_MAIN(obj)					(GTK_CHECK_CAST (obj, c2_window_main_get_type (), C2WindowMain))
 #define C2_WINDOW_MAIN_CLASS(klass)			(GTK_CHECK_CLASS_CAST (klass, c2_window_main_get_type (), C2WindowMainClass))
 #define C2_IS_WINDOW_MAIN(obj)				(GTK_CHECK_TYPE (obj, c2_window_main_get_type ()))
+#define C2_WINDOW_MAIN_CLASS_FW(obj)		(C2_WINDOW_MAIN_CLASS (((GtkObject*)(obj))->klass))
 
 typedef struct _C2WindowMain C2WindowMain;
 typedef struct _C2WindowMainClass C2WindowMainClass;
@@ -79,6 +80,24 @@ struct _C2WindowMain
 struct _C2WindowMainClass
 {
 	C2WindowClass parent_class;
+
+	void (*check) (C2WindowMain *wmain);
+	void (*close) (C2WindowMain *wmain);
+	void (*compose) (C2WindowMain *wmain);
+	void (*contacts) (C2WindowMain *wmain);
+	void (*copy) (C2WindowMain *wmain);
+	void (*delete) (C2WindowMain *wmain);
+	void (*exit) (C2WindowMain *wmain);
+	void (*forward) (C2WindowMain *wmain);
+	void (*move) (C2WindowMain *wmain);
+	void (*next) (C2WindowMain *wmain);
+	void (*previous) (C2WindowMain *wmain);
+	void (*print) (C2WindowMain *wmain);
+	void (*reply) (C2WindowMain *wmain);
+	void (*reply_all) (C2WindowMain *wmain);
+	void (*save) (C2WindowMain *wmain);
+	void (*search) (C2WindowMain *wmain);
+	void (*send) (C2WindowMain *wmain);
 };
 
 GtkType
