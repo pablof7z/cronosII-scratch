@@ -841,6 +841,8 @@ on_dialog_incoming_mail_warning_timeout (GtkWidget *window)
 	gboolean showing;
 	C2Application *application;
 
+	printf ("Ejecutando %s\n", __PRETTY_FUNCTION__);
+
 	application = C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (window), "application"));
 	pos = gtk_object_get_data (GTK_OBJECT (window), "pos");
 	width = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "width"));
@@ -878,6 +880,8 @@ on_dialog_incoming_mail_warning_timeout (GtkWidget *window)
 
 	if (!retval)
 		c2_application_dialog_incoming_mail_warning (application);
+
+	printf ("Terminando de ejecutar %s\n", __PRETTY_FUNCTION__);
 
 	return retval;
 }

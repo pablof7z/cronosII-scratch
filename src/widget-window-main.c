@@ -1259,10 +1259,12 @@ on_application_application_preferences_changed (C2Application *application, gint
 			GtkWidget *item, *label, *pixmap, *hbox;
 			GList *children, *l;
 			C2Account *account;
+			gboolean account_exists = c2_application_check_checkeable_account_exists (application);
 			
 			widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "file_check_mail");
 			submenu = GTK_MENU_ITEM (widget)->submenu;
 			children = gtk_container_children (GTK_CONTAINER (submenu));
+			gtk_widget_set_sensitive (widget, account_exists);
 			
 			/* Find the separator */
 			sep = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "file_check_mail_sep");
@@ -1305,14 +1307,14 @@ on_application_application_preferences_changed (C2Application *application, gint
 				gtk_menu_append (GTK_MENU (submenu), item);
 				gtk_widget_show (item);
 			}
-		}
 
-		/* Now do the Check button in the toolbar */
-		widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_check");
-		if (GTK_IS_WIDGET (widget))
-			gtk_widget_set_sensitive (widget, c2_application_check_checkeable_account_exists (application));
-		
-		break;
+			/* Now do the Check button in the toolbar */
+			widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_check");
+			if (GTK_IS_WIDGET (widget))
+				gtk_widget_set_sensitive (widget, account_exists);
+			
+			break;
+		}
 	}
 }
 
@@ -1321,11 +1323,16 @@ on_outbox_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type,
 									C2WindowMain *wmain)
 {
 	GtkWidget *widget;
+	gboolean mail_exists =  c2_db_length (mailbox) ? TRUE : FALSE;
 	
 	gdk_threads_enter ();
 	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_send");
 	if (GTK_IS_WIDGET (widget))
-		gtk_widget_set_sensitive (widget, c2_db_length (mailbox));
+		gtk_widget_set_sensitive (widget, mail_exists);
+
+	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "file_send_unsent_mails");
+	gtk_widget_set_sensitive (widget, mail_exists);
+	
 	gdk_threads_leave ();
 }
 

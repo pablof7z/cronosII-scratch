@@ -346,12 +346,14 @@ on_enter_notify_event (GtkWidget *table, GdkEventCrossing *e, C2TransferItem *ti
 	GtkWidget *pixmap;
 	GtkWidget *label;
 	GtkWidget *tl;
-	GtkWidget *event;
+	GtkWidget *event, *event2;
+	GtkWidget *box;
 	gint x, y;
 	gint mx, my;
 	gchar *buffer, *subject;
 	GtkStyle *style;
 	gfloat min, max, val;
+	GdkColor blue = { 0, 0x6b00, 0x5800, 0xee00 };
 
 	/* Check if we already have the popup */
 	if (GTK_IS_WINDOW (ti->popup) && ti->popup->window)
@@ -405,14 +407,37 @@ on_enter_notify_event (GtkWidget *table, GdkEventCrossing *e, C2TransferItem *ti
 		g_free (subject);
 	}
 
-	gtk_table_attach_defaults (GTK_TABLE (table), pixmap, 0, 1, 0, 1);
+	event = gtk_event_box_new ();
+	gtk_table_attach_defaults (GTK_TABLE (table), event, 1, 2, 0, 1);
+	gtk_widget_show (event);
+	style = gtk_style_copy (gtk_widget_get_style (event));
+	style->bg[GTK_STATE_NORMAL] = style->white;
+	gtk_widget_set_style (event, style);
+	gtk_container_set_border_width (GTK_CONTAINER (event), 2);
+
+	gdk_color_alloc (gdk_colormap_get_system (), &blue);
+	event2 = gtk_event_box_new ();
+	gtk_container_add (GTK_CONTAINER (event), event2);
+	gtk_widget_show (event2);
+	style = gtk_style_copy (gtk_widget_get_style (event2));
+	style->bg[GTK_STATE_NORMAL] = blue;
+	gtk_widget_set_style (event2, style);
+	gtk_container_set_border_width (GTK_CONTAINER (event2), 1);
+
+	box = gtk_hbox_new (FALSE, 2);
+	gtk_container_add (GTK_CONTAINER (event2), box);
+	gtk_widget_show (box);
+	gtk_container_set_border_width (GTK_CONTAINER (box), 1);
+
+	gtk_box_pack_start (GTK_BOX (box), pixmap, FALSE, FALSE, 0);
 	gtk_widget_show (pixmap);
 
 	label = gtk_label_new (buffer);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 1, 2, 0, 1);
+	gtk_box_pack_start (GTK_BOX (box), label, TRUE, TRUE, 0);
 	gtk_widget_show (label);
 	style = gtk_style_copy (gtk_widget_get_style (label));
 	style->font = gdk_font_load (c2_font_bold);
+	style->fg[GTK_STATE_NORMAL] = style->white;
 	gtk_widget_set_style (label, style);
 
 	/* Create the progress bar */
@@ -468,6 +493,8 @@ on_enter_notify_event (GtkWidget *table, GdkEventCrossing *e, C2TransferItem *ti
 static gint
 on_leave_notify_event_timeout (C2TransferItem *ti)
 {
+	printf ("Ejecutando %s\n", __PRETTY_FUNCTION__);
+	
 	if (ti->mouse_is_in_popup)
 	{
 		gtk_timeout_add (500, on_leave_notify_event_timeout, ti);
@@ -476,6 +503,8 @@ on_leave_notify_event_timeout (C2TransferItem *ti)
 
 	gtk_widget_destroy (ti->popup);
 	ti->popup = NULL;
+
+	printf ("Terminando de ejecutar %s\n", __PRETTY_FUNCTION__);
 
 	return FALSE;
 }
@@ -529,6 +558,7 @@ c2_transfer_item_start_pop3_thread (C2Pthread3 *data)
 
 	g_free (data);
 	
+	printf ("Comienza a chequear mails\n");
 	c2_pop3_fetchmail (pop3, account, inbox);
 }
 
@@ -984,6 +1014,8 @@ on_pop3_disconnect (GtkObject *object, C2NetObjectByte *byte, gboolean success, 
 	C2POP3 *pop3 = C2_POP3 (c2_account_get_extra_data (account, C2_ACCOUNT_KEY_INCOMING, NULL));
 	gchar *str = NULL;
 	gchar *estr = NULL;
+
+	L
 	
 	gdk_threads_enter ();
 	if (success)
@@ -1069,6 +1101,8 @@ on_pop3_disconnect (GtkObject *object, C2NetObjectByte *byte, gboolean success, 
 	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
 
 	gdk_threads_leave ();
+
+	printf ("Termina de chequear mails\n");
 }
 
 static void

@@ -48,6 +48,8 @@ struct _C2WindowMail
 	/* Data */
 	C2Db *db;
 	C2Message *message;
+
+	gint read_only : 1;
 };
 
 struct _C2WindowMailClass

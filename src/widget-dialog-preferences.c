@@ -171,8 +171,9 @@ static void
 on_interface_misc_mail_warn_screen_motion_notify_event (GtkWidget *widget, GdkEventMotion *e,
 												C2DialogPreferences *preferences);
 
+
 static void
-on_advanced_security_preferences_ask_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
+on_advanced_security_password_ask_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
 
 /* Widget Stuff */
 enum
@@ -1529,8 +1530,17 @@ on_interface_misc_mail_warn_screen_motion_notify_event (GtkWidget *widget, GdkEv
 static void
 on_advanced_security_password_ask_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
 {
-	gboolean 
-	c2_preferences_set_advanced_security_password_ask (
+	GtkWidget *entry;
+	gboolean active;
+	
+	active = GTK_TOGGLE_BUTTON (widget)->active;
+	
+	c2_preferences_set_advanced_security_password_ask (active);
+	
+	entry = glade_xml_get_widget (C2_DIALOG (preferences)->xml, "advanced_security_password_1");
+	gtk_widget_set_sensitive (entry, active);
+	entry = glade_xml_get_widget (C2_DIALOG (preferences)->xml, "advanced_security_password_2");
+	gtk_widget_set_sensitive (entry, active);
 }
 #endif
 

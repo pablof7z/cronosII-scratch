@@ -2092,6 +2092,7 @@ on_application_timeout_check (C2Application *application)
 	gtk_object_set_data (GTK_OBJECT (application), "check::silent", 1);
 	C2_APPLICATION_CLASS_FW (application)->check (application);
 	gtk_object_set_data (GTK_OBJECT (application), "check::silent", NULL);
+	printf ("Terminó de ejecutar %s\n", __PRETTY_FUNCTION__);
 
 	return FALSE;
 }

@@ -3,6 +3,8 @@ Sat Jun 29 Pablo Fernández
 
 Fri Jun 28 Pablo Fernández
 	* Fixed the bug that caused that no hot key worked.
+	* Fixed some silly buggies in the main window.
+	* Made that the transfer item popup has the blue title.
 
 Thu Jun 27 Pablo Fernández
 	* Fixed a bug in /libcronosII/db-imap.c.

@@ -120,6 +120,8 @@ void on_sigsegv (int signal)
 {
 	GtkWidget *dialog;
 
+	system ("date");
+
 	dialog = gnome_error_dialog (_("An internal error has crashed Cronos II!\n"
  							       "\n"
 								   "Your unsaved data is going to be saved\n"
