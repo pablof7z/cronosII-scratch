@@ -39,7 +39,7 @@ c2_net_set_internal_cache						(C2Cache *cache);
  * @ip: A null pointer where the result will be stored.
  *
  * This function resolves a net hostname into
- * an IP number.
+ * an IP address.
  *
  * Return Value:
  * This function returns 0 in success or 1.
@@ -122,7 +122,7 @@ c2_net_connect (const gchar *ip, guint port, guint *sock)
  * @fmt: Printf complaiment string format to send.
  * ...: Printf arguments.
  *
- * This function will write an string to the
+ * This function will write a string to the
  * socket.
  * You can use this function pretty much like
  * fprintf.
@@ -160,7 +160,7 @@ c2_net_send (guint sock, const gchar *fmt, ...)
  * from the socket.
  *
  * Return Value:
- * The number of readen bytes or -1;
+ * The number of bytes read or -1 on error;
  **/
 gint
 c2_net_read (guint sock, gchar **string)
@@ -204,6 +204,8 @@ void
 c2_net_disconnect (guint sock)
 {
 	close (sock);
+	sock = 0; /* so you can test if a socket is connected
+						 * by doing if(sock==0) */
 }
 
 static C2Cache *
