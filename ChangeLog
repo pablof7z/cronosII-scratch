@@ -1,3 +1,7 @@
+Mon Sep 03 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Implemented BCC: and EHLO for SMTP module
+	* Fixed some efficency bugs in SMTP module
+
 Mon Sep 03 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Transfer Item and Transfer List workaround, POP3 workaround.
 
@@ -11,13 +15,23 @@ Tue Aug 28 17:26:58 CST 2001 Pete Gossner <gossner@arcom.com.au>
 	* Updates to all xml/*.glade files
 	* ? What do I do with source files produced by glade ?
 
+Sun Aug 19 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Implemented local sendmail and a test-suite component for SMTP
+	* Lots of bug fixes
+
 2001-08-12 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* HTML Widget: GtkHTML support is partial working: first HTML message
 					succesfully displayed.
 	* MIME: Lot of work to get it to do its jobs.
 
+Sat Aug 11 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Implemented persistent SMTP connections
+
 2001-08-07 Jason Copenhaver <jcopenha@users.sourceforge.net>
 	* C2_POP3_DO_USE_APOP flag in the _C2Pop3Flags struct now enables APOP support =)
+
+Sun Aug 05 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Began serious work on SMTP
 
 2001-07-31 Peter Gossner <petergozz@users.sourceforge.net>
 	* preferences.glade Updates and fixes to content of user messages.
