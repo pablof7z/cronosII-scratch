@@ -26,6 +26,9 @@
 /* file to test the c2 smtp module  -- 
  * by Bosko Blagojevic <falling@users.sourcforge.net> */
 
+static void
+on_smtp_update(C2SMTP *smtp, void *message, guint len, guint sent);
+
 gint
 main (gint argc, gchar **argv)
 {
@@ -35,6 +38,8 @@ main (gint argc, gchar **argv)
 	gtk_init(&argc, &argv);
 	
 	smtp = c2_smtp_new(C2_SMTP_REMOTE, "smtp.arnet.com.ar", 25, FALSE, FALSE, NULL, NULL);
+	
+	gtk_signal_connect(GTK_OBJECT(smtp), "smtp_update", GTK_SIGNAL_FUNC(on_smtp_update), NULL);
 	
 	msg = g_new0(C2Message, 1);
 	msg->header = g_strdup("From: testing <testing@cronosii.sourceforge.net>\n"
@@ -51,7 +56,7 @@ main (gint argc, gchar **argv)
 		printf("the error was: %s\n", gtk_object_get_data(GTK_OBJECT(smtp), "error"));
 	}
 	
-	c2_smtp_free(smtp);
+	gtk_object_destroy(GTK_OBJECT(smtp));
 	
 	smtp = c2_smtp_new(C2_SMTP_LOCAL, "sendmail -t < %m");
 	
@@ -62,7 +67,7 @@ main (gint argc, gchar **argv)
 		printf("the error was: %s\n", gtk_object_get_data(GTK_OBJECT(smtp), "error"));
 	}
 	
-	c2_smtp_free(smtp);
+	gtk_object_destroy(GTK_OBJECT(smtp));
 	g_free(msg->header);
 	g_free(msg->body);
 	g_free(msg);
@@ -70,3 +75,13 @@ main (gint argc, gchar **argv)
 	return 0;
 }
 
+static void
+on_smtp_update(C2SMTP *smtp, void *message, guint len, guint sent)
+{
+	float len2 = len, sent2 = sent;
+	int percent;
+	len2 = floorf((sent2/len2)*100.00);
+ 	percent = len2;
+	
+	printf("%i%s of message sent!\n", percent, "%");
+}

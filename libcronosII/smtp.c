@@ -268,15 +268,6 @@ c2_smtp_set_flags (C2SMTP *smtp, gint flags)
 		c2_smtp_connect (smtp);
 }
 
-void
-c2_smtp_free (C2SMTP *smtp)
-{	
-	c2_return_if_fail (smtp, C2EDATA);
-	
-	destroy(GTK_OBJECT(smtp));
-	g_free(smtp);
-}
-
 gint
 c2_smtp_send_message (C2SMTP *smtp, C2Message *message) 
 {
@@ -1017,7 +1008,6 @@ c2_smtp_local_divide_recepients(gchar *to)
 	g_string_free(str, FALSE);
 	return temp;
 }
-
 
 /* sends RCPT: commands */
 static gint

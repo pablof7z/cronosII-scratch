@@ -32,6 +32,15 @@
 /*             on port number port, and use ssl or auth       */
 /*             optionally.                                    */
 /*                                                            */
+/* c2_smtp_new(C2_SMTP_LOCAL, gchar *command) -- Retursn a    */
+/*             new C2SMTP object that will send messages via  */
+/*             the smtp program provided. The default program */
+/*             string to use is "sendmail -t < %m" in which   */
+/*             %m will be replaced with the filename of a     */
+/*             file containing the message + headers. This is */
+/*             the recomended and tested local sendmail       */
+/*             program to use.                                */
+/*                                                            */
 /* TODO: Finish me!                                           */
 /*                                                            */
 
@@ -114,9 +123,6 @@ c2_smtp_set_flags							(C2SMTP *smtp, gint flags);
 
 gint
 c2_smtp_send_message						(C2SMTP *smtp, C2Message *message);
-
-void
-c2_smtp_free								(C2SMTP *smtp);
 
 #ifdef __cplusplus
 }
