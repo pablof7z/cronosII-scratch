@@ -213,6 +213,7 @@ struct {
 
 enum
 {
+	EMERGENCY_DATA_SAVE,
 	PREFERENCES_CHANGED,
 	RELOAD_MAILBOXES,
 	WINDOW_CHANGED,
@@ -254,6 +255,12 @@ class_init (C2ApplicationClass *klass)
 
 	parent_class = gtk_type_class (gtk_object_get_type ());
 
+	signals[EMERGENCY_DATA_SAVE] =
+		gtk_signal_new ("emergency_data_save",
+						GTK_RUN_FIRST,
+						object_class->type,
+						GTK_SIGNAL_OFFSET (C2ApplicationClass, emergency_data_save),
+						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 	signals[PREFERENCES_CHANGED] =
 		gtk_signal_new ("application_preferences_changed",
 						GTK_RUN_FIRST,
@@ -276,6 +283,7 @@ class_init (C2ApplicationClass *klass)
 						GTK_TYPE_POINTER);
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 
+	klass->emergency_data_save = NULL;
 	klass->application_preferences_changed = NULL;
 	klass->reload_mailboxes = NULL;
 	klass->window_changed = NULL;

@@ -38,6 +38,10 @@ extern "C" {
 	gnome_config_get_string ("/"PACKAGE"/Application/Version")
 #define c2_preferences_set_application_version(val) \
 	gnome_config_set_string ("/"PACKAGE"/Application/Version", val)
+#define c2_preferences_get_application_crashed() \
+	gnome_config_get_bool ("/"PACKAGE"/Application/Crashed")
+#define c2_preferences_set_application_crashed(val) \
+	gnome_config_set_bool ("/"PACKAGE"/Application/Crashed", val)
 
 #define c2_preferences_get_general_options_start_check() \
 	gnome_config_get_bool_with_default ("/"PACKAGE"/"GENERAL"-"OPTIONS"/start_check=false", NULL)

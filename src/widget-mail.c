@@ -337,9 +337,237 @@ on_mail_parent_set (GtkWidget *widget, GtkWidget *prev, C2Mail *mail)
 }
 
 static void
-on_attachments_clicked (GtkWidget *btn, C2Mail *mail)
+on_attachments_open_cfg_clicked (void)
+{
+	system ("gnomecc --capplet=file-types-capplet");
+}
+
+static void
+on_attachments_save_toggled (GtkWidget *btn, GladeXML *xml)
+{
+	GtkWidget *open_cmnd = glade_xml_get_widget (xml, "open_cmnd");
+	GtkWidget *save_file = glade_xml_get_widget (xml, "save_file");
+
+	gtk_widget_set_sensitive (open_cmnd, FALSE);
+	gtk_widget_set_sensitive (save_file, TRUE);
+}
+
+static void
+on_attachments_open_toggled (GtkWidget *btn, GladeXML *xml)
+{
+	GtkWidget *open_cmnd = glade_xml_get_widget (xml, "open_cmnd");
+	GtkWidget *save_file = glade_xml_get_widget (xml, "save_file");
+
+	gtk_widget_set_sensitive (open_cmnd, TRUE);
+	gtk_widget_set_sensitive (save_file, FALSE);
+}
+
+static void
+on_attachments_mime_activate (GtkWidget *btn, C2Mail *mail)
+{
+	C2Mime *mime;
+	gchar *filename;
+	gchar *program;
+	gchar *buf, *dir, *mime_type;
+	GladeXML *xml;
+	GtkWidget *widget;
+
+	mime = C2_MIME (gtk_object_get_data (GTK_OBJECT (btn), "mime"));
+	if (!C2_IS_MIME (mime))
+		return;
+
+	/* We will handle "message/*" attachments */
+	if (c2_streq (mime->type, "message"))
+	{
+		C2Message *message = c2_message_new ();
+
+		c2_message_set_message (message, c2_mime_get_part (mime));
+		message->mime = c2_mime_new (message);
+		c2_mail_set_message (mail, message);
+		
+		return;
+	}
+
+	/* Find the program */
+	mime_type = g_strdup_printf ("%s/%s", mime->type, mime->subtype);
+	program = gnome_mime_program (mime_type);
+
+	/* Find the filename */
+	filename = c2_mime_get_parameter_value (mime->disposition, "filename");
+
+	if (!program && filename)
+	{
+		/* Try to get the program by the filename */
+		program = gnome_mime_program (gnome_mime_type (filename));
+	}
+
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_attachment_operation");
+
+	widget = glade_xml_get_widget (xml, "save_file");
+	c2_preferences_get_general_paths_save (dir);
+	buf = g_strdup_printf ("%s%s%s", dir,
+							(*(dir+(strlen (dir)-1)) == G_DIR_SEPARATOR) ? "" : G_DIR_SEPARATOR_S, filename);
+	gnome_file_entry_set_default_path (GNOME_FILE_ENTRY (widget), buf);
+	C2_DEBUG (buf);
+	g_free (buf);
+	g_free (dir);
+
+	widget = glade_xml_get_widget (xml, "open_cmnd");
+	gtk_entry_set_text (GTK_ENTRY (widget), program);
+
+	widget = glade_xml_get_widget (xml, "save");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_attachments_save_toggled), xml);
+	if (!program)
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), TRUE);
+
+	widget = glade_xml_get_widget (xml, "open");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_attachments_open_toggled), xml);
+	if (program)
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), TRUE);
+
+	widget = glade_xml_get_widget (xml, "open_cfg");
+	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
+						GTK_SIGNAL_FUNC (on_attachments_open_cfg_clicked), NULL);
+
+	widget = glade_xml_get_widget (xml, "dlg_attachment_operation");
+	c2_application_window_add (mail->application, GTK_WINDOW (widget));
+	
+rerun:
+	switch (gnome_dialog_run (GNOME_DIALOG (widget)))
+	{
+		case 0:
+			widget = glade_xml_get_widget (xml, "save");
+			if (GTK_TOGGLE_BUTTON (widget)->active)
+			{
+				gchar *path;
+				FILE *fd;
+
+				widget = glade_xml_get_widget (xml, "save_file");
+				path = gnome_file_entry_get_full_path (GNOME_FILE_ENTRY (widget), FALSE);
+
+				if (!path)
+					goto rerun;
+				
+				if (!(fd = fopen (path, "wb")))
+				{
+					c2_error_set (-errno);
+					g_warning (_("Unable to write to %s: %s"), path, c2_error_get ());
+				} else
+				{
+					fwrite (c2_mime_get_part (mime), sizeof (gchar), mime->length, fd);
+					fclose (fd);
+					g_free (path);
+				}
+			} else
+			{
+				gchar *cmnd;
+				gchar *path;
+				gchar *buf2;
+				FILE *fd;
+
+				widget = glade_xml_get_widget (xml, "open_cmnd");
+				cmnd = gtk_entry_get_text (GTK_ENTRY (widget));
+
+				if (!cmnd)
+					goto rerun;
+
+				path = c2_get_tmp_file (NULL);
+				
+				if (!(fd = fopen (path, "wb")))
+				{
+					c2_error_set (-errno);
+					g_warning (_("Unable to write to %s: %s"), path, c2_error_get ());
+				} else
+				{
+					fwrite (c2_mime_get_part (mime), sizeof (gchar), mime->length, fd);
+					fclose (fd);
+
+					buf = c2_str_replace_all (cmnd, "%f", path);
+					if (gnome_mime_needsterminal (mime_type, program) || c2_strne (program, cmnd))
+						buf2 = g_strdup_printf ("%s &", buf);
+					else
+						buf2 = g_strdup_printf ("gnome-terminal -x %s &", buf);
+					system (buf2);
+					g_free (buf);
+					g_free (buf2);
+					g_free (path);
+				}
+			}
+			
+		case 1:
+			widget = glade_xml_get_widget (xml, "dlg_attachment_operation");
+			c2_application_window_remove (mail->application, GTK_WINDOW (widget));
+			gnome_dialog_close (GNOME_DIALOG (widget));
+			gtk_object_destroy (GTK_OBJECT (xml));
+	}
+
+	g_free (mime_type);
+}
+
+static void
+on_attachments_attachments_tool_activate (GtkWidget *btn, C2Mail *mail)
 {
 	c2_mail_attachments_tool_new (mail);
+}
+
+static void
+on_attachments_clicked (GtkWidget *btn, C2Mail *mail)
+{
+	GtkWidget *menu, *mi;
+	C2Message *message;
+	C2Mime *mime;
+	gchar *label;
+	gchar *filename;
+
+	message = mail->message;
+	if (!C2_IS_MESSAGE (message))
+		return;
+	
+	/* Create the attachments menu */
+	menu = gtk_menu_new ();
+
+	for (mime = message->mime; mime; mime = mime->next)
+	{
+		if (!(filename = c2_mime_get_parameter_value (mime->disposition, "filename")))
+		{
+			/* This part doesn't have a filename, use the type/subtype instead */
+			filename = g_strdup_printf ("%s/%s", mime->type, mime->subtype);
+		}
+
+		if (mime->length < 1024)
+			label = g_strdup_printf ("%s (%d bytes)", filename, mime->length);
+		else if (mime->length < 1024*1024)
+			label = g_strdup_printf ("%s (%d Kb)", filename, mime->length/1024);
+		else
+			label = g_strdup_printf ("%s (%d Mb)", filename, mime->length/(1024*1024));
+
+		mi = gtk_menu_item_new_with_label (label);
+
+		g_free (label);
+		g_free (filename);
+
+		gtk_menu_append (GTK_MENU (menu), mi);
+		gtk_widget_show (mi);
+		gtk_object_set_data (GTK_OBJECT (mi), "mime", mime);
+		gtk_signal_connect (GTK_OBJECT (mi), "activate",
+							GTK_SIGNAL_FUNC (on_attachments_mime_activate), mail);
+	}
+
+	mi = gtk_menu_item_new ();
+	gtk_menu_append (GTK_MENU (menu), mi);
+	gtk_widget_show (mi);
+	gtk_widget_set_sensitive (mi, FALSE);
+
+	mi = gtk_menu_item_new_with_label (_("Attachments Tool..."));
+	gtk_menu_append (GTK_MENU (menu), mi);
+	gtk_widget_show (mi);
+	gtk_signal_connect (GTK_OBJECT (mi), "activate",
+							GTK_SIGNAL_FUNC (on_attachments_attachments_tool_activate), mail);
+
+	gnome_popup_menu_do_popup (menu,
+								NULL, NULL, NULL, NULL);
 }
 
 static void
@@ -654,16 +882,16 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 			text_plain = FALSE;
 		}
 	}
-L
+
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
-L	if (text_plain && mime)
+	if (text_plain && mime)
 		string = interpret_text_plain_symbols (mime->part);
 	else if (text_plain && !mime)
 		string = interpret_text_plain_symbols (message->mime ?
 											c2_mime_get_part (message->mime) :
 											message->body);
 #else
-L	if (mime)
+	if (mime)
 		string = mime->part;
 	else
 		string = message->mime ? c2_mime_get_part (message->mime) : message->body;

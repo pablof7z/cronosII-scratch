@@ -417,7 +417,7 @@ re_run_add_mailbox_dialog:
 				C2MailboxType type = 0;
 				gchar *name, *path = NULL;
 				C2Mailbox *parent, *mailbox = NULL;
-				gint port = 0, config_id;
+				gint config_id;
 				gchar *query;
 				const gchar *egg = NULL;
 
@@ -620,6 +620,237 @@ re_run_add_mailbox_dialog:
 			 */
 			break;
 	}		
+}
+
+static gint
+on_dialog_incoming_mail_warning_darea_expose_event (GtkWidget *widget, GdkEventExpose *e, GtkWidget *window)
+{
+	GdkPixmap *pixmap;
+	gchar *str;
+	gint text_pos_x, text_pos_y, mails;
+	GtkWidget *darea;
+	GdkFont *font;
+
+	mails = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "mails"));
+	text_pos_x = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "text_pos_x"));
+	text_pos_y = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "text_pos_y"));
+	font = (GdkFont*) gtk_object_get_data (GTK_OBJECT (window), "font");
+	
+	pixmap = gtk_object_get_data (GTK_OBJECT (window), "pixmap");
+	
+	gdk_draw_pixmap (widget->window,
+		  widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
+		  pixmap,
+		  e->area.x, e->area.y,
+		  e->area.x, e->area.y,
+		  e->area.width, e->area.height);
+	
+	darea = GTK_BIN (window)->child;
+	
+	if (mails > 1)
+		str = g_strdup_printf (_("You've got %d new mails!"), mails);
+	else
+		str = g_strdup (_("You've got a new mail!"));
+	gdk_draw_string (widget->window, font,
+				darea->style->black_gc,
+				text_pos_x-(gdk_string_width (font, str)/2), text_pos_y, str);
+	g_free (str);
+}
+
+static gint
+on_dialog_incoming_mail_warning_darea_configure_event (GtkWidget *widget, GdkEventConfigure *e, GtkWidget *window)
+{
+	GtkWidget *gpixmap;
+	GdkPixmap *pixmap;
+	gchar *str;
+	gint mails;
+	gint text_pos_x, text_pos_y;
+	gint width, height;
+
+	pixmap = gtk_object_get_data (GTK_OBJECT (window), "pixmap");
+	mails = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "mails"));
+	text_pos_x = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "text_pos_x"));
+	text_pos_y = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "text_pos_y"));
+	width = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "width"));
+	height = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "height"));
+
+	if (pixmap)
+		gdk_pixmap_unref (pixmap);
+	
+	gpixmap = gnome_pixmap_new_from_file_at_size (PKGDATADIR "/pixmaps/mail_warn.png", width, height);
+	pixmap = GNOME_PIXMAP (gpixmap)->pixmap;
+	gtk_object_set_data (GTK_OBJECT (window), "pixmap", pixmap);
+/*
+	gdk_draw_pixmap (widget->window,
+		  widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
+		  pixmap,
+		  0, 0,
+		  width, height,
+		  width, height);*/
+	
+/*	if (mails > 1)
+	{
+		str = g_strdup_printf (_("You've got %d new mails!"), mails);
+		gdk_draw_string (pixmap, gdk_font_load (c2_font_bold),
+				widget->style->white_gc,
+				text_pos_x, text_pos_y, str);
+	}*/
+
+	return TRUE;
+}
+
+static gint
+on_dialog_incoming_mail_warning_timeout (GtkWidget *window)
+{
+	gchar *pos;
+	gint width, height, x, y;
+	gint retval = TRUE;
+	gboolean showing;
+	C2Application *application;
+
+	application = C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (window), "application"));
+	pos = gtk_object_get_data (GTK_OBJECT (window), "pos");
+	width = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "width"));
+	height = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "height"));
+	y = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "y"));
+
+	if (strstr (pos, "LEFT"))
+		x = 0;
+	else
+		x = gdk_screen_width () - width;
+
+	if ((showing = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "showing"))))
+		y+=6;
+	else
+		y-=6;
+	
+	if (strstr (pos, "TOP"))
+	{
+		gtk_window_reposition (GTK_WINDOW (window), x, -height+y);
+
+		if (y >= height || y <= 0)
+			retval = FALSE;
+	} else
+	{
+		gtk_window_reposition (GTK_WINDOW (window), x, gdk_screen_height ()-y);
+
+		if (y >= height || y <= 0)
+			retval = FALSE;
+	}
+
+	gtk_object_set_data (GTK_OBJECT (window), "y", y);
+
+	if (!showing && y <= 0)
+		gtk_widget_destroy (window);
+
+	if (!retval)
+		c2_application_dialog_incoming_mail_warning (application);
+
+	return retval;
+}
+
+static gint
+on_dialog_incoming_mail_warning_pixmap_button_press_event (GtkWidget *widget, GdkEventButton *e, GtkWidget *window)
+{
+	C2Application *application;
+	
+	switch (e->button)
+	{
+		default:
+			application = C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (window), "application"));
+
+			c2_application_command (application, C2_COMMAND_WINDOW_MAIN_RAISE);
+		case 1:
+			gtk_object_remove_data (GTK_OBJECT (window), "showing");
+			gtk_timeout_add (20, on_dialog_incoming_mail_warning_timeout, window);
+	}
+}
+
+void
+c2_application_dialog_incoming_mail_warning (C2Application *application)
+{
+	GtkWidget *window;
+	GtkWidget *darea;
+	GtkWidget *gpixmap;
+	gchar *pos;
+	gint height = 210, width = 360;
+	gint text_pos_x = width/2, text_pos_y = height-10;
+	GtkTooltips *tooltips;
+	GdkFont *font;
+	gchar *str;
+
+	if (GTK_IS_WINDOW ((window = (GtkWidget*) gtk_object_get_data (application, "mail_warn_window"))))
+	{
+		gint mails;
+		GdkEventExpose *e;
+		
+		darea = GTK_BIN (window)->child;
+
+		mails = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (window), "mails"));
+		mails++;
+		gtk_object_set_data (GTK_OBJECT (window), "mails", mails);
+
+		e = g_new0 (GdkEventExpose, 1);
+
+		e->area.x = 0;
+		e->area.y = 0;
+		e->area.width = width;
+		e->area.height = height;
+		gtk_signal_emit_by_name (GTK_OBJECT (darea), "expose_event", e);
+	} else
+	{
+		window = gtk_window_new (GTK_WINDOW_POPUP);
+		gpixmap = gnome_pixmap_new_from_file_at_size (PKGDATADIR "/pixmaps/mail_warn.png", width, height);
+		darea = gtk_drawing_area_new ();
+		gtk_drawing_area_size (GTK_DRAWING_AREA (darea), width, height);
+		gtk_container_add (GTK_CONTAINER (window), darea);
+		tooltips = gtk_tooltips_new ();
+		gtk_tooltips_set_tip (tooltips, window,
+								_("Click with left button: Hide this warning.\n"
+								  "Click with other button: Open Cronos II."), NULL);
+		font = gdk_font_load (c2_font_bold);
+		
+		pos = c2_preferences_get_interface_misc_mail_warning ();
+
+		gtk_object_set_data (GTK_OBJECT (window), "application", application);
+		gtk_object_set_data (GTK_OBJECT (window), "pos", pos);
+		gtk_object_set_data (GTK_OBJECT (window), "width", width);
+		gtk_object_set_data (GTK_OBJECT (window), "height", height);
+		gtk_object_set_data (GTK_OBJECT (window), "pixmap", GNOME_PIXMAP (gpixmap)->pixmap);
+		gtk_object_set_data (GTK_OBJECT (window), "text_pos_x", text_pos_x);
+		gtk_object_set_data (GTK_OBJECT (window), "text_pos_y", text_pos_y);
+		gtk_object_set_data (GTK_OBJECT (window), "font", font);
+		gtk_object_set_data (GTK_OBJECT (window), "mails", 1);
+		gtk_object_set_data (GTK_OBJECT (window), "showing", 1);
+
+		gtk_signal_connect (GTK_OBJECT (darea), "expose_event",
+				GTK_SIGNAL_FUNC (on_dialog_incoming_mail_warning_darea_expose_event), window);
+		gtk_signal_connect (GTK_OBJECT (darea), "configure_event",
+				GTK_SIGNAL_FUNC (on_dialog_incoming_mail_warning_darea_configure_event), window);
+		gtk_signal_connect (GTK_OBJECT (darea), "button_press_event",
+				GTK_SIGNAL_FUNC (on_dialog_incoming_mail_warning_pixmap_button_press_event), window);
+		gtk_widget_set_events (darea, GDK_EXPOSURE_MASK
+						 | GDK_LEAVE_NOTIFY_MASK
+						 | GDK_BUTTON_PRESS_MASK
+						 | GDK_POINTER_MOTION_MASK
+						 | GDK_POINTER_MOTION_HINT_MASK);
+		gtk_widget_show (darea);
+		gtk_widget_show (gpixmap);
+
+		gtk_object_set_data (GTK_OBJECT (application), "mail_warn_window", window);
+		
+		if (c2_streq (pos, "TOP LEFT"))
+			gtk_widget_popup (window, 0, -height);
+		else if (c2_streq (pos, "TOP RIGHT"))
+			gtk_widget_popup (window, gdk_screen_width () - width, -height);
+		else if (c2_streq (pos, "BOTTOM LEFT"))
+			gtk_widget_popup (window, 0, gdk_screen_height () + height);
+		else
+			gtk_widget_popup (window, gdk_screen_width () - width,
+									gdk_screen_height () + height);
+
+		gtk_timeout_add (20, on_dialog_incoming_mail_warning_timeout, window);
+	}
 }
 
 static void
@@ -1126,19 +1357,19 @@ c2_application_dialog_select_file_save (C2Application *application, gchar **file
 	GtkWidget *filesel;
 	gint button;
 	gchar *buf;
+	gchar *dir;
 	FILE *fd;
-
-	if (file)
-		*file = NULL;
 
 	filesel = gtk_file_selection_new (_("Save message"));
 	gtk_window_set_modal (GTK_WINDOW (filesel), TRUE);
 	
 	c2_application_window_add (application, GTK_WINDOW (filesel));
 
-	c2_preferences_get_general_paths_save (buf);
+	c2_preferences_get_general_paths_save (dir);
+	buf = g_strdup_printf ("%s/%s", dir, file);
 	gtk_file_selection_set_filename (GTK_FILE_SELECTION (filesel), buf);
 	g_free (buf);
+	g_free (dir);
 	
 	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filesel)->ok_button), "clicked",
 						GTK_SIGNAL_FUNC (on_application_dialog_select_file_save_ok_clicked), &button);

@@ -122,6 +122,7 @@ struct _C2ApplicationClass
 {
 	GtkObjectClass parent_class;
 
+	void (*emergency_data_save) (C2Application *application);
 	void (*application_preferences_changed) (C2Application *application, gint key,
 												gpointer value);
 	void (*reload_mailboxes) (C2Application *application);

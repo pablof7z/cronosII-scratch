@@ -30,7 +30,8 @@ pixmap_DATA = \
 	interface_misc.png	\
 	loading-image.png	\
 	mailbox.png			\
-	mails.png			\
+	mails.png	\
+	mail_warn.png \
 	mail_warn_screen_bottom_left.png \
 	mail_warn_screen_bottom_right.png \
 	mail_warn_screen_top_left.png \

@@ -434,6 +434,8 @@ const gchar *
 c2_mime_get_part (C2Mime *mime)
 {
 	gchar *tmp;
+
+	c2_return_val_if_fail (C2_IS_MIME (mime), NULL, C2EDATA);
 	
 	if (mime->part)
 		return mime->part;

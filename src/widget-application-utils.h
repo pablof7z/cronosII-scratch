@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,8 +37,12 @@ c2_application_cut_text						(C2Application *application, GdkFont *font,
 /* Dialogs */
 void
 c2_application_dialog_missing_mailbox_inform	(C2Application *application, const gchar *name);
+
 void
 c2_application_dialog_add_mailbox			(C2Application *application);
+
+void
+c2_application_dialog_incoming_mail_warning	(C2Application *application);
 
 void
 c2_application_dialog_add_features			(C2Application *application);

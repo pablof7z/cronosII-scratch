@@ -17,6 +17,7 @@
  */
 #include <config.h>
 #include <gnome.h>
+#include <signal.h>
 
 #ifdef USE_GCONF
 #	include <gconf/gconf.h>
@@ -35,6 +36,9 @@
 
 static gint
 on_release_information_idle					(gpointer);
+
+C2Application *
+global_application = NULL;
 
 gchar *error_list[] =
 {
@@ -96,6 +100,23 @@ static struct {
 	FALSE,
 	FALSE
 };
+
+void on_sigsegv (int signal)
+{
+	GtkWidget *dialog;
+
+	dialog = gnome_error_dialog (_("An internal error has crashed Cronos II!\n"
+ 							       "\n"
+								   "Your unsaved data is going to be saved\n"
+								   "so you do not lose any information.\n"
+								   "\n"
+								   "We apologise for this inconvenient.\n"));
+	gnome_dialog_run_and_close (dialog);
+
+	gtk_signal_emit_by_name (GTK_OBJECT (global_application), "emergency_data_save");
+	c2_preferences_set_application_crashed (TRUE);
+	abort ();
+}
 
 static void
 c2_init (gint argc, gchar **argv)
@@ -204,6 +225,8 @@ c2_init (gint argc, gchar **argv)
 	
 	glade_gnome_init ();
 	c2_hash_init ();
+	
+	signal (SIGSEGV, on_sigsegv);
 }
 
 #define CREATE_WINDOW_MAIN \
@@ -241,6 +264,7 @@ main (gint argc, gchar **argv)
 	/* Create the Application object */
 	if (!(application = c2_application_new (PACKAGE, flags.be_server)))			
 		return 1;
+	global_application = application;
 
 	if (flags.be_server)
 	{
