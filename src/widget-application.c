@@ -756,7 +756,7 @@ on_transfer_list_finish (C2TransferList *tl, C2Application *application)
 							(GtkFunction) on_application_timeout_check, application);
 }
 
-static void
+static gboolean 
 _check_real (C2Application *application)
 {
 	C2Account *account;
@@ -765,7 +765,7 @@ _check_real (C2Application *application)
 	GSList *plist = NULL, *l;
 	gboolean silent;
 	
-	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+	c2_return_val_if_fail (C2_IS_APPLICATION (application), FALSE, C2EDATA);
 
 	/* Get the silent option */
 	silent = gtk_object_get_data (GTK_OBJECT (application), "check::silent") ? TRUE : FALSE;
@@ -814,6 +814,10 @@ _check_real (C2Application *application)
 	}
 	g_slist_free (plist);
 	plist = NULL;
+
+	/* return FALSE so that the gtk_idle thread will stop
+	   executing this function after its first run */
+	return FALSE;
 }
 
 /**
