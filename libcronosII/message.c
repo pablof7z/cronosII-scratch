@@ -121,7 +121,7 @@ c2_message_destroy (GtkObject *object)
 		g_free (message->header);
 
 	if (message->mime)
-		g_list_free (message->mime);
+		gtk_object_unref (GTK_OBJECT (message->mime));
 }
 
 gchar *

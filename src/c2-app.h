@@ -45,6 +45,12 @@ typedef enum
 	C2_DEFAULT_MIME_HTML
 } C2DefaultMimeType;
 
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
+#	define DEFAULT_PART							C2_DEFAULT_MIME_HTML
+#else
+#	define DEFAULT_PART							C2_DEFAULT_MIME_PLAIN
+#endif
+
 typedef enum
 {
 	C2_INIT_ADDRBOOK_AT_START,
@@ -101,6 +107,7 @@ struct C2Application
 {
 	GtkTooltips *tooltips;
 	GList *open_windows;
+	GList *tmp_files;
 
 	GdkBitmap *mask_unread, *mask_read, *mask_reply, *mask_forward;
 	GdkPixmap *pixmap_unread, *pixmap_read, *pixmap_reply, *pixmap_forward;

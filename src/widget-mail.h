@@ -99,6 +99,9 @@ c2_mail_set_show_field							(C2Mail *mail, const gchar *field, gboolean show);
 gboolean
 c2_mail_get_show_field							(C2Mail *mail, const gchar *field);
 
+void
+c2_mail_install_hints							(C2Mail *mail, GtkWidget *appbar);
+
 #ifdef __cplusplus
 }
 #endif

@@ -52,7 +52,7 @@ typedef struct
 
 	pthread_mutex_t appbar_lock;
 	pthread_mutex_t index_lock;
-	pthread_mutex_t text_lock;
+	pthread_mutex_t body_lock;
 
 	C2Mailbox *selected_mbox;
 } C2MainWindow;

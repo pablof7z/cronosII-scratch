@@ -100,97 +100,85 @@ c2_index_class_init (C2IndexClass *klass)
 		       GTK_RUN_FIRST,
 		       object_class->type,
 		       GTK_SIGNAL_OFFSET(C2IndexClass, select_message),
-		       gtk_marshal_NONE__POINTER_POINTER,
-		       GTK_TYPE_NONE, 2, GTK_TYPE_ENUM,
-		       GTK_TYPE_POINTER);
+		       gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+			   GTK_TYPE_POINTER);
     c2_index_signals[OPEN_MESSAGE] =
 	gtk_signal_new("open_message",
 		       GTK_RUN_FIRST,
 		       object_class->type,
-		       GTK_SIGNAL_OFFSET(C2IndexClass,
-					 open_message),
-		       gtk_marshal_NONE__POINTER_POINTER, GTK_TYPE_NONE, 2,
-		       GTK_TYPE_ENUM, GTK_TYPE_POINTER);
+		       GTK_SIGNAL_OFFSET(C2IndexClass, open_message),
+		       gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+		       GTK_TYPE_POINTER);
 	c2_index_signals[DELETE_MESSAGE] =
 	gtk_signal_new("delete_message",
 		       GTK_RUN_FIRST,
 		       object_class->type,
-		       GTK_SIGNAL_OFFSET(C2IndexClass,
-					 delete_message),
-		       gtk_marshal_NONE__POINTER_POINTER, GTK_TYPE_NONE, 2,
-		       GTK_TYPE_ENUM, GTK_TYPE_POINTER);
+		       GTK_SIGNAL_OFFSET(C2IndexClass, delete_message),
+		       gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+		       GTK_TYPE_POINTER);
 	c2_index_signals[EXPUNGE_MESSAGE] =
 	gtk_signal_new("expunge_message",
 		       GTK_RUN_FIRST,
 		       object_class->type,
-		       GTK_SIGNAL_OFFSET(C2IndexClass,
-					 expunge_message),
-		       gtk_marshal_NONE__POINTER_POINTER, GTK_TYPE_NONE, 2,
-		       GTK_TYPE_ENUM, GTK_TYPE_POINTER);
+		       GTK_SIGNAL_OFFSET(C2IndexClass, expunge_message),
+		       gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+		       GTK_TYPE_POINTER);
 	c2_index_signals[MOVE_MESSAGE] =
 	gtk_signal_new("move_message",
 		       GTK_RUN_FIRST,
 		       object_class->type,
-		       GTK_SIGNAL_OFFSET(C2IndexClass,
-					 move_message),
-		       gtk_marshal_NONE__POINTER_POINTER, GTK_TYPE_NONE, 2,
-		       GTK_TYPE_ENUM, GTK_TYPE_POINTER);
+		       GTK_SIGNAL_OFFSET(C2IndexClass, move_message),
+		       gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+		       GTK_TYPE_POINTER);
 	c2_index_signals[COPY_MESSAGE] =
 	gtk_signal_new("copy_message",
 		       GTK_RUN_FIRST,
 		       object_class->type,
-		       GTK_SIGNAL_OFFSET(C2IndexClass,
-					 copy_message),
-		       gtk_marshal_NONE__POINTER_POINTER, GTK_TYPE_NONE, 2,
-		       GTK_TYPE_ENUM, GTK_TYPE_POINTER);
+		       GTK_SIGNAL_OFFSET(C2IndexClass, copy_message),
+		       gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+		       GTK_TYPE_POINTER);
 	c2_index_signals[REPLY_MESSAGE] =
 	gtk_signal_new("reply_message",
 		       GTK_RUN_FIRST,
 		       object_class->type,
-		       GTK_SIGNAL_OFFSET(C2IndexClass,
-					 reply_message),
-		       gtk_marshal_NONE__POINTER_POINTER, GTK_TYPE_NONE, 2,
-		       GTK_TYPE_ENUM, GTK_TYPE_POINTER);
+		       GTK_SIGNAL_OFFSET(C2IndexClass, reply_message),
+		       gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+		       GTK_TYPE_POINTER);
 	c2_index_signals[REPLY_ALL_MESSAGE] =
 	gtk_signal_new("reply_all_message",
 		       GTK_RUN_FIRST,
 		       object_class->type,
-		       GTK_SIGNAL_OFFSET(C2IndexClass,
-					 reply_all_message),
-		       gtk_marshal_NONE__POINTER_POINTER, GTK_TYPE_NONE, 2,
-		       GTK_TYPE_ENUM, GTK_TYPE_POINTER);
+		       GTK_SIGNAL_OFFSET(C2IndexClass, reply_all_message),
+		       gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+		       GTK_TYPE_POINTER);
 	c2_index_signals[FORWARD_MESSAGE] =
 	gtk_signal_new("forward_message",
 		       GTK_RUN_FIRST,
 		       object_class->type,
-		       GTK_SIGNAL_OFFSET(C2IndexClass,
-					 forward_message),
-		       gtk_marshal_NONE__POINTER_POINTER, GTK_TYPE_NONE, 2,
-		       GTK_TYPE_ENUM, GTK_TYPE_POINTER);
+		       GTK_SIGNAL_OFFSET(C2IndexClass, forward_message),
+		       gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+		       GTK_TYPE_POINTER);
 	c2_index_signals[PRINT_MESSAGE] =
 	gtk_signal_new("print_message",
 		       GTK_RUN_FIRST,
 		       object_class->type,
-		       GTK_SIGNAL_OFFSET(C2IndexClass,
-					 print_message),
+		       GTK_SIGNAL_OFFSET(C2IndexClass, print_message),
 		       gtk_marshal_NONE__POINTER_POINTER, GTK_TYPE_NONE, 2,
 		       GTK_TYPE_ENUM, GTK_TYPE_POINTER);
 	c2_index_signals[SAVE_MESSAGE] =
 	gtk_signal_new("save_message",
 		       GTK_RUN_FIRST,
 		       object_class->type,
-		       GTK_SIGNAL_OFFSET(C2IndexClass,
-					 save_message),
-		       gtk_marshal_NONE__POINTER_POINTER, GTK_TYPE_NONE, 2,
-		       GTK_TYPE_ENUM, GTK_TYPE_POINTER);
+		       GTK_SIGNAL_OFFSET(C2IndexClass, save_message),
+		       gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+		       GTK_TYPE_POINTER);
 	c2_index_signals[ADD_CONTACT] =
 	gtk_signal_new("add_contact",
 		       GTK_RUN_FIRST,
 		       object_class->type,
-		       GTK_SIGNAL_OFFSET(C2IndexClass,
-					 add_contact),
-		       gtk_marshal_NONE__POINTER_POINTER, GTK_TYPE_NONE, 2,
-		       GTK_TYPE_ENUM, GTK_TYPE_POINTER);
+		       GTK_SIGNAL_OFFSET(C2IndexClass, add_contact),
+		       gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+		       GTK_TYPE_POINTER);
     gtk_object_class_add_signals(object_class, c2_index_signals,
 				 LAST_SIGNAL);
 
@@ -286,9 +274,9 @@ c2_index_init (C2Index *index)
     gtk_clist_set_row_height (clist, 16);
 	gtk_clist_set_selection_mode (clist, GTK_SELECTION_EXTENDED);
 
-/*    gtk_signal_connect (GTK_OBJECT (clist), "select-row",
+    gtk_signal_connect (GTK_OBJECT (clist), "select-row",
 						GTK_SIGNAL_FUNC (select_row), NULL);
-	gtk_signal_connect (GTK_OBJECT (clist), "unselect-row",
+/*	gtk_signal_connect (GTK_OBJECT (clist), "unselect-row",
 						GTK_SIGNAL_FUNC (unselect_row), NULL);
 	gtk_signal_connect (GTK_OBJECT (clist), "button_press_event",
 						GTK_SIGNAL_FUNC (button_press_event), NULL);
@@ -311,7 +299,6 @@ c2_index_add_mailbox (C2Index *index, C2Mailbox *mbox)
 	
 	c2_return_if_fail (mbox, C2EDATA);
 
-	gdk_threads_enter ();
 	gtk_clist_freeze (clist);
 	for (db = mbox->db; db != NULL; db = db->next)
 	{
@@ -328,7 +315,6 @@ c2_index_add_mailbox (C2Index *index, C2Mailbox *mbox)
 		tm = localtime (&db->date);
 		row[5] = g_new0 (gchar, 128);
 		strftime (row[5], 128, c2_app.date_fmt, tm);
-		g_free (tm);
 
 		gtk_clist_append (clist, row);
 
@@ -354,7 +340,6 @@ c2_index_add_mailbox (C2Index *index, C2Mailbox *mbox)
 		gtk_clist_set_row_data (clist, clist->rows-1, db);
 	}
 	gtk_clist_thaw (clist);
-	gdk_threads_leave ();
 }
 
 void
@@ -370,6 +355,11 @@ c2_index_remove_mailbox (C2Index *index)
 static void
 select_row (C2Index *index, gint row, gint column, GdkEvent *event)
 {
+	C2Db *node;
+	
+	/* Get the Db node */
+	if ((node = C2_DB (gtk_clist_get_row_data (GTK_CLIST (GTK_WIDGET (index)), row))))
+		gtk_signal_emit (GTK_OBJECT (index), c2_index_signals[SELECT_MESSAGE], node);
 }
 
 static void

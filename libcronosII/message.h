@@ -36,6 +36,12 @@ typedef struct _C2MessageClass C2MessageClass;
 typedef enum _C2MessageState C2MessageState;
 typedef enum _C2MessageAction C2MessageAction;
 
+#if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
+#	include "mime.h"
+#else
+#	include <cronosII.h>
+#endif
+
 enum _C2MessageState
 {
 	C2_MESSAGE_READED		= ' ',
@@ -59,7 +65,7 @@ struct _C2Message
 	gchar *message;
 	gchar *header;
 	const gchar *body;
-	GList *mime;
+	C2Mime *mime;
 };
 
 struct _C2MessageClass

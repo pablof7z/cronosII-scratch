@@ -39,6 +39,12 @@ extern "C" {
 #include <gtk/gtk.h>
 #include <gtk/gtkwidget.h>
 
+#if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
+#	include <libcronosII/mime.h>
+#else
+#	include <cronosII.h>
+#endif
+
 #define C2_PART(obj)							GTK_CHECK_CAST (obj, c2_part_get_type (), C2Part)
 #define C2_PART_CLASS(klass)					GTK_CHECK_CLASS_CAST (klass, c2_part_get_type, C2PartClass)
 #define C2_IS_PART(obj)							GTK_CHECK_TYPE (obj, c2_part_get_type ())
@@ -53,6 +59,7 @@ struct _C2Part
 	GtkXmHTML parent;
 #else
 #endif
+	GtkWidget *appbar;
 };
 
 struct _C2PartClass
@@ -71,10 +78,13 @@ GtkWidget *
 c2_part_new										(void);
 
 void
-c2_part_set_contents							(C2Part *part, const gchar *contents);
+c2_part_set_part								(C2Part *part, C2Mime *mime);
 
 void
 c2_part_set_contents_from_url					(C2Part *part, const gchar *url);
+
+void
+c2_part_install_hints							(C2Part *part, GtkWidget *appbar);
 
 #ifdef __cplusplus
 }

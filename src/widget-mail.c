@@ -17,10 +17,13 @@
  */
 #include <gnome.h>
 
+#include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
 #include "widget-mail.h"
 #include "widget-part.h"
+
+#include "c2-app.h"
 
 static void
 on_body_button_press_event						(GtkWidget *widget, GdkEventButton *event);
@@ -37,6 +40,31 @@ enum
 };
 
 static gint c2_mail_signals[LAST_SIGNAL] = { 0 };
+
+void
+c2_mail_set_message (C2Mail *mail, C2Message *message)
+{
+	C2Mime *mime;
+
+	c2_return_if_fail (message, C2EDATA);
+
+	/* Get the part that should be displayed */
+	switch (c2_app.default_mime)
+	{
+		case C2_DEFAULT_MIME_PLAIN:
+			mime = c2_mime_get_part_by_content_type (message->mime, "text/plain");
+			break;
+		case C2_DEFAULT_MIME_HTML:
+			if (!(mime = c2_mime_get_part_by_content_type (message->mime, "text/html")))
+				mime = c2_mime_get_part_by_content_type (message->mime, "text/plain");
+			break;
+		default:
+			mime = c2_mime_get_part_by_content_type (message->mime, DEFAULT_PART);
+			break;
+	}
+
+	c2_part_set_part (C2_PART (mail->body), mime);
+}
 
 void
 c2_mail_construct (C2Mail *mail)
@@ -68,6 +96,12 @@ c2_mail_new (void)
 	mail = gtk_type_new (c2_mail_get_type ());
 	c2_mail_construct (mail);
 	return GTK_WIDGET (mail);
+}
+
+void
+c2_mail_install_hints (C2Mail *mail, GtkWidget *appbar)
+{
+	c2_part_install_hints (C2_PART (mail->body), appbar);
 }
 
 static void

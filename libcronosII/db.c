@@ -244,9 +244,9 @@ c2_db_load_cronosII (C2Mailbox *mailbox)
 
 		next->subject = c2_str_get_word (3, line, '\r');
 		next->from = c2_str_get_word (4, line, '\r');
-		next->account = c2_str_get_word (5, line, '\r');
+		next->account = c2_str_get_word (6, line, '\r');
 		
-		buf = c2_str_get_word (6, line, '\r');
+		buf = c2_str_get_word (5, line, '\r');
 		next->date = atoi (buf);
 		g_free (buf);
 
@@ -330,6 +330,15 @@ c2_db_message_remove (C2Db *db, gint row)
 	return 0;
 }
 
+void
+c2_db_message_load (C2Db *db)
+{
+	c2_return_if_fail (db, C2EDATA);
+
+	db->message = *c2_db_message_get (db->mailbox->db, db->position);
+	C2_MESSAGE (db)->mime = C2_MIME (c2_mime_new (C2_MESSAGE (db)));
+}
+
 C2Message *
 c2_db_message_get (C2Db *db, gint row)
 {
@@ -338,7 +347,7 @@ c2_db_message_get (C2Db *db, gint row)
 	gint mid, i;
 	
 	/* Get the mid of the message */
-	for (l = db, i = 1; i < row && l != NULL; i++, l = l->next);
+	for (l = db, i = 0; i < row && l != NULL; i++, l = l->next);
 	c2_return_val_if_fail (l, NULL, C2EDATA);
 
 	if (l->message.message)

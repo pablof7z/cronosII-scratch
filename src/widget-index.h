@@ -49,20 +49,20 @@ typedef struct
 {
 	GtkCListClass parent_class;
 
-	void (*select_message) (C2Index *index, C2MailboxType *type, C2Db *node);
-	void (*open_message) (C2Index *index, C2MailboxType *type, C2Db *node);
+	void (*select_message) (C2Index *index, C2Db *node);
+	void (*open_message) (C2Index *index, C2Db *node);
 
-	void (*delete_message) (C2Index *index, C2MailboxType *type, C2Db *node);
-	void (*expunge_message) (C2Index *index, C2MailboxType *type, C2Db *node);
-	void (*move_message) (C2Index *index, C2MailboxType *type, C2Db *node);
-	void (*copy_message) (C2Index *index, C2MailboxType *type, C2Db *node);
+	void (*delete_message) (C2Index *index, C2Db *node);
+	void (*expunge_message) (C2Index *index, C2Db *node);
+	void (*move_message) (C2Index *index, C2Db *node);
+	void (*copy_message) (C2Index *index, C2Db *node);
 
-	void (*reply_message) (C2Index *index, C2MailboxType *type, C2Db *node);
-	void (*reply_all_message) (C2Index *index, C2MailboxType *type, C2Db *node);
-	void (*forward_message) (C2Index *index, C2MailboxType *type, C2Db *node);
+	void (*reply_message) (C2Index *index, C2Db *node);
+	void (*reply_all_message) (C2Index *index, C2Db *node);
+	void (*forward_message) (C2Index *index, C2Db *node);
 
-	void (*print_message) (C2Index *index, C2MailboxType *type, C2Db *node);
-	void (*save_message) (C2Index *index, C2MailboxType *type, C2Db *node);
+	void (*print_message) (C2Index *index, C2Db *node);
+	void (*save_message) (C2Index *index, C2Db *node);
 
 	void (*add_contact) (C2Index *index, gchar *sender);
 } C2IndexClass;

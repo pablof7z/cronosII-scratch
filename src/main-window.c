@@ -21,11 +21,14 @@
 #include <glade/glade.h>
 
 #include <libcronosII/error.h>
+#include <libcronosII/mime.h>
 #include <libcronosII/utils.h>
 
 #include "c2-app.h"
 #include "main-window.h"
 #include "c2-main-window.h"
+
+#include "widget-mail.h"
 #include "widget-index.h"
 
 #include "xpm/read.xpm"
@@ -46,7 +49,7 @@ static void
 on_ctree_button_press_event							(GtkWidget *widget, GdkEvent *event);
 
 static void
-on_index_selected_message							(GtkWidget *index, C2MailboxType *type, C2Db *node);
+on_index_select_message								(GtkWidget *index, C2Db *node);
 
 static void
 on_preferences_activated							(GtkWidget *widget);
@@ -65,13 +68,14 @@ c2_window_new (void)
 	GtkWidget *vpaned;
 	GtkWidget *ctree;
 	GtkWidget *index;
+	GtkWidget *mail;
 	GtkWidget *button;
 	GtkWidget *pixmap;
 	GtkWidget *appbar;
 	GtkStyle *style;
 
 	pthread_mutex_init (&WMain.index_lock, NULL);
-	pthread_mutex_init (&WMain.text_lock, NULL);
+	pthread_mutex_init (&WMain.body_lock, NULL);
 	pthread_mutex_init (&WMain.appbar_lock, NULL);
 	
 	WMain.xml = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "WMain");
@@ -126,7 +130,11 @@ c2_window_new (void)
 	/* Index */
 	index = glade_xml_get_widget (WMain.xml, "index");
 	gtk_signal_connect (GTK_OBJECT (index), "select_message",
-							GTK_SIGNAL_FUNC (on_index_selected_message), NULL);
+							GTK_SIGNAL_FUNC (on_index_select_message), NULL);
+
+	/* Mail */
+	mail = glade_xml_get_widget (WMain.xml, "mail");
+	c2_mail_install_hints (C2_MAIL (mail), appbar);
 
 	/* Button */
 	button = glade_xml_get_widget (WMain.xml, "appbar_button");
@@ -254,9 +262,10 @@ on_ctree_changed_mailboxes (C2Mailbox *mailbox)
 }
 
 static void
-on_index_selected_message (GtkWidget *index, C2MailboxType *type, C2Db *node)
+on_index_select_message (GtkWidget *index, C2Db *node)
 {
-	L
+	c2_db_message_load (node);
+	c2_mail_set_message (C2_MAIL (glade_xml_get_widget (WMain.xml, "mail")), C2_MESSAGE (node));
 }
 
 static void

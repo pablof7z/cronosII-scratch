@@ -286,6 +286,37 @@ c2_str_replace_all (const gchar *or_string, const gchar *se_string, const gchar 
 }
 
 /**
+ * c2_str_strip_enclosed
+ * @str: A pointer to the target string.
+ * @open: A character to be used as the opening sign.
+ * @close: A character to be used as the closing sign.
+ *
+ * If the string @str starts with @open and finish with @close
+ * this function will remove the first and last character in
+ * a copy of @str.
+ *
+ * Return Value:
+ * A copy of @str which will not start with @open and finish
+ * with @close.
+ **/
+gchar *
+c2_str_strip_enclosed (const gchar *str, gchar open, gchar close)
+{
+	gchar *ptr;
+	
+	c2_return_val_if_fail (str, NULL, C2EDATA);
+	
+	if (*str == open && *(str+strlen (str)-1) == close)
+	{
+		ptr = g_new0 (gchar, strlen (ptr)-1);
+		strncpy (ptr, str+1, strlen (str)-2);
+	} else
+		ptr = g_strdup (ptr);
+	
+	return ptr;
+}
+
+/**
  * c2_str_get_line
  * @str: A pointer to an string object where the next line should be searched.
  *

@@ -32,8 +32,21 @@ extern "C" {
 
 #define C2_CHAR(x)								((gchar*)x)
 
+#define c2_strne(x,y)							(!(c2_streq (x, y)))
+#define c2_strnne(x,y,z)						(!(c2_strneq (x, y, z)))
+
 typedef void *(*PthreadFunc)					(void*);
 #define C2_PTHREAD_FUNC(x)						((PthreadFunc)x)
+
+typedef struct
+{
+	gpointer v1, v2;
+} C2Pthread2;
+
+typedef struct
+{
+	gpointer v1, v2, v3;
+} C2Pthread3;
 
 #ifdef USE_DEBUG
 #	define L									g_print ("%s:%d:%s\n", __FILE__, __LINE__, \
@@ -65,6 +78,9 @@ c2_strstr_case_insensitive						(const gchar *haystack, const gchar *needle);
 gchar *
 c2_str_replace_all								(const gchar *or_string, const gchar *se_string,
 												 const gchar *re_string);
+
+gchar *
+c2_str_strip_enclosed							(const gchar *str, gchar open, gchar close);
 
 gchar *
 c2_str_get_line									(const gchar *str);

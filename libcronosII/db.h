@@ -90,6 +90,9 @@ c2_db_message_swap_mark							(C2Db *db, gint row);
 gint
 c2_db_message_remove							(C2Db *db, gint row);
 
+void
+c2_db_message_load								(C2Db *db);
+
 C2Message *
 c2_db_message_get								(C2Db *db, gint row);
 

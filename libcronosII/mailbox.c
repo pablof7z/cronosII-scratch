@@ -200,9 +200,6 @@ c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
 
 	c2_return_val_if_fail (name, NULL, C2EDATA);
 	
-	C2_DEBUG (name);
-	C2_DEBUG (id);
-	
 	mailbox = gtk_type_new (C2_TYPE_MAILBOX);
 	mailbox->name = g_strdup (name);
 	mailbox->id = g_strdup (id);

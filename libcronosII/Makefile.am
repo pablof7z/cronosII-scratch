@@ -6,6 +6,7 @@ libcronosII_a_SOURCES = \
 						i18n.h						\
 	mailbox.c			mailbox.h					\
 	message.c			message.h					\
+	mime.c				mime.h						\
 	request.c			request.h					\
 	utils.c				utils.h						\
 	utils-date.c		utils-date.h				\

@@ -5,11 +5,13 @@ pixmap_DATA = \
 	folder-opened.png	\
 	garbage.png			\
 	inbox.png			\
+	loading-image.png	\
 	mailbox.png			\
 	mcard-edit.png		\
 	mcard-edit_menu.png	\
 	mcard.png			\
 	mcard-menu.png		\
+	no-image.png		\
 	outbox.png			\
 	queue_mbox.png		\
 	splash.png			\

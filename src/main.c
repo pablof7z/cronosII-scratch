@@ -103,6 +103,8 @@ c2_config_init (void)
 	/* Get mailboxes */
 	load_mailboxes ();
 
+	c2_app.default_mime = gnome_config_get_int_with_default ("/cronosII/HTML/Default Mime=1", NULL);
+
 	c2_app.wm_hpan = gnome_config_get_int_with_default ("/cronosII/Appareance/hpan=150", NULL);
 	c2_app.wm_vpan = gnome_config_get_int_with_default ("/cronosII/Appareance/vpan=170", NULL);
 	c2_app.wm_width = gnome_config_get_int_with_default ("/cronosII/Appareance/width=600", NULL);
