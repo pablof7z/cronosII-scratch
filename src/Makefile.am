@@ -18,13 +18,16 @@ cronosII_scratch_SOURCES = \
 	main.c						main.h						\
 	object-ui-data.c			object-ui-data.h			\
 	preferences.c											\
-	utils-application.c			utils-application.h			\
+	widget-HTML-gtkhtml.c		widget-HTML-gtkhtml.h		\
+	widget-HTML-gtkxmhtml.c		widget-HTML-gtkxmhtml.h		\
+	widget-HTML-text.c			widget-HTML-text.h			\
+	widget-HTML.c				widget-HTML.h				\
+	widget-application-utils.c	widget-application-utils.h	\
 	widget-application.c		widget-application.h		\
 	widget-composer.c			widget-composer.h			\
-	widget-dialog.c				widget-dialog.h				\
 	widget-dialog-preferences.c	widget-dialog-preferences.h	\
+	widget-dialog.c				widget-dialog.h				\
 	widget-index.c				widget-index.h				\
-	widget-html.c				widget-html.h				\
 	widget-mail.c				widget-mail.h				\
 	widget-mailbox-list.c		widget-mailbox-list.h		\
 	widget-message-transfer.c	widget-message-transfer.h	\
@@ -32,7 +35,6 @@ cronosII_scratch_SOURCES = \
 	widget-sidebar.c			widget-sidebar.h			\
 	widget-window-main.c		widget-window-main.h		\
 	widget-window.c				widget-window.h
-	
 
 cronosII_scratch_LDADD = \
 	./$(top_builddir)/libcronosII/libcronosII.a \

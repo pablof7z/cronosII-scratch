@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /src/widget-part.c
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify

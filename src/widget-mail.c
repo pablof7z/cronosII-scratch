@@ -21,7 +21,7 @@
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
-#include "widget-html.h"
+#include "widget-HTML.h"
 #include "widget-mail.h"
 #include "widget-part.h"
 

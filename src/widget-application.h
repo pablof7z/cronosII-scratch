@@ -119,7 +119,6 @@ typedef struct _C2ApplicationReportType C2ApplicationReportType;
 
 #ifdef BUILDING_C2
 #	include "widget-window.h"
-//#	include "widget-window-preferences.h"
 #else
 #	include <cronosII.h>
 #endif

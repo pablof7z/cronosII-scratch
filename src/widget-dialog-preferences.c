@@ -15,6 +15,10 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+#include <config.h>
+
+#include <libcronosII/utils.h>
+
 #include "widget-dialog-preferences.h"
 #include "widget-sidebar.h"
 
@@ -90,6 +94,7 @@ c2_dialog_preferences_new (C2Application *application)
 	preferences = gtk_type_new (c2_dialog_preferences_get_type ());
 
 	c2_dialog_preferences_construct (preferences, application);
+	gtk_widget_set_usize (GTK_WIDGET (preferences), 670, 400);
 
 	return GTK_WIDGET (preferences);
 }
@@ -104,17 +109,50 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 		GNOME_STOCK_BUTTON_CLOSE,
 		NULL
 	};
-	C2Sidebar *sidebar;
+	
+	static C2SidebarSubSection general_icons[] =
+	{
+		{ N_("Options"), PKGDATADIR "/pixmaps/general_options.png" },
+		{ N_("Accounts"), PKGDATADIR "/pixmaps/general_accounts.png" },
+		{ N_("Paths"), PKGDATADIR "/pixmaps/general_paths.png" },
+		{ N_("Plugins"),	PKGDATADIR "/pixmaps/general_plugins.png" },
+		{ NULL, NULL }
+	};
+
+	static C2SidebarSubSection interface_icons[] =
+	{
+		{ N_("Fonts"), PKGDATADIR "/pixmaps/interface_fonts.png" },
+		{ N_("HTML"), PKGDATADIR "/pixmaps/interface_html.png" },
+		{ N_("Composer"), PKGDATADIR "/pixmaps/interface_composer.png" },
+		{ N_("Misc"),	PKGDATADIR "/pixmaps/interface_misc.png" },
+		{ NULL, NULL }
+	};
+
+	static C2SidebarSubSection advanced_icons[] =
+	{
+		{ N_("Misc"), PKGDATADIR "/pixmaps/advanced_misc.png" },
+		{ NULL, NULL }
+	};
+
+	static C2SidebarSection sidebar_info[] =
+	{
+		{ N_("General"), general_icons, NULL },
+		{ N_("Interface"), interface_icons, NULL },
+		{ N_("Advanced"), advanced_icons, NULL },
+		{ NULL, NULL, NULL }
+	};
+	GtkWidget *sidebar;
+	GtkStyle *style;
 
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"), "dlg_preferences_contents");
 	
-	c2_dialog_construct (preferences, application, _("Preferences"), buttons);
+	c2_dialog_construct (C2_DIALOG (preferences), application, _("Preferences"), buttons);
 	C2_DIALOG (preferences)->xml = xml;
 	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (preferences)->vbox), glade_xml_get_widget (xml,
 							"dlg_preferences_contents"), TRUE, TRUE, 0);
 
 	/* Sidebar */
-	sidebar = C2_SIDEBAR (glade_xml_get_widget (xml, "sidebar"));
-	c2_sidebar_add (sidebar, _("General"), _("Options"), NULL,
-					glade_xml_get_widget (xml, "general_options_contents"));
+	sidebar = glade_xml_get_widget (xml, "sidebar");
+	c2_sidebar_set_contents (C2_SIDEBAR (sidebar), sidebar_info);
+	gtk_widget_show (sidebar);
 }

@@ -29,7 +29,7 @@
 #include "widget-dialog-preferences.h"
 #include "widget-mailbox-list.h"
 #include "widget-mail.h"
-#include "widget-html.h"
+#include "widget-HTML.h"
 #include "widget-message-transfer.h"
 #include "widget-index.h"
 #include "widget-window-main.h"

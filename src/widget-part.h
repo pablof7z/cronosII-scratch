@@ -41,7 +41,7 @@ extern "C" {
 
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <libcronosII/mime.h>
-#	include "widget-html.h"
+#	include "widget-HTML.h"
 #else
 #	include <cronosII.h>
 #endif

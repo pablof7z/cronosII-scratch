@@ -15,46 +15,62 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __CRONOSII_WIDGET_SIDEBAR_H__
-#define __CRONOSII_WIDGET_SIDEBAR_H__
+#ifndef __WIDGET_SIDEBAR_H__
+#define __WIDGET_SIDEBAR_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <gnome.h>
+#include <gtk/gtkvbox.h>
+#include <gtk/gtkwidget.h>
 
 #define C2_SIDEBAR(obj)						(GTK_CHECK_CAST (obj, c2_sidebar_get_type (), C2Sidebar))
 #define C2_SIDEBAR_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, c2_sidebar_get_type (), C2SidebarClass))
 
 typedef struct _C2Sidebar C2Sidebar;
 typedef struct _C2SidebarClass C2SidebarClass;
-typedef struct _C2SidebarList C2SidebarList;
+typedef struct _C2SidebarSection C2SidebarSection;
+typedef struct _C2SidebarSubSection C2SidebarSubSection;
+typedef enum _C2SidebarButtonType C2SidebarButtonType;
 
-struct _C2SidebarList
+enum _C2SidebarButtonType
 {
-	gchar *section_name;
+	C2_SIDEBAR_BUTTON_JUST_TEXT,
+	C2_SIDEBAR_BUTTON_JUST_ICON,
+	C2_SIDEBAR_BUTTON_TEXT_UNDER_ICON,
+	C2_SIDEBAR_BUTTON_TEXT_NEXT_TO_ICON
+};
 
+struct _C2SidebarSection
+{
+	const gchar *name;
+	C2SidebarSubSection *subsection;
 	GtkWidget *button;
-	GtkWidget *box;
+};
 
-	C2SidebarList *next;
+struct _C2SidebarSubSection
+{
+	const gchar *name;
+	const gchar *icon;
 };
 
 struct _C2Sidebar
 {
-	GtkContainer container;
+	GtkVBox box;
 
-	GtkWidget *vbox;
+	C2SidebarSection *section;
 
-	C2SidebarList *list;
+	C2SidebarButtonType buttons_type;
+	gint tooltips		: 1;
 };
 
 struct _C2SidebarClass
 {
-	GtkContainerClass parent_class;
+	GtkVBoxClass parent_class;
 
-	void (*selection) (C2Sidebar *sidebar, GtkWidget *widget);
+	void (*section_selected) (C2Sidebar *sidebar, const gchar *name);
+	void (*subsection_selected) (C2Sidebar *sidebar, const gchar *section, const gchar *subsection);
 };
 
 GtkType
@@ -64,20 +80,10 @@ GtkWidget *
 c2_sidebar_new								(void);
 
 void
-c2_sidebar_add								(C2Sidebar *sidebar,
-											 gchar *section, gchar *subsection,
-											 const gchar *pixmap, GtkWidget *widget);
+c2_sidebar_set_contents						(C2Sidebar *sidebar, C2SidebarSection *list);
 
 void
-c2_sidebar_set_selection					(C2Sidebar *sidebar, const gchar *section,
-											 const gchar *subsection);
-
-void
-c2_sidebar_get_selection					(C2Sidebar *sidebar, gchar **section, gchar **subsection);
-
-void
-c2_sidebar_get_widget						(C2Sidebar *sidebar, const gchar *section,
-											 const gchar *subsection);
+c2_sidebar_set_buttons_type					(C2Sidebar *sidebar, C2SidebarButtonType type);
 
 #ifdef __cplusplus
 }

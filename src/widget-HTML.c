@@ -30,7 +30,7 @@
 #else
 #endif
 
-#include "widget-html.h"
+#include "widget-HTML.h"
 
 static void
 class_init									(C2HtmlClass *klass);

@@ -220,10 +220,11 @@ gchar *s = N_("text/html");
 gchar *s = N_("by default.");
 gchar *s = N_("Interface/Misc");
 gchar *s = N_("Proxy");
-gchar *s = N_("HTTP Proxy");
 gchar *s = N_("FTP Proxy");
+gchar *s = N_("HTTP Proxy");
 gchar *s = N_("Port");
 gchar *s = N_("Port");
+gchar *s = N_("Copy values.");
 gchar *s = N_("Advanced/Misc");
 gchar *s = N_("This will permanently remove\n"
               "the selected account.\n"
