@@ -1,4 +1,110 @@
-<sect1 id=mainwindow>
-<title>The Main Window</title>
+<sect1 id=main-window>
+<title>The Main Interface</title>
 <para>PLACE HOLDER</para>
+<para>The main window for &app; is the first window that opens when you launch &app;.</para>
+<informalexample>
+<para>
+From the command line  type <programlisting>cronosII</programlisting>.
+Alternatively launching with the help switch :<programlisting>cronosII --help</programlisting> will give you a list of options you may add when launching &app;. </para>
+<para>Otherwise &app; will be found under Internet Applications or Perhaps Mailers on your Graphical User Interface Menus..</para>
+</informalexample>
+
+<sect2 id=the-window>
+<title>The Main Window</title>
+<para>Describe Main Window Layout and GTK</para>
+
+</sect2>
+
+<sect2 id=main-filemenu>
+<title>File Menu</title>
+
+<para>Open this menu to work with individual messages and accounts.</para>
+<itemizedlist>
+<listitem><para>New</para> <itemizedlist>
+	  <listitem><para>Email </para>
+	    <para>Select this to open the <link linkend=composer> Composer</link> and write a fresh Message</para></listitem>
+	  <listitem><para>Mailbox</para>
+	  <para>Select this to create a new mailbox.</para></listitem>
+	  <listitem><para>Contact</para>
+<para>Open the &app; Addressbook to add new listings .</para></listitem>
+	 
+	</itemizedlist></listitem>
+<listitem><para>Check Mail</para><para>Select one or all of your accounts you would like to check  for mail.</para></listitem>
+<listitem><para>Send Unsent Mail</para><para>Select this to send Mail waiting in your Mail Queue.</para></listitem>
+<listitem><para>Address Book</para><para>Open the &app; Address Book </para></listitem>
+<listitem><para>Save</para><para>Save the currently selected mail to a file</para></listitem>
+<listitem><para>Print</para><para>Print the currently selected mail.</para></listitem>
+<listitem><para>Exit</para><para>Close &app;. End this mail session.</para></listitem>
+
+</itemizedlist>
+</sect2>
+
+<sect2 id=main-editmenu>
+<title>Edit Menu</title>
+<para>Currently this Menu has the single subitem of Find.</para>
+<para>Complete ME when this works ...........................................................................</para>
+</sect2>
+
+<sect2 id=main-view>
+<title>View</title>
+<para>This menu allows you to decide which information to display about the currently selected mail.</para>
+</sect2>
+
+<sect2 id=main-mailbox>
+<title>Mailbox</title>
+<para>This menu gives access to some utility options for your mailbox collection.</para>
+<itemizedlist>
+<listitem><para>Speed Up</para></listitem>
+<listitem><para>Import</para></listitem>
+<listitem><para>Export</para></listitem>
+<listitem><para>Empty Garbage</para></listitem>
+<listitem><para></para></listitem>
+</itemizedlist>
+</sect2>
+
+<sect2 id=main-message>
+<title>Message</title>
+<itemizedlist>
+<listitem>
+<para>Reply</para></listitem>
+<listitem>
+<para>Reply All</para></listitem>
+<listitem>
+<para>Forward</para></listitem>
+<listitem>
+<para>Copy</para></listitem>
+<listitem>
+<para>Move</para>
+</listitem>
+<listitem>
+<para>Mark</para>
+	<itemizedlist>
+	  <listitem><para>Important</para></listitem>
+	  <listitem><para>Unread</para></listitem>
+	  <listitem><para>Read</para></listitem>
+	  <listitem><para>Replied</para></listitem>
+	  <listitem><para>Forwarded</para></listitem>
+	</itemizedlist>
+</listitem>
+<listitem>
+<para>Recovery</para></listitem>
+</itemizedlist>
+</sect2>
+
+<sect2 id=main-settings>
+<title>Settings</title>
+<para></para>
+</sect2>
+
+<sect2 id=main-windows>
+<title>Windows</title>
+<para></para>
+</sect2>
+
+<sect2 id=main-help>
+<title>Help</title>
+<para></para>
+</sect2>
+
+
 </sect1>

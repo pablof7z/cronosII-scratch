@@ -1,3 +1,7 @@
+Tues Oct 23 Peter Gossner <gossner@arcom.com.au>
+	* Added switches.sgml to manual
+	* Work in the Main Window section of the Manual.
+
 Sun Oct 21 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Changed the MIME_UNCAPABLE_WARNING constant to something more
 	  friendly and less agresive than "Your mail client sucks".

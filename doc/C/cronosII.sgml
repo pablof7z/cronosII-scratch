@@ -43,6 +43,7 @@
 <!ENTITY email SYSTEM "email.sgml">
 <!ENTITY interface SYSTEM "interface.sgml">
 <!ENTITY gtk-brief SYSTEM "gtk-brief.sgml">
+<!ENTITY switches SYSTEM "switches.sgml">
 <!ENTITY latest SYSTEM "latest.sgml">
 
 ]>
@@ -118,7 +119,7 @@ aim for reliability, simplicity, speed and flexibility while gradually increasin
 <application>&app;</application> comes with an address book, spell checker, mail filtering and other plugins that extend base functions and add a little fun.
 </para>
 <note>
-<para>If you have just installed &app; you need to <link linkend="account-dialog">configure your accounts</link> before you can send or receive mail. You can also configure other elements of your user interface and mail formats from the<link linkend="preferences"> <guimenuitem> Preferences Menu </guimenuitem> </link> on the<link linkend="mainwindow"> Main Window.</link></para>
+<para>If you have just installed &app; you need to <link linkend="account-dialog">configure your accounts</link> before you can send or receive mail. You can also configure other elements of your user interface and mail formats from the<link linkend="preferences"> <guimenuitem> Preferences Menu </guimenuitem> </link> on the<link linkend="main-window"> Main Window.</link></para>
 <para>See <xref linkend="preferences"> for initial configuration instructions.</para>
 
 </note>
@@ -148,6 +149,7 @@ aim for reliability, simplicity, speed and flexibility while gradually increasin
 &bugs;
 &authors;
 &gtk-brief;
+&switches;
 &latest;
 <!-- END OF DOCUMENT -->
 </article>
