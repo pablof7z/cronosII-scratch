@@ -1261,6 +1261,9 @@ c2_str_decode_iso_8859_1 (const gchar *string)
 			 */
 			buffer[i++] = *ptr;
 			
+			if(*ptr == '\0')
+				ptr--;
+			
 			continue;
 		}
 		
