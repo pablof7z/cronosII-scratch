@@ -1,3 +1,8 @@
+Wed Jan 30 Bosko Blagojevic <falling@users.sourceforge.net>
+	* A little work on the man page.
+	* Got IMAP module to successfully load mailbox and list 
+	  contents.
+
 Mon Jan 21 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Imported Pablo's work into CVS while he is w/o net in Spain.
 	* Small bug fixes in src/widget-HTML.c and libcronosII/account.h
