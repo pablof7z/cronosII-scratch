@@ -349,6 +349,8 @@ on_start_btn_clicked_thread (GladeXML *xml)
 	error_page = glade_xml_get_widget (xml, "druid_page_error");
 	finish_page = glade_xml_get_widget (xml, "druid_page_finish");
 
+	c2_preferences_set_application_version (VERSION);
+
 	/* Get the length */
 	for (i = 0; actions[i].type != C2_INSTALL_ACTION_LAST; i++)
 		;
