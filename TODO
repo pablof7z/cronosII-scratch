@@ -15,6 +15,9 @@ supports:
 
 backends:
 			o An efficient hash object for IMAP (must be faster/lighter than Gtk's).
+			o Create some kind of IPC in the application widget to make it
+			  listen for actions like separated processes fireing a composer,
+			  or a main window.
 
 more:
 			o Check TODO.CVS for more TODO's!! :)
