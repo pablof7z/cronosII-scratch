@@ -13,4 +13,7 @@ supports:
 			o MH mailbox.
 
 backends:
-			o Hash for IMAP.
+			o An efficient hash object for IMAP (must be faster/lighter than Gtk's).
+
+more:
+			o Check TODO.CVS for more TODO's!! :)

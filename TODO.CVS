@@ -2,13 +2,13 @@ This is a list of the modules that need to be coded
 completly:
 
 o Spool
-o Plugins
 o Address Book
 o Plugins Support
+o Queue Mailbox
 
 This is a list of the modules that need some work:
 
-o IMAP ([Bosko] & [Pablo] (and you?))
+o IMAP ([Bosko] & [Pablo]) (check top of libcronosII/imap.c for TODO's)
 o Net-Obect (SSL)
-o SMTP ([Bosko])
+o SMTP ([Bosko]) (check top of libcronosII/smtp.c for TODO's)
 o Request (Using our own HTTP/FTP code instead of third-party programs)
