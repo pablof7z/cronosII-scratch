@@ -618,6 +618,19 @@ ignore:
 	buf = c2_preferences_get_interface_fonts_message_body ();
 	application->fonts_gdk_message_body = gdk_font_load (buf);
 	g_free (buf);
+
+	/* Check that we have an Inbox, Outbox, Sent Items, Trash and Drafts */
+	if (!C2_IS_MAILBOX (c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_INBOX)))
+		c2_application_dialog_missing_mailbox_inform (application, C2_MAILBOX_INBOX);
+	if (!C2_IS_MAILBOX (c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_OUTBOX)))
+		c2_application_dialog_missing_mailbox_inform (application, C2_MAILBOX_OUTBOX);
+	if (!C2_IS_MAILBOX (c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_SENT_ITEMS)))
+		c2_application_dialog_missing_mailbox_inform (application, C2_MAILBOX_SENT_ITEMS);
+	if (!C2_IS_MAILBOX (c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_TRASH)))
+		c2_application_dialog_missing_mailbox_inform (application, C2_MAILBOX_TRASH);
+	if (!C2_IS_MAILBOX (c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_DRAFTS)))
+		c2_application_dialog_missing_mailbox_inform (application, C2_MAILBOX_DRAFTS);
+
 }
 
 static void

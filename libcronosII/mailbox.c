@@ -419,7 +419,9 @@ _set_use_as (C2Mailbox *head, C2MailboxUseAs use_as)
 
 	for (l = head; l; l = l->next)
 	{
+		printf ("---[MAILBOX] Use as of %s: %d\n", l->name, l->use_as);
 		l->use_as = l->use_as & ~use_as;
+		printf ("+++[MAILBOX] New use as  : %d\n", l->use_as);
 
 		if (l->child)
 			_set_use_as (l->child, use_as);
@@ -448,6 +450,13 @@ c2_mailbox_set_use_as (C2Mailbox *head, C2Mailbox *mailbox, C2MailboxUseAs use_a
 	_set_use_as (head, use_as);
 
 	mailbox->use_as = use_as;
+
+	printf ("[MAILBOX] Marking %s to be used as %s\n", mailbox->name,
+					use_as == C2_MAILBOX_USE_AS_INBOX ? "Inbox" :
+					use_as == C2_MAILBOX_USE_AS_OUTBOX ? "Outbox" :
+					use_as == C2_MAILBOX_USE_AS_SENT_ITEMS ? "Sent Items" :
+					use_as == C2_MAILBOX_USE_AS_TRASH ? "Trash" :
+					use_as == C2_MAILBOX_USE_AS_DRAFTS ? "Drafts" : "Unknown");
 }
 
 C2MailboxUseAs
@@ -894,7 +903,6 @@ C2Mailbox *
 c2_mailbox_get_by_usage (C2Mailbox *head, C2MailboxUseAs use_as)
 {
 	c2_return_val_if_fail (C2_IS_MAILBOX (head), NULL, C2EDATA);
-//	c2_return_val_if_fail ((use_as != C2_MAILBOX_USE_AS_INBOX), NULL, C2EDATA); I have no idea why I wrote this, I'm commenting it, but I will remove it if I don't remember before the 10 of april of 2002
 
 	return mailbox_get_by_usage (head, use_as);
 }

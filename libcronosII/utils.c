@@ -298,15 +298,14 @@ c2_str_replace_all (const gchar *or_string, const gchar *se_string, const gchar 
 	gchar *ptr;
 	gchar *str, *strptr;
 	gint length = 0;
-	
+L	
 	c2_return_val_if_fail (or_string, NULL, C2EDATA);
 	g_return_val_if_fail (se_string, NULL);
 	g_return_val_if_fail (re_string, NULL);
+
+	printf ("Length of string to be replaced is %d\n", strlen (or_string));
 	
-	/* It would be better to do a for
-	 * counting how many strstr we get.
-	 */
-	for (ptr = C2_CHAR (or_string);;)
+L	for (ptr = C2_CHAR (or_string);;)
 	{
 		if (*ptr == '\0')
 			break;
@@ -320,10 +319,10 @@ c2_str_replace_all (const gchar *or_string, const gchar *se_string, const gchar 
 			ptr++;
 		}
 	}
-	
+L	
 	str = g_new0 (gchar, length+1);
 	str[length] = '\0';
-	
+L	
 	for (ptr = C2_CHAR (or_string), strptr = str;;)
 	{
 		if (*ptr == '\0')
@@ -341,7 +340,7 @@ c2_str_replace_all (const gchar *or_string, const gchar *se_string, const gchar 
 		}
 	}
 	
-	return str;
+L	return str;
 }
 
 /**

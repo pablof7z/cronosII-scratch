@@ -32,6 +32,8 @@ c2_application_check_checkeable_account_exists (C2Application *application);
 
 /* Dialogs */
 void
+c2_application_dialog_missing_mailbox_inform	(C2Application *application, const gchar *name);
+void
 c2_application_dialog_add_mailbox			(C2Application *application);
 
 void

@@ -984,10 +984,10 @@ c2_db_load_message (C2Db *db)
 
 	if (C2_IS_MESSAGE (db->message))
 	{
-		printf ("Using a cached message\n");
+		printf ("[DB] Using a cached message\n");
 		return TRUE;
 	}
-	printf ("Going to load the message\n");
+	printf ("[DB] Going to load the message\n");
 
 	switch (db->mailbox->type)
 	{
@@ -1005,11 +1005,13 @@ c2_db_load_message (C2Db *db)
 	c2_db_set_message (db, func (db));
 	if (db->message)
 	{
+		printf ("[DB] Loading MIME\n");
 		db->message->mime = c2_mime_new (db->message);
+		printf ("[DB] Loading successfull\n");
 		return TRUE;
-	} else
-		return FALSE;
-
+	}
+	
+	printf ("[DB] Loading of the message failed.\n");
 	return FALSE;
 }
 

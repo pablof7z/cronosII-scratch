@@ -267,9 +267,8 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 
 	/* Alloc the chunk */
 	chunk = g_new0 (gchar, size+1);
-	printf ("allocated %d bytes\n", size+1);
 
-	for (ptr = chunk, wbytes = 0; wbytes < size+1 && *start_ptr != '\0'; start_ptr++)
+	for (ptr = chunk, wbytes = 0; wbytes < size && *start_ptr != '\0'; start_ptr++)
 	{
 		if (*start_ptr != '\0')
 		{
@@ -294,7 +293,6 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 				break;
 		}
 	}
-	printf ("writing in %d\n", wbytes);
 	chunk[wbytes] = 0;
 
 	/* Decode */

@@ -473,15 +473,15 @@ c2_mail_set_string (C2Mail *mail, const gchar *string)
 	
 	if (C2_IS_MESSAGE (mail->message))
 	{
-L		gtk_object_unref (GTK_OBJECT (mail->message));
+		gtk_object_unref (GTK_OBJECT (mail->message));
 	}
-L	mail->message = NULL;
+	mail->message = NULL;
 
-L	gtk_object_set_data (GTK_OBJECT (mail->body), "message", NULL);
+	gtk_object_set_data (GTK_OBJECT (mail->body), "message", NULL);
 	
-L	set_headers (mail, NULL);
-L	c2_html_set_content_from_string (C2_HTML (mail->body), string);
-L}
+	set_headers (mail, NULL);
+	c2_html_set_content_from_string (C2_HTML (mail->body), string);
+}
 
 void
 c2_mail_set_message (C2Mail *mail, C2Message *message)
@@ -706,6 +706,177 @@ html_link_manager_cid (C2HTML *html, const gchar *url, C2Pthread2 *data)
 }
 #endif
 
+#define KBYTESBUFFER 1
+#define BUFFER 1024*KBYTESBUFFER
+static gchar *
+_commit_buffer (gchar *val, gchar *append)
+{
+	size_t offset;
+
+	if (!append || !strlen (append))
+		return val;
+
+	offset = (val?strlen (val):0)*sizeof (char);
+
+	val = g_realloc (val, offset+(strlen (append)*sizeof (char)));
+	strcpy (val+offset, append);
+
+	memset (append, 0, BUFFER*sizeof (char));
+
+	return val;
+}
+
+static gchar *
+_get_next_word (const gchar *ptr)
+{
+	if (ptr == ' ' || ptr == '\t')
+		return g_strndup (ptr, 1);
+}
+
+#if 0
+static gchar *
+interpret_text_plain_symbols (const gchar *plain)
+{
+	gchar *retval = NULL;
+	gchar buffer[BUFFER];
+	const gchar *ptr;
+	gint buffer_pos;
+
+	guint line_offset = 0; /* Current location of the pointer within the current line. */
+	gchar *word;
+	gchar last_char = 0;
+	guint indent_level = 0;
+	gboolean in_indentation;
+	gchar *dbuffer;
+	gchar *bptr;
+	gint i;
+
+	/* Null the buffer */
+	memset (buffer, 0, sizeof (buffer));
+	
+	for (buffer_pos = 0, ptr = plain; *ptr != '\0'; ptr++)
+	{
+		/* Check if we filled out our buffer */
+		if (buffer_pos >= BUFFER)
+		{
+			/* Commit the current buffer to the return value */
+			retval = _commit_buffer (retval, buffer);
+		}
+
+		/* Get the next word */
+		word = _get_next_word (ptr);
+
+		if (!line_offset)
+			in_indentation = TRUE;
+		
+		if (strlen (word) == 1)
+		{
+			if (*word == ' ' && last_char == ' ')
+				retval = _add_buffer (retval, buffer, "&nbsp;", &buffer_pos);
+			else if (*word == '>' && in_indentation)
+			{
+				indent_level++;
+				retval = _add_buffer (retval, buffer, ">", &buffer_pos);
+			} else
+				retval = _add_buffer (retval, buffer, word, &buffer_pos);
+
+			last_char = *word;
+		} else
+		{
+			if (in_indentation && indent_level)
+			{
+				dbuffer = _get_indentation_color_tag (indent_level);
+
+				/* We have to put the color of this line.
+				 * Go to the begin of the line and insert
+				 * the HTML code.
+				 */
+
+				for (bptr = buffer+strlen (buffer)-1; *bptr != '\n' && bptr != buffer; bptr--)
+					;
+
+				if (*bptr == buffer)
+				{
+					/* We didn't find a \n in the current buffer,
+					 * this can mean either this is the very first line
+					 * or the buffer has been commited and the \n is
+					 * in the retval variable.
+					 */
+					if (retval)
+					{
+						/* We have something in retval, check if there's a \n in there. */
+						for (bptr = retval+strlen (retval)-1; *bptr != '\n' && bptr != retval; bptr--)
+							;
+						
+						if (*bptr == retval)
+						{
+							/* We didn't find a \n here either, anyway, we will prepend in here the
+							 * code. */
+							gchar *nretval;
+
+							nretval = g_malloc0 ((strlen (retval)*sizeof (char))+
+															(strlen (dbuffer)*sizeof (char)));
+							strcpy (nretval, dbuffer);
+							strcpy (nretval+(strlen (dbuffer)*sizeof (char)), retval);
+							g_free (retval);
+							retval = nretval;
+						} else
+						{
+							/* We found the \n, insert there */
+							gchar *nretval;
+
+							nretval = g_malloc0 ((strlen (retval)+strlen (dbuffer))*sizeof (char));
+							strncpy (nretval, retval, bptr-nretval);
+							strcpy (nretval+(bptr-nretval), dbuffer);
+							strcpy (nretval+(bptr-nretval)+strlen (dbuffer), bptr);
+							g_free (retval);
+							retval = nretval;
+						}
+					} else
+					{
+						/* We don't have other buffer, this is the first one,
+						 * insert in the beggining of this buffer.
+						 */
+						gchar *nretval;
+
+						nretval = g_malloc0 ((strlen (retval)*sizeof (char))+
+														(strlen (dbuffer)*sizeof (char)));
+						strcpy (nretval, dbuffer);
+						strcpy (nretval+(strlen (dbuffer)*sizeof (char)), retval);
+						g_free (retval);
+						retval = nretval;
+					}
+				} else
+				{
+					
+				}
+					
+			}
+			
+			in_indentation = FALSE;
+		}
+
+		if (line_offset == 0)
+		{
+		}
+
+		/* Update the line offset indicator */
+		if (*ptr == '\n')
+			line_offset = 0;
+		else
+			line_offset++;
+	}
+
+	/* Commit the changes to the buffer to the return value */
+	if (!(retval = _commit_buffer (retval, buffer)))
+		retval = g_strdup (""); /* We can't return %NULL */
+
+	return retval;
+}
+#undef KBYTESBUFFER
+#undef BUFFER
+
+#else
 /* [TODO]
  * Can this be optimized as we usually do?
  */
@@ -898,6 +1069,8 @@ get_word (const gchar *cptr, gchar **extra, gboolean *new_line)
 	
 	return word;
 }
+
+#endif
 
 /*
 static gchar *

@@ -422,17 +422,52 @@ on_mlist_button_press_event (GtkWidget *mlist, GdkEvent *event)
 		if (C2_IS_MAILBOX (object))
 		{
 			C2Mailbox *mailbox = C2_MAILBOX (object);
-				
-			gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(glade_xml_get_widget(xml,"use_as_inbox")),
+			GtkWidget *widget;
+			
+			widget = glade_xml_get_widget(xml,"use_as_inbox");
+			gtk_signal_handler_block_by_func (GTK_OBJECT (widget),
+												GTK_SIGNAL_FUNC (on_menu_use_as_inbox_toggled), mlist);
+			gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(widget),
 											mailbox->use_as & C2_MAILBOX_USE_AS_INBOX);
-			gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(glade_xml_get_widget(xml,"use_as_outbox")),
+			gtk_signal_handler_unblock_by_func (GTK_OBJECT (widget),
+												GTK_SIGNAL_FUNC (on_menu_use_as_inbox_toggled), mlist);
+			gtk_widget_set_sensitive (widget, !(mailbox->use_as & C2_MAILBOX_USE_AS_INBOX));
+
+			widget = glade_xml_get_widget(xml,"use_as_outbox");
+			gtk_signal_handler_block_by_func (GTK_OBJECT (widget),
+												GTK_SIGNAL_FUNC (on_menu_use_as_outbox_toggled), mlist);
+			gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(widget),
 											mailbox->use_as & C2_MAILBOX_USE_AS_OUTBOX);
-			gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(glade_xml_get_widget(xml,"use_as_sent_items")),
+			gtk_signal_handler_unblock_by_func (GTK_OBJECT (widget),
+												GTK_SIGNAL_FUNC (on_menu_use_as_outbox_toggled), mlist);
+			gtk_widget_set_sensitive (widget, !(mailbox->use_as & C2_MAILBOX_USE_AS_OUTBOX));
+
+			widget = glade_xml_get_widget(xml,"use_as_sent_items");
+			gtk_signal_handler_block_by_func (GTK_OBJECT (widget),
+												GTK_SIGNAL_FUNC (on_menu_use_as_sent_items_toggled), mlist);
+			gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(widget),
 											mailbox->use_as & C2_MAILBOX_USE_AS_SENT_ITEMS);
-			gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(glade_xml_get_widget(xml,"use_as_trash")),
+			gtk_signal_handler_unblock_by_func (GTK_OBJECT (widget),
+												GTK_SIGNAL_FUNC (on_menu_use_as_sent_items_toggled), mlist);
+			gtk_widget_set_sensitive (widget, !(mailbox->use_as & C2_MAILBOX_USE_AS_SENT_ITEMS));
+
+			widget = glade_xml_get_widget(xml,"use_as_trash");
+			gtk_signal_handler_block_by_func (GTK_OBJECT (widget),
+												GTK_SIGNAL_FUNC (on_menu_use_as_trash_toggled), mlist);
+			gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(widget),
 											mailbox->use_as & C2_MAILBOX_USE_AS_TRASH);
-			gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(glade_xml_get_widget(xml,"use_as_drafts")),
+			gtk_signal_handler_unblock_by_func (GTK_OBJECT (widget),
+												GTK_SIGNAL_FUNC (on_menu_use_as_trash_toggled), mlist);
+			gtk_widget_set_sensitive (widget, !(mailbox->use_as & C2_MAILBOX_USE_AS_TRASH));
+
+			widget = glade_xml_get_widget(xml,"use_as_drafts");
+			gtk_signal_handler_block_by_func (GTK_OBJECT (widget),
+												GTK_SIGNAL_FUNC (on_menu_use_as_drafts_toggled), mlist);
+			gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(widget),
 											mailbox->use_as & C2_MAILBOX_USE_AS_DRAFTS);
+			gtk_signal_handler_unblock_by_func (GTK_OBJECT (widget),
+												GTK_SIGNAL_FUNC (on_menu_use_as_drafts_toggled), mlist);
+			gtk_widget_set_sensitive (widget, !(mailbox->use_as & C2_MAILBOX_USE_AS_DRAFTS));
 		} else if (C2_IS_ACCOUNT (object))
 		{
 			C2Account *account = C2_ACCOUNT (object);

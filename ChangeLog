@@ -1,3 +1,11 @@
+Mon Apr 29 Pablo Fernández <sandokan at pablossite dot net>
+	* Work in the "Use as" mailbox stuff.
+	* New check on c2_application_init to check we have an
+	  Inbox, Outbox, Sent Items, Trash and Drafts (and if
+	  it is it will show a dialog which gives the option
+	  to fix it automatically and which tells you how to
+	  fix it manually).
+
 Sat Apr 27 Pablo Fernández <sandokan at pablossite dot net>
 	* Work in IMAP and in UI~IMAP: login fail supported.
 

@@ -98,6 +98,109 @@ c2_application_check_checkeable_account_exists (C2Application *application)
 	return FALSE;
 }
 
+static void
+on_dialog_missing_mailbox_inform_fix_clicked (GtkWidget *widget, GtkWidget *dialog)
+{
+	C2Application *application = C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (dialog), "application"));
+	const gchar *name = (const gchar*) gtk_object_get_data (GTK_OBJECT (dialog), "name");
+	C2Mailbox *mailbox;
+	C2MailboxUseAs use_as = 0;
+	gchar *path;
+	gint id;
+	GtkWidget *mdialog;
+
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+
+	C2_DEBUG (name);
+
+	if (c2_streq (name, C2_MAILBOX_INBOX))
+		use_as = C2_MAILBOX_USE_AS_INBOX;
+	else if (c2_streq (name, C2_MAILBOX_OUTBOX))
+		use_as = C2_MAILBOX_USE_AS_OUTBOX;
+	else if (c2_streq (name, C2_MAILBOX_SENT_ITEMS))
+		use_as = C2_MAILBOX_USE_AS_SENT_ITEMS;
+	else if (c2_streq (name, C2_MAILBOX_TRASH))
+		use_as = C2_MAILBOX_USE_AS_TRASH;
+	else if (c2_streq (name, C2_MAILBOX_DRAFTS))
+		use_as = C2_MAILBOX_USE_AS_DRAFTS;
+	
+	if (!use_as || !C2_IS_MAILBOX ((mailbox = c2_mailbox_get_by_name (application->mailbox, name))))
+	{
+		mdialog = gnome_ok_dialog (_("Unable to automatically fix the problem, you'll have to do it manually "
+								    "as explained before.\n"));
+		gtk_widget_show (mdialog);
+		return;
+	}
+
+	c2_mailbox_set_use_as (application->mailbox, mailbox, mailbox->use_as | use_as);
+
+	if ((id = c2_application_get_mailbox_configuration_id_by_name (mailbox->name)) < 0)
+	{
+		mdialog = gnome_ok_dialog (_("Cronos II was able to fix the problem, but it was unable to "
+								     "write the fix to the configuration, there must be something wrong "
+									 "with your Gnome installation or with your Cronos II installation.\n"));
+		gtk_widget_show (mdialog);
+		return;
+	}
+
+	path = g_strdup_printf (PACKAGE "/Mailbox %d/use_as", id);
+	gnome_config_set_int (path, mailbox->use_as);
+	gnome_config_sync ();
+	g_free (path);
+
+	mdialog = gnome_ok_dialog (_("Cronos II fixed the problem successfully."));
+	gtk_widget_show (mdialog);
+}
+
+static void
+on_dialog_missing_mailbox_inform_close_clicked (GtkWidget *widget, GtkWidget *dialog)
+{
+	gtk_widget_destroy (dialog);
+}
+
+void
+c2_application_dialog_missing_mailbox_inform (C2Application *application, const gchar *name)
+{
+	GtkWidget *dialog, *vbox, *wlabel, *ilabel;
+	GtkStyle *style;
+	gchar *text;
+
+	dialog = c2_dialog_new (application, _("Warning"), "missing_mailbox", NULL,
+							_("Automatically Fix"), GNOME_STOCK_BUTTON_CLOSE, NULL);
+	vbox = GNOME_DIALOG (dialog)->vbox;
+	gnome_dialog_button_connect (GNOME_DIALOG (dialog), 0,
+								GTK_SIGNAL_FUNC (on_dialog_missing_mailbox_inform_fix_clicked), dialog);
+	gnome_dialog_button_connect (GNOME_DIALOG (dialog), 1,
+								GTK_SIGNAL_FUNC (on_dialog_missing_mailbox_inform_close_clicked), dialog);
+	gtk_object_set_data (GTK_OBJECT (dialog), "application", application);
+	gtk_object_set_data (GTK_OBJECT (dialog), "name", name);
+
+	wlabel = gtk_label_new (_("Warning!"));
+	style = gtk_style_copy (gtk_widget_get_style (wlabel));
+	style->font = gdk_font_load (c2_font_bold);
+	gtk_widget_set_style (wlabel, style);
+	gtk_box_pack_start (GTK_BOX (vbox), wlabel, FALSE, TRUE, 0);
+	gtk_widget_show (wlabel);
+
+	text = g_strdup_printf (_("You have no mailbox marked to be used as «%s».\n"
+							  "\n"
+							  "Mark one of your mailboxes right clicking on it.\n"
+							  "You can also create a new mailbox specifically for this usage.\n"
+							  "\n"
+							  "Cronos II won't be stable and might act weird if you don't do this.\n"
+							  "\n"
+							  "If you prefer Cronos II can automatically try to fix this problem.\n"),
+							name);
+	ilabel = gtk_label_new (text);
+	gtk_misc_set_alignment (GTK_MISC (ilabel), 0, 0.5);
+	gtk_label_set_justify (GTK_LABEL (ilabel), GTK_JUSTIFY_LEFT);
+	gtk_box_pack_start (GTK_BOX (vbox), ilabel, FALSE, TRUE, 0);
+	gtk_widget_show (ilabel);
+	g_free (text);
+
+	gtk_widget_show (dialog);
+}
+
 /**
  * c2_application_get_mailbox_configuration_id_by_name
  * @name: Name of searched mailbox.
@@ -1135,4 +1238,13 @@ c2_application_dialog_mail_source (C2Application *application, C2Message *messag
 								  c2_preferences_get_window_main_height ());
 	gnome_dialog_run_and_close (GNOME_DIALOG (widget));
 	gtk_object_destroy (GTK_OBJECT (xml));
+}
+
+void
+c2_application_new_message_alert (C2Application *application)
+{
+	GtkWidget *window;
+	
+	window = gtk_window_new (GTK_WINDOW_POPUP);
+	
 }

@@ -1381,11 +1381,12 @@ static void
 on_application_application_preferences_changed (C2Application *application, gint key, gpointer value,
 												C2WindowMain *wmain)
 {
+	GtkWidget *widget;
+	
 	switch (key)
 	{
 		case C2_DIALOG_PREFERENCES_KEY_GENERAL_ACCOUNTS:
 		{
-			GtkWidget *widget;
 			GtkWidget *sep;
 			GtkWidget *submenu;
 			GtkWidget *item, *label, *pixmap, *hbox;
@@ -1438,6 +1439,12 @@ on_application_application_preferences_changed (C2Application *application, gint
 				gtk_widget_show (item);
 			}
 		}
+
+		/* Now do the Check button in the toolbar */
+		widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_check");
+		if (GTK_IS_WIDGET (widget))
+			gtk_widget_set_sensitive (widget, c2_application_check_checkeable_account_exists (application));
+		
 		break;
 	}
 }
@@ -2041,7 +2048,6 @@ L
 			const gchar *error;
 	
 			gdk_threads_enter ();
-			printf ("\n\n[ DISPLAYING THE 404 ERROR PAGE ]\n\n");
 			c2_mail_set_file (C2_MAIL (wmain->mail), PKGDATADIR "/message_404.html");
 			error = c2_error_object_get (GTK_OBJECT (node));
 			if (error)
