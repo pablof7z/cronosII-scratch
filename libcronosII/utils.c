@@ -798,7 +798,7 @@ c2_str_get_email (const gchar *string)
 		return NULL;
 
 	/* Look for format [["]Name["]] <email> [Something] */
-	for (ptr = string+length; *ptr != *string; ptr--)
+	for (ptr = string+length; ptr != string; ptr--)
 	{
 		if (!end)
 		{

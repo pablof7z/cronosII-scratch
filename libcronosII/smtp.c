@@ -27,13 +27,8 @@
 
 /* hard-hat area, in progress by bosko */
 /* feel free to mess around -- help me get this module up to spec faster! */
-/* TODO: SMTP will read the message for a "From:" header and send the content
- *       in "MAIL FROM:". This is wrong because "From:" can have any crap in it
- *       but "MAIL FROM:" must have just the email address. (posted by pablo)
-/* TODO: fix smtp_update signal to work with multiple connections */
-/* TODO: make c2_smtp_send_message() break off into thread and return early */
-/* TODO: implement authentication (posted by pablo) */
 /* TODO: implement a better error handling according to RFC821 4.2.1 (posted by pablo) */
+/* TODO: implement authentication (posted by pablo) */
 /* (in progress) TODO: create a test-module */
 /* (done!) TODO: implement multiple connections via Net-Object */
 /* (done!) TODO: update C2 SMTP to be a real GtkObject w/ signals etc */
@@ -42,6 +37,8 @@
 /* (done!) TODO: implement local sendmail capability */
 /* (done!) TODO: implement EHLO */
 /* (done!) TODO: implement keep-alive smtp connection */
+/* (done!) TODO: SMTP will read the message for a "From:" header... */
+/* (done!) TODO: fix smtp_update signal to work with multiple connections */
 
 enum
 {
@@ -75,14 +72,14 @@ static gint
 c2_smtp_send_rcpt							(C2SMTP *smtp, C2NetObjectByte *byte, gchar *to);
 
 static gint
-c2_smtp_send_message_contents				(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message);
+c2_smtp_send_message_contents				(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message, const gint id);
 
 static gint
 c2_smtp_send_message_mime_headers			(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message, gchar **boundary);
 
 static gint
 c2_smtp_send_message_mime					(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message, 
-											gchar *boundary, const guint len, guint *sent);
+											const gint id, gchar *boundary, const guint len, guint *sent);
 
 static gboolean
 smtp_test_connection						(C2SMTP *smtp, C2NetObjectByte *byte);
@@ -152,8 +149,8 @@ class_init (C2SMTPClass *klass)
 						GTK_RUN_FIRST,
 						object_class->type,
 						GTK_SIGNAL_OFFSET (C2SMTPClass, smtp_update),
-						gtk_marshal_NONE__POINTER_INT_INT, GTK_TYPE_NONE, 3,
-						GTK_TYPE_POINTER, GTK_TYPE_INT, GTK_TYPE_INT);
+						c2_marshal_NONE__INT_INT_INT, GTK_TYPE_NONE, 3,
+						GTK_TYPE_INT, GTK_TYPE_INT, GTK_TYPE_INT);
 	
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 	
@@ -274,7 +271,7 @@ c2_smtp_set_flags (C2SMTP *smtp, gint flags)
 }
 
 gint
-c2_smtp_send_message (C2SMTP *smtp, C2Message *message) 
+c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id) 
 {
 	C2NetObjectByte *byte = NULL;
 	gchar *buffer;
@@ -294,7 +291,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 		if(smtp->flags & C2_SMTP_DO_NOT_PERSIST) c2_mutex_unlock(&smtp->lock);
 		if(c2_smtp_send_headers(smtp, byte, message) < 0)
 			return -1;
-		if(c2_smtp_send_message_contents(smtp, byte, message) < 0)
+		if(c2_smtp_send_message_contents(smtp, byte, message, id) < 0)
 			return -1;
 		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "\r\n.\r\n") < 0)
 		{
@@ -366,7 +363,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 			g_free(cmd);
 			return -1;
 		}
-		gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], message, 1, 1);
+		gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], id, 1, 1);
 		g_free(file_name);
 		g_free(cmd);
 		unlink(file_name);
@@ -500,13 +497,15 @@ static gint
 c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 {
 	gchar *buffer, *cc;
-	gchar *temp;
+	gchar *temp = NULL, *temp2 = NULL;
 	GList *to = NULL;
 	gint i;
 	
-	if(!(temp = c2_message_get_header_field(message, "From:")))
+	if(!(temp2 = c2_message_get_header_field(message, "From:")) 
+		 || !(temp = c2_str_get_email(temp2)))
 	{
 		c2_smtp_set_error(smtp, _("Internal C2 Error: Unable to fetch \"From:\" header in email message"));
+		if(temp2) g_free(temp2);
 		smtp_disconnect(smtp, byte);
 		return -1;
 	}
@@ -515,8 +514,10 @@ c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 		smtp_disconnect(smtp, byte);
 		g_free(temp);
+		g_free(temp2);
 		return -1;
 	}
+	g_free(temp2);
 	g_free(temp);
 	if(!(temp = c2_message_get_header_field(message, "To:")))
 	{
@@ -581,7 +582,8 @@ c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 }
 
 static gint
-c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
+c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte, 
+															C2Message *message, const gint id)
 {
 	/* This function sends the message body so that there is no
 	 * bare 'LF' and that all '\n' are sent as '\r\n' */
@@ -622,7 +624,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *me
 					return -1;
 				}
 				sent += strlen(buf) + 1;
-				gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], message, len, sent);
+				gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], id, len, sent);
 				g_free(buf);
 				if(*ptr == '\0') ptr--;
 				start = ptr + 1;
@@ -636,7 +638,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *me
 		}
 		else if(contents == message->body)
 		{
-			if(c2_smtp_send_message_mime(smtp, byte, message, mimeboundary, len, &sent) < 0)
+			if(c2_smtp_send_message_mime(smtp, byte, message, id, mimeboundary, len, &sent) < 0)
 			{
 				g_free(mimeboundary);
 				return -1;
@@ -742,7 +744,8 @@ c2_smtp_mime_make_message_boundary (void)
 
 static gint
 c2_smtp_send_message_mime(C2SMTP *smtp, C2NetObjectByte *byte, 
-					C2Message *message, gchar *boundary, const guint len, guint *sent)
+						C2Message *message, const gint id, gchar *boundary, const guint len,
+						guint *sent)
 {
 	gint i, x;
 	gchar *buf;
@@ -790,7 +793,7 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2NetObjectByte *byte,
 				return -1;
 			}
 			*sent += strlen(buf);
-			gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], message, len, sent);
+			gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], id, len, sent);
 			g_free(buf);
 		}
 		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "--%s%s\r\n\r\n", boundary, 

@@ -109,7 +109,7 @@ struct _C2SMTPClass
 {
 	C2NetObjectClass parent_class;
 	
-	void (*smtp_update) (C2SMTP *smtp, C2Message *message, guint length, guint bytes);
+	void (*smtp_update) (C2SMTP *smtp, C2Message *message, gint id, guint length, guint bytes);
 	/*gboolean (*login_failed) (C2SMTP *smtp, const gchar *error, gchar **user, gchar **pass);*/
 };
 
@@ -123,7 +123,7 @@ void
 c2_smtp_set_flags							(C2SMTP *smtp, gint flags);
 
 gint
-c2_smtp_send_message						(C2SMTP *smtp, C2Message *message);
+c2_smtp_send_message						(C2SMTP *smtp, C2Message *message, const gint id);
 
 #ifdef __cplusplus
 }
