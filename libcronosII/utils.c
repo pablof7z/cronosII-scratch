@@ -1317,7 +1317,6 @@ c2_str_decode_iso_8859_1 (const gchar *string)
 		changed = TRUE;
 	
 		/* Go in the loop. Start processing this word. */
-		printf ("Processed word: '");
 		for (ptr += 15; *ptr != '\0' && *ptr != ' '; ptr++)
 		{
 			if (*ptr == '=')

@@ -42,7 +42,7 @@ send_my_message(struct asdf *yo)
 	gint i;
 	
 	/* sending the message... please work!! */
-	for(i=0; i < 1; i++) { if(c2_smtp_send_message(yo->smtp, yo->msg, 1) == 0)
+	for(i=0; i < 3; i++) { if(c2_smtp_send_message(yo->smtp, yo->msg, 1) == 0)
 		printf("Sending mail via SMTP worked! Check your email\n");
 	else {
 		printf("Sending message via SMTP failed... back to the drawing board\n");
@@ -61,16 +61,16 @@ main (gint argc, gchar **argv)
 	
 	gtk_init(&argc, &argv);
 	
-	smtp = c2_smtp_new(C2_SMTP_REMOTE, "firewall", 25, FALSE, FALSE, NULL, NULL);
+	smtp = c2_smtp_new(C2_SMTP_REMOTE, "127.0.0.1", 25, FALSE, FALSE, NULL, NULL);
 	c2_smtp_set_flags(smtp, C2_SMTP_DO_PERSIST);
 	
 	gtk_signal_connect(GTK_OBJECT(smtp), "smtp_update", GTK_SIGNAL_FUNC(on_smtp_update), NULL);
 	
 	msg = c2_message_new();
-	msg->header = g_strdup("From: testing <testing@cronosii.net>\n"
-													"To: c2-test@ciudad.com.ar\n"
-													"Subject: Testing C2 smtp module!");
-	msg->body = g_strdup("Testing 1-2-3\n");
+	msg->header = g_strdup("X-Stupid: you\nFrom: I@already.told.you\n"
+													"To: pablo@pablossite.net\n"
+													"Subject: Don't bother me anymore, moron!!");
+	msg->body = g_strdup("Stupid, stop emailing me, next time you bother me I will hack your account, stupid. I already asked you to stop fucking me, but noooo, you are still sending me that shit, so, I warned you.\n");
 	msg->mime = NULL;
 	
 	yo->smtp = smtp;

@@ -1126,6 +1126,9 @@ on_dialog_about_web_site_clicked (GtkWidget *widget, GladeXML *xml)
 static void
 on_dialog_about_close_clicked (GtkWidget *widget, GtkWidget *window)
 {
+	C2Application *application = C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (window), "application"));
+	c2_application_window_remove (application, GTK_WINDOW (window));
+	
 	gtk_object_destroy (GTK_OBJECT (window));
 }
 

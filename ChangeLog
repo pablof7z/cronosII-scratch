@@ -1,3 +1,11 @@
+Fri May 31 Pablo Fernández <sandokan at pablossite dot net>
+	* Fixed a bug for the GtkText code.
+
+Thu May 30 Pablo Fernández <sandokan at pablossite dot net>
+	* Applied a patch by Geronimo Poppino.
+	* Corrected a silly bug when using terminal for executing
+	  a command to see attachments.
+
 Sun May 26 Pablo Fernández <sandokan at pablossite dot net>
 	* Changed the way attachments are handled.
 

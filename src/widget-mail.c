@@ -485,7 +485,7 @@ rerun:
 					fclose (fd);
 
 					buf = c2_str_replace_all (cmnd, "%f", path);
-					if (gnome_mime_needsterminal (mime_type, program) || c2_strne (program, cmnd))
+					if (!(gnome_mime_needsterminal (mime_type, program) || c2_strne (program, cmnd)))
 						buf2 = g_strdup_printf ("%s &", buf);
 					else
 						buf2 = g_strdup_printf ("gnome-terminal -x %s &", buf);
@@ -891,20 +891,22 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 											c2_mime_get_part (message->mime) :
 											message->body);
 #else
-	if (mime)
-		string = mime->part;
+	if (C2_IS_MIME (mime))
+		string = c2_mime_get_part (mime);
 	else
 		string = message->mime ? c2_mime_get_part (message->mime) : message->body;
 #endif
 
 	gtk_object_set_data (GTK_OBJECT (mail->body), "message", message);
 	
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 	if (text_plain)
 	{
 		buf = c2_str_wrap (string, 75);
 		g_free (string);
 		string = buf;
 	}
+#endif
 
 	set_headers (mail, message);
 	c2_html_set_content_from_string (C2_HTML (mail->body), string);
@@ -986,7 +988,6 @@ html_link_manager_cid (C2HTML *html, const gchar *url, GtkHTMLStream *stream)
 	if (!mime)
 		return;
 
-	printf ("--\n%s\n--\n", c2_mime_get_part (mime));
 	gtk_html_stream_write (stream, c2_mime_get_part (mime), mime->length);
 }
 

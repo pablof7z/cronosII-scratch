@@ -406,6 +406,7 @@ c2_mime_destroy (GtkObject *object)
 		g_free (mime->parameter);
 		g_free (mime->disposition);
 		g_free (mime->encoding);
+		mime->part = NULL;
 	}
 }
 

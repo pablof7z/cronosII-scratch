@@ -811,7 +811,6 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 	C2TransferItem *_ti;
 	C2Mailbox *outbox;
 	C2Mailbox *sent_items;
-	C2SMTP *smtp = ti->type_info.send.smtp;
 
 	gdk_threads_enter ();
 

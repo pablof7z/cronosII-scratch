@@ -754,9 +754,8 @@ static void
 on_server_read (C2Application *application, gint sock, GdkInputCondition cond)
 {
 	gchar *buffer = NULL;
-	struct sockaddr_un sa;
 	size_t size;
-	gchar *path, *cmnd;
+	gchar *cmnd;
 	gint i;
 
 	c2_mutex_lock (application->server_lock);
@@ -799,7 +798,6 @@ start:
 	{
 		if (c2_streq (commands[i].cmnd, cmnd))
 		{
-			gint params;
 			gpointer data;
 
 			data = g_malloc0 (commands[i].params);
@@ -1286,6 +1284,7 @@ _copy (C2Application *application, GList *list, C2Window *window)
 	data->v1 = mailbox;
 	data->v2 = g_list_copy (list);
 	data->v3 = window;
+	printf ("About to copy %d mails\n", g_list_length (list));
 	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (_copy_thread), data);
 }
 
@@ -1790,16 +1789,6 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 	gdk_threads_leave ();
 }
 
-/**
- * This function works for the tracking of the network
- * speed.
- **/
-static void
-on_net_speed_timeout (C2Application *application)
-{
-	
-}
-
 static gboolean
 on_application_timeout_check (C2Application *application)
 {
@@ -2007,7 +1996,7 @@ c2_application_command (C2Application *application, const gchar *cmnd, ...)
 
 				for (l = 0; l < AVAILABLE_ARGS; l++)
 				{
-					gchar *buf, *buf2;
+					gchar *buf = NULL, *buf2;
 					GtkFundamentalType type;
 
 					switch (l)
@@ -2044,7 +2033,7 @@ c2_application_command (C2Application *application, const gchar *cmnd, ...)
 					{
 						case GTK_TYPE_UCHAR:
 						case GTK_TYPE_CHAR:
-							buf = g_strdup_printf ("%c", va_arg (args, gchar));
+							buf = g_strdup_printf ("%c", va_arg (args, gint));
 							break;
 						case GTK_TYPE_BOOL:
 							buf = g_strdup_printf ("%d", va_arg (args, gboolean));
@@ -2059,7 +2048,7 @@ c2_application_command (C2Application *application, const gchar *cmnd, ...)
 							buf = g_strdup_printf ("%ld", va_arg (args, glong));
 							break;
 						case GTK_TYPE_FLOAT:
-							buf = g_strdup_printf ("%f", va_arg (args, gfloat));
+							buf = g_strdup_printf ("%f", va_arg (args, gdouble));
 							break;
 						case GTK_TYPE_DOUBLE:
 							buf = g_strdup_printf ("%lf", va_arg (args, gdouble));

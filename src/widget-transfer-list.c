@@ -221,8 +221,9 @@ c2_transfer_list_add_item (C2TransferList *tl, C2TransferItem *ti)
 	{
 		GSList *l;
 
-		for (l = tl->list; l != NULL; l = g_slist_next (l))
+		for (l = tl->list; l != NULL; )
 		{
+			GSList *next = g_slist_next(l);
 			C2TransferItem *cti = (C2TransferItem*) l->data;
 
 			if (cti->type == C2_TRANSFER_ITEM_RECEIVE &&
@@ -231,6 +232,7 @@ c2_transfer_list_add_item (C2TransferList *tl, C2TransferItem *ti)
 				tl->list = g_slist_remove (tl->list, cti);
 				gtk_object_destroy (GTK_OBJECT (cti));
 			}
+			l = next;
 		}
 	}
 
