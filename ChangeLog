@@ -1,3 +1,7 @@
+Thu Jan 10 2002 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Some IMAP work, almost done with loading of mailboxes.
+	* Fixed a small bug in mailbox module.
+
 Tue Jan 1 2002 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Happy new year, everbody!
 	* Fixed a number of compilation warnings in libcronosII/mailbox.c
