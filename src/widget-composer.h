@@ -148,7 +148,13 @@ void
 c2_composer_set_message						(C2Composer *composer, C2Message *message);
 
 void
-c2_composer_set_message_as_quote			(C2Composer *composer, C2Message *message);
+c2_composer_set_message_as_reply			(C2Composer *composer, C2Message *message);
+
+void
+c2_composer_set_message_as_reply_all		(C2Composer *composer, C2Message *message);
+
+void
+c2_composer_set_message_as_forward			(C2Composer *composer, C2Message *message);
 
 /* Action handling */
 void

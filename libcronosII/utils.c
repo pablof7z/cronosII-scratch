@@ -812,7 +812,9 @@ c2_str_is_email (const gchar *email)
 {
 	const gchar *ptr;
 	gint length;
-	gboolean dot = FALSE;
+#if 0
+	gboolean dot = TRUE;
+#endif
 	
 	/* Get the length of the mail */
 	length = strlen (email);
@@ -833,10 +835,12 @@ passed1:
 	ptr++;
 	for (; *ptr != '\0'; ptr++)
 	{
-		/* A mail address must have a . (it does not!) */
+		/* A mail address might have a . */
 		if (*ptr == '.')
 		{
+#if 0
 			dot = TRUE;
+#endif
 			continue;
 		}
 
@@ -856,7 +860,7 @@ passed1:
 		(*ptr > 'Z' && *ptr < 'a')) /* It can't be anything between 'Z' and 'a' */
 		return FALSE;
 	else
-		return dot;
+		return TRUE; /* Was return dot */
 
 	return FALSE;
 }

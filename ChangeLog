@@ -1,4 +1,10 @@
-Thu Nov 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+Thu Nov 15 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Work in the composer: Reply, Reply All and Forward is now
+	  working.
+	* Fixed the bug that caused that an empty subject would be
+	  replied or forwarded as Re: (null) or Fwd: (null).
+
+Tue Nov 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work in the composer in order to have replying working,
 	  not yet, but very close...
 	* Now it is working, it probably has a tiny count of bugs,
@@ -19,12 +25,12 @@ Fri Nov 09 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work with configure.in and Makefile.am's in order to get things
 	  to work properly with the new changes.
 
-Tue Nov 08 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+Thu Nov 08 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work in the unfunctional Db module, should be working now.
 	* Fixed the problem when creating a new account (you had to restart
 	  Cronos II to be able to use the new account).
 
-Thu Nov 06 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+Tue Nov 06 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* The Send button for Queued messages is now working.
 	* The Send Later capability of the composer is now functional.
 	* Moving of messages to the «Sent Items» mailbox after they have
@@ -46,7 +52,7 @@ Sat Nov 03 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work in the Operations functions (Undo & Redo) in the Editor
 	  widget (aka composer).
 
-Tue Nov 01 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+Thu Nov 01 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed a bug that caused c2 not to destroy messages after downloading
 	  them from POP3 (the message object).
 	* Fixed the bug that caused c2 to move or to delete all mails in
@@ -57,7 +63,7 @@ Tue Nov 01 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Added support to dynamically reload the index widget when
 	  is required.
 
-Thu Oct 30 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+Tue Oct 30 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* A lot of work that I don't remember.
 	* Added a new developer to Cronos II: Peter Gebauer: Welcome!
 	* Support for deleting.

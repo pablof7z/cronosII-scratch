@@ -704,7 +704,7 @@ c2_db_message_remove (C2Mailbox *mailbox, gint position)
 /**
  * c2_db_message_remove_list [VFUNCTION]
  * @mailbox: Mailbox where to act.
- * @list: A GList of number of messages to remove (position in db).
+ * @list: A GList of number of messages to remove (starting with 0).
  *
  * This function will remove a message
  * from the mailbox.

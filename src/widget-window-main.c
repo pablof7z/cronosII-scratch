@@ -973,6 +973,15 @@ expunge (C2WindowMain *wmain)
 static void
 forward (C2WindowMain *wmain)
 {
+	GtkWidget *composer;
+	GtkWidget *mail;
+	C2Message *message;
+	
+	mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
+	message = c2_mail_get_message (C2_MAIL (mail));
+	composer = c2_composer_new (C2_WINDOW (wmain)->application);
+	c2_composer_set_message_as_forward (C2_COMPOSER (composer), message);
+	gtk_widget_show (composer);
 }
 
 static void
@@ -1137,6 +1146,15 @@ reply (C2WindowMain *wmain)
 static void
 reply_all (C2WindowMain *wmain)
 {
+	GtkWidget *composer;
+	GtkWidget *mail;
+	C2Message *message;
+	
+	mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
+	message = c2_mail_get_message (C2_MAIL (mail));
+	composer = c2_composer_new (C2_WINDOW (wmain)->application);
+	c2_composer_set_message_as_reply_all (C2_COMPOSER (composer), message);
+	gtk_widget_show (composer);
 }
 
 static void

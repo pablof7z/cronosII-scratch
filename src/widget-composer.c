@@ -1058,14 +1058,14 @@ set_message_subject (C2Composer *composer, C2Message *message)
 			buf = "Re: ";
 			break;
 		case C2_COMPOSER_ACTION_FORWARD:
-			buf = "Fw: ";
+			buf = "Fwd: ";
 			break;
 		case C2_COMPOSER_ACTION_DRAFT:
 			buf = "";
 			break;
 	}
 
-	buf = g_strdup_printf ("%s%s", buf, buf2);
+	buf = g_strdup_printf ("%s%s", buf, buf2 ? buf2 : "");
 	gtk_entry_set_text (GTK_ENTRY (gnome_entry_gtk_entry (GNOME_ENTRY (widget))), buf);
 	g_free (buf2);
 	g_free (buf);
@@ -1342,6 +1342,63 @@ c2_composer_set_message_as_reply (C2Composer *composer, C2Message *message)
 	set_message_body (composer, message);
 
 	gtk_widget_grab_focus (C2_EDITOR (composer->editor)->text);
+}
+
+/**
+ * c2_composer_set_message_as_reply_all
+ * @composer: The composer object.
+ * @message: Message to be used.
+ *
+ * This function will put the message
+ * in the composer as a reply all.
+ **/
+void
+c2_composer_set_message_as_reply_all (C2Composer *composer, C2Message *message)
+{
+	C2Account *account;
+	
+	c2_return_if_fail (C2_IS_COMPOSER (composer), C2EDATA);
+	c2_return_if_fail_obj (C2_IS_MESSAGE (message), C2EDATA, GTK_OBJECT (composer));
+	
+	composer->action = C2_COMPOSER_ACTION_REPLY_ALL;
+
+	account = set_message_account (composer, message);
+	set_message_to (composer, message);
+	set_message_cc (composer, message);
+	set_message_bcc (composer, message);
+	set_message_subject (composer, message);
+	set_message_in_reply_to (composer, message);
+	set_message_references (composer, message);
+	set_message_body (composer, message);
+
+	gtk_widget_grab_focus (C2_EDITOR (composer->editor)->text);
+}
+
+/**
+ * c2_composer_set_message_as_forward
+ * @composer: The composer object.
+ * @message: Message to be used.
+ *
+ * This function will put the message
+ * in the composer as a forward.
+ **/
+void
+c2_composer_set_message_as_forward (C2Composer *composer, C2Message *message)
+{
+	C2Account *account;
+	
+	c2_return_if_fail (C2_IS_COMPOSER (composer), C2EDATA);
+	c2_return_if_fail_obj (C2_IS_MESSAGE (message), C2EDATA, GTK_OBJECT (composer));
+	
+	composer->action = C2_COMPOSER_ACTION_FORWARD;
+
+	account = set_message_account (composer, message);
+	set_message_cc (composer, message);
+	set_message_bcc (composer, message);
+	set_message_subject (composer, message);
+	set_message_in_reply_to (composer, message);
+	set_message_references (composer, message);
+	set_message_body (composer, message);
 }
 
 void

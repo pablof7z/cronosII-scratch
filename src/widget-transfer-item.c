@@ -19,6 +19,7 @@
 
 #include <libcronosII/pop3.h>
 
+#include "preferences.h"
 #include "widget-transfer-item.h"
 #include "widget-transfer-list.h"
 
@@ -698,7 +699,6 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 
 	gdk_threads_leave ();
 
-	/* Move the message from «Outbox» to «Sent Items» */
 	if (!(outbox = c2_mailbox_get_by_name (ti->application->mailbox,
 											C2_MAILBOX_OUTBOX)))
 	{
@@ -706,16 +706,23 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 		return;
 	}
 
-	if (!(sent_items = c2_mailbox_get_by_name (ti->application->mailbox,
-												C2_MAILBOX_SENT_ITEMS)))
+	if (c2_preferences_get_general_options_outgoing_sent_items ())
 	{
-		g_warning ("There's no «%s» mailbox\n", C2_MAILBOX_SENT_ITEMS);
-		return;
+		/* Move the message from «Outbox» to «Sent Items» */
+		if (!(sent_items = c2_mailbox_get_by_name (ti->application->mailbox,
+													C2_MAILBOX_SENT_ITEMS)))
+		{
+			g_warning ("There's no «%s» mailbox\n", C2_MAILBOX_SENT_ITEMS);
+			return;
+		}
+
+		gtk_object_set_data (GTK_OBJECT (ti->type_info.send.db->message), "state",
+											C2_MESSAGE_READED);
+		c2_db_message_add (sent_items, ti->type_info.send.db->message);
 	}
 
-	gtk_object_set_data (GTK_OBJECT (ti->type_info.send.db->message), "state",
-										C2_MESSAGE_READED);
-	c2_db_message_add (sent_items, ti->type_info.send.db->message);
-	c2_db_message_remove (outbox, ti->type_info.send.db->position);
+	c2_db_message_remove (outbox, ti->type_info.send.db->position-1);
+		
+
 	gtk_object_unref (GTK_OBJECT (ti->type_info.send.db->message));
 }
