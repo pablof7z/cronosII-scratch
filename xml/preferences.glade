@@ -13,7 +13,7 @@
   <output_main_file>False</output_main_file>
   <output_support_files>False</output_support_files>
   <output_build_files>False</output_build_files>
-  <backup_source_files>False</backup_source_files>
+  <gnome_help_support>True</gnome_help_support>
   <output_translatable_strings>True</output_translatable_strings>
   <translatable_strings_file>../src/preferences-trans.h</translatable_strings_file>
 </project>
@@ -68,6 +68,7 @@
       <widget>
 	<class>GtkButton</class>
 	<name>ok_btn</name>
+	<tooltip>Complete</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -76,6 +77,7 @@
       <widget>
 	<class>GtkButton</class>
 	<name>apply_btn</name>
+	<tooltip>Apply these new settings now.</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_APPLY</stock_button>
@@ -84,6 +86,7 @@
       <widget>
 	<class>GtkButton</class>
 	<name>cancel_btn</name>
+	<tooltip>Close</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
@@ -117,6 +120,7 @@
 	<widget>
 	  <class>GtkCTree</class>
 	  <name>tree</name>
+	  <tooltip>Configure These Properties</tooltip>
 	  <can_focus>True</can_focus>
 	  <columns>1</columns>
 	  <column_widths>80</column_widths>
@@ -168,15 +172,14 @@
 	    <spacing>5</spacing>
 
 	    <widget>
-	      <class>GtkLabel</class>
-	      <name>label95</name>
-	      <label>[ Cronos II's logo ]</label>
-	      <justify>GTK_JUSTIFY_CENTER</justify>
-	      <wrap>False</wrap>
+	      <class>GtkPixmap</class>
+	      <name>pixmap1</name>
+	      <filename>cronosII.xpm</filename>
 	      <xalign>0.5</xalign>
 	      <yalign>0.5</yalign>
 	      <xpad>0</xpad>
 	      <ypad>0</ypad>
+	      <build_insensitive>True</build_insensitive>
 	      <child>
 		<padding>0</padding>
 		<expand>False</expand>
@@ -205,12 +208,12 @@
 		<widget>
 		  <class>GtkLabel</class>
 		  <name>label91</name>
-		  <label>Through this dialog you will be able to configure Cronos II to behave the way you want it too.
+		  <label>This dialog is here to help you personalise CronosII.
 
-When you don't know what a field is for, you can get help by keeping your mouse for a couple of seconds over it, then a little help will pop-up describing what that field is all about.
+Tool Tip help is available :
+Hold your mouse over the area you would like to know more about and  more information should pop up.
 
-If you need extra help you should get in touch with other users or with the developers.
-To have the information of how to get in touch you should click on 'Getting in Touch' in the Help menu of the main window.</label>
+For more extensive help, look under Help for the Manual and contact details for other Users and Developers.</label>
 		  <justify>GTK_JUSTIFY_LEFT</justify>
 		  <wrap>True</wrap>
 		  <xalign>0.5</xalign>
@@ -2703,18 +2706,19 @@ Always use my colors.
       <class>GnomeDruidPageStart</class>
       <name>druidpagestart1</name>
       <title>Account Options</title>
-      <text>This wizard will help you with the configuration of your
-accounts for use with Cronos II.
+      <text>This Druid (Wizard) will help you set up your Mail accounts.
 
-Each account is a separated entity for Cronos II, this will
-let you define different persons or entities and manage
-all of your emails accounts as if it where with separated
-users.</text>
+CronosII allows you to have many different account types and identities.
+
+Help is provided along the way to help with
+protocols and conventions.</text>
       <title_color>255,255,255</title_color>
       <text_color>0,0,0</text_color>
       <background_color>25,25,112</background_color>
       <logo_background_color>25,25,112</logo_background_color>
       <textbox_color>255,255,255</textbox_color>
+      <logo_image>cronosII.png</logo_image>
+      <watermark_image>cronosII.png</watermark_image>
     </widget>
 
     <widget>
@@ -2755,7 +2759,7 @@ users.</text>
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>account_name</name>
-	    <tooltip>Write here the name which with you want to identify this account. Note that this is just for internal use.</tooltip>
+	    <tooltip>Please enter a unique name so that you may identify this account. Note, this is for internal use only.</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -2880,6 +2884,7 @@ users.</text>
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>reply_to</name>
+	    <tooltip>Required if you want mail sent back to a different address.</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -2904,6 +2909,7 @@ users.</text>
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>email</name>
+	    <tooltip>This accounts email address.</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -2954,6 +2960,7 @@ users.</text>
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>organization</name>
+	    <tooltip>The name of your organisation.</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -3129,7 +3136,10 @@ users.</text>
 	      <width>230</width>
 	      <height>23</height>
 	      <can_focus>True</can_focus>
-	      <items></items>
+	      <items>Select a Protocol
+POP
+SMTP
+</items>
 	      <initial_choice>0</initial_choice>
 	      <child>
 		<padding>0</padding>
@@ -3164,6 +3174,7 @@ users.</text>
 	      <widget>
 		<class>GtkEntry</class>
 		<name>pop3_server_addr</name>
+		<tooltip>The Mail Server Hostname</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3214,6 +3225,7 @@ users.</text>
 	      <widget>
 		<class>GtkSpinButton</class>
 		<name>pop3_server_port</name>
+		<tooltip>The Mail Servers listening port. (leave default if you don't know this)</tooltip>
 		<can_focus>True</can_focus>
 		<climb_rate>1</climb_rate>
 		<digits>0</digits>
@@ -3272,6 +3284,7 @@ users.</text>
 	      <widget>
 		<class>GtkEntry</class>
 		<name>pop3_username</name>
+		<tooltip>Your account Username at the Mail Server</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3322,6 +3335,7 @@ users.</text>
 	      <widget>
 		<class>GtkEntry</class>
 		<name>pop3_password</name>
+		<tooltip>Your password at the Mail Server</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>False</text_visible>
@@ -3434,6 +3448,7 @@ users.</text>
 	      <widget>
 		<class>GtkRadioButton</class>
 		<name>smtp_local_btn</name>
+		<tooltip>For your local Mail Server.</tooltip>
 		<can_focus>True</can_focus>
 		<label>Local sendmail program (MUA).</label>
 		<active>False</active>
@@ -3460,6 +3475,7 @@ users.</text>
 		<name>smtp_remote_server_addr</name>
 		<width>1</width>
 		<visible>False</visible>
+		<tooltip>URL for remote Mail Server</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3486,6 +3502,7 @@ users.</text>
 		<name>smtp_remote_server_port</name>
 		<width>1</width>
 		<visible>False</visible>
+		<tooltip>Listening Port for Remote Mail Server. (try default if you don't know this)</tooltip>
 		<can_focus>True</can_focus>
 		<climb_rate>1</climb_rate>
 		<digits>0</digits>
@@ -3518,6 +3535,7 @@ users.</text>
 	      <widget>
 		<class>GtkButton</class>
 		<name>smtp_remote_information_btn</name>
+		<tooltip>Apply this SMTP information.</tooltip>
 		<can_focus>True</can_focus>
 		<label>Set Information</label>
 		<relief>GTK_RELIEF_NORMAL</relief>
@@ -3567,6 +3585,7 @@ users.</text>
 		<name>smtp_remote_username</name>
 		<width>1</width>
 		<visible>False</visible>
+		<tooltip>Your Username at the Remote Mail Server</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3593,6 +3612,7 @@ users.</text>
 		<name>smtp_remote_password</name>
 		<width>1</width>
 		<visible>False</visible>
+		<tooltip>Your Password at the Remote Mail Server.</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3719,11 +3739,12 @@ users.</text>
 	      <widget>
 		<class>GtkText</class>
 		<name>signature_text</name>
+		<tooltip>Enter Your Signature here</tooltip>
 		<has_default>True</has_default>
 		<can_focus>True</can_focus>
 		<has_focus>True</has_focus>
 		<editable>True</editable>
-		<text></text>
+		<text>--</text>
 	      </widget>
 	    </widget>
 	  </widget>
@@ -3749,10 +3770,15 @@ users.</text>
       <class>GnomeDruidPageFinish</class>
       <name>druidpagefinish1</name>
       <title>Account Options</title>
-      <text>Congratulations! You have successfully created an account to
-be use with Cronos II.
+      <text>Congratulations! 
+You have created an account to
+use with Cronos II.
 
-Click the 'Finish' button to save this new account.</text>
+
+Click the 'Finish' button to save this new account.
+
+Repeat the process for any extra CronosII Mail Accounts
+and Identities you might like to create.</text>
       <background_color>25,25,112</background_color>
       <logo_background_color>25,25,112</logo_background_color>
       <textbox_color>255,255,255</textbox_color>
@@ -3767,12 +3793,11 @@ Click the 'Finish' button to save this new account.</text>
   <name>dlg_account_new_error_used_name</name>
   <visible>False</visible>
   <message_box_type>GNOME_MESSAGE_BOX_ERROR</message_box_type>
-  <message>The Account Name you choosed
-is already being used by other
-account.
+  <message>That Account Name is 
+is already in use.
 
-The account names can not be
-repited.</message>
+Account Names need to be unique.
+Please choose another.</message>
   <title>Error</title>
   <position>GTK_WIN_POS_CENTER</position>
   <modal>True</modal>
@@ -3816,6 +3841,7 @@ repited.</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button38</name>
+	<tooltip>Close Dialog</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -3874,6 +3900,7 @@ entered is not valid.</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button39</name>
+	<tooltip>Close Dialog</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -3930,6 +3957,7 @@ entered is not valid.</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button40</name>
+	<tooltip>Apply this information and close the dialog</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -3938,6 +3966,7 @@ entered is not valid.</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button42</name>
+	<tooltip>close</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
@@ -3958,7 +3987,7 @@ entered is not valid.</message>
       <widget>
 	<class>GtkLabel</class>
 	<name>label79</name>
-	<label>Provide here the information for the
+	<label>Please enter information about the
 SMTP server for this account.</label>
 	<justify>GTK_JUSTIFY_LEFT</justify>
 	<wrap>True</wrap>
@@ -4027,6 +4056,7 @@ localhost
 	    <class>GtkEntry</class>
 	    <child_name>GtkCombo:entry</child_name>
 	    <name>combo-entry6</name>
+	    <tooltip>SMTP server Hostname</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -4090,6 +4120,7 @@ localhost
 	<widget>
 	  <class>GtkSpinButton</class>
 	  <name>port</name>
+	  <tooltip>The port number where the server listens for connections. Leave as 25 (default) unless you know otherwise.</tooltip>
 	  <can_focus>True</can_focus>
 	  <climb_rate>1</climb_rate>
 	  <digits>0</digits>
@@ -4123,6 +4154,7 @@ localhost
       <widget>
 	<class>GtkCheckButton</class>
 	<name>authentication</name>
+	<tooltip>Select this if the provider requires password and account verification.</tooltip>
 	<can_focus>True</can_focus>
 	<label>This server requires authentication</label>
 	<active>False</active>
@@ -4212,6 +4244,7 @@ localhost
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>username</name>
+	    <tooltip>Enter your account Username for the SMTP server.</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -4236,6 +4269,7 @@ localhost
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>password</name>
+	    <tooltip>Enter your password for the above account.</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>False</text_visible>
@@ -4266,8 +4300,8 @@ localhost
   <class>GnomeMessageBox</class>
   <name>dlg_account_new_error_wrong_name</name>
   <message_box_type>GNOME_MESSAGE_BOX_ERROR</message_box_type>
-  <message>The Account name you
-entered is not valid.</message>
+  <message>The Entered Account Name 
+is not valid.</message>
   <title>Error</title>
   <position>GTK_WIN_POS_CENTER</position>
   <modal>True</modal>
@@ -4310,6 +4344,7 @@ entered is not valid.</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button43</name>
+	<tooltip>Close Dialog</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -4322,11 +4357,10 @@ entered is not valid.</message>
   <class>GnomeMessageBox</class>
   <name>dlg_account_new_error_no_smtp_info</name>
   <message_box_type>GNOME_MESSAGE_BOX_ERROR</message_box_type>
-  <message>You selected that you want to
-use a remote SMTP server for
-outgoing mails of this account,
-but you didn't set the information
-to contact it.
+  <message>You have chosen to use a Remote 
+SMTP mail server but are yet to
+enter configuration information for
+that server.
 
 Click the button labeled
 'Set Information' to enter the
@@ -4372,6 +4406,7 @@ needed data.</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button44</name>
+	<tooltip>Close Dialog</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -4384,7 +4419,7 @@ needed data.</message>
   <class>GnomeMessageBox</class>
   <name>dlg_account_new_error_pop3_no_host</name>
   <message_box_type>GNOME_MESSAGE_BOX_ERROR</message_box_type>
-  <message>You didn't entered a valid hostname.</message>
+  <message>You have not entered a valid hostname.</message>
   <title>Error</title>
   <position>GTK_WIN_POS_CENTER</position>
   <modal>True</modal>
@@ -4426,6 +4461,7 @@ needed data.</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button46</name>
+	<tooltip>Close Dialog</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -4438,7 +4474,7 @@ needed data.</message>
   <class>GnomeMessageBox</class>
   <name>dlg_account_new_error_pop3_no_user</name>
   <message_box_type>GNOME_MESSAGE_BOX_ERROR</message_box_type>
-  <message>You didn't entered a valid username.</message>
+  <message>You have not entered a valid username.</message>
   <title>Error</title>
   <position>GTK_WIN_POS_CENTER</position>
   <modal>True</modal>
@@ -4480,6 +4516,7 @@ needed data.</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button47</name>
+	<tooltip>Close Dialog</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -4537,6 +4574,7 @@ Are you sure you want this?</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button48</name>
+	<tooltip>Yes. Remove the account.</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_YES</stock_button>
@@ -4545,6 +4583,7 @@ Are you sure you want this?</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button49</name>
+	<tooltip>I am not sure. Do not remove the account.</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_NO</stock_button>

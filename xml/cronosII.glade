@@ -296,7 +296,7 @@
 	      <name>view_from</name>
 	      <label>_From</label>
 	      <active>False</active>
-	      <always_show_toggle>False</always_show_toggle>
+	      <always_show_toggle>True</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -304,7 +304,7 @@
 	      <name>view_account</name>
 	      <label>_Account</label>
 	      <active>False</active>
-	      <always_show_toggle>False</always_show_toggle>
+	      <always_show_toggle>True</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -312,7 +312,7 @@
 	      <name>view_to</name>
 	      <label>_To</label>
 	      <active>False</active>
-	      <always_show_toggle>False</always_show_toggle>
+	      <always_show_toggle>True</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -320,7 +320,7 @@
 	      <name>view_carbon_copy</name>
 	      <label>_Carbon Copy</label>
 	      <active>False</active>
-	      <always_show_toggle>False</always_show_toggle>
+	      <always_show_toggle>True</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -328,7 +328,7 @@
 	      <name>view_blind_carbon_copy</name>
 	      <label>_Blind Carbon Copy</label>
 	      <active>False</active>
-	      <always_show_toggle>False</always_show_toggle>
+	      <always_show_toggle>True</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -336,7 +336,7 @@
 	      <name>view_date</name>
 	      <label>_Date</label>
 	      <active>False</active>
-	      <always_show_toggle>False</always_show_toggle>
+	      <always_show_toggle>True</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -344,7 +344,7 @@
 	      <name>view_subject</name>
 	      <label>_Subject</label>
 	      <active>False</active>
-	      <always_show_toggle>False</always_show_toggle>
+	      <always_show_toggle>True</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -352,7 +352,7 @@
 	      <name>view_priority</name>
 	      <label>_Priority</label>
 	      <active>False</active>
-	      <always_show_toggle>False</always_show_toggle>
+	      <always_show_toggle>True</always_show_toggle>
 	    </widget>
 	  </widget>
 	</widget>
@@ -797,6 +797,7 @@
       <class>GnomeDockItem</class>
       <name>dockitem2</name>
       <border_width>1</border_width>
+      <tooltip>Icon Menu Bar</tooltip>
       <placement>GNOME_DOCK_TOP</placement>
       <band>1</band>
       <position>0</position>
@@ -823,7 +824,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_check</name>
-	  <tooltip>Check all accounts for new mails</tooltip>
+	  <tooltip>Check all accounts for new mail.</tooltip>
 	  <label>Check</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_RCV</stock_pixmap>
 	</widget>
@@ -832,7 +833,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_send</name>
-	  <tooltip>Send unset messages</tooltip>
+	  <tooltip>Send unsent messages from the mail queue</tooltip>
 	  <label>Send</label>
 	  <icon>sendqueue.xpm</icon>
 	</widget>
@@ -841,7 +842,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_save</name>
-	  <tooltip>Save current message</tooltip>
+	  <tooltip>Save current message to file.</tooltip>
 	  <label>Save</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_SAVE</stock_pixmap>
 	  <child>
@@ -886,7 +887,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_reply</name>
-	  <tooltip>Reply selected message</tooltip>
+	  <tooltip>Reply to the selected message</tooltip>
 	  <label>Reply</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_RPL</stock_pixmap>
 	</widget>
@@ -934,7 +935,8 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_contacts</name>
-	  <label>Contacts</label>
+	  <tooltip>Open the Address Book</tooltip>
+	  <label>Contacts.</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_BOOK_RED</stock_pixmap>
 	  <child>
 	    <new_group>True</new_group>
@@ -945,6 +947,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_exit</name>
+	  <tooltip>Close CronosII</tooltip>
 	  <label>Exit</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_EXIT</stock_pixmap>
 	  <child>
@@ -966,7 +969,7 @@
 	<child_name>GnomeDock:contents</child_name>
 	<name>hpaned</name>
 	<handle_size>10</handle_size>
-	<gutter_size>6</gutter_size>
+	<gutter_size>10</gutter_size>
 	<position>0</position>
 	<child>
 	  <padding>0</padding>
@@ -991,7 +994,7 @@
 	    <name>ctree</name>
 	    <can_focus>True</can_focus>
 	    <columns>3</columns>
-	    <column_widths>144,34,31</column_widths>
+	    <column_widths>144,38,31</column_widths>
 	    <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
 	    <show_titles>True</show_titles>
 	    <shadow_type>GTK_SHADOW_IN</shadow_type>
@@ -1025,7 +1028,7 @@
 	  <class>GtkVPaned</class>
 	  <name>vpaned</name>
 	  <handle_size>10</handle_size>
-	  <gutter_size>6</gutter_size>
+	  <gutter_size>10</gutter_size>
 	  <position>0</position>
 	  <child>
 	    <shrink>True</shrink>
@@ -1047,7 +1050,9 @@
 	    <widget>
 	      <class>Custom</class>
 	      <name>index</name>
+	      <tooltip>Message List</tooltip>
 	      <creation_function>c2_index_new</creation_function>
+	      <string1></string1>
 	      <int1>0</int1>
 	      <int2>0</int2>
 	      <last_modification_time>Thu, 03 May 2001 00:26:16 GMT</last_modification_time>
@@ -1057,6 +1062,7 @@
 	  <widget>
 	    <class>Custom</class>
 	    <name>mail</name>
+	    <tooltip>View Message Pane</tooltip>
 	    <creation_function>c2_mail_new</creation_function>
 	    <string1></string1>
 	    <string2></string2>
@@ -1120,7 +1126,7 @@
   <name>dlg_mailbox_err</name>
   <message_box_type>GNOME_MESSAGE_BOX_ERROR</message_box_type>
   <message>That mailbox name
-is already taken.</message>
+is already in use.</message>
   <title>Error</title>
   <position>GTK_WIN_POS_CENTER</position>
   <modal>True</modal>
@@ -1164,6 +1170,7 @@ is already taken.</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button4</name>
+	<tooltip>close this dialog</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -1221,6 +1228,7 @@ is already taken.</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button56</name>
+	<tooltip>finished</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -1281,7 +1289,7 @@ is already taken.</message>
 	    <class>GtkLabel</class>
 	    <name>label57</name>
 	    <width>203</width>
-	    <label>The edition of mailboxes is really dangerous and might result in the lost of all mails of the mailbox.</label>
+	    <label>Editing mailbox contents may be dangerous.</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>True</wrap>
 	    <xalign>0</xalign>
@@ -1745,6 +1753,7 @@ is already taken.</message>
 <widget>
   <class>GnomeAbout</class>
   <name>dlg_about</name>
+  <tooltip>about</tooltip>
   <modal>True</modal>
   <wmclass_name>cronosII</wmclass_name>
   <wmclass_class>about</wmclass_class>
@@ -1757,20 +1766,21 @@ Marc Zaritsky
 Yves Mettier
 See the 'AUTHORS' file for more...
 </authors>
-  <comments>Cronos II is a fast, light, user friendly and powerful mail client for the Gnome Desktop.
-It has an extended and intuitive interface which will make life for novice easier without taking out the power to the gurus.
+  <comments>Cronos II is a fast, light, user friendly and powerful mail client for you and the Gnome Desktop.
+It has an extended and intuitive interface which  makes  for  easier use while remaining extensible for you as your experience grows.
  
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the 'COPYING' file for the complete license or check it at http://www.gnu.org.
  
-You can find the website of Cronos II at:
+The Cronos II Website is at:
 http://cronosII.sourceforge.net</comments>
 </widget>
 
 <widget>
   <class>GnomeApp</class>
   <name>wnd_address_book</name>
-  <title>Cronos II</title>
+  <tooltip>C2 Addressbook</tooltip>
+  <title>Cronos II Addressbook</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>
   <modal>False</modal>
@@ -1834,6 +1844,7 @@ http://cronosII.sourceforge.net</comments>
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>open1</name>
+	      <tooltip>Open Addressbook file</tooltip>
 	      <signal>
 		<name>activate</name>
 		<handler>on_open1_activate</handler>
@@ -1873,6 +1884,7 @@ http://cronosII.sourceforge.net</comments>
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>exit1</name>
+	      <tooltip>close addressbook</tooltip>
 	      <signal>
 		<name>activate</name>
 		<handler>on_exit1_activate</handler>
@@ -2051,7 +2063,7 @@ http://cronosII.sourceforge.net</comments>
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>button30</name>
-	  <tooltip>Open File</tooltip>
+	  <tooltip>Open Address Book File</tooltip>
 	  <label>Open</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_OPEN</stock_pixmap>
 	</widget>
@@ -2060,7 +2072,7 @@ http://cronosII.sourceforge.net</comments>
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>button31</name>
-	  <tooltip>Save File</tooltip>
+	  <tooltip>Save Address Book File</tooltip>
 	  <label>Save</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_SAVE</stock_pixmap>
 	</widget>
@@ -2299,6 +2311,7 @@ http://cronosII.sourceforge.net</comments>
       <widget>
 	<class>GtkButton</class>
 	<name>button34</name>
+	<tooltip>close card</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_CLOSE</stock_button>
@@ -2377,12 +2390,12 @@ http://cronosII.sourceforge.net</comments>
   <class>GnomeMessageBox</class>
   <name>dlg_mailbox_confirm_deletion</name>
   <message_box_type>GNOME_MESSAGE_BOX_QUESTION</message_box_type>
-  <message>The deletion of a mailbox will
-permanently delete all mails stored
-in it and all mailboxes pending from it.
+  <message>Removal of a mailbox will
+permanently delete all mail stored
+within it and any connected sub-mailboxes.
 
-Are you sure you want to delete it?</message>
-  <title>Question</title>
+Are you sure you want to delete this Mailbox ?</message>
+  <title>Question    Caution</title>
   <position>GTK_WIN_POS_CENTER</position>
   <modal>True</modal>
   <allow_shrink>False</allow_shrink>
@@ -2425,6 +2438,7 @@ Are you sure you want to delete it?</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button62</name>
+	<tooltip>Remove this Mailbox</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_YES</stock_button>
@@ -2433,6 +2447,7 @@ Are you sure you want to delete it?</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button63</name>
+	<tooltip>Don't do anything. Close this dialog.</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_NO</stock_button>
@@ -2442,6 +2457,7 @@ Are you sure you want to delete it?</message>
     <widget>
       <class>GtkCheckButton</class>
       <name>archive</name>
+      <tooltip>Make a backup copy</tooltip>
       <can_focus>True</can_focus>
       <label>Archive mails (recommended).</label>
       <active>True</active>
@@ -2498,7 +2514,7 @@ Are you sure you want to delete it?</message>
       <widget>
 	<class>GtkMenuBar</class>
 	<name>menubar3</name>
-	<shadow_type>GTK_SHADOW_NONE</shadow_type>
+	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
 
 	<widget>
 	  <class>GtkMenuItem</class>
@@ -2531,6 +2547,7 @@ Are you sure you want to delete it?</message>
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_send_later</name>
+	      <tooltip>Place message in the Send Later Queue</tooltip>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_N</key>
@@ -2572,6 +2589,7 @@ Are you sure you want to delete it?</message>
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>close</name>
+	      <tooltip>Close the Message Composer</tooltip>
 	      <signal>
 		<name>activate</name>
 		<handler>on_close_activate</handler>
@@ -2806,7 +2824,7 @@ Are you sure you want to delete it?</message>
 		  </signal>
 		  <label>Highest</label>
 		  <active>False</active>
-		  <always_show_toggle>False</always_show_toggle>
+		  <always_show_toggle>True</always_show_toggle>
 		  <group>priority</group>
 		</widget>
 
@@ -2820,7 +2838,7 @@ Are you sure you want to delete it?</message>
 		  </signal>
 		  <label>High</label>
 		  <active>False</active>
-		  <always_show_toggle>False</always_show_toggle>
+		  <always_show_toggle>True</always_show_toggle>
 		  <group>priority</group>
 		</widget>
 
@@ -2834,7 +2852,7 @@ Are you sure you want to delete it?</message>
 		  </signal>
 		  <label>Normal</label>
 		  <active>True</active>
-		  <always_show_toggle>False</always_show_toggle>
+		  <always_show_toggle>True</always_show_toggle>
 		  <group>priority</group>
 		</widget>
 
@@ -2848,7 +2866,7 @@ Are you sure you want to delete it?</message>
 		  </signal>
 		  <label>Low</label>
 		  <active>False</active>
-		  <always_show_toggle>False</always_show_toggle>
+		  <always_show_toggle>True</always_show_toggle>
 		  <group>priority</group>
 		</widget>
 
@@ -2862,7 +2880,7 @@ Are you sure you want to delete it?</message>
 		  </signal>
 		  <label>Lowest</label>
 		  <active>False</active>
-		  <always_show_toggle>False</always_show_toggle>
+		  <always_show_toggle>True</always_show_toggle>
 		  <group>priority</group>
 		</widget>
 	      </widget>
@@ -2914,7 +2932,7 @@ Are you sure you want to delete it?</message>
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>button64</name>
-	  <tooltip>New File</tooltip>
+	  <tooltip>New Message</tooltip>
 	  <label>New</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_NEW</stock_pixmap>
 	</widget>
@@ -2932,7 +2950,7 @@ Are you sure you want to delete it?</message>
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>button66</name>
-	  <tooltip>Save File</tooltip>
+	  <tooltip>Save Message</tooltip>
 	  <label>Save</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_SAVE</stock_pixmap>
 	</widget>
@@ -3018,6 +3036,7 @@ Are you sure you want to delete it?</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button67</name>
+	<tooltip>Finished. Close this dialog.</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -3026,6 +3045,7 @@ Are you sure you want to delete it?</message>
       <widget>
 	<class>GtkButton</class>
 	<name>cancel_btn</name>
+	<tooltip>Close</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
@@ -3048,7 +3068,7 @@ Are you sure you want to delete it?</message>
 	<class>GtkFrame</class>
 	<name>frame1</name>
 	<height>135</height>
-	<label>Tasks's list</label>
+	<label>Task list</label>
 	<label_xalign>0</label_xalign>
 	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
 	<child>
@@ -3217,6 +3237,7 @@ Are you sure you want to delete it?</message>
       <widget>
 	<class>GtkCheckButton</class>
 	<name>auto_close_btn</name>
+	<tooltip>Close this dialog when task completes.</tooltip>
 	<can_focus>True</can_focus>
 	<label>Automatically close when finished.</label>
 	<active>False</active>
@@ -3278,6 +3299,7 @@ Are you sure you want to delete it?</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button70</name>
+	<tooltip>Try this new information</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -3286,6 +3308,7 @@ Are you sure you want to delete it?</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button72</name>
+	<tooltip>Close</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
@@ -3431,7 +3454,8 @@ Are you sure you want to delete it?</message>
 	<class>GtkLabel</class>
 	<name>label61</name>
 	<label>The server has rejected the password
-you seted for this account.</label>
+set for this account. 
+Please enter the correct information here.</label>
 	<justify>GTK_JUSTIFY_LEFT</justify>
 	<wrap>False</wrap>
 	<xalign>0.5</xalign>
@@ -3553,6 +3577,7 @@ you seted for this account.</label>
       <widget>
 	<class>GtkButton</class>
 	<name>button</name>
+	<tooltip>Close this dialog</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_CLOSE</stock_button>
@@ -3567,7 +3592,7 @@ you seted for this account.</label>
       <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
       <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
       <child>
-	<padding>0</padding>
+	<padding>5</padding>
 	<expand>True</expand>
 	<fill>True</fill>
       </child>
@@ -3580,30 +3605,31 @@ you seted for this account.</label>
 	<widget>
 	  <class>GtkLabel</class>
 	  <name>label65</name>
-	  <label>You can easily get in touch for help (or just for chating)
-with anyone of the Cronos II comunity (users or developers).
+	  <label>Getting in Touch:
 
-There're several methods for getting in touch with us,
-you should select whatever is better for you.
+To get in touch 
+with anyone from the Cronos II community (users or developers).
 
+Select a method that is best for you.
 _E_-_M_a_i_l:
 
-To send a mail to de developers you should write to
+To send a mail to Developers you should write to
 our mailing list: _c_r_o_n_o_s_I_I_-_d_e_v_e_l_o_p_e_r_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.
 
-To contact other users of Cronos II you better send it
+To contact other Users of Cronos II  send mail
 to the user's mailing list: _c_r_o_n_o_s_I_I_-_u_s_e_r_s_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.
 
-Note that if you want to contact a special developer for
-a special bug-report or for whatever reason you should
+Note that if you want to contact a particular developer for
+a special bug-report (or for whatever reason) you should
 check the Cronos II homepage for a list of contacts.
+http://www.cronoII.sourceforge.net/
 
 _I_R_C:
 
-You can chat with both users and developers in the
+You can chat with both Users and Developers in the
 OpenProjects network by connecting to the server
-_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 to the channel _#_c_r_o_n_o_s_I_I.</label>
-	  <justify>GTK_JUSTIFY_LEFT</justify>
+_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 and the channel _#_c_r_o_n_o_s_I_I.</label>
+	  <justify>GTK_JUSTIFY_CENTER</justify>
 	  <wrap>False</wrap>
 	  <xalign>0.5</xalign>
 	  <yalign>0.5</yalign>
