@@ -1,3 +1,9 @@
+Sat Dec 15 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Fixed the interaction between C2Mailbox, C2Db, and C2IMAP
+	  to enforce proper object responsibilty and services. Also,
+		update C2IMAP test module to comply to new access methods.
+	* Fixed minor bugs in some of the above modules.
+
 Tue Dec 11 Pablo Fernández Navarro <cronosII@users.sf.net>
 	* Some work in the mail widget.
 	* Changed the CFLAGS args for gcc for more warnings.
