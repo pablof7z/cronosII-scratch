@@ -1627,13 +1627,13 @@ c2_imap_message_add (C2IMAP *imap, C2Mailbox *mailbox, C2Db *db)
 {
 	gchar *reply;
 	tag_t tag;
-	gint32 size = strlen(db->message->header) + strlen(db->message->body) + 3;
+	gint32 size = strlen(db->message->header) + strlen(db->message->body) + 6;
 	gint messages;
 
 	tag = c2_imap_get_tag(imap);
 	if((c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d APPEND "
 		 "\"%s\" () {%d}\r\n", tag, mailbox->name, size) < 0) ||
-		 (c2_net_object_send(C2_NET_OBJECT(imap), NULL, "%s\r\n%s\r\n",
+		 (c2_net_object_send(C2_NET_OBJECT(imap), NULL, "%s\r\n\r\n\r\n%s\r\n",
 			db->message->header, db->message->body) < 0))
 	{
 		 		c2_imap_set_error(imap, NET_WRITE_FAILED);
