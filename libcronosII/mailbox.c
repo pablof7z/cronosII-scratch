@@ -579,7 +579,9 @@ _c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id, guint level)
 	gint ck_id;
 
 	c2_return_val_if_fail (head, NULL, C2EDATA);
-	c2_return_val_if_fail (id, NULL, C2EDATA);
+	if(!id)
+		return NULL; /* hey, shit happens, return quietly... */
+	/* c2_return_val_if_fail (id, NULL, C2EDATA); */
 
 	top_id = c2_mailbox_get_id (id, level);
 
