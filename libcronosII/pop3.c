@@ -623,7 +623,7 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 {
 	C2Message *message;
 	gchar *string;
-	gint i, len;
+	gint nth, len;
 	gint32 length, total_length = 0;
 	gchar *tmp;
 	FILE *fd;
@@ -631,12 +631,13 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 	
 	for (l = download_list; l; l = g_slist_next (l))
 	{
+		nth = GPOINTER_TO_INT (l->data);
 		if (pop3->flags & C2_POP3_DO_KEEP_COPY)
 		{
 		}
 
 		/* Retrieve */
-		if (c2_net_object_send (C2_NET_OBJECT (pop3), "RETR %d\r\n", i) < 0)
+		if (c2_net_object_send (C2_NET_OBJECT (pop3), "RETR %d\r\n", nth) < 0)
 			return -1;
 
 		if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
@@ -654,7 +655,7 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 
 		sscanf (string, "+OK %d octets\r\n", &total_length);
 
-		gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], i, 0, total_length);
+		gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], nth, 0, total_length);
 
 		/* Get a temp name */
 		tmp = c2_get_tmp_file ();
@@ -683,14 +684,17 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 
 			length += len;
 
-			gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], i, length, total_length);
+			gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], nth, length, total_length);
 		}
 
 		fclose (fd);
+		C2_DEBUG (tmp);
 
 		/* Load the mail */
 		if ((message = c2_db_message_get_from_file (tmp)))
 		{
+			C2_DEBUG (message->header);
+			C2_DEBUG (message->body);
 			c2_db_message_add (inbox, message);
 		} else
 			L

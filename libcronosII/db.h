@@ -87,7 +87,7 @@ GtkType
 c2_db_get_type								(void);
 
 C2Db *
-c2_db_new									(C2Mailbox *mailbox, gint mark, gchar *subject,
+c2_db_new									(C2Mailbox *mailbox, gboolean mark, gchar *subject,
 											 gchar *from, gchar *account, time_t date,
 											 gint mid, gint position);
 

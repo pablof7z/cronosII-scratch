@@ -16,6 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <gnome.h>
+#include <ctype.h>
 
 #include <libcronosII/mailbox.h>
 #include <libcronosII/error.h>
@@ -46,7 +47,10 @@ static gchar *
 interpret_text_plain_symbols				(const gchar *plain);
 
 static gchar *
-get_word									(const gchar *cptr, gchar **extra);
+get_word									(const gchar *cptr, gchar **extra, gboolean *new_line);
+
+static void
+make_quote_color							(gint level, gshort *red, gshort *green, gshort *blue);
 
 enum
 {
@@ -298,26 +302,33 @@ html_link_manager_cid (C2HTML *html, const gchar *url, C2Pthread2 *data)
 static gchar *
 interpret_text_plain_symbols (const gchar *plain)
 {
-	GString *string = g_string_new ("<HTML><BODY BGCOLOR=#ffffff><PRE>");
+	GString *string = g_string_new ("<HTML><BODY BGCOLOR=#ffffff><TABLE BORDER=0><TR><TD><PRE>");
 	const gchar *ptr;
 	gchar *word, *extra, *buf;
-	gboolean quoted = FALSE;
-	gint length;
+	gboolean quoted = FALSE, quote_line = FALSE, new_line;
+	gint length, elength;
+	gint quote_level = 0;
+	gshort red, green, blue;
 	
 	for (ptr = plain;;)
 	{
-		word = get_word (ptr, &extra);
+		word = get_word (ptr, &extra, &new_line);
 		if (!strlen (word) && !strlen (extra))
 			break;
 		
 		g_string_append (string, extra);
 		length = strlen (word);
-		ptr += length+strlen (extra);
+		elength = strlen (extra);
+		ptr += length+elength;
 		g_free (extra);
+
+		if (*(ptr-length-elength) == '\n')
+			new_line = TRUE;
 
 		/* First do a simple check if we have to act in this word. */
 		if (word[0] == word[length-1])
 		{
+			/* _Word_ */
 			if (word[0] == '_')
 			{
 				gchar *buf2 = c2_str_strip_enclosed (word, '_', '_');
@@ -325,16 +336,66 @@ interpret_text_plain_symbols (const gchar *plain)
 				buf = g_strdup_printf ("<u>%s</u>", buf2);
 				g_free (buf2);
 			} else if (word[0] == '*')
+			/* *Bold*/
 			{
 				gchar *buf2 = c2_str_strip_enclosed (word, '*', '*');
 				
 				buf = g_strdup_printf ("<b>%s</b>", buf2);
 				g_free (buf2);
+			} else if (length > 1 && word[0] == '-' && *(ptr-length-elength) == '\n')
+			/* -- (HR) */
+			{
+				const gchar *lptr;
+
+				for (lptr = word; *lptr != '\0'; lptr++)
+					if (*lptr != '-')
+						goto avoid_interpret;
+
+				for (lptr = ptr; *lptr != '\0' && *lptr != '\n'; lptr++)
+				{
+					if (!isblank (*lptr))
+						goto avoid_interpret;
+				}
+				
+				buf = g_strdup ("<HR NOSHADE=NOSHADE>");
+			} else if (word[0] == '>' && new_line)
+			/* > Quote */
+			{
+				const gchar *lptr;
+				gshort rec;
+
+				for (lptr = ptr-length, rec = 0; *lptr != '\0' && *lptr != '\n'; lptr++)
+				{
+					if (*lptr == '>')
+						rec++;
+					else if (!isblank (*lptr))
+						break;
+				}
+
+				if (rec == quote_level)
+					buf = g_strdup (word);
+				else
+				{
+					quote_level = rec;
+
+					if (quote_line)
+						g_string_append (string, "</FONT>\n");
+					else
+						quote_line = TRUE;
+
+					make_quote_color (rec, &red, &green, &blue);
+					buf = g_strdup_printf ("<FONT COLOR=#%02x%02x%02x>%s", red, green, blue, word);
+				}
 			}
 			/* Italic: What's the text/plain symbol???
 			 * [TODO] Ask Pete, he probably knows... */
 			else
+			{
+avoid_interpret:
+				if (quote_line && new_line)
+					g_string_append (string, "</FONT>");
 				buf = g_strdup (word);
+			}
 			
 			g_string_append (string, buf);
 			g_free (buf);
@@ -344,6 +405,15 @@ interpret_text_plain_symbols (const gchar *plain)
 				g_string_append (string, "<IMG SRC=\"c2dist://html-icons/:).png\" WIDTH=10 HEIGHT=10>");
 			else if (c2_streq (word, ":D"))
 				g_string_append (string, "<IMG SRC=\"c2dist://html-icons/:D.png\" WIDTH=10 HEIGHT=10>");
+			else if (c2_strneq (word, "http://", 7) ||
+					 c2_strneq (word, "ftp://", 6) ||
+					 c2_strneq (word, "file://", 7) ||
+					 c2_strneq (word, "mailto:", 7))
+			{
+				buf = g_strdup_printf ("<A HREF=\"%s\">%s</A>", word, word);
+				g_string_append (string, buf);
+				g_free (buf);
+			}
 			else
 				g_string_append (string, word);
 		}
@@ -351,14 +421,51 @@ interpret_text_plain_symbols (const gchar *plain)
 		g_free (word);
 	}
 
-	g_string_append (string, "</PRE></BODY></HTML>");
+	g_string_append (string, "</PRE></TD></TR></TABLE></BODY></HTML>");
 
 	buf = string->str;
 	g_string_free (string, FALSE);
+	C2_DEBUG (buf);
 
 	return buf;
 }
 
+static gchar *
+get_word (const gchar *cptr, gchar **extra, gboolean *new_line)
+{
+	GString *sextra = g_string_new (NULL);
+	const gchar *ptr, *end;
+	gchar *word;
+	
+	*new_line = FALSE;
+	for (ptr = cptr; ptr && (ptr[0] == ' ' ||
+							ptr[0] == '\t' ||
+							ptr[0] == '\n' ||
+							ptr[0] == ','); ptr++)
+		g_string_append_c (sextra, ptr[0]);
+	
+	for (end = ptr; end && (end[0] != ' ' &&
+							end[0] != '\t' &&
+							end[0] != ','); end++)
+		if (*end == '\n')
+		{
+L			*new_line = TRUE;
+			break;
+		}
+	
+	if (end)
+		word = g_strndup (ptr, end-ptr);
+	else
+		word = g_strdup (ptr);
+	
+	*extra = sextra->str;
+	
+	g_string_free (sextra, FALSE);
+	
+	return word;
+}
+
+/*
 static gchar *
 get_word (const gchar *cptr, gchar **extra)
 {
@@ -366,17 +473,12 @@ get_word (const gchar *cptr, gchar **extra)
 	const gchar *ptr, *end;
 	gchar *word;
 
-	for (ptr = cptr; ptr &&
-				(ptr[0] == ' ' ||
-				 ptr[0] == '\t' ||
-				 ptr[0] == '\n'); ptr++)
+	for (ptr = cptr; ptr &&	(); ptr++)
 		g_string_append_c (sextra, ptr[0]);
 	
-	for (end = ptr; end &&
-				(end[0] != ' ' &&
-				 end[0] != '\t' &&
-				 end[0] != '\n'); end++)
-		;
+	for (end = ptr; end && (); end++)
+		printf ("'%c' IS digit or alpha\n", *end);
+	L
 
 	if (end)
 		word = g_strndup (ptr, end-ptr);
@@ -388,4 +490,51 @@ get_word (const gchar *cptr, gchar **extra)
 	g_string_free (sextra, FALSE);
 
 	return word;
+}
+*/
+
+static void
+make_quote_color (gint level, gshort *red, gshort *green, gshort *blue)
+{
+	gshort r = 0x55, g = 0x55, b = 0x55;
+	gshort offset;
+
+	if (!level)
+	{
+		*red = *green = *blue = 0;
+		return;
+	}
+
+	level--;
+
+	offset = level - 3;
+
+	if (offset > 0)
+	{
+		gint i;
+L
+		for (i = offset; i > 0; i--)
+		{
+			if (b < 0xaa)
+				b += 0x22;
+			else if (g < 0xaa)
+				g += 0x22;
+			else if (r < 0xaa)
+				r += 0x22;
+			else
+#ifdef USE_DEBUG
+			{
+				g_print ("%s has reached its limit with level %d\n", __PRETTY_FUNCTION__, level);
+#endif
+				r = g = b = 0xbb;
+#ifdef USE_DEBUG
+			}
+#endif
+		}
+	} else
+		r = g = b += level*0x22;
+
+	*red = r;
+	*green = g;
+	*blue = b;
 }

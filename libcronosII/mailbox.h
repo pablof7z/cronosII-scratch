@@ -170,6 +170,9 @@ c2_mailbox_get_head								(void);
 C2Mailbox *
 c2_mailbox_get_by_name							(C2Mailbox *head, const gchar *name);
 
+gboolean
+c2_mailbox_load_db								(C2Mailbox *mailbox);
+
 #ifdef __cplusplus
 }
 #endif

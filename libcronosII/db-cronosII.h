@@ -44,7 +44,7 @@ c2_db_cronosII_remove_structure				(C2Mailbox *mailbox);
 gint
 c2_db_cronosII_load							(C2Mailbox *mailbox);
 
-void
+gboolean
 c2_db_cronosII_message_add					(C2Mailbox *mailbox, C2Db *db);
 
 void

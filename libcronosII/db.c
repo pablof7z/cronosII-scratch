@@ -152,7 +152,7 @@ destroy (GtkObject *object)
  * The brand new created C2Db.
  **/
 C2Db *
-c2_db_new (C2Mailbox *mailbox, gint mark, gchar *subject, gchar *from,
+c2_db_new (C2Mailbox *mailbox, gboolean mark, gchar *subject, gchar *from,
 			gchar *account, time_t date, gint mid, gint position)
 {
 	C2Db *db = NULL;
@@ -410,7 +410,7 @@ c2_db_load (C2Mailbox *mailbox)
 void
 c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 {
-	void (*func) (C2Mailbox *mailbox, C2Db *db);
+	gboolean (*func) (C2Mailbox *mailbox, C2Db *db);
 	C2Db *l, *db;
 	gchar *buf;
 	gboolean marked = FALSE;
@@ -430,29 +430,21 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 		marked = TRUE;
 	g_free (buf);
 
-	buf = c2_message_get_header_field (message, "Date:");
-	date = c2_date_parse (buf);
-	g_free (buf);
+	if ((buf = c2_message_get_header_field (message, "Date:")))
+	{
+L		date = c2_date_parse (buf);
+		g_free (buf);
+	} else
+		date = time (NULL);
+
+	printf ("Date is %d\n", date);
 	
 	db = c2_db_new (mailbox, marked, c2_message_get_header_field (message, "Subject:"),
 					c2_message_get_header_field (message, "From:"),
 					c2_message_get_header_field (message, "X-CronosII-Account:"),
 					date, 0, 0);
+	db->message = message;
 	
-	if (mailbox->db)
-	{
-		/* This will load the dynamic data, it shouldn't be
-		 * used if the mailbox hasn't been loaded yet...
-		 */
-		l = mailbox->db->prev;
-
-		l->next = db;
-		db->prev = l;
-		mailbox->db->prev = db; /* This is what makes the list to be circular */
-
-		db->position = l->position+1;
-	}
-
 	switch (mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
@@ -466,7 +458,29 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 			break;
 	}
 
-	func (mailbox, db);
+	if (!mailbox->db)
+		c2_mailbox_load_db (mailbox);
+
+L	if (!func (mailbox, db))
+		return;
+	gtk_object_destroy (message);
+	db->message = NULL;
+L
+L
+	if (mailbox->db)
+	{
+		l = mailbox->db->prev;
+
+		l->next = db;
+		db->prev = l;
+		mailbox->db->prev = db; /* This is what makes the list to be circular */
+
+		db->position = l->position+1;
+	} else
+	{
+		mailbox->db = db;
+		db->prev = db; /* This is what makes the list to be circular */
+	}
 
 	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox", db->prev);
 }

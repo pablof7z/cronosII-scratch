@@ -2,6 +2,13 @@ Sun Sep 16 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Sending MIME attachments via SMTP seems to be stable now
 	* Began work to make C2SMTP object a GtkObject w/ signals, etc.
 
+Sun Sep 16 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Work in the HTML widget (interpretation of plain symbols).
+
+Sat Sep 15 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Work in the POP3 module.
+	* Work in the HTML widget (interpretation of plain symbols).
+
 Fri Sep 14 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Some work in the UI with Glade.
 	* Fixed a bug in the DB module (c2_db_length_type).
