@@ -71,7 +71,6 @@ struct _C2WindowMain
 	C2Window window;
 	
 	GtkWidget *toolbar, *mlist, *index, *mail_vbox, *mail, *nt; /* Statically created widgets need a reference here */
-	GladeXML *ctree_menu;
 	GladeXML *toolbar_menu;
 
 	C2Mutex index_lock;
@@ -113,6 +112,9 @@ c2_window_main_construct					(C2WindowMain *wmain, C2Application *application);
 
 void
 c2_window_main_set_mailbox					(C2WindowMain *wmain, C2Mailbox *mailbox);
+
+GtkObject *
+c2_window_main_get_mlist_selection			(C2WindowMain *wmain);
 
 /*********************
  * [Common Dialogs ] *

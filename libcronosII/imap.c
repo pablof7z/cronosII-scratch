@@ -635,14 +635,16 @@ c2_imap_populate_folders (C2IMAP *imap)
 	if(imap->mailboxes)
 		c2_mailbox_destroy_tree(imap->mailboxes);
 	imap->mailboxes = NULL; 
-L	
+	
 	if(c2_imap_mailbox_loop(imap, NULL) < 0)
 	{
-L		c2_mutex_unlock(&imap->lock);
+		c2_mutex_unlock(&imap->lock);
 		return -1;
 	}
-L	
+	
 	c2_mutex_unlock(&imap->lock);
+
+	gtk_signal_emit (GTK_OBJECT (imap), signals[MAILBOX_LIST], imap->mailboxes);
 	return 0;
 }
 

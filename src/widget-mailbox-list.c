@@ -25,6 +25,8 @@
 #include <libcronosII/imap.h>
 #include <libcronosII/error.h>
 
+#include "widget-application.h"
+#include "widget-application-utils.h"
 #include "widget-dialog-preferences.h"
 #include "widget-mailbox-list.h"
 
@@ -44,6 +46,18 @@ on_tree_select_row							(GtkCTree *ctree, GtkCTreeNode *row, gint column,
 static void
 on_tree_unselect_row						(GtkCTree *ctree, GtkCTreeNode *row, gint column,
 											 C2MailboxList *mlist);
+
+static void
+on_mlist_button_press_event					(GtkWidget *mlist, GdkEvent *event);
+
+static void
+on_menu_new_mailbox_activate				(GtkWidget *widget, C2MailboxList *mlist);
+
+static void
+on_menu_delete_mailbox_activate				(GtkWidget *widget, C2MailboxList *mlist);
+
+static void
+on_menu_properties_activate					(GtkWidget *widget, C2MailboxList *mlist);
 
 static void
 on_tree_expand								(GtkCTree *ctree, GtkCTreeNode *node);
@@ -181,6 +195,7 @@ c2_mailbox_list_new (C2Application *application)
 {
 	C2MailboxList *mlist;
 	GtkWidget *widget;
+	GladeXML *xml;
 	gchar *titles[] =
 	{
 		N_("Mailboxes")
@@ -201,6 +216,19 @@ c2_mailbox_list_new (C2Application *application)
 							GTK_SIGNAL_FUNC (on_tree_expand), mlist);
 	gtk_signal_connect (GTK_OBJECT (mlist), "tree_collapse",
 							GTK_SIGNAL_FUNC (on_tree_collapse), mlist);
+	gtk_signal_connect (GTK_OBJECT (mlist), "button_press_event",
+      			GTK_SIGNAL_FUNC (on_mlist_button_press_event), NULL);
+	
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "mnu_mlist");
+			
+	gtk_object_set_data (GTK_OBJECT (mlist), "menu", xml);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "new_mailbox")), "activate",
+						GTK_SIGNAL_FUNC (on_menu_new_mailbox_activate), mlist);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "delete_mailbox")), "activate",
+						GTK_SIGNAL_FUNC (on_menu_delete_mailbox_activate), mlist);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "properties")), "activate",
+						GTK_SIGNAL_FUNC (on_menu_properties_activate), mlist);
+						
 
 	gtk_signal_connect (GTK_OBJECT (application), "reload_mailboxes",
 							GTK_SIGNAL_FUNC (on_application_reload_mailboxes), mlist);
@@ -259,6 +287,103 @@ on_tree_unselect_row (GtkCTree *ctree, GtkCTreeNode *row, gint column, C2Mailbox
 	mlist->selected_node = NULL;
 
 	gtk_signal_emit (GTK_OBJECT (mlist), signals[OBJECT_UNSELECTED]);
+}
+
+static void
+on_mlist_button_press_event (GtkWidget *mlist, GdkEvent *event)
+{
+	GladeXML *xml;
+	
+	if (event->button.button == 3)
+	{
+		GdkEventButton *e = (GdkEventButton *) event;
+		GtkCTreeNode *node;
+		gint mbox_n, row, column;
+		GtkObject *object;
+		
+		xml = GLADE_XML (gtk_object_get_data (GTK_OBJECT (mlist), "menu"));
+
+		mbox_n = gtk_clist_get_selection_info (GTK_CLIST (mlist), e->x, e->y, &row, &column);
+
+		if (mbox_n)
+		{
+			node = gtk_ctree_node_nth (GTK_CTREE (mlist), row);
+			
+			object = gtk_ctree_node_get_row_data (GTK_CTREE (mlist), node);
+			c2_mailbox_list_set_selected_object (C2_MAILBOX_LIST (mlist), object);
+			gtk_ctree_select (GTK_CTREE (mlist), node);
+
+		} else
+		{
+			c2_mailbox_list_set_selected_object (C2_MAILBOX_LIST (mlist), NULL);
+			object = NULL;
+		}
+
+		/* Set sensitivy */
+		if (C2_IS_MAILBOX (object))
+		{
+			gtk_widget_show (glade_xml_get_widget (xml, "delete_mailbox"));
+			gtk_widget_show (glade_xml_get_widget (xml, "properties"));
+			gtk_widget_show (glade_xml_get_widget (xml, "use_as_inbox"));
+			gtk_widget_show (glade_xml_get_widget (xml, "use_as_outbox"));
+			gtk_widget_show (glade_xml_get_widget (xml, "use_as_sent_items"));
+			gtk_widget_show (glade_xml_get_widget (xml, "use_as_trash"));
+			gtk_widget_show (glade_xml_get_widget (xml, "use_as_drafts"));
+			gtk_widget_show (glade_xml_get_widget (xml, "sep01"));
+			gtk_widget_show (glade_xml_get_widget (xml, "sep02"));
+		} else
+		{
+			gtk_widget_hide (glade_xml_get_widget (xml, "delete_mailbox"));
+			gtk_widget_hide (glade_xml_get_widget (xml, "properties"));
+			gtk_widget_hide (glade_xml_get_widget (xml, "use_as_inbox"));
+			gtk_widget_hide (glade_xml_get_widget (xml, "use_as_outbox"));
+			gtk_widget_hide (glade_xml_get_widget (xml, "use_as_sent_items"));
+			gtk_widget_hide (glade_xml_get_widget (xml, "use_as_trash"));
+			gtk_widget_hide (glade_xml_get_widget (xml, "use_as_drafts"));
+			gtk_widget_hide (glade_xml_get_widget (xml, "sep01"));
+			gtk_widget_hide (glade_xml_get_widget (xml, "sep02"));
+		}
+
+		/* Set data */
+		if (C2_IS_MAILBOX (object))
+		{
+			C2Mailbox *mailbox = C2_MAILBOX (object);
+
+			gtk_check_menu_item_set_active (glade_xml_get_widget (xml, "use_as_inbox"),
+											mailbox->use_as & C2_MAILBOX_USE_AS_INBOX);
+			gtk_check_menu_item_set_active (glade_xml_get_widget (xml, "use_as_outbox"),
+											mailbox->use_as & C2_MAILBOX_USE_AS_OUTBOX);
+			gtk_check_menu_item_set_active (glade_xml_get_widget (xml, "use_as_sent_items"),
+											mailbox->use_as & C2_MAILBOX_USE_AS_SENT_ITEMS);
+			gtk_check_menu_item_set_active (glade_xml_get_widget (xml, "use_as_trash"),
+											mailbox->use_as & C2_MAILBOX_USE_AS_TRASH);
+			gtk_check_menu_item_set_active (glade_xml_get_widget (xml, "use_as_drafts"),
+											mailbox->use_as & C2_MAILBOX_USE_AS_DRAFTS);
+		}
+
+		gnome_popup_menu_do_popup (glade_xml_get_widget (xml, "mnu_mlist"),
+										NULL, NULL, e, NULL);
+	}
+}
+
+static void
+on_menu_new_mailbox_activate (GtkWidget *widget, C2MailboxList *mlist)
+{
+	C2Application *application;
+
+	application = C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (mlist), "application"));
+
+	c2_application_dialog_add_mailbox (application);
+}
+
+static void
+on_menu_delete_mailbox_activate (GtkWidget *widget, C2MailboxList *mlist)
+{
+}
+
+static void
+on_menu_properties_activate (GtkWidget *widget, C2MailboxList *mlist)
+{
 }
 
 static void
@@ -503,14 +628,20 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 				/* Get the IMAP object */
 				imap = C2_IMAP (c2_account_get_extra_data (la, C2_ACCOUNT_KEY_INCOMING, NULL));
 				
-				data = g_new0 (C2Pthread2, 1);
-				data->v1 = mlist;
-				data->v2 = cnode;
-				gtk_signal_connect (GTK_OBJECT (imap), "mailbox_list",
-									GTK_SIGNAL_FUNC (on_imap_mailbox_list), data);
+				if (!imap->mailboxes)
+				{
+					data = g_new0 (C2Pthread2, 1);
+					data->v1 = mlist;
+					data->v2 = cnode;
+					gtk_signal_connect (GTK_OBJECT (imap), "mailbox_list",
+										GTK_SIGNAL_FUNC (on_imap_mailbox_list), data);
 
-				/* Initializate it */
-				pthread_create (&thread, NULL, C2_PTHREAD_FUNC (init_imap), imap);
+					/* Initializate it */
+					pthread_create (&thread, NULL, C2_PTHREAD_FUNC (init_imap), imap);
+				} else
+				{
+					tree_fill (mlist, imap->mailboxes, NULL, cnode);
+				}
 			}
 		}
 		
@@ -571,5 +702,7 @@ on_imap_mailbox_list (C2IMAP *imap, C2Mailbox *head, C2Pthread2 *data)
 
 	g_free (data);
 	
+	gdk_threads_enter ();
 	tree_fill (mlist, head, NULL, cnode);
+	gdk_threads_leave ();
 }

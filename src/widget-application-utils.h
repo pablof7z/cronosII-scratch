@@ -29,6 +29,9 @@ c2_application_check_account_exists			(C2Application *application);
 
 /* Dialogs */
 void
+c2_application_dialog_add_mailbox			(C2Application *application);
+
+void
 c2_application_dialog_add_features			(C2Application *application);
 
 void

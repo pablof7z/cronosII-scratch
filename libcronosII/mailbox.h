@@ -57,6 +57,7 @@ typedef enum _C2MailboxSortBy C2MailboxSortBy;
 typedef enum _C2MailboxType C2MailboxType;
 typedef enum _C2MailboxIMAPEvent C2MailboxIMAPEvent;
 typedef enum _C2MailboxChangeType C2MailboxChangeType;
+typedef enum _C2MailboxUseAs C2MailboxUseAs;
 
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include "db.h"
@@ -93,6 +94,15 @@ enum _C2MailboxChangeType
 	C2_MAILBOX_CHANGE_STATE,
 
 	C2_MAILBOX_CHANGE_ANY
+};
+
+enum _C2MailboxUseAs
+{
+	C2_MAILBOX_USE_AS_INBOX			= 1 << 0,
+	C2_MAILBOX_USE_AS_OUTBOX		= 1 << 1,
+	C2_MAILBOX_USE_AS_SENT_ITEMS	= 1 << 2,
+	C2_MAILBOX_USE_AS_TRASH			= 1 << 3,
+	C2_MAILBOX_USE_AS_DRAFTS		= 1 << 4
 };
 
 struct _C2Mailbox
@@ -134,6 +144,7 @@ struct _C2Mailbox
 
 	C2Mutex lock;
 	
+	C2MailboxUseAs use_as;
 	C2MailboxSortBy sort_by;
 	GtkSortType sort_type;
 
@@ -182,6 +193,12 @@ void
 c2_mailbox_destroy_tree							(C2Mailbox *head);
 
 void
+c2_mailbox_set_use_as							(C2Mailbox *head, C2Mailbox *mailbox, C2MailboxUseAs use_as);
+
+C2MailboxUseAs
+c2_mailbox_get_use_as							(C2Mailbox *mailbox);
+
+void
 c2_mailbox_update								(C2Mailbox *mailbox, const gchar *name, const gchar *id,
 												 C2MailboxType type, ...);
 
@@ -204,6 +221,9 @@ c2_mailbox_get_id								(const gchar *id, gint number);
 
 C2Mailbox *
 c2_mailbox_get_by_name							(C2Mailbox *head, const gchar *name);
+
+C2Mailbox *
+c2_mailbox_get_by_usage							(C2Mailbox *head, C2MailboxUseAs use_as);
 	
 C2Mailbox *
 c2_mailbox_get_by_id (C2Mailbox *head, const gchar *id);

@@ -1,9 +1,14 @@
+Sat Mar 16 Pablo Fernández López <pablo@pablossite.net>
+	* More UI~IMAP work: Mailbox List creation works.
+
 Sat Mar 16 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Big IMAP bug fix and some subscribtion facility in IMAP.
 	* Some little features in IMAP.
 
 Fri Mar 15 Pablo Fernández López <pablo@pablossite.net>
 	* Started the integrate of the IMAP module with the UI (UI~IMAP).
+	* Work on the mailbox module for the UseAs stuff.
+	* Work on the UI for the UseAs stuff.
 
 Sat Mar 9 Pablo Fernández López <pablo@pablossite.net>
 	* Fixed a bug in SMTP.

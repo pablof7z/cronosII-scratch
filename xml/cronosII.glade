@@ -1522,7 +1522,7 @@ entered is invalid.</message>
       <class>GtkVBox</class>
       <name>dlg_mailbox_properties_contents</name>
       <homogeneous>False</homogeneous>
-      <spacing>10</spacing>
+      <spacing>5</spacing>
       <child>
 	<padding>0</padding>
 	<expand>True</expand>
@@ -1564,7 +1564,7 @@ entered is invalid.</message>
 	    <class>GtkLabel</class>
 	    <name>label57</name>
 	    <width>203</width>
-	    <label>Editing mailbox properties might
+	    <label>Editing mailboxes properties might
 result in the lost of all mails in it.</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>True</wrap>
@@ -1582,14 +1582,11 @@ result in the lost of all mails in it.</label>
       </widget>
 
       <widget>
-	<class>GtkTable</class>
-	<name>table2</name>
-	<border_width>4</border_width>
-	<rows>2</rows>
-	<columns>2</columns>
-	<homogeneous>False</homogeneous>
-	<row_spacing>4</row_spacing>
-	<column_spacing>4</column_spacing>
+	<class>GtkFrame</class>
+	<name>frame8</name>
+	<label>Basic information</label>
+	<label_xalign>0</label_xalign>
+	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
 	<child>
 	  <padding>0</padding>
 	  <expand>True</expand>
@@ -1597,199 +1594,23 @@ result in the lost of all mails in it.</label>
 	</child>
 
 	<widget>
-	  <class>GtkEntry</class>
-	  <name>name</name>
-	  <tooltip>Type here the name of the new mailbox</tooltip>
-	  <can_default>True</can_default>
-	  <has_default>True</has_default>
-	  <can_focus>True</can_focus>
-	  <has_focus>True</has_focus>
-	  <editable>True</editable>
-	  <text_visible>True</text_visible>
-	  <text_max_length>0</text_max_length>
-	  <text></text>
-	  <child>
-	    <left_attach>1</left_attach>
-	    <right_attach>2</right_attach>
-	    <top_attach>0</top_attach>
-	    <bottom_attach>1</bottom_attach>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <xexpand>True</xexpand>
-	    <yexpand>False</yexpand>
-	    <xshrink>False</xshrink>
-	    <yshrink>False</yshrink>
-	    <xfill>True</xfill>
-	    <yfill>False</yfill>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkLabel</class>
-	  <name>label45</name>
-	  <label>Type:</label>
-	  <justify>GTK_JUSTIFY_CENTER</justify>
-	  <wrap>False</wrap>
-	  <xalign>0</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	  <focus_target>type</focus_target>
-	  <child>
-	    <left_attach>0</left_attach>
-	    <right_attach>1</right_attach>
-	    <top_attach>1</top_attach>
-	    <bottom_attach>2</bottom_attach>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <xexpand>False</xexpand>
-	    <yexpand>False</yexpand>
-	    <xshrink>False</xshrink>
-	    <yshrink>False</yshrink>
-	    <xfill>True</xfill>
-	    <yfill>False</yfill>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkLabel</class>
-	  <name>label44</name>
-	  <label>Name:</label>
-	  <justify>GTK_JUSTIFY_CENTER</justify>
-	  <wrap>False</wrap>
-	  <xalign>0</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	  <focus_target>name</focus_target>
-	  <child>
-	    <left_attach>0</left_attach>
-	    <right_attach>1</right_attach>
-	    <top_attach>0</top_attach>
-	    <bottom_attach>1</bottom_attach>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <xexpand>False</xexpand>
-	    <yexpand>False</yexpand>
-	    <xshrink>False</xshrink>
-	    <yshrink>False</yshrink>
-	    <xfill>True</xfill>
-	    <yfill>False</yfill>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkOptionMenu</class>
-	  <name>type</name>
-	  <height>21</height>
-	  <tooltip>Select the type of access you want for this mailbox</tooltip>
-	  <can_focus>True</can_focus>
-	  <items></items>
-	  <initial_choice>0</initial_choice>
-	  <child>
-	    <left_attach>1</left_attach>
-	    <right_attach>2</right_attach>
-	    <top_attach>1</top_attach>
-	    <bottom_attach>2</bottom_attach>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <xexpand>True</xexpand>
-	    <yexpand>False</yexpand>
-	    <xshrink>False</xshrink>
-	    <yshrink>False</yshrink>
-	    <xfill>True</xfill>
-	    <yfill>False</yfill>
-	  </child>
-	</widget>
-      </widget>
-
-      <widget>
-	<class>GtkFrame</class>
-	<name>edata</name>
-	<visible>False</visible>
-	<label>Extra data</label>
-	<label_xalign>0</label_xalign>
-	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
-	<child>
-	  <padding>3</padding>
-	  <expand>True</expand>
-	  <fill>True</fill>
-	</child>
-
-	<widget>
 	  <class>GtkTable</class>
-	  <name>table3</name>
+	  <name>table2</name>
 	  <border_width>4</border_width>
-	  <rows>4</rows>
-	  <columns>4</columns>
+	  <rows>3</rows>
+	  <columns>2</columns>
 	  <homogeneous>False</homogeneous>
 	  <row_spacing>4</row_spacing>
 	  <column_spacing>4</column_spacing>
 
 	  <widget>
-	    <class>GtkLabel</class>
-	    <name>eportl</name>
-	    <label>Port:</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <child>
-	      <left_attach>2</left_attach>
-	      <right_attach>3</right_attach>
-	      <top_attach>0</top_attach>
-	      <bottom_attach>1</bottom_attach>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <xexpand>False</xexpand>
-	      <yexpand>False</yexpand>
-	      <xshrink>False</xshrink>
-	      <yshrink>False</yshrink>
-	      <xfill>False</xfill>
-	      <yfill>False</yfill>
-	    </child>
-	  </widget>
-
-	  <widget>
-	    <class>GtkSpinButton</class>
-	    <name>eport</name>
-	    <tooltip>Type here the port where this mailbox is stored</tooltip>
-	    <can_focus>True</can_focus>
-	    <climb_rate>1</climb_rate>
-	    <digits>0</digits>
-	    <numeric>True</numeric>
-	    <update_policy>GTK_UPDATE_ALWAYS</update_policy>
-	    <snap>False</snap>
-	    <wrap>False</wrap>
-	    <value>143</value>
-	    <lower>0</lower>
-	    <upper>99999</upper>
-	    <step>1</step>
-	    <page>10</page>
-	    <page_size>10</page_size>
-	    <child>
-	      <left_attach>3</left_attach>
-	      <right_attach>4</right_attach>
-	      <top_attach>0</top_attach>
-	      <bottom_attach>1</bottom_attach>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <xexpand>True</xexpand>
-	      <yexpand>False</yexpand>
-	      <xshrink>False</xshrink>
-	      <yshrink>False</yshrink>
-	      <xfill>True</xfill>
-	      <yfill>False</yfill>
-	    </child>
-	  </widget>
-
-	  <widget>
 	    <class>GtkEntry</class>
-	    <name>ehost</name>
-	    <tooltip>Type here the hostname where this mailbox is stored</tooltip>
+	    <name>name</name>
+	    <tooltip>Type here the name of the new mailbox</tooltip>
+	    <can_default>True</can_default>
+	    <has_default>True</has_default>
 	    <can_focus>True</can_focus>
+	    <has_focus>True</has_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
 	    <text_max_length>0</text_max_length>
@@ -1811,18 +1632,72 @@ result in the lost of all mails in it.</label>
 	  </widget>
 
 	  <widget>
-	    <class>GtkEntry</class>
-	    <name>epass</name>
+	    <class>GtkLabel</class>
+	    <name>label45</name>
+	    <label>_Type:</label>
+	    <justify>GTK_JUSTIFY_CENTER</justify>
+	    <wrap>False</wrap>
+	    <xalign>1</xalign>
+	    <yalign>0.5</yalign>
+	    <xpad>0</xpad>
+	    <ypad>0</ypad>
+	    <focus_target>type</focus_target>
+	    <child>
+	      <left_attach>0</left_attach>
+	      <right_attach>1</right_attach>
+	      <top_attach>1</top_attach>
+	      <bottom_attach>2</bottom_attach>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	      <xexpand>False</xexpand>
+	      <yexpand>False</yexpand>
+	      <xshrink>False</xshrink>
+	      <yshrink>False</yshrink>
+	      <xfill>True</xfill>
+	      <yfill>False</yfill>
+	    </child>
+	  </widget>
+
+	  <widget>
+	    <class>GtkLabel</class>
+	    <name>label44</name>
+	    <label>_Name:</label>
+	    <justify>GTK_JUSTIFY_CENTER</justify>
+	    <wrap>False</wrap>
+	    <xalign>1</xalign>
+	    <yalign>0.5</yalign>
+	    <xpad>0</xpad>
+	    <ypad>0</ypad>
+	    <focus_target>name</focus_target>
+	    <child>
+	      <left_attach>0</left_attach>
+	      <right_attach>1</right_attach>
+	      <top_attach>0</top_attach>
+	      <bottom_attach>1</bottom_attach>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	      <xexpand>False</xexpand>
+	      <yexpand>False</yexpand>
+	      <xshrink>False</xshrink>
+	      <yshrink>False</yshrink>
+	      <xfill>True</xfill>
+	      <yfill>False</yfill>
+	    </child>
+	  </widget>
+
+	  <widget>
+	    <class>GtkOptionMenu</class>
+	    <name>type</name>
+	    <height>21</height>
+	    <tooltip>Select the type of access you want for this mailbox</tooltip>
 	    <can_focus>True</can_focus>
-	    <editable>True</editable>
-	    <text_visible>False</text_visible>
-	    <text_max_length>0</text_max_length>
-	    <text></text>
+	    <items></items>
+	    <initial_choice>0</initial_choice>
 	    <child>
 	      <left_attach>1</left_attach>
-	      <right_attach>4</right_attach>
-	      <top_attach>2</top_attach>
-	      <bottom_attach>3</bottom_attach>
+	      <right_attach>2</right_attach>
+	      <top_attach>1</top_attach>
+	      <bottom_attach>2</bottom_attach>
 	      <xpad>0</xpad>
 	      <ypad>0</ypad>
 	      <xexpand>True</xexpand>
@@ -1835,9 +1710,69 @@ result in the lost of all mails in it.</label>
 	  </widget>
 
 	  <widget>
+	    <class>GtkFrame</class>
+	    <name>frame9</name>
+	    <label>Parent</label>
+	    <label_xalign>0</label_xalign>
+	    <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	    <child>
+	      <left_attach>0</left_attach>
+	      <right_attach>2</right_attach>
+	      <top_attach>2</top_attach>
+	      <bottom_attach>3</bottom_attach>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	      <xexpand>False</xexpand>
+	      <yexpand>True</yexpand>
+	      <xshrink>False</xshrink>
+	      <yshrink>False</yshrink>
+	      <xfill>True</xfill>
+	      <yfill>True</yfill>
+	    </child>
+
+	    <widget>
+	      <class>GtkScrolledWindow</class>
+	      <name>scroll</name>
+	      <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
+	      <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
+	      <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+	      <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+
+	      <widget>
+		<class>Placeholder</class>
+	      </widget>
+	    </widget>
+	  </widget>
+	</widget>
+      </widget>
+
+      <widget>
+	<class>GtkFrame</class>
+	<name>edata</name>
+	<visible>False</visible>
+	<label>Extra information</label>
+	<label_xalign>0</label_xalign>
+	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	<child>
+	  <padding>3</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GtkTable</class>
+	  <name>table3</name>
+	  <border_width>4</border_width>
+	  <rows>1</rows>
+	  <columns>4</columns>
+	  <homogeneous>False</homogeneous>
+	  <row_spacing>4</row_spacing>
+	  <column_spacing>4</column_spacing>
+
+	  <widget>
 	    <class>GtkLabel</class>
-	    <name>ehostl</name>
-	    <label>Hostname:</label>
+	    <name>epathl</name>
+	    <label>_Path:</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
 	    <xalign>1</xalign>
@@ -1851,109 +1786,7 @@ result in the lost of all mails in it.</label>
 	      <bottom_attach>1</bottom_attach>
 	      <xpad>0</xpad>
 	      <ypad>0</ypad>
-	      <xexpand>True</xexpand>
-	      <yexpand>False</yexpand>
-	      <xshrink>False</xshrink>
-	      <yshrink>False</yshrink>
-	      <xfill>True</xfill>
-	      <yfill>False</yfill>
-	    </child>
-	  </widget>
-
-	  <widget>
-	    <class>GtkLabel</class>
-	    <name>euserl</name>
-	    <label>Username:</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>1</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <child>
-	      <left_attach>0</left_attach>
-	      <right_attach>1</right_attach>
-	      <top_attach>1</top_attach>
-	      <bottom_attach>2</bottom_attach>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <xexpand>True</xexpand>
-	      <yexpand>False</yexpand>
-	      <xshrink>False</xshrink>
-	      <yshrink>False</yshrink>
-	      <xfill>True</xfill>
-	      <yfill>False</yfill>
-	    </child>
-	  </widget>
-
-	  <widget>
-	    <class>GtkLabel</class>
-	    <name>epassl</name>
-	    <label>Password:</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>1</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <child>
-	      <left_attach>0</left_attach>
-	      <right_attach>1</right_attach>
-	      <top_attach>2</top_attach>
-	      <bottom_attach>3</bottom_attach>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <xexpand>True</xexpand>
-	      <yexpand>False</yexpand>
-	      <xshrink>False</xshrink>
-	      <yshrink>False</yshrink>
-	      <xfill>True</xfill>
-	      <yfill>False</yfill>
-	    </child>
-	  </widget>
-
-	  <widget>
-	    <class>GtkEntry</class>
-	    <name>euser</name>
-	    <can_focus>True</can_focus>
-	    <editable>True</editable>
-	    <text_visible>True</text_visible>
-	    <text_max_length>0</text_max_length>
-	    <text></text>
-	    <child>
-	      <left_attach>1</left_attach>
-	      <right_attach>4</right_attach>
-	      <top_attach>1</top_attach>
-	      <bottom_attach>2</bottom_attach>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <xexpand>True</xexpand>
-	      <yexpand>False</yexpand>
-	      <xshrink>False</xshrink>
-	      <yshrink>False</yshrink>
-	      <xfill>True</xfill>
-	      <yfill>False</yfill>
-	    </child>
-	  </widget>
-
-	  <widget>
-	    <class>GtkLabel</class>
-	    <name>epathl</name>
-	    <label>Path:</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>1</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <child>
-	      <left_attach>0</left_attach>
-	      <right_attach>1</right_attach>
-	      <top_attach>3</top_attach>
-	      <bottom_attach>4</bottom_attach>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <xexpand>True</xexpand>
+	      <xexpand>False</xexpand>
 	      <yexpand>False</yexpand>
 	      <xshrink>False</xshrink>
 	      <yshrink>False</yshrink>
@@ -1970,11 +1803,11 @@ result in the lost of all mails in it.</label>
 	    <child>
 	      <left_attach>1</left_attach>
 	      <right_attach>4</right_attach>
-	      <top_attach>3</top_attach>
-	      <bottom_attach>4</bottom_attach>
+	      <top_attach>0</top_attach>
+	      <bottom_attach>1</bottom_attach>
 	      <xpad>0</xpad>
 	      <ypad>0</ypad>
-	      <xexpand>False</xexpand>
+	      <xexpand>True</xexpand>
 	      <yexpand>False</yexpand>
 	      <xshrink>False</xshrink>
 	      <yshrink>False</yshrink>
@@ -2023,88 +1856,6 @@ result in the lost of all mails in it.</label>
 	      </child>
 	    </widget>
 	  </widget>
-	</widget>
-      </widget>
-
-      <widget>
-	<class>GtkVBox</class>
-	<name>vbox23</name>
-	<homogeneous>False</homogeneous>
-	<spacing>0</spacing>
-	<child>
-	  <padding>0</padding>
-	  <expand>False</expand>
-	  <fill>False</fill>
-	</child>
-
-	<widget>
-	  <class>GtkCheckButton</class>
-	  <name>inbox</name>
-	  <can_focus>True</can_focus>
-	  <label>Use this mailbox as _Inbox.</label>
-	  <active>False</active>
-	  <draw_indicator>True</draw_indicator>
-	  <child>
-	    <padding>0</padding>
-	    <expand>False</expand>
-	    <fill>False</fill>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkCheckButton</class>
-	  <name>outbox</name>
-	  <can_focus>True</can_focus>
-	  <label>Use this mailbox as _Outbox.</label>
-	  <active>False</active>
-	  <draw_indicator>True</draw_indicator>
-	  <child>
-	    <padding>0</padding>
-	    <expand>False</expand>
-	    <fill>False</fill>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkCheckButton</class>
-	  <name>sent_items</name>
-	  <can_focus>True</can_focus>
-	  <label>Use this mailbox as _Sent Items.</label>
-	  <active>False</active>
-	  <draw_indicator>True</draw_indicator>
-	  <child>
-	    <padding>0</padding>
-	    <expand>False</expand>
-	    <fill>False</fill>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkCheckButton</class>
-	  <name>trash</name>
-	  <can_focus>True</can_focus>
-	  <label>Use this mailbox as Trash.</label>
-	  <active>False</active>
-	  <draw_indicator>True</draw_indicator>
-	  <child>
-	    <padding>0</padding>
-	    <expand>False</expand>
-	    <fill>False</fill>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkCheckButton</class>
-	  <name>drafts</name>
-	  <can_focus>True</can_focus>
-	  <label>Use this mailbox as Drafts.</label>
-	  <active>False</active>
-	  <draw_indicator>True</draw_indicator>
-	  <child>
-	    <padding>0</padding>
-	    <expand>False</expand>
-	    <fill>False</fill>
-	  </child>
 	</widget>
       </widget>
     </widget>
@@ -2688,7 +2439,7 @@ result in the lost of all mails in it.</label>
 
 <widget>
   <class>GtkMenu</class>
-  <name>mnu_ctree</name>
+  <name>mnu_mlist</name>
 
   <widget>
     <class>GtkPixmapMenuItem</class>
@@ -2710,7 +2461,7 @@ result in the lost of all mails in it.</label>
 
   <widget>
     <class>GtkMenuItem</class>
-    <name>separator</name>
+    <name>sep01</name>
     <right_justify>False</right_justify>
   </widget>
 
@@ -2718,6 +2469,82 @@ result in the lost of all mails in it.</label>
     <class>GtkPixmapMenuItem</class>
     <name>properties</name>
     <stock_item>GNOMEUIINFO_MENU_PROPERTIES_ITEM</stock_item>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>sep02</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkCheckMenuItem</class>
+    <name>use_as_inbox</name>
+    <tooltip>Download new mails to this mailbox</tooltip>
+    <signal>
+      <name>activate</name>
+      <handler>on_use_as_inbox_activate</handler>
+      <last_modification_time>Sat, 16 Mar 2002 00:58:39 GMT</last_modification_time>
+    </signal>
+    <label>Use as _Inbox</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+  </widget>
+
+  <widget>
+    <class>GtkCheckMenuItem</class>
+    <name>use_as_outbox</name>
+    <tooltip>Store unsent outgoing mails in this mailbox</tooltip>
+    <signal>
+      <name>activate</name>
+      <handler>on_use_as_outbox_activate</handler>
+      <last_modification_time>Sat, 16 Mar 2002 00:58:39 GMT</last_modification_time>
+    </signal>
+    <label>Use as _Outbox</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+  </widget>
+
+  <widget>
+    <class>GtkCheckMenuItem</class>
+    <name>use_as_sent_items</name>
+    <tooltip>Store sent mails in this mailbox</tooltip>
+    <signal>
+      <name>activate</name>
+      <handler>on_use_as_sent_items_activate</handler>
+      <last_modification_time>Sat, 16 Mar 2002 00:58:39 GMT</last_modification_time>
+    </signal>
+    <label>Use as _Sent Items</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+  </widget>
+
+  <widget>
+    <class>GtkCheckMenuItem</class>
+    <name>use_as_trash</name>
+    <tooltip>Store deleted mails in this mailbox</tooltip>
+    <signal>
+      <name>activate</name>
+      <handler>on_use_as_trash_activate</handler>
+      <last_modification_time>Sat, 16 Mar 2002 00:58:39 GMT</last_modification_time>
+    </signal>
+    <label>Use as _Trash</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+  </widget>
+
+  <widget>
+    <class>GtkCheckMenuItem</class>
+    <name>use_as_drafts</name>
+    <tooltip>Store unfinished outgoing mails in this mailbox</tooltip>
+    <signal>
+      <name>activate</name>
+      <handler>on_use_as_drafts_activate</handler>
+      <last_modification_time>Sat, 16 Mar 2002 00:58:39 GMT</last_modification_time>
+    </signal>
+    <label>Use as _Drafts</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
   </widget>
 </widget>
 

@@ -46,6 +46,9 @@ c2_mailbox_insert							(C2Mailbox *head, C2Mailbox *mailbox);
 static void
 c2_mailbox_recreate_tree_ids				(C2Mailbox *head);
 
+static C2Mailbox *
+mailbox_get_by_usage						(C2Mailbox *head, C2MailboxUseAs use_as);
+
 #define c2_mailbox_search_by_id(x,y)		_c2_mailbox_search_by_id (x, y, 1)
 
 #define c2_mailbox_get_parent(x,y)			c2_mailbox_search_by_id (x, c2_mailbox_get_parent_id (y->id))
@@ -397,6 +400,50 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
 	}
 	gtk_signal_emit (GTK_OBJECT (head),
 						signals[CHANGED_MAILBOXES]);
+}
+
+static void
+_set_use_as (C2Mailbox *head, C2MailboxUseAs use_as)
+{
+	C2Mailbox *l;
+
+	for (l = head; l; l = l->next)
+	{
+		l->use_as = l->use_as & ~use_as;
+
+		if (l->child)
+			_set_use_as (l->child, use_as);
+	}
+}
+
+/**
+ * c2_mailbox_set_use_as
+ * @head: Head of the mailbox tree
+ * @mailbox: Mailbox where to work
+ * @use_as: New parameters to use_as.
+ *
+ * This function will set the parameters of how to
+ * use the mailbox @mailbox (Inbox, Outbox, etc.)
+ * Note that this function will SET and not APPEND
+ * the new parameters.
+ * This function will also go through the tree
+ * looking for mailboxes which repeat some of the
+ * parameters (i.e. other mailbox has the INBOX bit
+ * on and @use_as too). In that case, this function,
+ * will unset the INBOX bit in the first mailbox.
+ **/
+void
+c2_mailbox_set_use_as (C2Mailbox *head, C2Mailbox *mailbox, C2MailboxUseAs use_as)
+{
+	_set_use_as (head, use_as);
+
+	mailbox->use_as = use_as;
+}
+
+C2MailboxUseAs
+c2_mailbox_get_use_as (C2Mailbox *mailbox)
+{
+	return mailbox->use_as;
 }
 
 /**
@@ -816,6 +863,54 @@ c2_mailbox_get_by_id (C2Mailbox *head, const gchar *id)
 		return NULL;
 	
 	return c2_mailbox_search_by_id(head, id);
+}
+
+/**
+ * c2_mailbox_get_by_usage
+ * @head: First item of the tree of mailboxes.
+ * @use_as: Type of mailbox to search.
+ *
+ * This function will search for a mailbox of type @use_as.
+ * Note that this function supports both simple and complex
+ * patterns, that is, you can eiter specify just one
+ * type of mailbox (i.e. INBOX) (simple) or you can specify
+ * several type of mailbox (i.e. INBOX and OUTBOX and DRAFTS).
+ *
+ * Return Value:
+ * The mailbox that matched the pattern or %NULL in case
+ * none matched.
+ **/
+C2Mailbox *
+c2_mailbox_get_by_usage (C2Mailbox *head, C2MailboxUseAs use_as)
+{
+	c2_return_val_if_fail (C2_IS_MAILBOX (head), NULL, C2EDATA);
+	c2_return_val_if_fail ((use_as != C2_MAILBOX_USE_AS_INBOX), NULL, C2EDATA);
+
+	return mailbox_get_by_usage (head, use_as);
+}
+
+static C2Mailbox *
+mailbox_get_by_usage (C2Mailbox *head, C2MailboxUseAs use_as)
+{
+	C2Mailbox *l;
+	C2Mailbox *r;
+
+	for (l = head; l; l = l->next)
+	{
+		if (l->use_as & use_as)
+			break;
+
+		if (l->child)
+		{
+			if ((r = mailbox_get_by_usage (l->child, use_as)))
+			{
+				l = r;
+				break;
+			}
+		}
+	}
+
+	return l;
 }
 
 /**
