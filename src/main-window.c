@@ -173,8 +173,12 @@ c2_window_new (void)
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.ctree_menu, "delete_mailbox")),
 							"activate",	GTK_SIGNAL_FUNC (on_delete_mailbox_dlg), NULL);
 
+	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.xml, "file_check_mail_all_accounts")), "activate",
+							GTK_SIGNAL_FUNC (on_check_clicked), NULL);
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.xml, "toolbar_check")), "clicked",
 							GTK_SIGNAL_FUNC (on_check_clicked), NULL);
+	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.xml, "toolbar_exit")), "clicked",
+							GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
 
 	gtk_widget_show (window);
 }
@@ -321,14 +325,17 @@ on_check_clicked (GtkWidget *widget)
 		mt = c2_message_transfer_new ();
 		c2_app_register_window (GTK_WINDOW (mt));
 		gtk_widget_show (mt);
-	} else
+	} else {
+		gtk_widget_show(mt);
 		gdk_window_raise (mt->window);
-
+	}
+	
 	c2_message_transfer_freeze (C2_MESSAGE_TRANSFER (mt));
-	for (account = c2_app.account; account != NULL; account = c2_account_next (account))
+	for (account = c2_app.account; account != NULL; account = c2_account_next (account)) 
 		if (account->options.active)
 			c2_message_transfer_append (C2_MESSAGE_TRANSFER (mt), account, C2_MESSAGE_TRANSFER_MANUAL,
 										C2_MESSAGE_TRANSFER_CHECK);
+	
 	c2_message_transfer_thaw (C2_MESSAGE_TRANSFER (mt));
 }
 
