@@ -67,6 +67,18 @@ c2_editor_get_type							(void);
 GtkWidget *
 c2_editor_new								(void);
 
+void
+c2_editor_freeze							(C2Editor *editor);
+
+void
+c2_editor_thaw								(C2Editor *editor);
+
+void
+c2_editor_clear								(C2Editor *editor);
+
+void
+c2_editor_append							(C2Editor *editor, const gchar *string);
+
 gchar *
 c2_editor_get_text							(C2Editor *editor);
 

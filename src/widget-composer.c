@@ -21,6 +21,7 @@
 
 #include <libcronosII/account.h>
 #include <libcronosII/error.h>
+#include <libcronosII/message.h>
 #include <libcronosII/smtp.h>
 
 #include "widget-application.h"
@@ -192,6 +193,7 @@ init (C2Composer *composer)
 {
 	composer->type = 0;
 	composer->cmnd = NULL;
+	composer->action = 0;
 	composer->file = NULL;
 	composer->draft_id = -1;
 	composer->eheaders = NULL;
@@ -402,7 +404,6 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	gtk_signal_connect (GTK_OBJECT (widget), "changed",
 						GTK_SIGNAL_FUNC (on_subject_changed), composer);
 	
-
 	gtk_signal_connect (GTK_OBJECT (composer), "size_allocate",
 							GTK_SIGNAL_FUNC (on_composer_size_allocate), NULL);
 	gtk_signal_connect_object (GTK_OBJECT (composer), "destroy",
@@ -803,12 +804,111 @@ on_mnu_attachments_edit_activate (GtkWidget *widget, C2Composer *composer)
 }
 
 void
+c2_composer_set_action (C2Composer *composer, C2ComposerAction action)
+{
+	composer->action = action;
+}
+
+void
 c2_composer_set_message_as_quote (C2Composer *composer, C2Message *message)
 {
+	GtkWidget *widget;
+	gchar *buf, *buf2, *body;
+	C2Account *account;
+	C2Mime *mime;
+	FILE *fd;
+	
 	c2_return_if_fail_obj (message, C2EDATA, GTK_OBJECT (composer));
 	
+	/* Account */
+	buf = c2_message_get_header_field (message, "\nX-CronosII-Account:");
+	account = c2_account_get_by_name (C2_WINDOW (composer)->application->account, buf);
+	if (!account)
+		c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING,
+							_("The account specified does not exist: %s"), buf);
+	else
+	{
+		ACCOUNT_ENTRY (account, buf2);
+		widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "account");
+		gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (widget)->entry), buf2);
+	}
+	g_free (buf);
+	g_free (buf2);
+	
+	/* To */
+	switch (composer->action)
+	{
+		case C2_COMPOSER_ACTION_REPLY:
+		case C2_COMPOSER_ACTION_REPLY_ALL:
+			buf = c2_message_get_header_field (message, "\nFrom:");
+			widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "to");
+			gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (widget)->entry), buf);
+			g_free (buf);
+			break;
+		case C2_COMPOSER_ACTION_DRAFT:
+			buf = c2_message_get_header_field (message, "\nTo:");
+			widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "to");
+			gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (widget)->entry), buf);
+			g_free (buf);
+			break;
+	}
+	
+	/* CC */
+	switch (composer->action)
+	{
+		case C2_COMPOSER_ACTION_REPLY_ALL:
+		case C2_COMPOSER_ACTION_DRAFT:
+			buf = c2_message_get_header_field (message, "\nCC:");
+			widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "cc");
+			gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (widget)->entry), buf);
+			g_free (buf);
+			break;
+	}
+	
+	/* BCC */
+	switch (composer->action)
+	{
+		case C2_COMPOSER_ACTION_DRAFT:
+			buf = c2_message_get_header_field (message, "\nBCC:");
+			widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "bcc");
+			gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (widget)->entry), buf);
+			g_free (buf);
+			break;
+	}
+	
+	/* Attachments */
+	switch (composer->action)
+	{
+		case C2_COMPOSER_ACTION_REPLY:
+		case C2_COMPOSER_ACTION_REPLY_ALL:
+		case C2_COMPOSER_ACTION_FORWARD:
+		case C2_COMPOSER_ACTION_DRAFT:
+				
+			/* Go throught the different MIME parts */
+			for (mime = message->mime; mime; mime = mime->next)
+			{
+				/* Save the part to a file */
+				
+				/* Attach the file */
+			}
+			break;
+	}
+	
+	/* Body */
+	switch (composer->action)
+	{
+		case C2_COMPOSER_ACTION_REPLY:
+		case C2_COMPOSER_ACTION_REPLY_ALL:
+		case C2_COMPOSER_ACTION_FORWARD:
+			
+		case C2_COMPOSER_ACTION_DRAFT:
+	}
+//			body = g_strdup (
 	if (composer->type == C2_COMPOSER_TYPE_INTERNAL)
 	{
+		c2_editor_freeze (C2_EDITOR (composer->editor));
+		c2_editor_append (C2_EDITOR (composer->editor), message->body);
+		c2_editor_thaw (C2_EDITOR (composer->editor));
 	} else
 	{
 		FILE *fd;

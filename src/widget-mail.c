@@ -110,8 +110,12 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 			break;
 	}
 
-	if (text_plain)
+	if (text_plain && mime)
 		string = interpret_text_plain_symbols (mime->part);
+	else if (text_plain && !mime)
+		string = interpret_text_plain_symbols (message->mime ?
+											c2_mime_get_part (message->mime) :
+											message->body);
 
 	gtk_object_set_data (GTK_OBJECT (mail->body), "message", message);
 	

@@ -157,6 +157,57 @@ c2_editor_new (void)
 	return GTK_WIDGET (editor);
 }
 
+void
+c2_editor_freeze (C2Editor *editor)
+{
+#ifdef USE_ADVANCED_EDITOR
+#else
+	gtk_text_freeze (GTK_TEXT (editor->text));
+#endif
+}
+
+void
+c2_editor_thaw (C2Editor *editor)
+{
+#ifdef USE_ADVANCED_EDITOR
+#else
+	gtk_text_thaw (GTK_TEXT (editor->text));
+#endif
+}
+
+void
+c2_editor_clear (C2Editor *editor)
+{
+#ifdef USE_ADVANCED_EDITOR
+#else
+	guint length;
+#endif
+	
+#ifdef USE_ADVANCED_EDITOR
+	gtk_html_load_empty (GTK_HTML (editor->text));
+#else
+	length = gtk_text_get_length (GTK_TEXT (editor->text));
+	gtk_text_set_point (GTK_TEXT (editor->text), 0); 
+	gtk_text_forward_delete (GTK_TEXT (editor->text), length);
+#endif
+}
+
+void
+c2_editor_append (C2Editor *editor, const gchar *string)
+{
+#ifdef USE_ADVANCED_EDITOR
+#else
+	guint length;
+#endif
+
+#ifdef USE_ADVANCED_EDITOR
+#else
+	length = strlen (string);
+
+	gtk_text_insert (GTK_TEXT (editor->text), NULL, NULL, NULL, string, length);
+#endif
+}
+
 gchar *
 c2_editor_get_text (C2Editor *editor)
 {

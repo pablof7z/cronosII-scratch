@@ -49,6 +49,7 @@ extern "C" {
 typedef struct _C2Composer C2Composer;
 typedef struct _C2ComposerClass C2ComposerClass;
 typedef struct _C2ComposerAttachment C2ComposerAttachment;
+typedef enum _C2ComposerAction C2ComposerAction;
 typedef enum _C2ComposerSendType C2ComposerSendType;
 typedef enum _C2ComposerType C2ComposerType;
 
@@ -62,6 +63,15 @@ enum _C2ComposerSendType
 {
 	C2_COMPOSER_SEND_NOW,
 	C2_COMPOSER_SEND_LATER
+};
+
+enum _C2ComposerAction
+{
+	C2_COMPOSER_ACTION_NORMAL,
+	C2_COMPOSER_ACTION_REPLY,
+	C2_COMPOSER_ACTION_REPLY_ALL,
+	C2_COMPOSER_ACTION_FORWARD,
+	C2_COMPOSER_ACTION_DRAFT
 };
 
 struct _C2ComposerAttachment
@@ -81,6 +91,9 @@ struct _C2Composer
 	/* Type */
 	C2ComposerType type;
 	gchar *cmnd;
+
+	/* Action */
+	C2ComposerAction action;
 
 	/* Save */
 	gchar *file;
@@ -115,6 +128,9 @@ c2_composer_new								(C2Application *application);
 
 void
 c2_composer_construct						(C2Composer *composer, C2Application *application);
+
+void
+c2_composer_set_action						(C2Composer *composer, C2ComposerAction action);
 
 /* Message handling */
 C2Message *
