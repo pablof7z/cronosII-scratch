@@ -58,6 +58,7 @@ struct _C2IMAP
 	/* [TODO] */
 	C2IMAPAuthenticationType auth;
 
+	gchar *host;
 	gchar *user;
 	gchar *pass;
 
@@ -65,6 +66,9 @@ struct _C2IMAP
 
 	gint auth_remember :1;		/* %TRUE = Store password */
 
+	GHashTable *hash; /* TEMP hash to store server replies...*/
+	                  /* will be replaced with our own native C2Hash */
+	
 	pthread_mutex_t lock;
 	
 	C2Mailbox *mailboxes;
@@ -81,6 +85,7 @@ struct _C2IMAPClass
 	void (*mailbox_list) (C2IMAP *imap, C2Mailbox *head);
 	void (*incoming_mail) (C2IMAP *imap);
 	void (*logout) (C2IMAP *imap);
+	void (*net_error)  (C2IMAP *imap);
 };
 
 GtkType

@@ -15,13 +15,18 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+#include <stdio.h>
 #include <glib.h>
 #include "utils.h"
 #include "imap.h"
+#include "i18n.h"
+
+#define NET_READ_FAILED  _("Internal socket read operation failed, connection is most likely broken")
+#define NET_WRITE_FAILED _("Internal socket write operation failed, connection is most likely broken")
 
 /* C2 IMAP Module in the process of being engineered by Pablo and Bosko =) */
 /* TODO: Implement a hash table in IMAP object for handing server replies */
-/* TODO: Function for reading server replies and placing it in hash */
+/* (in progress) TODO: Function for reading server replies */
 /* TODO: Login (at least plain-text for now) */
 /* TODO: Get list of folders */
 /* TODO: Get list of messages */
@@ -29,6 +34,7 @@
 /* TODO: Create, rename, and remove folders */
 /* TODO: Create a test module */
 
+/* Private GtkObject functions */
 static void
 class_init									(C2IMAPClass *klass);
 
@@ -38,8 +44,13 @@ init										(C2IMAP *imap);
 static void
 destroy										(GtkObject *object);
 
+
+/* Misc. functions */
 static void
 c2_imap_tag(C2IMAP *imap);
+
+static void
+c2_imap_set_error(C2IMAP *imap, gchar *error);
 
 enum
 {
@@ -48,6 +59,7 @@ enum
 	MAILBOX_LIST,
 	INCOMING_MAIL,
 	LOGOUT,
+	NET_ERROR,
 	LAST_SIGNAL
 };
 
@@ -109,6 +121,13 @@ class_init (C2IMAPClass *klass)
 						object_class->type,
 						GTK_SIGNAL_OFFSET (C2IMAPClass, logout),
 						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
+	signals[NET_ERROR] =
+		gtk_signal_new("net_error",
+						GTK_RUN_FIRST,
+						object_class->type,
+						GTK_SIGNAL_OFFSET (C2IMAPClass, net_error),
+						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
+	
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 
 	klass->login = NULL;
@@ -168,13 +187,41 @@ static void
 c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition)
 {
 	C2IMAP *imap = C2_IMAP(data);
-
+	gchar *buf, *buf2, *ptr = NULL;
+	gchar *final = NULL;
+	
 	pthread_mutex_lock(&imap->lock);
 	
 	/* TODO */
 	/* Suggestion: keep reading and do not put the info in the hash until we hit
 	 * the last 'tagged' response. This might mean the necessity for a global
 	 * buffer to be used in the object, or a static variable. Ideas? */
+	
+	for(;;)
+	{
+		if(c2_net_object_read(C2_NET_OBJECT(imap), &buf) < 0)
+		{
+			printf(_("Error reading from socket on IMAP host %s! Reader thread aborting!\n"),
+						imap->host);
+			c2_imap_set_error(imap, NET_READ_FAILED);
+			c2_net_object_disconnect(C2_NET_OBJECT(imap));
+			gtk_signal_emit(GTK_OBJECT(imap), NET_ERROR);
+			return; 
+		}
+		if(!final) final = g_strdup(buf);
+		else 
+		{
+			buf2 = final;
+			final = g_strconcat(final, buf, NULL);
+			g_free(buf2);
+		}
+		
+		/* The IMAP server returned our tag, end of response */
+		if(strneq(buf, "CronosII-", 9)) 
+			break;
+	}
+	
+	/* now insert final into the hash...*/
 	
 	pthread_mutex_unlock(&imap->lock);
 }
@@ -186,6 +233,19 @@ c2_imap_tag(C2IMAP *imap)
 		imap->cmnd = 0;
 	else
 		imap->cmnd++;
+}
+
+static void
+c2_imap_set_error(C2IMAP *imap, gchar *error)
+{
+	GtkObject *object = GTK_OBJECT(imap);
+	gchar *buf;
+	
+	if((buf = gtk_object_get_data(object, "error")))
+		g_free(buf);
+
+	buf = g_strdup(error);
+	gtk_object_set_data(object, "error", buf);
 }
 
 gint
