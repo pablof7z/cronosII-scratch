@@ -796,7 +796,8 @@ _check_real (C2Application *application)
 	{
 		if (c2_preferences_get_general_options_timeout_check ())
 		{
-			gtk_timeout_remove (application->check_timeout);
+			if(application->check_timeout) 
+				gtk_timeout_remove (application->check_timeout);
 			gtk_signal_connect (GTK_OBJECT (wtl), "finish",
 								GTK_SIGNAL_FUNC (on_transfer_list_finish), application);
 		}

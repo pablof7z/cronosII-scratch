@@ -122,7 +122,8 @@ destroy (GtkObject *obj)
 	C2NetworkTraffic *nt;
 
 	nt = C2_NETWORK_TRAFFIC (obj);
-	gtk_timeout_remove (nt->timeout_id);
+	if(nt->timeout_id)
+		gtk_timeout_remove (nt->timeout_id);
 }
 
 GtkWidget *

@@ -959,7 +959,8 @@ on_clist_select_row (C2Index *index, gint row, gint column, GdkEvent *event)
 	 */
 	if (index->signal_id_for_marking_unread >= 0)
 	{
-		gtk_timeout_remove (index->signal_id_for_marking_unread);
+		if(index->signal_id_for_marking_unread)
+			gtk_timeout_remove (index->signal_id_for_marking_unread);
 		index->signal_id_for_marking_unread = -1;
 	}
 	
