@@ -1,10 +1,82 @@
+2001-07 4 Peter Gossner <gossner@arcom.com.au>
 
-CVS: ----------------------------------------------------------------------
-CVS: Enter Log.  Lines beginning with `CVS:' are removed automatically
-CVS: 
-CVS: Committing in .
-CVS: 
-CVS: Modified Files:
-CVS: 	ChangeLog 
-CVS: ----------------------------------------------------------------------
-Update to tool tips. error messages some user help.
+	* updated user interface messages througout the UI. This was done with Glade.
+	* added the C2 icon to the xml directory (well glade did) and the /images directory. (cronosii.png)
+	* wrote over this log but have now restored it. 
+
+2001-06 30 Yves Mettier <ymettier@libertysurf.fr>
+
+	* updated doc/C/Makefile.am to keep the right files and remove the temporary ones.
+	* updated cronosii.spec
+
+2001-06-24 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Spool Db: First draw. Theory stablished. First codes.
+
+2001-06-21 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Preferences: Included support for the "Wrap outgoing text" thing.
+
+2001-06-21 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* POP3 module: Initial retrieve.
+			New theory: while messages are being downloaded they
+			will be stored in a file in the Hard Drive, not in the RAM.
+	* Message Transfer Widget: Auto close btn does it job.
+			
+2001-06-20 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Message Transfer Widget: Created the arrows (RGB and yellow).
+			We are now ready to code the c2_pop3_fetchmail
+			and this widget should already be prepared to
+			show what's going on (through signals).
+	* POP3 module: Welcome function, log-in, status request.
+	* Preferences: Fixed the problem that made that when you edit an
+			account the username appear empty and the password with the
+			username on it (actually, the fix was in the Account module,
+			but the preferences module was where you could see it).
+
+2001-06-19 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Message Transfer Widget: And even more work. We are ready to
+			start coding the fetching of mails, probably tomorrow.
+	* Account module: Changes in order to define the path to develop
+			the first protocol in Cronos II Scratch: POP3.
+	* POP3 module: Changes in order to use the useful Net-Object
+			(thanks me! it's great! :) ), everything is set to start
+			developing c2_pop3_fetchmail function, but I leave it for
+			tomorrow, is 2 AM and I have school tomorrow morning. :(
+
+2001-06-18 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Message Transfer Widget: More work.
+
+2001-06-17 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Message Transfer Widget: Init.
+
+2001-06-16 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Cronos II Db: The path has changed from ~/.Cronos II to ~/.c2 since
+			the new version has differences in the format of the index file.
+	* Mailbox management: Improves and added UI support for the Spool mailbox.
+	  
+
+2001-06-14 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Request module: Using gnome-download due to problems with HTTP images downloading
+			that took me off!
+
+2001-06-13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Net-Object.
+	* Request module: New coding to use the Net-Object.
+
+2001-06-11 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Preferences: Work around everything.
+	* Getting in Touch: Everything.
+
+2001-06-10 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Preferences: Account's work around.
