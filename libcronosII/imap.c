@@ -31,11 +31,11 @@
 /* TODO: Get list of messages */
 /* TODO: Get messages */
 /* TODO: Move + Delete messages */
-/* TODO: Function that handles untagged messages that comes unwarranted */
+/* TODO: Function that handles untagged messages that come unwarranted */
 /* (in progress) TODO: Load a mailbox */
 /* (done!) TODO: Login (at least plain-text for now) */
 /* (done!) TODO: Create a test module */
-/* (done!)TODO: Internal folder managment + syncronization */
+/* (done!) TODO: Internal folder managment + syncronization */
 /* (done!) TODO: Create Folders */
 /* (done!) TODO: Delete Folders */
 /* (done!) TODO: Rename Folders */
@@ -91,7 +91,7 @@ static guint
 c2_imap_get_mailbox_level (gchar *name);
 
 static gchar *
-c2_imap_get_mailbox_heirarchy (gchar *name, guint level);
+c2_imap_get_mailbox_hierarchy (gchar *name, guint level);
 
 static gchar *
 c2_imap_get_full_mailbox_name (C2IMAP *imap, C2Mailbox *mailbox);
@@ -439,7 +439,7 @@ c2_imap_new_pending (C2IMAP *imap, tag_t tag)
  * @tag: tag we are looking for
  *
  * This function will block and return the server
- * reply that is tagged with 'tag'.
+ * reply that is tagged with @tag.
  * 
  * Return Value:
  * A freeable string containing the server reply.
@@ -456,9 +456,9 @@ c2_imap_get_server_reply (C2IMAP *imap, tag_t tag)
 	/* just in case we got more server data */
 	c2_imap_unlock_pending(imap);
 	
-	/* be careful to unlock the mutex before waiting on replies */	
+	/* be careful to unlock the IMAP object before waiting on replies */	
 	c2_mutex_unlock(&imap->lock);
-	c2_mutex_lock(&pending->lock); /* wait for reply... */
+	c2_mutex_lock(&pending->lock); /* wait for server reply... */
 	c2_mutex_lock(&imap->lock);
 	
 	for(tmp = imap->hash; tmp; tmp = tmp->next)
@@ -490,7 +490,7 @@ c2_imap_check_server_reply(gchar *reply, tag_t tag)
 	{
 		ptr = reply;
 		ptr += C2TagLen;
-		goto check;
+		goto CHECK;
 	}
 	
 	for(ptr = reply; *ptr; ptr++)
@@ -500,7 +500,7 @@ c2_imap_check_server_reply(gchar *reply, tag_t tag)
 		else if(c2_strneq(ptr+1, "CronosII-", 9))
 		{
 			ptr += C2TagLen + 1; /* skip '\nCronosII-XXXX ' */
-check:			
+CHECK:
 			if(c2_strneq(ptr, "OK ", 3))
 				return TRUE;
 			else if(c2_strneq(ptr, "NO ", 3))
@@ -551,7 +551,7 @@ c2_imap_populate_folders (C2IMAP *imap)
  * @imap: a locked C2IMAP Object
  * @parent: C2Mailbox for which to scan under for children,
  *          can be NULL, if scanning from top level of 
- *          folder heirarchy.
+ *          folder hierarchy.
  * 
  * This is a recursive function which builds the 
  * imap->mailboxes folder tree.
@@ -641,7 +641,7 @@ c2_imap_mailbox_loop(C2IMAP *imap, C2Mailbox *parent)
 					else
 						name = g_strndup(ptr2, strlen(ptr2) - 1);
 					folder = c2_mailbox_new_with_parent(&imap->mailboxes,
-							c2_imap_get_mailbox_heirarchy (name, c2_imap_get_mailbox_level(name)), 
+							c2_imap_get_mailbox_hierarchy (name, c2_imap_get_mailbox_level(name)), 
 							id, C2_MAILBOX_IMAP, C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap, FALSE);
 					g_free(name);
 					folder->protocol.IMAP.noinferiors = noinferiors;
@@ -675,7 +675,7 @@ c2_imap_get_mailbox_level (gchar *name)
 }
 
 static gchar *
-c2_imap_get_mailbox_heirarchy (gchar *name, guint level)
+c2_imap_get_mailbox_hierarchy (gchar *name, guint level)
 {
 	gchar *buf = NULL, *start, *end;
 	
@@ -759,7 +759,7 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 	 **/
 	tag_t tag;
 	gint messages;
-	gchar *reply;
+	gchar *reply, *ptr;
 	
 	if((messages = c2_imap_select_mailbox(imap, mailbox)) < 0)
 		return -1;
@@ -773,6 +773,7 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 			"(FLAGS BODY[HEADER.FIELDS (SUBJECT FROM DATE)])\r\n", tag) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
 	
@@ -780,7 +781,6 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 		return -1;
 	
 	printf("received %s\n", reply);
-	/* TODO */
 	
 	g_free(reply);
 	
@@ -827,6 +827,7 @@ c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 	{
 		g_free(name);
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
 	g_free(name);
@@ -889,6 +890,7 @@ c2_imap_close_mailbox (C2IMAP *imap)
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d CLOSE\r\n", tag) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
 	
@@ -920,6 +922,7 @@ c2_imap_plaintext_login (C2IMAP *imap)
 												tag, imap->user, imap->pass) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
 	
@@ -959,8 +962,8 @@ c2_imap_get_mailbox_list(C2IMAP *imap, const gchar *reference, const gchar *name
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d LIST \"%s\""
 				" \"%s\"\r\n", tag, (reference) ? reference : "" , (name) ? name : "") < 0)
   {
-		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return NULL;
 	}
 	
