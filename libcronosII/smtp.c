@@ -29,8 +29,8 @@
 /* feel free to mess around -- help me get this module up to spec faster! */
 /* TODO: implement authentication (posted by pablo) */
 /* TODO: implement a better error handling according to RFC821 4.2.1 (posted by pablo) */
-/* (in progress) TODO: implement multiple connections via Net-Object */
 /* (in progress) TODO: create a test-module */
+/* (done!) TODO: implement multiple connections via Net-Object */
 /* (done!) TODO: update C2 SMTP to be a real GtkObject w/ signals etc */
 /* (done!) TODO: implement sending of MIME attachments */
 /* (done!) TODO: implement BCC */
@@ -168,7 +168,7 @@ init (C2SMTP *smtp)
 	smtp->smtp_local_cmd = NULL;
 	smtp->flags = DEFAULT_FLAGS;
 
-	pthread_mutex_init (&smtp->lock, NULL);
+	c2_mutex_init (&smtp->lock);
 }
 
 static void
@@ -176,7 +176,7 @@ destroy (GtkObject *object)
 {
 	C2SMTP *smtp = C2_SMTP(object);
 
-	pthread_mutex_lock(&smtp->lock);
+	c2_mutex_lock(&smtp->lock);
 	
 	/* [TODO] (Note by Pablo)
 	 * Hey, Bosko, this will give you troubles
@@ -214,8 +214,8 @@ destroy (GtkObject *object)
 	if(smtp->smtp_local_cmd)
 		g_free(smtp->smtp_local_cmd);
 	
-	pthread_mutex_unlock(&smtp->lock);
-	pthread_mutex_destroy(&smtp->lock);
+	c2_mutex_unlock(&smtp->lock);
+	c2_mutex_destroy(&smtp->lock);
 }
 
 C2SMTP *
@@ -278,17 +278,20 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 		byte = smtp->persistent;
 	
 	/* Lock the mutex */
-	/* pthread_mutex_lock (&smtp->lock); */
+  c2_mutex_lock (&smtp->lock);
 	
 	if(smtp->type == C2_SMTP_REMOTE) 
 	{
 		if(!byte)
 			if(c2_smtp_connect(smtp, &byte) < 0)
+		  {
 				return -1;
+			}
 		if(smtp->flags == C2_SMTP_DO_PERSIST)
 			smtp->persistent = byte;
 		else
 			smtp->persistent = NULL;
+		c2_mutex_unlock(&smtp->lock);
 		if(c2_smtp_send_headers(smtp, byte, message) < 0)
 			return -1;
 		if(c2_smtp_send_message_contents(smtp, byte, message) < 0)
@@ -297,14 +300,12 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp, byte);
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 		if(c2_net_object_read(C2_NET_OBJECT(smtp), &buffer, byte) < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_READ_FAILED);
 			smtp_disconnect(smtp, byte);
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 		if(!c2_strneq(buffer, "250", 3))
@@ -312,7 +313,6 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 			c2_smtp_set_error(smtp, _("SMTP server did not respond to our sent messaage in a friendly way"));
 			g_free(buffer);
 			smtp_disconnect(smtp, byte);
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 		if(smtp->flags == C2_SMTP_DO_NOT_PERSIST)
@@ -328,7 +328,6 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 		{
 			g_free(file_name);
 			c2_smtp_set_error(smtp, _("System Error: Unable to write message to disk for local SMTP command"));
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 		
@@ -340,7 +339,6 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 			unlink(file_name);
 			if(from) g_free(from);
 			g_free(file_name);
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 				
@@ -364,7 +362,6 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 			unlink(file_name);
 			g_free(file_name);
 			g_free(cmd);
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 		gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], message, 1, 1);
@@ -372,7 +369,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 		g_free(cmd);
 		unlink(file_name);
 	}
-	//pthread_mutex_unlock(&smtp->lock);
+	
 	return 0;
 }
 
@@ -383,15 +380,12 @@ c2_smtp_connect (C2SMTP *smtp, C2NetObjectByte **byte)
 	gchar *hostname = NULL;
 	gchar *buffer = NULL;
 	
-	//printf("WE ARE HERE!!\n");
-	
 	if(!c2_net_object_is_offline(C2_NET_OBJECT(smtp), *byte) && smtp->flags==C2_SMTP_DO_PERSIST)
 		return 0;
 	
 	if(!(*byte = c2_net_object_run(C2_NET_OBJECT(smtp))))
 	{
 		c2_smtp_set_error(smtp, _("Unable to connect to SMTP server"));
-		//pthread_mutex_unlock(&smtp->lock);
 		g_free(ip);
 		return -1;
 	}
@@ -399,7 +393,6 @@ c2_smtp_connect (C2SMTP *smtp, C2NetObjectByte **byte)
 	{
 		c2_smtp_set_error(smtp, SOCK_READ_FAILED);
 		smtp_disconnect(smtp, *byte);
-		//pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
 	if(!c2_strneq(buffer, "220", 3))
@@ -407,7 +400,6 @@ c2_smtp_connect (C2SMTP *smtp, C2NetObjectByte **byte)
 		c2_smtp_set_error(smtp, _("SMTP server was not friendly on our connect! May not be RFC compliant"));
 		g_free(buffer);
 		smtp_disconnect(smtp, *byte);
-		//pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
 	
@@ -444,7 +436,6 @@ c2_smtp_send_helo (C2SMTP *smtp, C2NetObjectByte *byte, gboolean esmtp)
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			g_free(hostname);
 			smtp_disconnect(smtp, byte);
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 		g_free(hostname);
@@ -458,7 +449,6 @@ c2_smtp_send_helo (C2SMTP *smtp, C2NetObjectByte *byte, gboolean esmtp)
 			{
 				c2_smtp_set_error(smtp, SOCK_READ_FAILED);
 				smtp_disconnect(smtp, byte);
-				//pthread_mutex_unlock(&smtp->lock);
 				return -1;
 			}
 		}
@@ -469,7 +459,6 @@ c2_smtp_send_helo (C2SMTP *smtp, C2NetObjectByte *byte, gboolean esmtp)
 												_("SMTP server did not respond to 'EHLO in a friendly way"));
 			g_free(buffer);
 			smtp_disconnect(smtp, byte);
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 		g_free(buffer);
@@ -481,7 +470,6 @@ c2_smtp_send_helo (C2SMTP *smtp, C2NetObjectByte *byte, gboolean esmtp)
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			g_free(hostname);
 			smtp_disconnect(smtp, byte);
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 		g_free(hostname);
@@ -489,7 +477,6 @@ c2_smtp_send_helo (C2SMTP *smtp, C2NetObjectByte *byte, gboolean esmtp)
 		{
 			c2_smtp_set_error(smtp, SOCK_READ_FAILED);
 			smtp_disconnect(smtp, byte);
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 		if(!c2_strneq(buffer, "250", 3))
@@ -498,7 +485,6 @@ c2_smtp_send_helo (C2SMTP *smtp, C2NetObjectByte *byte, gboolean esmtp)
 												_("SMTP server did not respond to HELO in a friendly way"));
 			g_free(buffer);
 			smtp_disconnect(smtp, byte);
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 		g_free(buffer);
@@ -520,14 +506,12 @@ c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 	{
 		c2_smtp_set_error(smtp, _("Internal C2 Error: Unable to fetch \"From:\" header in email message"));
 		smtp_disconnect(smtp, byte);
-		//pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
 	if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "MAIL FROM: %s\r\n", temp) < 0)
 	{
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 		smtp_disconnect(smtp, byte);
-		//pthread_mutex_unlock(&smtp->lock);
 		g_free(temp);
 		return -1;
 	}
@@ -535,14 +519,12 @@ c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 	if(!(temp = c2_message_get_header_field(message, "To:")))
 	{
 		c2_smtp_set_error(smtp, _("Internal C2 Error: Unable to fetch \"To:\" header in email message"));
-		//pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
 	if(c2_net_object_read(C2_NET_OBJECT(smtp), &buffer, byte) < 0)
 	{
 		c2_smtp_set_error(smtp, SOCK_READ_FAILED);
 		smtp_disconnect(smtp, byte);
-		//pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
 	if(!c2_strneq(buffer, "250", 3))
@@ -550,7 +532,6 @@ c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 		c2_smtp_set_error(smtp, _("SMTP server did not reply to 'MAIL FROM:' in a friendly way"));
 		g_free(buffer);
 		smtp_disconnect(smtp, byte);
-		//pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
 	g_free(buffer);
@@ -570,21 +551,19 @@ c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 	if(c2_smtp_send_rcpt(smtp, byte, buffer) < 0)
 	{
 		smtp_disconnect(smtp, byte);
-		//pthread_mutex_unlock(&smtp->lock);
+		return -1;
 	}
 	g_free(buffer);
 	if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "DATA\r\n") < 0) 
 	{
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 		smtp_disconnect(smtp, byte);
-		//pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
 	if(c2_net_object_read(C2_NET_OBJECT(smtp), &buffer, byte) < 0)
 	{
 		c2_smtp_set_error(smtp, SOCK_READ_FAILED);
 		smtp_disconnect(smtp, byte);
-		//pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
 	if(!c2_strneq(buffer, "354", 3))
@@ -592,7 +571,6 @@ c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 		c2_smtp_set_error(smtp, _("SMTP server did not reply to 'DATA' in a friendly way"));
 		g_free(buffer);
 		smtp_disconnect(smtp, byte);
-		//pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
 	g_free(buffer);
@@ -639,7 +617,6 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *me
 					g_free(buf);
 					if(mimeboundary) g_free(mimeboundary);
 					smtp_disconnect(smtp, byte);
-					//pthread_mutex_unlock(&smtp->lock);
 					return -1;
 				}
 				sent += strlen(buf) + 1;
@@ -670,7 +647,6 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *me
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp, byte);
 			if(mimeboundary) g_free(mimeboundary);
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 	}
@@ -725,7 +701,6 @@ c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2NetObjectByte *byte,
 		g_free(errmsg);
 		g_free(msgheader);
 		smtp_disconnect(smtp, byte);
-		//pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
 	
@@ -778,7 +753,6 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2NetObjectByte *byte,
 	{
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 		smtp_disconnect(smtp, byte);
-		//pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
 
@@ -790,7 +764,6 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2NetObjectByte *byte,
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp, byte);
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 		for(i = 0; i < mime->length; i += 1024)
@@ -812,7 +785,6 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2NetObjectByte *byte,
 				c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 				smtp_disconnect(smtp, byte);
 				g_free(buf);
-				//pthread_mutex_unlock(&smtp->lock);
 				return -1;
 			}
 			*sent += strlen(buf);
@@ -824,7 +796,6 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2NetObjectByte *byte,
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp, byte);
-			//pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
 	}
@@ -1087,4 +1058,3 @@ c2_smtp_set_error(C2SMTP *smtp, const gchar *error)
 	buf = g_strdup(error);
 	gtk_object_set_data(object, "error", buf);
 }
-
