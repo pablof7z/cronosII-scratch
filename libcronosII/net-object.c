@@ -110,8 +110,8 @@ class_init (C2NetObjectClass *klass)
 					GTK_RUN_FIRST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2NetObjectClass, disconnect),
-					gtk_marshal_NONE__INT_POINTER, GTK_TYPE_NONE, 2,
-					GTK_TYPE_BOOL, GTK_TYPE_POINTER);
+					gtk_marshal_NONE__POINTER_INT, GTK_TYPE_NONE, 2,
+					GTK_TYPE_POINTER, GTK_TYPE_BOOL);
 	signals[CANCEL] =
 		gtk_signal_new ("cancel",
 					GTK_RUN_FIRST,
@@ -252,7 +252,7 @@ c2_net_object_run (C2NetObject *nobj)
 		g_warning ("Unable to resolve hostname: %s\n", c2_error_get ());
 #endif
 		c2_error_object_set (GTK_OBJECT (nobj), -errno);
-		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
+		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, FALSE);
 		return NULL;
 	}
 
@@ -266,7 +266,7 @@ c2_net_object_run (C2NetObject *nobj)
 		g_warning ("Unable to connect: %s\n", c2_error_get ());
 #endif
 		c2_error_object_set (GTK_OBJECT (nobj), -errno);
-		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
+		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, FALSE);
 		return NULL;
 	}
 	g_free (ip);
@@ -320,7 +320,7 @@ c2_net_object_send (C2NetObject *nobj, C2NetObjectByte *byte, const gchar *fmt, 
 		byte = (C2NetObjectByte*) l->data;
 	} else if (!byte)
 		printf ("Are u stupid!? You haven't specified the byte "
-				"and you'r max is not 1. Gz, I don't wanna work with ya "
+				"and your max is not 1. Gz, I don't wanna work with ya "
 				"if you are going to keep doing this fucking mistakes here man.\n"
 				"Start coding nicely or I'll punch you! Oh, BTW, "
 				"so you can debug me, line is %d, file is %s and function is %s.\n"
@@ -337,7 +337,7 @@ c2_net_object_send (C2NetObject *nobj, C2NetObjectByte *byte, const gchar *fmt, 
 			 * and fire the disconnect signal.
 			 */
 			byte->state |= C2_NET_OBJECT_OFF;
-			gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE, byte);
+			gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, TRUE);
 		}
 		return -1;
 	}
@@ -352,7 +352,7 @@ c2_net_object_send (C2NetObject *nobj, C2NetObjectByte *byte, const gchar *fmt, 
 		close (byte->sock);
 		c2_net_object_set_state (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR, byte);
 		c2_error_object_set (GTK_OBJECT (nobj), -errno);
-		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
+		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, FALSE);
 		g_free (string);
 		return -1;
 	}
@@ -411,7 +411,7 @@ c2_net_object_read (C2NetObject *nobj, gchar **string, ...)
 			 * and fire the disconnect signal.
 			 */
 			byte->state |= C2_NET_OBJECT_OFF;
-			gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE, byte);
+			gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, TRUE);
 		}
 		return -1;
 	}
@@ -424,7 +424,7 @@ c2_net_object_read (C2NetObject *nobj, gchar **string, ...)
 		 */
 		close (byte->sock);
 		c2_net_object_set_state (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR, byte);
-		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
+		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE);
 		c2_error_object_set (GTK_OBJECT (nobj), -errno);
 		return -1;
 	}
@@ -461,7 +461,8 @@ c2_net_object_disconnect (C2NetObject *nobj, ...)
 
 	close (byte->sock);
 	byte->state |= C2_NET_OBJECT_OFF;
-	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE, byte);
+
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, TRUE);
 }
 
 void
@@ -488,7 +489,8 @@ c2_net_object_disconnect_with_error (C2NetObject *nobj, ...)
 
 	close (byte->sock);
 	byte->state |= C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR;
-	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
+	
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, FALSE);
 }
 
 void
@@ -515,7 +517,42 @@ c2_net_object_cancel (C2NetObject *nobj, ...)
 
 	close (byte->sock);
 	byte->state |= C2_NET_OBJECT_OFF | C2_NET_OBJECT_CANCEL;
-	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE, byte);
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], byte, TRUE);
+}
+
+/**
+ * c2_net_object_destroy_byte
+ *
+ * After you are done using the byte, USE this function
+ * for removing it.
+ * NOTE that if you don't call it the byte will keep living
+ * in the net object, so you will be one step closer to
+ * the maximum buffer of bytes.
+ **/
+void
+c2_net_object_destroy_byte (C2NetObject *nobj, ...)
+{
+	C2NetObjectByte *byte;
+
+	/* Get the byte */
+	if (nobj->max == 1)
+	{
+		GList *l;
+		l = g_list_nth (nobj->bytes, 0);
+		byte = (C2NetObjectByte*) l->data;
+	} else
+	{
+		va_list args;
+		va_start (args, nobj);
+		byte = va_arg (args, C2NetObjectByte*);
+		va_end (args);
+	}
+	
+	if (!byte)
+		return;
+	
+	nobj->bytes = g_list_remove_link (nobj->bytes, (gpointer) byte);
+	g_free (byte);
 }
 
 void

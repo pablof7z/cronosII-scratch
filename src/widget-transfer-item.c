@@ -40,6 +40,12 @@ static void
 destroy										(GtkObject *object);
 
 static void
+on_enter_notify_event						(GtkWidget *table, GdkEventCrossing *e, C2TransferItem *ti);
+
+static void
+on_leave_notify_event						(GtkWidget *table, GdkEventCrossing *e, C2TransferItem *ti);
+
+static void
 on_cancel_clicked							(GtkWidget *button, C2TransferItem *ti);
 
 static void
@@ -193,7 +199,15 @@ C2TransferItemType type, va_list args)
 	} else
 		g_assert_not_reached ();
 
+	ti->event = gtk_event_box_new ();
+	gtk_widget_show (ti->event);
+	gtk_signal_connect (GTK_OBJECT (ti->event), "enter_notify_event",
+						GTK_SIGNAL_FUNC (on_enter_notify_event), ti);
+	gtk_signal_connect (GTK_OBJECT (ti->event), "leave_notify_event",
+						GTK_SIGNAL_FUNC (on_leave_notify_event), ti);
+
 	ti->table = gtk_table_new (1, 4, FALSE);
+	gtk_container_add (GTK_CONTAINER (ti->event), ti->table);
 	gtk_table_set_col_spacings (GTK_TABLE (ti->table), 4);
 	gtk_widget_show (ti->table);
 
@@ -259,6 +273,30 @@ C2TransferItemType type, va_list args)
 	gtk_table_attach (GTK_TABLE (ti->table), label, 1, 2, 0, 1, GTK_FILL, 0, 0, 0);
 	gtk_table_attach (GTK_TABLE (ti->table), box, 2, 3, 0, 1, 0, 0, 0, 0);
 	gtk_table_attach (GTK_TABLE (ti->table), button, 3, 4, 0, 1, 0, 0, 0, 0);
+}
+
+static void
+on_popup_motion_notify_event (GtkWidget *popup, GdkEventMotion *e, C2TransferItem *ti)
+{
+	printf ("%fx%f\n", e->x, e->y);
+	gtk_window_reposition (GTK_WINDOW (popup), e->x, e->y);
+}
+
+static void
+on_enter_notify_event (GtkWidget *table, GdkEventCrossing *e, C2TransferItem *ti)
+{
+	ti->popup = gtk_window_new (GTK_WINDOW_POPUP);
+	gtk_widget_set_events (ti->popup, GDK_POINTER_MOTION_MASK);
+	gtk_widget_set_extension_events (ti->popup, GDK_EXTENSION_EVENTS_CURSOR);
+	gtk_signal_connect (GTK_OBJECT (ti->popup), "motion_notify_event",
+						GTK_SIGNAL_FUNC (on_popup_motion_notify_event), ti);
+	gtk_widget_popup (ti->popup, e->x, e->y);
+}
+
+static void
+on_leave_notify_event (GtkWidget *table, GdkEventCrossing *e, C2TransferItem *ti)
+{
+	gtk_widget_destroy (ti->popup);
 }
 
 static void
@@ -405,7 +443,7 @@ c2_transfer_item_start (C2TransferItem *ti)
 			data->v1 = (gpointer) pop3;
 			data->v2 = (gpointer) ti->account;
 			data->v3 = (gpointer) inbox;
-			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_transfer_item_start_pop3_thread), data);
+L			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_transfer_item_start_pop3_thread), data);
 		} else if (ti->account->type == C2_ACCOUNT_IMAP)
 		{
 			/* Nothing to do since IMAP accounts are not

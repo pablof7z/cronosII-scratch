@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,11 +21,6 @@
 #include "mailbox.h"
 #include "utils.h"
 #include "utils-net.h"
-
-gboolean
-c2_db_imap_create_structure (C2Mailbox *mailbox)
-{
-}
 
 gboolean
 c2_db_imap_update_structure (C2Mailbox *mailbox)

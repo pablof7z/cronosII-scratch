@@ -637,7 +637,7 @@ check (C2WindowMain *wmain)
 	{
 		gpointer data = c2_account_get_extra_data (account, C2_ACCOUNT_KEY_ACTIVE, NULL);
 
-		if (!GPOINTER_TO_INT (data))
+		if (!GPOINTER_TO_INT (data) || account->type == C2_ACCOUNT_IMAP)
 			continue;
 
 		wti = c2_transfer_item_new (application, account, C2_TRANSFER_ITEM_RECEIVE);

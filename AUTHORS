@@ -3,14 +3,21 @@ Cronos II is brought to you by the Cronos II Hackers Team <cronosII-hackers@list
 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 - Main development.
 - Chief Architect.
-- GUI Designer.
-- Cronos II POP3 Object.
-- Address book core and UI.
+- UI Design.
+- POP3 module.
+- Database module.
+- Cronos II Database module.
+- Message module.
+- Mime module.
+- Mailbox module.
+- Account module.
+- Net-Object module.
+- Utils (error, string, file, date and net).
 - Spanish translation.
 	
 Bosko Blagojevic <falling@users.sourceforge.net>
-- Cronos II IMAP Object.
-- Cronos II SMTP Object.
+- IMAP module.
+- SMTP module.
 - Cronos II Mutexes implementation.
 - FreeBSD porting.
 

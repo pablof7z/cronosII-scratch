@@ -271,8 +271,9 @@ ignore:
 					} else if (account_type == C2_ACCOUNT_IMAP)
 					{
 						C2IMAP *imap;
-						imap = c2_imap_new (host, port, user, pass, C2_IMAP_AUTHENTICATION_PLAINTEXT,
-											ssl);
+						imap = c2_imap_new (host, port, user, pass, "",
+											C2_IMAP_AUTHENTICATION_PLAINTEXT, ssl);
+
 						/* [TODO] There is more of the IMAP object to load... */
 						c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, imap);
 					}

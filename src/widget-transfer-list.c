@@ -176,7 +176,7 @@ c2_transfer_list_add_item (C2TransferList *tl, C2TransferItem *ti)
 
 	tl->list = g_slist_append (tl->list, ti);
 
-	gtk_box_pack_start (GTK_BOX (tl->vbox), ti->table, FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (tl->vbox), ti->event, FALSE, TRUE, 0);
 
 	gtk_object_set_data (GTK_OBJECT (ti), "transfer list", tl);
 	gtk_signal_connect (GTK_OBJECT (ti), "finish",
@@ -184,9 +184,10 @@ c2_transfer_list_add_item (C2TransferList *tl, C2TransferItem *ti)
 }
 
 static gint
-on_finish_timeout (GtkWidget *table)
+on_finish_timeout (C2TransferItem *ti)
 {
-	gtk_widget_destroy (table);
+	gtk_widget_destroy (ti->event);
+	gtk_object_destroy (GTK_OBJECT (ti));
 
 	return FALSE;
 }
@@ -212,7 +213,7 @@ on_transfer_item_finish (C2TransferItem *ti, C2TransferList *tl)
 
 	if (GTK_TOGGLE_BUTTON (tl->close)->active)
 	{
-		gtk_timeout_add (2500, (GtkFunction) on_finish_timeout, ti->table);
+		gtk_timeout_add (2500, (GtkFunction) on_finish_timeout, ti);
 		
 		if (g_slist_length (tl->list) == 1)
 			gtk_timeout_add (2500, (GtkFunction) on_last_finish_timeout, tl);

@@ -114,23 +114,24 @@ GtkType
 c2_imap_get_type							(void);
 
 C2IMAP *
-c2_imap_new									(const gchar *host, const guint port, const gchar *user, const gchar *pass,
-														const gchar *path, const C2IMAPAuthenticationType auth, const gboolean ssl);
+c2_imap_new									(const gchar *host, guint port, const gchar *user,
+											 const gchar *pass, const gchar *path,
+											 C2IMAPAuthenticationType auth, gboolean ssl);
 
 gint
 c2_imap_init								(C2IMAP *imap);
 
 gint
-c2_imap_populate_folders (C2IMAP *imap);
+c2_imap_populate_folders					(C2IMAP *imap);
 
 gint
-c2_imap_create_folder(C2IMAP *imap, const gchar *reference, const gchar *name);
+c2_imap_create_folder						(C2IMAP *imap, const gchar *reference, const gchar *name);
 
 gint
-c2_imap_delete_folder(C2IMAP *imap, const gchar *name);
+c2_imap_delete_folder						(C2IMAP *imap, const gchar *name);
 	
 gint
-c2_imap_rename_folder(C2IMAP *imap, const gchar *name, const gchar *newname);	
+c2_imap_rename_folder						(C2IMAP *imap, const gchar *name, const gchar *newname);	
 	
 #ifdef __cplusplus
 }

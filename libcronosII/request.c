@@ -174,6 +174,7 @@ c2_request_construct_http (C2Request *request)
 
 	/* Disconnect */
 	c2_net_object_disconnect (C2_NET_OBJECT (request));
+	c2_net_object_destroy_byte (C2_NET_OBJECT (request));
 }
 
 static void

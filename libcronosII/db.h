@@ -78,9 +78,6 @@ struct _C2Db
 struct _C2DbClass
 {
 	GtkObjectClass parent_class;
-
-	void (*deleted) (C2Db *db);
-	void (*updated) (C2Db *db);
 };
 
 /*********************

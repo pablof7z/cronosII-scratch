@@ -43,8 +43,6 @@ message_destroy								(C2Message *message, C2Db *db);
 
 enum
 {
-	DELETED,
-	UPDATED,
 	LAST_SIGNAL
 };
 
@@ -83,26 +81,7 @@ class_init (C2DbClass *klass)
 
 	object_class = (GtkObjectClass *) klass;
 
-	parent_class = gtk_type_class (C2_TYPE_MESSAGE);
-
-	signals[DELETED] =
-		gtk_signal_new ("deleted",
-					GTK_RUN_FIRST,
-					object_class->type,
-					GTK_SIGNAL_OFFSET (C2DbClass, deleted),
-					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-
-	signals[UPDATED] =
-		gtk_signal_new ("updated",
-					GTK_RUN_FIRST,
-					object_class->type,
-					GTK_SIGNAL_OFFSET (C2DbClass, updated),
-					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-
-	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
-
-	klass->deleted = NULL;
-	klass->updated = NULL;
+	parent_class = gtk_type_class (gtk_object_get_type ());
 }
 
 static void
@@ -832,7 +811,6 @@ c2_db_message_set_state (C2Db *db, C2MessageState state)
 	}
 
 	func (db, state);
-	gtk_signal_emit (GTK_OBJECT (db), UPDATED);
 }
 
 /**
@@ -867,7 +845,6 @@ c2_db_message_set_mark (C2Db *db, gboolean mark)
 	}
 
 	func (db, mark);
-	gtk_signal_emit (GTK_OBJECT (db), UPDATED);
 }
 
 /**

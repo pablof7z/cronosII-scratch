@@ -1,3 +1,11 @@
+Sat Nov 17 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Fixed the bug in the main window widget that made it not
+	  to put an account for checking for second time in the same
+	  session.
+	* Fixed a bug in the net object module that made it not to
+	  remove the byte of the byte list after finish using it:
+	  "disconnect" signal changed.
+
 Thu Nov 15 Bosko Blagojevic <falling@users.sourceforge.net>
 	* A little work in IMAP...
 	* Fixed a small bug in c2_mailbox_new_with_parent()

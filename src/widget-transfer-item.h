@@ -82,6 +82,8 @@ struct _C2TransferItem
 		} send;
 	} type_info;
 
+	GtkWidget *popup;
+	GtkWidget *event;
 	GtkWidget *table;
 
 	GtkWidget *progress_mail;

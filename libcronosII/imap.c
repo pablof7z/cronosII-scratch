@@ -26,7 +26,7 @@
 #define NET_READ_FAILED  _("Internal socket read operation failed, connection is most likely broken")
 #define NET_WRITE_FAILED _("Internal socket write operation failed, connection is most likely broken")
 
-/* C2 IMAP Module in the process of being engineered by Bosko (mainly) and Pablo =) */
+/* C2 IMAP Module in the process of being engineered by Bosko */
 /* TODO: Get list of messages */
 /* TODO: Get and delete messages */
 /* TODO: (un)Subscribe to folders */
@@ -301,6 +301,7 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 						imap->host);
 			c2_imap_set_error(imap, NET_READ_FAILED);
 			c2_net_object_disconnect(C2_NET_OBJECT(imap));
+			c2_net_object_destroy_byte (C2_NET_OBJECT (imap));
 			gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 			return; 
 		}

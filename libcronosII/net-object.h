@@ -143,6 +143,9 @@ void
 c2_net_object_cancel						(C2NetObject *nobj, ...);
 
 void
+c2_net_object_destroy_byte					(C2NetObject *nobj, ...);
+
+void
 c2_net_object_set_maximum					(C2NetObject *nobj, guint max);
 
 gboolean

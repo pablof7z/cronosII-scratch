@@ -193,6 +193,7 @@ destroy (GtkObject *object)
 				 "being used (%s)!\n", pop3->user);
 #endif
 		c2_net_object_disconnect (C2_NET_OBJECT (pop3));
+		c2_net_object_destroy_byte (C2_NET_OBJECT (pop3));
 #ifdef USE_DEBUG
 	}
 #endif
@@ -294,7 +295,7 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 	gint mails;
 	gint retval = 0;
 
-	c2_return_val_if_fail (pop3, -1, C2EDATA);
+	c2_return_val_if_fail (C2_IS_POP3 (pop3), -1, C2EDATA);
 
 	/* Lock the mutex */
 	c2_mutex_lock (&pop3->run_lock);
@@ -354,6 +355,7 @@ after_quit:
 		c2_net_object_disconnect (C2_NET_OBJECT (pop3));
 	else
 		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
+	c2_net_object_destroy_byte (C2_NET_OBJECT (pop3));
 	
 	g_slist_free (download_list);
 	
@@ -377,6 +379,7 @@ welcome (C2POP3 *pop3)
 	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
 		return -1;
 
+	C2_DEBUG (string);
 	if (c2_strnne (string, "+OK", 3))
 	{
 

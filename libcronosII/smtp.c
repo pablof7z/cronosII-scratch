@@ -197,6 +197,7 @@ destroy (GtkObject *object)
 /*	if(!c2_net_object_is_offline(C2_NET_OBJECT(smtp)))
 	{
 		c2_net_object_disconnect(C2_NET_OBJECT(smtp));
+		c2_net_object_destroy_byte (C2_NET_OBJECT (smtp));
 #ifdef USE_DEBUG
 		g_warning ("Destroying a C2SMTP object which was not offline\n");
 #endif
@@ -688,6 +689,7 @@ smtp_disconnect(C2SMTP *smtp, C2NetObjectByte *byte)
 {	
 	c2_net_object_send(C2_NET_OBJECT(smtp), byte, "QUIT\r\n");
 	c2_net_object_disconnect(C2_NET_OBJECT(smtp), byte);
+	c2_net_object_destroy_byte (C2_NET_OBJECT (smtp), byte);
 	
 	if(smtp->persistent == byte)
 		smtp->persistent = NULL;
