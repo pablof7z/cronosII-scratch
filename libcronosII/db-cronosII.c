@@ -27,8 +27,6 @@
 #include "mailbox.h"
 #include "utils.h"
 
-#define PATH ".c2"
-
 gint
 c2_db_cronosII_load (C2Mailbox *mailbox)
 {
@@ -40,8 +38,7 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 	c2_return_val_if_fail (mailbox, -1, C2EDATA);
 
 	/* Calculate the path */
-	path = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S PATH G_DIR_SEPARATOR_S,
-						mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
+	path = g_strconcat (g_get_home_dir (), C2_HOME,	mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
 	
 	/* Open the file */
 	if (!(fd = fopen (path, "rt")))
@@ -123,7 +120,7 @@ c2_db_cronosII_message_get (C2Db *db, gint mid)
 	if (!home)
 		home = g_get_home_dir ();
 
-	path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S PATH G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "%d",
+	path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S C2_HOME G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "%d",
 							home, db->mailbox->name, mid);
 	
 	if (stat (path, &stat_buf) < 0)
@@ -159,7 +156,7 @@ c2_db_cronosII_message_get (C2Db *db, gint mid)
 gint
 c2_db_cronosII_create_structure (C2Mailbox *mailbox)
 {
-	gchar *path = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S PATH G_DIR_SEPARATOR_S, mailbox->name,
+	gchar *path = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S  G_DIR_SEPARATOR_S, mailbox->name,
 								".mbx" G_DIR_SEPARATOR_S, NULL);
 	FILE *fd;
 
@@ -179,10 +176,15 @@ c2_db_cronosII_create_structure (C2Mailbox *mailbox)
 	return 0;
 }
 
-void
+gint
+c2_db_cronosII_update_structure (C2Mailbox *mailbox)
+{
+}
+
+gint
 c2_db_cronosII_remove_structure (C2Mailbox *mailbox)
 {
-	gchar *directory = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S PATH G_DIR_SEPARATOR_S,
+	gchar *directory = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S C2_HOME G_DIR_SEPARATOR_S,
 									mailbox->name, ".mbx" G_DIR_SEPARATOR_S, NULL);
 	gchar *path;
 	DIR *dir;
@@ -192,7 +194,7 @@ c2_db_cronosII_remove_structure (C2Mailbox *mailbox)
 	{
 		c2_error_set (-errno);
 		g_warning ("Unable to open directory for removing: %s\n", c2_error_get (c2_errno));
-		return;
+		return -1;
 	}
 
 	for (; (dentry = readdir (dir)); )
@@ -207,4 +209,6 @@ c2_db_cronosII_remove_structure (C2Mailbox *mailbox)
 	closedir (dir);
 	rmdir (directory);
 	g_free (directory);
+
+	return 0;
 }

@@ -395,6 +395,12 @@ load_mailboxes (void)
 				g_free (host);
 				g_free (user);
 				g_free (pass);
+				g_free (path);
+				break;
+			case C2_MAILBOX_SPOOL:
+				path = gnome_config_get_string ("path");
+				mbox = c2_mailbox_new (name, id, type, sort_by, sort_type, path);
+				g_free (path);
 				break;
 		}
 		g_free (name);

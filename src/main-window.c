@@ -325,7 +325,8 @@ on_check_clicked (GtkWidget *widget)
 		mt = c2_message_transfer_new ();
 		c2_app_register_window (GTK_WINDOW (mt));
 		gtk_widget_show (mt);
-	} else {
+	} else
+	{
 		gtk_widget_show(mt);
 		gdk_window_raise (mt->window);
 	}

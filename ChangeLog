@@ -1,3 +1,7 @@
+2001-06-24 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Spool Db: First draw. Theory stablished. First codes.
+
 2001-06-21 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
 	* Preferences: Included support for the "Wrap outgoing text" thing.

@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-/* XXX XXX review line 602!!! */
+/* XXX XXX review line 691!!! */
 #include <gnome.h>
 #include <time.h>
 #include <config.h>
@@ -208,7 +208,8 @@ on_properties_mailbox_dlg_type_menu_selection_done (GtkWidget *widget, GladeXML 
 	GtkWidget *password_label = glade_xml_get_widget (xml, "password_label");
 	GtkWidget *password = glade_xml_get_widget (xml, "extra_data_pass");
 	GtkWidget *path_label = glade_xml_get_widget (xml, "path_label");
-	GtkWidget *path = glade_xml_get_widget (xml, "extra_data_path");
+	GtkWidget *path_spool = glade_xml_get_widget (xml, "extra_data_path_spool");
+	GtkWidget *path_imap = glade_xml_get_widget (xml, "extra_data_path_imap");
 	gchar *selection;
 
 	/* Get the selected type */
@@ -234,7 +235,8 @@ on_properties_mailbox_dlg_type_menu_selection_done (GtkWidget *widget, GladeXML 
 				gtk_widget_show (password_label);
 				gtk_widget_show (password);
 				gtk_widget_show (path_label);
-				gtk_widget_show (path);
+				gtk_widget_show (path_imap);
+				gtk_widget_hide (path_spool);
 			} else if (c2_streq (selection, SPOOL_TYPE_STRING))
 			{
 				gtk_widget_show (extra_data);
@@ -247,7 +249,8 @@ on_properties_mailbox_dlg_type_menu_selection_done (GtkWidget *widget, GladeXML 
 				gtk_widget_hide (password_label);
 				gtk_widget_hide (password);
 				gtk_widget_show (path_label);
-				gtk_widget_show (path);
+				gtk_widget_show (path_spool);
+				gtk_widget_hide (path_imap);
 			}
 		}
 	}
@@ -300,13 +303,14 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 				host = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (gxml, "extra_data_host")));
 				user = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (gxml, "extra_data_user")));
 				pass = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (gxml, "extra_data_pass")));
-				path = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (gxml, "extra_data_path")));
+				path = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (gxml, "extra_data_path_imap")));
 				port = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (
 											glade_xml_get_widget (gxml, "extra_data_port")));
 			} else if (c2_streq (query, SPOOL_TYPE_STRING))
 			{
 				type = C2_MAILBOX_SPOOL;
-				path = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (gxml, "extra_data_path")));
+				path = gtk_entry_get_text (GTK_ENTRY (gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (
+									glade_xml_get_widget (gxml, "extra_data_path_spool")))));
 			}
 		}
 	}
@@ -370,6 +374,9 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 			gnome_config_set_string ("path", retval->protocol.imap.path);
 			gnome_config_set_int ("port", retval->protocol.imap.port);
 			break;
+		case C2_MAILBOX_SPOOL:
+			gnome_config_set_string ("path", retval->protocol.spool.path);
+			break;
 	}
 	gnome_config_pop_prefix ();
 	g_free (query);
@@ -422,6 +429,9 @@ on_new_mailbox_dlg (void)
 	gtk_widget_grab_focus (entry);
 	gtk_signal_connect (GTK_OBJECT (entry),	"activate",
 						GTK_SIGNAL_FUNC (on_new_mailbox_dlg_name_activate), gxml);
+
+	gnome_file_entry_set_default_path (GNOME_FILE_ENTRY (glade_xml_get_widget
+							(gxml, "extra_data_path_spool")), USE_SPOOL_DIR);
 	
 	switch (gnome_dialog_run (GNOME_DIALOG (dialog)))
 	{
@@ -451,7 +461,9 @@ on_properties_mailbox_dlg_ok_btn_clicked (GtkWidget *widget, GladeXML *xml)
 	GtkSpinButton *w_port = GTK_SPIN_BUTTON (glade_xml_get_widget (xml, "extra_data_port"));
 	GtkEntry *w_user = GTK_ENTRY (glade_xml_get_widget (xml, "extra_data_user"));
 	GtkEntry *w_pass = GTK_ENTRY (glade_xml_get_widget (xml, "extra_data_pass"));
-	GtkEntry *w_path = GTK_ENTRY (glade_xml_get_widget (xml, "extra_data_path"));
+	GtkEntry *w_path_imap = GTK_ENTRY (glade_xml_get_widget (xml, "extra_data_path_imap"));
+	GtkEntry *w_path_spool = GTK_ENTRY (gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (
+							glade_xml_get_widget (xml, "extra_data_path_spool"))));
 	gchar *selection;
 	
 	gint configuration_id;
@@ -485,12 +497,12 @@ on_properties_mailbox_dlg_ok_btn_clicked (GtkWidget *widget, GladeXML *xml)
 				host = g_strdup (gtk_entry_get_text (w_host));
 				user = g_strdup (gtk_entry_get_text (w_user));
 				pass = g_strdup (gtk_entry_get_text (w_pass));
-				path = g_strdup (gtk_entry_get_text (w_path));
+				path = g_strdup (gtk_entry_get_text (w_path_imap));
 				port = gtk_spin_button_get_value_as_int (w_port);
 			} else if (c2_streq (selection, SPOOL_TYPE_STRING))
 			{
 				type = C2_MAILBOX_SPOOL;
-				path = g_strdup (gtk_entry_get_text (w_path));
+				path = g_strdup (gtk_entry_get_text (w_path_spool));
 			}
 		}
 	}
@@ -501,8 +513,19 @@ on_properties_mailbox_dlg_ok_btn_clicked (GtkWidget *widget, GladeXML *xml)
 		c2_app_report (error, C2_REPORT_WARNING);
 		return;
 	}
-	
-	c2_mailbox_update (mailbox, name, id, type, host, port, user, pass, path);
+
+	switch (type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			c2_mailbox_update (mailbox, name, id, type);
+			break;
+		case C2_MAILBOX_IMAP:
+			c2_mailbox_update (mailbox, name, id, type, host, port, user, pass, path);
+			break;
+		case C2_MAILBOX_SPOOL:
+			c2_mailbox_update (mailbox, name, id, type, path);
+			break;
+	}
 
 	query = g_strdup_printf ("/cronosII/Mailbox %d/", configuration_id);
 	gnome_config_push_prefix (query);
@@ -553,7 +576,9 @@ on_properties_mailbox_dlg (void)
 	GtkSpinButton *port = GTK_SPIN_BUTTON (glade_xml_get_widget (xml, "extra_data_port"));
 	GtkEntry *user = GTK_ENTRY (glade_xml_get_widget (xml, "extra_data_user"));
 	GtkEntry *pass = GTK_ENTRY (glade_xml_get_widget (xml, "extra_data_pass"));
-	GtkEntry *path = GTK_ENTRY (glade_xml_get_widget (xml, "extra_data_path"));
+	GtkEntry *path_imap = GTK_ENTRY (glade_xml_get_widget (xml, "extra_data_path_imap"));
+	GtkEntry *path_spool = GTK_ENTRY (gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (
+							glade_xml_get_widget (xml, "extra_data_path_spool"))));
 
 	C2Mailbox *parent;
 
@@ -594,11 +619,11 @@ on_properties_mailbox_dlg (void)
 			gtk_entry_set_text (host, parent->protocol.imap.host);
 			gtk_entry_set_text (user, parent->protocol.imap.user);
 			gtk_entry_set_text (pass, parent->protocol.imap.pass);
-			gtk_entry_set_text (path, parent->protocol.imap.path);
+			gtk_entry_set_text (path_imap, parent->protocol.imap.path);
 			gtk_spin_button_set_value (port, parent->protocol.imap.port);
 			break;
 		case C2_MAILBOX_SPOOL:
-			gtk_entry_set_text (path, parent->protocol.spool.path);
+			gtk_entry_set_text (path_spool, parent->protocol.spool.path);
 			break;
 	}
 
@@ -614,7 +639,6 @@ on_properties_mailbox_dlg (void)
 			/* Unregister the window */
 			c2_app_unregister_window (GTK_WINDOW (dialog));
 			gnome_dialog_close (GNOME_DIALOG (dialog));
-			C2_DEBUG (parent->protocol.spool.path);
 	}
 }
 

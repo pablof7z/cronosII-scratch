@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/db-spool.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,10 @@ c2_db_spool_load								(C2Mailbox *mailbox);
 gint
 c2_db_spool_create_structure					(C2Mailbox *mailbox);
 
-void
+gint
+c2_db_spool_update_structure					(C2Mailbox *mailbox);
+
+gint
 c2_db_spool_remove_structure					(C2Mailbox *mailbox);
 
 #ifdef __cplusplus

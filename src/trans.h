@@ -104,6 +104,7 @@ gchar *s = N_("Hostname:");
 gchar *s = N_("Username:");
 gchar *s = N_("Password:");
 gchar *s = N_("Path:");
+gchar *s = N_("Select file");
 gchar *s = N_("© 2000-2001 Pablo Fernández Navarro");
 gchar *s = N_("Cronos II is a fast, light, user friendly and powerful mail client for the Gnome Desktop.\n"
               "It has an extended and intuitive interface which will make life for novice easier without taking out the power to the gurus.\n"

@@ -84,7 +84,11 @@ gint
 c2_db_create_structure							(C2Mailbox *mailbox);
 
 /* Virtual function */
-void
+gint
+c2_db_update_structure							(C2Mailbox *mailbox);
+
+/* Virtual function */
+gint
 c2_db_remove_structure							(C2Mailbox *mailbox);
 
 void

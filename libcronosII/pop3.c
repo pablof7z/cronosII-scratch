@@ -80,7 +80,7 @@ C2Pop3 *
 c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port)
 {
 	C2Pop3 *pop3;
-L	
+	
 	c2_return_val_if_fail (user || host, NULL, C2EDATA);
 	
 	pop3 = gtk_type_new (C2_TYPE_POP3);
@@ -90,7 +90,7 @@ L
 
 	c2_net_object_construct (C2_NET_OBJECT (pop3), host, port);
 
-L	return pop3;
+	return pop3;
 }
 
 /**
@@ -241,7 +241,7 @@ login (C2Pop3 *pop3)
 	/* Password */
 	do
 	{
-		/* FIX-ME This crashes when the password is wrong and
+		/* FIXME This crashes when the password is wrong and
 		 * is executed for 2 time (probably for >1 time) */
 		g_free (string);
 		if (c2_net_object_send (C2_NET_OBJECT (pop3), "PASS %s\r\n", pop3->pass) < 0)

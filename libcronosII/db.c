@@ -387,12 +387,34 @@ c2_db_create_structure (C2Mailbox *mailbox)
 	return func (mailbox);
 }
 
-void
+gint
+c2_db_update_structure (C2Mailbox *mailbox)
+{
+	gint (*func) (C2Mailbox *mailbox);
+
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_update_structure;
+			break;
+		case C2_MAILBOX_IMAP:
+			/* TODO */
+			return;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_update_structure;
+			break;
+	}
+
+	return func (mailbox);
+}
+
+
+gint
 c2_db_remove_structure (C2Mailbox *mailbox)
 {
-	void (*func) (C2Mailbox *mailbox);
+	gint (*func) (C2Mailbox *mailbox);
 
-	C2_DEBUG (mailbox->name);
 	switch (mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
@@ -407,5 +429,5 @@ c2_db_remove_structure (C2Mailbox *mailbox)
 			break;
 	}
 
-	func (mailbox);
+	return func (mailbox);
 }

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/db-cronosII.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,10 @@ c2_db_cronosII_load								(C2Mailbox *mailbox);
 gint
 c2_db_cronosII_create_structure					(C2Mailbox *mailbox);
 
-void
+gint
+c2_db_cronosII_update_structure					(C2Mailbox *mailbox);
+
+gint
 c2_db_cronosII_remove_structure					(C2Mailbox *mailbox);
 
 #ifdef __cplusplus

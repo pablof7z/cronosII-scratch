@@ -30,6 +30,8 @@ extern "C" {
 #	include <cronosII.h>
 #endif
 
+#define C2_HOME									/*$HOME*/ G_DIR_SEPARATOR_S ".c2" G_DIR_SEPARATOR_S
+
 #define C2_CHAR(x)								((gchar*)x)
 
 #define c2_strne(x,y)							(!(c2_streq (x, y)))

@@ -10,3 +10,21 @@ A: is called and the type of object is of type of the submodule
 A: (e.i. a C2Db object which is of type C2_MAILBOX_CRONOSII, when calling
 A: c2_db_archive the function c2_db_cronosII_archive will be called).
 
+Q: How does the Spool format works?
+A: Well, Spool format starts with the /var/spool/mail/{user} format,
+A: each mail concatenated to other, but this would be REALLY slow,
+A: so we are going to make it work with an index file, in
+A: ~/.c2/{mbox_name}.mbx with the following format:
+A: character_where_mail_starts\rlength_of_mail
+A: 
+A: Now, the problem comes when you edit the file with other mailer
+A: (well, when, somehow, Cronos II doesn't notices of some change
+A: in the file), that would come to a for sure problem, because
+A: c2 wouldn't now that a new mail is out there.
+A: To fix this we will calculate the size the mailbox should have
+A: and get the size of the file, if they are different, the index
+A: file will be generated.
+A:
+A:
+A:
+

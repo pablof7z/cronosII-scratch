@@ -463,13 +463,15 @@ c2_fd_get_line (FILE *fd)
 	{
 		if ((buf = fgetc (fd)) == EOF)
 		{
-			if (len == 1) return NULL;
+			if (len == 1)
+				return NULL;
 			break;
 		}
-		if (buf == '\n') break;
+		if (buf == '\n')
+			break;
 		len++;
 	}
-	
+
 	str = g_new0 (gchar, len+1);
 	fseek (fd, pos, SEEK_SET);
 	
@@ -480,7 +482,8 @@ c2_fd_get_line (FILE *fd)
 			fseek (fd, 0, SEEK_END);
 			break;
 		}
-		if (buf == '\n') break;
+		if (buf == '\n')
+			break;
 		*(ptr++) = buf;
 	}
 	*ptr = '\0';
