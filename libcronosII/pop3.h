@@ -83,7 +83,7 @@ struct _C2POP3Class
 {
 	C2NetObjectClass parent_class;
 
-	gchar* (*login_failed) (C2POP3 *pop3, const gchar *error);
+	gboolean (*login_failed) (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pass);
 	
 	void (*status) (C2POP3 *pop3, gint mails);
 	void (*retrieve) (C2POP3 *pop3, gint16 nth, gint32 received, gint32 total);

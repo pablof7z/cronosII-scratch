@@ -209,29 +209,36 @@ init (C2Application *application)
 ignore:
 		}
 
-		switch (type)
+		switch (account_type)
 		{
 			case C2_ACCOUNT_POP3:
 			case C2_ACCOUNT_IMAP:
 				{
 					gchar *host, *user, *pass;
-					gint port, flags;
+					gint port, flags = 0;
 					gboolean ssl;
+					C2POP3AuthenticationMethod auth_method;
 					
-					host = gnome_config_get_string ("incoming_hostname");
-					port = gnome_config_get_int ("incoming_port");
-					user = gnome_config_get_string ("incoming_username");
-					pass = gnome_config_get_string ("incoming_password");
-					flags = gnome_config_get_int ("incoming_flags");
-					ssl = gnome_config_get_bool ("incoming_ssl");
+					host = gnome_config_get_string ("incoming_server_hostname");
+					port = gnome_config_get_int ("incoming_server_port");
+					user = gnome_config_get_string ("incoming_server_username");
+					pass = gnome_config_get_string ("incoming_server_password");
+					ssl = gnome_config_get_bool ("incoming_server_ssl");
+					auth_method = gnome_config_get_int ("incoming_auth_method");
+					if (gnome_config_get_bool ("incoming_auth_remember"))
+						flags |= C2_POP3_DO_NOT_LOSE_PASSWORD;
+					else
+						flags |= C2_POP3_DO_LOSE_PASSWORD;
+					
 
-					if (type == C2_ACCOUNT_POP3)
+					if (account_type == C2_ACCOUNT_POP3)
 					{
 						C2POP3 *pop3;
 						pop3 = c2_pop3_new (host, port, user, pass, ssl);
 						c2_pop3_set_flags (pop3, flags);
+						c2_pop3_set_auth_method (pop3, auth_method);
 						c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, pop3);
-					} else if (type == C2_ACCOUNT_IMAP)
+					} else if (account_type == C2_ACCOUNT_IMAP)
 						g_warning ("The IMAP protocol has not been coded yet for Cronos II.\n");
 				}
 				break;
@@ -293,8 +300,6 @@ ignore:
 									("/Cronos II/Options/mt_mode=" DEFAULT_OPTIONS_MT_MODE, NULL);
 	application->options_default_mime = gnome_config_get_int_with_default
 									("/Cronos II/Options/default_mime=" DEFAULT_OPTIONS_DEFAULT_MIME, NULL);	
-	printf ("<<<<%d\n", application->options_default_mime);
-	
 	application->interface_title = gnome_config_get_string_with_default
 									("/Cronos II/Interface/title=" DEFAULT_INTERFACE_TITLE, NULL);
 	application->interface_toolbar = gnome_config_get_int_with_default

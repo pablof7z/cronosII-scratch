@@ -75,7 +75,7 @@ struct _C2IMAPClass
 {
 	C2NetObjectClass parent_class;
 
-	gchar* (*login_failed) (C2IMAP *imap, const gchar *error);
+	gboolean (*login_failed) (C2IMAP *imap, const gchar *error, gchar **user, gchar **pass);
 	void (*mailbox_list) (C2IMAP *imap, C2Mailbox *head);
 	void (*incoming_mail) (C2IMAP *imap);
 	void (*logout) (C2IMAP *imap);

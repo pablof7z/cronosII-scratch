@@ -107,8 +107,8 @@ class_init (C2POP3Class *klass)
 					GTK_RUN_LAST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2POP3Class, login_failed),
-					c2_marshal_POINTER__POINTER, GTK_TYPE_STRING, 1,
-					GTK_TYPE_STRING);
+					c2_marshal_INT__POINTER_POINTER_POINTER, GTK_TYPE_INT, 3,
+					GTK_TYPE_STRING, GTK_TYPE_POINTER, GTK_TYPE_POINTER);
 	signals[STATUS] =
 		gtk_signal_new ("status",
 					GTK_RUN_FIRST,
@@ -149,7 +149,7 @@ destroy (GtkObject *object)
 	if (c2_net_object_is_offline (C2_NET_OBJECT (pop3)))
 #ifdef USE_DEBUG
 	{
-		g_print ("A C2Pop3 object is being freed while a connection is "
+		g_print ("A C2POP3 object is being freed while a connection is "
 				 "being used (%s)!\n", pop3->user);
 #endif
 		c2_net_object_disconnect (C2_NET_OBJECT (pop3));
@@ -366,18 +366,18 @@ login (C2POP3 *pop3)
 	gchar md5apopstring[33];
 	int x;
 
-	gint 	 i 		= 0;
-	gboolean logged_in 	= FALSE;
-
-		if (pop3->auth_method == C2_POP3_AUTHENTICATION_APOP)
+	gint i = 0;
+	gboolean logged_in = FALSE;
+	
+	if (pop3->auth_method == C2_POP3_AUTHENTICATION_APOP)
+	{
+		if (pop3->logintoken == NULL)
 		{
-			if (pop3->logintoken == NULL)
-			{
-				/* how the hell did this happen? */
-				c2_error_set_custom("Using APOP but didn't get a logintoken in welcome");
-				return -1;
-			}
-
+			/* how the hell did this happen? */
+			c2_error_set_custom("Using APOP but didn't get a logintoken in welcome");
+			return -1;
+		}
+		
 		// allocate a string for the pass+logintoken so we can get the md5 hash of it
 		apopstring = (gchar*)g_malloc(sizeof(gchar) * (strlen(pop3->pass) + strlen(pop3->logintoken) ) + 1);
 
@@ -419,8 +419,7 @@ login (C2POP3 *pop3)
 	
 			c2_error_set_custom (string);
 			return -1;
-		}
-		else
+		} else
 		{
 			return 0;
 		}
@@ -458,18 +457,28 @@ login (C2POP3 *pop3)
 
 		if (c2_strnne (string, "+OK", 3))
 		{
+			gchar *newuser, *newpass;
+			gboolean ret;
+
 			string = strstr (string, " ");
 			if (string)
 				string++;
 			
-			g_free (pop3->pass);
-
 			/* set pop3->pass equal to NULL just in case there is no callback function */
-			pop3->pass = NULL;
+			newuser = NULL;
+			newpass = NULL;
 
-L			gtk_signal_emit (GTK_OBJECT (pop3), signals[LOGIN_FAILED], string, &pop3->pass);
-L			C2_DEBUG (pop3->pass);
-L		} else
+			gtk_signal_emit (GTK_OBJECT (pop3), signals[LOGIN_FAILED], string, &newuser, &newpass, &ret);
+
+			if (!ret)
+				return -1;
+			
+			if (newpass)
+			{
+				g_free (pop3->pass);
+				pop3->pass = newpass;
+			}
+		} else
 			logged_in = TRUE;
 	} while (i++ < 3 && !logged_in && pop3->pass);
 	

@@ -85,11 +85,11 @@ class_init (C2IMAPClass *klass)
 
 	signals[LOGIN_FAILED] =
 		gtk_signal_new ("login_failed",
-						GTK_RUN_LAST,
+						GTK_RUN_FIRST,
 						object_class->type,
 						GTK_SIGNAL_OFFSET (C2IMAPClass, login_failed),
-						c2_marshal_POINTER__POINTER, GTK_TYPE_STRING, 1,
-						GTK_TYPE_STRING);
+						c2_marshal_INT__POINTER_POINTER_POINTER, GTK_TYPE_INT, 3,
+						GTK_TYPE_STRING, GTK_TYPE_POINTER, GTK_TYPE_POINTER);
 	signals[MAILBOX_LIST] =
 		gtk_signal_new ("mailbox_list",
 						GTK_RUN_FIRST,

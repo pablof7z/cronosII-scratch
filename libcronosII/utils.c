@@ -760,14 +760,19 @@ c2_marshal_NONE__INT_INT_INT (GtkObject *object, GtkSignalFunc func, gpointer fu
 	(*rfunc) (object, GTK_VALUE_INT (args[0]), GTK_VALUE_INT (args[1]), GTK_VALUE_INT (args[2]), func_data);
 }
 
-typedef gchar *(*C2Signal_POINTER__POINTER)	(GtkObject *object, gpointer arg1, gpointer user_data);
+
+
+typedef gint (*C2Signal_INT__POINTER_POINTER_POINTER)	(GtkObject *object, gpointer arg1,
+														 gpointer arg2,
+														 gpointer arg3, gpointer user_data);
 
 void
-c2_marshal_POINTER__POINTER (GtkObject *object, GtkSignalFunc func, gpointer func_data, GtkArg * args)
+c2_marshal_INT__POINTER_POINTER_POINTER (GtkObject *object, GtkSignalFunc func, gpointer func_data, GtkArg * args)
 {
-	C2Signal_POINTER__POINTER rfunc;
-	gchar **return_val;
-	return_val = GTK_RETLOC_STRING (args[1]);
-	rfunc = (C2Signal_POINTER__POINTER) func;
-	*return_val = (*rfunc) (object, GTK_VALUE_POINTER (args[0]), func_data);
+	C2Signal_INT__POINTER_POINTER_POINTER rfunc;
+	gint *return_val;
+	return_val = GTK_RETLOC_INT (args[3]);
+	rfunc = (C2Signal_INT__POINTER_POINTER_POINTER) func;
+	*return_val = (*rfunc) (object, GTK_VALUE_POINTER (args[0]), GTK_VALUE_POINTER (args[1]),
+							GTK_VALUE_POINTER (args[2]), func_data);
 }

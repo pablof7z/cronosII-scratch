@@ -129,7 +129,7 @@ c2_marshal_NONE__INT_INT_INT				(GtkObject *object, GtkSignalFunc func,
 											 gpointer func_data, GtkArg * args);
 
 void
-c2_marshal_POINTER__POINTER					(GtkObject *object, GtkSignalFunc func,
+c2_marshal_INT__POINTER_POINTER_POINTER		(GtkObject *object, GtkSignalFunc func,
 											 gpointer func_data, GtkArg * args);
 
 #ifdef __cplusplus

@@ -38,8 +38,9 @@ on_cancel_clicked							(GtkWidget *button, C2TransferItem *ti);
 static void
 on_pop3_resolve								(GtkObject *object, C2TransferItem *ti);
 
-static gchar *
-on_pop3_login_failed						(GtkObject *object, const gchar *error, C2TransferItem *ti);
+static gboolean
+on_pop3_login_failed						(GtkObject *object, const gchar *error, gchar **user,
+											 gchar **pass, C2TransferItem *ti);
 
 static void
 on_pop3_status								(GtkObject *object, gint mails, C2TransferItem *ti);
@@ -265,13 +266,13 @@ c2_transfer_item_start (C2TransferItem *ti)
 	{
 		if (ti->account->type == C2_ACCOUNT_POP3)
 		{
-			C2POP3 *pop3 = (C2POP3*) c2_account_get_extra_data (ti->account, C2_ACCOUNT_KEY_INCOMING, NULL);
+			C2POP3 *pop3 = C2_POP3 (c2_account_get_extra_data (ti->account, C2_ACCOUNT_KEY_INCOMING, NULL));
 
 			gtk_signal_connect (GTK_OBJECT (pop3), "resolve",
 								GTK_SIGNAL_FUNC (on_pop3_resolve), ti);
 
 			gtk_signal_connect (GTK_OBJECT (pop3), "login_failed",
-								GTK_SIGNAL_FUNC (on_pop3_resolve), ti);
+								GTK_SIGNAL_FUNC (on_pop3_login_failed), ti);
 
 			gtk_signal_connect (GTK_OBJECT (pop3), "status",
 								GTK_SIGNAL_FUNC (on_pop3_status), ti);
@@ -284,13 +285,20 @@ c2_transfer_item_start (C2TransferItem *ti)
 
 			gtk_progress_set_show_text (GTK_PROGRESS (ti->progress_mail), TRUE);
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Resolving"));
+
+			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_pop3_fetchmail), pop3);
+		} else if (ti->account->type == C2_ACCOUNT_IMAP)
+		{
+#ifdef USE_DEBUG
+			g_error ("The IMAP account aren't checked for mail, they are treated "
+					 "like a regular mailbox, this should not be here (%s:%d)\n",
+					 __FILE__, __LINE__);
+#endif
 		} else
 		{
 			g_assert_not_reached ();
 			return;
 		}
-		
-		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_account_check), ti->account);
 	}
 }
 
@@ -302,11 +310,10 @@ on_pop3_resolve (GtkObject *object, C2TransferItem *ti)
 	gdk_threads_leave ();
 }
 
-static gchar *
-on_pop3_login_failed (GtkObject *object, const gchar *error, C2TransferItem *ti)
+static gboolean
+on_pop3_login_failed (GtkObject *object, const gchar *error, gchar **user, gchar **pass, C2TransferItem *ti)
 {
-L	C2_DEBUG (error);
-L	return "stuff";
+	return TRUE;
 }
 
 static void
