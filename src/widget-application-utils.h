@@ -38,6 +38,9 @@ c2_application_cut_text						(C2Application *application, GdkFont *font,
 											 const gchar *text, guint16 av_space);
 
 /* Dialogs */
+gboolean
+c2_application_dialog_password				(C2Application *application);
+
 void
 c2_application_dialog_missing_mailbox_inform	(C2Application *application, const gchar *name);
 

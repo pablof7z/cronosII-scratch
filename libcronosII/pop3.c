@@ -40,7 +40,11 @@
  * [TODO] Add support for CRAM-MD5 authentication.
  */
 #define MOD "POP3"
-#define DMOD TRUE
+#ifdef USE_DEBUG
+#	define DMOD TRUE
+#else
+#	define DMOD FALSE
+#endif
 
 #define DEFAULT_FLAGS C2_POP3_DO_NOT_KEEP_COPY
 
@@ -319,6 +323,11 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 
 	c2_return_val_if_fail (C2_IS_POP3 (pop3), -1, C2EDATA);
 
+#ifdef USE_DEBUG
+	if (_debug_pop3)
+		C2_PRINTD (MOD, "Fetching mails for account %s\n", account->name);
+#endif
+
 	/* Lock the mutex */
 	c2_mutex_lock (&pop3->run_lock);
 	
@@ -329,6 +338,11 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 		retval = -1;
 		goto shutdown;
 	}
+
+#ifdef USE_DEBUG
+	if (_debug_pop3)
+		C2_PRINTD (MOD, "Connected (%s)\n", account->name);
+#endif
 
 	if (welcome (pop3) < 0)
 	{
@@ -342,11 +356,21 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 		goto after_quit;
 	}
 
+#ifdef USE_DEBUG
+	if (_debug_pop3)
+		C2_PRINTD (MOD, "Logged in (%s)\n", account->name);
+#endif
+
 	if ((download_list = status (pop3, account, &uidl_list)) < 0)
 	{
 		retval = -1;
 		goto after_quit;
 	}
+
+#ifdef USE_DEBUG
+	if (_debug_pop3)
+		C2_PRINTD (MOD, "%d maails to download (%s)\n", g_slist_length (download_list), account->name);
+#endif
 
 	if (retrieve (pop3, account, inbox, download_list) < 0)
 	{
@@ -354,8 +378,17 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 		goto after_quit;
 	}
 
+#ifdef USE_DEBUG
+	if (_debug_pop3)
+		C2_PRINTD (MOD, "All mails downloaded (%s)\n", account->name);
+#endif
+
 	if (pop3->flags & C2_POP3_DO_KEEP_COPY && pop3->copies_in_server_life_time)
 	{
+#ifdef USE_DEBUG
+	if (_debug_pop3)
+		C2_PRINTD (MOD, "Syncing (%s)\n", account->name);
+#endif
 		if (synchronize (pop3, account, uidl_list))
 		{
 			retval = -1;
@@ -389,6 +422,11 @@ shutdown:
 
 	/* Set the cancel flag to 0 */
 	pop3->canceled = 0;
+
+#ifdef USE_DEBUG
+	if (_debug_pop3)
+		C2_PRINTD (MOD, "Mail fetched for account %s\n", account->name);
+#endif
 
 	return retval;
 }

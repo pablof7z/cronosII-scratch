@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Cronos II E-Mail Client
+Comment=The Cronos II E-Mail Client
+Exec=@bindir@/cronosII
+Terminal=0
+Type=Application
+Icon=cronosII.png

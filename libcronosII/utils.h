@@ -38,6 +38,22 @@ extern "C" {
 #	include <cronosII.h>
 #endif
 
+#ifdef USE_DEBUG
+/* ALL THE DEBUGGING SYMBOLS FOR /LIBCRONOSII ARE IN HERE */
+short _debug_db;
+short _debug_db_cronosII;
+short _debug_db_imap;
+short _debug_db_spool;
+short _debug_imap;
+short _debug_mailbox;
+short _debug_message;
+short _debug_mime;
+short _debug_net_object;
+short _debug_pop3;
+short _debug_request;
+short _debug_smtp;
+#endif
+
 #define C2_HOME								/*$HOME*/ G_DIR_SEPARATOR_S ".c2" G_DIR_SEPARATOR_S
 
 #define C2_CHAR(x)							((gchar*)x)
@@ -77,7 +93,7 @@ typedef struct
 #	define C2_TODO							g_print ("%s:%d:%s: TODO\n" __FILE__, __LINE__, \
 													__PRETTY_FUNCTION__)
 
-#	define C2_PRINTD(mod, args...)			if (DMOD) g_print (mod " -- " __PRETTY_FUNCTION__ "() -- " ##args)
+#	define C2_PRINTD(mod, args...)			if (DMOD) g_print ("[ " mod " ] -- " __PRETTY_FUNCTION__ "() -- ", ##args)
 
 #else
 #	define L								;

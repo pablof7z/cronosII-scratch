@@ -29,6 +29,7 @@ pixmap_DATA = \
 	interface_fonts.png	\
 	interface_html.png	\
 	interface_misc.png	\
+	left_margin.png		\
 	loading-image.png	\
 	mailbox.png			\
 	mail.png			\
@@ -67,6 +68,7 @@ pixmap_DATA = \
 	splash.png			\
 	reply-all.png		\
 	reply.png			\
+	right_margin.png	\
 	unknown-file.png	\
 	window.png
 

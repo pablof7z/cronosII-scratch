@@ -1,6 +1,6 @@
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
 
-# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -138,8 +138,10 @@ gnomedownload = @gnomedownload@
 l = @l@
 @USE_TEST_SUITE_TRUE@test_suite = test-suite
 @USE_TEST_SUITE_FALSE@test_suite = 
+@USE_TOOLS_TRUE@tools = tools
+@USE_TOOLS_FALSE@tools = 
 
-SUBDIRS = intl po libcronosII src $(test_suite) macros default images pixmaps doc man plugins xml
+SUBDIRS = intl po libcronosII src $(test_suite) $(tools) macros default images pixmaps doc man plugins xml
 
 bin_SCRIPTS = cronosII-config
 
@@ -148,6 +150,9 @@ plugin_DATA =
 
 aboutdir = $(pkgdatadir)
 about_DATA = about.html bugs.html features.html header.png message_404.html touch.html welcome.html
+
+desktopdir = $(prefix)/gnome/apps/Internet
+desktop_DATA = cronosII.desktop
 
 cronosincludedir = $(includedir)/cronosII
 cronosinclude_HEADERS = config.h
@@ -158,10 +163,11 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
 CONFIG_CLEAN_FILES =  about.html bugs.html features.html \
-message_404.html touch.html welcome.html cronosII.spec cronosII-config
+message_404.html touch.html welcome.html cronosII.spec cronosII.desktop \
+cronosII-config
 SCRIPTS =  $(bin_SCRIPTS)
 
-DATA =  $(about_DATA) $(plugin_DATA)
+DATA =  $(about_DATA) $(desktop_DATA) $(plugin_DATA)
 
 HEADERS =  $(cronosinclude_HEADERS)
 
@@ -169,16 +175,17 @@ DIST_COMMON =  README ./stamp-h.in ABOUT-NLS AUTHORS COPYING ChangeLog \
 INSTALL Makefile.am Makefile.in NEWS THANKS TODO about.html.in \
 acconfig.h acinclude.m4 aclocal.m4 bugs.html.in config.guess \
 config.h.in config.sub configure configure.in cronosII-config.in \
-cronosII.spec.in features.html.in install-sh ltconfig ltmain.sh \
-message_404.html.in missing mkinstalldirs touch.html.in welcome.html.in
+cronosII.desktop.in cronosII.spec.in features.html.in install-sh \
+ltconfig ltmain.sh message_404.html.in missing mkinstalldirs \
+touch.html.in welcome.html.in
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = tar
+TAR = gtar
 GZIP_ENV = --best
-DIST_SUBDIRS =  intl po libcronosII src test-suite macros default images \
-pixmaps doc man plugins xml
+DIST_SUBDIRS =  intl po libcronosII src test-suite tools macros default \
+images pixmaps doc man plugins xml
 all: all-redirect
 .SUFFIXES:
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
@@ -237,6 +244,8 @@ welcome.html: $(top_builddir)/config.status welcome.html.in
 	cd $(top_builddir) && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 cronosII.spec: $(top_builddir)/config.status cronosII.spec.in
 	cd $(top_builddir) && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
+cronosII.desktop: $(top_builddir)/config.status cronosII.desktop.in
+	cd $(top_builddir) && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 cronosII-config: $(top_builddir)/config.status cronosII-config.in
 	cd $(top_builddir) && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
@@ -276,6 +285,25 @@ uninstall-aboutDATA:
 	@$(NORMAL_UNINSTALL)
 	list='$(about_DATA)'; for p in $$list; do \
 	  rm -f $(DESTDIR)$(aboutdir)/$$p; \
+	done
+
+install-desktopDATA: $(desktop_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(desktopdir)
+	@list='$(desktop_DATA)'; for p in $$list; do \
+	  if test -f $(srcdir)/$$p; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(desktopdir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(desktopdir)/$$p; \
+	  else if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(desktopdir)/$$p"; \
+	    $(INSTALL_DATA) $$p $(DESTDIR)$(desktopdir)/$$p; \
+	  fi; fi; \
+	done
+
+uninstall-desktopDATA:
+	@$(NORMAL_UNINSTALL)
+	list='$(desktop_DATA)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(desktopdir)/$$p; \
 	done
 
 install-pluginDATA: $(plugin_DATA)
@@ -348,7 +376,7 @@ maintainer-clean-recursive:
 	dot_seen=no; \
 	rev=''; list='$(SUBDIRS)'; for subdir in $$list; do \
 	  rev="$$subdir $$rev"; \
-	  test "$$subdir" = "." && dot_seen=yes; \
+	  test "$$subdir" != "." || dot_seen=yes; \
 	done; \
 	test "$$dot_seen" = "no" && rev=". $$rev"; \
 	target=`echo $@ | sed s/-recursive//`; \
@@ -478,15 +506,16 @@ all-recursive-am: config.h
 install-exec-am: install-binSCRIPTS
 install-exec: install-exec-recursive
 
-install-data-am: install-aboutDATA install-pluginDATA \
-		install-cronosincludeHEADERS
+install-data-am: install-aboutDATA install-desktopDATA \
+		install-pluginDATA install-cronosincludeHEADERS
 install-data: install-data-recursive
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-recursive
 uninstall-am: uninstall-binSCRIPTS uninstall-aboutDATA \
-		uninstall-pluginDATA uninstall-cronosincludeHEADERS
+		uninstall-desktopDATA uninstall-pluginDATA \
+		uninstall-cronosincludeHEADERS
 uninstall: uninstall-recursive
 all-am: Makefile $(SCRIPTS) $(DATA) $(HEADERS) config.h
 all-redirect: all-recursive-am
@@ -495,7 +524,8 @@ install-strip:
 installdirs: installdirs-recursive
 installdirs-am:
 	$(mkinstalldirs)  $(DESTDIR)$(bindir) $(DESTDIR)$(aboutdir) \
-		$(DESTDIR)$(plugindir) $(DESTDIR)$(cronosincludedir)
+		$(DESTDIR)$(desktopdir) $(DESTDIR)$(plugindir) \
+		$(DESTDIR)$(cronosincludedir)
 
 
 mostlyclean-generic:
@@ -531,9 +561,10 @@ maintainer-clean: maintainer-clean-recursive
 
 .PHONY: mostlyclean-hdr distclean-hdr clean-hdr maintainer-clean-hdr \
 uninstall-binSCRIPTS install-binSCRIPTS uninstall-aboutDATA \
-install-aboutDATA uninstall-pluginDATA install-pluginDATA \
-uninstall-cronosincludeHEADERS install-cronosincludeHEADERS \
-install-data-recursive uninstall-data-recursive install-exec-recursive \
+install-aboutDATA uninstall-desktopDATA install-desktopDATA \
+uninstall-pluginDATA install-pluginDATA uninstall-cronosincludeHEADERS \
+install-cronosincludeHEADERS install-data-recursive \
+uninstall-data-recursive install-exec-recursive \
 uninstall-exec-recursive installdirs-recursive uninstalldirs-recursive \
 all-recursive check-recursive installcheck-recursive info-recursive \
 dvi-recursive mostlyclean-recursive distclean-recursive clean-recursive \

@@ -515,8 +515,7 @@ Are you sure you want this?</message>
 		    <widget>
 		      <class>GtkCheckButton</class>
 		      <name>general_options_start_check</name>
-		      <can_focus>True</can_focus>
-		      <label>Check for mail.</label>
+		      <label>Check for mail</label>
 		      <active>False</active>
 		      <draw_indicator>True</draw_indicator>
 		      <child>
@@ -529,8 +528,7 @@ Are you sure you want this?</message>
 		    <widget>
 		      <class>GtkCheckButton</class>
 		      <name>general_options_start_load</name>
-		      <can_focus>True</can_focus>
-		      <label>Load mailboxes.</label>
+		      <label>Load mailboxes</label>
 		      <active>False</active>
 		      <draw_indicator>True</draw_indicator>
 		      <child>
@@ -564,8 +562,7 @@ Are you sure you want this?</message>
 		    <widget>
 		      <class>GtkCheckButton</class>
 		      <name>general_options_exit_expunge</name>
-		      <can_focus>True</can_focus>
-		      <label>Expunge mails in «Trash» mailbox.</label>
+		      <label>Expunge mails in «Trash» mailbox</label>
 		      <active>False</active>
 		      <draw_indicator>True</draw_indicator>
 		      <child>
@@ -611,7 +608,7 @@ Are you sure you want this?</message>
 		    <widget>
 		      <class>GtkLabel</class>
 		      <name>label107</name>
-		      <label>Mark messages as readed after</label>
+		      <label>Mark messages as read after</label>
 		      <justify>GTK_JUSTIFY_CENTER</justify>
 		      <wrap>False</wrap>
 		      <xalign>0.5</xalign>
@@ -770,8 +767,7 @@ Are you sure you want this?</message>
 		    <widget>
 		      <class>GtkCheckButton</class>
 		      <name>general_options_incoming_warn</name>
-		      <can_focus>True</can_focus>
-		      <label>Show a warning dialog.</label>
+		      <label>Show a warning dialog</label>
 		      <active>False</active>
 		      <draw_indicator>True</draw_indicator>
 		      <child>
@@ -805,8 +801,7 @@ Are you sure you want this?</message>
 		    <widget>
 		      <class>GtkCheckButton</class>
 		      <name>general_options_outgoing_sent_items</name>
-		      <can_focus>True</can_focus>
-		      <label>Save copy in «Sent Items» mailbox.</label>
+		      <label>Save copy in «Sent Items» mailbox</label>
 		      <active>False</active>
 		      <draw_indicator>True</draw_indicator>
 		      <child>
@@ -852,8 +847,7 @@ Are you sure you want this?</message>
 		    <widget>
 		      <class>GtkCheckButton</class>
 		      <name>general_options_delete_use_trash</name>
-		      <can_focus>True</can_focus>
-		      <label>Store deleted mails in «Trash».</label>
+		      <label>Store deleted mails in «Trash»</label>
 		      <active>False</active>
 		      <draw_indicator>True</draw_indicator>
 		      <child>
@@ -866,8 +860,7 @@ Are you sure you want this?</message>
 		    <widget>
 		      <class>GtkCheckButton</class>
 		      <name>general_options_delete_confirmation</name>
-		      <can_focus>True</can_focus>
-		      <label>Ask for confirmation when deleting.</label>
+		      <label>Ask for confirmation when deleting</label>
 		      <active>False</active>
 		      <draw_indicator>True</draw_indicator>
 		      <child>
@@ -880,8 +873,7 @@ Are you sure you want this?</message>
 		    <widget>
 		      <class>GtkCheckButton</class>
 		      <name>general_options_delete_archive</name>
-		      <can_focus>True</can_focus>
-		      <label>Archive expunged mails.</label>
+		      <label>Archive expunged mails</label>
 		      <active>False</active>
 		      <draw_indicator>True</draw_indicator>
 		      <child>
@@ -1891,7 +1883,7 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GtkLabel</class>
 		<name>label137</name>
-		<label>Readed mails:</label>
+		<label>Read mails:</label>
 		<justify>GTK_JUSTIFY_CENTER</justify>
 		<wrap>False</wrap>
 		<xalign>0</xalign>
@@ -1917,7 +1909,7 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GtkLabel</class>
 		<name>label138</name>
-		<label>Unreaded mails:</label>
+		<label>Unread mails:</label>
 		<justify>GTK_JUSTIFY_CENTER</justify>
 		<wrap>False</wrap>
 		<xalign>0</xalign>
@@ -2099,7 +2091,7 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GtkLabel</class>
 		<name>label139</name>
-		<label>Unreaded mailboxes:</label>
+		<label>Unread mailboxes:</label>
 		<justify>GTK_JUSTIFY_CENTER</justify>
 		<wrap>False</wrap>
 		<xalign>0</xalign>
@@ -2152,7 +2144,7 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GtkLabel</class>
 		<name>label184</name>
-		<label>Readed mailboxes:</label>
+		<label>Read mailboxes:</label>
 		<justify>GTK_JUSTIFY_CENTER</justify>
 		<wrap>False</wrap>
 		<xalign>0</xalign>
@@ -2441,6 +2433,7 @@ Are you sure you want this?</message>
 		<widget>
 		  <class>GtkEntry</class>
 		  <name>interface_composer_quote_character</name>
+		  <width>40</width>
 		  <can_focus>True</can_focus>
 		  <editable>True</editable>
 		  <text_visible>True</text_visible>
@@ -2620,6 +2613,7 @@ gvim
 	  <widget>
 	    <class>GtkFrame</class>
 	    <name>frame30</name>
+	    <visible>False</visible>
 	    <label>Title format</label>
 	    <label_xalign>0</label_xalign>
 	    <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
@@ -3056,7 +3050,6 @@ Bottom right of the screen
 	      <widget>
 		<class>GtkCheckButton</class>
 		<name>advanced_security_password_ask</name>
-		<can_focus>True</can_focus>
 		<label>_Ask for a password when the application starts</label>
 		<active>False</active>
 		<draw_indicator>True</draw_indicator>

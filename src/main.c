@@ -88,6 +88,8 @@ static struct {
 #ifdef USE_DEBUG
 	gchar *intensive_test;
 	gboolean intensive_test_list;
+	gchar *debug_modules;
+	gboolean debug_modules_list;
 #endif
 } flags =
 {
@@ -110,9 +112,11 @@ static struct {
 	FALSE,
 	FALSE,
 	FALSE,
-	FALSE,
+	FALSE
 
 #ifdef USE_DEBUG
+	,NULL,
+	FALSE,
 	NULL,
 	FALSE
 #endif
@@ -124,6 +128,7 @@ void on_sigsegv (int signal)
 
 	system ("date");
 
+#ifndef USE_DEBUG /* XXX REMOVE THIS!!! */
 	dialog = gnome_error_dialog (_("An internal error has crashed Cronos II!\n"
  							       "\n"
 								   "Your unsaved data is going to be saved\n"
@@ -133,6 +138,7 @@ void on_sigsegv (int signal)
 	gnome_dialog_run_and_close (dialog);
 
 	gtk_signal_emit_by_name (GTK_OBJECT (global_application), "emergency_data_save");
+#endif
 	c2_preferences_set_application_crashed (TRUE);
 	abort ();
 }
@@ -239,9 +245,15 @@ c2_init (gint argc, gchar **argv)
 			NULL
 		},
 		{
-			"intensive-test-list", 0, POPT_ARG_NONE,
-			&(flags.intensive_test_list), 0,
-			N_("Shows a list of available intensive tests and quit"),
+			"debug-modules-list", 0, POPT_ARG_NONE,
+			&(flags.debug_modules_list), 0,
+			N_("Shows the list of modules that can be debugged"),
+			NULL
+		},
+		{
+			"debug-modules", 0, POPT_ARG_STRING,
+			&(flags.debug_modules), 0,
+			N_("Separated list of commas with the names of the modules you want to debug. See --debug-module-list for a list"),
 			NULL
 		}
 #endif
@@ -278,10 +290,19 @@ main (gint argc, gchar **argv)
 {
 	gboolean something_opened = FALSE;
 	gchar *version;
+	gchar *str;
+	gint i;
 
 #ifdef USE_DEBUG
 	/* Redirect the error output */
 	setbuf (stdout, NULL);
+
+	/* Default to NO ALL the debugging symbols */
+	_debug_db			= _debug_db_cronosII		= _debug_db_imap		= _debug_db_spool =
+	_debug_imap			= _debug_mailbox		= _debug_message		= _debug_mime =
+	_debug_net_object		= _debug_pop3			= _debug_request		= _debug_smtp =
+	_debug_widget_application	= _debug_widget_composer	= _debug_widget_index		= _debug_widget_mailbox_list =
+	_debug_widget_mail		= _debug_widget_part		= _debug_widget_transfer_item	= 0;
 #endif
 
 	/* Initialization of GNOME and Glade */
@@ -290,11 +311,76 @@ main (gint argc, gchar **argv)
 #ifdef USE_DEBUG
 	if (flags.intensive_test_list)
 	{
-			printf ("\nAvailable intensive tests are:\n"
-					"%18s\t\t%s.\n"
-					"\n",
-					"mailbox", "Makes a hard tests creating, manipulating and deleting mailboxes");
-			exit (0);
+		printf ("\nAvailable intensive tests are:\n"
+				"%18s\t\t%s.\n"
+				"\n",
+				"mailbox", "Makes a hard tests creating, manipulating and deleting mailboxes");
+		exit (0);
+	}
+
+	if (flags.debug_modules_list)
+	{
+		printf (_("If you found some problem with Cronos II when doing some specific thing you can debug an specific portion "
+			"of the program and send the output to cronosII-hackers@lists.sf.net so we can fix the problem for you.\n"
+			"\n"
+			"Recommendation: Debugging produces a lot of output, we recommend you to redirect the output that Cronos II "
+			"generates by adding >cronosII.out 2>&1 to the end of the command.\n"
+			"\n"
+			"This is a list of the available debug-modules symbols:\n"
+			"\n"
+			""));
+		exit (0);
+	}
+
+	if (flags.debug_modules)
+	{
+		for (i = 0;; i++)
+		{
+			str = c2_str_get_word (i, flags.debug_modules, ',');
+			if (!str || !strlen (str))
+				break;
+
+			if (c2_streq (str, "widget-application"))
+				_debug_widget_application = TRUE;
+			else if (c2_streq (str, "widget-composer"))
+				_debug_widget_composer = TRUE;
+			else if (c2_streq (str, "widget-index"))
+				_debug_widget_index = TRUE;
+			else if (c2_streq (str, "widget-mailbox-list"))
+				_debug_widget_mailbox_list = TRUE;
+			else if (c2_streq (str, "widget-part"))
+				_debug_widget_part = TRUE;
+			else if (c2_streq (str, "widget-transfer-item"))
+				_debug_widget_transfer_item = TRUE;
+			else if (c2_streq (str, "db"))
+				_debug_db = TRUE;
+			else if (c2_streq (str, "db-cronosII"))
+				_debug_db_cronosII = TRUE;
+			else if (c2_streq (str, "db-imap"))
+				_debug_db_imap = TRUE;
+			else if (c2_streq (str, "db-spool"))
+				_debug_db_spool = TRUE;
+			else if (c2_streq (str, "imap"))
+				_debug_imap = TRUE;
+			else if (c2_streq (str, "mailbox"))
+				_debug_mailbox = TRUE;
+			else if (c2_streq (str, "message"))
+				_debug_message = TRUE;
+			else if (c2_streq (str, "mime"))
+				_debug_mime = TRUE;
+			else if (c2_streq (str, "net-object"))
+				_debug_net_object = TRUE;
+			else if (c2_streq (str, "pop3"))
+				_debug_pop3 = TRUE;
+			else if (c2_streq (str, "request"))
+				_debug_request = TRUE;
+			else if (c2_streq (str, "smtp"))
+				_debug_smtp = TRUE;
+			else
+				fprintf (stderr, _("Unknown debugging symbol: %s\n"), str);
+			
+			g_free (str);
+		}
 	}
 #endif
 
@@ -321,7 +407,8 @@ main (gint argc, gchar **argv)
 		something_opened = TRUE;
 	} else if (c2_preferences_get_advanced_security_password_ask ())
 	{
-//		GtkWidget *
+		if (!c2_application_dialog_password (application))
+			return 1;
 	}
 	
 	/* Open specified windows */

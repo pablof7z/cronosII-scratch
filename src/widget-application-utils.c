@@ -180,6 +180,98 @@ c2_application_cut_text (C2Application *application, GdkFont *font, const gchar 
 	return g_strdup ("");
 }
 
+static gint
+on_dialog_password_password_key_press_event (GtkWidget *widget, GdkEventKey *event, GladeXML *xml)
+{
+	if (event->keyval == GDK_Escape)
+	{
+		gtk_object_set_data (GTK_OBJECT (xml), "return", FALSE);
+		gtk_main_quit ();
+	}
+
+	if (event->keyval == GDK_Return)
+	{
+		gtk_object_set_data (GTK_OBJECT (xml), "return", TRUE);
+		gtk_main_quit ();
+	}
+	
+	return FALSE;
+}
+
+gboolean
+c2_application_dialog_password (C2Application *application)
+{
+	GtkWidget *widget;
+	GladeXML *xml;
+	gchar *input_pass;
+	gchar *password;
+	GtkStyle *style;
+	gint returned;
+
+	/* Create the dialog */
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_req_password");
+
+	password = c2_preferences_get_advanced_security_password ();
+
+	widget = glade_xml_get_widget (xml, "pixmap1");
+	gnome_pixmap_load_file (GNOME_PIXMAP (widget), PKGDATADIR "/pixmaps/right_margin.png");
+	widget = glade_xml_get_widget (xml, "pixmap2");
+	gnome_pixmap_load_file (GNOME_PIXMAP (widget), PKGDATADIR "/pixmaps/left_margin.png");
+
+	widget = glade_xml_get_widget (xml, "dlg_req_password");
+	style = gtk_style_copy (gtk_widget_get_style (widget));
+	style->bg[GTK_STATE_NORMAL] = style->white;
+	gtk_widget_set_style (widget, style);
+
+	widget = glade_xml_get_widget (xml, "label_pass");
+	style = gtk_style_copy (gtk_widget_get_style (widget));
+	style->font = gdk_font_load (c2_font_bold);
+	gtk_widget_set_style (widget, style);
+
+	widget = glade_xml_get_widget (xml, "password");
+	gtk_signal_connect (GTK_OBJECT (widget), "key_press_event",
+				GTK_SIGNAL_FUNC (on_dialog_password_password_key_press_event), xml);
+
+	widget = glade_xml_get_widget (xml, "dlg_req_password");
+	if (gnome_preferences_get_dialog_centered ())
+		gtk_window_set_position (GTK_WINDOW (widget), GTK_WIN_POS_CENTER);
+
+rerun:
+	widget = glade_xml_get_widget (xml, "dlg_req_password");
+	
+	gtk_widget_show (widget);
+	gtk_main ();
+
+	returned = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (xml), "return"));
+	
+	switch (returned)
+	{
+		case TRUE:
+			widget = glade_xml_get_widget (xml, "password");
+			input_pass = gtk_entry_get_text (GTK_ENTRY (widget));
+			
+			if (c2_streq (input_pass, password))
+			{
+				g_free (password);
+				gtk_widget_destroy (glade_xml_get_widget (xml, "dlg_req_password"));
+				return TRUE;
+			} else
+			{
+				gtk_editable_select_region (GTK_EDITABLE (widget), 0, strlen (input_pass));
+				widget = gnome_error_dialog (_("The password you enter is not correct."));
+				gnome_dialog_run_and_close (GNOME_DIALOG (widget));
+				goto rerun;
+			}
+			
+			break;
+		case FALSE:
+			gtk_widget_destroy (glade_xml_get_widget (xml, "dlg_req_password"));
+			break;
+	}
+	
+	return FALSE;
+}
+
 static void
 on_dialog_missing_mailbox_inform_fix_clicked (GtkWidget *widget, GtkWidget *dialog)
 {

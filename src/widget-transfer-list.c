@@ -116,6 +116,7 @@ static void
 init (C2TransferList *tl)
 {
 	tl->list = NULL; 
+	tl->finished = 0;
 }
 
 static void
@@ -132,7 +133,6 @@ destroy (GtkObject *object)
 	
 	g_slist_free (tl->list);
 
-	printf ("Emitiendo la señal de desconexión %d\n", __LINE__);
 	gtk_signal_emit (GTK_OBJECT (tl), signals[FINISH]);
 }
 
@@ -204,15 +204,16 @@ on_button0_clicked (GtkWidget *widget, C2TransferList *tl)
 static void
 on_button1_clicked (GtkWidget *widget, C2TransferList *tl)
 {
-	gtk_widget_destroy (GTK_WIDGET (tl));
+	if (tl->finished)
+		gtk_widget_destroy (GTK_WIDGET (tl));
+	else
+		gtk_widget_hide (GTK_WIDGET (tl));
 }
 
 void
 c2_transfer_list_add_item (C2TransferList *tl, C2TransferItem *ti)
 {
 	c2_return_if_fail (C2_IS_TRANSFER_ITEM (ti), C2EDATA);
-
-	C2_PRINTD (MOD, "Account = '%s'\n", ti->account->name);
 
 	/* If it a retrieve TI and we already have a retrieve TI for this
 	 * account, remove the old one.
@@ -264,11 +265,7 @@ on_transfer_item_finish (C2TransferItem *ti, C2TransferList *tl)
 	if (GTK_TOGGLE_BUTTON (tl->close)->active && g_slist_length (tl->list) == 1)
 		gtk_timeout_add (2500, (GtkFunction) on_last_finish_timeout, tl);
 	else
-	{
-		printf ("<%d>\n", g_slist_length (tl->list));
 		tl->list = g_slist_remove (tl->list, ti);
-		printf ("<%d>\n", g_slist_length (tl->list));
-	}
 	
 	progress = ti->progress_byte;
 	
@@ -281,7 +278,7 @@ on_transfer_item_finish (C2TransferItem *ti, C2TransferList *tl)
 
 	if (!g_slist_length (tl->list))
 	{
-		printf ("Emitiendo la señal de desconexión %d\n", __LINE__);
 		gtk_signal_emit (GTK_OBJECT (tl), signals[FINISH]);
+		tl->finished = 1;
 	}
 }

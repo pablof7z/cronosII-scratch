@@ -4,7 +4,13 @@ else
 test_suite = 
 endif
 
-SUBDIRS = intl po libcronosII src $(test_suite) macros default images pixmaps doc man plugins xml
+if USE_TOOLS
+tools = tools
+else
+tools =
+endif
+
+SUBDIRS = intl po libcronosII src $(test_suite) $(tools) macros default images pixmaps doc man plugins xml
 
 bin_SCRIPTS = cronosII-config
 
@@ -13,6 +19,9 @@ plugin_DATA =
 
 aboutdir = $(pkgdatadir)
 about_DATA = about.html bugs.html features.html header.png message_404.html touch.html welcome.html
+
+desktopdir = $(prefix)/gnome/apps/Internet
+desktop_DATA = cronosII.desktop
 
 cronosincludedir = $(includedir)/cronosII
 cronosinclude_HEADERS = config.h

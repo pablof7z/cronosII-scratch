@@ -763,13 +763,13 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>message_mark_readed</name>
-		  <tooltip>Mark selected messages as readed</tooltip>
+		  <tooltip>Mark selected messages as read</tooltip>
 		  <accelerator>
 		    <modifiers>0</modifiers>
 		    <key>GDK_V</key>
 		    <signal>activate</signal>
 		  </accelerator>
-		  <label>_Readed</label>
+		  <label>_Read</label>
 		  <right_justify>False</right_justify>
 		  <icon>read.xpm</icon>
 		</widget>

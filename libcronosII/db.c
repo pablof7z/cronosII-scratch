@@ -54,6 +54,13 @@
 #include "utils-date.h"
 #include "utils-mutex.h"
 
+#define MOD "C2Db"
+#ifdef USE_DEBUG
+#	define DMOD TRUE
+#else
+#	define DMOD FALSE
+#endif
+
 #define FIRST_MID			1
 
 static void
@@ -129,6 +136,11 @@ destroy (GtkObject *object)
 
 	c2_return_if_fail (C2_IS_DB (object), C2EDATA);
 
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Destroying a C2Db object\n");
+#endif
+
 	db = C2_DB (object);
 	prev = db->prev;
 	next = db->next;
@@ -169,11 +181,20 @@ destroy (GtkObject *object)
 			} while (prev);
 		}
 	}
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "C2Db object destroyed\n");
+#endif
 }
 
 static void
 message_destroy (C2Message *message, C2Db *db)
 {
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "The message that this C2Db object contained was destroyed, returning to NULL\n");
+#endif
 	db->message = NULL;
 }
 
@@ -208,6 +229,11 @@ c2_db_new (C2Mailbox *mailbox, gboolean mark, gchar *subject, gchar *from,
 {
 	C2Db *db = NULL;
 	C2Db *last;
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Creating a new C2Db object\n");
+#endif
 
 	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
 	
@@ -388,9 +414,15 @@ c2_db_get_node_by_mid (C2Mailbox *mailbox, gint mid)
 gboolean
 c2_db_create_structure (C2Mailbox *mailbox)
 {
-	gboolean (*func) (C2Mailbox *mailbox);
+	gboolean (*func) (C2Mailbox *mailbox) = NULL;
+	gboolean retval;
 	
 	c2_return_val_if_fail (mailbox, FALSE, C2EDATA);
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Creating the structure for a C2Db of %s\n", mailbox->name);
+#endif
 
 	switch (mailbox->type)
 	{
@@ -408,7 +440,16 @@ c2_db_create_structure (C2Mailbox *mailbox)
 			return FALSE;
 	}
 
-	return func (mailbox);
+	if (func)
+		retval = func (mailbox);
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Structure created\n");
+#endif
+	
+
+	return retval;
 }
 
 /**
@@ -427,6 +468,12 @@ gboolean
 c2_db_update_structure (C2Mailbox *mailbox)
 {
 	gboolean (*func) (C2Mailbox *mailbox) = NULL;
+	gboolean retval;
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Updating the structure for a C2Db of %s\n", mailbox->name);
+#endif
 
 	switch (mailbox->type)
 	{
@@ -444,7 +491,15 @@ c2_db_update_structure (C2Mailbox *mailbox)
 			return FALSE;
 	}
 
-	return func (mailbox);
+	if (func)
+		retval = func (mailbox);
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Structure updated\n");
+#endif
+
+	return retval;
 }
 
 /**
@@ -462,6 +517,12 @@ gboolean
 c2_db_remove_structure (C2Mailbox *mailbox)
 {
 	gboolean (*func) (C2Mailbox *mailbox) = NULL;
+	gboolean retval;
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Removing the structure for a C2Db of %s\n", mailbox->name);
+#endif
 
 	switch (mailbox->type)
 	{
@@ -479,14 +540,27 @@ c2_db_remove_structure (C2Mailbox *mailbox)
 			return FALSE;
 	}
 
-	return func (mailbox);
+	if (func)
+		retval = func (mailbox);
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Structure removed\n");
+#endif
+
+	return retval;
 }
 
 void
 c2_db_compact (C2Mailbox *mailbox)
 {
 	size_t cbytes, tbytes;
-	void (*func) (C2Mailbox *mailbox, size_t *cbytes, size_t *tbytes);
+	void (*func) (C2Mailbox *mailbox, size_t *cbytes, size_t *tbytes) = NULL;
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Compacting the structure for a C2Db of %s\n", mailbox->name);
+#endif
 
 	c2_mutex_lock (&mailbox->lock);
 	switch (mailbox->type)
@@ -502,16 +576,29 @@ c2_db_compact (C2Mailbox *mailbox)
 			break;
 	}
 
-	func (mailbox, &cbytes, &tbytes);
+	if (func)
+		func (mailbox, &cbytes, &tbytes);
 	c2_mutex_unlock (&mailbox->lock);
 
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "The structured was compacted\n");
+#endif
+
 	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "compacted", cbytes, tbytes);
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "The application was informed about the compacting\n");
+#endif
 }
 
 void
 c2_db_freeze (C2Mailbox *mailbox)
 {
-	void (*func) (C2Mailbox *mailbox);
+	void (*func) (C2Mailbox *mailbox) = NULL;
+
+	c2_return_if_fail (C2_IS_MAILBOX (mailbox), C2EDATA);
 
 	c2_mutex_lock (&mailbox->lock);
 	mailbox->freezed = 1;
@@ -532,13 +619,21 @@ c2_db_freeze (C2Mailbox *mailbox)
 			return;
 	}
 
-	func (mailbox);
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Freezing %s\n", mailbox->name);
+#endif
+
+	if (func)
+		func (mailbox);
 }
 
 void
 c2_db_thaw (C2Mailbox *mailbox)
 {
-	void (*func) (C2Mailbox *mailbox);
+	void (*func) (C2Mailbox *mailbox) = NULL;
+
+	c2_return_if_fail (C2_IS_MAILBOX (mailbox), C2EDATA);
 
 	mailbox->freezed = 0;
 	
@@ -558,16 +653,29 @@ c2_db_thaw (C2Mailbox *mailbox)
 			return;
 	}
 
-	func (mailbox);
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Thawing %s\n", mailbox->name);
+#endif
+
+	if (func)
+		func (mailbox);
+
 	c2_mutex_unlock (&mailbox->lock);
 
 	/* Now emit queued signals */
 	if (mailbox->signals_queued)
 	{
-		printf ("emiting signals\n");
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Informing the application about the thaw\n");
+#endif
 		gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
-										C2_MAILBOX_CHANGE_ANY, mailbox->db);
-		printf ("emitted\n");
+						C2_MAILBOX_CHANGE_ANY, mailbox->db);
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Application informed\n");
+#endif
 	}
 }
 
@@ -589,6 +697,11 @@ c2_db_load (C2Mailbox *mailbox)
 	gint retval;
 	
 	c2_return_val_if_fail (C2_IS_MAILBOX (mailbox), FALSE, C2EDATA);
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Mailbox %s will be loaded\n", mailbox->name);
+#endif
 	
 	c2_mutex_lock (&mailbox->lock);
 	
@@ -607,6 +720,11 @@ c2_db_load (C2Mailbox *mailbox)
 
 	if (!((retval = func (mailbox)) < 0))
 		mailbox->db_is_loaded = 1;
+
+#ifdef USE_DEBUG
+	if (_debug_db)
+		C2_PRINTD (MOD, "Mailbox loaded\n");
+#endif
 
 	c2_mutex_unlock (&mailbox->lock);
 

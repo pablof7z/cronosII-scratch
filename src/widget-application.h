@@ -176,8 +176,11 @@ c2_application_open_windows					(C2Application *application);
  * [ Commands ] *
  ****************/
 
+#define c2_application_command(app, cmnd, args...)		_c2_application_command (app, TRUE, cmnd, ##args)
+#define c2_application_remote_command(app, cmnd, args...)	_c2_application_command (app, FALSE, cmnd, ##args)
+
 void
-c2_application_command						(C2Application *application, const gchar *cmnd, ...);
+_c2_application_command						(C2Application *application, gboolean local, const gchar *cmnd, ...);
 
 /***********************
  * [Application Utils] *

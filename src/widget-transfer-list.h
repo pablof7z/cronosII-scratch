@@ -50,6 +50,8 @@ struct _C2TransferList
 	GtkWidget *close;
 
 	GSList *list;
+
+	gint finished : 1;
 };
 
 struct _C2TransferListClass

@@ -89,7 +89,11 @@ struct _C2TransferItem
 
 	GtkWidget *popup;
 	GtkWidget *popup_label;
-	gchar *popup_label_content;
+	const gchar *popup_label_content;
+	const gchar *popup_progress_content;
+	gfloat popup_progress_min;
+	gfloat popup_progress_max;
+	gfloat popup_progress_value;
 	GtkWidget *popup_progress;
 	GtkWidget *event;
 	GtkWidget *table;

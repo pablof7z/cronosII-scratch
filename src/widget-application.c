@@ -61,8 +61,10 @@
  *          destroying the app and there must be a clean up.
  */
  
-#define MOD "[Widget] Application"
-#define DMOD FALSE
+#define MOD "Widget Application"
+#ifdef USE_DEBUG
+#	define DMOD TRUE
+#endif
 
 static void
 class_init									(C2ApplicationClass *klass);
@@ -356,6 +358,11 @@ init (C2Application *application)
 	gboolean load_mailboxes_at_start;
 	struct sockaddr_un sa;
 	struct stat stbuf;
+
+#ifdef USE_DEBUG
+	if (_debug_widget_application)
+		C2_PRINTD (MOD, "Initializating the Application\n");
+#endif
 
 	application->open_windows = NULL;
 	application->tmp_files = NULL;
@@ -745,6 +752,11 @@ ignore:
 			abort ();
 		}
 	}
+
+#ifdef USE_DEBUG
+	if (_debug_widget_application)
+		C2_PRINTD (MOD, "Application initializated\n");
+#endif
 }
 
 static void
@@ -817,6 +829,11 @@ on_server_read (C2Application *application, gint sock, GdkInputCondition cond)
 	gint i;
 
 	c2_mutex_lock (application->server_lock);
+
+#ifdef USE_DEBUG
+	if (_debug_widget_application)
+		C2_PRINTD (MOD, "Reciving a command\n");
+#endif
 	
 start:
 	if (c2_net_read (sock, &buffer) < 0)
@@ -871,13 +888,13 @@ start:
 					arg1 = NULL;
 				}
 
-				c2_application_command (application, C2_COMMAND_WINDOW_MAIN_NEW, arg1);
+				c2_application_remote_command (application, C2_COMMAND_WINDOW_MAIN_NEW, arg1);
 			} else if (c2_streq (commands[i].cmnd, C2_COMMAND_COMPOSER_NEW))
 			{
 //				buf = c2_str_get_word (1, buffer, 
 			} else if (c2_streq (commands[i].cmnd, C2_COMMAND_CHECK_MAIL))
 			{
-				c2_application_command (application, C2_COMMAND_CHECK_MAIL);
+				c2_application_remote_command (application, C2_COMMAND_CHECK_MAIL);
 			} else if (c2_streq (commands[i].cmnd, C2_COMMAND_WINDOW_MAIN_RAISE))
 			{
 				gchar *arg1;
@@ -889,15 +906,15 @@ start:
 					arg1 = NULL;
 				}
 				
-				c2_application_command (application, C2_COMMAND_WINDOW_MAIN_RAISE, arg1);
+				c2_application_remote_command (application, C2_COMMAND_WINDOW_MAIN_RAISE, arg1);
 				
 				g_free (arg1);
 			} else if (c2_streq (commands[i].cmnd, C2_COMMAND_WINDOW_MAIN_HIDE))
 			{
-				c2_application_command (application, C2_COMMAND_WINDOW_MAIN_HIDE);
+				c2_application_remote_command (application, C2_COMMAND_WINDOW_MAIN_HIDE);
 			} else if (c2_streq (commands[i].cmnd, C2_COMMAND_EXIT))
 			{
-				c2_application_command (application, C2_COMMAND_EXIT);
+				c2_application_remote_command (application, C2_COMMAND_EXIT);
 			} else
 			{
 				g_warning (_("Recived unknown command: '%s'\n"), buffer);
@@ -907,13 +924,22 @@ start:
 
 	g_free (buffer);
 
+#ifdef USE_DEBUG
+	if (_debug_widget_application)
+		C2_PRINTD (MOD, "Command received: %s\n");
+#endif
+
 	c2_mutex_unlock (application->server_lock);
 }
 
 static void
 on_transfer_list_finish (C2TransferList *tl, C2Application *application)
 {
-	printf ("Reconectando...\n");
+#ifdef USE_DEBUG
+	if (_debug_widget_application)
+		C2_PRINTD (MOD, "Reconnecting background checking timeout\n");
+#endif
+	
 	application->check_timeout = gtk_timeout_add (
 							c2_preferences_get_general_options_timeout_check () * 6000,
 							(GtkFunction) on_application_timeout_check, application);
@@ -929,6 +955,11 @@ _check_real (C2Application *application)
 	gboolean silent;
 	
 	c2_return_val_if_fail (C2_IS_APPLICATION (application), FALSE, C2EDATA);
+
+#ifdef USE_DEBUG
+	if (_debug_widget_application)
+		C2_PRINTD (MOD, "Checking the accounts\n");
+#endif
 
 	/* Get the silent option */
 	silent = gtk_object_get_data (GTK_OBJECT (application), "check::silent") ? TRUE : FALSE;
@@ -977,6 +1008,11 @@ _check_real (C2Application *application)
 	g_slist_free (plist);
 	plist = NULL;
 
+#ifdef USE_DEBUG
+	if (_debug_widget_application)
+		C2_PRINTD (MOD, "Account checking fired\n");
+#endif
+
 	return FALSE;
 }
 
@@ -990,8 +1026,6 @@ _check (C2Application *application)
 {
 	gboolean wait_idle = FALSE;
 	gboolean exists_account = c2_application_check_checkeable_account_exists (application);
-
-	printf ("Ejecutando _check\n");
 
 	if (gtk_object_get_data (GTK_OBJECT (application), "check::wait_idle"))
 		wait_idle = TRUE;
@@ -2310,8 +2344,18 @@ c2_application_open_windows (C2Application *application)
 
 
 #if 1 /* COMMANDS */
+/**
+ * _c2_application_command
+ * @application: C2Application object.
+ * @local: If the command was originated from a LOCAL instance of Cronos II set to %TRUE.
+ *         Command will be local ALWAYS but when passed through the server pipe.
+ * @cmnd: Command to execute.
+ * @...: Parameters for the command. Check widget-application.h for more information.
+ *
+ * This function will execute a command in the application pointed by @application.
+ **/
 void
-c2_application_command (C2Application *application, const gchar *cmnd, ...)
+_c2_application_command (C2Application *application, gboolean local, const gchar *cmnd, ...)
 {
 	gint i;
 	va_list args;
@@ -2324,8 +2368,17 @@ c2_application_command (C2Application *application, const gchar *cmnd, ...)
 		for (i = 0; commands[i].func; i++)
 			if (c2_streq (commands[i].cmnd, cmnd))
 			{
-				printf ("Executing command %s\n", commands[i].cmnd);
+#ifdef USE_DEBUG
+				if (_debug_widget_application)
+					C2_PRINTD (MOD, "Executing command: %s\n", cmnd);
+#endif
+
+				if (!local)
+					gdk_threads_enter ();
 				commands[i].func (application, args);
+				
+				if (!local)
+					gdk_threads_leave ();
 				break;
 			}
 	} else
@@ -2422,7 +2475,6 @@ c2_application_command (C2Application *application, const gchar *cmnd, ...)
 		if (!rcmnd)
 			rcmnd = g_strdup (cmnd);
 
-		printf ("Sending '%s'\n", rcmnd);
 		c2_net_send (application->server_socket, "%s\n", rcmnd);
 		g_free (rcmnd);
 	}
@@ -2468,6 +2520,11 @@ command_wmain_new (C2Application *application, va_list args)
 	mailbox = va_arg (args, gchar*);
 
 	widget = c2_window_main_new (application);
+#ifdef USE_DEBUG
+	if (_debug_widget_application)
+		C2_PRINTD (MOD, "Creating main window: %s\n", C2_IS_WINDOW_MAIN (widget) ? "Success" : "Failed");
+#endif
+
 	gtk_object_set_data (GTK_OBJECT (widget), "command_wmain_new::mailbox", mailbox);
 	gtk_signal_connect (GTK_OBJECT (widget), "show",
 							GTK_SIGNAL_FUNC (on_command_wmain_new_window_main_show), widget); \

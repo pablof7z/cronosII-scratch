@@ -41,7 +41,7 @@ AM_CONFIG_HEADER(config.h)
 
 dnl Don't forget to update the FEATURES variable when changing
 dnl version.
-AM_INIT_AUTOMAKE(cronosII, "0.3.0-pre9")
+AM_INIT_AUTOMAKE(cronosII, "0.3.0pre9")
 AC_DEFINE_UNQUOTED(URL, "http://www.cronosII.org/")
 
 dnl #######################################################
@@ -102,6 +102,8 @@ AM_PATH_GNOME_PRINT([0.20.0], [
 
 dnl ## Check for libglade ##
 AM_PATH_LIBGLADE( , , gnome)
+LIBGLADE_CFLAGS=`gnome-config --cflags libglade`
+LIBGLADE_LIBS=`gnome-config --libs libglade`
 
 dnl #######################################################
 dnl   i18n
@@ -373,6 +375,15 @@ AC_ARG_ENABLE([test_suite],
 AM_CONDITIONAL(USE_TEST_SUITE, test "x$test_suite" = "xyes")
 
 dnl #######################################################
+dnl   Tools
+dnl #######################################################
+
+AC_ARG_ENABLE([tools],
+[  --enable-tools            Enable the tools. [default=no]],
+[ tools=$enableval ], [ tools=no ])
+AM_CONDITIONAL(USE_TOOLS, test "x$tools" = "xyes")
+
+dnl #######################################################
 dnl   UI Text Editor
 dnl #######################################################
 
@@ -445,6 +456,7 @@ macros/Makefile
 man/Makefile
 utils/Makefile
 test-suite/Makefile
+tools/Makefile
 pixmaps/Makefile
 plugins/Makefile
 po/Makefile.in
@@ -461,6 +473,7 @@ message_404.html
 touch.html
 welcome.html
 cronosII.spec
+cronosII.desktop
 cronosII-config
 ])
 
@@ -468,6 +481,7 @@ echo
 echo  ============================= Result =============================
 echo  Installing in prefix.............: $prefix
 echo  Building test suite..............: $test_suite
+echo  Building tools...................: $tools
 echo  Building with debugging routines.: $debug
 echo
 echo  Building with HTML support.......: $html

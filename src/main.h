@@ -24,6 +24,7 @@ extern "C" {
 
 #ifdef BUILDING_C2
 #	include "widget-application.h"
+#	include "config.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -53,6 +54,17 @@ c2_font_bold;
 
 const gchar *
 c2_font_italic;
+
+#ifdef USE_DEBUG
+/* ALL DEBUGGING SYMBOLS FOR /SRC MODULES ARE IN HERE */
+short _debug_widget_application;
+short _debug_widget_composer;
+short _debug_widget_index;
+short _debug_widget_mailbox_list;
+short _debug_widget_mail;
+short _debug_widget_part;
+short _debug_widget_transfer_item;
+#endif
 
 #ifdef __cplusplus
 }

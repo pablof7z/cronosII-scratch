@@ -35,8 +35,12 @@
  * 20011102 Make the width dynamically.
  */
 
-#define MOD		"[Widget] Transfer Item"
-#define DMOD	FALSE
+#define MOD		"Widget Transfer Item"
+#ifdef USE_DEBUG
+#	define DMOD	TRUE
+#else
+#	define DMOD	FALSE
+#endif
 
 #define MAX_CHARS_IN_LABEL		33
 #define WIDGET_WIDTH			210
@@ -208,7 +212,10 @@ c2_transfer_item_new (C2Application *application, C2Account *account, C2Transfer
 	gtk_signal_connect (GTK_OBJECT (ti), "destroy",
 						GTK_SIGNAL_FUNC (destroy), NULL);
 
-	C2_PRINTD (MOD, "Account = '%s' -- type = '%d'\n", account->name, type);
+#ifdef USE_DEBUG
+	if (_debug_widget_transfer_item)
+		C2_PRINTD (MOD, "Account = '%s' -- type = '%d'\n", account->name, type);
+#endif
 
 	return ti;
 }
@@ -327,6 +334,32 @@ popup_set_label (C2TransferItem *ti, const gchar *label)
 }
 
 static void
+popup_set_progress (C2TransferItem *ti, const gchar *label, gfloat value, gfloat min, gfloat max)
+{
+	if (label)
+		ti->popup_progress_content = label;
+	if (min > -2)
+		ti->popup_progress_min = min;
+	if (value > -2)
+		ti->popup_progress_value = value;
+	if (max > -2)
+		ti->popup_progress_max = max;
+	
+	if (GTK_IS_PROGRESS (ti->popup_progress))
+	{
+		if (label)
+			gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), label);
+
+		if (min == -1)
+			gtk_progress_set_percentage (GTK_PROGRESS (ti->popup_progress), value);
+		else if (min > -1)
+			gtk_progress_configure (GTK_PROGRESS (ti->popup_progress), value, min, max);
+		else if (value > -1)
+			gtk_progress_set_value (GTK_PROGRESS (ti->popup_progress), value);
+	}
+}
+
+static void
 on_popup_enter_notify_event (GtkWidget *popup, GdkEventCrossing *e, C2TransferItem *ti)
 {
 	ti->mouse_is_in_popup = 1;
@@ -352,7 +385,6 @@ on_enter_notify_event (GtkWidget *table, GdkEventCrossing *e, C2TransferItem *ti
 	gint mx, my;
 	gchar *buffer, *subject;
 	GtkStyle *style;
-	gfloat min, max, val;
 	GdkColor blue = { 0, 0x6b00, 0x5800, 0xee00 };
 
 	/* Check if we already have the popup */
@@ -450,10 +482,8 @@ on_enter_notify_event (GtkWidget *table, GdkEventCrossing *e, C2TransferItem *ti
 	gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), buffer);
 	g_free (buffer);
 
-	min = GTK_PROGRESS (ti->progress_mail)->adjustment->lower;
-	max = GTK_PROGRESS (ti->progress_mail)->adjustment->upper;
-	val = GTK_PROGRESS (ti->progress_mail)->adjustment->value;
-	gtk_progress_configure (GTK_PROGRESS (ti->popup_progress), val, min, max);
+	gtk_progress_configure (GTK_PROGRESS (ti->popup_progress), ti->popup_progress_value,
+				ti->popup_progress_min, ti->popup_progress_max);
 
 	/* Create the label */
 	event = gtk_event_box_new ();
@@ -473,7 +503,7 @@ on_enter_notify_event (GtkWidget *table, GdkEventCrossing *e, C2TransferItem *ti
 	gtk_widget_set_style (event, style);
 	gtk_container_set_border_width (GTK_CONTAINER (event), 1);
 
-	ti->popup_label = gtk_label_new (ti->popup_label_content ? ti->popup_label_content : "");
+	ti->popup_label = gtk_label_new (ti->popup_progress_content);
 	gtk_container_add (GTK_CONTAINER (event), ti->popup_label);
 	gtk_widget_show (ti->popup_label);
 	style = gtk_style_copy (gtk_widget_get_style (ti->popup_label));
@@ -493,8 +523,6 @@ on_enter_notify_event (GtkWidget *table, GdkEventCrossing *e, C2TransferItem *ti
 static gint
 on_leave_notify_event_timeout (C2TransferItem *ti)
 {
-	printf ("Ejecutando %s\n", __PRETTY_FUNCTION__);
-	
 	if (ti->mouse_is_in_popup)
 	{
 		gtk_timeout_add (500, on_leave_notify_event_timeout, ti);
@@ -503,8 +531,6 @@ on_leave_notify_event_timeout (C2TransferItem *ti)
 
 	gtk_widget_destroy (ti->popup);
 	ti->popup = NULL;
-
-	printf ("Terminando de ejecutar %s\n", __PRETTY_FUNCTION__);
 
 	return FALSE;
 }
@@ -558,7 +584,6 @@ c2_transfer_item_start_pop3_thread (C2Pthread3 *data)
 
 	g_free (data);
 	
-	printf ("Comienza a chequear mails\n");
 	c2_pop3_fetchmail (pop3, account, inbox);
 }
 
@@ -568,8 +593,6 @@ smtp_get_id_from_ti (C2TransferItem *ti)
 	C2TransferList *tl;
 	GSList *l;
 	gint id = 1;
-
-	printf ("Haciendo %s\n", __PRETTY_FUNCTION__);
 
 	tl = C2_TRANSFER_LIST (gtk_object_get_data (GTK_OBJECT (ti), "transfer list"));
 
@@ -745,7 +768,6 @@ on_pop3_resolve (GtkObject *object, C2NetObjectByte *byte, C2TransferItem *ti)
 static void
 on_pop3_login (GtkObject *object, C2TransferItem *ti)
 {
-	printf ("Entrando en la cuenta\n");
 	gdk_threads_enter ();
 	/* [FIXME]
 	 * Action to login? Loggining?
@@ -878,7 +900,10 @@ on_pop3_login_failed (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pa
 static void
 on_pop3_uidl (GtkObject *object, gint nth, gint mails, C2TransferItem *ti)
 {
-	printf ("%s\n", __PRETTY_FUNCTION__);
+#ifdef USE_DEBUG
+	if (_debug_widget_transfer_item)
+		C2_PRINTD (MOD, "POP3 UIDL: %d/%d (%s)\n", nth, mails, ti->account->name);
+#endif
 
 	gdk_threads_enter ();
 	if (!nth)
@@ -899,7 +924,10 @@ on_pop3_uidl (GtkObject *object, gint nth, gint mails, C2TransferItem *ti)
 		gtk_progress_set_value (GTK_PROGRESS (ti->popup_progress), nth);
 	gdk_threads_leave ();
 
-	printf ("Saliendo de uidl\n");
+#ifdef USE_DEBUG
+	if (_debug_widget_transfer_item)
+		C2_PRINTD (MOD, "UIDL inform finished (%s)\n", ti->account->name);
+#endif
 }
 
 static void
@@ -907,33 +935,46 @@ on_pop3_status (GtkObject *object, gint mails, C2TransferItem *ti)
 {
 	gchar *buf, *buf2;
 
-	printf ("%s\n", __PRETTY_FUNCTION__);
+#ifdef USE_DEBUG
+	if (_debug_widget_transfer_item)
+		C2_PRINTD (MOD, "%d mails to download (%s)\n", mails, ti->account->name);
+#endif
 
 	gdk_threads_enter ();
+/*#ifdef USE_DEBUG
+	if (_debug_widget_transfer_item)
+		C2_PRINTD (MOD, "Entered in the GDK thread (%s)\n", ti->account->name);
+#endif
 	gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
-	if (GTK_IS_PROGRESS (ti->popup_progress))
-		gtk_progress_configure (GTK_PROGRESS (ti->popup_progress), 0, 0, mails);
+
+#ifdef USE_DEBUG
+	if (_debug_widget_transfer_item)
+		C2_PRINTD (MOD, "Configured the progress mail (%s)\n", mails, ti->account->name);
+#endif
+	popup_set_progress (ti, NULL, 0, 0, mails);
 	
 	ti->type_info.receive.mails_r = mails;
+
+#ifdef USE_DEBUG
+	if (_debug_widget_transfer_item)
+		C2_PRINTD (MOD, "Progress bar updated (%s)\n", mails, ti->account->name);
+#endif
 
 	if (!mails)
 	{
 		gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
-		if (GTK_IS_PROGRESS (ti->popup_progress))
-			gtk_progress_set_percentage (GTK_PROGRESS (ti->popup_progress), 1.0);
+		popup_set_progress (ti, "", -1, -1, -1);
 	} else
 	{
 		if (mails == 1)
 		{
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("%u message."));
-			if (GTK_IS_PROGRESS (ti->popup_progress))
-				gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("%u message."));
+			popup_set_progress (ti, _("There is one new message to download."), -2, -2, -2);
 			popup_set_label (ti, _("There is one new message to download."));
 		} else
 		{
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("%u messages."));
-			if (GTK_IS_PROGRESS (ti->popup_progress))
-				gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("%u messages."));
+			popup_set_progress (ti, _("%u messages."), -2, -2, -2);
 			
 			buf = c2_application_str_number_to_string (mails);
 			buf2 = g_strdup_printf (("There are %s new messages to download."), buf);
@@ -942,10 +983,14 @@ on_pop3_status (GtkObject *object, gint mails, C2TransferItem *ti)
 		}
 	
 		gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
-		if (GTK_IS_PROGRESS (ti->popup_progress))
-			gtk_progress_configure (GTK_PROGRESS (ti->popup_progress), 0, 0, mails);
-	}
+		popup_set_progress (ti, NULL, 0, 0, mails);
+	}*/
 	gdk_threads_leave ();
+
+#ifdef USE_DEBUG
+	if (_debug_widget_transfer_item)
+		C2_PRINTD (MOD, "Status inform finished (%s)\n", ti->account->name);
+#endif
 }
 
 static void
@@ -953,21 +998,18 @@ on_pop3_retrieve (GtkObject *object, gint16 nth, gint32 received, gint32 total, 
 {
 	gchar *buf;
 
-	printf ("%s\n", __PRETTY_FUNCTION__);
-L
 	gdk_threads_enter ();
 	
 	if (!received)
 	{
-L		if (nth == 1)
+		if (nth == 1)
 		{
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Receiving %v of %u"));
-			if (GTK_IS_PROGRESS (ti->popup_progress))
-				gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("Receiving %v of %u"));
+			popup_set_progress (ti, _("Receiving %v of %u"), -2, -2, -2);
 		}
-L		gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), nth);
-		if (GTK_IS_PROGRESS (ti->popup_progress))
-			gtk_progress_set_value (GTK_PROGRESS (ti->popup_progress), nth);
+		
+		gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), nth);
+		popup_set_progress (ti, NULL, nth, -2, -2);
 		
 		gtk_widget_show (ti->progress_byte);
 		gtk_progress_configure (GTK_PROGRESS (ti->progress_byte), 0, 0, total);
@@ -976,45 +1018,36 @@ L		gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), nth);
 		g_free (buf);
 	} else if (total)
 	{
-L		gtk_progress_set_value (GTK_PROGRESS (ti->progress_byte), received);
-		printf ("nth = %d - received = %d - total = %f\n", nth, received, (received*100)/total);
-L		buf = g_strdup_printf ("The message %d is being downloaded (%d %%)", nth, (received*100)/total);
-L		popup_set_label (ti, buf);
+		gtk_progress_set_value (GTK_PROGRESS (ti->progress_byte), received);
+		buf = g_strdup_printf ("The message %d is being downloaded (%d %%)", nth, (received*100)/total);
+		popup_set_label (ti, buf);
 		g_free (buf);
 	} else
 	{
-L		gtk_widget_hide (ti->progress_byte);
+		gtk_widget_hide (ti->progress_byte);
 		buf = g_strdup_printf (_("The message %d is been downloaded."), nth);
-L		popup_set_label (ti, buf);
+		popup_set_label (ti, buf);
 		g_free (buf);
 	}
 	gdk_threads_leave ();
-L}
+}
 
 static void
 on_pop3_synchronize (GtkObject *object, gint nth, gint mails, C2TransferItem *ti)
 {
-	printf ("%s\n", __PRETTY_FUNCTION__);
 	gdk_threads_enter ();
 	if (!nth)
 	{
 		gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
 		gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Synchronizing"));
 
-		if (GTK_IS_PROGRESS (ti->popup_progress))
-		{
-			gtk_progress_configure (GTK_PROGRESS (ti->popup_progress), 0, 0, mails);
-			gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("Synchronizing"));
-		}
-
+		popup_set_progress (ti, _("Synchronizing"), 0, 0, mails);
 		popup_set_label (ti, _("Cronos II is synchronizing the local information with the server information."));
 	}
 
 	gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), nth);
+	popup_set_progress (ti, NULL, nth, -2, -2);
 
-	if (GTK_IS_PROGRESS (ti->popup_progress))
-		gtk_progress_set_value (GTK_PROGRESS (ti->popup_progress), nth);
-	
 	gdk_threads_leave ();
 }
 
@@ -1026,9 +1059,6 @@ on_pop3_disconnect (GtkObject *object, C2NetObjectByte *byte, gboolean success, 
 	gchar *str = NULL;
 	gchar *estr = NULL;
 
-	printf ("%s\n", __PRETTY_FUNCTION__);
-	L
-	
 	gdk_threads_enter ();
 	if (success)
 	{
@@ -1072,11 +1102,7 @@ on_pop3_disconnect (GtkObject *object, C2NetObjectByte *byte, gboolean success, 
 	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), str);
 	gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
 	
-	if (GTK_IS_PROGRESS (ti->popup_progress))
-	{
-		gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), str);
-		gtk_progress_set_percentage (GTK_PROGRESS (ti->popup_progress), 1.0);
-	}
+	popup_set_progress (ti, str, -1, -1, -1);
 	popup_set_label (ti, estr);
 	g_free (estr);
 	
@@ -1113,8 +1139,6 @@ on_pop3_disconnect (GtkObject *object, C2NetObjectByte *byte, gboolean success, 
 	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
 
 	gdk_threads_leave ();
-
-	printf ("Termina de chequear mails\n");
 }
 
 static void

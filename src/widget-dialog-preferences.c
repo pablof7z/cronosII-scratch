@@ -641,6 +641,9 @@ set_values (C2DialogPreferences *preferences)
 	gtk_signal_emit_by_name (GTK_OBJECT (GTK_OPTION_MENU (widgetv)->menu), "selection_done");
 
 
+	SET_BOOLEAN (c2_preferences_get_advanced_security_password_ask, "advanced_security_password_ask");
+	SET_STRING (c2_preferences_get_advanced_security_password, "advanced_security_password_1");
+	SET_STRING (c2_preferences_get_advanced_security_password, "advanced_security_password_2");
 
 	SET_BOOLEAN (c2_preferences_get_advanced_misc_proxy_http, "advanced_misc_proxy_http");
 	SET_STRING (c2_preferences_get_advanced_misc_proxy_http_addr, "advanced_misc_proxy_http_addr");
