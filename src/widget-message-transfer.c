@@ -141,6 +141,8 @@ c2_message_transfer_new (void)
 				  "Clicking a row of the list you will get more information "
 				  "in the progress of the transfering"));
 
+	gnome_dialog_close_hides(GNOME_DIALOG(mt), TRUE);
+	
 	return GTK_WIDGET (mt);
 }
 
@@ -559,9 +561,7 @@ ok_btn_clicked (GtkWidget *button, C2MessageTransfer *mt)
 static void
 cancel_btn_clicked (GtkWidget *button, C2MessageTransfer *mt)
 {
-#ifdef USE_DEBUG
-	g_print ("Cancel hasn't been coded: %s:%d\n", __FILE__, __LINE__);
-#endif
+	gnome_dialog_close(GNOME_DIALOG(mt));
 }
 
 GtkType
