@@ -1,3 +1,8 @@
+Mon Oct  1 PeterGozz <gossner@arcom.com.au>
+	* Added emoticons to images directory.
+	* Added ChangeLog and Readme-emoticons
+
+
 Sat Sep 29 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* A lot of work in the composer: attachments adding, editing and
 	  removing is working; valid email in To: field is working.
