@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-25 16:35-0300\n"
+"POT-Creation-Date: 2001-09-25 23:26-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,20 +19,20 @@ msgstr ""
 msgid "Unable to create structure for Cronos II Db: %s\n"
 msgstr ""
 
-#: libcronosII/db-spool.c:147 libcronosII/db-spool.c:156
-#: libcronosII/db-spool.c:324 libcronosII/db-spool.c:333
-#: libcronosII/db-spool.c:443 libcronosII/db-spool.c:482
-#: libcronosII/db-spool.c:509
+#: libcronosII/db-spool.c:148 libcronosII/db-spool.c:157
+#: libcronosII/db-spool.c:325 libcronosII/db-spool.c:334
+#: libcronosII/db-spool.c:444 libcronosII/db-spool.c:483
+#: libcronosII/db-spool.c:510
 #, c-format
 msgid "Unable to update structure for Spool Db: %s\n"
 msgstr ""
 
-#: libcronosII/db-spool.c:290
+#: libcronosII/db-spool.c:291
 #, c-format
 msgid "Unable to create structure for Spool Db (1): %s\n"
 msgstr ""
 
-#: libcronosII/db-spool.c:299
+#: libcronosII/db-spool.c:300
 #, c-format
 msgid "Unable to create structure for Spool Db (2): %s\n"
 msgstr ""
@@ -527,7 +527,7 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: src/widget-mailbox-list.c:112
+#: src/widget-mailbox-list.c:125
 msgid "Mailbox"
 msgstr ""
 

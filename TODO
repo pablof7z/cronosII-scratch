@@ -10,4 +10,7 @@ widget-mail:
 			o Italic is not recognized/translated.
 
 supports:
-			o MH
+			o MH mailbox.
+
+backends:
+			o Hash for IMAP.

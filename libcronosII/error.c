@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/error.c
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,26 @@ static const gchar *err_list[] =
 };
 
 /**
+ * c2_error_get
+ * @err: Error number.
+ *
+ * Will get the error string according to the code.
+ *
+ * Return Value:
+ * A non free-able string describing the error.
+ **/
+const gchar *
+c2_error_get (void)
+{
+	if (c2_errno >= 0 && c2_errno != C2CUSTOM)
+		return err_list[c2_errno];
+	else if (c2_errno >= 0)
+		return c2_errstr;
+	else
+		return g_strerror (c2_errno*(-1));
+}
+
+/**
  * c2_error_set
  * @err: Error number.
  *
@@ -42,37 +62,61 @@ c2_error_set (gint err)
 }
 
 /**
- * c2_error_get
- * @err: Error number.
- *
- * Will get the error string according to the code.
- *
- * Return Value:
- * A non free-able string describing the error.
- **/
-const gchar *
-c2_error_get (gint err)
-{
-	if (err >= 0 && err != C2CUSTOM)
-		return err_list[err];
-	else if (err >= 0)
-		return c2_errstr;
-	else
-		return g_strerror (err*(-1));
-}
-
-/**
  * c2_error_set_custom
  * @err: Error string.
  *
  * Sets a custom error string.
  **/
 void
-c2_error_set_custom (const gchar *err)
+c2_error_set_custom (gchar *err)
 {
 	c2_errno = C2CUSTOM;
 	c2_errstr = err;
 }
 
+/**
+ * c2_error_object_get
+ * @object: GtkObject where to get the error from.
+ *
+ * This function will get an error from a GtkObject.
+ *
+ * Return Value:
+ * Error that was set in the object.
+ **/
+const gchar *
+c2_error_object_get (GtkObject *object)
+{
+	gint err = GPOINTER_TO_INT (gtk_object_get_data (object, "c2_errno"));
+	
+	if (err != C2CUSTOM)
+		return err_list[err];
+	else
+		return ((gchar*)gtk_object_get_data (object, "c2_errstr"));
+	return NULL;
+}
 
+/**
+ * c2_error_object_set
+ * @object: GtkObject where to set the error.
+ *
+ * This function will set an error in an object.
+ **/
+void
+c2_error_object_set (GtkObject *object, gint err)
+{
+	gtk_object_set_data (object, "c2_errno", (gpointer) err);
+}
 
+/**
+ * c2_error_object_set_custom
+ * @object: GtkObject where to set the error.
+ * @err: Error to set.
+ *
+ * This function will set a custom error in an object.
+ **/
+void
+c2_error_object_set_custom (GtkObject *object, gchar *err)
+{
+	gtk_object_set_data (object, "c2_errno", (gpointer) C2CUSTOM);
+	gtk_object_set_data (object, "c2_errstr", err);
+}

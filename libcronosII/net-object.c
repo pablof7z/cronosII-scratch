@@ -74,7 +74,7 @@ c2_net_object_run (C2NetObject *nobj)
 	if (c2_net_resolve (nobj->host, &ip) < 0)
 	{
 #ifdef USE_DEBUG
-		g_warning ("Unable to resolve hostname: %s\n", c2_error_get (c2_errno));
+		g_warning ("Unable to resolve hostname: %s\n", c2_error_get ());
 #endif
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE);
 		return -1;
@@ -87,7 +87,7 @@ c2_net_object_run (C2NetObject *nobj)
 	if (c2_net_connect (ip, nobj->port, &nobj->sock) < 0)
 	{
 #ifdef USE_DEBUG
-		g_warning ("Unable to connect: %s\n", c2_error_get (c2_errno));
+		g_warning ("Unable to connect: %s\n", c2_error_get ());
 #endif
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE);
 		return -1;
@@ -154,7 +154,7 @@ c2_net_object_send (C2NetObject *nobj, const gchar *fmt, ...)
 		close (nobj->sock);
 		c2_net_object_set_state (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR);
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE);
-		c2_error_set (-errno);
+		c2_error_object_set (GTK_OBJECT (nobj), -errno);
 		g_free (string);
 		return -1;
 	}
@@ -211,7 +211,7 @@ c2_net_object_read (C2NetObject *nobj, gchar **string)
 		close (nobj->sock);
 		c2_net_object_set_state (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR);
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE);
-		c2_error_set (-errno);
+		c2_error_object_set (GTK_OBJECT (nobj), -errno);
 		return -1;
 	}
 	nobj->state = C2_NET_OBJECT_EXCHANGE;

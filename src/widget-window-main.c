@@ -792,10 +792,11 @@ c2_window_main_add_mailbox_dialog (C2WindowMain *wmain)
 	GtkOptionMenu *option_menu;
 	GladeXML *xml;
 
-	dialog = c2_dialog_new (C2_WINDOW (wmain)->application, _("New mailbox"), GNOME_STOCK_BUTTON_HELP,
+	dialog = c2_dialog_new (C2_WINDOW (wmain)->application, _("New mailbox"), "new_mailbox", GNOME_STOCK_BUTTON_HELP,
 							GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_mailbox_properties_contents");
 	C2_DIALOG (dialog)->xml = xml;
+	gtk_widget_set_usize (dialog, 400, -1);
 
 	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox), glade_xml_get_widget (xml,
 							"dlg_mailbox_properties_contents"), TRUE, TRUE, 0);
@@ -843,25 +844,20 @@ re_run_add_mailbox_dialog:
 
 				name = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (xml, "name")));
 
-				/* Hehe, a little eastern egg :) */
+				/* [TODO] Hehe, a little eastern egg :) */
 				if (c2_streq (name, ""))
+					;
 
-
-				if (!C2_WINDOW (wmain)->application)
-					L
-
-				C2_DEBUG (name);
-L
 				/* Check if the name is valid */
-L				if (!name || !strlen (name) ||
+				if (!name || !strlen (name) ||
 					c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox, name))
 				{
 					GladeXML *err_xml;
 					GtkWidget *err_dialog;
-L					
+					
 					err_xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_mailbox_err");
 					err_dialog = glade_xml_get_widget (err_xml, "dlg_mailbox_err");
-L
+
 					gtk_window_set_modal (GTK_WINDOW (err_dialog), TRUE);
 					gnome_dialog_run_and_close (GNOME_DIALOG (err_dialog));
 

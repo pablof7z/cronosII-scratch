@@ -20,6 +20,7 @@
 #include <string.h>
 #include <config.h>
 
+#include "i18n.h"
 #include "error.h"
 #include "net-object.h"
 #include "pop3.h"
@@ -375,7 +376,7 @@ welcome (C2POP3 *pop3)
 		logintokenpos = strstr(string,"<"); 	/* login token start with the first <  */
 		if (logintokenpos == NULL) 				/* no < means they don't support APOP */
 		{
-			c2_error_set_custom ("Server does not support APOP");
+			c2_error_object_set_custom (GTK_OBJECT (pop3), "Server does not support APOP");
 			return -1;
 		}
 
@@ -401,7 +402,7 @@ welcome (C2POP3 *pop3)
 		if (string)
 			string++;
 
-		c2_error_set_custom (string);
+		c2_error_object_set_custom (GTK_OBJECT (pop3), string);
 		return -1;
 	}
 	
@@ -428,7 +429,8 @@ login (C2POP3 *pop3)
 		if (pop3->logintoken == NULL)
 		{
 			/* how the hell did this happen? */
-			c2_error_set_custom("Using APOP but didn't get a logintoken in welcome");
+			c2_error_object_set_custom (GTK_OBJECT (pop3),
+								_("The server does not supports the APOP protocol, change preferences for this account"));
 			return -1;
 		}
 		
@@ -455,14 +457,14 @@ login (C2POP3 *pop3)
 		printf ("APOP %s %s\n", pop3->user, md5apopstring);
 		if (c2_net_object_send (C2_NET_OBJECT (pop3), "APOP %s %s\r\n", pop3->user,md5apopstring) < 0)
 		{
-			c2_error_set_custom("Sending APOP login failed");
+			c2_error_object_set_custom(GTK_OBJECT (pop3), "Sending APOP login failed");
 
 			return -1;
 		}
 
 		if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
 		{
-			c2_error_set_custom("Failed to recv APOP login reply");
+			c2_error_object_set_custom(GTK_OBJECT (pop3), "Failed to recv APOP login reply");
 			return -1;
 		}
 
@@ -472,7 +474,7 @@ login (C2POP3 *pop3)
 			if (string)
 				string++;
 	
-			c2_error_set_custom (string);
+			c2_error_object_set_custom (GTK_OBJECT (pop3), string);
 			return -1;
 		} else
 		{
@@ -501,7 +503,7 @@ login (C2POP3 *pop3)
 			if (string)
 				string++;
 
-			c2_error_set_custom (string);
+			c2_error_object_set_custom (GTK_OBJECT (pop3), string);
 			return -1;
 		}
 
@@ -542,12 +544,13 @@ login (C2POP3 *pop3)
 				} else
 				{
 					pthread_mutex_destroy (&lock);
-					printf ("....\n");
+					c2_error_object_set (GTK_OBJECT (pop3), C2USRCNCL);
 					return -1;
 				}
 			} else
 			{
 				pthread_mutex_destroy (&lock);
+				c2_error_object_set_custom (GTK_OBJECT (pop3), string);
 				return -1;
 			}
 		} else
@@ -560,6 +563,11 @@ login (C2POP3 *pop3)
 	return 0;
 }
 
+/* [TODO]
+ * Perhaps this function should return the classic gint
+ * value indicating if things went well or wrong and return
+ * the GSList as a double-pointer.
+ */
 static GSList *
 status (C2POP3 *pop3, C2Account *account, GSList **cuidl)
 {
@@ -581,7 +589,7 @@ status (C2POP3 *pop3, C2Account *account, GSList **cuidl)
 		if (string)
 			string++;
 
-		c2_error_set_custom (string);
+		c2_error_object_set_custom (GTK_OBJECT (pop3), string);
 		return NULL;
 	}
 
@@ -674,7 +682,7 @@ uidl_in_db (C2Account *account, const gchar *uidl)
 	{
 		c2_error_set (-errno);
 #ifdef USE_DEBUG
-		g_warning ("Unable to search for a UIDL: %s\n", c2_error_get (c2_errno));
+		g_warning ("Unable to search for a UIDL: %s\n", c2_error_get ());
 #endif
 		g_free (path);
 		return;
@@ -716,7 +724,7 @@ uidl_add (C2Account *account, const gchar *uidl, time_t date)
 	{
 		c2_error_set (-errno);
 #ifdef USE_DEBUG
-		g_warning ("Unable to add an UIDL: %s\n", c2_error_get (c2_errno));
+		g_warning ("Unable to add an UIDL: %s\n", c2_error_get ());
 #endif
 		g_free (path);
 		return;
@@ -768,7 +776,7 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 			if (string)
 				string++;
 			
-			c2_error_set_custom (string);
+			c2_error_object_set_custom (GTK_OBJECT (pop3), string);
 			return -1;
 		}
 
@@ -848,7 +856,7 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 				if (string)
 					string++;
 				
-				c2_error_set_custom (string);
+				c2_error_object_set_custom (GTK_OBJECT (pop3), string);
 				return -1;
 			}
 		}
@@ -902,9 +910,9 @@ synchronize (C2POP3 *pop3, C2Account *account, GSList *uidl_list)
 	path = g_strconcat (g_get_home_dir (), C2_HOME, "uidl" G_DIR_SEPARATOR_S, account->name, NULL);
 	if (!(fd = fopen (path, "rt")))
 	{
-		c2_error_set (-errno);
+		c2_error_object_set (GTK_OBJECT (pop3), -errno);
 #ifdef USE_DEBUG
-		g_warning ("Unable to synchronize[1]: %s\n", c2_error_get (c2_errno));
+		g_warning ("Unable to synchronize[1]: %s\n", c2_error_object_get (GTK_OBJECT (pop3)));
 #endif
 		g_free (path);
 		return -1;
@@ -913,9 +921,9 @@ synchronize (C2POP3 *pop3, C2Account *account, GSList *uidl_list)
 	tmppath = c2_get_tmp_file ();
 	if (!(tmpfd = fopen (tmppath, "wt")))
 	{
-		c2_error_set (-errno);
+		c2_error_object_set (GTK_OBJECT (pop3), -errno);
 #ifdef USE_DEBUG
-		g_warning ("Unable to synchronize[2]: %s\n", c2_error_get (c2_errno));
+		g_warning ("Unable to synchronize[2]: %s\n", c2_error_object_get (GTK_OBJECT (pop3)));
 #endif
 		g_free (path);
 		fclose (fd);
@@ -960,7 +968,7 @@ synchronize (C2POP3 *pop3, C2Account *account, GSList *uidl_list)
 				if (string)
 					string++;
 				
-				c2_error_set_custom (string);
+				c2_error_object_set_custom (GTK_OBJECT (pop3), string);
 				return -1;
 			}
 		} else

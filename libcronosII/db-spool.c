@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -35,6 +35,7 @@
 /*Ah you coders bugs bugs bugs. No code =nobugs. Code bad code use memory. :(*/
 /*Oh, yes, the perfect armony of "the 0 bytes length of the file", just perfect :) -pablo */
 /*Cool! I´m coding from Paris with my new laptop! -pablo */
+/*Crap! I'm coding in Buenos Aires without electricity (it went off) -pablo */
 
 gboolean
 c2_db_spool_create_structure (C2Mailbox *mailbox)

@@ -40,8 +40,8 @@ c2_db_cronosII_create_structure (C2Mailbox *mailbox)
 
 	if (mkdir (path, 0700) < 0)
 	{
-		c2_error_set (-errno);
-		g_warning (_("Unable to create structure for Cronos II Db: %s\n"), c2_error_get (c2_errno));
+		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
+		g_warning (_("Unable to create structure for Cronos II Db: %s\n"), c2_error_get ());
 		return FALSE;
 	}
 
@@ -72,9 +72,11 @@ c2_db_cronosII_remove_structure (C2Mailbox *mailbox)
 
 	if (!(dir = opendir (directory)))
 	{
-		c2_error_set (-errno);
+		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
+#ifdef USE_DEBUG
 		g_warning ("Unable to open directory for removing: %s\n",
-								c2_error_get (c2_errno));
+								c2_error_get ());
+#endif
 		return FALSE;
 	}
 
@@ -113,7 +115,7 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 	gint i, mid;
 	time_t date;
 
-	c2_return_val_if_fail (mailbox, -1, C2EDATA);
+	c2_return_val_if_fail_obj (mailbox, -1, C2EDATA, GTK_OBJECT (mailbox));
 
 	/* Calculate the path */
 	path = g_strconcat (g_get_home_dir (), C2_HOME,	mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
@@ -122,7 +124,7 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 	if (!(fd = fopen (path, "rt")))
 	{
 		C2_DEBUG (path);
-		c2_error_set (-errno);
+		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
 		g_free (path);
 		return -1;
 	}
@@ -197,7 +199,7 @@ c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 	buf = g_strconcat (g_get_home_dir (), C2_HOME,	mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
 	if (!(fd = fopen (buf, "at")))
 	{
-		c2_error_set (-errno);
+		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
 		return FALSE;
 	}
 	fprintf (fd, "%c\r\r%d\r%s\r%s\r%d\r%s\r%d\n",
@@ -208,7 +210,7 @@ c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 	buf = g_strdup_printf ("%s" C2_HOME "%s.mbx/%d", g_get_home_dir (), mailbox->name, mid);
 	if (!(fd = fopen (buf, "wt")))
 	{
-		c2_error_set (-errno);
+		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
 		return FALSE;
 	}
 
@@ -258,7 +260,7 @@ c2_db_cronosII_load_message (C2Db *db)
 	
 	if (stat (path, &stat_buf) < 0)
 	{
-		c2_error_set (-errno);
+		c2_error_object_set (GTK_OBJECT (message), -errno);
 #ifdef USE_DEBUG
 		g_print ("Stating the file failed: %s\n", path);
 #endif
@@ -271,7 +273,7 @@ c2_db_cronosII_load_message (C2Db *db)
 
 	if (!(fd = fopen (path, "r")))
 	{
-		c2_error_set (-errno);
+		c2_error_object_set (GTK_OBJECT (message), -errno);
 		return NULL;
 	}
 

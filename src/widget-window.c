@@ -175,7 +175,7 @@ c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, .
 		}
 
 		if (c2_errno && (type != C2_WINDOW_REPORT_MESSAGE))
-			rmsg = g_strdup_printf ("%s: %s\n", msg, c2_error_get (c2_errno));
+			rmsg = g_strdup_printf ("%s: %s\n", msg, c2_error_get ());
 		else
 			rmsg = g_strdup (msg);
 

@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-#include <glib.h>
+#include <gtk/gtk.h>
 #include <errno.h>
 	
 #define c2_return_if_fail(condition, errnum) if (!(condition)) { \
@@ -35,6 +35,16 @@ extern "C" {
 		g_return_val_if_fail (condition, value); \
 	}
 
+#define c2_return_if_fail_obj(condition, errnum, obj) if (!(condition)) { \
+		c2_error_object_set (obj, errnum); \
+		g_return_if_fail (condition); \
+	}
+
+#define c2_return_val_if_fail_obj(condition, value, errnum, obj) if (!(condition)) { \
+		c2_error_object_set (obj, errnum); \
+		g_return_val_if_fail (condition, value); \
+	}
+
 enum
 {
 	C2SUCCESS,
@@ -42,6 +52,7 @@ enum
 	C2ENOMSG,
 	C2EBUSY,
 	C2ERSLV,
+	C2USRCNCL,
 	
 	C2CUSTOM,
 	C2ELAST
@@ -52,13 +63,22 @@ gint c2_errno;
 const gchar *c2_errstr;
 
 const gchar *
-c2_error_get									(gint err);
+c2_error_get								(void);
 
 void
-c2_error_set									(gint err);
+c2_error_set								(gint err);
 
 void
-c2_error_set_custom								(const gchar *err);
+c2_error_set_custom							(gchar *err);
+
+const gchar *
+c2_error_object_get							(GtkObject *object);
+
+void
+c2_error_object_set							(GtkObject *object, gint err);
+
+void
+c2_error_object_set_custom					(GtkObject *object, gchar *err);
 
 #ifdef __cplusplus
 }

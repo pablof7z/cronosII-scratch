@@ -401,7 +401,7 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
 		
 		if (!l)
 		{
-			c2_error_set (C2EDATA);
+			c2_error_object_set (GTK_OBJECT (mailbox), C2EDATA);
 			pthread_mutex_unlock(&mailbox->lock);
 			return;
 		}
