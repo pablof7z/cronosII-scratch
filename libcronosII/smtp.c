@@ -21,12 +21,14 @@
 #include "error.h"
 #include "smtp.h"
 #include "utils.h"
+#include "utils-net.h"
 #include "i18n.h"
 
 /* hard-hat area, in progress by bosko */
 /* feel free to mess around -- help me get this module up to spec faster! */
 /* TODO: implement keep-alive smtp connection */
 /* TODO: implement local sendmail capability */
+/* TODO: upgrade this module to use the C2 Net-Object */
 
 static gint
 c2_smtp_connect (C2Smtp *smtp);
@@ -51,7 +53,7 @@ static gint
 c2_smtp_connect (C2Smtp *smtp)
 {
 	gchar *ip = NULL;
-	gchar *hostname = "localhost"; /* temporary */
+	gchar *hostname = NULL;
 	gchar *buffer = NULL;
 	
 	if(c2_net_resolve(smtp->host, &ip) < 1)
@@ -60,7 +62,7 @@ c2_smtp_connect (C2Smtp *smtp)
 		pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
-	if(c2_net_connect(ip, smtp->port, smtp->sock) < 0) 
+	if(c2_net_connect(ip, smtp->port, &smtp->sock) < 0) 
 	{
 		c2_smtp_set_error(smtp, _("Unable to connect to SMTP server"));
 		pthread_mutex_unlock(&smtp->lock);
@@ -87,13 +89,18 @@ c2_smtp_connect (C2Smtp *smtp)
 	}
 	g_free(buffer);
 	/* TODO: implement EHLO */
+	hostname = c2_net_get_local_hostname(smtp->sock);
+	if(!hostname)
+		hostname = g_strdup("CronosII");
 	if(c2_net_send(smtp->sock, "HELO %s\r\n", hostname) < 0)
 	{
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+		g_free(hostname);
 		pthread_mutex_unlock(&smtp->lock);
 		c2_net_disconnect(smtp->sock);
 		return -1;
 	}
+	g_free(hostname);
 	if(c2_net_read(smtp->sock, &buffer) < 0)
 	{
 		c2_smtp_set_error(smtp, SOCK_READ_FAILED);
@@ -251,12 +258,10 @@ c2_smtp_send_message (C2Smtp *smtp, C2Message *message)
 static gint
 c2_smtp_send_headers(C2Smtp *smtp, C2Message *message)
 {
-	gchar buffer[1025];
+	gchar *buffer;
 	gchar *temp;
 	GList *to = NULL;
 	gint i;
-	
-	memset(buffer, 0, 1025);
 	
   /* this func. needs some way to get the recepient list more efficiently
 	 * especially for fields such as BCC... should we add another 
