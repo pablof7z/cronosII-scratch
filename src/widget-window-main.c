@@ -383,10 +383,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 
 	/* Toolbar */
 	widget = glade_xml_get_widget (xml, "docktoolbar");
-	i = gnome_config_get_bool_with_default ("/"PACKAGE"/Toolbar::Window Main/tooltips=true", NULL);
 	toolbar_style = gnome_config_get_int_with_default ("/"PACKAGE"/Toolbar::Window Main/type=0", NULL);
 	wmain->toolbar = c2_toolbar_new (toolbar_style);
-	c2_toolbar_set_tooltips (C2_TOOLBAR (wmain->toolbar), i);
 	gtk_container_add (GTK_CONTAINER (widget), wmain->toolbar);
 	
 	gtk_signal_connect (GTK_OBJECT (wmain->toolbar), "changed",
@@ -429,6 +427,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 		}
 	}
 	c2_toolbar_thaw (C2_TOOLBAR (wmain->toolbar));
+	c2_toolbar_set_tooltips (C2_TOOLBAR (wmain->toolbar), gnome_config_get_bool_with_default
+								("/"PACKAGE"/Toolbar::Window Main/tooltips=true", NULL));
 	gtk_widget_show (wmain->toolbar);
 
 	/* Vpaned */
@@ -580,14 +580,28 @@ on_toolbar_check_clicked (GtkWidget *widget, C2WindowMain *wmain)
 }
 
 static void
-on_toolbar_delete_clicked (GtkWidget *widget, C2WindowMain *wmain)
+on_toolbar_delete_clicked_thread (C2WindowMain *wmain)
 {
 	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
+	C2Mailbox *trash = c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox,
+												C2_MAILBOX_GARBAGE);
 	GList *list;
 
 	list = GTK_CLIST (wmain->index)->selection;
 
-	c2_db_message_remove (mailbox, list);
+	if (gnome_config_get_bool_with_default ("/"PACKAGE"/General-Options/delete_use_trash=false", NULL))
+		;
+//		cd_db_message_move (mailbox, trash, list);
+	else
+		c2_db_message_remove (mailbox, list);
+}
+
+static void
+on_toolbar_delete_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	pthread_t thread;
+
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_toolbar_delete_clicked_thread), wmain);
 }
 
 static void
@@ -629,7 +643,23 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 		return;
 	
 	if (!node->message)
+	{
 		c2_db_load_message (node);
+		if (!node->message)
+		{
+			/* Something went wrong */
+			const gchar *error;
+			
+			error = c2_error_object_get (GTK_OBJECT (node));
+			if (error)
+				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+								_("Message failed to load: %s"), error);
+			else
+				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+								_("Message failed to load"));
+		}
+	}
+
 	c2_mail_set_message (C2_MAIL (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail")), node->message);
 
 	/* Set some widgets sensivity */

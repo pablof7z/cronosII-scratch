@@ -275,16 +275,16 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 	
 	if(smtp->flags == C2_SMTP_DO_PERSIST)
 		byte = smtp->persistent;
-	
+L	
 	/* Lock the mutex */
 	/* pthread_mutex_lock (&smtp->lock); */
 	
 	if(smtp->type == C2_SMTP_REMOTE) 
 	{
-		if(!byte)
+L		if(!byte)
 			if(c2_smtp_connect(smtp, &byte) < 0)
 				return -1;
-		if(smtp->flags == C2_SMTP_DO_PERSIST)
+L		if(smtp->flags == C2_SMTP_DO_PERSIST)
 			smtp->persistent = byte;
 		else
 			smtp->persistent = NULL;
@@ -292,7 +292,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 			return -1;
 		if(c2_smtp_send_message_contents(smtp, byte, message) < 0)
 			return -1;
-		if(c2_net_object_send(C2_NET_OBJECT(smtp), "\r\n.\r\n", byte) < 0)
+		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "\r\n.\r\n") < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp, byte);
@@ -438,7 +438,8 @@ c2_smtp_send_helo (C2SMTP *smtp, C2NetObjectByte *byte, gboolean esmtp)
 	
 	if(esmtp)
 	{
-		if(c2_net_object_send(C2_NET_OBJECT(smtp), "EHLO %s\r\n", hostname, byte) < 0)
+		printf ("%d %d>>\n", byte->sock, byte->state);
+		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "EHLO %s\r\n", hostname) < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			g_free(hostname);
@@ -475,7 +476,7 @@ c2_smtp_send_helo (C2SMTP *smtp, C2NetObjectByte *byte, gboolean esmtp)
 	}
 	else
 	{
-		if(c2_net_object_send(C2_NET_OBJECT(smtp), "HELO %s\r\n", hostname, byte) < 0)
+		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "HELO %s\r\n", hostname) < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			g_free(hostname);
@@ -522,7 +523,7 @@ c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 		//pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
-	if(c2_net_object_send(C2_NET_OBJECT(smtp), "MAIL FROM: %s\r\n", temp, byte) < 0)
+	if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "MAIL FROM: %s\r\n", temp) < 0)
 	{
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 		smtp_disconnect(smtp, byte);
@@ -572,7 +573,7 @@ c2_smtp_send_headers(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *message)
 		//pthread_mutex_unlock(&smtp->lock);
 	}
 	g_free(buffer);
-	if(c2_net_object_send(C2_NET_OBJECT(smtp), "DATA\r\n", byte) < 0) 
+	if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "DATA\r\n") < 0) 
 	{
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 		smtp_disconnect(smtp, byte);
@@ -632,7 +633,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *me
 			{
 				if(*(ptr+1) == '\0') ptr++;
 				buf = g_strndup(start, ptr - start);
-				if(c2_net_object_send(C2_NET_OBJECT(smtp), "%s\r\n", buf, byte) < 0)
+				if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "%s\r\n", buf) < 0)
 				{
 					c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 					g_free(buf);
@@ -664,7 +665,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte, C2Message *me
 			if(mimeboundary) g_free(mimeboundary);
 			break;
 		}
-		if(c2_net_object_send(C2_NET_OBJECT(smtp), "\r\n\r\n", byte) < 0)
+		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "\r\n\r\n") < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp, byte);
@@ -715,8 +716,8 @@ c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2NetObjectByte *byte,
 											 "Content-Transfer-Encoding: 8bit\r\n"
 											 "Content-Disposition: inline");
 	
-	if(c2_net_object_send(C2_NET_OBJECT(smtp), "%s%s\"\r\n%s\r\n--%s\r\n%s\r\n", mimeinfo, *boundary, errmsg, 
-		*boundary, msgheader, byte) < 0)
+	if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "%s%s\"\r\n%s\r\n--%s\r\n%s\r\n", mimeinfo, *boundary, errmsg, 
+		*boundary, msgheader) < 0)
 	{
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 		g_free(mimeinfo);
@@ -773,7 +774,7 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2NetObjectByte *byte,
 	if(!message->mime)
 		return 0;
 	
-	if(c2_net_object_send(C2_NET_OBJECT(smtp), "--%s\r\n", boundary, byte) < 0)
+	if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "--%s\r\n", boundary) < 0)
 	{
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 		smtp_disconnect(smtp, byte);
@@ -783,7 +784,7 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2NetObjectByte *byte,
 
 	for(mime = message->mime; mime; mime = mime->next)
 	{
-		if(c2_net_object_send(C2_NET_OBJECT(smtp), "Content-Type: %s\r\nContent-Transfer-"
+		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "Content-Type: %s\r\nContent-Transfer-"
 									"Encoding: %s\r\nContent-Disposition: %s; filename=\"%s\"\r\n\r\n",
 									mime->type, mime->encoding, mime->disposition, mime->id) < 0)
 		{
@@ -806,7 +807,7 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2NetObjectByte *byte,
 				x = 1024;
 			buf = g_new0(gchar, x+1);
 			memcpy(buf, mime->start+i, x);
-			if(c2_net_object_send(C2_NET_OBJECT(smtp), "%s", buf, byte) < 0)
+			if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "%s", buf) < 0)
 			{
 				c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 				smtp_disconnect(smtp, byte);
@@ -818,8 +819,8 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2NetObjectByte *byte,
 			gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], message, len, sent);
 			g_free(buf);
 		}
-		if(c2_net_object_send(C2_NET_OBJECT(smtp), "--%s%s\r\n\r\n", boundary, 
-													(mime->next) ? "" : "--", byte) < 0)
+		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "--%s%s\r\n\r\n", boundary, 
+													(mime->next) ? "" : "--") < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp, byte);
@@ -838,7 +839,7 @@ smtp_test_connection(C2SMTP *smtp, C2NetObjectByte *byte)
 	
 	if(c2_net_object_is_offline(C2_NET_OBJECT(smtp), byte))
 		return FALSE;
-	if(c2_net_object_send(C2_NET_OBJECT(smtp), "NOOP\r\n", byte) < 0)
+	if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "NOOP\r\n") < 0)
 		return FALSE;
 	if(c2_net_object_read(C2_NET_OBJECT(smtp), &buffer, byte) < 0)
 		return FALSE;
@@ -850,7 +851,7 @@ smtp_test_connection(C2SMTP *smtp, C2NetObjectByte *byte)
 static void
 smtp_disconnect(C2SMTP *smtp, C2NetObjectByte *byte)
 {	
-	c2_net_object_send(C2_NET_OBJECT(smtp), "QUIT\r\n", byte);
+	c2_net_object_send(C2_NET_OBJECT(smtp), byte, "QUIT\r\n");
 	c2_net_object_disconnect(C2_NET_OBJECT(smtp), byte);
 	
 	if(smtp->persistent == byte)
@@ -1048,7 +1049,7 @@ c2_smtp_send_rcpt (C2SMTP *smtp, C2NetObjectByte *byte, gchar *to)
 					buf = final;
 				}
 			}
-			if(c2_net_object_send(C2_NET_OBJECT(smtp), "RCPT TO: %s\r\n", buf, byte) < 0)
+			if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "RCPT TO: %s\r\n", buf) < 0)
 			{
 				c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 				g_free(buf);

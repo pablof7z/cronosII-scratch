@@ -498,7 +498,7 @@ login_apop (C2POP3 *pop3)
 		sprintf (&md5apopstring[x*2],"%02x",md5apop[x]);
 	md5apopstring[32] = 0;
 
-	if (c2_net_object_send (C2_NET_OBJECT (pop3), "APOP %s %s\r\n", pop3->user,md5apopstring) < 0)
+	if (c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "APOP %s %s\r\n", pop3->user,md5apopstring) < 0)
 	{
 		c2_error_object_set_custom(GTK_OBJECT (pop3), "Sending APOP login failed");
 			return -1;
@@ -539,7 +539,7 @@ login_plain (C2POP3 *pop3)
 	gchar *string;
 	
 	/* Username */
-	if (c2_net_object_send (C2_NET_OBJECT (pop3), "USER %s\r\n", pop3->user) < 0)
+	if (c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "USER %s\r\n", pop3->user) < 0)
 		return -1;
 
 	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
@@ -556,7 +556,7 @@ login_plain (C2POP3 *pop3)
 
 	/* Password */
 	g_free (string);
-	if (c2_net_object_send (C2_NET_OBJECT (pop3), "PASS %s\r\n", pop3->pass) < 0)
+	if (c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "PASS %s\r\n", pop3->pass) < 0)
 		return -1;
 	
 	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
@@ -589,7 +589,7 @@ status (C2POP3 *pop3, C2Account *account, GSList **cuidl)
 
 	*cuidl = NULL;
 
-	if (c2_net_object_send (C2_NET_OBJECT (pop3), "STAT\r\n") < 0)
+	if (c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "STAT\r\n") < 0)
 		return NULL;
 
 	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
@@ -618,7 +618,7 @@ status (C2POP3 *pop3, C2Account *account, GSList **cuidl)
 			
 			gtk_signal_emit (GTK_OBJECT (pop3), signals[UIDL], 0, mails);
 			
-			if (c2_net_object_send (C2_NET_OBJECT (pop3), "UIDL\r\n") < 0)
+			if (c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "UIDL\r\n") < 0)
 				return NULL;
 			
 			if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
@@ -777,7 +777,7 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 		}
 
 		/* Retrieve */
-		if (c2_net_object_send (C2_NET_OBJECT (pop3), "RETR %d\r\n", nth) < 0)
+		if (c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "RETR %d\r\n", nth) < 0)
 			return -1;
 
 		if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
@@ -857,7 +857,7 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 			g_free (prompt);
 		} else
 		{
-			if (c2_net_object_send (C2_NET_OBJECT (pop3), "DELE %d\r\n", nth) < 0)
+			if (c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "DELE %d\r\n", nth) < 0)
 				return -1;
 			
 			if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
@@ -968,7 +968,7 @@ synchronize (C2POP3 *pop3, C2Account *account, GSList *uidl_list)
 				continue;
 
 			link = g_slist_nth (uidl_list, nth);
-			if (c2_net_object_send (C2_NET_OBJECT (pop3), "DELE %d\r\n", atoi (link->data)) < 0)
+			if (c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "DELE %d\r\n", atoi (link->data)) < 0)
 				return -1;
 			uidl_list = g_slist_remove_link (uidl_list, link);
 			
@@ -1009,5 +1009,5 @@ save_uidl:
 static void
 quit (C2POP3 *pop3)
 {
-	c2_net_object_send (C2_NET_OBJECT (pop3), "QUIT\r\n");
+	c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "QUIT\r\n");
 }

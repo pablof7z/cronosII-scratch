@@ -297,24 +297,29 @@ nobj_disconnect (C2NetObject *nobj, C2NetObjectByte *byte)
  * bytes sent or -1;
  **/
 gint
-c2_net_object_send (C2NetObject *nobj, const gchar *fmt, ...)
+c2_net_object_send (C2NetObject *nobj, C2NetObjectByte *byte, const gchar *fmt, ...)
 {
 	va_list args;
 	gchar *string;
 	gint value;
-	C2NetObjectByte *byte;
 
 	va_start (args, fmt);
 	string = g_strdup_vprintf (fmt, args);
+	C2_DEBUG (string);
+	va_end (args);
 	
 	if (nobj->max == 1)
 	{
 		GList *l;
 		l = g_list_nth (nobj->bytes, 0);
 		byte = (C2NetObjectByte*) l->data;
-	} else
-		byte = va_arg (args, C2NetObjectByte*);
-	va_end (args);
+	} else if (!byte)
+		printf ("Are u stupid!? You haven't specified the byte "
+				"and you'r max is not 1. Gz, I don't wanna work with ya "
+				"if you are going to keep doing this fucking mistakes here man.\n"
+				"Start coding nicely or I'll punch you! Oh, BTW, "
+				"so you can debug me, line is %d, file is %s and function is %s.\n"
+				"\t\tLater!\n", __LINE__, __FILE__, __PRETTY_FUNCTION__);
 	
 	/* Check if the object has been canceled */
 	if (byte->state & C2_NET_OBJECT_OFF || byte->state & C2_NET_OBJECT_CANCEL)
@@ -329,21 +334,23 @@ c2_net_object_send (C2NetObject *nobj, const gchar *fmt, ...)
 			byte->state |= C2_NET_OBJECT_OFF;
 			gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE, byte);
 		}
-		return -1;
+L		return -1;
 	}
 
-	if ((value = send (byte->sock, string, strlen (string), 0)) < 0)
+	printf ("%d %d<<\n", byte->sock, byte->state);
+L	if ((value = send (byte->sock, string, strlen (string), 0)) < 0)
 	{
 		/* There was a problem in the sending,
 		 * the socket is closed, the state will be set off | error
 		 * and fire the disconnect signal.
 		 */
+		perror ("send()");
 		close (byte->sock);
 		c2_net_object_set_state (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR, byte);
 		c2_error_object_set (GTK_OBJECT (nobj), -errno);
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
 		g_free (string);
-		return -1;
+L		return -1;
 	}
 
 	byte->state = C2_NET_OBJECT_EXCHANGE;
@@ -417,6 +424,7 @@ c2_net_object_read (C2NetObject *nobj, gchar **string, ...)
 		c2_error_object_set (GTK_OBJECT (nobj), -errno);
 		return -1;
 	}
+	C2_DEBUG (*string);
 	byte->state = C2_NET_OBJECT_EXCHANGE;
 	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE],
 					 C2_NET_OBJECT_EXCHANGE_READ, strlen (*string), byte);

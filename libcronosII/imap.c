@@ -469,7 +469,7 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	printf("We are _trying_ to login\n");
 	fflush(NULL);
 	
-	if(c2_net_object_send(C2_NET_OBJECT(imap), "CronosII-%04d LOGIN %s %s\r\n", 
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d LOGIN %s %s\r\n", 
 												tag, imap->user, imap->pass) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);

@@ -738,11 +738,10 @@ Are you sure you want this?</message>
 	      </widget>
 
 	      <widget>
-		<class>GtkFrame</class>
-		<name>frame22</name>
-		<label>Incoming mail</label>
-		<label_xalign>0</label_xalign>
-		<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+		<class>GtkHBox</class>
+		<name>hbox98</name>
+		<homogeneous>True</homogeneous>
+		<spacing>7</spacing>
 		<child>
 		  <padding>0</padding>
 		  <expand>False</expand>
@@ -750,34 +749,81 @@ Are you sure you want this?</message>
 		</child>
 
 		<widget>
-		  <class>GtkVBox</class>
-		  <name>vbox23</name>
-		  <border_width>2</border_width>
-		  <homogeneous>False</homogeneous>
-		  <spacing>4</spacing>
+		  <class>GtkFrame</class>
+		  <name>frame22</name>
+		  <label>Incoming mail</label>
+		  <label_xalign>0</label_xalign>
+		  <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+		  <child>
+		    <padding>0</padding>
+		    <expand>True</expand>
+		    <fill>True</fill>
+		  </child>
 
 		  <widget>
-		    <class>GtkCheckButton</class>
-		    <name>general_options_incoming_warn</name>
-		    <can_focus>True</can_focus>
-		    <label>Let know the user.</label>
-		    <active>False</active>
-		    <draw_indicator>True</draw_indicator>
-		    <child>
-		      <padding>0</padding>
-		      <expand>False</expand>
-		      <fill>False</fill>
-		    </child>
+		    <class>GtkVBox</class>
+		    <name>vbox23</name>
+		    <border_width>2</border_width>
+		    <homogeneous>False</homogeneous>
+		    <spacing>4</spacing>
+
+		    <widget>
+		      <class>GtkCheckButton</class>
+		      <name>general_options_incoming_warn</name>
+		      <can_focus>True</can_focus>
+		      <label>Let know the user.</label>
+		      <active>False</active>
+		      <draw_indicator>True</draw_indicator>
+		      <child>
+			<padding>0</padding>
+			<expand>False</expand>
+			<fill>False</fill>
+		      </child>
+		    </widget>
+		  </widget>
+		</widget>
+
+		<widget>
+		  <class>GtkFrame</class>
+		  <name>frame23</name>
+		  <label>Outgoing mail</label>
+		  <label_xalign>0</label_xalign>
+		  <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+		  <child>
+		    <padding>0</padding>
+		    <expand>True</expand>
+		    <fill>True</fill>
+		  </child>
+
+		  <widget>
+		    <class>GtkVBox</class>
+		    <name>vbox22</name>
+		    <border_width>2</border_width>
+		    <homogeneous>False</homogeneous>
+		    <spacing>0</spacing>
+
+		    <widget>
+		      <class>GtkCheckButton</class>
+		      <name>general_options_outgoing_outbox</name>
+		      <can_focus>True</can_focus>
+		      <label>Save copy in «Sent Items» mailbox.</label>
+		      <active>False</active>
+		      <draw_indicator>True</draw_indicator>
+		      <child>
+			<padding>0</padding>
+			<expand>False</expand>
+			<fill>False</fill>
+		      </child>
+		    </widget>
 		  </widget>
 		</widget>
 	      </widget>
 
 	      <widget>
-		<class>GtkFrame</class>
-		<name>frame23</name>
-		<label>Outgoing mail</label>
-		<label_xalign>0</label_xalign>
-		<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+		<class>GtkHBox</class>
+		<name>hbox99</name>
+		<homogeneous>True</homogeneous>
+		<spacing>7</spacing>
 		<child>
 		  <padding>0</padding>
 		  <expand>False</expand>
@@ -785,73 +831,59 @@ Are you sure you want this?</message>
 		</child>
 
 		<widget>
-		  <class>GtkVBox</class>
-		  <name>vbox22</name>
-		  <border_width>2</border_width>
-		  <homogeneous>False</homogeneous>
-		  <spacing>0</spacing>
+		  <class>GtkFrame</class>
+		  <name>frame47</name>
+		  <label>Deleting mails</label>
+		  <label_xalign>0</label_xalign>
+		  <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+		  <child>
+		    <padding>0</padding>
+		    <expand>False</expand>
+		    <fill>True</fill>
+		  </child>
 
 		  <widget>
-		    <class>GtkHBox</class>
-		    <name>hbox51</name>
+		    <class>GtkVBox</class>
+		    <name>vbox46</name>
+		    <border_width>2</border_width>
 		    <homogeneous>False</homogeneous>
-		    <spacing>4</spacing>
-		    <child>
-		      <padding>0</padding>
-		      <expand>True</expand>
-		      <fill>True</fill>
-		    </child>
+		    <spacing>0</spacing>
 
 		    <widget>
-		      <class>GtkLabel</class>
-		      <name>label111</name>
-		      <label>Wrap text at</label>
-		      <justify>GTK_JUSTIFY_CENTER</justify>
-		      <wrap>False</wrap>
-		      <xalign>0.5</xalign>
-		      <yalign>0.5</yalign>
-		      <xpad>0</xpad>
-		      <ypad>0</ypad>
-		      <child>
-			<padding>0</padding>
-			<expand>False</expand>
-			<fill>False</fill>
-		      </child>
-		    </widget>
-
-		    <widget>
-		      <class>GtkSpinButton</class>
-		      <name>general_options_outgoing_wrap</name>
+		      <class>GtkCheckButton</class>
+		      <name>general_options_delete_use_trash</name>
 		      <can_focus>True</can_focus>
-		      <climb_rate>1</climb_rate>
-		      <digits>0</digits>
-		      <numeric>False</numeric>
-		      <update_policy>GTK_UPDATE_ALWAYS</update_policy>
-		      <snap>False</snap>
-		      <wrap>False</wrap>
-		      <value>72</value>
-		      <lower>0</lower>
-		      <upper>100</upper>
-		      <step>1</step>
-		      <page>10</page>
-		      <page_size>10</page_size>
+		      <label>Store deleted mails in «Trash».</label>
+		      <active>False</active>
+		      <draw_indicator>True</draw_indicator>
 		      <child>
 			<padding>0</padding>
 			<expand>False</expand>
-			<fill>True</fill>
+			<fill>False</fill>
 		      </child>
 		    </widget>
 
 		    <widget>
-		      <class>GtkLabel</class>
-		      <name>label112</name>
-		      <label>characers.</label>
-		      <justify>GTK_JUSTIFY_CENTER</justify>
-		      <wrap>False</wrap>
-		      <xalign>0.5</xalign>
-		      <yalign>0.5</yalign>
-		      <xpad>0</xpad>
-		      <ypad>0</ypad>
+		      <class>GtkCheckButton</class>
+		      <name>general_options_delete_confirmation</name>
+		      <can_focus>True</can_focus>
+		      <label>Ask for confirmation when deleting.</label>
+		      <active>False</active>
+		      <draw_indicator>True</draw_indicator>
+		      <child>
+			<padding>0</padding>
+			<expand>False</expand>
+			<fill>False</fill>
+		      </child>
+		    </widget>
+
+		    <widget>
+		      <class>GtkCheckButton</class>
+		      <name>general_options_delete_archive</name>
+		      <can_focus>True</can_focus>
+		      <label>Archive expunged mails.</label>
+		      <active>False</active>
+		      <draw_indicator>True</draw_indicator>
 		      <child>
 			<padding>0</padding>
 			<expand>False</expand>
@@ -859,20 +891,10 @@ Are you sure you want this?</message>
 		      </child>
 		    </widget>
 		  </widget>
+		</widget>
 
-		  <widget>
-		    <class>GtkCheckButton</class>
-		    <name>general_options_outgoing_outbox</name>
-		    <can_focus>True</can_focus>
-		    <label>Save copy in Outbox mailbox.</label>
-		    <active>False</active>
-		    <draw_indicator>True</draw_indicator>
-		    <child>
-		      <padding>0</padding>
-		      <expand>False</expand>
-		      <fill>False</fill>
-		    </child>
-		  </widget>
+		<widget>
+		  <class>Placeholder</class>
 		</widget>
 	      </widget>
 	    </widget>

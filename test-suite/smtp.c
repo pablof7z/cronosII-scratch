@@ -37,7 +37,7 @@ main (gint argc, gchar **argv)
 	
 	gtk_init(&argc, &argv);
 	
-	smtp = c2_smtp_new(C2_SMTP_REMOTE, "localhost", 25, FALSE, FALSE, NULL, NULL);
+	smtp = c2_smtp_new(C2_SMTP_REMOTE, "smtp.arnet.com.ar", 25, FALSE, FALSE, NULL, NULL);
 	
 	gtk_signal_connect(GTK_OBJECT(smtp), "smtp_update", GTK_SIGNAL_FUNC(on_smtp_update), NULL);
 	

@@ -283,12 +283,12 @@ ignore:
 					gint port;
 					gboolean auth, ssl;
 
-					host = gnome_config_get_string ("outgoing_hostname");
-					port = gnome_config_get_int ("outgoing_port");
-					auth = gnome_config_get_bool ("outgoing_authentication");
-					user = gnome_config_get_string ("outgoing_username");
-					pass = gnome_config_get_string ("outgoing_password");
-					ssl = gnome_config_get_bool ("outgoing_ssl");
+					host = gnome_config_get_string ("outgoing_server_hostname");
+					port = gnome_config_get_int ("outgoing_server_port");
+					auth = gnome_config_get_bool ("outgoing_server_authentication");
+					user = gnome_config_get_string ("outgoing_server_username");
+					pass = gnome_config_get_string ("outgoing_server_password");
+					ssl = gnome_config_get_bool ("outgoing_server_ssl");
 
 					smtp = c2_smtp_new (outgoing, host, port, auth, user, pass, ssl);
 					c2_account_set_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, GTK_TYPE_OBJECT, smtp);

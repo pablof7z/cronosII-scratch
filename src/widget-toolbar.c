@@ -125,7 +125,7 @@ init (C2Toolbar *toolbar)
 {
 	toolbar->style = C2_TOOLBAR_TEXT_UNDER_ICON;
 	toolbar->items = NULL;
-	toolbar->space_size = 4;
+	toolbar->space_size = 2;
 	toolbar->space_style = GTK_TOOLBAR_SPACE_LINE;
 	toolbar->tooltips = 1;
 	toolbar->gtktooltips = NULL;
@@ -139,7 +139,7 @@ c2_toolbar_new (C2ToolbarStyle style)
 
 	toolbar = gtk_type_new (c2_toolbar_get_type ());
 	toolbar->style = style;
-	GTK_BOX (toolbar)->spacing = 4;
+	GTK_BOX (toolbar)->spacing = 2;
 	GTK_BOX (toolbar)->homogeneous = FALSE;
 	gtk_container_set_border_width (GTK_CONTAINER (toolbar), 1);
 
@@ -267,7 +267,8 @@ create_toolbar (C2Toolbar *toolbar)
 		switch (item->type)
 		{
 			case C2_TOOLBAR_BUTTON:
-				create_item_button (toolbar, item->inf.button.widget,
+				item->inf.button.widget =
+						create_item_button (toolbar, item->inf.button.widget,
 									item->inf.button.pixmap,
 									item->inf.button.label,
 									item->inf.button.tooltip,

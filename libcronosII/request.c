@@ -98,7 +98,7 @@ http_retrieve (C2Request *request)
 	FILE *fd;
 
 	/* Retrieve */
-	if (c2_net_object_send (C2_NET_OBJECT (request),
+	if (c2_net_object_send (C2_NET_OBJECT (request), NULL
 							"GET %s HTTP/1.0\r\n"
 							"Host: %s\r\n"
 							"\r\n",

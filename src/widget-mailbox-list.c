@@ -236,8 +236,12 @@ on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *
 	switch (type)
 	{
 		case C2_MAILBOX_CHANGE_ADD:
-		case C2_MAILBOX_CHANGE_REMOVE:
 			node_fill (ctree, cnode, mailbox, NULL, &unreaded);
+			break;
+		case C2_MAILBOX_CHANGE_REMOVE:
+			gdk_threads_enter ();
+			node_fill (ctree, cnode, mailbox, NULL, &unreaded);
+			gdk_threads_leave ();
 			break;
 		case C2_MAILBOX_CHANGE_STATE:
 			break;

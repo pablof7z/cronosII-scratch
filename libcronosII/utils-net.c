@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/utils-net.c
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,16 +22,16 @@
 #include "utils-net.h"
 
 static C2Cache *
-c2_net_get_cache								(const gchar *hostname);
+c2_net_get_cache							(const gchar *hostname);
 
 static void
-c2_net_set_cache								(C2Cache *cache);
+c2_net_set_cache							(C2Cache *cache);
 
 static C2Cache *
-c2_net_get_internal_cache						(void);
+c2_net_get_internal_cache					(void);
 
 static void
-c2_net_set_internal_cache						(C2Cache *cache);
+c2_net_set_internal_cache					(C2Cache *cache);
 
 /**
  * c2_net_resolve
@@ -139,7 +139,7 @@ c2_net_send (guint sock, const gchar *fmt, ...)
 	
 	if ((value = send (sock, string, strlen (string), 0)) < 0)
 		c2_error_set (-errno);
-	printf ("C: %s", string);
+	C2_DEBUG (string);
 	g_free (string);
 	return value;
 }
@@ -186,7 +186,6 @@ c2_net_read (guint sock, gchar **string)
 	tmpstring[1023] = '\0';
 	
 	*string = g_strdup (tmpstring);
-	printf ("S: %s", *string);
 	return bytes;
 }
 

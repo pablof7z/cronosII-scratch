@@ -1,3 +1,8 @@
+Tue Oct 09 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Work with the deletion in the db module.
+	* Added a couple of functions to the module.
+	* Fixed a bug in c2_net_object_send().
+
 Mon Oct 8 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Worked on foundation for the C2IMAP object.
 	* Fixed a few simple bugs in the new net-object.c

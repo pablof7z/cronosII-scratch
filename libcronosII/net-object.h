@@ -130,7 +130,7 @@ C2NetObjectByte *
 c2_net_object_run							(C2NetObject *nobj);
 
 gint
-c2_net_object_send							(C2NetObject *nobj, const gchar *fmt, ...);
+c2_net_object_send							(C2NetObject *nobj, C2NetObjectByte *byte, const gchar *fmt, ...);
 
 gint
 c2_net_object_read							(C2NetObject *nobj, gchar **string, ...);

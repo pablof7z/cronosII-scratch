@@ -120,7 +120,8 @@ destroy (GtkObject *object)
 
 	db = C2_DB (object);
 
-	gtk_object_destroy (GTK_OBJECT (db->message));
+	if (db->message)
+		gtk_object_unref (GTK_OBJECT (db->message));
 	g_free (db->subject);
 	g_free (db->from);
 	g_free (db->account);
@@ -483,6 +484,96 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 	return 0;
 }
 
+/**
+ * c2_db_message_add_list [VFUNCTION]
+ * @mailbox: Mailbox where to act.
+ * @list: A list of C2Message.
+ * 
+ * Appends several messages to the mailbox.
+ *
+ * Return Value:
+ * 0 on success, -1 on error.
+ **/
+gint
+c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
+{
+	gboolean (*func) (C2Mailbox *mailbox, GList *list);
+	C2Db *db;
+	gchar *buf;
+	GList *l, *dl = NULL;
+
+	if (!mailbox->db)
+		c2_mailbox_load_db (mailbox);
+
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_message_add_list;
+			break;
+		case C2_MAILBOX_IMAP:
+			func = NULL;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = NULL;
+			break;
+	}
+
+	/* Note for developers of VFUNCTIONS about this function:
+	 *   The VFunction should just append the node to the
+	 *   mailbox, this function will handle itself the
+	 *   appending to the dynamic list.
+	 *
+	 *   The mid of the db passed to the function should be changed
+	 *   by the VFUNCTION to a proper value.
+	 */
+
+	for (l = list; l; l = g_list_next (l))
+	{
+		C2Message *message = C2_MESSAGE (l->data);
+		gboolean marked = FALSE;
+		time_t date;
+		
+		buf = c2_message_get_header_field (message, "X-Priority:");
+		
+		if (c2_streq (buf, "highest") || c2_streq (buf, "high"))
+			marked = TRUE;
+		g_free (buf);
+		
+		if ((buf = c2_message_get_header_field (message, "Date:")))
+		{
+			date = c2_date_parse (buf);
+			g_free (buf);
+		} else
+			date = time (NULL);
+		
+		db = c2_db_new (mailbox, marked, c2_message_get_header_field (message, "Subject:"),
+						c2_message_get_header_field (message, "From:"),
+						c2_message_get_header_field (message, "X-CronosII-Account:"),
+						date, 0, mailbox->db ? mailbox->db->prev->position+1 : 1);
+		db->message = message;
+		db->state = *(c2_message_get_header_field (message, "X-CronosII-State:"));
+		if (!db->state)
+			db->state = C2_MESSAGE_UNREADED;
+	
+		dl = g_list_append (dl, db);
+	}
+
+	func (mailbox, dl);
+
+	for (l = dl; l; l = g_list_next (l))
+	{
+		C2Db *db = C2_DB (l->data);
+		
+		gtk_object_unref (GTK_OBJECT (db));
+		db->message = NULL;
+	}
+	
+	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
+							C2_MAILBOX_CHANGE_ADD, C2_DB (dl->data)->prev);
+		
+	return 0;
+}
+
 static gint
 db_message_remove_sort (gconstpointer a, gconstpointer b)
 {
@@ -509,6 +600,9 @@ c2_db_message_remove (C2Mailbox *mailbox, GList *list)
 	gint first;
 	gint (*func) (C2Mailbox *mailbox, GList *list);
 	GList *sorted_list = NULL, *l;
+	
+	C2Db *db;
+	gint i;
 
 	/* Sort the list (< to >)  */
 	for (l = list; l; l = g_list_next (l))
@@ -529,64 +623,41 @@ c2_db_message_remove (C2Mailbox *mailbox, GList *list)
 			break;
 	}
 
+	/* Remove from the db list */
+	db = mailbox->db;
+	i = 0;
+	do
+	{
+		printf ("<%d %d>\n", i, GPOINTER_TO_INT (sorted_list->data));
+		if (i == GPOINTER_TO_INT (sorted_list->data))
+		{
+			C2Db *prev = db->prev;
+			C2Db *curr = db;
+			C2Db *next = db->next;
+L
+			prev->next = next;
+			next->prev = prev;
+
+			/* Remove the link */
+			sorted_list = g_list_remove_link (sorted_list, sorted_list);
+			if (!sorted_list)
+				break;
+		}
+		
+		i++;
+	} while (c2_db_lineal_next (db));
+
 	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
 							C2_MAILBOX_CHANGE_REMOVE,
 							c2_db_get_node (mailbox, first ? first-1 : 0));
 
 	return func (mailbox, list);
 }
-#if 0
-	void (*func) (C2Mailbox *mailbox, C2Db *db, gint n);
-	C2Db *prev, *next, *l;
-	gint i;
-	
-	/* Note for developers of VFUNCTIONS about this function:
-	 *   The VFunction should just remove the node from
-	 *   the mailbox, this function will handle itself
-	 *   the removing from the linked list.
-	 */
-	c2_return_if_fail (mailbox, C2EDATA);
-	c2_return_if_fail (db, C2EDATA);
-	c2_return_if_fail (db->mailbox == mailbox, C2EDATA);
 
-	prev = db->prev;
-	next = c2_db_get_node (mailbox, db->position+n);
-
-	if (prev)
-		prev->next = next;
-	if (next)
-		next->prev = prev;
-	if (!prev)
-		mailbox->db = next;
-
-#ifdef USE_DEBUG
-	g_print ("Mail %d has been removed from the list, status: %dx%d (%d-%d)\n",
-					db->mid, prev ? 1 : 0, next ? 1 : 0, prev->position, next->position);
-#endif
-
-	/* Rebuild the positions */
-	for (l = next, i = prev->position+1; c2_db_lineal_next (l); l = l->next, i++)
-		l->position = i;
-
-	switch (mailbox->type)
-	{
-		case C2_MAILBOX_CRONOSII:
-			func = c2_db_cronosII_message_remove;
-			break;
-		case C2_MAILBOX_IMAP:
-			func = c2_db_imap_message_remove;
-			break;
-		case C2_MAILBOX_SPOOL:
-			func = c2_db_spool_message_remove;
-			break;
-	}
-
-	func (mailbox, db, n);
-
-	for (l = db, i = 0; c2_db_lineal_next (l) && i < n; l = l->next, i++)
-		gtk_object_destroy (GTK_OBJECT (l));
+gboolean
+c2_db_message_move (C2Mailbox *fmailbox, C2Mailbox *tmailbox, GList *list)
+{
 }
-#endif
 
 /**
  * c2_db_message_set_state [VFUNCTION]

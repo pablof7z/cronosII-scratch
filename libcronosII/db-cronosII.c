@@ -31,6 +31,9 @@
  * 010916 - Make a function that returns the last MID of a Mailbox.
  */
 
+static gint
+add_message									(C2Mailbox *mailbox, FILE *fd, C2Db *db);
+
 gboolean
 c2_db_cronosII_create_structure (C2Mailbox *mailbox)
 {
@@ -180,13 +183,34 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 	return i;
 }
 
+static gint
+add_message (C2Mailbox *mailbox, FILE *fd, C2Db *db)
+{
+	gchar *buf;
+	
+	fprintf (fd, "%c\r\r%d\r%s\r%s\r%d\r%s\r%d\n",
+				db->state, db->mark, db->subject, db->from, db->date, db->account, db->mid);
+
+	buf = g_strdup_printf ("%s" C2_HOME "%s.mbx/%d", g_get_home_dir (), mailbox->name, db->mid);
+	if (!(fd = fopen (buf, "wt")))
+	{
+		g_free (buf);
+		return -errno;
+	}
+
+	fprintf (fd, "%s\n%s", db->message->header, db->message->body);
+	fclose (fd);
+	g_free (buf);
+
+	return 0;
+}
+
 gboolean
 c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 {
 	gint mid = 0;
 	gchar *buf;
 	FILE *fd;
-
 
 	if (mailbox->db)
 		mid = mailbox->db->prev->prev->mid+1;
@@ -200,21 +224,61 @@ c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 	if (!(fd = fopen (buf, "at")))
 	{
 		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
+		g_free (buf);
 		return FALSE;
 	}
-	fprintf (fd, "%c\r\r%d\r%s\r%s\r%d\r%s\r%d\n",
-				db->state, db->mark, db->subject, db->from, db->date, db->account, db->mid);
+
+	if ((mid = add_message (mailbox, fd, db)))
+	{
+		fclose (fd);
+		g_free (buf);
+		c2_error_object_set (GTK_OBJECT (mailbox), mid);
+		return FALSE;
+	}
+
 	fclose (fd);
 	g_free (buf);
 
-	buf = g_strdup_printf ("%s" C2_HOME "%s.mbx/%d", g_get_home_dir (), mailbox->name, mid);
-	if (!(fd = fopen (buf, "wt")))
+	return TRUE;
+}
+
+gboolean
+c2_db_cronosII_message_add_list (C2Mailbox *mailbox, GList *list)
+{
+	gchar *buf;
+	FILE *fd;
+	GList *l;
+
+	buf = g_strconcat (g_get_home_dir (), C2_HOME,	mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
+	if (!(fd = fopen (buf, "at")))
 	{
 		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
+		g_free (buf);
 		return FALSE;
 	}
 
-	fprintf (fd, "%s\n%s", db->message->header, db->message->body);
+	for (l = list; l; l = g_list_next (l))
+	{
+		C2Db *db = C2_DB (l->data);
+		gint mid = 0;
+		
+		if (mailbox->db)
+			mid = mailbox->db->prev->prev->mid+1;
+		
+		if (!mid)
+			mid = 1;
+		
+		db->mid = mid;
+		
+		if ((mid = add_message (mailbox, fd, db)))
+		{
+			fclose (fd);
+			g_free (buf);
+			c2_error_object_set (GTK_OBJECT (mailbox), mid);
+			return FALSE;
+		}
+	}
+	
 	fclose (fd);
 	g_free (buf);
 
@@ -229,13 +293,16 @@ c2_db_cronosII_message_remove (C2Mailbox *mailbox, GList *list)
 	GList *l;
 	gint line = 0, n;
 
+	printf ("Length to remove[3] %d\n", g_list_length (list));
+
 	/* Remove from index first */
 	/* Get the path */
 	path = g_strconcat (g_get_home_dir (), C2_HOME,	mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
 	if (!(fd = fopen (path, "rt+")))
 	{
 		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
-		return -1;
+		printf ("Error!\n");
+L		return -1;
 	}
 	fseek (fd, 0, SEEK_SET);
 
@@ -248,7 +315,10 @@ c2_db_cronosII_message_remove (C2Mailbox *mailbox, GList *list)
 			if (fgetc (fd) == '?')
 			{
 				if (!c2_fd_move_to (fd, '\n', 1, TRUE, TRUE))
+				{
+					printf ("Error!\n"); L
 					goto finish;
+				}
 				continue;
 			}
 			fseek (fd, -1, SEEK_CUR);
@@ -256,21 +326,28 @@ c2_db_cronosII_message_remove (C2Mailbox *mailbox, GList *list)
 			if (line++ != n)
 			{
 				if (!c2_fd_move_to (fd, '\n', 1, TRUE, TRUE))
+				{
+					printf ("Error!\n"); L
 					goto finish;
+				}
 				continue;
 			}
 
 			fputc ('?', fd);
 			if (!c2_fd_move_to (fd, '\n', 1, TRUE, TRUE))
+			{
+				printf ("Error!\n"); L
 				goto finish;
+			}
 
 			/* Remove mail file */
 			mpath = g_strdup_printf ("%s" C2_HOME "%s.mbx" G_DIR_SEPARATOR_S "%d",
 									 g_get_home_dir (), mailbox->name, n+1);
 			if (unlink (mpath) < 0)
-				L
-			else
-				L;
+			{
+				printf ("Error!\n"); L
+				perror (mpath);
+			}
 			perror (mpath);
 			g_free (mpath);
 			break;
