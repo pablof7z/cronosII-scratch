@@ -554,7 +554,7 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 	gchar *buf, *ptr, *start, *name;
 	C2Mailbox *box;
 	
-	if(parent) name = g_strconcat(parent->name, "/%", NULL);
+	if(parent) name = g_strconcat(parent->protocol.IMAP.imap_name, "/%", NULL);
 	else name = g_strdup("%");
 	
 	if(!(buf = c2_imap_get_folder_list(imap, NULL, name)))
@@ -562,6 +562,7 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 		g_free(name);
 		return -1;
 	}
+	g_free(name);
 	
 	start = buf;
 	
@@ -573,7 +574,6 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 		 * parent folder name */
 		if(c2_str_count_lines(buf) < 3)
 		{
-				g_free(name);
 				g_free(buf);
 				return 0;
 		}
@@ -630,10 +630,12 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 					num++;
 				else if(num == 3)
 				{
-					int i;
+					name = g_strndup(ptr2, strlen(ptr2) - 1);
 					g_free(folder->name);
-					folder->name = g_strndup(ptr2, strlen(ptr2) - 1);
-					printf("the name of the mailbox is: %s\n", folder->name);
+					folder->protocol.IMAP.imap_name = name;
+					folder->name = c2_imap_get_folder_heirarchy
+						(name, c2_imap_get_folder_level(name));
+					printf("the name of the mailbox is: %s\n", name);
 					if(!folder->protocol.IMAP.noinferiors)
 						if(c2_imap_folder_loop(imap, folder) < 0)
 							return -1;
@@ -663,7 +665,7 @@ c2_imap_get_folder_level (gchar *name)
 	guint num = 1;
 	
 	for(ptr = name; *ptr; ptr++)
-		if(*ptr == '/') num++;
+		if(*ptr == '/' && ptr != name) num++;
 	
 	return num;
 }

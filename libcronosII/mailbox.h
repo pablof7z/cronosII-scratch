@@ -101,6 +101,7 @@ struct _C2Mailbox
 		struct
 		{
 			C2IMAP *imap;
+			gchar *imap_name;
 			gboolean marked;
 			gboolean noinferiors;
 			gboolean noselect;
