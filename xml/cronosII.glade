@@ -2025,6 +2025,88 @@ result in the lost of all mails in it.</label>
 	  </widget>
 	</widget>
       </widget>
+
+      <widget>
+	<class>GtkVBox</class>
+	<name>vbox23</name>
+	<homogeneous>False</homogeneous>
+	<spacing>0</spacing>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+
+	<widget>
+	  <class>GtkCheckButton</class>
+	  <name>inbox</name>
+	  <can_focus>True</can_focus>
+	  <label>Use this mailbox as _Inbox.</label>
+	  <active>False</active>
+	  <draw_indicator>True</draw_indicator>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+	</widget>
+
+	<widget>
+	  <class>GtkCheckButton</class>
+	  <name>outbox</name>
+	  <can_focus>True</can_focus>
+	  <label>Use this mailbox as _Outbox.</label>
+	  <active>False</active>
+	  <draw_indicator>True</draw_indicator>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+	</widget>
+
+	<widget>
+	  <class>GtkCheckButton</class>
+	  <name>sent_items</name>
+	  <can_focus>True</can_focus>
+	  <label>Use this mailbox as _Sent Items.</label>
+	  <active>False</active>
+	  <draw_indicator>True</draw_indicator>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+	</widget>
+
+	<widget>
+	  <class>GtkCheckButton</class>
+	  <name>trash</name>
+	  <can_focus>True</can_focus>
+	  <label>Use this mailbox as Trash.</label>
+	  <active>False</active>
+	  <draw_indicator>True</draw_indicator>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+	</widget>
+
+	<widget>
+	  <class>GtkCheckButton</class>
+	  <name>drafts</name>
+	  <can_focus>True</can_focus>
+	  <label>Use this mailbox as Drafts.</label>
+	  <active>False</active>
+	  <draw_indicator>True</draw_indicator>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+	</widget>
+      </widget>
     </widget>
   </widget>
 </widget>

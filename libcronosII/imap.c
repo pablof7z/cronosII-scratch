@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -620,13 +620,13 @@ c2_imap_populate_folders (C2IMAP *imap)
 	if(imap->mailboxes)
 		c2_mailbox_destroy_tree(imap->mailboxes);
 	imap->mailboxes = NULL; 
-	
+L	
 	if(c2_imap_mailbox_loop(imap, NULL) < 0)
 	{
-		c2_mutex_unlock(&imap->lock);
+L		c2_mutex_unlock(&imap->lock);
 		return -1;
 	}
-	
+L	
 	c2_mutex_unlock(&imap->lock);
 	return 0;
 }

@@ -66,7 +66,11 @@ on_mailbox_changed_mailbox					(C2Mailbox *mailbox, C2MailboxChangeType type,
 											 C2Db *db, C2Pthread2 *data);
 
 static void
-node_fill									(GtkCTree *ctree, GtkCTreeNode *cnode,
+account_node_fill							(GtkCTree *ctree, GtkCTreeNode *cnode,
+											 C2Account *account);
+
+static void
+mailbox_node_fill							(GtkCTree *ctree, GtkCTreeNode *cnode,
 											 C2Mailbox *mailbox, C2Db *start_db, gint *unreaded);
 
 static void
@@ -75,6 +79,9 @@ tree_fill									(C2MailboxList *mlist, C2Mailbox *mailbox,
 
 static GtkWidget *
 get_pixmap									(C2Mailbox *mailbox, gboolean open);
+
+static void
+on_imap_mailbox_list						(C2IMAP *imap, C2Mailbox *head, C2Pthread2 *data);
 
 enum
 {
@@ -258,20 +265,26 @@ static void
 on_tree_expand (GtkCTree *ctree, GtkCTreeNode *node)
 {
 	C2Mailbox *mailbox;
+	C2Account *account;
 	gint unreaded;
 
-	mailbox = C2_MAILBOX (gtk_ctree_node_get_row_data (ctree, node));
-	node_fill (ctree, node, mailbox, NULL, &unreaded);
+	if (C2_IS_MAILBOX (mailbox = (C2Mailbox*) gtk_ctree_node_get_row_data (ctree, node)))
+		mailbox_node_fill (ctree, node, mailbox, NULL, &unreaded);
+	else if (C2_IS_ACCOUNT (account = (C2Account*) gtk_ctree_node_get_row_data (ctree, node)) || !account)
+		account_node_fill (ctree, node, account);
 }
 
 static void
 on_tree_collapse (GtkCTree *ctree, GtkCTreeNode *node)
 {
 	C2Mailbox *mailbox;
+	C2Account *account;
 	gint unreaded;
 
-	mailbox = C2_MAILBOX (gtk_ctree_node_get_row_data (ctree, node));
-	node_fill (ctree, node, mailbox, NULL, &unreaded);
+	if (C2_IS_MAILBOX (mailbox = (C2Mailbox*) gtk_ctree_node_get_row_data (ctree, node)))
+		mailbox_node_fill (ctree, node, mailbox, NULL, &unreaded);
+	else if (C2_IS_ACCOUNT (account = (C2Account*) gtk_ctree_node_get_row_data (ctree, node)) || !account)
+		account_node_fill (ctree, node, account);
 }
 
 static void
@@ -284,11 +297,10 @@ static void
 on_application_preferences_changed (C2Application *application, gint key, gpointer value,
 	 C2MailboxList *mlist)
 {
-	printf ("%d\n", key);
 	if (key == C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_UNREADED_MAILBOX ||
 		key == C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_READED_MAILBOX)
 	{
-L		tree_fill (mlist, application->mailbox, application->account, NULL);
+		tree_fill (mlist, application->mailbox, application->account, NULL);
 	}
 }
 
@@ -312,14 +324,57 @@ on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *
 		case C2_MAILBOX_CHANGE_REMOVE:
 		case C2_MAILBOX_CHANGE_STATE:
 			gdk_threads_enter ();
-			node_fill (ctree, cnode, mailbox, NULL, &unreaded);
+			mailbox_node_fill (ctree, cnode, mailbox, NULL, &unreaded);
 			gdk_threads_leave ();
 			break;
 	}
 }
 
 static void
-node_fill (GtkCTree *ctree, GtkCTreeNode *cnode, C2Mailbox *mailbox, C2Db *start_db, gint *unreaded)
+account_node_fill (GtkCTree *ctree, GtkCTreeNode *cnode, C2Account *account)
+{
+	GtkStyle *style;
+	GtkWidget *pixmap;
+	C2Application *application;
+
+	application = C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (ctree), "application"));
+	
+	if (!C2_IS_ACCOUNT (account))
+	{
+		gchar *text;
+		gchar *buf1, *buf2;
+
+		
+		buf1 = g_getenv ("HOSTNAME");
+		buf2 = g_get_user_name ();
+		text = g_strdup_printf ("%s@%s", buf2, buf1);
+		if (!text || !strlen (text))
+			text = g_strdup (_("Local Mailboxes"));
+		
+		pixmap = get_pixmap (NULL, TRUE);
+		gtk_ctree_node_set_pixtext (ctree, cnode, 0, text, 2, GNOME_PIXMAP (pixmap)->pixmap,
+									GNOME_PIXMAP (pixmap)->mask);
+
+		g_free (text);
+	} else
+	{
+		pixmap = get_pixmap (NULL, TRUE);
+		gtk_ctree_node_set_pixtext (ctree, cnode, 0, account->name, 2, GNOME_PIXMAP (pixmap)->pixmap,
+									GNOME_PIXMAP (pixmap)->mask);
+	}
+
+	style = gtk_ctree_node_get_row_style (ctree, cnode);
+	if (!style)
+		style = gtk_style_copy (GTK_WIDGET (ctree)->style);
+	
+	style->font = application->fonts_gdk_unreaded_mailbox;
+	
+	gtk_ctree_node_set_row_style (ctree, cnode, style);
+	gtk_ctree_node_set_row_data (ctree, cnode, (gpointer) account);
+}
+
+static void
+mailbox_node_fill (GtkCTree *ctree, GtkCTreeNode *cnode, C2Mailbox *mailbox, C2Db *start_db, gint *unreaded)
 {
 	C2Application *application;
 	GtkWidget *pixmap;
@@ -366,7 +421,6 @@ node_fill (GtkCTree *ctree, GtkCTreeNode *cnode, C2Mailbox *mailbox, C2Db *start
 	if (!style)
 		style = gtk_style_copy (GTK_WIDGET (ctree)->style);
 	
-	printf ("Unreaded = '%d'\n", *unreaded);
 	if ((*unreaded))
 	{
 		style->font = application->fonts_gdk_unreaded_mailbox;
@@ -379,6 +433,15 @@ node_fill (GtkCTree *ctree, GtkCTreeNode *cnode, C2Mailbox *mailbox, C2Db *start
 }
 
 static void
+init_imap (C2IMAP *imap)
+{
+	if (c2_imap_init (imap) < 0)
+		return;
+	
+	c2_imap_populate_folders (imap);
+}
+
+static void
 tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 			GtkCTreeNode *node)
 {
@@ -387,12 +450,15 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 	GtkCTree *ctree = GTK_CTREE (mlist);
 	GtkCTreeNode *cnode;
 	gint unreaded;
-	GtkStyle *style;
+	gboolean toplevel = node?FALSE:TRUE;
 
-	if (!node)
+	if (toplevel)
 	{
 		gtk_clist_freeze (GTK_CLIST (mlist));
 		gtk_clist_clear (GTK_CLIST (mlist));
+
+		node = gtk_ctree_insert_node (ctree, NULL, NULL, NULL, 4, NULL, NULL, NULL, NULL, FALSE, TRUE);
+		account_node_fill (ctree, node, NULL);
 	}
 
 	for (l = mailbox; l; l = l->next)
@@ -403,7 +469,7 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 		gtk_ctree_node_set_row_data (ctree, cnode, (gpointer) l);
 		data->v2 = (gpointer) cnode;
 
-		node_fill (ctree, cnode, l, NULL, &unreaded);
+		mailbox_node_fill (ctree, cnode, l, NULL, &unreaded);
 
 		gtk_signal_connect (GTK_OBJECT (l), "changed_mailbox",
 							GTK_SIGNAL_FUNC (on_mailbox_changed_mailbox), data);
@@ -414,7 +480,7 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 			tree_fill (mlist, l->child, account, cnode);
 	}
 
-	if (!node)
+	if (toplevel)
 	{
 		C2Account *la;
 		C2Application *application;
@@ -426,22 +492,25 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 			if (la->type == C2_ACCOUNT_IMAP)
 			{
 				C2IMAP *imap;
-				gchar *lrow[] =
-				{
-					la->name
-				};
+				C2Pthread2 *data;
+				pthread_t thread;
 				
-				cnode = gtk_ctree_insert_node (ctree, NULL, NULL, lrow, 4, NULL, NULL, NULL, NULL, FALSE,
-												TRUE);
-				gtk_ctree_node_set_row_data (ctree, cnode, (gpointer) la);
-				style = gtk_ctree_node_get_row_style (ctree, cnode);
-				if (!style)
-					style = gtk_style_copy (GTK_WIDGET (ctree)->style);
-				style->font = application->fonts_gdk_unreaded_mailbox;
-				gtk_ctree_node_set_row_style (ctree, cnode, style);
+				/* Create the node */
+				cnode = gtk_ctree_insert_node (ctree, NULL, NULL, NULL, 4, NULL, NULL, NULL, NULL,
+												FALSE, TRUE);
+				account_node_fill (ctree, cnode, la);
 
+				/* Get the IMAP object */
 				imap = C2_IMAP (c2_account_get_extra_data (la, C2_ACCOUNT_KEY_INCOMING, NULL));
-				c2_imap_init (imap);
+				
+				data = g_new0 (C2Pthread2, 1);
+				data->v1 = mlist;
+				data->v2 = cnode;
+				gtk_signal_connect (GTK_OBJECT (imap), "mailbox_list",
+									GTK_SIGNAL_FUNC (on_imap_mailbox_list), data);
+
+				/* Initializate it */
+				pthread_create (&thread, NULL, C2_PTHREAD_FUNC (init_imap), imap);
 			}
 		}
 		
@@ -457,29 +526,50 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 static GtkWidget *
 get_pixmap (C2Mailbox *mailbox, gboolean open)
 {
-	if (c2_streq (mailbox->name, C2_MAILBOX_INBOX))
-		return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/inbox.png");
-	else if (c2_streq (mailbox->name, C2_MAILBOX_OUTBOX))
-		return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/outbox.png");
-	else if (c2_streq (mailbox->name, C2_MAILBOX_SENT_ITEMS))
-		return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/queue.png");
-	else if (c2_streq (mailbox->name, C2_MAILBOX_TRASH))
-		return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/garbage.png");
-	else if (c2_streq (mailbox->name, C2_MAILBOX_DRAFTS))
-		return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/drafts.png");
-	else
+	if (C2_IS_MAILBOX (mailbox))
 	{
-		if (mailbox->child)
+		if (c2_streq (mailbox->name, C2_MAILBOX_INBOX))
+			return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/inbox.png");
+		else if (c2_streq (mailbox->name, C2_MAILBOX_OUTBOX))
+			return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/outbox.png");
+		else if (c2_streq (mailbox->name, C2_MAILBOX_SENT_ITEMS))
+			return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/queue.png");
+		else if (c2_streq (mailbox->name, C2_MAILBOX_TRASH))
+			return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/garbage.png");
+		else if (c2_streq (mailbox->name, C2_MAILBOX_DRAFTS))
+			return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/drafts.png");
+		else
 		{
-			if (!open)
-				return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/folder-closed.png");
-			else
-				return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/folder-opened.png");
-		} else
-		{
-			return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mailbox.png");
+			if (mailbox->child)
+			{
+				if (!open)
+					return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/folder-closed.png");
+				else
+					return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/folder-opened.png");
+			} else
+			{
+				return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mailbox.png");
+			}
 		}
+	} else
+	{
+		if (!open)
+				return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mails.png");
+			else
+				return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mails.png");
 	}
 
 	return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mailbox.png");
+}
+
+static void
+on_imap_mailbox_list (C2IMAP *imap, C2Mailbox *head, C2Pthread2 *data)
+{
+	C2MailboxList *mlist = C2_MAILBOX_LIST (data->v1);
+	GtkCTreeNode *cnode = (GtkCTreeNode*) data->v2;
+	C2Mailbox *l;
+
+	g_free (data);
+	
+	tree_fill (mlist, head, NULL, cnode);
 }

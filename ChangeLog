@@ -1,3 +1,6 @@
+Thu Mar 15 Pablo Fernández López <pablo@pablossite.net>
+	* Started the integrate of the IMAP module with the UI (UI~IMAP).
+
 Sat Mar 9 Pablo Fernández López <pablo@pablossite.net>
 	* Fixed a bug in SMTP.
 	* Fixed some problems with the composer.

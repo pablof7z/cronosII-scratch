@@ -2255,6 +2255,8 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 	} else if (type == C2_ACCOUNT_IMAP)
 	{
 		C2IMAP *imap;
+		gchar *user, *pass = NULL;
+		gboolean rem;
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_hostname");
 		buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
@@ -2265,15 +2267,32 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 		gnome_config_set_int ("incoming_server_port", integer);
 
 		widget = glade_xml_get_widget (xml, "incoming_server_username");
-		buf2 = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-		gnome_config_set_string ("incoming_server_username", buf2);
+		user = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
+		gnome_config_set_string ("incoming_server_username", user);
+
+		widget = glade_xml_get_widget (xml, "incoming_auth_remember");
+		rem = GTK_TOGGLE_BUTTON (widget)->active;
+		gnome_config_set_bool ("incoming_auth_remember", rem);
+
+		if (boolean)
+		{
+			widget = glade_xml_get_widget (xml, "incoming_server_password");
+			pass = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
+			gnome_config_set_string ("incoming_server_password", pass);
+		}
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_ssl");
 		boolean = GTK_TOGGLE_BUTTON (widget)->active;
 		gnome_config_set_bool ("incoming_server_ssl", boolean);
 
-		/*imap = c2_imap_new (buf, integer, buf2, NULL, "", C2_IMAP_AUTHENTICATION_PLAINTEXT, boolean);*/
+		imap = c2_imap_new (account, buf, integer, user, pass, "/", C2_IMAP_AUTHENTICATION_PLAINTEXT,
+							boolean);
+		imap->auth_remember = rem;
 		c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, imap);
+
+		g_free (buf);
+		g_free (user);
+		g_free (pass);
 	}
 
 	widget = glade_xml_get_widget (xml, "outgoing_server_protocol");

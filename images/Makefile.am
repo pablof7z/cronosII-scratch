@@ -28,6 +28,7 @@ pixmap_DATA = \
 	interface_misc.png	\
 	loading-image.png	\
 	mailbox.png			\
+	mails.png			\
 	mail-write.png		\
 	mark-i-forwarded.png\
 	mark-i-replied.png	\
