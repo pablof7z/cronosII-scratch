@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /src/widget-mail.c
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -65,8 +65,7 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 			break;
 	}
 
-	c2_html_set_content_from_string (C2_HTML (mail->body), message->body);
-//	c2_part_set_part (C2_HTML (mail->body), mime);
+	c2_html_set_content_from_string (C2_HTML (mail->body), mime->part);
 }
 
 void

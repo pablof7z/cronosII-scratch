@@ -20,6 +20,7 @@ cronos_SOURCES = \
 	main.c													\
 	preferences.c											\
 	object-ui-data.c			object-ui-data.h			\
+	widget-composer.c			widget-composer.h			\
 	widget-index.c				widget-index.h				\
 	widget-html.c				widget-html.h				\
 	widget-mail.c				widget-mail.h				\

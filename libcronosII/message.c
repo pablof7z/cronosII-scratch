@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/message.c
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -149,19 +149,25 @@ c2_message_destroy (GtkObject *object)
 gchar *
 c2_message_get_header_field (C2Message *message, const gchar *field)
 {
-	const gchar *msg_ptr;
-	const gchar *start_ptr, *end_ptr;
-	gchar *chunk = NULL, *ptr;
-	size_t size, wbytes;
-	
 	c2_return_val_if_fail (field, NULL, C2EDATA);
 
 	if (!message->header)
 		if (!c2_message_get_message_header (message))
 			return NULL;
 
+	return c2_message_str_get_header_field (message->header, field);
+}
+
+gchar *
+c2_message_str_get_header_field (const gchar *message, const gchar *field)
+{
+	const gchar *msg_ptr;
+	const gchar *start_ptr, *end_ptr;
+	gchar *chunk = NULL, *ptr;
+	size_t size, wbytes;
+	
 	/* Search for the field */
-	if (!(msg_ptr = c2_strstr_case_insensitive (message->header, field)))
+	if (!(msg_ptr = c2_strstr_case_insensitive (message, field)))
 		return NULL;
 
 	/* Set a pointer to the start of the value */

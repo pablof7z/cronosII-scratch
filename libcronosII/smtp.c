@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronos/smtp.c
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -218,9 +218,15 @@ c2_smtp_send_message (C2Smtp *smtp, C2Message *message)
 	
 	if(smtp->type == C2_SMTP_REMOTE) 
 	{
-		if(!smtp_test_connect(smtp))
+		/*
+		 * Bosko: I comment this out because
+		 * there's no smtp_test_connect function.
+		 *
+		 * Pablo
+		 * ---------------------------------------
+		 * if(!smtp_test_connect(smtp))
 			if(c2_smtp_connect(smtp) < 0)
-				return -1;
+				return -1;*/
 		if(c2_smtp_send_headers(smtp, message) < 0)
 			return -1;
 		if(c2_net_send(smtp->sock, "%s\n\n%s\n.\r\n", message->header, 
@@ -333,7 +339,7 @@ c2_smtp_send_headers(C2Smtp *smtp, C2Message *message)
 			g_list_free(to);
 			break;
 		}
-		if(!c2_strneq(buffer, "250", 3) && !s2_strneq(buffer, "251", 3))
+		if(!c2_strneq(buffer, "250", 3) && !c2_strneq(buffer, "251", 3))
 		{
 			c2_smtp_set_error(smtp, _("SMTP server did not reply to 'RCPT TO:' in a friendly way"));
 			g_free(buffer);

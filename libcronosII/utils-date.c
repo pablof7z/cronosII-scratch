@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/utils-date.c
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -327,7 +327,7 @@ time_t
 c2_date_parse_fmt3 (const gchar *strtime)
 {
 	struct tm tm = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	const gchar *ptr;
+	gchar *ptr;
 	gchar *cpy;
 	gboolean do_date = TRUE, do_time = TRUE;
 	gint i, l, tmp;

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/db.c
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -163,7 +163,7 @@ gint
 c2_db_load (C2Mailbox *mailbox)
 {
 	gint (*func) (C2Mailbox *mailbox);
-L	
+	
 	c2_return_val_if_fail (mailbox, -1, C2EDATA);
 
 	switch (mailbox->type)
@@ -249,7 +249,7 @@ c2_db_message_load (C2Db *db)
 	c2_return_if_fail (db, C2EDATA);
 
 	db->message = *c2_db_message_get (db->mailbox->db, db->position);
-	C2_MESSAGE (db)->mime = C2_MIME (c2_mime_new (C2_MESSAGE (db)));
+	C2_MESSAGE (db)->mime = c2_mime_new (C2_MESSAGE (db));
 }
 
 C2Message *
@@ -263,20 +263,17 @@ c2_db_message_get (C2Db *db, gint row)
 	printf ("%d\n", row);
 	for (l = db, i = 1; i < row && l != NULL; i++, l = l->next)
 		L
-L	c2_return_val_if_fail (l, NULL, C2EDATA);
+	c2_return_val_if_fail (l, NULL, C2EDATA);
 
 	if (C2_MESSAGE (l)->header)
-	{
-L		return C2_MESSAGE (l);
-	}
+		return C2_MESSAGE (l);
 
 	mid = l->mid;
 	
 	switch (db->mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
-/*			if ((message = c2_db_cronosII_message_get (db, mid)))
-				l->message = *message;*/
+			message = c2_db_cronosII_message_get (db, mid);
 			break;
 		case C2_MAILBOX_IMAP:
 			/* TODO message = c2_db_message_get_imap (db, mid); TODO */

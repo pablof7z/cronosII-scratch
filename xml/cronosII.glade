@@ -22,15 +22,20 @@
   <class>GnomeApp</class>
   <name>wnd_main</name>
   <visible>False</visible>
+  <signal>
+    <name>delete_event</name>
+    <handler>on_quit</handler>
+    <last_modification_time>Wed, 08 Aug 2001 18:19:17 GMT</last_modification_time>
+  </signal>
   <title>Cronos II</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>
   <modal>False</modal>
-  <allow_shrink>False</allow_shrink>
+  <allow_shrink>True</allow_shrink>
   <allow_grow>True</allow_grow>
   <auto_shrink>False</auto_shrink>
-  <wmclass_name>cronosII</wmclass_name>
-  <wmclass_class>wnd_main</wmclass_class>
+  <wmclass_name>wnd_main</wmclass_name>
+  <wmclass_class>cronosII</wmclass_class>
   <enable_layout_config>True</enable_layout_config>
 
   <widget>
@@ -85,14 +90,20 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_new_message</name>
+		  <tooltip>Compose a new E-Mail</tooltip>
 		  <accelerator>
 		    <modifiers>0</modifiers>
 		    <key>GDK_M</key>
 		    <signal>activate</signal>
 		  </accelerator>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_new_mail_activate</handler>
+		    <last_modification_time>Thu, 09 Aug 2001 19:27:54 GMT</last_modification_time>
+		  </signal>
 		  <label>_E-Mail</label>
 		  <right_justify>False</right_justify>
-		  <stock_icon>GNOME_STOCK_MENU_MAIL</stock_icon>
+		  <icon>unread.xpm</icon>
 		</widget>
 
 		<widget>
@@ -104,11 +115,17 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_new_mailbox</name>
+		  <tooltip>Create a new mailbox</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_CONTROL_MASK</modifiers>
 		    <key>GDK_N</key>
 		    <signal>activate</signal>
 		  </accelerator>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_new_mailbox_activate</handler>
+		    <last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
+		  </signal>
 		  <label>M_ailbox</label>
 		  <right_justify>False</right_justify>
 		  <stock_icon>GNOME_STOCK_MENU_HOME</stock_icon>
@@ -117,11 +134,17 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_new_contact</name>
+		  <tooltip>Add a new contact to your address book</tooltip>
 		  <accelerator>
 		    <modifiers>0</modifiers>
 		    <key>GDK_C</key>
 		    <signal>activate</signal>
 		  </accelerator>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_new_conact_activate</handler>
+		    <last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
+		  </signal>
 		  <label>_Contact</label>
 		  <right_justify>False</right_justify>
 		  <icon>mcard.xpm</icon>
@@ -149,11 +172,17 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_check_mail_all_accounts</name>
+		  <tooltip>Check all accounts for new mail</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_CONTROL_MASK</modifiers>
 		    <key>GDK_M</key>
 		    <signal>activate</signal>
 		  </accelerator>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_check_all_accounts</handler>
+		    <last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
+		  </signal>
 		  <label>All Accounts</label>
 		  <right_justify>False</right_justify>
 		  <stock_icon>GNOME_STOCK_MENU_MAIL</stock_icon>
@@ -181,6 +210,11 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_persistent_smtp_connect</name>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_persistent_smtp_connect_activate</handler>
+		    <last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
+		  </signal>
 		  <label>_Connect</label>
 		  <right_justify>False</right_justify>
 		  <stock_icon>GNOME_STOCK_MENU_HOME</stock_icon>
@@ -189,6 +223,11 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_persistent_smtp_disconnect</name>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_persistent_smtp_disconnect_activate</handler>
+		    <last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
+		  </signal>
 		  <label>_Disconnect</label>
 		  <right_justify>False</right_justify>
 		  <stock_icon>GNOME_STOCK_MENU_STOP</stock_icon>
@@ -204,6 +243,11 @@
 		<key>GDK_S</key>
 		<signal>activate</signal>
 	      </accelerator>
+	      <signal>
+		<name>activate</name>
+		<handler>on_send_unsent_messages_activate</handler>
+		<last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
+	      </signal>
 	      <label>_Send Unsent Mails</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_MAIL_SND</stock_icon>
@@ -218,11 +262,17 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_address_book</name>
+	      <tooltip>Open the Address Book</tooltip>
 	      <accelerator>
 		<modifiers>0</modifiers>
 		<key>GDK_D</key>
 		<signal>activate</signal>
 	      </accelerator>
+	      <signal>
+		<name>activate</name>
+		<handler>on_address_book_activate</handler>
+		<last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
+	      </signal>
 	      <label>_Address Book</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_BOOK_RED</stock_icon>
@@ -237,12 +287,22 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_save</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_save_activate</handler>
+		<last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
+	      </signal>
 	      <stock_item>GNOMEUIINFO_MENU_SAVE_ITEM</stock_item>
 	    </widget>
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_print</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_print_activate</handler>
+		<last_modification_time>Wed, 08 Aug 2001 18:25:47 GMT</last_modification_time>
+	      </signal>
 	      <stock_item>GNOMEUIINFO_MENU_PRINT_ITEM</stock_item>
 	    </widget>
 
@@ -255,11 +315,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_exit</name>
-	      <signal>
-		<name>activate</name>
-		<handler>gtk_main_quit</handler>
-		<last_modification_time>Thu, 03 May 2001 02:13:11 GMT</last_modification_time>
-	      </signal>
 	      <stock_item>GNOMEUIINFO_MENU_EXIT_ITEM</stock_item>
 	    </widget>
 	  </widget>
@@ -277,6 +332,11 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>edit_find</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_find_activate</handler>
+		<last_modification_time>Wed, 08 Aug 2001 18:26:16 GMT</last_modification_time>
+	      </signal>
 	      <stock_item>GNOMEUIINFO_MENU_FIND_ITEM</stock_item>
 	    </widget>
 	  </widget>
@@ -764,8 +824,8 @@
 	      </accelerator>
 	      <signal>
 		<name>activate</name>
-		<handler>on_getting_in_touch1_activate</handler>
-		<last_modification_time>Mon, 11 Jun 2001 20:21:32 GMT</last_modification_time>
+		<handler>on_getting_in_touch_activate</handler>
+		<last_modification_time>Wed, 08 Aug 2001 18:26:28 GMT</last_modification_time>
 	      </signal>
 	      <label>_Getting in Touch</label>
 	      <right_justify>False</right_justify>
@@ -876,6 +936,11 @@
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_compose</name>
 	  <tooltip>Compose a new message</tooltip>
+	  <signal>
+	    <name>clicked</name>
+	    <handler>on_compose_clicked</handler>
+	    <last_modification_time>Thu, 09 Aug 2001 19:27:27 GMT</last_modification_time>
+	  </signal>
 	  <label>Compose</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_NEW</stock_pixmap>
 	  <child>
@@ -948,6 +1013,11 @@
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_exit</name>
 	  <tooltip>Close CronosII</tooltip>
+	  <signal>
+	    <name>clicked</name>
+	    <handler>on_quit</handler>
+	    <last_modification_time>Thu, 09 Aug 2001 02:30:16 GMT</last_modification_time>
+	  </signal>
 	  <label>Exit</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_EXIT</stock_pixmap>
 	  <child>
@@ -993,6 +1063,21 @@
 	    <class>GtkCTree</class>
 	    <name>ctree</name>
 	    <can_focus>True</can_focus>
+	    <signal>
+	      <name>button_press_event</name>
+	      <handler>on_ctree_button_press_event</handler>
+	      <last_modification_time>Wed, 08 Aug 2001 18:28:08 GMT</last_modification_time>
+	    </signal>
+	    <signal>
+	      <name>tree_select_row</name>
+	      <handler>on_ctree_tree_select_row</handler>
+	      <last_modification_time>Wed, 08 Aug 2001 18:28:19 GMT</last_modification_time>
+	    </signal>
+	    <signal>
+	      <name>tree_unselect_row</name>
+	      <handler>on_ctree_tree_unselect_row</handler>
+	      <last_modification_time>Wed, 08 Aug 2001 18:28:27 GMT</last_modification_time>
+	    </signal>
 	    <columns>3</columns>
 	    <column_widths>144,38,31</column_widths>
 	    <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
@@ -1051,6 +1136,11 @@
 	      <class>Custom</class>
 	      <name>index</name>
 	      <tooltip>Message List</tooltip>
+	      <signal>
+		<name>select_message</name>
+		<handler>on_index_select_message</handler>
+		<last_modification_time>Wed, 08 Aug 2001 18:32:53 GMT</last_modification_time>
+	      </signal>
 	      <creation_function>c2_index_new</creation_function>
 	      <string1></string1>
 	      <int1>0</int1>
@@ -1289,7 +1379,8 @@ is already in use.</message>
 	    <class>GtkLabel</class>
 	    <name>label57</name>
 	    <width>203</width>
-	    <label>Editing mailbox contents may be dangerous.</label>
+	    <label>Editing mailbox properties might
+result in the lost of all mails in it.</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>True</wrap>
 	    <xalign>0</xalign>
@@ -2390,12 +2481,13 @@ http://cronosII.sourceforge.net</comments>
   <class>GnomeMessageBox</class>
   <name>dlg_mailbox_confirm_deletion</name>
   <message_box_type>GNOME_MESSAGE_BOX_QUESTION</message_box_type>
-  <message>Removal of a mailbox will
-permanently delete all mail stored
-within it and any connected sub-mailboxes.
+  <message>Removal of a mailbox will permanently
+delete all mail stored in it and any
+mailbox depending of it.
 
-Are you sure you want to delete this Mailbox ?</message>
-  <title>Question    Caution</title>
+Are you sure you want to delete
+this mailbox?</message>
+  <title>Confirmation</title>
   <position>GTK_WIN_POS_CENTER</position>
   <modal>True</modal>
   <allow_shrink>False</allow_shrink>
@@ -2468,523 +2560,6 @@ Are you sure you want to delete this Mailbox ?</message>
 	<fill>False</fill>
       </child>
     </widget>
-  </widget>
-</widget>
-
-<widget>
-  <class>GnomeApp</class>
-  <name>wnd_composer</name>
-  <title>Cronos II : Composer</title>
-  <type>GTK_WINDOW_TOPLEVEL</type>
-  <position>GTK_WIN_POS_NONE</position>
-  <modal>False</modal>
-  <allow_shrink>True</allow_shrink>
-  <allow_grow>True</allow_grow>
-  <auto_shrink>False</auto_shrink>
-  <wmclass_name>cronosii</wmclass_name>
-  <wmclass_class>wnd_composer</wmclass_class>
-  <enable_layout_config>True</enable_layout_config>
-
-  <widget>
-    <class>GnomeDock</class>
-    <child_name>GnomeApp:dock</child_name>
-    <name>dock3</name>
-    <allow_floating>True</allow_floating>
-    <child>
-      <padding>0</padding>
-      <expand>True</expand>
-      <fill>True</fill>
-    </child>
-
-    <widget>
-      <class>GnomeDockItem</class>
-      <name>dockitem9</name>
-      <border_width>2</border_width>
-      <placement>GNOME_DOCK_TOP</placement>
-      <band>0</band>
-      <position>0</position>
-      <offset>0</offset>
-      <locked>False</locked>
-      <exclusive>True</exclusive>
-      <never_floating>False</never_floating>
-      <never_vertical>True</never_vertical>
-      <never_horizontal>False</never_horizontal>
-      <shadow_type>GTK_SHADOW_OUT</shadow_type>
-
-      <widget>
-	<class>GtkMenuBar</class>
-	<name>menubar3</name>
-	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
-
-	<widget>
-	  <class>GtkMenuItem</class>
-	  <name>file</name>
-	  <stock_item>GNOMEUIINFO_MENU_FILE_TREE</stock_item>
-
-	  <widget>
-	    <class>GtkMenu</class>
-	    <name>file_menu</name>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>file_send</name>
-	      <tooltip>Send the current mail</tooltip>
-	      <accelerator>
-		<modifiers>GDK_CONTROL_MASK</modifiers>
-		<key>GDK_M</key>
-		<signal>activate</signal>
-	      </accelerator>
-	      <signal>
-		<name>activate</name>
-		<handler>on_file_send_activate</handler>
-		<last_modification_time>Sun, 01 Jul 2001 04:16:25 GMT</last_modification_time>
-	      </signal>
-	      <label>S_end</label>
-	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_MAIL_SND</stock_icon>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>file_send_later</name>
-	      <tooltip>Place message in the Send Later Queue</tooltip>
-	      <accelerator>
-		<modifiers>GDK_CONTROL_MASK</modifiers>
-		<key>GDK_N</key>
-		<signal>activate</signal>
-	      </accelerator>
-	      <signal>
-		<name>activate</name>
-		<handler>on_file_send_later_activate</handler>
-		<last_modification_time>Sun, 01 Jul 2001 04:16:25 GMT</last_modification_time>
-	      </signal>
-	      <label>Send _Later</label>
-	      <right_justify>False</right_justify>
-	      <icon>sendqueue.xpm</icon>
-	    </widget>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>separador3</name>
-	      <right_justify>False</right_justify>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>save</name>
-	      <signal>
-		<name>activate</name>
-		<handler>on_save_activate</handler>
-		<last_modification_time>Wed, 23 May 2001 03:06:36 GMT</last_modification_time>
-	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_SAVE_ITEM</stock_item>
-	    </widget>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>separator10</name>
-	      <right_justify>False</right_justify>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>close</name>
-	      <tooltip>Close the Message Composer</tooltip>
-	      <signal>
-		<name>activate</name>
-		<handler>on_close_activate</handler>
-		<last_modification_time>Wed, 23 May 2001 03:06:46 GMT</last_modification_time>
-	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_CLOSE_ITEM</stock_item>
-	    </widget>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkMenuItem</class>
-	  <name>edit</name>
-	  <stock_item>GNOMEUIINFO_MENU_EDIT_TREE</stock_item>
-
-	  <widget>
-	    <class>GtkMenu</class>
-	    <name>edit_menu</name>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>cut</name>
-	      <signal>
-		<name>activate</name>
-		<handler>on_cut_activate</handler>
-		<last_modification_time>Wed, 23 May 2001 03:07:48 GMT</last_modification_time>
-	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_CUT_ITEM</stock_item>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>copy</name>
-	      <signal>
-		<name>activate</name>
-		<handler>on_copy_activate</handler>
-		<last_modification_time>Wed, 23 May 2001 03:08:00 GMT</last_modification_time>
-	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_COPY_ITEM</stock_item>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>paste</name>
-	      <signal>
-		<name>activate</name>
-		<handler>on_paste_activate</handler>
-		<last_modification_time>Wed, 23 May 2001 03:08:04 GMT</last_modification_time>
-	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_PASTE_ITEM</stock_item>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>select_all</name>
-	      <signal>
-		<name>activate</name>
-		<handler>on_select_all_activate</handler>
-		<last_modification_time>Wed, 23 May 2001 03:08:06 GMT</last_modification_time>
-	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_SELECT_ALL_ITEM</stock_item>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>clear</name>
-	      <signal>
-		<name>activate</name>
-		<handler>on_clear_activate</handler>
-		<last_modification_time>Wed, 23 May 2001 03:08:13 GMT</last_modification_time>
-	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_CLEAR_ITEM</stock_item>
-	    </widget>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>separator11</name>
-	      <right_justify>False</right_justify>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>undo</name>
-	      <signal>
-		<name>activate</name>
-		<handler>on_undo_activate</handler>
-		<last_modification_time>Wed, 23 May 2001 03:08:30 GMT</last_modification_time>
-	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_UNDO_ITEM</stock_item>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>redo</name>
-	      <signal>
-		<name>activate</name>
-		<handler>on_redo_activate</handler>
-		<last_modification_time>Wed, 23 May 2001 03:08:34 GMT</last_modification_time>
-	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_REDO_ITEM</stock_item>
-	    </widget>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>separator12</name>
-	      <right_justify>False</right_justify>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>find</name>
-	      <signal>
-		<name>activate</name>
-		<handler>on_find_activate</handler>
-		<last_modification_time>Wed, 23 May 2001 03:08:38 GMT</last_modification_time>
-	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_FIND_ITEM</stock_item>
-	    </widget>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>separator13</name>
-	      <right_justify>False</right_justify>
-	    </widget>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>insert</name>
-	      <label>_Insert</label>
-	      <right_justify>False</right_justify>
-
-	      <widget>
-		<class>GtkMenu</class>
-		<name>insert_menu</name>
-
-		<widget>
-		  <class>GtkPixmapMenuItem</class>
-		  <name>file</name>
-		  <tooltip>Insert a file as in-line.</tooltip>
-		  <signal>
-		    <name>activate</name>
-		    <handler>on_file_activate</handler>
-		    <last_modification_time>Wed, 23 May 2001 03:09:20 GMT</last_modification_time>
-		  </signal>
-		  <label>_File</label>
-		  <right_justify>False</right_justify>
-		  <stock_icon>GNOME_STOCK_MENU_NEW</stock_icon>
-		</widget>
-
-		<widget>
-		  <class>GtkPixmapMenuItem</class>
-		  <name>attachment</name>
-		  <tooltip>Insert a file as an attachment</tooltip>
-		  <signal>
-		    <name>activate</name>
-		    <handler>on_attachment_activate</handler>
-		    <last_modification_time>Wed, 23 May 2001 03:10:02 GMT</last_modification_time>
-		  </signal>
-		  <label>_Attachment</label>
-		  <right_justify>False</right_justify>
-		  <stock_icon>GNOME_STOCK_MENU_ATTACH</stock_icon>
-		</widget>
-	      </widget>
-	    </widget>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>separator13</name>
-	      <right_justify>False</right_justify>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>spell_checker</name>
-	      <accelerator>
-		<modifiers>0</modifiers>
-		<key>GDK_F7</key>
-		<signal>activate</signal>
-	      </accelerator>
-	      <signal>
-		<name>activate</name>
-		<handler>on_spell_checker_activate</handler>
-		<last_modification_time>Wed, 23 May 2001 03:13:37 GMT</last_modification_time>
-	      </signal>
-	      <label>_Spell Checker</label>
-	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_SPELLCHECK</stock_icon>
-	    </widget>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>separador2</name>
-	      <right_justify>False</right_justify>
-	    </widget>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>edit_signature</name>
-	      <label>Sig_nature</label>
-	      <right_justify>False</right_justify>
-	    </widget>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkMenuItem</class>
-	  <name>options</name>
-	  <label>_Options</label>
-	  <right_justify>False</right_justify>
-
-	  <widget>
-	    <class>GtkMenu</class>
-	    <name>options_menu</name>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>priority</name>
-	      <label>Priority</label>
-	      <right_justify>False</right_justify>
-
-	      <widget>
-		<class>GtkMenu</class>
-		<name>priority_menu</name>
-
-		<widget>
-		  <class>GtkRadioMenuItem</class>
-		  <name>very_high</name>
-		  <signal>
-		    <name>activate</name>
-		    <handler>on_very_high_activate</handler>
-		    <last_modification_time>Wed, 23 May 2001 03:16:01 GMT</last_modification_time>
-		  </signal>
-		  <label>Highest</label>
-		  <active>False</active>
-		  <always_show_toggle>True</always_show_toggle>
-		  <group>priority</group>
-		</widget>
-
-		<widget>
-		  <class>GtkRadioMenuItem</class>
-		  <name>high</name>
-		  <signal>
-		    <name>activate</name>
-		    <handler>on_high_activate</handler>
-		    <last_modification_time>Wed, 23 May 2001 03:16:46 GMT</last_modification_time>
-		  </signal>
-		  <label>High</label>
-		  <active>False</active>
-		  <always_show_toggle>True</always_show_toggle>
-		  <group>priority</group>
-		</widget>
-
-		<widget>
-		  <class>GtkRadioMenuItem</class>
-		  <name>normal</name>
-		  <signal>
-		    <name>activate</name>
-		    <handler>on_normal_activate</handler>
-		    <last_modification_time>Wed, 23 May 2001 03:17:10 GMT</last_modification_time>
-		  </signal>
-		  <label>Normal</label>
-		  <active>True</active>
-		  <always_show_toggle>True</always_show_toggle>
-		  <group>priority</group>
-		</widget>
-
-		<widget>
-		  <class>GtkRadioMenuItem</class>
-		  <name>low</name>
-		  <signal>
-		    <name>activate</name>
-		    <handler>on_low_activate</handler>
-		    <last_modification_time>Wed, 23 May 2001 03:17:21 GMT</last_modification_time>
-		  </signal>
-		  <label>Low</label>
-		  <active>False</active>
-		  <always_show_toggle>True</always_show_toggle>
-		  <group>priority</group>
-		</widget>
-
-		<widget>
-		  <class>GtkRadioMenuItem</class>
-		  <name>lowest</name>
-		  <signal>
-		    <name>activate</name>
-		    <handler>on_lowest_activate</handler>
-		    <last_modification_time>Wed, 23 May 2001 03:17:29 GMT</last_modification_time>
-		  </signal>
-		  <label>Lowest</label>
-		  <active>False</active>
-		  <always_show_toggle>True</always_show_toggle>
-		  <group>priority</group>
-		</widget>
-	      </widget>
-	    </widget>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>wrap1</name>
-	      <signal>
-		<name>activate</name>
-		<handler>on_wrap1_activate</handler>
-		<last_modification_time>Wed, 23 May 2001 03:17:59 GMT</last_modification_time>
-	      </signal>
-	      <label>Wrap</label>
-	      <right_justify>False</right_justify>
-	    </widget>
-	  </widget>
-	</widget>
-      </widget>
-    </widget>
-
-    <widget>
-      <class>GnomeDockItem</class>
-      <name>dockitem10</name>
-      <border_width>1</border_width>
-      <placement>GNOME_DOCK_TOP</placement>
-      <band>1</band>
-      <position>0</position>
-      <offset>0</offset>
-      <locked>False</locked>
-      <exclusive>True</exclusive>
-      <never_floating>False</never_floating>
-      <never_vertical>False</never_vertical>
-      <never_horizontal>False</never_horizontal>
-      <shadow_type>GTK_SHADOW_OUT</shadow_type>
-
-      <widget>
-	<class>GtkToolbar</class>
-	<name>toolbar4</name>
-	<border_width>1</border_width>
-	<orientation>GTK_ORIENTATION_HORIZONTAL</orientation>
-	<type>GTK_TOOLBAR_BOTH</type>
-	<space_size>16</space_size>
-	<space_style>GTK_TOOLBAR_SPACE_LINE</space_style>
-	<relief>GTK_RELIEF_NONE</relief>
-	<tooltips>True</tooltips>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>button64</name>
-	  <tooltip>New Message</tooltip>
-	  <label>New</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_NEW</stock_pixmap>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>button65</name>
-	  <tooltip>Open File</tooltip>
-	  <label>Open</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_OPEN</stock_pixmap>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>button66</name>
-	  <tooltip>Save Message</tooltip>
-	  <label>Save</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_SAVE</stock_pixmap>
-	</widget>
-      </widget>
-    </widget>
-
-    <widget>
-      <class>GtkVBox</class>
-      <child_name>GnomeDock:contents</child_name>
-      <name>vbox17</name>
-      <homogeneous>False</homogeneous>
-      <spacing>4</spacing>
-
-      <widget>
-	<class>Placeholder</class>
-      </widget>
-
-      <widget>
-	<class>Placeholder</class>
-      </widget>
-    </widget>
-  </widget>
-
-  <widget>
-    <class>GnomeAppBar</class>
-    <child_name>GnomeApp:appbar</child_name>
-    <name>appbar3</name>
-    <has_progress>True</has_progress>
-    <has_status>True</has_status>
-    <child>
-      <padding>0</padding>
-      <expand>True</expand>
-      <fill>True</fill>
-    </child>
   </widget>
 </widget>
 
@@ -3255,7 +2830,7 @@ Are you sure you want to delete this Mailbox ?</message>
 <widget>
   <class>GnomeDialog</class>
   <name>dlg_req_pass</name>
-  <title>Bad Password</title>
+  <title>Incorrect Password</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_CENTER</position>
   <modal>False</modal>
@@ -3635,6 +3210,71 @@ _i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 and the channel _#_c_r_o_n_o_s_I_I.</label>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	</widget>
+      </widget>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeMessageBox</class>
+  <name>dlg_no_accounts</name>
+  <message_box_type>GNOME_MESSAGE_BOX_ERROR</message_box_type>
+  <message>There is no account configured yet.
+You need to do this before being
+able to compose mails.</message>
+  <title>Error</title>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>False</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <auto_close>True</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox12</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area12</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button73</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<label>Preferences</label>
+	<stock_pixmap>GNOME_STOCK_PIXMAP_PREFERENCES</stock_pixmap>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button74</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
       </widget>
     </widget>
   </widget>

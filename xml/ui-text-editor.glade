@@ -17,9 +17,20 @@
   <name>wnd_main</name>
   <width>332</width>
   <height>285</height>
+  <events>GDK_KEY_PRESS_MASK</events>
+  <accelerator>
+    <modifiers>0</modifiers>
+    <key>GDK_Escape</key>
+    <signal>destroy</signal>
+  </accelerator>
+  <signal>
+    <name>destroy</name>
+    <handler>on_wnd_main_destroy</handler>
+    <last_modification_time>Wed, 08 Aug 2001 17:39:39 GMT</last_modification_time>
+  </signal>
   <title>Cronos II UI Text Editor</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
-  <position>GTK_WIN_POS_NONE</position>
+  <position>GTK_WIN_POS_CENTER</position>
   <modal>False</modal>
   <allow_shrink>False</allow_shrink>
   <allow_grow>False</allow_grow>
@@ -72,8 +83,8 @@
 	      <tooltip>New entry in UI text</tooltip>
 	      <signal>
 		<name>activate</name>
-		<handler>on_new_activate</handler>
-		<last_modification_time>Sun, 05 Aug 2001 23:47:03 GMT</last_modification_time>
+		<handler>on_new_entry_activate</handler>
+		<last_modification_time>Wed, 08 Aug 2001 17:42:17 GMT</last_modification_time>
 	      </signal>
 	      <stock_item>GNOMEUIINFO_MENU_NEW_ITEM</stock_item>
 	      <label>_New entry</label>
@@ -90,8 +101,8 @@
 	      </accelerator>
 	      <signal>
 		<name>activate</name>
-		<handler>on_edit_activate</handler>
-		<last_modification_time>Sun, 05 Aug 2001 23:49:32 GMT</last_modification_time>
+		<handler>on_edit_entry_activate</handler>
+		<last_modification_time>Wed, 08 Aug 2001 17:42:17 GMT</last_modification_time>
 	      </signal>
 	      <label>_Edit entry</label>
 	      <right_justify>False</right_justify>
@@ -109,8 +120,8 @@
 	      </accelerator>
 	      <signal>
 		<name>activate</name>
-		<handler>on_remove_activate</handler>
-		<last_modification_time>Sun, 05 Aug 2001 23:49:32 GMT</last_modification_time>
+		<handler>on_remove_entry_activate</handler>
+		<last_modification_time>Wed, 08 Aug 2001 17:42:17 GMT</last_modification_time>
 	      </signal>
 	      <label>_Remove entry</label>
 	      <right_justify>False</right_justify>
@@ -165,11 +176,11 @@
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
-	      <name>exit1</name>
+	      <name>exit</name>
 	      <signal>
 		<name>activate</name>
-		<handler>on_exit1_activate</handler>
-		<last_modification_time>Sun, 05 Aug 2001 23:47:28 GMT</last_modification_time>
+		<handler>on_exit_activate</handler>
+		<last_modification_time>Wed, 08 Aug 2001 17:42:17 GMT</last_modification_time>
 	      </signal>
 	      <stock_item>GNOMEUIINFO_MENU_EXIT_ITEM</stock_item>
 	    </widget>
@@ -187,7 +198,7 @@
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
-	      <name>help_about</name>
+	      <name>about</name>
 	      <signal>
 		<name>activate</name>
 		<handler>on_about_activate</handler>
@@ -231,7 +242,7 @@
 	  <child_name>Toolbar:button</child_name>
 	  <name>button4</name>
 	  <tooltip>New entry</tooltip>
-	  <label></label>
+	  <label>New</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_NEW</stock_pixmap>
 	</widget>
 
@@ -240,7 +251,7 @@
 	  <child_name>Toolbar:button</child_name>
 	  <name>button5</name>
 	  <tooltip>Edit selected entry</tooltip>
-	  <label>button5</label>
+	  <label>Edit</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_PROPERTIES</stock_pixmap>
 	</widget>
 
@@ -249,7 +260,7 @@
 	  <child_name>Toolbar:button</child_name>
 	  <name>button6</name>
 	  <tooltip>Remove selected entry</tooltip>
-	  <label>button6</label>
+	  <label>Remove</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_STOP</stock_pixmap>
 	</widget>
 
@@ -257,7 +268,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>button7</name>
-	  <label>button7</label>
+	  <label>Quit</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_EXIT</stock_pixmap>
 	  <child>
 	    <new_group>True</new_group>
@@ -309,19 +320,6 @@
 	</widget>
       </widget>
     </widget>
-  </widget>
-
-  <widget>
-    <class>GnomeAppBar</class>
-    <child_name>GnomeApp:appbar</child_name>
-    <name>appbar1</name>
-    <has_progress>False</has_progress>
-    <has_status>True</has_status>
-    <child>
-      <padding>0</padding>
-      <expand>True</expand>
-      <fill>True</fill>
-    </child>
   </widget>
 </widget>
 

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/message.h
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -92,6 +92,9 @@ c2_message_get_message_body							(const C2Message *message);
 
 gchar *
 c2_message_get_header_field							(C2Message *message, const gchar *field);
+
+gchar *
+c2_message_str_get_header_field						(const gchar *message, const gchar *field);
 
 #ifdef __cplusplus
 }

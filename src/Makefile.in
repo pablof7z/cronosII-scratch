@@ -137,7 +137,7 @@ INCLUDES = -DBUILDING_C2 -I$(top_srcdir) -I$(includedir) 	`gnome-config --cflags
 
 bin_PROGRAMS = cronos $(UI_TEXT_EDITOR)
 
-cronos_SOURCES =  	c2-app.c					c2-app.h						c2-main-window.c			c2-main-window.h				install-wizard.c											main-window.c				main-window.h					main.c														preferences.c												object-ui-data.c			object-ui-data.h				widget-index.c				widget-index.h					widget-html.c				widget-html.h					widget-mail.c				widget-mail.h					widget-message-transfer.c	widget-message-transfer.h		widget-part.c				widget-part.h
+cronos_SOURCES =  	c2-app.c					c2-app.h						c2-main-window.c			c2-main-window.h				install-wizard.c											main-window.c				main-window.h					main.c														preferences.c												object-ui-data.c			object-ui-data.h				widget-composer.c			widget-composer.h				widget-index.c				widget-index.h					widget-html.c				widget-html.h					widget-mail.c				widget-mail.h					widget-message-transfer.c	widget-message-transfer.h		widget-part.c				widget-part.h
 
 
 cronos_LDADD =  	./$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
@@ -165,8 +165,9 @@ PROGRAMS =  $(bin_PROGRAMS)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 cronos_OBJECTS =  c2-app.o c2-main-window.o install-wizard.o \
-main-window.o main.o preferences.o object-ui-data.o widget-index.o \
-widget-html.o widget-mail.o widget-message-transfer.o widget-part.o
+main-window.o main.o preferences.o object-ui-data.o widget-composer.o \
+widget-index.o widget-html.o widget-mail.o widget-message-transfer.o \
+widget-part.o
 cronos_DEPENDENCIES =  ./$(top_builddir)/libcronosII/libcronosII.a
 ui_text_editor_OBJECTS =  object-ui-data.o ui-text-editor.o
 ui_text_editor_DEPENDENCIES =  \
@@ -185,8 +186,8 @@ GZIP_ENV = --best
 DEP_FILES =  .deps/c2-app.P .deps/c2-main-window.P \
 .deps/install-wizard.P .deps/main-window.P .deps/main.P \
 .deps/object-ui-data.P .deps/preferences.P .deps/ui-text-editor.P \
-.deps/widget-html.P .deps/widget-index.P .deps/widget-mail.P \
-.deps/widget-message-transfer.P .deps/widget-part.P
+.deps/widget-composer.P .deps/widget-html.P .deps/widget-index.P \
+.deps/widget-mail.P .deps/widget-message-transfer.P .deps/widget-part.P
 SOURCES = $(cronos_SOURCES) $(ui_text_editor_SOURCES)
 OBJECTS = $(cronos_OBJECTS) $(ui_text_editor_OBJECTS)
 

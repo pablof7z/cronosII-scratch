@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -19,22 +19,30 @@
 #include <string.h>
 
 #include "error.h"
+#include "i18n.h"
 #include "mime.h"
 #include "message.h"
 #include "utils.h"
 
 static void
-c2_mime_class_init								(C2MimeClass *klass);
+c2_mime_class_init							(C2MimeClass *klass);
 
 static void
-c2_mime_init									(C2Mime *mime);
+c2_mime_init								(C2Mime *mime);
 
 static void
-c2_mime_destroy									(GtkObject *object);
+c2_mime_destroy								(GtkObject *object);
 
 static void
-parse_content_type								(const gchar *content_type, gchar **type,
-												 gchar **subtype, gchar **parameter);
+parse_content_type							(const gchar *content_type, gchar **type,
+											 gchar **subtype, gchar **parameter);
+
+static gchar *
+get_parameter_value							(const gchar *parameter, const gchar *field);
+
+static C2Mime *
+get_mime_parts								(const gchar *body, const gchar *boundary,
+											 const gchar *parent_boundary);
 
 enum
 {
@@ -46,10 +54,10 @@ static guint c2_mime_signals[LAST_SIGNAL] = { 0 };
 static GtkObjectClass *parent_class = NULL;
 
 void
-c2_mime_construct (C2Mime *mime, C2Message *message)
+c2_mime_construct (C2Mime **head, C2Message *message)
 {
 	gchar *mime_version;
-	gchar *content_type, *type, *subtype, *parameter;
+	gchar *content_type, *type, *subtype, *parameter, *boundary;
 	gchar *buf;
 	
 	c2_return_if_fail (message, C2EDATA);
@@ -59,25 +67,27 @@ c2_mime_construct (C2Mime *mime, C2Message *message)
 
 	if (!mime_version)
 	{
+no_mime_information:
 		/* This is most likely to be a plain/text message in standard rfc822 encoding */
-		mime->start = c2_message_get_message_body (message);
-		mime->length = strlen (mime->start);
-		mime->part = NULL;
-L		mime->type = g_strdup ("text");
-L		mime->subtype = g_strdup ("plain");
-		mime->id = NULL;
-		mime->parameter = NULL;
-		mime->encoding = g_strdup ("7bit");
+		*head = c2_mime_new (NULL);
+		(*head)->start = c2_message_get_message_body (message);
+		(*head)->length = strlen ((*head)->start);
+		(*head)->part = NULL;
+		(*head)->type = g_strdup ("text");
+		(*head)->subtype = g_strdup ("plain");
+		(*head)->id = NULL;
+		(*head)->parameter = NULL;
+		(*head)->encoding = g_strdup ("7bit");
 		
 		g_free (mime_version);
 		return;
 	}
+#ifdef USE_DEBUG
 	if (c2_strne (mime_version, "1.0"))
 		/* This is a format different than "1.0" that is not defined
 		 * when this is being written (10.5.2001).
 		 * We will try to understand it anyway.
 		 */
-#ifdef USE_DEBUG
 		g_print ("The selected message uses an unknown version of MIME encoding: %s\n", mime_version);
 #endif
 	g_free (mime_version);
@@ -91,28 +101,42 @@ L		mime->subtype = g_strdup ("plain");
 		subtype = g_strdup ("plain");
 		parameter = NULL;
 	} else
+	{
 		parse_content_type (content_type, &type, &subtype, &parameter);
-	g_free (content_type);
+		g_free (content_type);
+	}
 
 	if (c2_streq (type, "multipart"))
 	{
-		/* Wow wow, what a challenge, a multipart message! :þ */
-		L
+		if (!parameter)
+		{
+			g_warning (_("This message claims to be multipart, but is broken."));
+			goto no_mime_information;
+		}
+
+		if (!(boundary = get_parameter_value (parameter, "boundary")))
+		{
+			g_warning (_("This message claims to be multipart, but is broken."));
+			goto no_mime_information;
+		}
+
+		*head = get_mime_parts (message->body, boundary, NULL);
 	} else 
 	{
-		mime->start = c2_message_get_message_body (message);
-		mime->length = strlen (mime->start);
-		mime->part = NULL;
-		mime->type = type;
-		mime->subtype = subtype;
-		mime->parameter = parameter;
-		mime->disposition = c2_message_get_header_field (message, "Content-Disposition:");
-		mime->encoding = c2_message_get_header_field (message, "Content-Transfer-Encoding:");
+		*head = c2_mime_new (NULL);
+		(*head)->start = c2_message_get_message_body (message);
+		(*head)->length = strlen ((*head)->start);
+		(*head)->part = NULL;
+		(*head)->type = type;
+		(*head)->subtype = subtype;
+		(*head)->parameter = parameter;
+		(*head)->disposition = c2_message_get_header_field (message, "Content-Disposition:");
+		(*head)->encoding = c2_message_get_header_field (message, "Content-Transfer-Encoding:");
 		buf = c2_message_get_header_field (message, "\nContent-ID:");
 		if (buf)
-			mime->id = c2_str_strip_enclosed (buf, '<', '>');
+			(*head)->id = c2_str_strip_enclosed (buf, '<', '>');
 		else
-			mime->id = NULL;
+			(*head)->id = NULL;
 		g_free (buf);
 	}
 }
@@ -144,6 +168,135 @@ parse_content_type (const gchar *content_type, gchar **type, gchar **subtype, gc
 	for (ptr1 = ++ptr2; *ptr1 == ' '; ptr1++);
 	if (*ptr1 != '\0')
 		*parameter = g_strdup (ptr1);
+}
+
+static gchar *
+get_parameter_value (const gchar *parameter, const gchar *field)
+{
+	const gchar *ptr;
+
+	if (!(ptr = c2_strstr_case_insensitive (parameter, field)))
+		return NULL;
+
+	ptr += strlen (field);
+
+	while (*ptr == '=' && *ptr != '\0')
+		ptr++;
+
+	if (!ptr)
+		return NULL;
+
+	return c2_str_strip_enclosed (ptr, '"', '"');
+}
+
+static C2Mime *
+get_mime_parts (const gchar *body, const gchar *boundary, const gchar *parent_boundary)
+{
+	C2Mime *head = NULL, *mime = NULL, *child = NULL;
+	gchar *content_type = NULL, *type = NULL, *subtype = NULL, *parameter = NULL;
+	gchar *local_boundary;
+	gchar *buf;
+	const gchar *ptr, *end;
+	gboolean end_reached = FALSE;
+
+	for (ptr = body; !end_reached && ptr != NULL && (ptr = strstr (ptr, boundary));)
+	{
+		/* Look for the end of this part */
+		end = strstr (ptr+strlen (boundary), boundary);
+
+		/* Check if this end is the end of the mail */
+		if (end && c2_strneq (end+strlen (boundary), "--", 2))
+			end_reached = TRUE;
+
+		/* Check if the reason there's no end boundary is the parent_boundary */
+		if (!end && parent_boundary)
+		{
+			end = strstr (ptr+strlen (boundary), parent_boundary);
+			if (end)
+				end_reached = TRUE;
+		}
+
+		if ((content_type = c2_message_str_get_header_field (ptr, "Content-Type:")))
+			parse_content_type (content_type, &type, &subtype, &parameter);
+		g_free (content_type);
+
+		if (c2_streq (type, "multipart"))
+		{
+			gchar *pos;
+
+			if (!parameter)
+			{
+				g_warning (_("This message claims to be multipart but it seems to be broken."));
+				goto cancel;
+			}
+
+			if (!(local_boundary = get_parameter_value (parameter, "boundary")))
+			{
+				g_warning (_("This message claims to be multipart but it seems to be broken."));
+				goto cancel;
+			}
+
+			pos = strstr (ptr, "\n\n") + 2;
+
+			child = get_mime_parts (pos, local_boundary, boundary);
+			head = c2_mime_append (head, child);
+			g_free (parameter);
+			g_free (type);
+			g_free (subtype);
+		} else
+		{
+			mime = C2_MIME (c2_mime_new (NULL));
+			mime->start = strstr (ptr, "\n\n") + 2;
+			if (end)
+				mime->length = end - mime->start - 3; /* 3 = '\n--' */
+			else
+				mime->length = strlen (mime->start);
+			mime->part = NULL;
+
+			mime->type = type;
+			mime->subtype = subtype;
+			mime->parameter = parameter;
+
+			buf = c2_message_str_get_header_field (ptr, "Content-ID:");
+			
+			if (buf)
+				mime->id = c2_str_strip_enclosed (buf, '<', '>');
+			else
+				mime->id = NULL;
+			g_free (buf);
+
+			mime->disposition = c2_message_str_get_header_field (ptr, "Content-Disposition:");
+			mime->encoding = c2_message_str_get_header_field (ptr, "Content-Transfer-Encoding:");
+			head = c2_mime_append (head, mime);
+		}
+
+cancel:
+		if (end)
+			ptr = end-1;
+		else
+			ptr += strlen (boundary);
+	}
+
+	return head;
+}
+
+C2Mime *
+c2_mime_append (C2Mime *head, C2Mime *mime)
+{
+	C2Mime *ptr;
+
+	c2_return_val_if_fail (mime, head, C2EDATA);
+	
+	if (!head)
+		return mime;
+
+	for (ptr = head; ptr->next; ptr = ptr->next)
+		;
+
+	ptr->next = mime;
+	mime->previous = ptr;
+	
+	return head;
 }
 
 guint
@@ -229,23 +382,23 @@ c2_mime_destroy (GtkObject *object)
 	}
 }
 
-GtkObject *
+C2Mime *
 c2_mime_new (C2Message *message)
 {
 	C2Mime *mime;
 	
 	if (!message)
-		return GTK_OBJECT (gtk_type_new (c2_mime_get_type ()));
+		return gtk_type_new (c2_mime_get_type ());
 
 	if (message->mime)
-		return GTK_OBJECT (message->mime);
+		return message->mime;
 
-	mime = gtk_type_new (c2_mime_get_type ());
-	c2_mime_construct (mime, message);
-	return GTK_OBJECT (mime);
+	c2_mime_construct (&mime, message);
+
+	return mime;
 }
 
-gchar *
+const gchar *
 c2_mime_get_part (C2Mime *mime)
 {
 	gchar *tmp;
@@ -279,13 +432,16 @@ c2_mime_get_part_by_content_type (C2Mime *mime, const gchar *content_type)
 
 	for (l = mime; l != NULL; l = l->next)
 	{
-		g_print ("Comparing %s/%s with %s/%s\n", mime->type, mime->subtype, type, subtype);
 		if (c2_streq (mime->type, type) &&
 			c2_streq (mime->subtype, subtype))
-		{L
 			break;
-			}
 	}
+
+	if (!l)	
+		if ((l = mime))
+			return;
+
+	c2_mime_get_part (l);
 
 	g_free (type);
 	g_free (subtype);

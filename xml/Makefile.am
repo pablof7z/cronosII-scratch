@@ -1,5 +1,6 @@
 gladeui_DATA = \
 	cronosII.glade		\
+	cronosII-composer.glade \
 	preferences.glade	\
 	ui-text-editor.glade
 
@@ -17,4 +18,4 @@ Pmap_DATA = \
 Pmapdir = $(pkgdatadir)
 
 
-EXTRA_DIST = $(Pmap_DATA) cronosII.glade preferences.glade
+EXTRA_DIST = $(Pmap_DATA) cronosII.glade cronosII-composer.glade preferences.glade

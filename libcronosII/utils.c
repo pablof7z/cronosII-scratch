@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/utils.c    
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -307,11 +307,9 @@ c2_str_strip_enclosed (const gchar *str, gchar open, gchar close)
 	c2_return_val_if_fail (str, NULL, C2EDATA);
 	
 	if (*str == open && *(str+strlen (str)-1) == close)
-	{
-		ptr = g_new0 (gchar, strlen (ptr)-1);
-		strncpy (ptr, str+1, strlen (str)-2);
-	} else
-		ptr = g_strdup (ptr);
+		ptr = g_strndup (str+1, strlen (str)-2);
+	else
+		ptr = g_strdup (str);
 	
 	return ptr;
 }

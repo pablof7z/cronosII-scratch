@@ -186,6 +186,7 @@ c2_html_set_content_from_string (C2Html *html, const gchar *string)
 	c2_html_freeze (html);
 	c2_html_clear (html);
 #ifdef USE_GTKHTML
+	gtk_html_load_from_string (GTK_HTML (html), string, strlen (string));
 #elif defined (USE_GTKXMHTML)
 #else
 	gtk_text_insert (GTK_TEXT (html), html->font, html->fore, NULL, string, -1);

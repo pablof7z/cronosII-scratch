@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/mailbox.c
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -344,7 +344,10 @@ c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2Mailbox
 
 	/* Create the structure */
 	if (c2_db_create_structure (value) < 0)
+	{
+		gtk_object_destroy (GTK_OBJECT (value));
 		return NULL;
+	}
 
 	c2_db_load (value);
 

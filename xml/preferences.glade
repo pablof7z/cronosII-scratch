@@ -172,18 +172,19 @@
 	    <spacing>5</spacing>
 
 	    <widget>
-	      <class>GtkPixmap</class>
-	      <name>pixmap1</name>
-	      <filename>cronosII.xpm</filename>
+	      <class>GtkLabel</class>
+	      <name>label99</name>
+	      <label>[ Cronos II Logo ]</label>
+	      <justify>GTK_JUSTIFY_CENTER</justify>
+	      <wrap>False</wrap>
 	      <xalign>0.5</xalign>
 	      <yalign>0.5</yalign>
 	      <xpad>0</xpad>
 	      <ypad>0</ypad>
-	      <build_insensitive>True</build_insensitive>
 	      <child>
 		<padding>0</padding>
 		<expand>False</expand>
-		<fill>True</fill>
+		<fill>False</fill>
 	      </child>
 	    </widget>
 
@@ -2705,20 +2706,21 @@ Always use my colors.
     <widget>
       <class>GnomeDruidPageStart</class>
       <name>druidpagestart1</name>
-      <title>Account Options</title>
-      <text>This Druid (Wizard) will help you set up your Mail accounts.
+      <title>New Account Wizard</title>
+      <text>Cronos II supports several identities through the usage of different
+mail accounts.
 
-CronosII allows you to have many different account types and identities.
+This wizard will guide you in the setting up of your new mail account.
 
-Help is provided along the way to help with
-protocols and conventions.</text>
+If you need help with some field in this wizard, just leave your pointer
+for a few seconds over it and a little help will pop up.
+For further help you can use the help manual, accessible from the
+Help menu.</text>
       <title_color>255,255,255</title_color>
       <text_color>0,0,0</text_color>
       <background_color>25,25,112</background_color>
       <logo_background_color>25,25,112</logo_background_color>
       <textbox_color>255,255,255</textbox_color>
-      <logo_image>cronosII.png</logo_image>
-      <watermark_image>cronosII.png</watermark_image>
     </widget>
 
     <widget>
@@ -2759,8 +2761,9 @@ protocols and conventions.</text>
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>account_name</name>
-	    <tooltip>Please enter a unique name so that you may identify this account. Note, this is for internal use only.</tooltip>
+	    <tooltip>Unique name that will identify this account. This name won't ship with outgoing mail, is just for internal use.</tooltip>
 	    <can_focus>True</can_focus>
+	    <has_focus>True</has_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
 	    <text_max_length>0</text_max_length>
@@ -2784,7 +2787,7 @@ protocols and conventions.</text>
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>person_name</name>
-	    <tooltip>This is the name that will be sent in outgoing messages in the &quot;From:&quot; field.</tooltip>
+	    <tooltip>This is the name that will identify this account in outgoing messages.</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -2861,6 +2864,7 @@ protocols and conventions.</text>
 	  <widget>
 	    <class>GtkCheckButton</class>
 	    <name>include_account</name>
+	    <tooltip>Unchecking this option will prevent the checking of this account in general account checks.</tooltip>
 	    <can_focus>True</can_focus>
 	    <label>Include this account in general account checks.</label>
 	    <active>True</active>
@@ -2909,7 +2913,7 @@ protocols and conventions.</text>
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>email</name>
-	    <tooltip>This accounts email address.</tooltip>
+	    <tooltip>The email address that this account will identify.</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -2960,7 +2964,7 @@ protocols and conventions.</text>
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>organization</name>
-	    <tooltip>The name of your organisation.</tooltip>
+	    <tooltip>The name of your organization.</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -3058,6 +3062,7 @@ protocols and conventions.</text>
 	    <widget>
 	      <class>GtkCheckButton</class>
 	      <name>checkbutton2</name>
+	      <tooltip>You can optionally send your card with information about you.</tooltip>
 	      <can_focus>True</can_focus>
 	      <label>Attach Address Book Card with outgoing mails</label>
 	      <active>False</active>
@@ -3120,36 +3125,6 @@ protocols and conventions.</text>
 	  </child>
 
 	  <widget>
-	    <class>GtkHBox</class>
-	    <name>hbox43</name>
-	    <homogeneous>False</homogeneous>
-	    <spacing>0</spacing>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>False</fill>
-	    </child>
-
-	    <widget>
-	      <class>GtkOptionMenu</class>
-	      <name>protocol_type</name>
-	      <width>230</width>
-	      <height>23</height>
-	      <can_focus>True</can_focus>
-	      <items>Select a Protocol
-POP
-SMTP
-</items>
-	      <initial_choice>0</initial_choice>
-	      <child>
-		<padding>0</padding>
-		<expand>False</expand>
-		<fill>False</fill>
-	      </child>
-	    </widget>
-	  </widget>
-
-	  <widget>
 	    <class>GtkFrame</class>
 	    <name>frame</name>
 	    <label>Protocol data</label>
@@ -3165,16 +3140,92 @@ SMTP
 	      <class>GtkTable</class>
 	      <name>pop3_table</name>
 	      <border_width>3</border_width>
-	      <rows>3</rows>
+	      <rows>4</rows>
 	      <columns>4</columns>
 	      <homogeneous>False</homogeneous>
 	      <row_spacing>4</row_spacing>
 	      <column_spacing>4</column_spacing>
 
 	      <widget>
+		<class>GtkLabel</class>
+		<name>label56</name>
+		<label>Password:</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>1</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<child>
+		  <left_attach>0</left_attach>
+		  <right_attach>1</right_attach>
+		  <top_attach>3</top_attach>
+		  <bottom_attach>4</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkEntry</class>
+		<name>pop3_password</name>
+		<tooltip>Your password at the mail server</tooltip>
+		<can_focus>True</can_focus>
+		<editable>True</editable>
+		<text_visible>False</text_visible>
+		<text_max_length>0</text_max_length>
+		<text></text>
+		<child>
+		  <left_attach>1</left_attach>
+		  <right_attach>4</right_attach>
+		  <top_attach>3</top_attach>
+		  <bottom_attach>4</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>True</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkEntry</class>
+		<name>pop3_username</name>
+		<tooltip>Your account username at the mail server</tooltip>
+		<can_focus>True</can_focus>
+		<editable>True</editable>
+		<text_visible>True</text_visible>
+		<text_max_length>0</text_max_length>
+		<text></text>
+		<child>
+		  <left_attach>1</left_attach>
+		  <right_attach>4</right_attach>
+		  <top_attach>2</top_attach>
+		  <bottom_attach>3</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>True</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
 		<class>GtkEntry</class>
 		<name>pop3_server_addr</name>
-		<tooltip>The Mail Server Hostname</tooltip>
+		<tooltip>The mail server hostname</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3183,8 +3234,8 @@ SMTP
 		<child>
 		  <left_attach>1</left_attach>
 		  <right_attach>2</right_attach>
-		  <top_attach>0</top_attach>
-		  <bottom_attach>1</bottom_attach>
+		  <top_attach>1</top_attach>
+		  <bottom_attach>2</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>True</xexpand>
@@ -3209,8 +3260,8 @@ SMTP
 		<child>
 		  <left_attach>2</left_attach>
 		  <right_attach>3</right_attach>
-		  <top_attach>0</top_attach>
-		  <bottom_attach>1</bottom_attach>
+		  <top_attach>1</top_attach>
+		  <bottom_attach>2</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -3225,7 +3276,7 @@ SMTP
 	      <widget>
 		<class>GtkSpinButton</class>
 		<name>pop3_server_port</name>
-		<tooltip>The Mail Servers listening port. (leave default if you don't know this)</tooltip>
+		<tooltip>The mail servers port (leave default if you don't know this)</tooltip>
 		<can_focus>True</can_focus>
 		<climb_rate>1</climb_rate>
 		<digits>0</digits>
@@ -3242,8 +3293,8 @@ SMTP
 		<child>
 		  <left_attach>3</left_attach>
 		  <right_attach>4</right_attach>
-		  <top_attach>0</top_attach>
-		  <bottom_attach>1</bottom_attach>
+		  <top_attach>1</top_attach>
+		  <bottom_attach>2</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -3268,87 +3319,11 @@ SMTP
 		<child>
 		  <left_attach>0</left_attach>
 		  <right_attach>1</right_attach>
-		  <top_attach>1</top_attach>
-		  <bottom_attach>2</bottom_attach>
-		  <xpad>0</xpad>
-		  <ypad>0</ypad>
-		  <xexpand>False</xexpand>
-		  <yexpand>False</yexpand>
-		  <xshrink>False</xshrink>
-		  <yshrink>False</yshrink>
-		  <xfill>True</xfill>
-		  <yfill>False</yfill>
-		</child>
-	      </widget>
-
-	      <widget>
-		<class>GtkEntry</class>
-		<name>pop3_username</name>
-		<tooltip>Your account Username at the Mail Server</tooltip>
-		<can_focus>True</can_focus>
-		<editable>True</editable>
-		<text_visible>True</text_visible>
-		<text_max_length>0</text_max_length>
-		<text></text>
-		<child>
-		  <left_attach>1</left_attach>
-		  <right_attach>4</right_attach>
-		  <top_attach>1</top_attach>
-		  <bottom_attach>2</bottom_attach>
-		  <xpad>0</xpad>
-		  <ypad>0</ypad>
-		  <xexpand>True</xexpand>
-		  <yexpand>False</yexpand>
-		  <xshrink>False</xshrink>
-		  <yshrink>False</yshrink>
-		  <xfill>True</xfill>
-		  <yfill>False</yfill>
-		</child>
-	      </widget>
-
-	      <widget>
-		<class>GtkLabel</class>
-		<name>label56</name>
-		<label>Password:</label>
-		<justify>GTK_JUSTIFY_CENTER</justify>
-		<wrap>False</wrap>
-		<xalign>1</xalign>
-		<yalign>0.5</yalign>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-		<child>
-		  <left_attach>0</left_attach>
-		  <right_attach>1</right_attach>
 		  <top_attach>2</top_attach>
 		  <bottom_attach>3</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
-		  <yexpand>False</yexpand>
-		  <xshrink>False</xshrink>
-		  <yshrink>False</yshrink>
-		  <xfill>True</xfill>
-		  <yfill>False</yfill>
-		</child>
-	      </widget>
-
-	      <widget>
-		<class>GtkEntry</class>
-		<name>pop3_password</name>
-		<tooltip>Your password at the Mail Server</tooltip>
-		<can_focus>True</can_focus>
-		<editable>True</editable>
-		<text_visible>False</text_visible>
-		<text_max_length>0</text_max_length>
-		<text></text>
-		<child>
-		  <left_attach>1</left_attach>
-		  <right_attach>4</right_attach>
-		  <top_attach>2</top_attach>
-		  <bottom_attach>3</bottom_attach>
-		  <xpad>0</xpad>
-		  <ypad>0</ypad>
-		  <xexpand>True</xexpand>
 		  <yexpand>False</yexpand>
 		  <xshrink>False</xshrink>
 		  <yshrink>False</yshrink>
@@ -3370,6 +3345,54 @@ SMTP
 		<child>
 		  <left_attach>0</left_attach>
 		  <right_attach>1</right_attach>
+		  <top_attach>1</top_attach>
+		  <bottom_attach>2</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<name>label100</name>
+		<label>Protocol:</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>1</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<child>
+		  <left_attach>0</left_attach>
+		  <right_attach>1</right_attach>
+		  <top_attach>0</top_attach>
+		  <bottom_attach>1</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkOptionMenu</class>
+		<name>protocol_type</name>
+		<can_focus>True</can_focus>
+		<items></items>
+		<initial_choice>0</initial_choice>
+		<child>
+		  <left_attach>1</left_attach>
+		  <right_attach>2</right_attach>
 		  <top_attach>0</top_attach>
 		  <bottom_attach>1</bottom_attach>
 		  <xpad>0</xpad>
@@ -3448,10 +3471,9 @@ SMTP
 	      <widget>
 		<class>GtkRadioButton</class>
 		<name>smtp_local_btn</name>
-		<tooltip>For your local Mail Server.</tooltip>
 		<can_focus>True</can_focus>
-		<label>Local sendmail program (MUA).</label>
-		<active>False</active>
+		<label>Local sendmail program (MTA).</label>
+		<active>True</active>
 		<draw_indicator>True</draw_indicator>
 		<group>smtp_option</group>
 		<child>
@@ -3475,7 +3497,6 @@ SMTP
 		<name>smtp_remote_server_addr</name>
 		<width>1</width>
 		<visible>False</visible>
-		<tooltip>URL for remote Mail Server</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3502,7 +3523,6 @@ SMTP
 		<name>smtp_remote_server_port</name>
 		<width>1</width>
 		<visible>False</visible>
-		<tooltip>Listening Port for Remote Mail Server. (try default if you don't know this)</tooltip>
 		<can_focus>True</can_focus>
 		<climb_rate>1</climb_rate>
 		<digits>0</digits>
@@ -3535,6 +3555,7 @@ SMTP
 	      <widget>
 		<class>GtkButton</class>
 		<name>smtp_remote_information_btn</name>
+		<sensitive>False</sensitive>
 		<tooltip>Apply this SMTP information.</tooltip>
 		<can_focus>True</can_focus>
 		<label>Set Information</label>
@@ -3585,7 +3606,6 @@ SMTP
 		<name>smtp_remote_username</name>
 		<width>1</width>
 		<visible>False</visible>
-		<tooltip>Your Username at the Remote Mail Server</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3612,7 +3632,6 @@ SMTP
 		<name>smtp_remote_password</name>
 		<width>1</width>
 		<visible>False</visible>
-		<tooltip>Your Password at the Remote Mail Server.</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3739,12 +3758,11 @@ SMTP
 	      <widget>
 		<class>GtkText</class>
 		<name>signature_text</name>
-		<tooltip>Enter Your Signature here</tooltip>
 		<has_default>True</has_default>
 		<can_focus>True</can_focus>
 		<has_focus>True</has_focus>
 		<editable>True</editable>
-		<text>--</text>
+		<text></text>
 	      </widget>
 	    </widget>
 	  </widget>
@@ -3769,16 +3787,12 @@ SMTP
     <widget>
       <class>GnomeDruidPageFinish</class>
       <name>druidpagefinish1</name>
-      <title>Account Options</title>
+      <title>Configuration Finished</title>
       <text>Congratulations! 
-You have created an account to
-use with Cronos II.
+You have finished configuring an account to use with Cronos II.
 
 
-Click the 'Finish' button to save this new account.
-
-Repeat the process for any extra CronosII Mail Accounts
-and Identities you might like to create.</text>
+Click the 'Finish' button to save this new account.</text>
       <background_color>25,25,112</background_color>
       <logo_background_color>25,25,112</logo_background_color>
       <textbox_color>255,255,255</textbox_color>

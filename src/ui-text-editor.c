@@ -26,6 +26,9 @@ static void
 wnd_main_draw									(void);
 
 void
+on_new_entry_activate							(void);
+
+void
 on_about_activate								(void);
 
 static GladeXML *wnd_main_xml = NULL;
@@ -52,11 +55,34 @@ wnd_main_draw (void)
 	
 	wnd_main_xml = glade_xml_new (GLADE_FILE, "wnd_main");
 
+	glade_xml_signal_connect (wnd_main_xml, "on_new_entry_activate", GTK_SIGNAL_FUNC (on_new_entry_activate));
 	glade_xml_signal_connect (wnd_main_xml, "on_about_activate", GTK_SIGNAL_FUNC (on_about_activate));
 
 	/* Display window */
 	widget = glade_xml_get_widget (wnd_main_xml, "wnd_main");
 	gtk_widget_show (widget);
+}
+
+void
+on_new_entry_activate (void)
+{
+	GtkWidget *widget;
+	GladeXML *xml;
+
+	xml = glade_xml_new (GLADE_FILE, "dlg_entry_edit");
+	widget = glade_xml_get_widget (xml, "dlg_entry_edit");
+
+	switch (gnome_dialog_run (GNOME_DIALOG (widget)))
+	{
+		case 1:
+			break;
+		case 0:
+		case 2:
+			gnome_dialog_close (GNOME_DIALOG (widget));
+			break;
+	}
+
+	gtk_object_unref (GTK_OBJECT (xml));
 }
 
 void

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /src/c2-app.h
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,9 +34,7 @@ extern "C" {
 #endif
 #include <gnome.h>
 
-#ifdef BUILDING_C2
-#	define C2_APP_GLADE_FILE(x)		(PKGDATADIR G_DIR_SEPARATOR_S x ".glade")
-#endif
+#define C2_APP_GLADE_FILE(x)		(PKGDATADIR G_DIR_SEPARATOR_S x ".glade")
 
 #define MAILBOX_INBOX				_("Inbox"	)
 #define MAILBOX_OUTBOX				_("Outbox"	)
@@ -259,6 +257,9 @@ c2_app_start_activity				(GtkWidget *progress);
 
 void
 c2_app_stop_activity				(void);
+
+gboolean
+c2_app_check_account_exists					(void);
 
 void
 c2_install_new					(void);

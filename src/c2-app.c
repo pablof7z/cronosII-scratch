@@ -190,6 +190,27 @@ c2_app_stop_activity (void)
 	pthread_mutex_unlock (&WMain.appbar_lock);
 }
 
+gboolean
+c2_app_check_account_exists (void)
+{
+	GladeXML *xml;
+	GtkWidget *window;
+	
+	if (c2_app.account)
+		return TRUE;
+
+	xml = glade_xml_new (C2_APP_GLADE_FILE ("cronosII"), "dlg_no_accounts");
+	window = glade_xml_get_widget (xml, "dlg_no_accounts");
+
+	switch (gnome_dialog_run_and_close (GNOME_DIALOG (window)))
+	{
+		case 0:
+			c2_preferences_new ();
+	}
+
+	return FALSE;
+}
+
 void
 c2_mailbox_tree_fill (C2Mailbox *head, GtkCTreeNode *node, GtkWidget *ctree, GtkWidget *window)
 {

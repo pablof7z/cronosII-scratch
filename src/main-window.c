@@ -28,6 +28,7 @@
 #include "main-window.h"
 #include "c2-main-window.h"
 
+#include "widget-composer.h"
 #include "widget-mail.h"
 #include "widget-message-transfer.h"
 #include "widget-index.h"
@@ -52,6 +53,9 @@ on_preferences_activated					(GtkWidget *widget);
 
 static void
 on_check_clicked							(GtkWidget *widget);
+
+static void
+on_new_mail_activate						(GtkWidget *widget);
 
 static void
 on_about_activated							(GtkWidget *widget);
@@ -176,8 +180,9 @@ c2_window_new (void)
 	gtk_widget_show (pixmap);
 
 	/* Connect all signals, menues, toolbar, buttons, etc. */
+	glade_xml_signal_connect (WMain.xml, "on_new_mail_activate", GTK_SIGNAL_FUNC (on_new_mail_activate));
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.xml, "file_exit")), "activate",
-							GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+							GTK_SIGNAL_FUNC (on_quit), NULL);
 	gtk_signal_connect_object (GTK_OBJECT(glade_xml_get_widget(WMain.xml,"settings_preferences")), "activate",
 							GTK_SIGNAL_FUNC (on_preferences_activated), NULL);
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.xml, "help_about")), "activate",
@@ -196,7 +201,7 @@ c2_window_new (void)
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.xml, "toolbar_check")), "clicked",
 							GTK_SIGNAL_FUNC (on_check_clicked), NULL);
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.xml, "toolbar_exit")), "clicked",
-							GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+							GTK_SIGNAL_FUNC (on_quit), NULL);
 
 	c2_main_window_build_dynamic_menu_accounts ();
 	
@@ -363,6 +368,22 @@ on_check_clicked (GtkWidget *widget)
 }
 
 static void
+on_new_mail_activate (GtkWidget *widget)
+{
+	GtkWidget *composer;
+	GtkWidget *window;
+
+	if (!c2_app_check_account_exists ())
+		return;
+
+	composer = c2_composer_new (c2_app.interface_toolbar);
+	window = c2_composer_get_window (C2_COMPOSER (composer));
+
+	c2_app_register_window (GTK_WINDOW (window));
+	gtk_widget_show (window);
+}
+
+static void
 on_about_activated (GtkWidget *widget)
 {
 	GladeXML *xml = glade_xml_new (C2_APP_GLADE_FILE ("cronosII"), "dlg_about");
@@ -387,6 +408,7 @@ on_getting_in_touch_activated (GtkWidget *widget)
 static void
 on_quit (void)
 {
+	GtkWidget *widget;
 	GtkWidget *window = glade_xml_get_widget (WMain.xml, "wnd_main");
 	GList *l;
 	
@@ -396,6 +418,16 @@ on_quit (void)
 			continue;
 		gtk_signal_emit_by_name (GTK_OBJECT ((GtkWindow*)l->data), "delete_event");
 	}
+
+	if ((widget = glade_xml_get_widget (WMain.xml, "hpaned")))
+		gnome_config_set_int ("/Cronos II/Rc/hpan", GTK_PANED (widget)->child1_size);
+
+	if ((widget = glade_xml_get_widget (WMain.xml, "vpaned")))
+		gnome_config_set_int ("/Cronos II/Rc/vpan", GTK_PANED (widget)->child1_size);
+	
+
+	
 	gtk_widget_destroy (window);
+	gnome_config_sync ();
 	gtk_main_quit ();
 }
