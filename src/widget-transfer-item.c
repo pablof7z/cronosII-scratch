@@ -284,7 +284,7 @@ c2_transfer_item_start_pop3_thread (C2Pthread3 *data)
 static void
 c2_transfer_item_start_smtp_thread (C2TransferItem *ti)
 {
-	c2_smtp_send_message (ti->type_info.send.smtp, ti->type_info.send.message);
+	c2_smtp_send_message (ti->type_info.send.smtp, ti->type_info.send.message, 0);
 }
 
 void

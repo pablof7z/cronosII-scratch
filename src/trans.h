@@ -182,3 +182,7 @@ gchar *s = N_("label74");
 gchar *s = N_("Current Toolbar");
 gchar *s = N_("label75");
 gchar *s = N_("label76");
+gchar *s = N_("There is a file by that name already.\n"
+              "\n"
+              "Do you want to overwrite it?");
+gchar *s = N_("Confirmation");

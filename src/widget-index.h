@@ -35,8 +35,12 @@ extern "C" {
 #define C2_INDEX(obj)						GTK_CHECK_CAST (obj, c2_index_get_type (), C2Index)
 #define C2_INDEX_CLASS(klass)				GTK_CHECK_CLASS_CAST (klass, c2_index_get_type (), C2IndexClass)
 #define C2_IS_INDEX(obj)				    GTK_CHECK_TYPE (obj, c2_index_get_type ())
+#define C2_INDEX_CLASS_FW(obj)				C2_INDEX_CLASS (((GtkObject*)(obj))->klass)
 
-typedef struct
+typedef struct _C2Index C2Index;
+typedef struct _C2IndexClass C2IndexClass;
+
+struct _C2Index
 {
 	GtkCList clist;
 	GtkWidget *clist_titles_arrow[C2_MAILBOX_SORT_LAST];
@@ -45,63 +49,58 @@ typedef struct
 
 	C2Application *application;
 
-	C2Mailbox *mbox;
-} C2Index;
+	C2Mailbox *mailbox;
+};
 
-typedef struct
+struct _C2IndexClass
 {
 	GtkCListClass parent_class;
 
 	void (*select_message) (C2Index *index, C2Db *node);
 	void (*open_message) (C2Index *index, C2Db *node);
 
-	void (*delete_message) (C2Index *index, C2Db *node);
-	void (*expunge_message) (C2Index *index, C2Db *node);
-	void (*move_message) (C2Index *index, C2Db *node);
-	void (*copy_message) (C2Index *index, C2Db *node);
+	/* Not a function */
+	void (*reload) (C2Index *index);
+};
 
-	void (*reply_message) (C2Index *index, C2Db *node);
-	void (*reply_all_message) (C2Index *index, C2Db *node);
-	void (*forward_message) (C2Index *index, C2Db *node);
-
-	void (*print_message) (C2Index *index, C2Db *node);
-	void (*save_message) (C2Index *index, C2Db *node);
-
-	void (*add_contact) (C2Index *index, gchar *sender);
-} C2IndexClass;
-
-guint
-c2_index_get_type								(void);
+/* Widget crap */
+GtkType
+c2_index_get_type							(void);
 
 GtkWidget *
-c2_index_new									(C2Application *application);
+c2_index_new								(C2Application *application);
 
 void
-c2_index_add_mailbox							(C2Index *index, C2Mailbox *mbox);
+c2_index_construct							(C2Index *index, C2Application *application);
+
+/* Content handling */
+void
+c2_index_add_mailbox						(C2Index *index, C2Mailbox *mailbox);
 
 void
-c2_index_remove_mailbox							(C2Index *index);
+c2_index_remove_mailbox						(C2Index *index);
 
 void
-c2_index_sort									(C2Index *index);
+c2_index_add_message						(C2Index *index, C2Db *db);
 
 void
-c2_index_add_message							(C2Index *index, const C2Message *message);
+c2_index_remove_message						(C2Index *index, C2Db *db);
 
 void
-c2_index_remove_message							(C2Index *index, const C2Message *message);
+c2_index_update_message						(C2Index *index, C2Db *db);
 
 void
-c2_index_select_previous_message				(C2Index *index);
-
-void
-c2_index_select_next_message					(C2Index *index);
+c2_index_select_message						(C2Index *index, C2Db *db);
 
 gboolean
-c2_index_exists_previous_message				(C2Index *index);
+c2_index_exists_previous_message			(C2Index *index);
 
 gboolean
-c2_index_exists_next_message					(C2Index *index);
+c2_index_exists_next_message				(C2Index *index);
+
+/* Sorting */
+void
+c2_index_sort								(C2Index *index);
 
 void
 c2_index_install_hints						(C2Index *index, GtkWidget *appbar, pthread_mutex_t *lock);

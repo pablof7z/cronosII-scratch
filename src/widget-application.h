@@ -61,7 +61,7 @@ extern "C" {
 #define DEFAULT_INTERFACE_TOOLBAR			"2"
 #define DEFAULT_INTERFACE_DATE_FMT			"%d.%m.%Y %H:%M"
 	
-#define DEFAULT_FONTS_MESSAGE_BODY			"-adobe-courier-medium-r-normal-*-*-120-*-*-m-*-iso8859-1"
+#define DEFAULT_FONTS_MESSAGE_BODY			"Helvetica"
 #define DEFAULT_FONTS_UNREADED_MESSAGE		"-b&h-lucida-bold-r-normal-*-*-100-*-*-p-*-iso8859-1"
 #define DEFAULT_FONTS_READED_MESSAGE		"-b&h-lucida-medium-r-normal-*-*-100-*-*-p-*-iso8859-1"
 #define DEFAULT_FONTS_UNREADED_MAILBOX		"-adobe-helvetica-bold-r-normal-*-12-*-*-*-p-*-iso8859-1"

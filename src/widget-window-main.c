@@ -58,6 +58,9 @@ static void
 on_toolbar_check_clicked					(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
+on_toolbar_save_clicked						(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_toolbar_delete_clicked					(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
@@ -151,7 +154,7 @@ C2ToolbarItem toolbar_items[] =
 		C2_TOOLBAR_BUTTON,
 		N_("Save"), PKGDATADIR "/pixmaps/save.png",
 		N_("Save selected message"), TRUE,
-		NULL, NULL,
+		GTK_SIGNAL_FUNC (on_toolbar_save_clicked), NULL,
 		NULL, NULL
 	},
 	{
@@ -579,6 +582,106 @@ on_toolbar_check_clicked (GtkWidget *widget, C2WindowMain *wmain)
 		c2_transfer_list_add_item (C2_TRANSFER_LIST (wtl), wti);
 		c2_transfer_item_start (wti);
 	}
+}
+
+static void
+on_toolbar_save_clicked_ok_clicked (GtkWidget *widget, gint *button)
+{
+	*button = 1;
+	gtk_main_quit ();
+}
+
+static void
+on_toolbar_save_clicked_cancel_clicked (GtkWidget *widget, gint *button)
+{
+	*button = 0;
+	gtk_main_quit ();
+}
+
+static void
+on_toolbar_save_clicked_delete_event (GtkWidget *widget, GdkEvent *e, gint *button)
+{
+	*button = 0;
+	gtk_main_quit ();
+}
+
+static void
+on_toolbar_save_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	GtkWidget *dialog;
+	gint button;
+
+	dialog = gtk_file_selection_new (NULL);
+	gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog),
+									C2_WINDOW (wmain)->application->paths_saving);
+
+	c2_application_window_add (C2_WINDOW (wmain)->application, GTK_WINDOW (dialog));
+
+	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->ok_button), "clicked",
+						GTK_SIGNAL_FUNC (on_toolbar_save_clicked_ok_clicked), &button);
+	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->cancel_button), "clicked",
+						GTK_SIGNAL_FUNC (on_toolbar_save_clicked_cancel_clicked), &button);
+	gtk_signal_connect (GTK_OBJECT (dialog), "delete_event",
+						GTK_SIGNAL_FUNC (on_toolbar_save_clicked_delete_event), &button);
+	
+	gtk_widget_show (dialog);
+	gtk_main ();
+
+	if (!button)
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+							_("Message saving aborted."));
+	else
+	{
+		C2Message *message;
+		GtkWidget *mail;
+		const gchar *file;
+		FILE *fd;
+
+		file = gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog));
+
+		if (!strlen (file))
+			goto no_name;
+
+		if (gnome_config_get_bool_with_default ("/"PACKAGE"/Paths/smart=true", NULL))
+		{
+			gchar *dir, *buf;
+
+			buf = g_dirname (file);
+			dir = g_strdup_printf ("%s" G_DIR_SEPARATOR_S, buf);
+			g_free (buf);
+			gnome_config_set_string ("/"PACKAGE"/Paths/saving", dir);
+			g_free (C2_WINDOW (wmain)->application->paths_saving);
+			C2_WINDOW (wmain)->application->paths_saving = dir;
+		}
+
+		mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
+		message = c2_mail_get_message (C2_MAIL (mail));
+
+		if (!message)
+		{
+			c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+								_("Message saving failed: Unable to find message."));
+			goto no_name;
+		}
+
+		if (!(fd = fopen (file, "w")))
+		{
+			c2_error_set (-errno);
+
+			c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+								_("Message saving failed: %s"), c2_error_get ());
+			goto no_name;
+		}
+
+		fprintf (fd, "%s\n\n%s", message->header, message->body);
+		fclose (fd);
+
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
+								_("Message saved successfully."));
+	}
+no_name:
+	c2_application_window_remove (C2_WINDOW (wmain)->application, GTK_WINDOW (dialog));
+	gtk_widget_destroy (dialog);
 }
 
 static void

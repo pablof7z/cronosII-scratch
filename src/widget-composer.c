@@ -611,6 +611,7 @@ on_send_now_clicked (GtkWidget *widget, C2Composer *composer)
 									   "X-CronosII-Send-Type: %d\n",
 									   message->header, C2_COMPOSER_SEND_NOW);
 	g_free (buf);
+	C2_DEBUG (message->header);
 	gtk_object_set_data (GTK_OBJECT (message), "state", (gpointer) C2_MESSAGE_UNREADED);
 
 	xml = C2_WINDOW (composer)->xml;
@@ -1078,6 +1079,9 @@ create_message (C2Composer *composer)
 
 	message->header = header->str;
 	g_string_free (header, FALSE);
+
+	C2_DEBUG (message->header);
+	C2_DEBUG (message->body);
 	
 	return message;
 }

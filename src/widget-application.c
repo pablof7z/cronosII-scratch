@@ -641,6 +641,9 @@ c2_application_window_add (C2Application *application, GtkWindow *window)
 								GTK_SIGNAL_FUNC (on_preferences_changed), window);
 	}
 
+	if (gnome_preferences_get_dialog_centered ())
+		gtk_window_set_position (window, GTK_WIN_POS_CENTER);
+
 	gtk_signal_emit (GTK_OBJECT (application), signals[WINDOW_CHANGED]);
 }
 

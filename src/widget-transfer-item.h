@@ -78,6 +78,7 @@ struct _C2TransferItem
 		{
 			C2SMTP *smtp;
 			C2Message *message;
+			gint id;
 		} send;
 	} type_info;
 

@@ -331,15 +331,21 @@ html_link_manager_cid (C2HTML *html, const gchar *url, C2Pthread2 *data)
 static gchar *
 interpret_text_plain_symbols (const gchar *plain)
 {
-	GString *string = g_string_new ("<html>\n"
-					                "<body bgcolor=#ffffff>\n"
-									"<table border=0><tr><td><pre>\n");
+	GString *string = g_string_new (NULL);
 	const gchar *ptr;
 	gchar *word, *extra, *buf;
 	gboolean quoted = FALSE, quote_line = FALSE, new_line;
 	gint length, elength;
 	gint quote_level = 0;
 	gshort red, green, blue;
+	gchar *font;
+	
+	font = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-Fonts/message_body="
+										DEFAULT_FONTS_MESSAGE_BODY, NULL);
+	g_string_sprintf (string, "<html>\n"
+					 "<body bgcolor=#ffffff>\n"
+					 "<table border=0><tr><td><pre><font face=\"%s\">\n", font);
+	g_free (font);
 	
 	for (ptr = plain;;)
 	{
@@ -455,7 +461,7 @@ avoid_interpret:
 		g_free (word);
 	}
 
-	g_string_append (string, " </pre></td></tr></table></body></html>");
+	g_string_append (string, " </font></pre></td></tr></table></body></html>");
 
 	buf = string->str;
 	g_string_free (string, FALSE);
