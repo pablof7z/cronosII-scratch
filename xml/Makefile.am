@@ -1,6 +1,7 @@
 gladeui_DATA =				\
 	cronosII.glade			\
 	composer.glade			\
+	dialogs.glade			\
 	install.glade			\
 	preferences.glade		\
 	ui-text-editor.glade

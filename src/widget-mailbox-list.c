@@ -1157,7 +1157,7 @@ on_imap_login_failed (C2IMAP *imap, const gchar *error, gchar **user, gchar **pa
 	mlist = GTK_WIDGET (gtk_object_get_data (GTK_OBJECT (imap), "login_failed::data"));
 	application = C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (mlist), "application"));
 	
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_req_pass_contents");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_req_pass_contents");
 	contents = glade_xml_get_widget (xml, "dlg_req_pass_contents");
 	dialog = c2_dialog_new (application, _("Login failed"), "req_pass", NULL,
 							GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);

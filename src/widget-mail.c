@@ -400,7 +400,7 @@ on_attachments_mime_activate (GtkWidget *btn, C2Mail *mail)
 		program = gnome_mime_program (gnome_mime_type (filename));
 	}
 
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_attachment_operation");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_attachment_operation");
 
 	widget = glade_xml_get_widget (xml, "save_file");
 	c2_preferences_get_general_paths_save (dir);
@@ -1592,7 +1592,7 @@ c2_mail_attachments_tool_new (C2Mail *mail)
 							PKGDATADIR "/pixmaps/attachments24.png",
 							GNOME_STOCK_BUTTON_OK,
 							GNOME_STOCK_BUTTON_APPLY, GNOME_STOCK_BUTTON_CANCEL, NULL);
-	C2_DIALOG (dialog)->xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"),
+	C2_DIALOG (dialog)->xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"),
 											 "dlg_attachments_tool_container");
 	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
 	gtk_widget_set_usize (dialog, 500, 350);

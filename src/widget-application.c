@@ -1051,7 +1051,7 @@ compact_mailboxes_thread (GladeXML *xml)
 
 		gdk_threads_enter ();
 		
-		ixml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_compact_inform");
+		ixml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_compact_inform");
 
 		/* Mailboxes Label */
 		iwidget = glade_xml_get_widget (ixml, "mailboxes_label");
@@ -1115,7 +1115,7 @@ _compact_mailboxes (C2Application *application)
 	GtkStyle *style;
 	pthread_t thread;
 
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_compact");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_compact");
 	gtk_object_set_data (GTK_OBJECT (xml), "application", application);
 
 	window = glade_xml_get_widget (xml, "dlg_compact");
@@ -1544,7 +1544,7 @@ _empty_trash (C2Application *application, C2Window *window)
 	pthread_t thread;
 	
 	/* Confirm */
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_empty_trash");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_empty_trash");
 	dialog = glade_xml_get_widget (xml, "dlg_empty_trash");
 
 	c2_application_window_add (application, GTK_WINDOW (dialog));
@@ -2562,7 +2562,7 @@ dlg_confirm_delete_message (C2Application *application, GtkWindow *window, gbool
 
 	application = application;
 
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_confirm_delete_message");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_confirm_delete_message");
 
 	dialog = glade_xml_get_widget (xml, "dlg_confirm_delete_message");
 	c2_application_window_add (application, GTK_WINDOW (dialog));

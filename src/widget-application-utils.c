@@ -90,7 +90,7 @@ c2_application_check_account_exists (C2Application *application)
 	if (application->account)
 		return TRUE;
 
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_no_accounts");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_no_accounts");
 	window = glade_xml_get_widget (xml, "dlg_no_accounts");
 
 	if (gnome_preferences_get_dialog_centered ())
@@ -386,7 +386,7 @@ c2_application_dialog_add_mailbox (C2Application *application)
 							NULL,
 							GNOME_STOCK_BUTTON_HELP,
 							GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_mailbox_properties_contents");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_mailbox_properties_contents");
 	C2_DIALOG (dialog)->xml = xml;
 
 	/* Pack the contents */
@@ -499,7 +499,7 @@ re_run_add_mailbox_dialog:
 					GladeXML *err_xml;
 					GtkWidget *err_dialog;
 					
-					err_xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_mailbox_err");
+					err_xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_mailbox_err");
 					err_dialog = glade_xml_get_widget (err_xml, "dlg_mailbox_err");
 
 					gtk_window_set_modal (GTK_WINDOW (err_dialog), TRUE);
@@ -542,7 +542,7 @@ re_run_add_mailbox_dialog:
 								GladeXML *err_xml;
 								GtkWidget *err_dialog;
 
-								err_xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"),
+								err_xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"),
 															"dlg_mailbox_not_enough_data");
 								err_dialog = glade_xml_get_widget (err_xml, "dlg_mailbox_not_enough_data");
 								
@@ -1075,7 +1075,7 @@ c2_application_dialog_add_features (C2Application *application)
 	GladeXML *xml;
 	pthread_t thread;
 
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_add_features");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_add_features");
 
 	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (dialog_add_features_thread), xml);
 
@@ -1170,7 +1170,7 @@ c2_application_dialog_release_information (C2Application *application)
 	GtkWidget *scroll;
 #endif
 	
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_release_information");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_release_information");
 	gtk_object_set_data (GTK_OBJECT (xml), "application", application);
 
 	for (i = 0; i < 3; i++)
@@ -1336,7 +1336,7 @@ c2_application_dialog_getting_in_touch (C2Application *application)
 	GtkWidget *scroll;
 #endif
 	
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_getting_in_touch");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_getting_in_touch");
 
 	widget = glade_xml_get_widget (xml, "contents_box");
 	gtk_object_set_data (GTK_OBJECT (xml), "application", application);
@@ -1435,7 +1435,7 @@ c2_application_dialog_select_mailbox (C2Application *application, GtkWindow *par
 	GtkWidget *scroll;
 	GtkWidget *mlist;
 
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_select_mailbox");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_select_mailbox");
 	
 	scroll = glade_xml_get_widget (xml, "scroll");
 	mlist = c2_mailbox_list_new (application);
@@ -1537,7 +1537,7 @@ rerun:
 		GtkWidget *dialog;
 		gint ret;
 		
-		xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_directory_selected");
+		xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_directory_selected");
 		
 		dialog = glade_xml_get_widget (xml, "dlg_directory_selected");
 
@@ -1556,7 +1556,7 @@ rerun:
 		GtkWidget *dialog;
 		gint ret;
 		
-		xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_confirm_overwrite");
+		xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_confirm_overwrite");
 		
 		dialog = glade_xml_get_widget (xml, "dlg_confirm_overwrite");
 
@@ -1619,7 +1619,7 @@ c2_application_dialog_mail_source (C2Application *application, C2Message *messag
 	font_normal = gdk_font_load ("-adobe-courier-medium-r-normal-*-*-140-*-*-m-*-iso8859-1");
 	font_bold = gdk_font_load ("-adobe-courier-bold-r-normal-*-*-140-*-*-m-*-iso8859-1");
 	
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_mail_source");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_mail_source");
 
 	/* Set the header */
 	widget = glade_xml_get_widget (xml, "text");

@@ -774,12 +774,6 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
 	}
 
-	/* Button */
-	button = glade_xml_get_widget (xml, "appbar_button");
-	pixmap = gnome_stock_pixmap_widget_at_size (window, GNOME_STOCK_PIXMAP_UP, 10, 14);
-	gtk_container_add (GTK_CONTAINER (button), pixmap);
-	gtk_widget_show (pixmap);
-
 	/* Connect all signals: menues, toolbar, buttons, etc. */
 	gtk_signal_connect (GTK_OBJECT (application), "application_preferences_changed",
 							GTK_SIGNAL_FUNC (on_application_application_preferences_changed), wmain);
@@ -2357,7 +2351,7 @@ on_eastern_egg_separator_activate (GtkWidget *widget, C2WindowMain *wmain)
 
 	dialog = c2_dialog_new (window->application, _("You found the Easter Egg!"), NULL,
 							_("Neat, baby!"), NULL);
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_eastern_egg_contents");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_eastern_egg_contents");
 	C2_DIALOG (dialog)->xml = xml;
 	
 	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox), glade_xml_get_widget (xml,
@@ -2453,7 +2447,7 @@ dlg_confirm_expunge_message (C2WindowMain *wmain)
 
 	application = C2_WINDOW (wmain)->application;
 
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_confirm_expunge_message");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_confirm_expunge_message");
 
 	dialog = glade_xml_get_widget (xml, "dlg_confirm_expunge_message");
 	c2_application_window_add (application, GTK_WINDOW (dialog));
@@ -2618,7 +2612,7 @@ c2_window_main_toolbar_configuration_dialog (C2WindowMain *wmain)
 	dialog = c2_dialog_new (C2_WINDOW (wmain)->application, _("Toolbar Configuration"),
 							"toolbar_configuration", NULL, GNOME_STOCK_BUTTON_HELP,
 							GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_toolbar_configuration_contents");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_toolbar_configuration_contents");
 	C2_DIALOG (dialog)->xml = xml;
 	gtk_widget_set_usize (dialog, 500, 385);
 

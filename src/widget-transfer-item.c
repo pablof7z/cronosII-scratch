@@ -781,7 +781,7 @@ on_pop3_login_failed (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pa
 	
 	gdk_threads_enter ();
 	ti = C2_TRANSFER_ITEM (gtk_object_get_data (GTK_OBJECT (pop3), "login_failed::data"));
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_req_pass_contents");
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_req_pass_contents");
 	contents = glade_xml_get_widget (xml, "dlg_req_pass_contents");
 	dialog = c2_dialog_new (ti->application, _("Login failed"), "req_pass", NULL,
 							GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
