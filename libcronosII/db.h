@@ -118,7 +118,7 @@ c2_db_remove_structure						(C2Mailbox *mailbox);
 gint
 c2_db_load									(C2Mailbox *mailbox);
 
-void
+gint
 c2_db_message_add							(C2Mailbox *mailbox, C2Message *message);
 
 void

@@ -36,17 +36,32 @@ extern "C" {
 
 #define C2_COMPOSER(obj)					(GTK_CHECK_CAST (obj, c2_composer_get_type (), C2Composer))
 #define C2_COMPOSER_CLASS(klass)			(GTK_CHECK_CLASS_CAST (klass, c2_composer_get_type (), C2ComposerClass))
+#define C2_IS_COMPOSER(obj)					(GTK_CHECK_TYPE (obj, c2_composer_get_type ()))
 #define C2_COMPOSER_CLASS_FW(obj)			(C2_COMPOSER_CLASS (((GtkObject*) (obj))->klass))
+
+#define C2_COMPOSER_ACCOUNT					"Account:"
+#define C2_COMPOSER_TO						"To:"
+#define C2_COMPOSER_CC						"CC:"
+#define C2_COMPOSER_BCC						"BCC:"
+#define C2_COMPOSER_SUBJECT					"Subject:"
+#define C2_COMPOSER_BODY					"Body:"
 
 typedef struct _C2Composer C2Composer;
 typedef struct _C2ComposerClass C2ComposerClass;
 typedef struct _C2ComposerAttachment C2ComposerAttachment;
+typedef enum _C2ComposerSendType C2ComposerSendType;
 typedef enum _C2ComposerType C2ComposerType;
 
 enum _C2ComposerType
 {
 	C2_COMPOSER_TYPE_INTERNAL,
 	C2_COMPOSER_TYPE_EXTERNAL
+};
+
+enum _C2ComposerSendType
+{
+	C2_COMPOSER_SEND_NOW,
+	C2_COMPOSER_SEND_LATER
 };
 
 struct _C2ComposerAttachment
@@ -73,6 +88,9 @@ struct _C2Composer
 	/* Undo and Redo */
 	GList *operations; /* History of operations */
 	GList *operations_ptr;
+
+	/* Extra data */
+	GList *eheaders;
 };
 
 struct _C2ComposerClass
@@ -112,6 +130,11 @@ c2_composer_set_message_as_quote			(C2Composer *composer, C2Message *message);
 /* Action handling */
 void
 c2_composer_save							(C2Composer *composer);
+
+/* Data handling */
+void
+c2_composer_set_extra_field					(C2Composer *composer, const gchar *field,
+											 const gchar *data);
 
 #ifdef __cplusplus
 }

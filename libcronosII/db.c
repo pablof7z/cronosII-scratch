@@ -413,8 +413,11 @@ c2_db_load (C2Mailbox *mailbox)
  * @message: Message to be added.
  * 
  * Appends a message to the mailbox.
+ *
+ * Return Value:
+ * 0 on success, -1 on error.
  **/
-void
+gint
 c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 {
 	gboolean (*func) (C2Mailbox *mailbox, C2Db *db);
@@ -470,12 +473,14 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 	}
 
 	if (!func (mailbox, db))
-		return;
+		return -1;
 	gtk_object_destroy (GTK_OBJECT (message));
 	db->message = NULL;
 
 	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
-							C2_MAILBOX_CHANGE_ADD_REMOVE, db->prev);
+							C2_MAILBOX_CHANGE_ADD, db->prev);
+
+	return 0;
 }
 
 /**

@@ -850,7 +850,7 @@
 
 	  <widget>
 	    <class>GnomeEntry</class>
-	    <name>subject_entry</name>
+	    <name>subject</name>
 	    <history_id>cronosII_composer_subject</history_id>
 	    <max_saved>10</max_saved>
 	    <child>
@@ -883,7 +883,6 @@
 	  <widget>
 	    <class>GtkButton</class>
 	    <name>to_btn</name>
-	    <can_focus>True</can_focus>
 	    <signal>
 	      <name>clicked</name>
 	      <handler>on_to_btn_clicked</handler>
@@ -914,7 +913,6 @@
 	  <widget>
 	    <class>GtkButton</class>
 	    <name>cc_btn</name>
-	    <can_focus>True</can_focus>
 	    <signal>
 	      <name>clicked</name>
 	      <handler>on_cc_btn_clicked</handler>
@@ -945,7 +943,6 @@
 	  <widget>
 	    <class>GtkButton</class>
 	    <name>bcc_btn</name>
-	    <can_focus>True</can_focus>
 	    <signal>
 	      <name>clicked</name>
 	      <handler>on_bcc_btn_clicked</handler>
@@ -1200,20 +1197,20 @@
 	  <class>Placeholder</class>
 	</widget>
       </widget>
-    </widget>
-  </widget>
 
-  <widget>
-    <class>GnomeAppBar</class>
-    <child_name>GnomeApp:appbar</child_name>
-    <name>appbar1</name>
-    <has_progress>True</has_progress>
-    <has_status>True</has_status>
-    <child>
-      <padding>0</padding>
-      <expand>True</expand>
-      <fill>True</fill>
-    </child>
+      <widget>
+	<class>GnomeAppBar</class>
+	<name>appbar</name>
+	<height>20</height>
+	<has_progress>True</has_progress>
+	<has_status>True</has_status>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>True</fill>
+	</child>
+      </widget>
+    </widget>
   </widget>
 </widget>
 
@@ -2145,6 +2142,162 @@ double-click the message.</message>
     <label>_Properties</label>
     <right_justify>False</right_justify>
     <stock_icon>GNOME_STOCK_MENU_PROP</stock_icon>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeMessageBox</class>
+  <name>dlg_saved_draft</name>
+  <message_box_type>GNOME_MESSAGE_BOX_INFO</message_box_type>
+  <message>Your message has been
+saved to the «Drafts» mailbox.
+
+Find your message in it and
+double click it to continue editing it.</message>
+  <title>Information</title>
+  <position>GTK_WIN_POS_CENTER</position>
+  <modal>False</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>False</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <auto_close>True</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox8</name>
+    <homogeneous>False</homogeneous>
+    <spacing>0</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area8</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button24</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkHSeparator</class>
+      <name>hseparator1</name>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>False</fill>
+      </child>
+    </widget>
+
+    <widget>
+      <class>GtkCheckButton</class>
+      <name>do_not_show_next_time</name>
+      <can_focus>True</can_focus>
+      <label>Do not show this next time.</label>
+      <active>False</active>
+      <draw_indicator>True</draw_indicator>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>False</fill>
+      </child>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeMessageBox</class>
+  <name>dlg_confirm_close</name>
+  <message_box_type>GNOME_MESSAGE_BOX_QUESTION</message_box_type>
+  <message>This message has not been saved.
+The changes will be lost.
+
+Do you want to save the message?</message>
+  <title>Confirmation</title>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>True</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>False</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <auto_close>True</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox9</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area9</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button25</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<label>Yes</label>
+	<stock_pixmap>GNOME_STOCK_PIXMAP_SAVE</stock_pixmap>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button26</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_NO</stock_button>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button27</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
+      </widget>
+    </widget>
   </widget>
 </widget>
 

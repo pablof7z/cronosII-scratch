@@ -31,6 +31,22 @@
 
 #define XML_FILE "cronosII-composer"
 
+#define GET_WINDOW_WIDTH	gnome_config_get_int_with_default ("/"PACKAGE"/Composer/width=640", NULL)
+#define GET_WINDOW_HEIGHT	gnome_config_get_int_with_default ("/"PACKAGE"/Composer/height=480", NULL)
+#define SET_WINDOW_WIDTH(x)	gnome_config_set_int ("/"PACKAGE"/Composer/width", x)
+#define SET_WINDOW_HEIGHT(x)gnome_config_set_int ("/"PACKAGE"/Composer/height", x)
+
+#define ACCOUNT_ENTRY(account, str)	\
+	{ \
+		const gchar *__name__; \
+		__name__ = c2_account_get_extra_data (account, C2_ACCOUNT_KEY_FULL_NAME, NULL); \
+		 \
+		if (__name__) \
+			str = g_strdup_printf ("\"%s\" <%s> (%s)", __name__, account->email, account->name); \
+		else \
+			str = g_strdup_printf ("%s (%s)", account->email, account->name); \
+	}
+
 static void
 class_init									(C2ComposerClass *klass);
 
@@ -39,6 +55,9 @@ init										(C2Composer *composer);
 
 static void
 destroy										(GtkObject *object);
+
+static void
+on_composer_size_allocate					(C2Composer *composer, GtkAllocation *alloc);
 
 static void
 on_to_changed								(GtkWidget *widget, C2Composer *composer);
@@ -170,6 +189,7 @@ init (C2Composer *composer)
 	composer->draft_id = -1;
 	composer->operations = NULL;
 	composer->operations_ptr = NULL;
+	composer->eheaders = NULL;
 }
 
 static void
@@ -203,6 +223,7 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 #ifdef USE_GNOME_WINDOW_ICON
 	gnome_window_icon_set_from_file (GTK_WINDOW (composer), PKGDATADIR "/pixmaps/mail-write.png");
 #endif
+	gtk_widget_set_usize (GTK_WIDGET (composer), GET_WINDOW_WIDTH, GET_WINDOW_HEIGHT);
 
 	c2_window_set_contents_from_glade (C2_WINDOW (composer), "wnd_composer_contents");
 
@@ -361,8 +382,24 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 						GTK_SIGNAL_FUNC (on_to_changed), composer);
 	
 
+	gtk_signal_connect (GTK_OBJECT (composer), "size_allocate",
+							GTK_SIGNAL_FUNC (on_composer_size_allocate), NULL);
 	gtk_signal_connect_object (GTK_OBJECT (composer), "destroy",
 							GTK_SIGNAL_FUNC (destroy), NULL);
+}
+
+static void
+on_composer_size_allocate (C2Composer *composer, GtkAllocation *alloc)
+{
+	SET_WINDOW_WIDTH (alloc->width);
+	SET_WINDOW_HEIGHT (alloc->height);
+	gnome_config_sync ();
+}
+
+static gboolean
+on_composer_delete_event (GtkWidget *widget, GdkEventAny *e, C2Composer *composer)
+{
+	return TRUE;
 }
 
 static const gchar *
@@ -457,14 +494,7 @@ on_application_preferences_changed_account (C2Application *application, gint key
 	
 	for (account = application->account; account; account = c2_account_next (account))
 	{
-		const gchar *name;
-		name = c2_account_get_extra_data (account, C2_ACCOUNT_KEY_FULL_NAME, NULL);
-		
-		if (name)
-			str = g_strdup_printf ("\"%s\" <%s> (%s)", name, account->email, account->name);
-		else
-			str = g_strdup_printf ("%s (%s)", account->email, account->name);
-
+		ACCOUNT_ENTRY (account, str);
 		popdown = g_list_append (popdown, str);
 	}
 	gtk_combo_set_popdown_strings (combo, popdown);
@@ -519,21 +549,16 @@ static void
 on_send_now_clicked (GtkWidget *widget, C2Composer *composer)
 {
 	C2Message *message = create_message (composer);
-	C2Account *account = get_account (composer);
-	C2SMTP *smtp = C2_SMTP (c2_account_get_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, NULL));
+	C2Mailbox *mailbox;
 	GladeXML *xml;
-	GtkWidget *tl;
-	C2TransferItem *ti;
+	gchar *buf;
 
-#ifdef USE_DEBUG
-	if (!smtp)
-	{
-		g_assert_not_reached ();
-		return;
-	}
-#else
-	c2_return_if_fail_obj (smtp, C2INTERNAL, GTK_OBJECT (composer));
-#endif
+	/* Set the Send Now state of the message */
+	buf = message->header;
+	message->header = g_strdup_printf ("%s"
+									   "X-CronosII-Send-Type: %d\n",
+									   message->header, C2_COMPOSER_SEND_NOW);
+	g_free (buf);
 
 	xml = C2_WINDOW (composer)->xml;
 	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "file_send_now"), FALSE);
@@ -541,18 +566,15 @@ on_send_now_clicked (GtkWidget *widget, C2Composer *composer)
 	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "send_now_btn"), FALSE);
 	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "send_later_btn"), FALSE);
 
-	/* Get the transfer list */
-	tl = c2_application_window_get (C2_WINDOW (composer)->application,
-										C2_WIDGET_TRANSFER_LIST_TYPE);
-	if (!C2_IS_TRANSFER_LIST (tl));
+	mailbox = c2_mailbox_get_by_name (C2_WINDOW (composer)->application->mailbox, C2_MAILBOX_OUTBOX);
+	if (!mailbox)
+		g_assert_not_reached ();
+
+	if (!c2_db_message_add (mailbox, message))
 	{
-		tl = c2_transfer_list_new (C2_WINDOW (composer)->application);
+		gtk_widget_destroy (GTK_WIDGET (composer));
+		gtk_object_unref (GTK_OBJECT (message));
 	}
-	
-	ti = c2_transfer_item_new (C2_WINDOW (composer)->application, account,
-								C2_TRANSFER_ITEM_SEND, smtp, message);
-	c2_transfer_list_add_item (C2_TRANSFER_LIST (tl), ti);
-	c2_transfer_item_start (ti);
 }
 
 static void
@@ -755,10 +777,123 @@ create_message (C2Composer *composer)
 {
 	GladeXML *xml;
 	GtkWidget *widget;
+	C2Message *message;
+	C2Account *account;
+	GString *header;
+	gboolean multipart;
+	gchar *buf, *buf1, *buf2;
+
+	/* Create message */
+	message = c2_message_new ();
 
 	xml = C2_WINDOW (composer)->xml;
-//	widget = glade_xml_get_widget (
-	return NULL;
+	
+	/* Prepare header */
+	header = g_string_new (NULL);
+
+	/* Account */
+	widget = glade_xml_get_widget (xml, "account");
+	account = get_account (composer);
+	buf1 = (gchar*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_FULL_NAME, NULL);
+	if (buf1)
+		buf = g_strdup_printf ("From: \"%s\" <%s>\n", buf1, account->email);
+	else
+		buf = g_strdup (account->email);
+	g_string_append (header, buf);
+	g_free (buf);
+
+	/* To */
+	widget = glade_xml_get_widget (xml, "to");
+	buf1 = gtk_entry_get_text (GTK_ENTRY (widget));
+	buf = g_strdup_printf ("To: %s\n", buf1);
+	g_string_append (header, buf);
+	g_free (buf);
+
+	/* CC */
+	widget = glade_xml_get_widget (xml, "cc");
+	buf1 = gtk_entry_get_text (GTK_ENTRY (widget));
+	if (strlen (buf1))
+	{
+		buf = g_strdup_printf ("CC: %s\n", buf1);
+		g_string_append (header, buf);
+		g_free (buf);
+	}
+
+	/* BCC */
+	widget = glade_xml_get_widget (xml, "bcc");
+	buf1 = gtk_entry_get_text (GTK_ENTRY (widget));
+	if (strlen (buf1))
+	{
+		buf = g_strdup_printf ("BCC: %s\n", buf1);
+		g_string_append (header, buf);
+		g_free (buf);
+	}
+
+	/* Subject */
+	widget = glade_xml_get_widget (xml, "subject");
+	buf1 = gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (widget)->entry));
+	buf = g_strdup_printf ("Subject: %s\n", buf1);
+	g_string_append (header, buf);
+	g_free (buf);
+
+	/* Reply-To */
+	buf1 = (gchar*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_REPLY_TO, NULL);
+	if (strlen (buf1))
+	{
+		buf = g_strdup_printf ("Reply-To: %s\n", buf1);
+		g_string_append (header, buf);
+		g_free (buf);
+	}
+
+	/* Organization */
+	buf1 = (gchar*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_ORGANIZATION, NULL);
+	if (strlen (buf1))
+	{
+		buf = g_strdup_printf ("Organization: %s\n", buf1);
+		g_string_append (header, buf);
+		g_free (buf);
+	}
+
+	/* X-Mailer
+	 * User-Agent
+	 */
+	buf1 = g_strdup_printf ("X-Mailer: " USE_XMAILER "\n"
+							"User-Agent: Cronos II " VERSION "\n");
+	g_string_append (header, buf1);
+	g_free (buf1);
+
+	/* X-Priority */
+	widget = glade_xml_get_widget (xml, "priority_very_high");
+	if (GTK_CHECK_MENU_ITEM (glade_xml_get_widget (xml, "priority_very_high"))->active)
+		buf1 = g_strdup_printf ("X-Priority: 1\n");
+	else if (GTK_CHECK_MENU_ITEM (glade_xml_get_widget (xml, "priority_high"))->active)
+		buf1 = g_strdup_printf ("X-Priority: 2\n");
+	else if (GTK_CHECK_MENU_ITEM (glade_xml_get_widget (xml, "priority_normal"))->active)
+		buf1 = g_strdup_printf ("X-Priority: 3\n");
+	else if (GTK_CHECK_MENU_ITEM (glade_xml_get_widget (xml, "priority_low"))->active)
+		buf1 = g_strdup_printf ("X-Priority: 4\n");
+	else if (GTK_CHECK_MENU_ITEM (glade_xml_get_widget (xml, "priority_very_low"))->active)
+		buf1 = g_strdup_printf ("X-Priority: 5\n");
+	else
+		buf1 = g_strdup_printf ("X-Priority: 3\n");
+	g_string_append (header, buf1);
+	g_free (buf1);
+
+	/* X-CronosII-Account */
+	buf1 = g_strdup_printf ("X-CronosII-Account: %s\n", account->name);
+	g_string_append (header, buf1);
+	g_free (buf1);
+
+	/* X-CronosII-State */
+	buf1 = g_strdup_printf ("X-CronosII-State: %d\n", C2_MESSAGE_UNREADED);
+	g_string_append (header, buf1);
+	g_free (buf1);
+
+	message->header = header->str;
+	g_string_free (header, FALSE);
+	C2_DEBUG (message->header);
+	
+	return message;
 }
 
 static C2Account *
@@ -782,4 +917,36 @@ get_account (C2Composer *composer)
 	}
 
 	return NULL;
+}
+
+void
+c2_composer_set_extra_field (C2Composer *composer, const gchar *field, const gchar *data)
+{
+	gchar *string;
+	
+	c2_return_if_fail_obj (C2_IS_COMPOSER (composer) || field, C2EDATA, GTK_OBJECT (composer));
+
+	if (c2_streq (field, C2_COMPOSER_ACCOUNT))
+	{
+		GtkWidget *widget;
+		C2Account *account;
+		gchar *str;
+
+		account = c2_account_get_by_name (C2_WINDOW (composer)->application->account, data);
+		
+		if (!account)
+		{
+			c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING,
+								_("The account specified does not exist: %s"), data);
+			return;
+		}
+
+		ACCOUNT_ENTRY (account, str);
+		
+		widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "account");
+		gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (widget)->entry), str);
+	}
+	
+	string = g_strdup_printf ("%s: %s", field, data);
+	composer->eheaders = g_list_append (composer->eheaders, string);
 }

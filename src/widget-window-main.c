@@ -165,7 +165,7 @@ C2ToolbarItem toolbar_items[] =
 		C2_TOOLBAR_BUTTON,
 		N_("Delete"), PKGDATADIR "/pixmaps/delete.png",
 		N_("Delete selected mails"), TRUE,
-		NULL, NULL,
+		GTK_SIGNAL_FUNC (on_toolbar_delete_clicked), NULL,
 		NULL, NULL
 	},
 	{
@@ -507,6 +507,7 @@ on_delete_event (GtkWidget *widget, GdkEventAny *event, gpointer data)
 	 * main window):
 	 * i.e. unref any loaded message.
 	 */
+	return FALSE;
 }
 
 static void

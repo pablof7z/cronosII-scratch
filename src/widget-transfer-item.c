@@ -230,7 +230,7 @@ C2TransferItemType type, va_list args)
 
 	button = gtk_button_new ();
 
-	bpixmap = gnome_stock_pixmap_widget_new (GTK_WIDGET (ti), GNOME_STOCK_PIXMAP_STOP);
+	bpixmap = gnome_stock_pixmap_widget_new (ti->table, GNOME_STOCK_PIXMAP_STOP);
 	gtk_container_add (GTK_CONTAINER (button), bpixmap);
 	gtk_widget_show (bpixmap);
 
@@ -279,6 +279,12 @@ c2_transfer_item_start_pop3_thread (C2Pthread3 *data)
 	g_free (data);
 	
 	c2_pop3_fetchmail (pop3, account, inbox);
+}
+
+static void
+c2_transfer_item_start_smtp_thread (C2TransferItem *ti)
+{
+//	c2_smtp_send_message
 }
 
 void
@@ -355,7 +361,13 @@ c2_transfer_item_start (C2TransferItem *ti)
 #endif
 			return;
 		}
-	}
+	} else if (ti->type == C2_TRANSFER_ITEM_SEND)
+	{
+		pthread_t thread;
+
+		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_transfer_item_start_smtp_thread), ti);
+	} else
+		g_assert_not_reached ();
 }
 
 static void
@@ -479,11 +491,9 @@ on_pop3_login_failed (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pa
 		buffer = g_strdup_printf ("/"PACKAGE"/Account %d/", nth);
 		gnome_config_push_prefix (buffer);
 		gnome_config_set_string ("incoming_server_username", pop3->user);
-		printf ("Set '%s'\n", pop3->user);
 		if (pop3->flags & C2_POP3_DO_NOT_LOSE_PASSWORD)
 		{
 			gnome_config_set_string ("incoming_server_password", pop3->pass);
-			printf ("Set '%s'\n", pop3->pass);
 		}
 		gnome_config_pop_prefix ();
 		gnome_config_sync ();
@@ -573,4 +583,9 @@ on_pop3_disconnect (GtkObject *object, gboolean success, C2NetObjectByte *byte, 
 	gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
 	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
 	gdk_threads_leave ();
+
+//	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
 }
+
+//static void
+//on_smtp_smtp_update (C2SMTP *smtp, C2Message *message, guint length, guint bytes, 

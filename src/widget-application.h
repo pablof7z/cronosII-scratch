@@ -39,7 +39,7 @@ extern "C" {
 
 #define C2_MAILBOX_INBOX					_("Inbox")
 #define C2_MAILBOX_OUTBOX					_("Outbox")
-#define C2_MAILBOX_QUEUE					_("Queue")
+#define C2_MAILBOX_SENT_ITEMS				_("Sent Items")
 #define C2_MAILBOX_GARBAGE					_("Garbage")
 #define C2_MAILBOX_DRAFTS					_("Drafts")
 

@@ -1,3 +1,9 @@
+Sun Oct 07 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Work in the composer.
+	* Work with the transfer item and transfer list widgets.
+	* Work in the Db module.
+	* Work in the application widget.
+
 Sat Oct 06 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work in the Toolbar widget.
 	* Everything with the Toolbar should be working by now.

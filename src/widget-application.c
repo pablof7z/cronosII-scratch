@@ -31,6 +31,8 @@
 #include "widget-application.h"
 #include "widget-dialog.h"
 #include "widget-dialog-preferences.h"
+#include "widget-transfer-item.h"
+#include "widget-transfer-list.h"
 #include "widget-window.h"
 
 static void
@@ -44,6 +46,10 @@ destroy										(GtkObject *object);
 
 void
 on_mailbox_changed_mailboxes				(C2Mailbox *mailbox, C2Application *application);
+
+static void
+on_outbox_changed_mailbox					(C2Mailbox *mailbox, C2MailboxChangeType change, C2Db *db,
+											 C2Application *application);
 
 static void
 on_preferences_changed						(C2DialogPreferences *preferences,
@@ -481,6 +487,15 @@ ignore:
 			gtk_signal_connect (GTK_OBJECT (mailbox), "changed_mailboxes",
 								GTK_SIGNAL_FUNC (on_mailbox_changed_mailboxes), application);
 
+		/* Connect to the change_mailbox of the outbox mailbox
+		 * to know when we have to send a message.
+		 */
+		if (c2_streq (mailbox->name, C2_MAILBOX_OUTBOX))
+		{
+			gtk_signal_connect (GTK_OBJECT (mailbox), "changed_mailbox",
+								GTK_SIGNAL_FUNC (on_outbox_changed_mailbox), application);
+		}
+
 #if FALSE
 		/* We have to connect to the "db_loaded" signal */
 		gtk_signal_connect (GTK_OBJECT (mbox), "db_loaded",
@@ -539,6 +554,47 @@ void
 on_mailbox_changed_mailboxes (C2Mailbox *mailbox, C2Application *application)
 {
 	gtk_signal_emit (GTK_OBJECT (application), signals[RELOAD_MAILBOXES]);
+}
+
+static void
+on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db *db,
+							C2Application *application)
+{
+	C2Account *account;
+	C2SMTP *smtp;
+	C2Message *message;
+	GtkWidget *tl;
+	C2TransferItem *ti;
+	gchar *buf;
+	
+	if (change != C2_MAILBOX_CHANGE_ADD)
+		return;
+
+	db = db->next;
+
+	c2_db_load_message (db);
+	message = db->message;
+
+	buf = c2_message_get_header_field (message, "\nX-CronosII-Account:");
+	for (account = application->account; account; account = c2_account_next (account))
+		if (c2_streq (account->name, buf))
+			break;
+	g_free (buf);
+	if (!account)
+		return;
+
+	smtp = (C2SMTP*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, NULL);
+
+	tl = c2_application_window_get (application, C2_WIDGET_TRANSFER_LIST_TYPE);
+	if (!tl || !C2_IS_TRANSFER_LIST (tl))
+		tl = c2_transfer_list_new (application);
+	
+	ti = c2_transfer_item_new (application, account, C2_TRANSFER_ITEM_SEND, smtp, message);
+	c2_transfer_list_add_item (C2_TRANSFER_LIST (tl), ti);
+	c2_transfer_item_start (ti);
+
+	gtk_widget_show (tl);
+	gdk_window_raise (tl->window);
 }
 
 C2Application *

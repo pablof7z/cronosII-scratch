@@ -71,7 +71,8 @@ enum _C2MailboxType
 
 enum _C2MailboxChangeType
 {
-	C2_MAILBOX_CHANGE_ADD_REMOVE, /* Add or remove */
+	C2_MAILBOX_CHANGE_ADD,
+	C2_MAILBOX_CHANGE_REMOVE,
 	C2_MAILBOX_CHANGE_STATE /* State of a/several mail/s */
 };
 

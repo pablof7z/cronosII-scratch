@@ -223,8 +223,6 @@ on_transfer_item_finish (C2TransferItem *ti, C2TransferList *tl)
 
 	progress = ti->progress_mail;
 	
-	gtk_progress_set_show_text (GTK_PROGRESS (progress), TRUE);
-	gtk_progress_set_format_string (GTK_PROGRESS (progress), _("Cancelled."));
 	gtk_progress_set_percentage (GTK_PROGRESS (progress), 1.0);
 	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
 

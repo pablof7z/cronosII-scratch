@@ -235,7 +235,8 @@ on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *
 	
 	switch (type)
 	{
-		case C2_MAILBOX_CHANGE_ADD_REMOVE:
+		case C2_MAILBOX_CHANGE_ADD:
+		case C2_MAILBOX_CHANGE_REMOVE:
 			node_fill (ctree, cnode, mailbox, NULL, &unreaded);
 			break;
 		case C2_MAILBOX_CHANGE_STATE:
@@ -381,7 +382,7 @@ get_pixmap (C2Mailbox *mailbox, gboolean open)
 		return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/inbox.png");
 	else if (c2_streq (mailbox->name, C2_MAILBOX_OUTBOX))
 		return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/outbox.png");
-	else if (c2_streq (mailbox->name, C2_MAILBOX_QUEUE))
+	else if (c2_streq (mailbox->name, C2_MAILBOX_SENT_ITEMS))
 		return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/queue.png");
 	else if (c2_streq (mailbox->name, C2_MAILBOX_GARBAGE))
 		return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/garbage.png");

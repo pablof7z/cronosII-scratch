@@ -24,14 +24,8 @@
 
 #include "main.h"
 
-#include "widget-transfer-list.h"
+#include "widget-composer.h"
 #include "widget-window-main.h"
-
-static void
-on_flag_compose								(void);
-
-static void
-on_flag_check								(void);
 
 static struct {
 	gboolean open_composer;
@@ -60,8 +54,8 @@ static struct {
 	
 	NULL,
 
-	TRUE,
-	TRUE
+	FALSE,
+	FALSE
 };
 
 static void
@@ -70,59 +64,59 @@ c2_init (gint argc, gchar **argv)
 	static struct poptOption options[] = {
 		{
 			"compose", 'm', POPT_ARG_NONE,
-			on_flag_compose, 0,
+			&(flags.open_composer), 0,
 			N_("Compose a new email."), NULL
 		},
 		{
 			"account", 'a', POPT_ARG_STRING,
-			NULL, 0,
+			&(flags.account), 0,
 			N_("Set the Account field."),
 			N_("Account")
 		},
 		{
 			"to", 't', POPT_ARG_STRING,
-			NULL, 0,
+			&(flags.to), 0,
 			N_("Set the To field."),
 			N_("Address")
 		},
 		{
 			"cc", 'c', POPT_ARG_STRING,
-			NULL, 0,
+			&(flags.cc), 0,
 			N_("Set the CC field."),
 			N_("Address")
 		},
 		{
 			"bcc", 'b', POPT_ARG_STRING,
-			NULL, 0,
+			&(flags.bcc), 0,
 			N_("Set the BCC field."),
 			N_("Address")
 		},
 		{
 			"subject", 's', POPT_ARG_STRING,
-			NULL, 0,
+			&(flags.subject), 0,
 			N_("Set the Subject field."),
 			N_("Subject")
 		},
 		{
 			"body", 'o', POPT_ARG_STRING,
-			NULL, 0,
+			&(flags.body), 0,
 			N_("Set the Body."),
 			N_("Text")
 		},
 		{
 			"mailto", 'l', POPT_ARG_STRING,
-			NULL, 0,
+			&(flags.mailto), 0,
 			N_("Compose a new email decoding the argument as a mailto: link"),
 			"mailto:email@somewhere."
 		},
 		{
 			"check", 'f', POPT_ARG_NONE,
-			on_flag_check, 0,
+			&(flags.check), 0,
 			N_("Check account for mail."), NULL
 		},
 		{
 			"wmain", 'w', POPT_ARG_NONE,
-			NULL, 0,
+			&(flags.open_main_window), 0,
 			N_("Open the main window (default)"), NULL
 		}
 	};
@@ -140,9 +134,9 @@ c2_init (gint argc, gchar **argv)
 gint
 main (gint argc, gchar **argv)
 {
-	GtkWidget *main_window;
+	GtkWidget *widget;
 	GtkWidget *transfer_list;
-	C2TransferItem *transfer_item;
+	gboolean something_opened = FALSE;
 
 	g_thread_init (NULL);
 	
@@ -163,22 +157,29 @@ main (gint argc, gchar **argv)
 
 	if (flags.open_main_window)
 	{
-		main_window = c2_window_main_new (application);
-		gtk_widget_show (main_window);
+		widget = c2_window_main_new (application);
+		gtk_widget_show (widget);
+		something_opened = TRUE;
 	}
-/*	if (flags.check)
+
+	if (flags.open_composer || flags.account || flags.to || flags.cc ||
+		flags.bcc || flags.subject || flags.body || flags.mailto)
 	{
-		C2Account *account =
-			c2_account_new (C2_ACCOUNT_POP3, "Cronos II", "cronosII@users.sourceforge.net");
-		
-		transfer_list = c2_transfer_list_new (application);
-		gtk_widget_show (transfer_list);
+		widget = c2_composer_new (application);
 
-		transfer_item = c2_transfer_item_new (account, C2_TRANSFER_ITEM_RECEIVE);
-		c2_transfer_list_add_item (C2_TRANSFER_LIST (transfer_list), transfer_item);
-		c2_transfer_item_start (transfer_item);
-	}*/
+		if (flags.account)
+			c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_ACCOUNT,
+										flags.account);
+		gtk_widget_show (widget);
+		something_opened = TRUE;
+	}
 
+	if (!something_opened)
+	{
+		widget= c2_window_main_new (application);
+		gtk_widget_show (widget);
+	}
+	
 	gdk_threads_enter ();
 	gtk_main ();
 	gdk_threads_leave ();
@@ -187,16 +188,4 @@ main (gint argc, gchar **argv)
 	c2_hash_destroy ();
 
 	return 0;
-}
-
-static void
-on_flag_compose (void)
-{
-	L
-}
-
-static void
-on_flag_check (void)
-{
-L	flags.check = TRUE;
 }
