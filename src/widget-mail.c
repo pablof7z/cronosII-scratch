@@ -46,7 +46,7 @@
  */
  
 #define MOD "[Widget] Mail"
-#define DMOD TRUE
+#define DMOD FALSE
 
 static void
 on_body_button_press_event					(GtkWidget *widget, GdkEventButton *event);

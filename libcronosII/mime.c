@@ -100,7 +100,7 @@ no_mime_information:
 		 * when this is being written (10.5.2001).
 		 * We will try to understand it anyway.
 		 */
-		g_print ("The selected message uses an unknown version of MIME encoding: %s\n", mime_version);
+		g_print ("The selected message uses an unknown version of MIME encoding: '%s'\n", mime_version);
 #endif
 	g_free (mime_version);
 

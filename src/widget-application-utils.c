@@ -182,7 +182,6 @@ c2_application_dialog_add_mailbox (C2Application *application)
 							GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_mailbox_properties_contents");
 	C2_DIALOG (dialog)->xml = xml;
-	gtk_widget_set_usize (dialog, 400, -1);
 
 	/* Pack the contents */
 	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox), glade_xml_get_widget (xml,

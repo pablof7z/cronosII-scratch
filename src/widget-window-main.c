@@ -2191,7 +2191,7 @@ on_mlist_object_selected_pthread (C2WindowMain *wmain)
 	gdk_threads_enter ();
 	c2_window_set_activity (C2_WINDOW (wmain), TRUE);
 	gdk_threads_leave ();
-L	
+	
 	if (!mailbox->db)
 	{
 		if (!c2_mailbox_load_db (mailbox))
@@ -2215,18 +2215,18 @@ L
 	
 	if (c2_mutex_trylock (&wmain->index_lock))
 		return 0;
-L	
+	
 	gdk_threads_enter ();
 	c2_index_clear (index);
-L	c2_index_set_mailbox (index, mailbox);
-L	c2_window_set_activity (C2_WINDOW (wmain), FALSE);
+	c2_index_set_mailbox (index, mailbox);
+	c2_window_set_activity (C2_WINDOW (wmain), FALSE);
 	gtk_widget_queue_draw (GTK_WIDGET (index));
 	c2_index_sort (index, mailbox->sort_by, mailbox->sort_type);
 	c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
 						_("%d messages, %d new."), c2_db_length (mailbox),
 						c2_db_length_type (mailbox, C2_MESSAGE_UNREADED));
 	gdk_threads_leave ();
-L
+
 	c2_mutex_unlock (&wmain->index_lock);
 	return 0;
 }

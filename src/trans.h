@@ -122,7 +122,7 @@ gchar *s = N_("Comments");
 gchar *s = N_("Address Book vCard");
 gchar *s = N_("close card");
 gchar *s = N_("Create a new mailbox");
-gchar *s = N_("_New Mailbox");
+gchar *s = N_("_New Mailbox...");
 gchar *s = N_("Delete selected mailbox");
 gchar *s = N_("_Delete Mailbox");
 gchar *s = N_("Download new mails to this mailbox");
@@ -135,6 +135,8 @@ gchar *s = N_("Store deleted mails in this mailbox");
 gchar *s = N_("Use as _Trash");
 gchar *s = N_("Store unfinished outgoing mails in this mailbox");
 gchar *s = N_("Use as _Drafts");
+gchar *s = N_("_Mailboxes list...");
+gchar *s = N_("_Display only subscribed mailboxes");
 gchar *s = N_("Removal of a mailbox will permanently\n"
               "delete all mail stored in it and any\n"
               "mailbox depending of it.\n"
