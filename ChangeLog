@@ -1,7 +1,13 @@
+Sat Apr 27 Pablo Fernández <sandokan at pablossite dot net>
+	* Work in IMAP and in UI~IMAP: login fail supported.
+
 Thu Apr 26 Bosko Blagojevic <falling at users dot sf dot net>
 	* Yea! A few more bug fixes to get c2 to work on freebsd.
 	  Now it can start on freebsd w/ no crashes and few
 	  warnings.
+
+Tue Apr 23 Pablo Fernández <sandokan at pablossite dot net>
+	* Fixed some crashes when operating with no accounts.
 
 Mon Apr 15 Bosko Blagojevic <falling at users dot sf dot net>
 	* A few warning fixes in libcronosII/.
@@ -14,6 +20,9 @@ Mon Apr 15 Pablo Fernández <sandokan@pablossite.net>
 Sat Apr 14 Bosko Blagojevic <falling at users dot sf dot net>
 	* Another segfault bug fix that glibc tolerated but
 	  libc did not :-D
+
+Fri Apr 12 Pablo Fernández <sandokan@pablossite.net>
+	* Work on the about dialog.
 
 Thu Apr 11 Bosko Blagojevic <falling at users dot sf dot net>
 	* Tiny segfault bug fix in libcronosII/message.c

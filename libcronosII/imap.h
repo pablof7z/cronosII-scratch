@@ -20,6 +20,7 @@
  * 		* Bosko Blagojevic
  * Code of this file by:
  * 		* Bosko Blagojevic
+ * 		* Pablo Fernández
  */
 #ifndef __LIBCRONOSII_IMAP_H__
 #define __LIBCRONOSII_IMAP_H__
@@ -37,9 +38,10 @@ extern "C" {
 
 #define C2_TYPE_IMAP						(c2_imap_get_type ())
 #define C2_IMAP(obj)						(GTK_CHECK_CAST (obj, C2_TYPE_IMAP, C2IMAP))
-#define C2_IMAP_CLASS(klass)				(GTK_CHECK_CLASS (klass, C2_TYPE_IMAP, C2IMAP))
+#define C2_IMAP_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_IMAP, C2IMAPClass))
 #define C2_IS_IMAP(obj)						(GTK_CHECK_TYPE (obj, C2_TYPE_IMAP))
 #define C2_IS_IMAP_CLASS(klass)				(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_IMAP))
+#define C2_IMAP_CLASS_FW(obj)				(C2_IMAP_CLASS (((GtkObject*) (obj))->klass))
 
 typedef struct _C2IMAP C2IMAP;
 typedef struct _C2IMAPServerReply C2IMAPServerReply;
@@ -53,9 +55,10 @@ typedef unsigned int C2IMAPState;
 #ifdef BUILDING_C2
 #	include "net-object.h"
 #	include "mailbox.h"
-# include "message.h"
-# include "utils-mutex.h"
-# include "account.h"
+#	include "message.h"
+#	include "utils-mutex.h"
+#	include "account.h"
+#	include "error.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -111,7 +114,7 @@ struct _C2IMAPClass
 	C2NetObjectClass parent_class;
 
 	void (*login) (C2IMAP *imap);
-	void (*login_failed) (C2IMAP *imap);
+	gboolean (*login_failed) (C2IMAP *imap, const gchar *error, gchar **user, gchar **pass, C2Mutex *lock);
 	void (*mailbox_list) (C2IMAP *imap, C2Mailbox *head);
 	void (*incoming_mail) (C2IMAP *imap);
 	void (*logout) (C2IMAP *imap);

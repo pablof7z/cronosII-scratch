@@ -194,6 +194,11 @@ main (gint argc, gchar **argv)
 	gboolean something_opened = FALSE;
 	gchar *version;
 
+#ifdef USE_DEBUG
+	/* Redirect the error output */
+	setbuf (stdout, NULL);
+#endif
+
 	/* Initialization of GNOME and Glade */
 	c2_init (argc, argv);
 
@@ -211,7 +216,7 @@ main (gint argc, gchar **argv)
 
 	/* Create the Application object */
 	if (!(application = c2_application_new (PACKAGE, flags.be_server)))
-		return 0;
+		return 1;
 
 	if (flags.be_server)
 		something_opened = TRUE;
@@ -366,11 +371,11 @@ main (gint argc, gchar **argv)
 	/* If nothing opened we will open the defaults window */
 	if (!something_opened)
 		CREATE_WINDOW_MAIN;
-	
+
 	/* Release Information Dialog */
 	if (c2_preferences_get_extra_release_information_show ())
 		gtk_idle_add (on_release_information_idle, application);
-	
+
 	gtk_main ();
 	gdk_threads_leave ();
 	

@@ -135,6 +135,9 @@ c2_account_get_position						(C2Account *head, C2Account *account);
 gint
 c2_account_check							(C2Account *account);
 
+gboolean
+c2_account_is_checkeable					(C2Account *account);
+
 #ifdef __cplusplus
 }
 #endif

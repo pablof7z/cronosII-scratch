@@ -121,6 +121,10 @@ get_pixmap									(C2Mailbox *mailbox, gboolean open);
 static void
 on_imap_mailbox_list						(C2IMAP *imap, C2Mailbox *head, C2Pthread2 *data);
 
+static gboolean
+on_imap_login_failed						(C2IMAP *imap, const gchar *error, gchar **user,
+											 gchar **pass, C2Mutex *mutex);
+
 enum
 {
 	OBJECT_SELECTED,
@@ -761,19 +765,19 @@ on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *
 	GtkCTree *ctree = GTK_CTREE (data->v1);
 	GtkCTreeNode *cnode = GTK_CTREE_NODE (data->v2);
 	gint unreaded;
-
+L
 	switch (type)
 	{
 		case C2_MAILBOX_CHANGE_ANY:
 		case C2_MAILBOX_CHANGE_ADD:
 		case C2_MAILBOX_CHANGE_REMOVE:
 		case C2_MAILBOX_CHANGE_STATE:
-			gdk_threads_enter ();
+L			gdk_threads_enter ();
 			mailbox_node_fill (ctree, cnode, mailbox, NULL, &unreaded);
 			gdk_threads_leave ();
 			break;
 	}
-}
+L}
 
 static void
 account_node_fill (GtkCTree *ctree, GtkCTreeNode *cnode, C2Account *account)
@@ -916,7 +920,6 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 
 		mailbox_node_fill (ctree, cnode, l, NULL, &unreaded);
 
-		printf ("Conectando a '%s'\n", l->name);
 		gtk_signal_connect (GTK_OBJECT (l), "changed_mailbox",
 							GTK_SIGNAL_FUNC (on_mailbox_changed_mailbox), data);
 		mlist->data_list = g_list_prepend (mlist->data_list, data);
@@ -948,6 +951,11 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 
 				/* Get the IMAP object */
 				imap = C2_IMAP (c2_account_get_extra_data (la, C2_ACCOUNT_KEY_INCOMING, NULL));
+
+				/* Set data in the IMAP object */
+				C2_IMAP_CLASS_FW (imap)->login_failed = on_imap_login_failed;
+				gtk_object_set_data (GTK_OBJECT (imap), "account", account);
+				gtk_object_set_data (GTK_OBJECT (imap), "login_failed::data", mlist);
 				
 				if (!imap->mailboxes)
 				{
@@ -1029,4 +1037,124 @@ on_imap_mailbox_list (C2IMAP *imap, C2Mailbox *head, C2Pthread2 *data)
 
 	gtk_signal_disconnect_by_func (GTK_OBJECT (imap),
 									GTK_SIGNAL_FUNC (on_imap_mailbox_list), data);
+}
+
+static void
+on_imap_login_failed_ok_clicked (GtkWidget *widget, C2Pthread2 *data)
+{
+	C2Mutex *lock = (C2Mutex*) data->v1;
+	
+	GPOINTER_TO_INT (data->v2) = 0;
+	
+	c2_mutex_unlock (lock);
+}
+
+static void
+on_imap_login_failed_cancel_clicked (GtkWidget *widget, C2Pthread2 *data)
+{
+	C2Mutex *lock = (C2Mutex*) data->v1;
+	
+	GPOINTER_TO_INT (data->v2) = 1;
+	
+	c2_mutex_unlock (lock);
+}
+
+static gboolean
+on_imap_login_failed_dialog_delete_event (GtkWidget *widget, GdkEvent *e, C2Pthread2 *data)
+{
+	C2Mutex *lock = (C2Mutex*) data->v1;
+	
+	GPOINTER_TO_INT (data->v2) = 1;
+	
+	c2_mutex_unlock (lock);
+	
+	return FALSE;
+}
+
+static gboolean
+on_imap_login_failed (C2IMAP *imap, const gchar *error, gchar **user, gchar **pass, C2Mutex *mutex)
+{
+	GladeXML *xml;
+	GtkWidget *dialog;
+	GtkWidget *contents;
+	GtkWidget *mlist;
+	C2Account *account;
+	C2Pthread2 *data;
+	C2Mutex local_lock;
+	gchar *label, *buffer;
+	gint button;
+	C2Application *application;
+
+	account = C2_ACCOUNT (gtk_object_get_data (GTK_OBJECT (imap), "account"));
+	data = g_new0 (C2Pthread2, 1);
+	c2_mutex_init (&local_lock);
+	c2_mutex_lock (&local_lock);
+	data->v1 = (gpointer) &local_lock;
+	
+	gdk_threads_enter ();
+	
+	mlist = GTK_WIDGET (gtk_object_get_data (GTK_OBJECT (imap), "login_failed::data"));
+	application = C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (mlist), "application"));
+	
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_req_pass_contents");
+	contents = glade_xml_get_widget (xml, "dlg_req_pass_contents");
+	dialog = c2_dialog_new (application, _("Login failed"), "req_pass", NULL,
+							GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
+	C2_DIALOG (dialog)->xml = xml;
+	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox), contents, TRUE, TRUE, 0);
+	
+	contents = glade_xml_get_widget (xml, "error_label");
+	gtk_label_get (GTK_LABEL (contents), &buffer);
+	label = g_strdup_printf ("%s '%s'.", buffer, error);
+	gtk_label_set_text (GTK_LABEL (contents), label);
+	
+	contents = glade_xml_get_widget (xml, "account");
+	gtk_entry_set_text (GTK_ENTRY (contents), account->name);
+	contents = glade_xml_get_widget (xml, "user");
+	gtk_entry_set_text (GTK_ENTRY (contents), imap->user);
+	contents = glade_xml_get_widget (xml, "pass");
+	gtk_entry_set_text (GTK_ENTRY (contents), imap->pass);
+	gtk_widget_grab_focus (contents);
+	
+	gnome_dialog_button_connect (GNOME_DIALOG (dialog), 0,
+								GTK_SIGNAL_FUNC (on_imap_login_failed_ok_clicked), data);
+	gnome_dialog_button_connect (GNOME_DIALOG (dialog), 1,
+								GTK_SIGNAL_FUNC (on_imap_login_failed_cancel_clicked), data);
+	gtk_signal_connect (GTK_OBJECT (dialog), "delete_event",
+								GTK_SIGNAL_FUNC (on_imap_login_failed_dialog_delete_event), data);
+	gtk_widget_show (dialog);
+	
+	gdk_threads_leave ();
+	
+	c2_mutex_lock (&local_lock);
+	c2_mutex_unlock (&local_lock);
+	c2_mutex_destroy (&local_lock);
+	
+	button = GPOINTER_TO_INT (data->v2);
+	gdk_threads_enter ();
+	if (!button)
+	{
+		gint nth;
+		
+		contents = glade_xml_get_widget (xml, "user");
+		*user = gtk_entry_get_text (GTK_ENTRY (contents));
+		contents = glade_xml_get_widget (xml, "pass");
+		*pass = gtk_entry_get_text (GTK_ENTRY (contents));
+		
+		nth = c2_account_get_position (application->account, account);
+		buffer = g_strdup_printf ("/"PACKAGE"/Account %d/", nth);
+		gnome_config_push_prefix (buffer);
+		gnome_config_set_string ("incoming_server_username", *user);
+		if (imap->auth_remember)
+			gnome_config_set_string ("incoming_server_password", *pass);
+		gnome_config_pop_prefix ();
+		gnome_config_sync ();
+		g_free (buffer);
+	}
+	
+	gtk_widget_destroy (dialog);
+	gdk_threads_leave ();
+	c2_mutex_unlock (mutex);
+	
+	return !button;
 }

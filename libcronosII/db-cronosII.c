@@ -431,6 +431,103 @@ c2_db_cronosII_remove_structure (C2Mailbox *mailbox)
 	return TRUE;
 }
 
+void
+c2_db_cronosII_compact (C2Mailbox *mailbox, size_t *cbytes, size_t *tbytes)
+{
+	gchar *ipath, *tpath, *mpath;
+	FILE *ifd, *tfd;
+	gchar *line, *buf;
+	struct stat stbuf;
+
+	/* Initialize the variables */
+	*cbytes = 0;
+	*tbytes = 0;
+	
+	c2_return_if_fail (C2_IS_MAILBOX (mailbox), C2EDATA);
+
+	/* Lock the mailbox */
+	_lock (mailbox);
+	
+	/* Open the index file */
+	ipath = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name,
+							".mbx" G_DIR_SEPARATOR_S "index", NULL);
+	if (!(ifd = fopen (ipath, "rt+")))
+	{
+			c2_error_object_set (GTK_OBJECT (mailbox), -errno);
+			g_free (ipath);
+			return;
+	}
+	fseek (ifd, 0, SEEK_SET);
+
+	/* Open the temp file */
+	tpath = c2_get_tmp_file ("c2-index-XXXXXXX");
+	if (!(tfd = fopen (tpath, "wt")))
+	{
+		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
+		fclose (ifd);
+		g_free (ipath);
+		g_free (tpath);
+		return;
+	}
+
+	/* Process */
+	for (;;)
+	{
+		/* Read line */
+		if (!(line = c2_fd_get_line (ifd)))
+			break;
+
+		/* Add line bytes to the total bytes counter */
+		(*tbytes) += strlen (line);
+
+		/* Deleted mail reached */
+		if (*line == 'D')
+		{
+			/* Add line bytes to the compacted bytes counter */
+			(*cbytes) += strlen (line);
+		} else
+		{
+			/* Get the mid of this line */
+			buf = c2_str_get_word (7, line, '\r');
+			
+			/* Check if this mid exists */
+			mpath = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name,
+							".mbx" G_DIR_SEPARATOR_S, buf, NULL);
+			g_free (buf);
+
+			if (stat (mpath, &stbuf) < 0)
+			{
+				/* We don't want to drop the mail just because we are out of RAM memory */
+				if (errno != ENOMEM)
+				{
+					/* Don't write this mail, add it to the compacted bytes */
+					(*cbytes) += strlen (line);
+					g_free (mpath);
+					g_free (line);
+					continue;
+				}
+			}
+
+			g_free (mpath);
+
+			fprintf (tfd, "%s\n", line);
+		}
+
+		g_free (line);
+	}
+
+	/* Close the file descriptors */
+	fclose (ifd);
+	fclose (tfd);
+
+	/* Move the temporary file */
+	printf ("Temp file is '%s'\n", tpath);
+	system (g_strdup_printf ("gvim \"%s\"", tpath));
+
+	/* Unlock the mailbox */
+	_unlock (mailbox);
+}
+
 gboolean
 c2_db_cronosII_goto_mid (C2Mailbox *mailbox, gint mid)
 {

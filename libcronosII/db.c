@@ -481,6 +481,32 @@ c2_db_remove_structure (C2Mailbox *mailbox)
 }
 
 void
+c2_db_compact (C2Mailbox *mailbox)
+{
+	size_t cbytes, tbytes;
+	void (*func) (C2Mailbox *mailbox, size_t *cbytes, size_t *tbytes);
+
+	c2_mutex_lock (&mailbox->lock);
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_compact;
+			break;
+		case C2_MAILBOX_IMAP:
+			func = c2_db_imap_compact;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_imap_compact;
+			break;
+	}
+
+	func (mailbox, &cbytes, &tbytes);
+	c2_mutex_unlock (&mailbox->lock);
+
+	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "compacted", cbytes, tbytes);
+}
+
+void
 c2_db_freeze (C2Mailbox *mailbox)
 {
 	void (*func) (C2Mailbox *mailbox);
@@ -793,13 +819,13 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 	C2Db *db;
 	gint retval, first_position = -1;
 	gboolean thaw = FALSE;
-L
+
 	if (!mailbox->freezed)
 	{
 		c2_db_freeze (mailbox);
 		thaw = TRUE;
 	}
-L
+
 	switch (mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
@@ -813,10 +839,13 @@ L
 			break;
 	}
 
+	printf ("[ DB ] Request to remove %d mails from %s (starting with %d)\n",
+						g_list_length (list), mailbox->name, C2_DB (list->data)->mid);
+
 	/* Remove from the db */
-L	if ((retval = func (mailbox, list)))
+	if ((retval = func (mailbox, list)))
 		/*return FALSE*/;
-L
+
 	/* Remove from the loaded db list */
 	for (l = list; l; l = g_list_next (l))
 	{

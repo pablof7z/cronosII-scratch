@@ -142,6 +142,8 @@ c2_account_new (C2AccountType type, gchar *name, gchar *email)
 	account->name = name;
 	account->email = email;
 
+	printf ("[ACCOUNT] Setting type to %d\n", type);
+
 	return account;
 }
 
@@ -351,4 +353,18 @@ c2_account_check (C2Account *account)
 	}
 
 	return fetchmail (account);
+}
+
+gboolean
+c2_account_is_checkeable (C2Account *account)
+{
+	c2_return_val_if_fail (C2_IS_ACCOUNT (account), FALSE, C2EDATA);
+
+	switch (account->type)
+	{
+		case C2_ACCOUNT_POP3:
+			return TRUE;
+	}
+
+	return FALSE;
 }

@@ -1,0 +1,32 @@
+<html>
+
+<body bgcolor=#ffffff>
+
+<h2><font face="Helvetica">This message does no longer exist.</font></h2>
+
+<blockquote>
+<font face="Verdana, Helvetica">
+You have requested an unexistent message.</p>
+
+The cause of this problem might be:
+
+<ul type="square">
+<li>You run out of disk space in your system;
+<li>You manually erase some files of the Cronos II database;
+<li>Some malicious program has erased some files of the Cronos II database;
+<li>You reached a bug in Cronos II.
+</ul>
+
+<p>To <b>fix this</b> you should go to the <i>Mailbox menu</i> and select the
+<i>Compact/Speed up</i> option in it.</p>
+
+<p>If you need more information on this matter you should consult the
+<b>Cronos II User's Manual</b> or contact the <a href="mailto:cronosII-hackers@lists.sf.net?subject=Message 404/Support Request">Cronos II Hackers Team</a>.
+
+
+</font>
+</blockquote>
+
+</body>
+
+</html>

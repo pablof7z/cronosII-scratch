@@ -95,7 +95,7 @@ no_mime_information:
 		return;
 	}
 #ifdef USE_DEBUG
-	if (c2_strne (mime_version, "1.0"))
+	if (c2_strnne (mime_version, "1.0", 3))
 		/* This is a format different than "1.0" that is not defined
 		 * when this is being written (10.5.2001).
 		 * We will try to understand it anyway.

@@ -58,6 +58,7 @@ _c2_mailbox_search_by_id					(C2Mailbox *head, const gchar *id, guint level);
 
 enum
 {
+	COMPACTED,
 	CHANGED_MAILBOXES,
 	CHANGED_MAILBOX,
 	DB_LOADED,
@@ -102,6 +103,14 @@ class_init (C2MailboxClass *klass)
 
 	parent_class = gtk_type_class (gtk_object_get_type ());
 
+	signals[COMPACTED] =
+		gtk_signal_new ("compacted",
+					GTK_RUN_FIRST,
+					object_class->type,
+					GTK_SIGNAL_OFFSET (C2MailboxClass, compacted),
+					gtk_marshal_NONE__INT_INT, GTK_TYPE_NONE, 2,
+					GTK_TYPE_INT, GTK_TYPE_INT);
+
 	signals[CHANGED_MAILBOXES] =
 		gtk_signal_new ("changed_mailboxes",
 					GTK_RUN_FIRST,
@@ -126,6 +135,7 @@ class_init (C2MailboxClass *klass)
 					GTK_TYPE_BOOL);
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 
+	klass->compacted = NULL;
 	klass->changed_mailboxes = NULL;
 	klass->changed_mailbox = NULL;
 	klass->db_loaded = NULL;

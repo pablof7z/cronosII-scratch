@@ -174,6 +174,9 @@ static void
 on_menubar_view_dialog_send_receive_activate	(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
+on_menubar_mailbox_speed_up_activate		(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_menubar_message_reply_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
@@ -813,6 +816,9 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_dialog_send_receive")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_view_dialog_send_receive_activate), wmain);
 
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "mailbox_speed_up")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_mailbox_speed_up_activate), wmain);
+
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_reply")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_message_reply_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_reply_all")), "activate",
@@ -942,7 +948,7 @@ delete_thread (C2Pthread3 *data)
 	gint length, off;
 	gboolean progress_ownership;
 	gboolean status_ownership;
-	
+L	
 	g_free (data);
 
 	/* Get the length of our list */
@@ -982,12 +988,12 @@ delete_thread (C2Pthread3 *data)
 	
 	c2_db_freeze (fmailbox);
 	c2_db_freeze (tmailbox);
-	for (l = list, off = 0; l; l = g_list_next (l))
+L	for (l = list, off = 0; l; l = g_list_next (l))
 	{
 		C2Db *db;
 		
 		/* Now do the actual copy */
-		db = (C2Db*) l->data;
+L		db = (C2Db*) l->data;
 
 		if (!db->message)
 		{
@@ -1012,12 +1018,12 @@ delete_thread (C2Pthread3 *data)
 			gtk_progress_set_value (progress, off);
 			gdk_threads_leave ();
 		}
-	}
+L	}
 	c2_db_thaw (tmailbox);
 	c2_db_thaw (fmailbox);
-
+L
 	g_list_free (list);
-
+L
 	gdk_threads_enter ();
 
 	if (status_ownership)
@@ -1033,18 +1039,18 @@ delete_thread (C2Pthread3 *data)
 	}
 
 	gdk_threads_leave ();
-}
+L}
 
 static void
 delete (C2WindowMain *wmain)
 {
 	C2Application *application = C2_WINDOW (wmain)->application;
 	GList *list;
-
-	list = c2_index_selection (C2_INDEX (wmain->index));
-	C2_APPLICATION_CLASS_FW (application)->delete (application, list, C2_WINDOW (wmain));
-	g_list_free (list);
-}
+L
+L	list = c2_index_selection (C2_INDEX (wmain->index));
+L	C2_APPLICATION_CLASS_FW (application)->delete (application, list, C2_WINDOW (wmain));
+L	g_list_free (list);
+L}
 
 static void
 exit_ (C2WindowMain *wmain)
@@ -1406,6 +1412,9 @@ on_application_application_preferences_changed (C2Application *application, gint
 			
 			for (account = application->account; account; account = account->next)
 			{
+				if (!c2_account_is_checkeable (account))
+					continue;
+
 				item = gtk_pixmap_menu_item_new ();
 				gtk_object_set_data (GTK_OBJECT (item), "account", account);
 				gtk_signal_connect (GTK_OBJECT (item), "activate",
@@ -1679,6 +1688,13 @@ on_menubar_view_dialog_send_receive_activate (GtkWidget *widget, C2WindowMain *w
 	/* Show the dialog */
 	gtk_widget_show (wtl);
 	gdk_window_raise (wtl->window);
+}
+
+static void
+on_menubar_mailbox_speed_up_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_APPLICATION_CLASS_FW (C2_WINDOW (wmain)->application)->compact_mailboxes (
+								C2_WINDOW (wmain)->application);
 }
 
 static void
@@ -2011,14 +2027,14 @@ on_index_select_message_thread (C2Pthread3 *data)
 	C2WindowMain *wmain = C2_WINDOW_MAIN (data->v3);
 	GtkWidget *widget;
 	GladeXML *xml;
-
+L
 	g_free (data);
 
 	if (!C2_IS_MESSAGE (node->message))
 	{
 		/* [TODO] This should be in a separated thread */
-		c2_db_load_message (node);
-
+L		c2_db_load_message (node);
+L
 		if (!C2_IS_MESSAGE (node->message))
 		{
 			/* Something went wrong */
@@ -2040,12 +2056,12 @@ on_index_select_message_thread (C2Pthread3 *data)
 		}
 	}
 
-	gdk_threads_enter ();
+L	gdk_threads_enter ();
 	
-L	c2_mail_set_message (C2_MAIL (wmain->mail), node->message);
+	c2_mail_set_message (C2_MAIL (wmain->mail), node->message);
 
 	/* Set some widgets sensivity */
-	xml = C2_WINDOW (wmain)->xml;
+L	xml = C2_WINDOW (wmain)->xml;
 	
 	widget = glade_xml_get_widget (xml, "message_previous");
 	gtk_widget_set_sensitive (widget, !c2_db_is_first (node));
@@ -2121,7 +2137,7 @@ L	c2_mail_set_message (C2_MAIL (wmain->mail), node->message);
 		gtk_widget_set_sensitive (widget, TRUE);
 
 	gdk_threads_leave ();
-}
+L}
 
 static void
 on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
@@ -2145,7 +2161,7 @@ on_index_unselect_message (C2Index *index, C2Db *node, C2WindowMain *wmain)
 {
 	GtkWidget *widget;
 	GladeXML *xml;
-
+L
 	/* Set some widgets sensivity */
 	xml = C2_WINDOW (wmain)->xml;
 	
@@ -2221,7 +2237,7 @@ on_index_unselect_message (C2Index *index, C2Db *node, C2WindowMain *wmain)
 	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_forward");
 	if (GTK_IS_WIDGET (widget))
 		gtk_widget_set_sensitive (widget, FALSE);
-}
+L}
 
 static gint
 on_mlist_object_selected_pthread (C2WindowMain *wmain)

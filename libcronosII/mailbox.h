@@ -162,6 +162,8 @@ struct _C2MailboxClass
 {
 	GtkObjectClass parent_class;
 
+	void (*compacted) (C2Mailbox *mailbox, size_t cbytes, size_t tbytes);
+
 	/* This signal represents a new mailbox */
 	void (*changed_mailboxes) (C2Mailbox *mailbox);
 

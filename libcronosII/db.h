@@ -131,6 +131,9 @@ c2_db_update_structure						(C2Mailbox *mailbox);
 gint
 c2_db_remove_structure						(C2Mailbox *mailbox);
 
+void
+c2_db_compact								(C2Mailbox *mailbox);
+
 /************************
  * [DataBase Iteration] *
  ************************/

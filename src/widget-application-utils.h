@@ -27,6 +27,9 @@ extern "C" {
 gboolean
 c2_application_check_account_exists			(C2Application *application);
 
+gboolean
+c2_application_check_checkeable_account_exists (C2Application *application);
+
 /* Dialogs */
 void
 c2_application_dialog_add_mailbox			(C2Application *application);

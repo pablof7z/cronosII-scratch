@@ -210,7 +210,7 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 
 	/* Search for the field */
 	for (msg_ptr = message; *msg_ptr != '\0'; msg_ptr++)
-		if ((msg_ptr == message) || ((msg_ptr > message) && (*(msg_ptr-1) == '\n')))
+		if (((msg_ptr == message) || (msg_ptr > message)) && (*(msg_ptr-1) == '\n'))
 		{
 			if (c2_strneq (msg_ptr, field, field_length))
 				break;
@@ -267,6 +267,7 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 
 	/* Alloc the chunk */
 	chunk = g_new0 (gchar, size+1);
+	printf ("allocated %d bytes\n", size+1);
 
 	for (ptr = chunk, wbytes = 0; wbytes < size+1 && *start_ptr != '\0'; start_ptr++)
 	{
@@ -293,6 +294,7 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 				break;
 		}
 	}
+	printf ("writing in %d\n", wbytes);
 	chunk[wbytes] = 0;
 
 	/* Decode */

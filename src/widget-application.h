@@ -133,6 +133,7 @@ struct _C2ApplicationClass
 	 *      if you don't set the @db arg to %NULL and use the @message arg.
 	 */
 	void (*check) (C2Application *application);
+	void (*compact_mailboxes) (C2Application *application);
 	void (*copy) (C2Application *application, GList *list, C2Window *window);
 	void (*delete) (C2Application *application, GList *list, C2Window *window);
 	void (*expunge) (C2Application *application, GList *list, C2Window *window);

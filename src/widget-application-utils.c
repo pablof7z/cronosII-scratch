@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -72,6 +72,28 @@ c2_application_check_account_exists (C2Application *application)
 	}
 
 	gtk_object_destroy (GTK_OBJECT (xml));
+
+	return FALSE;
+}
+
+/**
+ * c2_application_check_checkeable_account_exists
+ * @application: C2Application where to act.
+ *
+ * This function will check if there is an account which
+ * can be check (POP3) configured.
+ *
+ * Return Value:
+ * %TRUE if there's an account checkeable or %FALSE.
+ **/
+gboolean
+c2_application_check_checkeable_account_exists (C2Application *application)
+{
+	C2Account *account;
+
+	for (account = application->account; C2_IS_ACCOUNT (account); account = account->next)
+		if (c2_account_is_checkeable (account))
+			return TRUE;
 
 	return FALSE;
 }
@@ -704,12 +726,11 @@ c2_application_dialog_release_information (C2Application *application)
 
 
 static gboolean
-on_dialog_about_window_delete_event (GtkWidget *widget, GdkEvent *e, GladeXML *xml)
+on_dialog_about_window_delete_event (GtkWidget *widget, GdkEvent *e)
 {
 	C2Application *application = C2_APPLICATION (
-							gtk_object_get_data (GTK_OBJECT (xml), "application"));
+							gtk_object_get_data (GTK_OBJECT (widget), "application"));
 	c2_application_window_remove (application, GTK_WINDOW (widget));
-	gtk_object_destroy (GTK_OBJECT (xml));
 
 	return TRUE;
 }
@@ -723,10 +744,6 @@ on_dialog_about_web_site_clicked (GtkWidget *widget, GladeXML *xml)
 static void
 on_dialog_about_close_clicked (GtkWidget *widget, GtkWidget *window)
 {
-	C2Application *application = C2_APPLICATION (
-							gtk_object_get_data (GTK_OBJECT (widget), "application"));
-	
-	c2_application_window_remove (application, GTK_WINDOW (window));
 	gtk_object_destroy (GTK_OBJECT (window));
 }
 
@@ -736,27 +753,34 @@ c2_application_dialog_about (C2Application *application)
 	GtkWidget *widget, *button;
 	const gchar *authors[] =
 	{
-		"Pablo Fernández",
-		"Bosko Blagojevic",
-		"Peter Gossner",
+		"The Cronos II Hackers Team <cronosII-hackers@lists.sf.net>:",
+		"Pablo Fernández <sandokan@cronosII.org>",
+		"Bosko Blagojevic <falling@cronosII.org>",
+		"Peter Gossner <petegozz@cronosII.org>",
+		"Daniel Fairhead <daniel@cronosII.org>",
 		NULL
 	};
 
-	widget = gnome_about_new (_("About Cronos II"), VERSION,
-							_("Copyright 2000-2002 Pablo Fernández"),
+	widget = gnome_about_new (_("Cronos II"), " - Mariana -",
+							_("© Copyright 2000-2002 Pablo Fernández"),
 							authors,
-							_(""),
+							_("Cronos II is a powerful and light mail client, designed for the Gnome Desktop.\n"
+							  "It will administer your e-mails, let you communicate with your friends, "
+							  "partners, couple and it will let you receive all that spam and all those "
+							  "mails you did never ask for! Oh, yes, it will save you from the wolf "
+							  "in case you are going to your grandmom's house in the middle of the woods"
+							  " (although this last feature hasn't been tested that much since there're no "
+							  "many volunteers to test it...)"),
 							PKGDATADIR "/pixmaps/splash.png");
 	gtk_object_set_data (GTK_OBJECT (widget), "application", application);
 
-//	button = gnome_
-	
+	button = gnome_href_new (URL, _("Visit the Cronos II website for the latest news!"));
+	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (widget)->vbox), button, FALSE, FALSE, 0);
+	gtk_widget_show (button);
 	
 	gtk_signal_connect (GTK_OBJECT (widget), "delete_event",
 						GTK_SIGNAL_FUNC (on_dialog_about_window_delete_event), NULL);
 	gnome_dialog_button_connect (GNOME_DIALOG (widget), 0,
-						GTK_SIGNAL_FUNC (on_dialog_about_web_site_clicked), NULL);
-	gnome_dialog_button_connect (GNOME_DIALOG (widget), 1,
 						GTK_SIGNAL_FUNC (on_dialog_about_close_clicked), widget);
 	c2_application_window_add (application, GTK_WINDOW (widget));
 

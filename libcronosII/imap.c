@@ -20,6 +20,7 @@
  * 		* Bosko Blagojevic
  * Code of this file by:
  * 		* Bosko Blagojevic
+ * 		* Pablo Fernández
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -125,7 +126,6 @@ c2_imap_reconnect(C2IMAP *imap);
 enum 
 {
 	LOGIN,
-	LOGIN_FAILED,
 	MAILBOX_LIST,
 	INCOMING_MAIL,
 	LOGOUT,
@@ -174,12 +174,6 @@ class_init (C2IMAPClass *klass)
 						object_class->type,
 						GTK_SIGNAL_OFFSET (C2IMAPClass, login),
 						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-	signals[LOGIN_FAILED] =
-		gtk_signal_new ("login_failed",
-						GTK_RUN_FIRST,
-						object_class->type,
-						GTK_SIGNAL_OFFSET (C2IMAPClass, login_failed),
-						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 	signals[MAILBOX_LIST] =
 		gtk_signal_new ("mailbox_list",
 						GTK_RUN_FIRST,
@@ -215,7 +209,10 @@ class_init (C2IMAPClass *klass)
 	klass->logout = NULL;
 	klass->net_error = NULL;
 	
-	object_class->destroy = destroy;
+	object_class->destroy = destroy; /* BOSKO: Is not a good idea to do it this way, better
+									  * connect to the destroy signal of the object in the
+									  * c2_imap_new function.
+									  */
 }
 
 static void
@@ -277,6 +274,7 @@ gint
 c2_imap_init (C2IMAP *imap)
 {
 	C2NetObjectByte *byte;
+	gint i = 0;
 	
 	if(imap->mailboxes && !c2_net_object_is_offline(C2_NET_OBJECT(imap)))
 		return 0;
@@ -299,14 +297,51 @@ c2_imap_init (C2IMAP *imap)
 	gtk_signal_connect(GTK_OBJECT(imap), "logout",
 				GTK_SIGNAL_FUNC(c2_imap_on_disconnect), NULL);
 	
-	if(imap->login(imap) < 0)
+	do
 	{
-		gtk_signal_emit(GTK_OBJECT(imap), signals[LOGIN_FAILED]);
-		c2_mutex_unlock(&imap->lock);
+		if(imap->login(imap) < 0)
+		{
+			/* Login failed! */
+			const gchar *error;
+			gchar *newuser, *newpass;
+
+			error = c2_error_object_get (GTK_OBJECT (imap));
+			newuser = NULL;
+			newpass = NULL;
+
+			if (C2_IMAP_CLASS_FW (imap)->login_failed)
+			{
+				C2Mutex mylock;
+				gint cont;
+
+				c2_mutex_init (&mylock);
+				c2_mutex_lock (&mylock);
+				printf ("Executing login_failed\n");
+				cont = C2_IMAP_CLASS_FW (imap)->login_failed (imap, error, &newuser, &newpass, &mylock);
+				c2_mutex_lock (&mylock);
+				printf ("login_failed returned %d!\n", cont);
+				c2_mutex_unlock (&mylock);
+				c2_mutex_destroy (&mylock);
+
+				if (cont)
+				{
+					g_free (imap->user);
+					g_free (imap->pass);
+					imap->user = newuser;
+					imap->pass = newpass;
+				} else
+				{
+					c2_error_object_set (GTK_OBJECT (imap), C2USRCNCL);
+					break;
+				}
+			}
+		} else
+			imap->state = C2IMAPAuthenticated;
+	} while (++i < 3 && imap->state != C2IMAPAuthenticated);
+
+	if (imap->state != C2IMAPAuthenticated)
 		return -1;
-	}
 	
-	imap->state = C2IMAPAuthenticated;
 	g_print ("%s (%s@%s)\n", __PRETTY_FUNCTION__, imap->user, C2_NET_OBJECT (imap)->host);
 	
 	c2_mutex_unlock(&imap->lock);
@@ -1149,7 +1184,7 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	
 	tag = c2_imap_get_tag (imap);
 	
-	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d LOGIN %s %s\r\n", 
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d LOGIN \"%s\" \"%s\"\r\n", 
 												tag, imap->user, imap->pass) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
@@ -1165,7 +1200,10 @@ c2_imap_plaintext_login (C2IMAP *imap)
 		printf("logged in ok!\n\n");
 	}
 	else
+	{
+		c2_error_object_set_custom (GTK_OBJECT (imap), reply);
 		return -1;
+	}
 	
 	return 0;
 }

@@ -46,6 +46,9 @@ c2_db_imap_update_structure					(C2Mailbox *mailbox);
 gboolean
 c2_db_imap_remove_structure					(C2Mailbox *mailbox);
 
+void
+c2_db_imap_compact							(C2Mailbox *mailbox, size_t *cybtes, size_t *tbytes);
+
 gint
 c2_db_imap_load								(C2Mailbox *mailbox);
 

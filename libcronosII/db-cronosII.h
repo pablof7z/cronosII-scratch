@@ -48,6 +48,9 @@ gboolean
 c2_db_cronosII_remove_structure				(C2Mailbox *mailbox);
 
 void
+c2_db_cronosII_compact						(C2Mailbox *mailbox, size_t *cbytes, size_t *tbytes);
+
+void
 c2_db_cronosII_freeze						(C2Mailbox *mailbox);
 
 void

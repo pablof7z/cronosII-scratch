@@ -592,6 +592,11 @@ c2_db_spool_remove_structure (C2Mailbox *mailbox)
 }
 
 void
+c2_db_spool_compact (C2Mailbox *mailbox, size_t *cybtes, size_t *tbytes)
+{
+}
+
+void
 c2_db_spool_freeze (C2Mailbox *mailbox)
 {
 	/* Perhaps we can make a good use of this crap? */

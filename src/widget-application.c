@@ -48,6 +48,7 @@
 #include "widget-composer.h"
 #include "widget-dialog.h"
 #include "widget-dialog-preferences.h"
+#include "widget-HTML.h"
 #include "widget-transfer-item.h"
 #include "widget-transfer-list.h"
 #include "widget-window.h"
@@ -75,6 +76,9 @@ on_server_read								(C2Application *application, gint sock, GdkInputCondition 
 
 static void
 _check										(C2Application *application);
+
+static void
+_compact_mailboxes							(C2Application *application);
 
 static void
 _copy										(C2Application *application, GList *list, C2Window *window);
@@ -233,6 +237,7 @@ class_init (C2ApplicationClass *klass)
 	klass->window_changed = NULL;
 
 	klass->check = _check;
+	klass->compact_mailboxes = _compact_mailboxes;
 	klass->copy = _copy;
 	klass->delete = _delete;
 	klass->expunge = _expunge;
@@ -750,13 +755,12 @@ start:
 static void
 on_transfer_list_finish (C2TransferList *tl, C2Application *application)
 {
-	printf ("Reconectando\n");
 	application->check_timeout = gtk_timeout_add (
 							c2_preferences_get_general_options_timeout_check () * 60000,
 							(GtkFunction) on_application_timeout_check, application);
 }
 
-static gboolean 
+static gboolean
 _check_real (C2Application *application)
 {
 	C2Account *account;
@@ -796,8 +800,7 @@ _check_real (C2Application *application)
 	{
 		if (c2_preferences_get_general_options_timeout_check ())
 		{
-			if(application->check_timeout) 
-				gtk_timeout_remove (application->check_timeout);
+			gtk_timeout_remove (application->check_timeout);
 			gtk_signal_connect (GTK_OBJECT (wtl), "finish",
 								GTK_SIGNAL_FUNC (on_transfer_list_finish), application);
 		}
@@ -815,8 +818,6 @@ _check_real (C2Application *application)
 	g_slist_free (plist);
 	plist = NULL;
 
-	/* return FALSE so that the gtk_idle thread will stop
-	   executing this function after its first run */
 	return FALSE;
 }
 
@@ -829,14 +830,230 @@ static void
 _check (C2Application *application)
 {
 	gboolean wait_idle = FALSE;
-	
+	gboolean exists_account = c2_application_check_checkeable_account_exists (application);
+
 	if (gtk_object_get_data (GTK_OBJECT (application), "check::wait_idle"))
 		wait_idle = TRUE;
 
+	if (!exists_account && !gtk_object_get_data (GTK_OBJECT (application), "check::silent"))
+	{
+		if (!wait_idle)
+			return;
+		
+		if (!c2_application_check_account_exists (application))
+			return;
+	} else if (!exists_account)
+		return;
+	
 	if (wait_idle)
 		gtk_idle_add ((GtkFunction) (_check_real), application);
 	else
 		_check_real (application);
+}
+
+static void
+compact_mailboxes_on_mailbox_compacted (C2Mailbox *mailbox, gint cbytes, gint tbytes, GladeXML *xml)
+{
+	gint *ccbytes, *ctbytes;
+
+	ccbytes = (gint*) gtk_object_get_data (GTK_OBJECT (xml), "cbytes");
+	ctbytes = (gint*) gtk_object_get_data (GTK_OBJECT (xml), "tbytes");
+
+	printf ("cbytes = %d -- tbytes = %d\n", *ccbytes, *ctbytes);
+
+	*ccbytes += cbytes;
+	*ctbytes += tbytes;
+}
+
+static gboolean
+compact_mailboxes_on_timeout (GtkWidget *progress)
+{
+	gfloat value;
+
+	value = gtk_progress_get_current_percentage (GTK_PROGRESS (progress));
+	
+	if (value < 0.50)
+		value += 0.03;
+	else if (value < 0.60)
+		value += 0.01;
+	else if (value < 0.80)
+		value += 0.001;
+	else
+		return FALSE;
+
+	gdk_threads_enter ();
+	gtk_progress_set_percentage (GTK_PROGRESS (progress), value);
+	gdk_threads_leave ();
+	return TRUE;
+}
+
+static void
+compact_mailboxes_thread (GladeXML *xml)
+{
+	C2Mailbox *mailbox;
+	C2Application *application;
+	GtkWidget *label, *progress, *hbox;
+	gchar *buf;
+	guint16 timeout;
+	gint *cbytes, *tbytes, i;
+
+	application = C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (xml), "application"));
+	cbytes = g_new0 (gint, 1);
+	tbytes = g_new0 (gint, 1);
+	*cbytes = 0;
+	*tbytes = 0;
+	gtk_object_set_data (GTK_OBJECT (xml), "cbytes", (gpointer) cbytes);
+	gtk_object_set_data (GTK_OBJECT (xml), "tbytes", (gpointer) tbytes);
+	
+	hbox = glade_xml_get_widget (xml, "hbox");
+	label = glade_xml_get_widget (xml, "mailbox_label");
+	progress = glade_xml_get_widget (xml, "progress");
+
+	gtk_widget_show (hbox);
+
+	for (mailbox = application->mailbox, i = 0; mailbox; mailbox = mailbox->next, i++)
+	{
+		gtk_signal_connect (GTK_OBJECT (mailbox), "compacted",
+							GTK_SIGNAL_FUNC (compact_mailboxes_on_mailbox_compacted), xml);
+
+		gdk_threads_enter ();
+		buf = g_strdup_printf ("«%s»", mailbox->name);
+		gtk_label_set_text (GTK_LABEL (label), buf);
+		g_free (buf);
+		gtk_progress_set_percentage (GTK_PROGRESS (progress), 0);
+		gdk_threads_leave ();
+
+		timeout = gtk_timeout_add (10, compact_mailboxes_on_timeout, progress);
+
+		c2_db_compact (mailbox);
+
+		gtk_timeout_remove (timeout);
+
+		gdk_threads_enter ();
+		gtk_progress_set_percentage (GTK_PROGRESS (progress), 1);
+		gdk_threads_leave ();
+	}
+
+	/* Show the information dialog */
+	{
+		GladeXML *ixml;
+		GtkWidget *iwidget;
+		gchar *ibuf, *ibuf2, *ibuf3;
+
+		gdk_threads_enter ();
+		
+		ixml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_compact_inform");
+
+		/* Mailboxes Label */
+		iwidget = glade_xml_get_widget (ixml, "mailboxes_label");
+		gtk_label_get (GTK_LABEL (iwidget), &ibuf);
+		ibuf2 = g_strdup_printf ("%d", i);
+		ibuf3 = c2_str_replace_all (ibuf, "%MAILBOXES%", ibuf2);
+		g_free (ibuf);
+		g_free (ibuf2);
+		ibuf = ibuf3;
+		gtk_label_set_text (GTK_LABEL (iwidget), ibuf);
+
+		/* Cspace Label */
+		iwidget = glade_xml_get_widget (ixml, "cspace_label");
+		gtk_label_get (GTK_LABEL (iwidget), &ibuf);
+
+		if (*cbytes < 1024)
+			ibuf2 = g_strdup_printf ("%d bytes", *cbytes);
+		else
+			ibuf2 = g_strdup_printf ("%.1f Mb", (*cbytes)/1024);
+
+		ibuf3 = c2_str_replace_all (ibuf, "%CSPACE%", ibuf2);
+		g_free (ibuf);
+		g_free (ibuf2);
+		ibuf = ibuf3;
+		gtk_label_set_text (GTK_LABEL (iwidget), ibuf);
+
+		/* Tspace Label */
+		iwidget = glade_xml_get_widget (ixml, "tspace_label");
+		gtk_label_get (GTK_LABEL (iwidget), &ibuf);
+
+		if (*tbytes < 1024)
+			ibuf2 = g_strdup_printf ("%d bytes", *tbytes);
+		else
+			ibuf2 = g_strdup_printf ("%.1f Mb", (*tbytes)/1024);
+
+		ibuf3 = c2_str_replace_all (ibuf, "%TSPACE%", ibuf2);
+		g_free (ibuf);
+		g_free (ibuf2);
+		ibuf = ibuf3;
+		gtk_label_set_text (GTK_LABEL (iwidget), ibuf);
+
+		iwidget = glade_xml_get_widget (ixml, "dlg_compact_inform");
+
+		gtk_widget_show (iwidget);
+
+		gtk_object_destroy (GTK_OBJECT (ixml));
+
+		gdk_threads_leave ();
+	}
+
+	/* Free everything */
+	g_free (cbytes);
+	g_free (tbytes);
+}
+
+static void
+_compact_mailboxes (C2Application *application)
+{
+	GladeXML *xml;
+	GtkWidget *window, *widget, *html;
+	GtkStyle *style;
+	pthread_t thread;
+
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_compact");
+	gtk_object_set_data (GTK_OBJECT (xml), "application", application);
+
+	window = glade_xml_get_widget (xml, "dlg_compact");
+	
+	widget = glade_xml_get_widget (xml, "speed_up_label");
+	style = gtk_style_copy (gtk_widget_get_style (widget));
+	style->font = gdk_font_load ("-adobe-helvetica-bold-r-normal-*-*-240-*-*-p-*-iso8859-1");
+	style->fg[GTK_STATE_NORMAL] = style->white;
+	gtk_widget_set_style (widget, style);
+
+	widget = glade_xml_get_widget (xml, "speed_up_event");
+	style = gtk_style_copy (gtk_widget_get_style (widget));
+	style->bg[GTK_STATE_NORMAL] = style->black;
+	gtk_widget_set_style (widget, style);
+
+	widget = glade_xml_get_widget (xml, "container");
+	html = c2_html_new (application);
+	gtk_container_add (GTK_CONTAINER (widget), html);
+	gtk_widget_show (html);
+	c2_html_set_content_from_string (C2_HTML (html), _(
+"<html><body bgcolor=#ffffff>
+<p>This tool will compact your mailboxes <b>and</b> speed them up.
+This means that mailboxes which reside in your file system
+(such as the Cronos II mailboxes) will use <u>less disk space</u>
+and will be <u>accessed much faster</u>.</p>
+
+<p>You should run this tool whenever you notice that your mailboxes
+are getting slow, or when you are running out of disk space.</p>
+
+<p>You can now run this tool by clicking the <b>Start</b> button
+below.</p>
+</body></html>"
+));
+	
+
+	switch (gnome_dialog_run (GNOME_DIALOG (window)))
+	{
+		case 0:
+			widget = glade_xml_get_widget (xml, "btn_close");
+			gtk_widget_set_sensitive (widget, FALSE);
+			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (compact_mailboxes_thread), xml);
+			break;
+		case 1:
+			gnome_dialog_close (GNOME_DIALOG (window));
+			gtk_object_destroy (GTK_OBJECT (xml));
+			break;
+	}
 }
 
 
@@ -976,18 +1193,18 @@ _delete_thread (C2Pthread3 *data)
 	gint length, off;
 	gboolean progress_ownership = FALSE,
 			 status_ownership = FALSE;
-
+L
 	/* Load the data */
 	tmailbox = C2_MAILBOX (data->v1);
 	list = (GList*) data->v2;
 	window = (C2Window*) (data->v3);
 	fmailbox = C2_DB (list->data)->mailbox;
 	g_free (data);
-
+L
 	/* Get the length of the list to move */
 	length = g_list_length (list);
 
-	/* Get the appbar */
+L	/* Get the appbar */
 	if (window)
 	{
 		widget = glade_xml_get_widget (window->xml, "appbar");
@@ -1003,7 +1220,7 @@ _delete_thread (C2Pthread3 *data)
 				status_ownership = TRUE;
 		}
 	}
-
+L
 	gdk_threads_enter ();
 
 	if (progress_ownership)
@@ -1012,7 +1229,7 @@ _delete_thread (C2Pthread3 *data)
 		progress = (GtkProgress*) ((GnomeAppBar*) widget)->progress;
 		gtk_progress_configure (progress, 0, 0, length);
 	}
-	
+L	
 	if (status_ownership)
 	{
 		/* Configure the statusbar */
@@ -1021,36 +1238,36 @@ _delete_thread (C2Pthread3 *data)
 
 	gdk_threads_leave ();
 
-	/* Start moving */
+L	/* Start moving */
 	c2_db_freeze (fmailbox);
 	c2_db_freeze (tmailbox);
-	for (l = list, off = 0; l; l = g_list_next (l), off++)
+L	for (l = list, off = 0; l; l = g_list_next (l), off++)
 	{
 		C2Db *db;
 		
-		/* Now do the actual copy */
+L		/* Now do the actual copy */
 		db = C2_DB (l->data);
 
 		if (!db->message)
 			c2_db_load_message (db);
-		
+L		
 		gtk_object_ref (GTK_OBJECT (db->message));
 		gtk_object_set_data (GTK_OBJECT (db->message), "state", (gpointer) db->state);
 		if (c2_db_message_add (tmailbox, db->message))
 			c2_db_message_remove (fmailbox, db);
 		gtk_object_unref (GTK_OBJECT (db->message));
-
+L
 		if (progress_ownership)
 		{
 			gdk_threads_enter ();
 			gtk_progress_set_value (progress, off);
 			gdk_threads_leave ();
 		}
-	}
-	c2_db_thaw (fmailbox);
-	c2_db_thaw (tmailbox);
-
-	g_list_free (list);
+L	}
+L	c2_db_thaw (fmailbox);
+L	c2_db_thaw (tmailbox);
+L
+L	g_list_free (list);
 
 	gdk_threads_enter ();
 	
@@ -1067,14 +1284,14 @@ _delete_thread (C2Pthread3 *data)
 	}
 	
 	gdk_threads_leave ();
-}
+L}
 
 static void
 _delete (C2Application *application, GList *list, C2Window *window)
 {
 	C2Pthread3 *data;
 	pthread_t thread;
-	
+L	
 	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
 	c2_return_if_fail (list, C2EDATA);
 
@@ -1096,7 +1313,7 @@ _delete (C2Application *application, GList *list, C2Window *window)
 				return;
 			}
 		}
-
+L
 		/* Ok, we are ready to move everything to «Trash» */
 		/* Fire the thread */
 		data = g_new0 (C2Pthread3, 1);
@@ -1117,14 +1334,14 @@ _delete (C2Application *application, GList *list, C2Window *window)
 
 			return;
 		}
-		
+L		
 		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (_delete_thread), data);
 	} else
 	{ /* We have to expunge */
 expunge:
 		C2_APPLICATION_CLASS_FW (application)->expunge (application, list, window);
 	}
-}
+L}
 
 static void
 _expunge (C2Application *application, GList *list, C2Window *window)
@@ -1425,6 +1642,10 @@ on_net_speed_timeout (C2Application *application)
 static gboolean
 on_application_timeout_check (C2Application *application)
 {
+	/* If there's no account configured we will wait for the next timeout */
+	if (!c2_application_check_checkeable_account_exists (application))
+		return TRUE;
+	
 	gtk_object_set_data (GTK_OBJECT (application), "check::silent", 1);
 	C2_APPLICATION_CLASS_FW (application)->check (application);
 	gtk_object_set_data (GTK_OBJECT (application), "check::silent", NULL);
@@ -1454,7 +1675,7 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 	db = db->next;
 
 	c2_db_load_message (db);
-
+L
 	buf = c2_message_get_header_field (db->message, "X-CronosII-Send-Type:");
 	if (((C2ComposerSendType) atoi (buf)) != C2_COMPOSER_SEND_NOW)
 	{
@@ -1484,29 +1705,32 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 	gtk_widget_show (tl);
 	gdk_window_raise (tl->window);
 	gdk_threads_leave ();
-}
+L}
 
 C2Application *
 c2_application_new (const gchar *name, gboolean running_as_server)
 {
 	C2Application *application;
+	gint timeout_check;
 
 	application = gtk_type_new (c2_application_get_type ());
 
 	/* Set the name of the application */
 	application->name = g_strdup (name);
 	application->running_as_server = running_as_server;
+
+	timeout_check = c2_preferences_get_general_options_timeout_check ();
 	
 	/* Check at start */
-	if (!running_as_server && c2_preferences_get_general_options_start_check ())
+	if (!running_as_server && c2_preferences_get_general_options_start_check () &&
+			c2_application_check_checkeable_account_exists (application))
 	{
 		gtk_object_set_data (GTK_OBJECT (application), "check::wait_idle", 1);
 		C2_APPLICATION_CLASS_FW (application)->check (application);
 		gtk_object_set_data (GTK_OBJECT (application), "check::wait_idle", NULL);
-	} else
+	} else if (timeout_check)
 	{
-		application->check_timeout = gtk_timeout_add (
-							c2_preferences_get_general_options_timeout_check () * 60000,
+		application->check_timeout = gtk_timeout_add (timeout_check * 60000, /* 60000 = 60 (seconds) * 1000 */
 							(GtkFunction) on_application_timeout_check, application);
 	}
 

@@ -1362,7 +1362,7 @@ on_application_preferences_changed (C2Application *application, gint key, gpoint
 static void
 on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *db_node, C2Index *index)
 {
-	/* TODO This is a temp fix */
+L	/* TODO This is a temp fix */
 	/* WARN This function assumes it is being called
 	 * by a separated thread since all DB action is
 	 * supposed to run in other thread.
@@ -1372,7 +1372,7 @@ on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *
 		case C2_MAILBOX_CHANGE_STATE:
 			{
 				gint row;
-				
+L				
 				if ((row = gtk_clist_find_row_from_data ((GtkCList*) index, db_node)) < 0)
 					return;
 
@@ -1380,15 +1380,15 @@ on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *
 				reload_node (index->application, (GtkCList*) index, row, db_node);
 				gtk_widget_queue_draw ((GtkWidget*) index);
 				gdk_threads_leave ();
-			}
+L			}
 			break;
 			
 		default:
-			gdk_threads_enter ();
+L			gdk_threads_enter ();
 			C2_INDEX_CLASS_FW (index)->reload (index);
-			gdk_threads_leave ();
+L			gdk_threads_leave ();
 	}
-}
+L}
 
 static void
 _connect (C2Index *index)
