@@ -53,6 +53,8 @@ c2_main_window_set_sensitivity (void)
 	}
 }
 
+/* Section: New Mailbox Dialog */
+
 /* Defined in main-window.c */
 extern void
 on_ctree_changed_mailboxes						(C2Mailbox *mailbox);
@@ -103,8 +105,8 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 	if (c2_mailbox_get_by_name (c2_mailbox_get_head (), name))
 	{
 		GladeXML *err_xml =
-			glade_xml_new (DATADIR "/cronosII/cronosII.glade", "dlg_mailbox_err_msg");
-		GtkWidget *err_dialog = glade_xml_get_widget (err_xml, "dlg_mailbox_err_msg");
+			glade_xml_new (DATADIR "/cronosII/cronosII.glade", "dlg_mailbox_err");
+		GtkWidget *err_dialog = glade_xml_get_widget (err_xml, "dlg_mailbox_err");
 		gnome_dialog_run_and_close (GNOME_DIALOG (err_dialog));
 		return;
 	}
@@ -136,16 +138,16 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 	 */
 	if (first_mailbox)
 	{
-L		gtk_signal_connect (GTK_OBJECT (retval), "changed_mailboxes",
+		gtk_signal_connect (GTK_OBJECT (retval), "changed_mailboxes",
 				GTK_SIGNAL_FUNC (on_ctree_changed_mailboxes), NULL);
-L		gtk_signal_emit_by_name (GTK_OBJECT (retval), "changed_mailboxes");
+		gtk_signal_emit_by_name (GTK_OBJECT (retval), "changed_mailboxes");
 	}
-L
+
 	/* Now we have to write to the config file the new mailbox */
 	config_id = gnome_config_get_int_with_default ("/cronosII/Mailboxes/quantity=0", NULL)+1;
 	query = g_strdup_printf ("/cronosII/Mailbox %d/", config_id);
 	gnome_config_push_prefix (query);
-L
+
 	gnome_config_set_string ("name", retval->name);
 	gnome_config_set_string ("id", retval->id);
 	gnome_config_set_int ("type", retval->type);
@@ -175,13 +177,13 @@ L
 
 	gnome_config_set_int ("/cronosII/Mailboxes/quantity", config_id);
 	gnome_config_sync ();
-L}
+}
 
 static void
 on_new_mailbox_dlg_name_activate (GtkWidget *widget, GladeXML *gxml)
 {
-L	on_new_mailbox_dlg_ok_clicked (gxml, c2_mailbox_get_head () ? FALSE : TRUE);
-L	gnome_dialog_close (GNOME_DIALOG (glade_xml_get_widget (gxml, "dlg_new_mailbox")));
+	on_new_mailbox_dlg_ok_clicked (gxml, c2_mailbox_get_head () ? FALSE : TRUE);
+	gnome_dialog_close (GNOME_DIALOG (glade_xml_get_widget (gxml, "dlg_new_mailbox")));
 }
 
 void
@@ -259,6 +261,13 @@ on_properties_mailbox_dlg_type_menu_selection_done (GtkWidget *widget, GladeXML 
 	}
 }
 
+/* Section: Mailbox Properties Dialog */
+static void
+on_properties_mailbox_dlg_ok_btn_clicked (GtkWidget *widget, GladeXML *xml)
+{
+	L
+}
+
 void
 on_properties_mailbox_dlg (void)
 {
@@ -309,5 +318,11 @@ on_properties_mailbox_dlg (void)
 	gtk_option_menu_set_history (GTK_OPTION_MENU (type), parent->type);
 	
 
-	gnome_dialog_run (GNOME_DIALOG (dialog));
+	switch (gnome_dialog_run (GNOME_DIALOG (dialog)))
+	{
+		case 0:
+			on_properties_mailbox_dlg_ok_btn_clicked (dialog, xml);
+		case 1:
+			gnome_dialog_close (GNOME_DIALOG (dialog));
+	}
 }

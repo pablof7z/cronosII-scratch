@@ -97,6 +97,21 @@ gchar *s = N_("Db:");
 gchar *s = N_("That mailbox name\n"
               "is already taken.");
 gchar *s = N_("Error");
+gchar *s = N_("Mailbox properties");
+gchar *s = N_("Warning");
+gchar *s = N_("The edition of mailboxes\n"
+              "is really dangerous and\n"
+              "might result in the lost of\n"
+              "all mails of the mailbox.");
+gchar *s = N_("Type:");
+gchar *s = N_("Name:");
+gchar *s = N_("Extra data");
+gchar *s = N_("Port:");
+gchar *s = N_("localhost");
+gchar *s = N_("Host:");
+gchar *s = N_("User:");
+gchar *s = N_("Pass:");
+gchar *s = N_("Db:");
 gchar *s = N_("Cronos II : Checking");
 gchar *s = N_("Checking account %s %v of %u");
 gchar *s = N_("Getting E-Mail %v of %u (%p%%)");
@@ -129,18 +144,3 @@ gchar *s = N_("Create a new mailbox");
 gchar *s = N_("_New Mailbox");
 gchar *s = N_("Delete selected mailbox");
 gchar *s = N_("_Delete Mailbox");
-gchar *s = N_("Mailbox properties");
-gchar *s = N_("Warning");
-gchar *s = N_("The edition of mailboxes\n"
-              "is really dangerous and\n"
-              "might result in the lost of\n"
-              "all mails of the mailbox.");
-gchar *s = N_("Type:");
-gchar *s = N_("Name:");
-gchar *s = N_("Extra data");
-gchar *s = N_("Port:");
-gchar *s = N_("localhost");
-gchar *s = N_("Host:");
-gchar *s = N_("User:");
-gchar *s = N_("Pass:");
-gchar *s = N_("Db:");

@@ -40,8 +40,10 @@ c2_mailbox_insert								(C2Mailbox *head, C2Mailbox *mailbox);
 static void
 c2_mailbox_recreate_tree_ids					(C2Mailbox *head);
 
+#define c2_mailbox_search_by_id(x,y)			_c2_mailbox_search_by_id (x, y, 1)
+
 static C2Mailbox *
-c2_mailbox_search_by_id							(C2Mailbox *head, const gchar *id);
+_c2_mailbox_search_by_id						(C2Mailbox *head, const gchar *id, guint level);
 
 static void
 c2_mailbox_set_head								(C2Mailbox *mailbox);
@@ -200,7 +202,7 @@ c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
 	va_list edata;
 
 	c2_return_val_if_fail (name, NULL, C2EDATA);
-L	
+	
 	mailbox = gtk_type_new (C2_TYPE_MAILBOX);
 	mailbox->name = g_strdup (name);
 	mailbox->id = g_strdup (id);
@@ -249,7 +251,7 @@ L
 	gtk_signal_emit (GTK_OBJECT (mailbox_head),
 						c2_mailbox_signals[CHANGED_MAILBOXES]);
 
-L	return mailbox;
+	return mailbox;
 }
 
 C2Mailbox *
@@ -259,33 +261,31 @@ c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2Mailbox
 	C2Mailbox *parent;
 	C2Mailbox *value;
 	gchar *id;
-L	
+	
 	c2_return_val_if_fail (name, NULL, C2EDATA);
-L
+
 	if (parent_id)
 	{
-		C2_DEBUG (parent_id);
-L		if (!(parent = c2_mailbox_search_by_id (mailbox_head, parent_id)))
+		if (!(parent = c2_mailbox_search_by_id (mailbox_head, parent_id)))
 		{
-L			c2_error_set (C2EDATA);
+			c2_error_set (C2EDATA);
 			return NULL;
 		}
 		
-L		id = c2_mailbox_create_id_from_parent (parent);
-L		C2_DEBUG (id);
+		id = c2_mailbox_create_id_from_parent (parent);
 	} else
 	{
-L		if ((parent = c2_mailbox_get_head ()))
+		if ((parent = c2_mailbox_get_head ()))
 		{
-L			for (; parent->next; parent = parent->next);
+			for (; parent->next; parent = parent->next);
 			id = g_strdup_printf ("%d", atoi (parent->id)+1);
 		} else
 			id = g_strdup ("0");
-L	}
-L	value = c2_mailbox_new (name, id, type, sort_by, sort_type);
+	}
+	value = c2_mailbox_new (name, id, type, sort_by, sort_type);
 	g_free (id);
 	
-L	return value;
+	return value;
 }
 
 /**
@@ -318,13 +318,12 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
 	{
 		/* Get the ID of the parent */
 		id = c2_mailbox_get_parent_id (mailbox->id);
-		C2_DEBUG (mailbox->name);
 		l = c2_mailbox_search_by_id (head, id);
 		g_free (id);
 		
 		if (!l)
 		{
-L			c2_error_set (C2EDATA);
+			c2_error_set (C2EDATA);
 			return;
 		}
 		
@@ -452,35 +451,29 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 }
 
 static C2Mailbox *
-c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id)
+_c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id, guint level)
 {
 	const gchar *ptr;
 	C2Mailbox *l;
 	gint pos = 0;
 	gint top_id;
 	gint ck_id;
-	
+
 	c2_return_val_if_fail (head, NULL, C2EDATA);
 	c2_return_val_if_fail (id, NULL, C2EDATA);
 
-	top_id = c2_mailbox_get_id (id, 1);
+	top_id = c2_mailbox_get_id (id, level);
 
 	/* Comparar el primer id y despues llamarme pasandome el strstr (id, "-") */
 	for (l = head; l != NULL; l = l->next)
 	{
-		ck_id = c2_mailbox_get_id (l->id, 1);
+		ck_id = c2_mailbox_get_id (l->id, level);
 		if (top_id == ck_id)
 		{
-			if (c2_mailbox_get_level (id) == 1)
+			if (c2_mailbox_get_level (id)-level == 0)
 				return l;
 			else
-			{
-				ptr = strstr (id, "-");
-				if (!ptr)
-					return NULL;
-				ptr++;
-				return c2_mailbox_search_by_id (l->child, ptr);
-			}
+				return _c2_mailbox_search_by_id (l->child, id, level+1);
 		}
 	}
 
@@ -509,7 +502,6 @@ c2_mailbox_create_id_from_parent (C2Mailbox *parent)
 			id = g_strdup_printf ("%s-0", parent->id);
 	}
 
-	C2_DEBUG (id);
 	return id;
 }
 
