@@ -1418,6 +1418,53 @@ c2_imap_unsubscribe_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 	return TRUE;
 }
 
+gboolean
+c2_imap_mailbox_is_subscribed (C2IMAP *imap, C2Mailbox *mailbox)
+{
+	gchar *reply, *name;
+	tag_t tag;
+	
+	c2_mutex_lock(&imap->lock);
+	tag = c2_imap_get_tag(imap);
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d LSUB \"\" \""
+		 "%s\"\r\n", tag, c2_imap_get_full_mailbox_name(imap, mailbox)) < 0)
+	{
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		imap->state = C2IMAPDisconnected;
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+		c2_mutex_unlock(&imap->lock);
+		return FALSE;
+	}
+	
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
+	{
+		c2_mutex_unlock(&imap->lock);
+		return FALSE;
+	}
+	
+	if(!c2_imap_check_server_reply(reply, tag))
+	{
+		g_free(reply);
+		c2_mutex_unlock(&imap->lock);
+		return FALSE;
+	}
+	
+	name = g_strconcat(c2_imap_get_full_mailbox_name(imap, mailbox), "\r\n", NULL);
+	g_free(reply);
+	if(strstr(reply, name))
+	{
+		g_free(name);
+		c2_mutex_unlock(&imap->lock);
+		return TRUE;
+	}
+	else
+	{
+		g_free(name);
+		c2_mutex_unlock(&imap->lock);
+		return FALSE;	
+	}
+}
+
 /** c2_imap_message_remove
  * 
  * @imap: A locked IMAP object

@@ -159,6 +159,9 @@ gboolean
 c2_imap_unsubscribe_mailbox			(C2IMAP *imap, C2Mailbox *mailbox);
 	
 gboolean
+c2_imap_mailbox_is_subscribed		 (C2IMAP *imap, C2Mailbox *mailbox);
+	
+gboolean
 c2_imap_load_mailbox						(C2IMAP *imap, C2Mailbox *mailbox);
 
 gint
