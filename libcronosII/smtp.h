@@ -30,7 +30,16 @@ extern "C" {
 #else
 #	include <cronosII.h>
 #endif
+#ifdef BUILDING_C2
+# include "net-object.h"
+#endif
 
+#define C2_TYPE_SMTP            (c2_smtp_get_type ())
+#define C2_SMTP(obj)            (GTK_CHECK_CAST (obj, C2_TYPE_SMTP, C2SMTP))
+#define C2_SMTP_CLASS(klass)        (GTK_CHECK_CLASS (klass, C2_TYPE_SMTP, C2SMTP))
+#define C2_IS_SMTP(obj)           (GTK_CHECK_TYPE (obj, C2_TYPE_SMTP))
+#define C2_IS_SMTP_CLASS(klass)       (GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_SMTP))
+	
 typedef enum _C2SMTPType C2SMTPType;
 
 enum _C2SMTPType
@@ -47,8 +56,13 @@ enum
 	C2_SMTP_DO_NOT_LOSE_PASSWORD= 0 << 2	/* Will keep the password unless its wrong */
 };
 
-typedef struct
+typedef struct _C2SMTP C2SMTP;
+typedef struct _C2SMTPClass C2SMTPClass;
+	
+struct _C2SMTP
 {
+	C2NetObject *object;
+	
 	C2SMTPType type;
 
 	gchar *host;
@@ -63,7 +77,16 @@ typedef struct
 	
 	gint sock;
 	pthread_mutex_t lock;
-} C2SMTP;
+};
+	
+struct _C2SMTPClass
+{
+	C2NetObjectClass parent_class;
+	
+	void (*update) (C2SMTP *smtp, C2Message *message, guint length, guint bytes);
+	/*gboolean (*login_failed) (C2SMTP *smtp, const gchar *error, gchar **user, gchar **pass);*/
+};
+	
 
 C2SMTP *
 c2_smtp_new (C2SMTPType type, ...);

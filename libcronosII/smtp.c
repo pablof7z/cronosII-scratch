@@ -28,13 +28,30 @@
 /* hard-hat area, in progress by bosko */
 /* feel free to mess around -- help me get this module up to spec faster! */
 /* TODO: implement authentication (posted by pablo) */
-/* TODO: update this module to use C2 Net-Object */
-/* (in progress) TODO: implement local sendmail capability */
+/* (in progress) TODO: update C2 SMTP to be a real GtkObject w/ signals etc */
 /* (in progress) TODO: create a test-module */
 /* (done!) TODO: implement sending of MIME attachments */
 /* (done!) TODO: implement BCC */
+/* (done!) TODO: implement local sendmail capability */
 /* (done!) TODO: implement EHLO */
 /* (done!) TODO: implement keep-alive smtp connection */
+
+enum
+{
+	UPDATE,
+	LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL] = { 0 };
+
+static void
+class_init (C2SMTPClass *klass);
+
+static void
+init (C2SMTP *smtp);
+
+static void
+destroy (GtkObject *object);
 
 static gint
 c2_smtp_connect (C2SMTP *smtp);
@@ -84,6 +101,83 @@ c2_smtp_local_divide_recepients(gchar *to);
 #define SOCK_WRITE_FAILED _("Internal socket write operation failed")
 
 static C2SMTP *cached_smtp = NULL;
+static C2NetObject *parent_class = NULL;
+
+GtkType
+c2_smtp_get_type (void)
+{
+	static GtkType type = 0;
+	
+	if(!type)
+	{
+		static const GtkTypeInfo info = {
+			"C2SMTP",
+			sizeof(C2SMTP),
+			sizeof(C2SMTPClass),
+			(GtkClassInitFunc) class_init,
+			(GtkObjectInitFunc) init,
+			/* reserved_1 */ NULL,
+			/* reserved_2 */ NULL,
+			(GtkClassInitFunc) NULL
+		};
+		
+		type = gtk_type_unique(c2_net_object_get_type(), &info);
+	}
+	
+	return type;
+}
+
+static void
+class_init (C2SMTPClass *klass)
+{
+	GtkObjectClass *object_class;
+	
+	object_class = (GtkObjectClass *) klass;
+	
+	parent_class = gtk_type_class (c2_net_object_get_type ());
+	
+	signals[UPDATE] =
+		gtk_signal_new ("update",
+										GTK_RUN_LAST,
+										object_class->type,
+										GTK_SIGNAL_OFFSET (C2SMTPClass, update),
+										gtk_marshal_NONE__POINTER_INT_INT, GTK_TYPE_NONE, 3,
+										GTK_TYPE_POINTER, GTK_TYPE_INT, GTK_TYPE_INT);
+
+	  gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
+	
+	  klass->update = NULL;
+	  object_class->destroy = destroy;
+}
+
+static void
+init (C2SMTP *smtp)
+{
+	smtp->host = NULL;
+	smtp->port = 25;
+	smtp->ssl = FALSE;
+	smtp->authentication = FALSE;
+	smtp->user = NULL;
+	smtp->pass = NULL;
+	smtp->smtp_local_cmd = NULL;
+	smtp->flags = DEFAULT_FLAGS;
+	smtp->error = NULL;
+	smtp->sock = 0;
+	
+	/* all the work is done in c2_smtp_new */
+}
+
+static void
+destroy (GtkObject *object)
+{
+	C2SMTP *smtp = C2_SMTP(object);
+	if(c2_net_object_is_offline(C2_NET_OBJECT(smtp)))
+	{
+		c2_net_object_disconnect(C2_NET_OBJECT(smtp));
+	}
+	
+	c2_smtp_free(smtp);
+}
 
 C2SMTP *
 c2_smtp_new (C2SMTPType type, ...)
@@ -91,7 +185,8 @@ c2_smtp_new (C2SMTPType type, ...)
 	C2SMTP *smtp;
 	va_list args;
 
-	smtp = g_new0 (C2SMTP, 1);
+	smtp = gtk_type_new(C2_TYPE_SMTP);
+	
 	smtp->type = type;
 	smtp->sock = 0;
 	smtp->error = NULL;
@@ -123,7 +218,6 @@ c2_smtp_new (C2SMTPType type, ...)
 
 	/* Initialize the Mutex */
 	pthread_mutex_init (&smtp->lock, NULL);
-	smtp->flags = DEFAULT_FLAGS;
 
 	return smtp;
 }
