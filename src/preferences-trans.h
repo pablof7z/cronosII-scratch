@@ -27,11 +27,16 @@ gchar *s = N_("Name");
 gchar *s = N_("Type");
 gchar *s = N_("Name");
 gchar *s = N_("E-Mail");
-gchar *s = N_("_New");
-gchar *s = N_("_Edit");
-gchar *s = N_("_Delete");
+gchar *s = N_("Click this button to create a new account");
+gchar *s = N_("_Add");
+gchar *s = N_("Click this button to edit the information of the current selected mailbox");
+gchar *s = N_("_Modify");
+gchar *s = N_("Click this button to remove the current selected account");
+gchar *s = N_("_Remove");
+gchar *s = N_("Click this button to move up the current selected account in the priority order");
 gchar *s = N_("_Up");
-gchar *s = N_("Do_wn");
+gchar *s = N_("Click this button to move down the current selected account in the priority order");
+gchar *s = N_("_Down");
 gchar *s = N_("Accounts");
 gchar *s = N_("Application's Title");
 gchar *s = N_("Conversion characters:\n"
@@ -94,8 +99,8 @@ gchar *s = N_("Use internal browser for following links.");
 gchar *s = N_("Advanced");
 gchar *s = N_("Cronos II : Preferences : Accounts");
 gchar *s = N_("Account Options");
-gchar *s = N_("This wizard will help you in the configuration of accounts\n"
-              "for use with Cronos II.\n"
+gchar *s = N_("This wizard will help you with the configuration of your\n"
+              "accounts for use with Cronos II.\n"
               "\n"
               "Each account is a separated entity for Cronos II, this will\n"
               "let you define different persons or entities and manage\n"
@@ -104,29 +109,37 @@ gchar *s = N_("This wizard will help you in the configuration of accounts\n"
 gchar *s = N_("Basic Information");
 gchar *s = N_("Write here the name which with you want to identify this account. Note that this is just for internal use.");
 gchar *s = N_("This is the name that will be sent in outgoing messages in the \"From:\" field.");
-gchar *s = N_("Include this account in \"All Account\" checks.");
 gchar *s = N_("Account Name:");
 gchar *s = N_("Person Name:");
+gchar *s = N_("Include this account in general account checks.");
+gchar *s = N_("Organization:");
 gchar *s = N_("E-Mail Address:");
+gchar *s = N_("Reply-To Address:");
+gchar *s = N_("Attach Address Book Card with outgoing mails");
+gchar *s = N_("Select Card");
 gchar *s = N_("Protocol Information");
 gchar *s = N_("Access Method:");
 gchar *s = N_("Post Office Protocol 3 (POP3)\n"
               "Spool\n"
               "");
-gchar *s = N_("POP3 Options");
+gchar *s = N_("Extra data");
 gchar *s = N_("Port:");
-gchar *s = N_("POP3 Server Address:");
-gchar *s = N_("User Name:");
+gchar *s = N_("Username:");
 gchar *s = N_("Password:");
+gchar *s = N_("Hostname:");
 gchar *s = N_("File:");
 gchar *s = N_("Browse...");
 gchar *s = N_("SMTP Options");
-gchar *s = N_("SMTP Server Address:");
-gchar *s = N_("Type here the address of the SMTP server for outgoing messages.");
+gchar *s = N_("Remote SMTP Server.");
+gchar *s = N_("Local sendmail program (MUA).");
 gchar *s = N_("localhost");
-gchar *s = N_("Port:");
+gchar *s = N_("Set Information");
 gchar *s = N_("Leave downloaded messages in server.");
 gchar *s = N_("Signature");
+gchar *s = N_("Type of signature:");
+gchar *s = N_("Static Signature\n"
+              "Dynamic Signature (output of commands)\n"
+              "");
 gchar *s = N_("Signature");
 gchar *s = N_("Automatically append this signature to outgoing messages.");
 gchar *s = N_("Account Options");
@@ -144,3 +157,11 @@ gchar *s = N_("Error");
 gchar *s = N_("The E-Mail address you\n"
               "entered is not valid.");
 gchar *s = N_("Error");
+gchar *s = N_("SMTP Server Information");
+gchar *s = N_("Provide here the information for the\n"
+              "SMTP server for this account.");
+gchar *s = N_("\n"
+              "localhost\n"
+              "");
+gchar *s = N_("Hostname:");
+gchar *s = N_("Port:");

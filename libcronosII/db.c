@@ -34,12 +34,6 @@ c2_db_class_init								(C2DbClass *class);
 static void
 c2_db_destroy									(GtkObject *object);
 
-static C2Db *
-c2_db_load										(C2Mailbox *mailbox);
-
-C2Message *
-c2_db_message_get_cronosII						(C2Db *db, gint mid);
-
 enum
 {
 	MARK_CHANGED,
@@ -129,23 +123,10 @@ c2_db_new (C2Mailbox *mailbox)
 	C2Db *db = NULL;
 	
 	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
-
-	switch (mailbox->type)
-	{
-		case C2_MAILBOX_CRONOSII:
-			db = gtk_type_new (C2_TYPE_DB);
-			c2_db_cronosII_new (db);
-			break;
-		case C2_MAILBOX_IMAP:
-			db = gtk_type_new (C2_TYPE_DB);
-			c2_db_imap_new (db);
-			break;
-		default:
-			g_assert_not_reach ();
-	}
-
-	db->mailbox = mailbox;
 	
+	db = gtk_type_new (C2_TYPE_DB);
+	db->mailbox = mailbox;
+
 	return db;
 }
 
@@ -175,20 +156,17 @@ c2_db_destroy (GtkObject *object)
 	}
 }
 
-static C2Db *
+gint
 c2_db_load (C2Mailbox *mailbox)
 {
-	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
-
-	if (mailbox->db)
-		return mailbox->db;
+	c2_return_val_if_fail (mailbox, -1, C2EDATA);
 
 	switch (mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
-			return C2_DB (c2_db_cronosII_new (mailbox));
+			return c2_db_cronosII_load (mailbox);
 		case C2_MAILBOX_IMAP:
-			return C2_DB (c2_db_imap_new (mailbox));
+			return c2_db_imap_load (mailbox);
 #ifdef USE_DEBUG
 		default:
 			g_print ("Request for unsupported mailbox in %s:%s:%d: %d\n",
@@ -196,7 +174,7 @@ c2_db_load (C2Mailbox *mailbox)
 #endif
 	}
 
-	return NULL;
+	return -1;
 }
 
 /**
@@ -285,8 +263,8 @@ c2_db_message_get (C2Db *db, gint row)
 	switch (db->mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
-			if ((message = c2_db_cronosII_message_get (db, mid)))
-				l->message = *message;
+/*			if ((message = c2_db_cronosII_message_get (db, mid)))
+				l->message = *message;*/
 			break;
 		case C2_MAILBOX_IMAP:
 			/* TODO message = c2_db_message_get_imap (db, mid); TODO */

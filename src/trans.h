@@ -27,6 +27,7 @@ gchar *s = N_("_Mailbox");
 gchar *s = N_("_Speed Up");
 gchar *s = N_("_Import");
 gchar *s = N_("_Export");
+gchar *s = N_("Empty _Garbage");
 gchar *s = N_("Mess_age");
 gchar *s = N_("_Reply");
 gchar *s = N_("Reply _all");
@@ -81,7 +82,7 @@ gchar *s = N_("Next");
 gchar *s = N_("Contacts");
 gchar *s = N_("Exit");
 gchar *s = N_("label7");
-gchar *s = N_("Show the Checking Window.");
+gchar *s = N_("Show the Message Transfer dialog");
 gchar *s = N_("That mailbox name\n"
               "is already taken.");
 gchar *s = N_("Error");

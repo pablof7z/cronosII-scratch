@@ -396,6 +396,25 @@
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_CONVERT</stock_icon>
 	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>separator14</name>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkPixmapMenuItem</class>
+	      <name>mailbox_empty_garbage</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_mailbox_empty_garbage_activate</handler>
+		<last_modification_time>Wed, 30 May 2001 14:45:35 GMT</last_modification_time>
+	      </signal>
+	      <label>Empty _Garbage</label>
+	      <right_justify>False</right_justify>
+	      <stock_icon>GNOME_STOCK_MENU_TRASH</stock_icon>
+	    </widget>
 	  </widget>
 	</widget>
 
@@ -991,7 +1010,7 @@
 	<class>GtkHBox</class>
 	<name>hbox20</name>
 	<homogeneous>False</homogeneous>
-	<spacing>0</spacing>
+	<spacing>3</spacing>
 	<child>
 	  <padding>0</padding>
 	  <expand>False</expand>
@@ -1013,7 +1032,7 @@
 	<widget>
 	  <class>GtkButton</class>
 	  <name>appbar_button</name>
-	  <tooltip>Show the Checking Window.</tooltip>
+	  <tooltip>Show the Message Transfer dialog</tooltip>
 	  <can_focus>True</can_focus>
 	  <child>
 	    <padding>0</padding>

@@ -25,18 +25,18 @@
 #include "utils.h"
 
 gint
-c2_db_cronosII_load (C2Db *db)
+c2_db_cronosII_load (C2Mailbox *mailbox)
 {
 	C2Db *head = NULL, *current = NULL, *next;
 	gchar *path, *line, *buf;
 	FILE *fd;
 	gint i;
 	
-	c2_return_val_if_fail (db, -1, C2EDATA);
+	c2_return_val_if_fail (mailbox, -1, C2EDATA);
 
 	/* Calculate the path */
 	path = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S ".CronosII" G_DIR_SEPARATOR_S,
-						db->mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
+						mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
 	
 	/* Open the file */
 	if (!(fd = fopen (path, "rt")))
@@ -55,7 +55,7 @@ c2_db_cronosII_load (C2Db *db)
 			continue;
 		}
 
-		next = c2_db_new (NULL);
+		next = c2_db_new (mailbox);
 		next->message.message = NULL;
 		
 		buf = c2_str_get_word (0, line, '\r');
@@ -86,16 +86,14 @@ c2_db_cronosII_load (C2Db *db)
 		next->mid = atoi (buf);
 		g_free (buf);
 
-		next->mailbox = db->mailbox;
-
 		next->next = NULL;
 		next->previous = current;
 
 		if (current)
 			current->next = next;
 
-		if (!head)
-			db = next;
+		if (!mailbox->db)
+			mailbox->db = next;
 
 		current = next;
 

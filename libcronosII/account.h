@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 #include <glib.h>
+#include <gtk/gtk.h>
 
 #ifdef HAVE_CONFIG_H
 #	include "mailbox.h"
@@ -33,14 +34,26 @@ extern "C" {
 #	include <cronosII.h>
 #endif
 
-typedef enum
+#define C2_TYPE_ACCOUNT							(c2_account_get_type ())
+#define C2_ACCOUNT(obj)							(GTK_CHECK_CAST (obj, C2_TYPE_ACCOUNT, C2Account))
+#define C2_ACCOUNT_CLASS(klass)					(GTK_CHECK_CLASS (klass, C2_TYPE_ACCOUNT, C2Account))
+#define C2_IS_ACCOUNT(obj)						(GTK_CHECK_TYPE (obj, C2_TYPE_ACCOUNT))
+#define C2_IS_ACCOUNT_CLASS(klass)				(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_ACCOUNT))
+
+typedef struct _C2Account C2Account;
+typedef struct _C2AccountClass C2AccountClass;
+typedef enum _C2AccountType C2AccountType;
+
+enum _C2AccountType
 {
 	C2_ACCOUNT_POP3,
 	C2_ACCOUNT_SPOOL
-} C2AccountType;
+};
 
-typedef struct _C2Account
+struct _C2Account
 {
+	GtkObject object;
+	
 	gchar *name;
 
 	gchar *per_name;
@@ -68,7 +81,18 @@ typedef struct _C2Account
 	} signature;
 
 	struct _C2Account *next;
-} C2Account;
+};
+
+struct _C2AccountClass
+{
+	GtkObjectClass parent_class;
+
+	void (*update_check) (C2Account *account, gint total_messages, gint current_message,
+							glong total_bytes, glong current_byte);
+};
+
+GtkType
+c2_account_get_type									(void);
 
 C2Account *
 c2_account_new										(const gchar *name, const gchar *per_name,
@@ -88,6 +112,9 @@ c2_account_copy										(C2Account *account);
 
 C2Account *
 c2_account_append									(C2Account *head);
+
+void
+c2_account_check									(void);
 
 #ifdef __cplusplus
 }

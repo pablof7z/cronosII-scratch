@@ -62,6 +62,9 @@ C2MainWindow WMain;
 void
 c2_window_new									(void);
 
+void
+on_mailbox_db_loaded							(C2Mailbox *mbox, gboolean success);
+
 #ifdef __cplusplus
 }
 #endif

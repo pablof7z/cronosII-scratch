@@ -235,6 +235,7 @@ load_mailboxes (void)
 		gchar *host, *user, *pass, *path;
 		gint port;
 		gchar *query = g_strdup_printf ("/cronosII/Mailbox %d/", i);
+		C2Mailbox *mbox;
 		
 		gnome_config_push_prefix (query);
 		if (!(name = gnome_config_get_string ("name")))
@@ -252,17 +253,15 @@ load_mailboxes (void)
 		switch (type)
 		{
 			case C2_MAILBOX_CRONOSII:
-				c2_mailbox_new (name, id, type, sort_by, sort_type);
+				mbox = c2_mailbox_new (name, id, type, sort_by, sort_type);
 				break;
 			case C2_MAILBOX_IMAP:
 				host = gnome_config_get_string ("host");
-				C2_DEBUG (host);
 				port = gnome_config_get_int ("port");
 				user = gnome_config_get_string ("user");
 				pass = gnome_config_get_string ("pass");
-				C2_DEBUG (pass);
 				path = gnome_config_get_string ("path");
-				c2_mailbox_new (name, id, type, sort_by, sort_type, host, port, user, pass, path);
+				mbox = c2_mailbox_new (name, id, type, sort_by, sort_type, host, port, user, pass, path);
 				g_free (host);
 				g_free (user);
 				g_free (pass);
@@ -272,6 +271,10 @@ load_mailboxes (void)
 		g_free (id);
 		gnome_config_pop_prefix ();
 		g_free (query);
+
+		/* We have to connect to the "db_loaded" signal */
+		gtk_signal_connect (GTK_OBJECT (mbox), "db_loaded",
+						GTK_SIGNAL_FUNC (on_mailbox_db_loaded), NULL);
 	}
 
 	c2_app.mailbox = c2_mailbox_get_head ();

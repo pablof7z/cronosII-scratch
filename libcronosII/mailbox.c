@@ -57,7 +57,7 @@ enum
 {
 	CHANGED_MAILBOXES,
 	CHANGED_MAILBOX,
-	IMAP_EVENT,
+	DB_LOADED,
 	LAST_SIGNAL
 };
 
@@ -116,13 +116,13 @@ c2_mailbox_class_init (C2MailboxClass *klass)
 					gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
 					GTK_TYPE_POINTER);
 
-	c2_mailbox_signals[IMAP_EVENT] =
-		gtk_signal_new ("imap_event",
+	c2_mailbox_signals[DB_LOADED] =
+		gtk_signal_new ("db_loaded",
 					GTK_RUN_FIRST,
 					object_class->type,
-					GTK_SIGNAL_OFFSET (C2MailboxClass, imap_event),
-					gtk_marshal_NONE__ENU, GTK_TYPE_NONE, 2,
-					GTK_TYPE_ENUM, GTK_TYPE_BOOL);
+					GTK_SIGNAL_OFFSET (C2MailboxClass, db_loaded),
+					gtk_marshal_NONE__BOOL, GTK_TYPE_NONE, 1,
+					GTK_TYPE_BOOL);
 
 	gtk_object_class_add_signals (object_class, c2_mailbox_signals, LAST_SIGNAL);
 
@@ -130,7 +130,7 @@ c2_mailbox_class_init (C2MailboxClass *klass)
 
 	klass->changed_mailboxes = NULL;
 	klass->changed_mailbox = NULL;
-	klass->imap_event = NULL;
+	klass->db_loaded = NULL;
 }
 
 static C2Mailbox *
@@ -249,6 +249,7 @@ c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
 			mailbox->protocol.imap.pass = g_strdup (va_arg (edata, gchar *));
 			mailbox->protocol.imap.path = g_strdup (va_arg (edata, gchar *));
 			mailbox->protocol.imap.sock = -1;
+			mailbox->protocol.imap.cmnd_n = 1;
 			va_end (edata);
 			break;
 #ifdef USE_DEBUG
@@ -739,4 +740,35 @@ c2_mailbox_get_by_name (C2Mailbox *head, const gchar *name)
 	}
 
 	return NULL;
+}
+
+/**
+ * c2_mailbox_load_db
+ * @mailbox: C2Mailbox object to load.
+ *
+ * This function is the point of connection
+ * with the Db module. It will load the Db
+ * of the mailbox and fire the db_loaded
+ * signal when done.
+ **/
+void
+c2_mailbox_load_db (C2Mailbox *mailbox)
+{
+	c2_return_if_fail (mailbox, C2EDATA);
+
+	/* Check if it is already loaded */
+	if (mailbox->db)
+	{
+		gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], 0);
+		return;
+	}
+
+	/* We must load the db */
+	if (!c2_db_load (mailbox))
+	{
+		gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], -1);
+		return;
+	}
+
+	gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], 0);
 }

@@ -28,6 +28,7 @@ cronos_LDFLAGS = \
 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
 
 EXTRA_DIST = \
+	README.FAQ			\
 	xpm/forward.xpm		\
 	xpm/mark.xpm		\
 	xpm/mini_about.xpm	\

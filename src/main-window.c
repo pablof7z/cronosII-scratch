@@ -167,44 +167,54 @@ c2_window_new (void)
 	gtk_widget_show (window);
 }
 
-static void
-pthread_ctree_tree_select_row (C2Mailbox *mbox)
+void
+on_mailbox_db_loaded (C2Mailbox *mbox, gboolean success)
 {
 	GtkWidget *index = glade_xml_get_widget (WMain.xml, "index");
 
-	c2_return_if_fail (mbox, C2EDATA);
-	if (pthread_mutex_trylock (&WMain.index_lock))
+	/* Check that the user didn't select
+	 * other mailbox while it was being
+	 * loaded.
+	 */
+	if (WMain.selected_mbox != mbox)
 		return;
 
-	if (!mbox->db)
+	if (!success)
 	{
-		gdk_threads_enter ();
-		c2_app_start_activity (GTK_WIDGET (gnome_appbar_get_progress (GNOME_APPBAR (
-										glade_xml_get_widget (WMain.xml, "appbar")))));
-		gdk_threads_leave ();
-		/* Load the database */
-		if (!(mbox->db = c2_db_new (mbox)))
-		{
-			gchar *string;
-
-			string = g_strdup_printf (_("Unable to load db: %s"), c2_error_get (c2_errno));
-			gdk_threads_enter ();
-			c2_app_stop_activity ();
-			c2_app_report (string, C2_REPORT_ERROR);
-			gdk_threads_leave ();
-			g_free (string);
-			pthread_mutex_unlock (&WMain.index_lock);
+		/* Success loading mailbox */
+		if (pthread_mutex_trylock (&WMain.index_lock))
 			return;
-		}
+
+		gdk_threads_enter ();
+		c2_index_remove_mailbox (C2_INDEX (index));
+		c2_app_stop_activity ();
+		c2_index_add_mailbox (C2_INDEX (index), mbox);
+		gtk_widget_queue_draw (index);
+		gdk_threads_leave ();
+
+		pthread_mutex_unlock (&WMain.index_lock);
+	} else
+	{
+		/* Failure loading mailbox */
+		gchar *string;
+		
+		string = g_strdup_printf (_("Unable to load db: %s"), c2_error_get (c2_errno));
+		c2_app_stop_activity ();
+		c2_app_report (string, C2_REPORT_ERROR);
+		g_free (string);
 	}
-	
+}
+
+static void
+pthread_ctree_tree_select_row (C2Mailbox *mbox)
+{
+	c2_return_if_fail (mbox, C2EDATA);
+
 	gdk_threads_enter ();
-	c2_index_remove_mailbox (C2_INDEX (index));
-	c2_app_stop_activity ();
-	c2_index_add_mailbox (C2_INDEX (index), mbox);
-	gtk_widget_queue_draw (index);
+	c2_app_start_activity (GTK_WIDGET (gnome_appbar_get_progress (GNOME_APPBAR (
+						glade_xml_get_widget (WMain.xml, "appbar")))));
 	gdk_threads_leave ();
-	pthread_mutex_unlock (&WMain.index_lock);
+	c2_mailbox_load_db (mbox);
 }
 
 static void

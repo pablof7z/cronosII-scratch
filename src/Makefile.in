@@ -144,7 +144,7 @@ cronos_LDADD =  	$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) 
 cronos_LDFLAGS =  	$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
 
 
-EXTRA_DIST =  	xpm/forward.xpm			xpm/mark.xpm			xpm/mini_about.xpm		xpm/mini_error.xpm		xpm/new.xpm				xpm/read.xpm			xpm/reply.xpm			xpm/unread.xpm
+EXTRA_DIST =  	README.FAQ				xpm/forward.xpm			xpm/mark.xpm			xpm/mini_about.xpm		xpm/mini_error.xpm		xpm/new.xpm				xpm/read.xpm			xpm/reply.xpm			xpm/unread.xpm
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
@@ -161,7 +161,7 @@ COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CF
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-DIST_COMMON =  README Makefile.am Makefile.in
+DIST_COMMON =  Makefile.am Makefile.in
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)

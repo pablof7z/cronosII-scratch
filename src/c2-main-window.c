@@ -166,6 +166,9 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 
 	retval = c2_mailbox_new_with_parent (name, parent ? parent->id : NULL, type,
 			C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, host, port, user, pass, path);
+
+	gtk_signal_connect (GTK_OBJECT (retval), "db_loaded",
+						GTK_SIGNAL_FUNC (on_mailbox_db_loaded), NULL);
 	
 	/* Since this is the first mailbox we will connect to the signal
 	 * and emit it again.

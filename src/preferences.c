@@ -98,6 +98,7 @@ void
 c2_preferences_new (void)
 {
 	GtkWidget *dialog;
+	GtkWidget *pixmap;
 	
 	GtkCTree *ctree;
 	GtkCTreeNode *ctree_general;
@@ -165,7 +166,7 @@ c2_preferences_new (void)
 	GtkWidget *advanced_persistent_smtp_addr;
 	GtkWidget *advanced_persistent_smtp_port;
 	GtkWidget *advanced_use_internal_browser;
-	
+
 	if (preferences_xml)
 	{
 		dialog = glade_xml_get_widget (preferences_xml, "dlg_preferences");
@@ -217,6 +218,8 @@ c2_preferences_new (void)
 	ctree_colors = gtk_ctree_insert_node (ctree, ctree_interface, NULL, ctree_string, 0, 
 											NULL, NULL, NULL, NULL, FALSE, TRUE);
 	gtk_ctree_node_set_row_data (ctree, ctree_colors, "Colors");
+	gtk_ctree_set_expander_style (ctree, GTK_CTREE_EXPANDER_TRIANGLE);
+	gtk_ctree_set_line_style (ctree, GTK_CTREE_LINES_NONE);
 	
 	/* options_check_timeout */
 	options_check_timeout = glade_xml_get_widget (preferences_xml, "options_check_timeout");
@@ -282,7 +285,9 @@ c2_preferences_new (void)
 
 	/* accounts_new_pixmap */
 	accounts_new_pixmap = glade_xml_get_widget (preferences_xml, "accounts_new_pixmap");
-	gnome_pixmap_load_file (GNOME_PIXMAP (accounts_new_pixmap), "GNOME_STOCK_PIXMAP_NEW");
+	pixmap = gnome_stock_pixmap_widget_at_size (dialog, GNOME_STOCK_PIXMAP_ADD, 16, 16);
+	gtk_box_pack_start (GTK_BOX (accounts_new_pixmap), pixmap, TRUE, TRUE, 0);
+	gtk_widget_show (pixmap);
 
 	/* accounts_edit_btn */
 	accounts_edit_btn = glade_xml_get_widget (preferences_xml, "accounts_edit_btn");
@@ -291,7 +296,9 @@ c2_preferences_new (void)
 
 	/* accounts_edit_pixmap */
 	accounts_edit_pixmap = glade_xml_get_widget (preferences_xml, "accounts_edit_pixmap");
-	gnome_pixmap_load_file (GNOME_PIXMAP (accounts_edit_pixmap), "GNOME_STOCK_PIXMAP_INDEX");
+	pixmap = gnome_stock_pixmap_widget_at_size (dialog, GNOME_STOCK_PIXMAP_INDEX, 16, 16);
+	gtk_box_pack_start (GTK_BOX (accounts_edit_pixmap), pixmap, TRUE, TRUE, 0);
+	gtk_widget_show (pixmap);
 
 	/* accounts_delete_btn */
 	accounts_delete_btn = glade_xml_get_widget (preferences_xml, "accounts_delete_btn");
@@ -300,7 +307,9 @@ c2_preferences_new (void)
 
 	/* accounts_delete_pixmap */
 	accounts_delete_pixmap = glade_xml_get_widget (preferences_xml, "accounts_delete_pixmap");
-	gnome_pixmap_load_file (GNOME_PIXMAP (accounts_delete_pixmap), "GNOME_STOCK_PIXMAP_TRASH");
+	pixmap = gnome_stock_pixmap_widget_at_size (dialog, GNOME_STOCK_PIXMAP_REMOVE, 16, 16);
+	gtk_box_pack_start (GTK_BOX (accounts_delete_pixmap), pixmap, TRUE, TRUE, 0);
+	gtk_widget_show (pixmap);
 
 	/* accounts_up_btn */
 	accounts_up_btn = glade_xml_get_widget (preferences_xml, "accounts_up_btn");
@@ -309,7 +318,9 @@ c2_preferences_new (void)
 
 	/* accounts_up_pixmap */
 	accounts_up_pixmap = glade_xml_get_widget (preferences_xml, "accounts_up_pixmap");
-	gnome_pixmap_load_file (GNOME_PIXMAP (accounts_up_pixmap), "GNOME_STOCK_PIXMAP_UP");
+	pixmap = gnome_stock_pixmap_widget_at_size (dialog, GNOME_STOCK_PIXMAP_UP, 16, 16);
+	gtk_box_pack_start (GTK_BOX (accounts_up_pixmap), pixmap, TRUE, TRUE, 0);
+	gtk_widget_show (pixmap);
 
 	/* accounts_down_btn */
 	accounts_down_btn = glade_xml_get_widget (preferences_xml, "accounts_down_btn");
@@ -318,7 +329,9 @@ c2_preferences_new (void)
 
 	/* accounts_down_pixmap */
 	accounts_down_pixmap = glade_xml_get_widget (preferences_xml, "accounts_down_pixmap");
-	gnome_pixmap_load_file (GNOME_PIXMAP (accounts_down_pixmap), "GNOME_STOCK_PIXMAP_DOWN");
+	pixmap = gnome_stock_pixmap_widget_at_size (dialog, GNOME_STOCK_PIXMAP_DOWN, 16, 16);
+	gtk_box_pack_start (GTK_BOX (accounts_down_pixmap), pixmap, TRUE, TRUE, 0);
+	gtk_widget_show (pixmap);
 
 	/* interface_title */
 	interface_title = glade_xml_get_widget (preferences_xml, "interface_title");
@@ -762,16 +775,46 @@ on_cancel_btn_clicked (void)
 static void
 on_accounts_clist_select_row (GtkCList *clist)
 {
+	GtkWidget *accounts_edit_btn = glade_xml_get_widget (preferences_xml, "accounts_edit_btn");
+	GtkWidget *accounts_delete_btn = glade_xml_get_widget (preferences_xml, "accounts_delete_btn");
+	GtkWidget *accounts_up_btn = glade_xml_get_widget (preferences_xml, "accounts_up_btn");
+	GtkWidget *accounts_down_btn = glade_xml_get_widget (preferences_xml, "accounts_down_btn");
+	
+	gtk_widget_set_sensitive (accounts_edit_btn, TRUE);
+	gtk_widget_set_sensitive (accounts_delete_btn, TRUE);
+
+	if (GPOINTER_TO_INT (clist->selection->data) == 0)
+		gtk_widget_set_sensitive (accounts_up_btn, FALSE);
+	else
+		gtk_widget_set_sensitive (accounts_up_btn, TRUE);
+
+	if (GPOINTER_TO_INT (clist->selection->data) == clist->rows-1)
+		gtk_widget_set_sensitive (accounts_down_btn, FALSE);
+	else
+		gtk_widget_set_sensitive (accounts_down_btn, TRUE);
 }
 
 static void
 on_accounts_clist_unselect_row (GtkCList *clist)
 {
+	GtkWidget *accounts_edit_btn = glade_xml_get_widget (preferences_xml, "accounts_edit_btn");
+	GtkWidget *accounts_delete_btn = glade_xml_get_widget (preferences_xml, "accounts_delete_btn");
+	GtkWidget *accounts_up_btn = glade_xml_get_widget (preferences_xml, "accounts_up_btn");
+	GtkWidget *accounts_down_btn = glade_xml_get_widget (preferences_xml, "accounts_down_btn");
+	
+	gtk_widget_set_sensitive (accounts_edit_btn, FALSE);
+	gtk_widget_set_sensitive (accounts_delete_btn, FALSE);
+	gtk_widget_set_sensitive (accounts_up_btn, FALSE);
+	gtk_widget_set_sensitive (accounts_down_btn, FALSE);
 }
 
 static void
 on_accounts_new_btn_clicked (void)
 {
+	GladeXML *xml = glade_xml_new (C2_APP_GLADE_FILE ("preferences"), "dlg_account_new");
+	GtkWidget *dialog = glade_xml_get_widget (xml, "dlg_account_new");
+
+	gtk_widget_show (dialog);
 }
 
 static void

@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 gint
-c2_db_cronosII_load								(C2Db *db);
+c2_db_cronosII_load								(C2Mailbox *mailbox);
 
 #ifdef __cplusplus
 }

@@ -74,9 +74,13 @@ struct _C2DbClass
 GtkType
 c2_db_get_type									(void);
 
-/* Virtual function */
+/* This function will alloc a C2Db object */
 C2Db *
 c2_db_new										(C2Mailbox *mailbox);
+
+/* This function will load the Db */
+gint
+c2_db_load										(C2Mailbox *mailbox);
 
 gint
 c2_db_messages									(const C2Db *db);
