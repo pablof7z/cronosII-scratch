@@ -1,5 +1,6 @@
 Mon Jan 21 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Imported Pablo's work into CVS while he is w/o net in Spain.
+	* Small bug fixes in src/widget-HTML.c and libcronosII/account.h
 
 Sun Jan 13 Pablo Fernández Navarro <cronosII@users.sf.net>
 	* Today I move forward in so many modules that I should
