@@ -1,5 +1,13 @@
 Wed Oct 17 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed a little error in /xml/Makefile.am, thanks gresco.
+	* Renamed README.cvs to CVS-IMPORTANT-READ-FIRST.
+	* Work to make Cronos II listen to the new flag --mailbox || -m
+	  to specify the mailbox to open by default, if no mailbox
+	  is specified it will use C2_MAILBOX_INBOX (Inbox).
+	* Work to make Cronos II remember the message that was selected
+	  in each mailbox (in the same session) and to redisplay that
+	  message when relisting the mailbox. If no message was selected
+	  it will automatically select the last one.
 
 Tue Oct 16 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed a crash when there're no text/plain or text/html parts

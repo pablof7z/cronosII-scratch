@@ -23,11 +23,19 @@
 #include "widget-application.h"
 #include "widget-index.h"
 
+#define SELECTED_MAIL	"mailbox::selected mail"
+
 static void
 class_init									(C2IndexClass *klass);
 
 static void
 init										(C2Index *index);
+
+static gint
+get_selected_mail							(C2Index *index);
+
+static void
+set_selected_mail							(C2Index *index, gint i);
 
 static void
 on_index_click_column						(GtkCList *clist, gint column, gpointer data);
@@ -318,8 +326,9 @@ c2_index_add_mailbox (C2Index *index, C2Mailbox *mbox)
 	C2Db *db;
 	GtkCList *clist = GTK_CLIST (GTK_WIDGET (index));
 	C2Application *application = index->application;
+	gint selected_mail;
 	
-	c2_return_if_fail (mbox, C2EDATA);
+	c2_return_if_fail_obj (mbox, C2EDATA, GTK_OBJECT (index));
 
 	db = mbox->db;
 
@@ -364,17 +373,18 @@ c2_index_add_mailbox (C2Index *index, C2Mailbox *mbox)
 			gtk_clist_set_row_data (clist, clist->rows-1, db);
 		} while (c2_db_lineal_next (db));
 	}
-	
+
 	gtk_clist_thaw (clist);
 	index->mbox = mbox;
-}
 
-void
-c2_index_sort (C2Index *index)
-{
-	gtk_clist_freeze (GTK_CLIST (index));
-	sort (index);
-	gtk_clist_thaw (GTK_CLIST (index));
+	selected_mail = get_selected_mail (index);
+	printf ("Selected mail is %d\n", selected_mail);
+	if (selected_mail < 0)
+	{
+		printf ("Since is < 0, I'm going to use %d\n", clist->rows-1);
+		selected_mail = GTK_CLIST (index)->rows-1;
+	}
+	gtk_clist_select_row (clist, selected_mail, 5);
 }
 
 void
@@ -387,6 +397,38 @@ c2_index_remove_mailbox (C2Index *index)
 	gtk_clist_thaw (clist);
 }
 
+static gint
+get_selected_mail (C2Index *index)
+{
+	C2Mailbox *mailbox = index->mbox;
+	gpointer i;
+
+	i = gtk_object_get_data (GTK_OBJECT (mailbox), SELECTED_MAIL);
+
+	printf ("Getting selected to %d (%d)\n", GPOINTER_TO_INT (i)-1, i ? TRUE : FALSE);
+	if (!i)
+		return -1;
+
+	return GPOINTER_TO_INT (i)-1;
+}
+
+static void
+set_selected_mail (C2Index *index, gint i)
+{
+	C2Mailbox *mailbox = index->mbox;
+
+	printf ("Setting selected to %d\n", i+1);
+	gtk_object_set_data (GTK_OBJECT (mailbox), SELECTED_MAIL, (gpointer) i+1);
+}
+
+void
+c2_index_sort (C2Index *index)
+{
+	gtk_clist_freeze (GTK_CLIST (index));
+	sort (index);
+	gtk_clist_thaw (GTK_CLIST (index));
+}
+
 static void
 select_row (C2Index *index, gint row, gint column, GdkEvent *event)
 {
@@ -395,12 +437,13 @@ select_row (C2Index *index, gint row, gint column, GdkEvent *event)
 	/* Get the Db node */
 	if ((node = C2_DB (gtk_clist_get_row_data (GTK_CLIST (GTK_WIDGET (index)), row))))
 		gtk_signal_emit (GTK_OBJECT (index), signals[SELECT_MESSAGE], node);
+	set_selected_mail (index, row);
 }
 
 static void
 on_resize_column (C2Index *index, gint column, gint width)
 {
-	gchar *key = g_strdup_printf ("/Cronos II/Rc/clist[%d]", column);
+	gchar *key = g_strdup_printf ("/"PACKAGE"/Rc/clist[%d]", column);
 
 	index->application->rc_clist[column] = width;
 

@@ -39,6 +39,8 @@ static struct {
 
 	gchar *mailto;
 
+	gchar *mailbox;
+
 	gboolean check;
 	gboolean open_main_window;
 } flags =
@@ -54,6 +56,8 @@ static struct {
 	
 	NULL,
 
+	NULL,
+
 	FALSE,
 	FALSE
 };
@@ -63,7 +67,7 @@ c2_init (gint argc, gchar **argv)
 {
 	static struct poptOption options[] = {
 		{
-			"compose", 'm', POPT_ARG_NONE,
+			"compose", 'c', POPT_ARG_NONE,
 			&(flags.open_composer), 0,
 			N_("Compose a new email."), NULL
 		},
@@ -80,13 +84,13 @@ c2_init (gint argc, gchar **argv)
 			N_("Address")
 		},
 		{
-			"cc", 'c', POPT_ARG_STRING,
+			"cc", 0, POPT_ARG_STRING,
 			&(flags.cc), 0,
 			N_("Set the CC field."),
 			N_("Address")
 		},
 		{
-			"bcc", 'b', POPT_ARG_STRING,
+			"bcc", 0, POPT_ARG_STRING,
 			&(flags.bcc), 0,
 			N_("Set the BCC field."),
 			N_("Address")
@@ -98,7 +102,7 @@ c2_init (gint argc, gchar **argv)
 			N_("Subject")
 		},
 		{
-			"body", 'o', POPT_ARG_STRING,
+			"body", 'b', POPT_ARG_STRING,
 			&(flags.body), 0,
 			N_("Set the Body."),
 			N_("Text")
@@ -110,12 +114,18 @@ c2_init (gint argc, gchar **argv)
 			"mailto:email@somewhere."
 		},
 		{
-			"check", 'f', POPT_ARG_NONE,
+			"mailbox", 'm', POPT_ARG_STRING,
+			&(flags.mailbox), 0,
+			N_("Set the active mailbox at start (default=Inbox)"),
+			N_("Inbox")
+		},
+		{
+			"check", 'c', POPT_ARG_NONE,
 			&(flags.check), 0,
 			N_("Check account for mail."), NULL
 		},
 		{
-			"wmain", 'w', POPT_ARG_NONE,
+			"wmain", 0, POPT_ARG_NONE,
 			&(flags.open_main_window), 0,
 			N_("Open the main window (default)"), NULL
 		}
@@ -143,11 +153,27 @@ c2_init (gint argc, gchar **argv)
 	c2_hash_init ();
 }
 
+#define CREATE_WINDOW_MAIN \
+	{ \
+		C2Mailbox *mailbox; \
+		 \
+		widget = c2_window_main_new (application); \
+		mailbox = c2_mailbox_get_by_name (application->mailbox, \
+									flags.mailbox ? flags.mailbox : C2_MAILBOX_INBOX); \
+		if (!mailbox) \
+			c2_window_report (C2_WINDOW (widget), C2_WINDOW_REPORT_WARNING, \
+								_("The mailbox \"%s\", specified in command line, " \
+								  "does not exist."), flags.mailbox); \
+		else \
+			c2_window_main_set_mailbox (C2_WINDOW_MAIN (widget), mailbox); \
+		gtk_widget_show (widget); \
+		something_opened = TRUE; \
+	}
+
 gint
 main (gint argc, gchar **argv)
 {
 	GtkWidget *widget;
-	GtkWidget *transfer_list;
 	gboolean something_opened = FALSE;
 
 	/* Initialization of GNOME and Glade */
@@ -156,11 +182,7 @@ main (gint argc, gchar **argv)
 	application = c2_application_new (PACKAGE);
 
 	if (flags.open_main_window)
-	{
-		widget = c2_window_main_new (application);
-		gtk_widget_show (widget);
-		something_opened = TRUE;
-	}
+		CREATE_WINDOW_MAIN;
 
 	if (flags.open_composer || flags.account || flags.to || flags.cc ||
 		flags.bcc || flags.subject || flags.body || flags.mailto)
@@ -177,10 +199,7 @@ main (gint argc, gchar **argv)
 	}
 
 	if (!something_opened)
-	{
-		widget= c2_window_main_new (application);
-		gtk_widget_show (widget);
-	}
+		CREATE_WINDOW_MAIN;
 	
 	gdk_threads_enter ();
 	gtk_main ();

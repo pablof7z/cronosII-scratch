@@ -494,6 +494,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 void
 c2_window_main_set_mailbox (C2WindowMain *wmain, C2Mailbox *mailbox)
 {
+	c2_return_if_fail_obj (mailbox, C2EDATA, GTK_OBJECT (wmain));
+
 	c2_mailbox_list_set_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist), mailbox);
 }
 

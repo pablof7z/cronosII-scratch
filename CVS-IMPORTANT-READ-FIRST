@@ -1,0 +1,5 @@
+Note by: Pablo Fernández Navarro
+Date: 23.6.2001
+
+Cronos II path has changed, please, before executing c2 for first time create the directory
+~/.c2 and ~/.c2/uidl (this will obviously be done automatically later).
