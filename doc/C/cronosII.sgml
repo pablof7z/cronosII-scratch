@@ -1,6 +1,6 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[
 <!ENTITY version "-0.2.2"> 
-<!entity manver "ver2.2.2xxxxxxxx">
+<!entity manver "ver2.2.2xxx">
 <!entity pablo "cronosii@users.sourceforge.net">
 <!entity pete "petergozz@users.sourceforge.net">
 <!entity Yves "ymettier@libertysurf.fr">
@@ -34,21 +34,21 @@
      </bookinfo>
      <dedication>
      <para>
-     This book is dedicated to you. 
+      For CronosII and his users.
       </para>
     <para>
-      The Pilot.
+Hope this is of some help.
      </para>
      </dedication>
-     <preface><title>Forword</title>
+     <preface><title>Foreword</title>
      <para>
     This is the Book of Cronos II.
      </para>
-    <para>A humble email application  born of the frustrations of existing email applications and the coding aspirations of a small team of coders scatttered rarely across the face of this big blue marble we all call home.
+    <para>This is the Users Manual (Compiled Version) for CronosII an email application born of the frustrations of  existing email applications and the coding aspirations of a small team of coders scattered rarely across the face of this big blue marble we all call home.
 </para>
-<para>Cronos aspires to simplicity, efficacy, and whatever it's users want it to be.</para>
-<para>The Book  supplied with the tar ball does not contain developers info. Check out the sources for the guidelines and code. Visit the website for more information. Or drop us a line and let us know what you think.</para>
-    <blockquote><attribution>Madeitup 2001</attribution><para>Old father time.... he owes me much sleep.</para></blockquote>
+<para>Cronos aspires to simplicity, efficacy,stability and most importantly; whatever else it's users want it to be.</para>
+<para>The Book  supplied with the tar ball does not contain developers info. Check out the sources for the guidelines and code. Visit the web-site for more information. Or drop us a line and let us know what you think.</para>
+    <blockquote><attribution>anon. 2001</attribution><para>Old father time.... he owes me much sleep.</para></blockquote>
      </preface>
    <!-- <chapter><title>Required Chapter</title>
      <para>
@@ -197,14 +197,14 @@ Gnome Main (Foot) Menu  ==> Internet  ==> CronosII
       
       <para>The most likely are shown here:</para>
       <orderedlist>
-      <listitem><para>Gzipped Source Tarballs</para>
+      <listitem><para>Gzipped Source Tar-balls</para>
       <para>These look like this<programlisting> &app;.&version;.tar.gz</programlisting>
       </para>
       <para>See <xref linkend="gzipped"> for install instructions.
       </para>
       </listitem>
       <listitem>
-      <para>Bzip2 Tarballs</para>
+      <para>Bzip2 Tar-balls</para>
       <para> This format is becoming more widely used, these will usually look like this:</para>
       <para>
      <programlisting> &app;&version;.tar.bz2 </programlisting>
@@ -471,14 +471,14 @@ Everything else should work fine in default configuration.
 <title>General Options</title>
   <para>The Preferences window opens with a tree style menu of configuration options.</para>
   <para> The opening interface gives you the <guimenu>General</guimenu> Options.
-  These are labeled on the dialog and are dealt with sequentially below</para>
+  These are labelled on the dialog and are dealt with sequentially below</para>
   
   <sect3 id="check-mail-timeout">
   <title>Check Mail Timeout</title>
   <para>Slide the drag handle to set the time &app; will wait between checks
    (and auto mail download) on  your mail server.</para>
    <caution><para>For slow connections set this value high as you will tie up  resources while checking 
-   and downloading</para></caution>
+   and down-loading</para></caution>
   </sect3>
   
     <sect3 id="time-till-tag">
@@ -629,7 +629,7 @@ Everything else should work fine in default configuration.
    	<para>Next choose the Mailbox page</para>
    	<para>Here you can associate <guisubmenu>This Account</guisubmenu>
    	 with a<guisubmenu> Particular Mailbox. </guisubmenu>
-   	If you haven't personalized your mailboxes yet just choose the <interface>IN-BOX </interface>
+   	If you haven't personalised your mailboxes yet just choose the <interface>IN-BOX </interface>
    	</para>
    	</listitem>
    	<listitem>
@@ -660,7 +660,7 @@ Everything else should work fine in default configuration.
    	This function may also be useful for people who work with shared mail. 
    	</para>
    	<para>By default the new account will be activated (when first you use it)
-   	 to Deactivate the account deselect the second box.
+   	 to Deactivate the account dselect the second box.
    	 </para>
    	 
    	</listitem>
@@ -805,9 +805,9 @@ Everything else should work fine in default configuration.
   		<title>Message Colours</title>
   		<para>&app; allows you to choose your own colours for some different sections within a message.
   		</para>
-  		<para>Select <guisubmenu>Colors</guisubmenu> from the Menu and you will be given the option of coloring the 
-  		Reply and forward elements of your mail and the general text color.</para>
-  		<para>The square button beneath the feature shows you the current color. Click this to open the <application>Gnome Color Selector</application>
+  		<para>Select <guisubmenu>Colours</guisubmenu> from the Menu and you will be given the option of colouring the 
+  		Reply and forward elements of your mail and the general text colour.</para>
+  		<para>The square button beneath the feature shows you the current colour. Click this to open the <application>Gnome Colour Selector</application>
   		</para>
   		<para>
   		This is useful in long and multi-contributor  E-mail (such as you often find on mailing lists). When used
@@ -1694,7 +1694,7 @@ See   <xref linkend="icon-previous">
 <title>Main Window Text Menu --Mark</title>
 <subtitle>Mark this message as:</subtitle>
 <para>
-This <guisubmenu>Sub-menu</guisubmenu> facilitates identifying your message in someway:
+This <guisubmenu>Sub-menu</guisubmenu> facilitates identifying your message in some way:
 </para>
 <itemizedlist>
 	<listitem>
@@ -1791,7 +1791,7 @@ The Window is a file browser with:
 	</orderedlist>
 </listitem>
 <listitem>
-<para>Beneath these are two mouse friendly columns with scroll bars labeled:</para>
+<para>Beneath these are two mouse friendly columns with scroll bars labelled:</para>
 	<orderedlist>
 	<listitem>
 	<para>Directory</para>
@@ -2035,27 +2035,22 @@ As the source document for this manual is written in
  <!--Move this to an appendix-->
 <sect1 id="keyboard-shortcuts">
 <title>Keyboard Shortcuts</title>
-<subtitle>Build a better Mousetrap</subtitle>
+<subtitle>Build a better Mouse-trap</subtitle>
 <para>While a mouse or other <quote>pointing device</quote> is a wonderful thing the simple fact is that many operations 
 on most Graphical User Interfaces can be undertaken much more effectively using  Accelerators  
 or Keyboard Shortcuts. While they are not as intuitive for most of us once learned you wonder how you lived without them.</para>
 <para>&app; is no exception to this &lt;pun&gt; rule_ of _thumb &lt;/pun&gt;. </para>
 <para>We hope you find the Default Short-Cuts simple to use and remember but by all means take advantage of  <application>GTK</application>
-and <link linkend="gtk-tips">Roll Your Own</link>.</para>
+and <link linkend="gtk-tips-features">Roll Your Own</link>.</para>
 
 
 &shortcuts;
 
 </sect1>
 
-<!--GTK notes-->
-<sect1 id="gtk-tips">
-<title>GTK -Some Tips</title>
-<para>New to UNIX, Gnome, or coming from another widget set ?</para>
+
 
 &gtk-brief;
-</sect1>
-
  <!-- Application License  -->
 
  <sect1 id="license">

@@ -44,10 +44,10 @@
 <email>&bosko;</email>
 </para>
 <para> Bosko is a self confessed <quote> high school UNIX geek</quote> working on 
- issues with Cronos II and Free-BSD. Bosko and Pablo have implemented a vCard (<quote>Group Ware</quote>) compliant
+ issues with Cronos II and Free-BSD. Bosko and Pablo have implemented a VCard (<quote>Group Ware</quote>) compliant
 address-book for Cronos.
 </para>
-<para> FreeBSD porting.
+<para> Free-BSD porting.
 - Address Book core development.</para>
 </listitem>
 <listitem>
@@ -70,7 +70,7 @@ Peters main aim in life is to make Pablo's life miserable
 </listitem>
 <listitem>
 <para>
-<ulink type="http" url="&andre;">André Casteliano</ulink>
+<ulink type="http" url="&andre;">Andreé Casteliano</ulink>
 <email>&andre;</email>
 </para>
 <para>
@@ -113,7 +113,7 @@ sense of purpose (fear) to the development work.
 <para>Any comments, suggestions, ideas or assistance contact the Development Team @
 <email>"&developers"</email>.
 </para>
-<para>Bugs may be reported via the Bug  Report tool or mailing lists at  the &app; <ulink>website</ulink> &website;
+<para>Bugs may be reported via the Bug  Report tool or mailing lists at  the &app; <ulink type="http" url="&website;">web-site</ulink> &website;
 You can also use <application>Bug Report
 Tool</application> (<application>bug-buddy</application>), available in the GNOME 
 <guisubmenu>Utilities</guisubmenu> sub-menu of <guimenu>Main

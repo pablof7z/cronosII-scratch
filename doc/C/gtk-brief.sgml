@@ -1,7 +1,7 @@
 <!--<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[ ]-->
 <!--gtk-brief.sgml Tue Mar 20 10:52:07 PM CST 2001 pete petergozz>-->
 <!--Parent Document = cronosII.sgml-->
-<sect1 id="gtk-brief">
+<sect1 id="gtk">
 <title>GTK </title>
 <subtitle>A (Very) Quick Intro</subtitle>
 <para>GTK is short for the Gimp Tool Kit</para>

@@ -6,8 +6,8 @@
 <subtitle>Keyboard and Mouse Shortcuts</subtitle>
 <para>
 The Table of shortcuts following simply lists commands and functions by menu. 
-Most Keyboard shortcuts are readily customized using standard GTK procedures.
-Please see <xref linkend="gtk-tips"> for more information.
+Most Keyboard shortcuts are readily customised using standard GTK procedures.
+Please see <xref linkend="gtk-tips-features"> for more information.
 </para>
 <para>
 Briefly however; any menu level shortcut may be altered by holding the mouse cursor 
