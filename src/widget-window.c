@@ -76,13 +76,10 @@ static void
 class_init (C2WindowClass *klass)
 {
 	GtkObjectClass *object_class = (GtkObjectClass *) klass;
-	GtkWidgetClass *widget_class = (GtkWidgetClass *) klass;
 	
 	parent_class = gtk_type_class (gnome_app_get_type ());
 
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
-
-	widget_class->key_press_event = on_key_press_event;
 }
 
 static void
