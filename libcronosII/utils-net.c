@@ -208,6 +208,39 @@ c2_net_disconnect (guint sock)
 						 * by doing if(sock==0) */
 }
 
+/**
+ * c2_net_get_local_hostname
+ * @sock: Socket descriptor
+ * 
+ * This function is used to get the computer hostname.
+ * 
+ * This function will return the machine's Internet hostname,
+ * or if not resolvable by DNS, it will return the machines
+ * local hostname. If all else fails, it will return NULL.
+ * If the return is not NULL, it should be freed when no
+ * longer needed/
+ **/
+gchar *
+c2_net_get_local_hostname (guint sock)
+{
+	struct sockaddr_in localaddr;
+	struct hostent *host = NULL;
+	char *localhostname = NULL;
+	guint addrlen = sizeof(localaddr);
+	
+	getsockname(sock, (struct sockaddr*)&localaddr, &addrlen);
+	host = gethostbyaddr((char *)&localaddr.sin_addr, sizeof(localaddr.sin_addr), AF_INET);
+	if(host && host->h_name)
+		localhostname = g_strdup(host->h_name);
+	else {
+		localhostname = g_new0(gchar, 32);
+		if(gethostname(localhostname, 31) < 0)
+			localhostname = NULL;
+	}
+	
+	return localhostname;
+}
+
 static C2Cache *
 c2_net_get_cache (const gchar *hostname)
 {

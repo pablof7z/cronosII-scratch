@@ -60,6 +60,9 @@ c2_net_read										(guint sock, gchar **string);
 void
 c2_net_disconnect								(guint sock);
 
+gchar *
+c2_net_get_local_hostname (guint sock);
+	
 #ifdef __cplusplus
 }
 #endif
