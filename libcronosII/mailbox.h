@@ -25,7 +25,8 @@ extern "C" {
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <string.h>
-
+#include <pthread.h>
+	
 #define C2_TYPE_MAILBOX						(c2_mailbox_get_type ())
 #define C2_MAILBOX(obj)						(GTK_CHECK_CAST (obj, C2_TYPE_MAILBOX, C2Mailbox))
 #define C2_MAILBOX_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_MAILBOX, C2MailboxClass))
@@ -78,6 +79,7 @@ struct _C2Mailbox
 	 * mailbox, specific information according
 	 * to the type of mailbox.
 	 */
+
 	union
 	{
 		struct
@@ -91,13 +93,15 @@ struct _C2Mailbox
 			gchar *pass;
 			gchar *path;
 			gint sock;
-			gint cmnd_n;
+			guint tag;
 		} imap;
 		struct
 		{
 			gchar *path;
 		} spool;
 	} protocol;
+	
+	pthread_mutex_t lock;
 	
 	C2MailboxSortBy sort_by;
 	GtkSortType sort_type;

@@ -144,6 +144,8 @@ c2_mailbox_init (C2Mailbox *mailbox)
 	mailbox->next = NULL;
 	mailbox->child = NULL;
 
+	pthread_mutex_init(&mailbox->lock, NULL);
+	
 	return mailbox;
 }
 
@@ -152,6 +154,8 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 {
 	c2_return_if_fail (mailbox, C2EDATA);
 
+	pthread_mutex_lock(&mailbox->lock);
+	
 	switch (mailbox->type)
 	{
 		case C2_MAILBOX_IMAP:
@@ -164,13 +168,16 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 			g_free (mailbox->protocol.spool.path);
 			break;
 	}
-
+	
 	g_free (mailbox->name);
 	g_free (mailbox->id);
 	if (mailbox->db)
 		gtk_object_unref (GTK_OBJECT (mailbox->db));
 	if (mailbox->child)
 		gtk_object_unref (GTK_OBJECT (mailbox->child));
+	
+	pthread_mutex_unlock(&mailbox->lock);
+	pthread_mutex_destroy(&mailbox->lock);
 }
 
 static void
@@ -179,7 +186,7 @@ c2_mailbox_destroy (GtkObject *object)
 	C2Mailbox *mailbox, *l, *n;
 
 	c2_return_if_fail (C2_IS_MAILBOX (object), C2EDATA);
-
+	
 	mailbox = C2_MAILBOX (object);
 	
 	if (c2_mailbox_get_head () == mailbox)
@@ -255,7 +262,7 @@ _c2_mailbox_new (const gchar *name, const gchar *id, gboolean independent, C2Mai
 			mailbox->protocol.imap.pass = g_strdup (va_arg (edata, gchar *));
 			mailbox->protocol.imap.path = g_strdup (va_arg (edata, gchar *));
 			mailbox->protocol.imap.sock = -1;
-			mailbox->protocol.imap.cmnd_n = 1;
+			mailbox->protocol.imap.tag  = 1;
 			va_end (edata);
 			break;
 		case C2_MAILBOX_SPOOL:
@@ -279,6 +286,8 @@ _c2_mailbox_new (const gchar *name, const gchar *id, gboolean independent, C2Mai
 			gtk_signal_emit (GTK_OBJECT (mailbox_head),
 							c2_mailbox_signals[CHANGED_MAILBOXES]);
 
+	pthread_mutex_unlock(&mailbox->lock);
+	
 	return mailbox;
 }
 
@@ -383,6 +392,8 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
 	c2_return_if_fail (head, C2EDATA);
 	c2_return_if_fail (mailbox, C2EDATA);
 
+	pthread_mutex_lock(&mailbox->lock);
+	
 	if (!C2_MAILBOX_IS_TOPLEVEL (mailbox))
 	{
 		/* Get the ID of the parent */
@@ -393,6 +404,7 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
 		if (!l)
 		{
 			c2_error_set (C2EDATA);
+			pthread_mutex_unlock(&mailbox->lock);
 			return;
 		}
 		
@@ -409,6 +421,8 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
 	}
 	gtk_signal_emit (GTK_OBJECT (mailbox_head),
 						c2_mailbox_signals[CHANGED_MAILBOXES]);
+	
+	pthread_mutex_unlock(&mailbox->lock);
 }
 
 /**
@@ -432,6 +446,8 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
 	
 	c2_return_if_fail (mailbox, C2EDATA);
 
+	pthread_mutex_lock(&mailbox->lock);
+	
 	g_free (mailbox->name);
 	mailbox->name = g_strdup (name);
 
@@ -477,6 +493,7 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
 	}
 
 	gtk_signal_emit (GTK_OBJECT (c2_mailbox_get_head ()), c2_mailbox_signals[CHANGED_MAILBOXES]);
+	pthread_mutex_unlock(&mailbox->lock);
 }
 
 /**
@@ -496,15 +513,23 @@ c2_mailbox_remove (C2Mailbox *mailbox, gboolean archive)
 	
 	c2_return_if_fail (mailbox, C2EDATA);
 	
+	pthread_mutex_lock(&mailbox->lock);
+
 	/* First get the parent/previous and next mailboxes */
 	if (!(my_id = c2_mailbox_get_id (mailbox->id, -1)))
 	{
 		/* This mailbox has no previous mailbox in the same level */
 		if (!(parent_id = c2_mailbox_get_parent_id (mailbox->id)))
+		{	
+			pthread_mutex_unlock(&mailbox->lock);
 			return;
+		}
 		
 		if (!(parent = c2_mailbox_search_by_id (c2_mailbox_get_head (), parent_id)))
+		{
+			pthread_mutex_unlock(&mailbox->lock);
 			return;
+		}
 		
 		g_free (parent_id);
 	} else
@@ -516,7 +541,10 @@ c2_mailbox_remove (C2Mailbox *mailbox, gboolean archive)
 			previous_id = g_strdup_printf ("%d", my_id-1);
 		
 		if (!(previous = c2_mailbox_search_by_id (c2_mailbox_get_head (), previous_id)))
+		{
+			pthread_mutex_unlock(&mailbox->lock);
 			return;
+		}
 		
 		g_free (previous_id);
 	}
@@ -544,6 +572,7 @@ c2_mailbox_remove (C2Mailbox *mailbox, gboolean archive)
 	else
 		c2_db_remove_structure (mailbox);
 
+	pthread_mutex_unlock(&mailbox->lock);
 	gtk_object_unref (GTK_OBJECT (mailbox));
 }
 
@@ -553,6 +582,8 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 	C2Mailbox *l;
 	gint i;
 
+	pthread_mutex_lock(&head->lock);
+	
 	if (!head)
 	{
 		/* TOPLEVEL */
@@ -574,6 +605,8 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 				c2_mailbox_recreate_tree_ids (l);
 		}
 	}
+	
+	pthread_mutex_unlock(&head->lock);
 }
 
 static C2Mailbox *
@@ -588,6 +621,8 @@ _c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id, guint level)
 	c2_return_val_if_fail (head, NULL, C2EDATA);
 	c2_return_val_if_fail (id, NULL, C2EDATA);
 
+	pthread_mutex_lock(&head->lock);
+	
 	top_id = c2_mailbox_get_id (id, level);
 
 	for (l = head; l != NULL; l = l->next)
@@ -596,12 +631,19 @@ _c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id, guint level)
 		if (top_id == ck_id)
 		{
 			if (c2_mailbox_get_level (id)-level == 0)
+			{
+				pthread_mutex_unlock(&head->lock);
 				return l;
+			}
 			else
+			{
+				pthread_mutex_unlock(&head->lock);
 				return _c2_mailbox_search_by_id (l->child, id, level+1);
+			}
 		}
 	}
 
+	pthread_mutex_unlock(&head->lock);
 	return l;
 }
 
@@ -610,6 +652,8 @@ c2_mailbox_create_id_from_parent (C2Mailbox *parent)
 {
 	C2Mailbox *l;
 	gchar *id;
+	
+	pthread_mutex_lock(&parent->lock);
 	
 	if (!parent)
 	{
@@ -627,6 +671,7 @@ c2_mailbox_create_id_from_parent (C2Mailbox *parent)
 			id = g_strdup_printf ("%s-0", parent->id);
 	}
 
+	pthread_mutex_unlock(&parent->lock);
 	return id;
 }
 
@@ -772,18 +817,26 @@ c2_mailbox_get_by_name (C2Mailbox *head, const gchar *name)
 	
 	c2_return_val_if_fail (name, NULL, C2EDATA);
 
+	pthread_mutex_lock(&head->lock);
 	for (l = head ? head : c2_mailbox_get_head (); l != NULL; l = l->next)
 	{
 		if (c2_streq (l->name, name))
+		{
+			pthread_mutex_unlock(&head->lock);
 			return l;
+		}
 		if (l->child)
 		{
 			C2Mailbox *s;
 			if ((s = c2_mailbox_get_by_name (l->child, name)))
+			{
+				pthread_mutex_unlock(&head->lock);
 				return s;
+			}
 		}
 	}
 
+	pthread_mutex_unlock(&head->lock);
 	return NULL;
 }
 
