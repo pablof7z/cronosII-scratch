@@ -266,7 +266,6 @@ c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *pa
 {
 	C2Mailbox *value;
 	gchar *id;
-	gchar *host, *user, *pass, *path;
 	gint port;
 	va_list edata;
 	
@@ -288,18 +287,17 @@ c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *pa
 
 	switch (type)
 	{
+		C2IMAP *imap;
+		gchar *path;
+		
 		case C2_MAILBOX_CRONOSII:
 			value = _c2_mailbox_new (head, name, id, FALSE, type, sort_by, sort_type);
 			break;
 		case C2_MAILBOX_IMAP:
 			va_start (edata, sort_type);
-			host = va_arg (edata, gchar *);
-			port = va_arg (edata, gint);
-			user = va_arg (edata, gchar *);
-			pass = va_arg (edata, gchar *);
-			path = va_arg (edata, gchar *);
+			imap = va_arg (edata, C2IMAP *);
 	
-			value = _c2_mailbox_new (head, name, id, FALSE, type, sort_by, sort_type, host, port, user, pass, path);
+			value = _c2_mailbox_new (head, name, id, FALSE, type, sort_by, sort_type, imap);
 			va_end (edata);
 			break;
 		case C2_MAILBOX_SPOOL:

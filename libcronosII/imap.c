@@ -38,6 +38,9 @@
 /* (done!) TODO: Function for reading server replies */
 /* (in progress -- fuckin' bugs!) TODO: Get list of folders */
 
+/* temp!! */
+gboolean c2_db_imap_create_structure(C2Mailbox *mailbox) {}
+
 /* Private GtkObject functions */
 static void
 class_init									(C2IMAPClass *klass);
@@ -552,8 +555,7 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 			if(parent) id = parent->id;
 			
 			folder = c2_mailbox_new_with_parent(&imap->mailboxes, "*", id, C2_MAILBOX_IMAP,
-						C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap->host, imap->port, imap->user, 
-						imap->pass, imap->path);
+						C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap);
 			printf("yoooo!\n");
 			buf2 = g_strndup(start, ptr - start);
 			

@@ -355,7 +355,7 @@ c2_db_create_structure (C2Mailbox *mailbox)
 			func = c2_db_cronosII_create_structure;
 			break;
 		case C2_MAILBOX_IMAP:
-			//func = c2_db_imap_create_structure;
+			func = c2_db_imap_create_structure;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_create_structure;
