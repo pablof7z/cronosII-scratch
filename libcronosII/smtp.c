@@ -266,6 +266,8 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 {
 	C2NetObjectByte *byte = NULL;
 	gchar *buffer;
+
+	gtk_object_ref (GTK_OBJECT (message));
 		
 	if(smtp->type == C2_SMTP_REMOTE) 
 	{
@@ -359,6 +361,8 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 		g_free(cmd);
 		unlink(file_name);
 	}
+
+	gtk_object_unref (GTK_OBJECT (message));
 	
 	return 0;
 }
