@@ -414,7 +414,7 @@ c2_imap_reconnect(C2IMAP *imap)
 	
 	if(imap->state == C2IMAPSelected)
 		if(c2_imap_select_mailbox(imap, imap->selected_mailbox) < 0)
-	  {
+		{
 			c2_net_object_disconnect(C2_NET_OBJECT(imap));
 			gtk_signal_emit(GTK_OBJECT(imap), signals[LOGOUT]);
 			return -1;
@@ -478,7 +478,7 @@ DIE:
 			}
 		}
 		/* check #2 */
-		if(!final && c2_strneq(buf, "* BYE ", 6)) /* server is closing connection! */
+		else if(!final && c2_strneq(buf, "* BYE ", 6)) /* server is closing connection! */
 		{
 			if(c2_imap_reconnect(imap) == 0) /* try to reconnect on the fly... */
 			{	
@@ -1235,7 +1235,7 @@ c2_imap_get_mailbox_list(C2IMAP *imap, const gchar *reference, const gchar *name
 	
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d %s \"%s\""
 				" \"%s\"\r\n", tag, cmd, (reference) ? reference : "" , (name) ? name : "") < 0)
-  {
+ 	{
 		g_free(cmd);
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
@@ -1725,7 +1725,8 @@ c2_imap_load_message (C2IMAP *imap, C2Db *db)
 		g_free(reply);
 	L	return NULL;
 	}
-	
+	c2_imap_close_mailbox(imap);
+
 	if(!(start = strstr(reply, "\r\n")))
 	{
 		g_free(reply);
