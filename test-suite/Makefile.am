@@ -2,8 +2,8 @@ bin_PROGRAMS = date db hash mailbox request pop3_test
 
 INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules $(GNOME_INCLUDEDIR)
 
-LDADD = $(top_builddir)/libcronosII/libcronosII.a
-LDFLAGS = $(top_builddir)/libcronosII/libcronosII.a \
+LDADD = $(top_builddir)/libcronosII/libcronosII.a $(top_builddir)/intl/libintl.a
+LDFLAGS = $(top_builddir)/libcronosII/libcronosII.a $(top_builddir)/intl/libintl.a \
 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) \
 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(GTK_LIBS)
 
