@@ -899,7 +899,7 @@ close_ (C2WindowMain *wmain)
 	/* Destroy objects */
 	gtk_object_destroy (GTK_OBJECT (wmain->toolbar));
 	gtk_object_destroy (GTK_OBJECT (wmain->toolbar_menu));
-//	gtk_object_destroy (GTK_OBJECT (
+	gtk_object_destroy (GTK_OBJECT (wmain->mlist));
 	gtk_object_destroy (GTK_OBJECT (wmain));
 }
 

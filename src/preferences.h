@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -379,6 +379,12 @@ extern "C" {
 #define c2_preferences_set_widget_mail_headers_visible(val) \
 	gnome_config_set_bool ("/"PACKAGE"/Widget-Mail/headers_visible", val)
 
+
+/* Widget Transfer List */
+#define c2_preferences_get_widget_transfer_list_autoclose() \
+	gnome_config_get_bool_with_default ("/"PACKAGE"/Widget-TransferList/autoclose=false", NULL)
+#define c2_preferences_set_widget_transfer_list_autoclose(val) \
+	gnome_config_set_bool ("/"PACKAGE"/Widget-TransferList/autoclose", val)
 
 #define c2_preferences_commit() gnome_config_sync ()
 

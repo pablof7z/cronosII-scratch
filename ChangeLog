@@ -1,3 +1,12 @@
+Sat Apr  6 Pablo Fernández <sandokan@pablossite.net>
+	* Work on the Multisession.
+	* Work on the transfer list and transfer item widgets.
+	* Added support to check on start and for timeout checking
+	  with overlap control.
+
+Fri Apr  5 Pablo Fernández <sandokan@pablossite.net>
+	* Released Cronos II 0.3.0-pre1.
+
 Thu Apr  4 Pablo Fernández <sandokan@pablossite.net>
 	* Added the function c2_str_get_sender().
 	* Fixed some stuff in the mail widget (GtkHTML implementation).

@@ -198,15 +198,13 @@ destroy (GtkObject *object)
 	GList *ml, *dl;
 
 	mlist = C2_MAILBOX_LIST (object);
-	
+
 	for (ml = mlist->mailbox_list, dl = mlist->data_list;
 		 ml && dl;
 		 ml = g_list_next (ml), dl = g_list_next (dl))
 	{
 		if (C2_IS_MAILBOX (ml->data))
-			gtk_signal_disconnect_by_func (GTK_OBJECT (ml->data),
-											GTK_SIGNAL_FUNC (on_mailbox_changed_mailbox),
-											dl->data);
+			gtk_signal_disconnect_by_data (GTK_OBJECT (ml->data), dl->data);
 		g_free (dl->data);
 	}
 
@@ -918,6 +916,7 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 
 		mailbox_node_fill (ctree, cnode, l, NULL, &unreaded);
 
+		printf ("Conectando a '%s'\n", l->name);
 		gtk_signal_connect (GTK_OBJECT (l), "changed_mailbox",
 							GTK_SIGNAL_FUNC (on_mailbox_changed_mailbox), data);
 		mlist->data_list = g_list_prepend (mlist->data_list, data);

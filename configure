@@ -11,7 +11,6 @@ echo let you do it\.
 echo
 echo Read the file README.1st please.
 echo
-exit # Remove this line to build
 echo
 echo ============================= Configuring =============================
 

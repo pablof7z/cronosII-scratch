@@ -112,6 +112,9 @@ _send										(C2Application *application);
 void
 on_mailbox_changed_mailboxes				(C2Mailbox *mailbox, C2Application *application);
 
+static gboolean
+on_application_timeout_check				(C2Application *application);
+
 static void
 on_outbox_changed_mailbox					(C2Mailbox *mailbox, C2MailboxChangeType change, C2Db *db,
 											 C2Application *application);
@@ -264,10 +267,9 @@ init (C2Application *application)
 	application->tmp_files = NULL;
 	application->account = NULL;
 	application->mailbox = NULL;
+	application->check_timeout = 0;
 
-	/* Before creating the application object lets
-	 * try to connect to the Cronos II Server.
-	 */
+	/* MULTISESSION CODE */
 	if ((application->server_socket = socket (AF_UNIX, SOCK_STREAM, 0)) < 0)
 	{
 		perror ("socket");
@@ -317,7 +319,7 @@ init (C2Application *application)
 _init:
 	g_free (path);
 	
-	/* Load accounts */
+	/* LOAD ACCOUNTS */
 	for (i = 1;; i++)
 	{
 		C2Account *account;
@@ -486,6 +488,7 @@ ignore:
 	}
 
 	
+	/* LOAD MAILBOXES */
 	load_mailboxes_at_start = c2_preferences_get_general_options_start_load ();
 	for (application->mailbox = NULL, i = 1; i <= quantity; i++)
 	{
@@ -564,6 +567,7 @@ ignore:
 #endif
 	}
 
+	/* LOAD PIXMAPS */
 	style = gtk_widget_get_default_style ();
 	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mark-i-readed.png");
 	application->pixmap_i_read = GNOME_PIXMAP (pixmap)->pixmap;
@@ -590,6 +594,7 @@ ignore:
 	application->pixmap_forward = GNOME_PIXMAP (pixmap)->pixmap;
 	application->mask_forward = GNOME_PIXMAP (pixmap)->mask;
 
+	/* LOAD FONTS */
 	buf = c2_preferences_get_interface_fonts_readed_mails ();
 	application->fonts_gdk_readed_mails = gdk_font_load (buf);
 	g_free (buf);
@@ -743,14 +748,27 @@ start:
 }
 
 static void
-_check (C2Application *application)
+on_transfer_list_finish (C2TransferList *tl, C2Application *application)
+{
+	printf ("Reconectando\n");
+	application->check_timeout = gtk_timeout_add (
+							c2_preferences_get_general_options_timeout_check () * 60000,
+							(GtkFunction) on_application_timeout_check, application);
+}
+
+static void
+_check_real (C2Application *application)
 {
 	C2Account *account;
 	GtkWidget *wtl;
 	C2TransferItem *wti;
 	GSList *plist = NULL, *l;
+	gboolean silent;
 	
 	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+
+	/* Get the silent option */
+	silent = gtk_object_get_data (GTK_OBJECT (application), "check::silent") ? TRUE : FALSE;
 
 	wtl = c2_application_window_get (application, C2_WIDGET_TRANSFER_LIST_TYPE);
 
@@ -770,14 +788,52 @@ _check (C2Application *application)
 		plist = g_slist_prepend (plist, (gpointer) wti);
 	}
 
-	/* Show the dialog */
-	gtk_widget_show (wtl);
-	gdk_window_raise (wtl->window);
-	
+	/* If it is not "check::silent" we remove the timeout
+	 * and connect to the "finish" signal of the transfer-list,
+	 * so we can add the timeout again.
+	 */
+	if (!silent)
+	{
+		if (c2_preferences_get_general_options_timeout_check ())
+		{
+			gtk_timeout_remove (application->check_timeout);
+			gtk_signal_connect (GTK_OBJECT (wtl), "finish",
+								GTK_SIGNAL_FUNC (on_transfer_list_finish), application);
+		}
+
+		/* Show the dialog */
+		gtk_widget_show (wtl);
+		gdk_window_raise (wtl->window);
+	}
+
 	/* And now fire the processes */
 	for (l = plist; l; l = g_slist_next (l))
+	{
 		c2_transfer_item_start ((C2TransferItem*) l->data);
+	}
+	g_slist_free (plist);
+	plist = NULL;
 }
+
+/**
+ * COMMANDS:
+ * "check::wait_idle" (gboolean wait) = Will check on IDLE.
+ * "check::silent" (gboolean silent) = Will run in the background (no UI).
+ **/
+static void
+_check (C2Application *application)
+{
+	gboolean wait_idle = FALSE;
+	
+	if (gtk_object_get_data (GTK_OBJECT (application), "check::wait_idle"))
+		wait_idle = TRUE;
+
+	if (wait_idle)
+		gtk_idle_add ((GtkFunction) (_check_real), application);
+	else
+		_check_real (application);
+}
+
 
 static void
 _copy_thread (C2Pthread3 *data)
@@ -1361,6 +1417,16 @@ on_net_speed_timeout (C2Application *application)
 	
 }
 
+static gboolean
+on_application_timeout_check (C2Application *application)
+{
+	gtk_object_set_data (GTK_OBJECT (application), "check::silent", 1);
+	C2_APPLICATION_CLASS_FW (application)->check (application);
+	gtk_object_set_data (GTK_OBJECT (application), "check::silent", NULL);
+
+	return FALSE;
+}
+
 static void
 on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db *db,
 							C2Application *application)
@@ -1416,13 +1482,28 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 }
 
 C2Application *
-c2_application_new (const gchar *name)
+c2_application_new (const gchar *name, gboolean running_as_server)
 {
 	C2Application *application;
 
 	application = gtk_type_new (c2_application_get_type ());
 
+	/* Set the name of the application */
 	application->name = g_strdup (name);
+	application->running_as_server = running_as_server;
+	
+	/* Check at start */
+	if (!running_as_server && c2_preferences_get_general_options_start_check ())
+	{
+		gtk_object_set_data (GTK_OBJECT (application), "check::wait_idle", 1);
+		C2_APPLICATION_CLASS_FW (application)->check (application);
+		gtk_object_set_data (GTK_OBJECT (application), "check::wait_idle", NULL);
+	} else
+	{
+		application->check_timeout = gtk_timeout_add (
+							c2_preferences_get_general_options_timeout_check () * 60000,
+							(GtkFunction) on_application_timeout_check, application);
+	}
 
 	gtk_signal_connect (GTK_OBJECT (application), "destroy",
 						GTK_SIGNAL_FUNC (destroy), NULL);
@@ -1430,14 +1511,10 @@ c2_application_new (const gchar *name)
 	return application;
 }
 
-void
-c2_application_running_as_server (C2Application *application)
-{
-	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
 
-	application->running_as_server = 1;
-}
 
+
+#if 1 /* WINDOWS */
 /**
  * c2_application_window_add
  * @application: C2Application where to work.
@@ -1553,7 +1630,13 @@ c2_application_open_windows (C2Application *application)
 	return application->open_windows;
 }
 
-/* COMMANDS */
+#endif
+
+
+
+
+
+#if 1 /* COMMANDS */
 void
 c2_application_command (C2Application *application, const gchar *cmnd, ...)
 {
@@ -1728,6 +1811,10 @@ command_exit (C2Application *application, va_list args)
 {
 	gtk_object_destroy (GTK_OBJECT (application));
 }
+
+#endif
+
+
 
 static void
 on_preferences_changed (C2DialogPreferences *preferences, C2DialogPreferencesKey key, gpointer value)

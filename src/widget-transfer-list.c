@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,9 +15,16 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández
+ * Code of this file by:
+ * 		* Pablo Fernández
+ */
 #include <config.h>
 
 #include "widget-transfer-list.h"
+#include "preferences.h"
 
 #include <libcronosII/error.h>
 
@@ -32,6 +39,9 @@ init										(C2TransferList *tl);
 
 static void
 destroy										(GtkObject *object);
+
+static void
+on_close_button_toggled						(GtkWidget *widget, gpointer data);
 
 static void
 on_button0_clicked							(GtkWidget *widget, C2TransferList *tl);
@@ -111,6 +121,16 @@ init (C2TransferList *tl)
 static void
 destroy (GtkObject *object)
 {
+	C2TransferList *tl = C2_TRANSFER_LIST (object);
+	GSList *l;
+
+	for (l = tl->list; l; l = g_slist_next (l))
+	{
+		if (C2_IS_TRANSFER_ITEM (l->data))
+			gtk_object_destroy (GTK_OBJECT (l->data));
+	}
+	
+	g_slist_free (tl->list);
 }
 
 GtkWidget *
@@ -138,6 +158,10 @@ c2_transfer_list_new (C2Application *application)
 	gtk_box_pack_end (GTK_BOX (vbox), button, FALSE, TRUE, 0);
 	gtk_widget_show (button);
 	tl->close = button;
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button),
+							c2_preferences_get_widget_transfer_list_autoclose ());
+	gtk_signal_connect (GTK_OBJECT (button), "toggled",
+						GTK_SIGNAL_FUNC (on_close_button_toggled), NULL);
 
 	c2_dialog_construct (C2_DIALOG (tl), application, _("Send & Receive"),
 						C2_WIDGET_TRANSFER_LIST_TYPE, PKGDATADIR "/pixmaps/send-receive.png", buttons);
@@ -149,6 +173,12 @@ c2_transfer_list_new (C2Application *application)
 						GTK_SIGNAL_FUNC (destroy), NULL);
 
 	return GTK_WIDGET (tl);
+}
+
+static void
+on_close_button_toggled (GtkWidget *widget, gpointer data)
+{
+	c2_preferences_set_widget_transfer_list_autoclose (GTK_TOGGLE_BUTTON (widget)->active);
 }
 
 static void
@@ -180,6 +210,26 @@ c2_transfer_list_add_item (C2TransferList *tl, C2TransferItem *ti)
 
 	C2_PRINTD (MOD, "Account = '%s'\n", ti->account->name);
 
+	/* If it a retrieve TI and we already have a retrieve TI for this
+	 * account, remove the old one.
+	 */
+	if (ti->type == C2_TRANSFER_ITEM_RECEIVE)
+	{
+		GSList *l;
+
+		for (l = tl->list; l != NULL; l = g_slist_next (l))
+		{
+			C2TransferItem *cti = (C2TransferItem*) l->data;
+
+			if (cti->type == C2_TRANSFER_ITEM_RECEIVE &&
+				cti->account == ti->account)
+			{
+				tl->list = g_slist_remove (tl->list, cti);
+				gtk_object_destroy (GTK_OBJECT (cti));
+			}
+		}
+	}
+
 	tl->list = g_slist_append (tl->list, ti);
 
 	gtk_box_pack_start (GTK_BOX (tl->vbox), ti->event, FALSE, TRUE, 0);
@@ -190,20 +240,10 @@ c2_transfer_list_add_item (C2TransferList *tl, C2TransferItem *ti)
 }
 
 static gint
-on_finish_timeout (C2TransferItem *ti)
-{
-	gtk_widget_destroy (ti->event);
-	gtk_object_destroy (GTK_OBJECT (ti));
-
-	return FALSE;
-}
-
-static gint
 on_last_finish_timeout (GtkWidget *widget)
 {
 	C2TransferList *tl = C2_TRANSFER_LIST (widget);
 	
-	g_slist_free (tl->list);
 	gtk_widget_destroy (widget);
 	
 	return FALSE;
@@ -217,8 +257,6 @@ on_transfer_item_finish (C2TransferItem *ti, C2TransferList *tl)
 
 	if (GTK_TOGGLE_BUTTON (tl->close)->active)
 	{
-		gtk_timeout_add (2500, (GtkFunction) on_finish_timeout, ti);
-		
 		if (g_slist_length (tl->list) == 1)
 			gtk_timeout_add (2500, (GtkFunction) on_last_finish_timeout, tl);
 	}
@@ -232,7 +270,8 @@ on_transfer_item_finish (C2TransferItem *ti, C2TransferList *tl)
 	gtk_progress_set_percentage (GTK_PROGRESS (progress), 1.0);
 	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
 
-	list = g_slist_find (tl->list, ti);
-	tl->list = g_slist_remove (tl->list, ti);
-	gtk_object_destroy (GTK_OBJECT (ti));
+//	tl->list = g_slist_remove (tl->list, ti);
+
+	if (!g_slist_length (tl->list))
+		gtk_signal_emit (GTK_OBJECT (tl), signals[FINISH]);
 }

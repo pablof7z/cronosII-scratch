@@ -78,8 +78,6 @@ struct _C2Application
 {
 	GtkObject object;
 
-	guint check_timeout;
-	
 	GSList *open_windows;
 	GSList *tmp_files;
 
@@ -116,6 +114,8 @@ struct _C2Application
 	GdkFont *fonts_gdk_unreaded_mailbox;
 	GdkFont *fonts_gdk_composer_body;
 	GdkFont *fonts_gdk_message_body;
+
+	guint16 check_timeout;
 };
 
 struct _C2ApplicationClass
@@ -150,10 +150,7 @@ GtkType
 c2_application_get_type						(void);
 
 C2Application *
-c2_application_new							(const gchar *name);
-
-void
-c2_application_running_as_server			(C2Application *application);
+c2_application_new							(const gchar *name, gboolean running_as_server);
 
 /********************
  * [Window Actions] *

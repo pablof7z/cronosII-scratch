@@ -22,6 +22,17 @@
 extern "C" {
 #endif
 
+/* IMPORTANT NOTICE:
+ *
+ * When using this widget, make sure the widget
+ * is destroyed BEFORE the window (in case the
+ * window is the last window of the application,
+ * in that case the mailbox tree will be destroyed
+ * before the widget stops using it and the widget
+ * won't be able to disconnect from the mailboxes
+ * properly)
+ */
+
 #include <gtk/gtk.h>
 
 #ifdef BUILDING_C2

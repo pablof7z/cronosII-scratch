@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -214,165 +214,162 @@ main (gint argc, gchar **argv)
 	}
 
 	/* Create the Application object */
-	if (!(application = c2_application_new (PACKAGE)))
+	if (!(application = c2_application_new (PACKAGE, flags.be_server)))
 		return 0;
 
 	if (flags.be_server)
-	{
-		c2_application_running_as_server (application);
-	} else
-	{
-		/* Open specified windows */
-		if (flags.open_main_window)
-			CREATE_WINDOW_MAIN;
+		something_opened = TRUE;
 	
-		/* Composer */
-		if (flags.open_composer || flags.account || flags.to || flags.cc ||
-			flags.bcc || flags.subject || flags.body || flags.mailto)
+	/* Open specified windows */
+	if (flags.open_main_window)
+		CREATE_WINDOW_MAIN;
+	
+	/* Composer */
+	if (flags.open_composer || flags.account || flags.to || flags.cc ||
+		flags.bcc || flags.subject || flags.body || flags.mailto)
+	{
+		gchar *headers = NULL;
+		gchar *values = NULL;
+		gchar *buf = NULL;
+		gboolean interpret_as_link = FALSE;
+		
+		if (flags.mailto)
 		{
-			gchar *headers = NULL;
-			gchar *values = NULL;
-			gchar *buf = NULL;
-			gboolean interpret_as_link = FALSE;
-			
-			if (flags.mailto)
+			interpret_as_link = TRUE;
+			headers = flags.mailto;
+		} else
+		{
+			if (flags.account)
 			{
-				interpret_as_link = TRUE;
-				headers = flags.mailto;
-			} else
-			{
-				if (flags.account)
+				if (headers)
 				{
-					if (headers)
-					{
-						buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_ACCOUNT);
-						g_free (headers);
-					} else
-						buf = g_strdup (C2_COMPOSER_ACCOUNT);
-					headers = buf;
-
-					if (values)
-					{
-						buf = g_strdup_printf ("%s\r%s", values, flags.account);
-						g_free (values);
-					} else
-						buf = g_strdup (flags.account);
-					values = buf;
-				}
-						
-				if (flags.to)
-				{
-					if (headers)
-					{
-						buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_TO);
-						g_free (headers);
-					} else
-						buf = g_strdup (C2_COMPOSER_TO);
-					headers = buf;
-
-					if (values)
-					{
-						buf = g_strdup_printf ("%s\r%s", values, flags.to);
-						g_free (values);
-					} else
-						buf = g_strdup (flags.to);
-					values = buf;
-				}
+					buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_ACCOUNT);
+					g_free (headers);
+				} else
+					buf = g_strdup (C2_COMPOSER_ACCOUNT);
+				headers = buf;
 				
-				if (flags.cc)
+				if (values)
 				{
-					if (headers)
-					{
-						buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_CC);
-						g_free (headers);
-					} else
-						buf = g_strdup (C2_COMPOSER_CC);
-					headers = buf;
-
-					if (values)
-					{
-						buf = g_strdup_printf ("%s\r%s", values, flags.cc);
-						g_free (values);
-					} else
-						buf = g_strdup (flags.cc);
-					values = buf;
-					
-				}
-				
-				if (flags.bcc)
-				{
-					if (headers)
-					{
-						buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_BCC);
-						g_free (headers);
-					} else
-						buf = g_strdup (C2_COMPOSER_BCC);
-					headers = buf;
-
-					if (values)
-					{
-						buf = g_strdup_printf ("%s\r%s", values, flags.bcc);
-						g_free (values);
-					} else
-						buf = g_strdup (flags.bcc);
-					values = buf;
-				}
-				
-				if (flags.subject)
-				{
-					if (headers)
-					{
-						buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_SUBJECT);
-						g_free (headers);
-					} else
-						buf = g_strdup (C2_COMPOSER_SUBJECT);
-					headers = buf;
-
-					if (values)
-					{
-						buf = g_strdup_printf ("%s\r%s", values, flags.subject);
-						g_free (values);
-					} else
-						buf = g_strdup (flags.subject);
-					values = buf;
-				}
-				
-				if (flags.body)
-				{
-					if (headers)
-					{
-						buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_BODY);
-						g_free (headers);
-					} else
-						buf = g_strdup (C2_COMPOSER_BODY);
-					headers = buf;
-
-					if (values)
-					{
-						buf = g_strdup_printf ("%s\r%s", values, flags.body);
-						g_free (values);
-					} else
-						buf = g_strdup (flags.body);
-					values = buf;
-				}
+					buf = g_strdup_printf ("%s\r%s", values, flags.account);
+					g_free (values);
+				} else
+					buf = g_strdup (flags.account);
+				values = buf;
 			}
-
-			c2_application_command (application, C2_COMMAND_COMPOSER_NEW, interpret_as_link, headers, values);
+					
+			if (flags.to)
+			{
+				if (headers)
+				{
+					buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_TO);
+					g_free (headers);
+				} else
+					buf = g_strdup (C2_COMPOSER_TO);
+				headers = buf;
+				
+				if (values)
+				{
+					buf = g_strdup_printf ("%s\r%s", values, flags.to);
+					g_free (values);
+				} else
+					buf = g_strdup (flags.to);
+				values = buf;
+			}
 			
-			something_opened = TRUE;
+			if (flags.cc)
+			{
+				if (headers)
+				{
+					buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_CC);
+					g_free (headers);
+				} else
+					buf = g_strdup (C2_COMPOSER_CC);
+				headers = buf;
+				
+				if (values)
+				{
+					buf = g_strdup_printf ("%s\r%s", values, flags.cc);
+					g_free (values);
+				} else
+					buf = g_strdup (flags.cc);
+				values = buf;
+				
+			}
+			
+			if (flags.bcc)
+			{
+				if (headers)
+				{
+					buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_BCC);
+					g_free (headers);
+				} else
+					buf = g_strdup (C2_COMPOSER_BCC);
+				headers = buf;
+				
+				if (values)
+				{
+					buf = g_strdup_printf ("%s\r%s", values, flags.bcc);
+					g_free (values);
+				} else
+					buf = g_strdup (flags.bcc);
+				values = buf;
+			}
+			
+			if (flags.subject)
+			{
+				if (headers)
+				{
+					buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_SUBJECT);
+					g_free (headers);
+				} else
+					buf = g_strdup (C2_COMPOSER_SUBJECT);
+				headers = buf;
+				
+				if (values)
+				{
+					buf = g_strdup_printf ("%s\r%s", values, flags.subject);
+					g_free (values);
+				} else
+					buf = g_strdup (flags.subject);
+				values = buf;
+			}
+			
+			if (flags.body)
+			{
+				if (headers)
+				{
+					buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_BODY);
+					g_free (headers);
+				} else
+					buf = g_strdup (C2_COMPOSER_BODY);
+				headers = buf;
+				
+				if (values)
+				{
+					buf = g_strdup_printf ("%s\r%s", values, flags.body);
+					g_free (values);
+				} else
+					buf = g_strdup (flags.body);
+				values = buf;
+			}
 		}
 
-		/* Check mail */
-		if (flags.check)
-		{
-			c2_application_command (application, C2_COMMAND_CHECK_MAIL);
-			something_opened = TRUE;
-		}
-	
-		/* If nothing opened we will open the defaults window */
-		if (!something_opened)
-			CREATE_WINDOW_MAIN;
+		c2_application_command (application, C2_COMMAND_COMPOSER_NEW, interpret_as_link, headers, values);
+			
+		something_opened = TRUE;
 	}
+
+	/* Check mail */
+	if (flags.check)
+	{
+		c2_application_command (application, C2_COMMAND_CHECK_MAIL);
+		something_opened = TRUE;
+	}
+	
+	/* If nothing opened we will open the defaults window */
+	if (!something_opened)
+		CREATE_WINDOW_MAIN;
 	
 	/* Release Information Dialog */
 	if (c2_preferences_get_extra_release_information_show ())

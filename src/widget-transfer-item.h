@@ -94,6 +94,8 @@ struct _C2TransferItem
 	GtkWidget *progress_mail;
 	GtkWidget *progress_byte;
 	GtkWidget *cancel_button;
+
+	gint finished:1;
 };
 
 struct _C2TransferItemClass
