@@ -597,6 +597,8 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte,
 	for(mime = message->mime; mime; mime = mime->next)
 		len += mime->length;
 	
+	gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], id, len, 0);	
+	
 	while(1) 
 	{
 		for(ptr = start = contents; *ptr != '\0'; ptr++)
