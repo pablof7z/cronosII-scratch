@@ -284,8 +284,12 @@ static void
 on_application_preferences_changed (C2Application *application, gint key, gpointer value,
 	 C2MailboxList *mlist)
 {
-	if (key == C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_UNREADED_MAILBOX)
-		tree_fill (mlist, application->mailbox, application->account, NULL);
+	printf ("%d\n", key);
+	if (key == C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_UNREADED_MAILBOX ||
+		key == C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_READED_MAILBOX)
+	{
+L		tree_fill (mlist, application->mailbox, application->account, NULL);
+	}
 }
 
 static GtkObject *
@@ -306,11 +310,10 @@ on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *
 		case C2_MAILBOX_CHANGE_ANY:
 		case C2_MAILBOX_CHANGE_ADD:
 		case C2_MAILBOX_CHANGE_REMOVE:
+		case C2_MAILBOX_CHANGE_STATE:
 			gdk_threads_enter ();
 			node_fill (ctree, cnode, mailbox, NULL, &unreaded);
 			gdk_threads_leave ();
-			break;
-		case C2_MAILBOX_CHANGE_STATE:
 			break;
 	}
 }
@@ -359,14 +362,20 @@ node_fill (GtkCTree *ctree, GtkCTreeNode *cnode, C2Mailbox *mailbox, C2Db *start
 		GTK_CTREE_ROW (cnode)->mask_opened = GNOME_PIXMAP (pixmap)->mask;
 	}
 
+	style = gtk_ctree_node_get_row_style (ctree, cnode);
+	if (!style)
+		style = gtk_style_copy (GTK_WIDGET (ctree)->style);
+	
+	printf ("Unreaded = '%d'\n", *unreaded);
 	if ((*unreaded))
 	{
-		style = gtk_ctree_node_get_row_style (ctree, cnode);
-		if (!style)
-			style = gtk_style_copy (GTK_WIDGET (ctree)->style);
 		style->font = application->fonts_gdk_unreaded_mailbox;
-		gtk_ctree_node_set_row_style (ctree, cnode, style);
+	} else
+	{
+		style->font = application->fonts_gdk_readed_mailbox;
 	}
+	
+	gtk_ctree_node_set_row_style (ctree, cnode, style);
 }
 
 static void
@@ -437,6 +446,11 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 		}
 		
 		gtk_clist_thaw (GTK_CLIST (mlist));
+		/* FIXME - Here's where The Fucking Problem is.
+		 * TFP is (no, is not FTP..) that when the indicator
+		 * of new-mails in the mailbox-list is switched (that is
+		 * bold is used or not used) the font is not updated until
+		 * a new configure_event is signaled. */
 	}
 }
 

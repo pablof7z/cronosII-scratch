@@ -110,6 +110,7 @@ struct _C2Application
 
 	GdkFont *fonts_gdk_readed_mails;
 	GdkFont *fonts_gdk_unreaded_mails;
+	GdkFont *fonts_gdk_readed_mailbox;
 	GdkFont *fonts_gdk_unreaded_mailbox;
 	GdkFont *fonts_gdk_composer_body;
 	GdkFont *fonts_gdk_message_body;

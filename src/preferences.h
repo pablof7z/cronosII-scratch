@@ -153,6 +153,12 @@ extern "C" {
 #define c2_preferences_set_interface_fonts_unreaded_mails(val) \
 	gnome_config_set_string ("/"PACKAGE"/"INTERFACE"-"FONTS"/unreaded_mails", val)
 	
+#define c2_preferences_get_interface_fonts_readed_mailbox() \
+	gnome_config_get_string_with_default ("/"PACKAGE"/"INTERFACE"-"FONTS"/readed_mailbox=" \
+										  "-adobe-helvetica-medium-r-normal-*-*-120-*-*-p-*-iso8859-1", NULL)
+#define c2_preferences_set_interface_fonts_readed_mailbox(val) \
+	gnome_config_set_string ("/"PACKAGE"/"INTERFACE"-"FONTS"/readed_mailbox", val)
+
 #define c2_preferences_get_interface_fonts_unreaded_mailbox() \
 	gnome_config_get_string_with_default ("/"PACKAGE"/"INTERFACE"-"FONTS"/unreaded_mailbox=" \
 										  "-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1", NULL)

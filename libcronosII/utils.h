@@ -138,10 +138,13 @@ gchar *
 c2_str_get_email							(const gchar *email);
 
 gboolean
-c2_str_are_emails							(GList *list);
+c2_str_is_email								(const gchar *email);
 
 gboolean
-c2_str_is_email								(const gchar *email);
+c2_str_are_emails							(GList *list);
+
+gchar *
+c2_str_decode_iso_8859_1					(const gchar *string);
 
 gchar *
 c2_get_tmp_file								(const gchar *template);

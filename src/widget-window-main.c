@@ -776,6 +776,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gtk_widget_show (pixmap);
 
 	/* Connect all signals: menues, toolbar, buttons, etc. */
+	gtk_signal_connect (GTK_OBJECT (application), "application_preferences_changed",
+							GTK_SIGNAL_FUNC (on_application_application_preferences_changed), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "dockitem_toolbar")), "button_press_event",
 							GTK_SIGNAL_FUNC (on_docktoolbar_button_press_event), wmain);
 	

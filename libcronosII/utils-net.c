@@ -22,6 +22,7 @@
  * 		* Pablo Fernández López
  */
 #include <glib.h>
+#include <string.h>
 
 #include "error.h"
 #include "utils.h"
@@ -183,7 +184,6 @@ c2_net_sendv (guint sock, const gchar *fmt, va_list args)
 		tracker_set_send (value);
 		bytes += value;
 	}
-	C2_DEBUG (string);
 	g_free (string);
 	
 	return bytes;
@@ -234,7 +234,6 @@ c2_net_read (guint sock, gchar **string)
 	tmpstring[1023] = '\0';
 
 	*string = g_strdup (tmpstring);
-	C2_DEBUG (*string);
 	return bytes;
 }
 

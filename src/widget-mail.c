@@ -44,6 +44,9 @@
  *        the quote symbol the rest of the message
  *        is colored even if its not quoted.
  */
+ 
+#define MOD "[Widget] Mail"
+#define DMOD TRUE
 
 static void
 on_body_button_press_event					(GtkWidget *widget, GdkEventButton *event);
@@ -355,6 +358,7 @@ set_headers (C2Mail *mail, C2Message *message)
 		gtk_label_set_text (GTK_LABEL (mail->subject_label[1]), _("«No Subject»"));
 	else
 		gtk_label_set_text (GTK_LABEL (mail->subject_label[1]), buf);
+	C2_PRINTD (MOD, "subject = '%s'\n", buf);
 	g_free (buf);
 		
 	/* From */
@@ -363,6 +367,7 @@ set_headers (C2Mail *mail, C2Message *message)
 		gtk_label_set_text (GTK_LABEL (mail->from_label[1]), buf);
 	else
 		gtk_label_set_text (GTK_LABEL (mail->from_label[1]), _("(nobody)"));
+	C2_PRINTD (MOD, "from = '%s'\n", buf);
 	g_free (buf);
 
 	/* To */

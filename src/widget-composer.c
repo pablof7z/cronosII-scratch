@@ -592,8 +592,6 @@ send_ (C2Composer *composer, C2ComposerSendType type)
 
 	gdk_threads_enter ();
 	message = create_message (composer);
-	C2_DEBUG (message->header);
-	C2_DEBUG (message->body);
 	gdk_threads_leave ();
 
 	/* Set the Send Now state of the message */

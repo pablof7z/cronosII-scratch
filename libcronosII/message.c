@@ -203,7 +203,7 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 {
 	const gchar *msg_ptr;
 	const gchar *start_ptr, *end_ptr;
-	gchar *chunk = NULL, *ptr;
+	gchar *chunk = NULL, *ptr, *tmp;
 	size_t size, wbytes, field_length;
 	
 	field_length = strlen (field);
@@ -295,6 +295,13 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 	}
 	chunk[wbytes] = 0;
 
+	/* Decode */
+	if ((tmp = c2_str_decode_iso_8859_1 (chunk)))
+	{
+		g_free (chunk);
+		chunk = tmp;
+	}
+	
 	return chunk;
 }
 

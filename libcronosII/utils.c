@@ -1160,6 +1160,75 @@ c2_str_are_emails (GList *list)
 }
 
 /**
+ * c2_str_decode_iso_8859_1
+ * @string: String to process
+ *
+ * This function will decode a string encoded
+ * with ISO 8859-1 (Latin1).
+ *
+ * Return Value:
+ * The decoded string or %NULL in case the process
+ * failed or the string wasn't encoded with ISO 8859-1.
+ **/
+gchar *
+c2_str_decode_iso_8859_1 (const gchar *string)
+{
+	gint o_length = strlen (string);
+	gchar buffer[o_length];
+	const gchar *ptr;
+	gint i;
+	gboolean changed = FALSE;
+	
+	c2_return_val_if_fail (string, NULL, C2EDATA);
+	
+	/* Clear the buffer */
+	memset (buffer, 0, o_length*sizeof (gchar));
+	
+	/* Go through the words */
+	for (ptr = string, i = 0; *ptr != '\0'; ptr++)
+	{
+		/* Check if this is encoded with ISO 8859-1 */
+		if (c2_strnne (ptr, "=?iso-8859-1?Q?", 15))
+		{
+			/* Move to the next word */
+			for (; *ptr != '\0' && *ptr != ' '; ptr++)
+				buffer[i++] = *ptr;
+			
+			/* *ptr might be a ' ' or a '\0', either way,
+			 * we rather want it in the decoded string.
+			 */
+			buffer[i++] = *ptr;
+			
+			continue;
+		}
+		
+		changed = TRUE;
+	
+		/* Go in the loop. Start processing this word. */
+		printf ("Processed word: '");
+		for (ptr += 15; *ptr != '\0' && *ptr != ' '; ptr++)
+		{
+			if (*ptr == '=')
+			{
+				gint code;
+			
+				sscanf (ptr+1, "%02X", &code);
+				sprintf (&buffer[i++], "%c", (gchar) code);
+				ptr+=2;
+			} else if (*ptr == '?' && *(ptr+1) == '=')
+				ptr++;
+			else
+				buffer[i++] = *ptr;
+		}
+	}
+	
+	if (!changed)
+		return NULL;
+
+	return g_strdup (buffer);
+}
+
+/**
  * c2_get_tmp_file
  * @template: Template to use for the file name, %NULL if
  *            the name does not require any special name.

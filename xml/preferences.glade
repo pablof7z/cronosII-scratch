@@ -1882,7 +1882,7 @@ Are you sure you want this?</message>
 	      <class>GtkTable</class>
 	      <name>interface_fonts_table</name>
 	      <border_width>2</border_width>
-	      <rows>5</rows>
+	      <rows>6</rows>
 	      <columns>2</columns>
 	      <homogeneous>False</homogeneous>
 	      <row_spacing>4</row_spacing>
@@ -1929,32 +1929,6 @@ Are you sure you want this?</message>
 		  <right_attach>1</right_attach>
 		  <top_attach>1</top_attach>
 		  <bottom_attach>2</bottom_attach>
-		  <xpad>0</xpad>
-		  <ypad>0</ypad>
-		  <xexpand>False</xexpand>
-		  <yexpand>False</yexpand>
-		  <xshrink>False</xshrink>
-		  <yshrink>False</yshrink>
-		  <xfill>True</xfill>
-		  <yfill>False</yfill>
-		</child>
-	      </widget>
-
-	      <widget>
-		<class>GtkLabel</class>
-		<name>label139</name>
-		<label>Unreaded mailboxes:</label>
-		<justify>GTK_JUSTIFY_CENTER</justify>
-		<wrap>False</wrap>
-		<xalign>0</xalign>
-		<yalign>0.5</yalign>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-		<child>
-		  <left_attach>0</left_attach>
-		  <right_attach>1</right_attach>
-		  <top_attach>2</top_attach>
-		  <bottom_attach>3</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -2021,33 +1995,6 @@ Are you sure you want this?</message>
 	      </widget>
 
 	      <widget>
-		<class>GnomeFontPicker</class>
-		<name>interface_fonts_unreaded_mailbox</name>
-		<tooltip>Font to be used for listing mailbox that have unreaded mails in it.</tooltip>
-		<can_focus>True</can_focus>
-		<title>Select font for unreaded mailbox</title>
-		<preview_text>Pablo was in Rome.</preview_text>
-		<mode>GNOME_FONT_PICKER_MODE_FONT_INFO</mode>
-		<show_size>False</show_size>
-		<use_font>True</use_font>
-		<use_font_size>14</use_font_size>
-		<child>
-		  <left_attach>1</left_attach>
-		  <right_attach>2</right_attach>
-		  <top_attach>2</top_attach>
-		  <bottom_attach>3</bottom_attach>
-		  <xpad>0</xpad>
-		  <ypad>0</ypad>
-		  <xexpand>False</xexpand>
-		  <yexpand>False</yexpand>
-		  <xshrink>False</xshrink>
-		  <yshrink>False</yshrink>
-		  <xfill>True</xfill>
-		  <yfill>False</yfill>
-		</child>
-	      </widget>
-
-	      <widget>
 		<class>GtkLabel</class>
 		<name>label181</name>
 		<label>Message body:</label>
@@ -2060,8 +2007,8 @@ Are you sure you want this?</message>
 		<child>
 		  <left_attach>0</left_attach>
 		  <right_attach>1</right_attach>
-		  <top_attach>4</top_attach>
-		  <bottom_attach>5</bottom_attach>
+		  <top_attach>5</top_attach>
+		  <bottom_attach>6</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -2081,8 +2028,8 @@ Are you sure you want this?</message>
 		<child>
 		  <left_attach>1</left_attach>
 		  <right_attach>2</right_attach>
-		  <top_attach>4</top_attach>
-		  <bottom_attach>5</bottom_attach>
+		  <top_attach>5</top_attach>
+		  <bottom_attach>6</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -2111,8 +2058,8 @@ Are you sure you want this?</message>
 		<child>
 		  <left_attach>0</left_attach>
 		  <right_attach>1</right_attach>
-		  <top_attach>3</top_attach>
-		  <bottom_attach>4</bottom_attach>
+		  <top_attach>4</top_attach>
+		  <bottom_attach>5</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -2132,8 +2079,8 @@ Are you sure you want this?</message>
 		<child>
 		  <left_attach>1</left_attach>
 		  <right_attach>2</right_attach>
-		  <top_attach>3</top_attach>
-		  <bottom_attach>4</bottom_attach>
+		  <top_attach>4</top_attach>
+		  <bottom_attach>5</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -2147,6 +2094,111 @@ Are you sure you want this?</message>
 		<widget>
 		  <class>Placeholder</class>
 		</widget>
+	      </widget>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<name>label139</name>
+		<label>Unreaded mailboxes:</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>0</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<child>
+		  <left_attach>0</left_attach>
+		  <right_attach>1</right_attach>
+		  <top_attach>3</top_attach>
+		  <bottom_attach>4</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GnomeFontPicker</class>
+		<name>interface_fonts_unreaded_mailbox</name>
+		<tooltip>Font to be used for listing mailbox that have unreaded mails in it.</tooltip>
+		<can_focus>True</can_focus>
+		<title>Select font for unreaded mailboxes</title>
+		<preview_text>Pablo is in Madrid.</preview_text>
+		<mode>GNOME_FONT_PICKER_MODE_FONT_INFO</mode>
+		<show_size>False</show_size>
+		<use_font>True</use_font>
+		<use_font_size>14</use_font_size>
+		<child>
+		  <left_attach>1</left_attach>
+		  <right_attach>2</right_attach>
+		  <top_attach>3</top_attach>
+		  <bottom_attach>4</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<name>label184</name>
+		<label>Readed mailboxes:</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>0</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<child>
+		  <left_attach>0</left_attach>
+		  <right_attach>1</right_attach>
+		  <top_attach>2</top_attach>
+		  <bottom_attach>3</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GnomeFontPicker</class>
+		<name>interface_fonts_readed_mailbox</name>
+		<can_focus>True</can_focus>
+		<title>Select font for readed mailboxes</title>
+		<preview_text>Pablo was in Rome.</preview_text>
+		<mode>GNOME_FONT_PICKER_MODE_FONT_INFO</mode>
+		<show_size>False</show_size>
+		<use_font>False</use_font>
+		<use_font_size>14</use_font_size>
+		<child>
+		  <left_attach>1</left_attach>
+		  <right_attach>2</right_attach>
+		  <top_attach>2</top_attach>
+		  <bottom_attach>3</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
 	      </widget>
 	    </widget>
 	  </widget>

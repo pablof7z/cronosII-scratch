@@ -29,7 +29,7 @@
  */
 
 #define MOD		"[Widget] Transfer Item"
-#define DMOD	TRUE
+#define DMOD	FALSE
 
 #define MAX_CHARS_IN_LABEL		33
 #define WIDGET_WIDTH			210
@@ -708,7 +708,7 @@ on_pop3_disconnect (GtkObject *object, gboolean success, C2NetObjectByte *byte, 
 			str = g_strdup_printf (_("Received %d new mail%s"), ti->type_info.receive.mails_r,
 					(ti->type_info.receive.mails_r>1)?"s":"");
 		else
-			str = g_strdup_printf (_("No new mails"), ti->type_info.receive.mails_r,
+			str = g_strdup_printf (_("No new mails available"), ti->type_info.receive.mails_r,
 					(ti->type_info.receive.mails_r>1)?"s":"");
 	} else
 	{
@@ -765,7 +765,7 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 	}
 	
 	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail),
-									success ? _("Completed") : _("Failed"));
+									success ? _("Message Sent") : _("Failed"));
 	gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
 	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
 
@@ -792,12 +792,13 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 
 		gtk_object_set_data (GTK_OBJECT (ti->type_info.send.db->message), "state",
 											(gpointer) C2_MESSAGE_READED);
+		gtk_object_set_data (GTK_OBJECT (ti->type_info.send.db->message), "state", C2_MESSAGE_READED);
 		c2_db_message_add (sent_items, ti->type_info.send.db->message);
 	}
-L
+
 	C2_PRINTD (MOD, "remove '%d'\n", ti->type_info.send.db->position-1);
 	c2_db_message_remove (outbox, ti->type_info.send.db);
-L
+
 
 	gtk_object_unref (GTK_OBJECT (ti->type_info.send.db->message));
 }

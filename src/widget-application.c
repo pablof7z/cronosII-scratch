@@ -57,7 +57,7 @@
  */
  
 #define MOD "[Widget] Application"
-#define DMOD TRUE
+#define DMOD FALSE
 
 static gchar *remote_commands[] =
 {
@@ -575,6 +575,9 @@ ignore:
 	buf = c2_preferences_get_interface_fonts_unreaded_mails ();
 	application->fonts_gdk_unreaded_mails = gdk_font_load (buf);
 	g_free (buf);
+	buf = c2_preferences_get_interface_fonts_readed_mailbox ();
+	application->fonts_gdk_readed_mailbox = gdk_font_load (buf);
+	g_free (buf);
 	buf = c2_preferences_get_interface_fonts_unreaded_mailbox ();
 	application->fonts_gdk_unreaded_mailbox = gdk_font_load (buf);
 	g_free (buf);
@@ -678,7 +681,6 @@ start:
 		if (c2_streq (
 	}*/
 
-	C2_DEBUG (buffer);
 	g_free (buffer);
 	perror ("read");
 

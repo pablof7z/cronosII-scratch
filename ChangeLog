@@ -1,3 +1,7 @@
+Sat Mar 9 Pablo Fernández López <pablo@pablossite.net>
+	* Fixed a bug in SMTP.
+	* Fixed some problems with the composer.
+
 Mon Mar 4 Bosko Blagojevic <falling@users.sourceforge.net>
 	* More good work in IMAP: retriving messages, more features in
 	  reading server data, a few fixes here and there.
