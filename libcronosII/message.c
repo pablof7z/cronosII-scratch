@@ -270,7 +270,7 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 
 	for (ptr = chunk, wbytes = 0; wbytes < size+1 && *start_ptr != '\0'; start_ptr++)
 	{
-		if (*start_ptr != '\n')
+		if (*start_ptr != '\0')
 		{
 			*(ptr++) = *start_ptr;
 			wbytes++;
