@@ -1,5 +1,15 @@
+Thu Oct 30 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* A lot of work that I don't remember.
+	* Added a new developer to Cronos II: Peter Gebauer: Welcome!
+	* Support for deleting.
+
 Mon Oct 29 Bosko Blagojevic <falling@users.sourceforge.net>
 	* IMAP can now list, create, and delete folders.
+
+Sun Oct 28 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Fixed a bug that caused a crash when trying to parse a message
+	  that had an independent '*'.
+	* Added a callback for the Help » Release Information menu item.
 
 Sun Oct 28 Bosko Blagojevic <falling@users.sourceforge.net>
 	* More IMAP work...

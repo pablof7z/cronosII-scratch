@@ -106,6 +106,9 @@ static gint
 on_delete_event								(GtkWidget *widget, GdkEventAny *event, gpointer data);
 
 static void
+on_size_allocate							(C2WindowMain *wmain, GtkAllocation *alloc);
+
+static void
 on_docktoolbar_button_press_event			(GtkWidget *widget, GdkEventButton *event, C2WindowMain *wmain);
 
 static void
@@ -166,10 +169,10 @@ static void
 on_index_select_message						(GtkWidget *index, C2Db *node, C2WindowMain *wmain);
 
 static void
-on_mlist_mailbox_selected					(C2MailboxList *mlist, C2Mailbox *mailbox, C2WindowMain *wmain);
+on_mlist_object_selected					(C2MailboxList *mlist, GtkObject *object, C2WindowMain *wmain);
 
 static void
-on_mlist_mailbox_unselected					(C2MailboxList *mlist, C2WindowMain *wmain);
+on_mlist_object_unselected					(C2MailboxList *mlist, C2WindowMain *wmain);
 
 static void
 on_mlist_button_press_event					(GtkWidget *widget, GdkEvent *event, C2WindowMain *wmain);
@@ -185,6 +188,9 @@ on_settings_preferences_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_about_activate							(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_help_release_information_activate		(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_mnu_toolbar_text_beside_icons_activate	(GtkWidget *widget, C2WindowMain *wmain);
@@ -462,10 +468,14 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	}
 
 	gtk_widget_realize (GTK_WIDGET (wmain));
-	gtk_widget_set_usize (GTK_WIDGET (wmain), application->rc_width, application->rc_height);
+	gtk_widget_set_usize (GTK_WIDGET (wmain),
+						c2_preferences_get_window_main_width (),
+						c2_preferences_get_window_main_height ());
 	gtk_window_set_policy (GTK_WINDOW (wmain), TRUE, TRUE, FALSE);
 	gtk_signal_connect (GTK_OBJECT (wmain), "delete_event",
 							GTK_SIGNAL_FUNC (on_delete_event), NULL);
+	gtk_signal_connect (GTK_OBJECT (wmain), "size_allocate",
+							GTK_SIGNAL_FUNC (on_size_allocate), NULL);
 
 	style = gtk_widget_get_default_style ();
 	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/read.png");
@@ -483,7 +493,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 
 	/* Hpaned */
 	hpaned = glade_xml_get_widget (xml, "hpaned");
-	gtk_paned_set_position (GTK_PANED (hpaned), application->rc_hpan);
+	gtk_paned_set_position (GTK_PANED (hpaned),
+						c2_preferences_get_window_main_hpaned ());
 
 	/* Mailbox List */
 	wmain->mlist = c2_mailbox_list_new (application);
@@ -491,10 +502,10 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gtk_container_add (GTK_CONTAINER (scroll), wmain->mlist);
 	gtk_widget_show (wmain->mlist);
 
-	gtk_signal_connect (GTK_OBJECT (wmain->mlist), "mailbox_selected",
-								GTK_SIGNAL_FUNC (on_mlist_mailbox_selected), wmain);
-	gtk_signal_connect (GTK_OBJECT (wmain->mlist), "mailbox_unselected",
-								GTK_SIGNAL_FUNC (on_mlist_mailbox_unselected), wmain);
+	gtk_signal_connect (GTK_OBJECT (wmain->mlist), "object_selected",
+								GTK_SIGNAL_FUNC (on_mlist_object_selected), wmain);
+	gtk_signal_connect (GTK_OBJECT (wmain->mlist), "object_unselected",
+								GTK_SIGNAL_FUNC (on_mlist_object_unselected), wmain);
 	gtk_signal_connect (GTK_OBJECT (wmain->mlist), "button_press_event",
       			GTK_SIGNAL_FUNC (on_mlist_button_press_event), wmain);
 
@@ -516,6 +527,7 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 
 		key = g_strdup_printf ("/"PACKAGE"/Toolbar::Window Main/item %d=-1", i);
 		val = gnome_config_get_int_with_default (key, &df);
+		g_free (key);
 
 		if (val < 0)
 			break;
@@ -550,7 +562,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 
 	/* Vpaned */
 	vpaned = glade_xml_get_widget (xml, "vpaned");
-	gtk_paned_set_position (GTK_PANED (vpaned), application->rc_vpan);
+	gtk_paned_set_position (GTK_PANED (vpaned), 
+						c2_preferences_get_window_main_vpaned ());
 
 	appbar = glade_xml_get_widget (xml, "appbar");
 
@@ -584,6 +597,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_settings_preferences_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "help_about")), "activate",
 							GTK_SIGNAL_FUNC (on_about_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "help_release_information")), "activate",
+							GTK_SIGNAL_FUNC (on_help_release_information_activate), wmain);
 
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (wmain->toolbar_menu, "text_beside_icons")), "activate",
 							GTK_SIGNAL_FUNC (on_mnu_toolbar_text_beside_icons_activate), wmain);
@@ -754,6 +769,12 @@ copy (C2WindowMain *wmain)
 		return;
 
 	fmailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
+	if (!fmailbox)
+	{
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING, error_list[C2_NO_MAILBOX_SELECTED]);
+		return;
+	}
+	
 	if (!(tmailbox = c2_application_dialog_select_mailbox (
 									C2_WINDOW (wmain)->application, GTK_WINDOW (wmain))))
 	{
@@ -770,48 +791,122 @@ copy (C2WindowMain *wmain)
 }
 
 static void
-delete_thread (C2WindowMain *wmain)
+delete_thread (C2Pthread3 *data)
 {
-	C2Mailbox *mailbox, *trash;
-	gint total;
+	C2WindowMain *wmain = C2_WINDOW_MAIN (data->v1);
+	C2Mailbox *fmailbox = C2_MAILBOX (data->v2);
+	C2Mailbox *tmailbox = c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox,
+													C2_MAILBOX_GARBAGE);
+	GList *list = (GList*) data->v3;
+	GList *l;
 	GtkWidget *widget;
 	GtkProgress *progress;
-	GList *l, *list;
+	gint length, off;
+	gboolean progress_ownership;
+	gboolean status_ownership;
 	
-	gdk_threads_enter ();
-	mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
-	trash = c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox,
-												C2_MAILBOX_GARBAGE);
+	g_free (data);
 
-	total = g_list_length (GTK_CLIST (wmain->index)->selection);
+	/* Get the length of our list */
+	length = g_list_length (list);
 
-	/* Configure the progress bar */
 	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "appbar");
-	progress = GTK_PROGRESS (GNOME_APPBAR (widget)->progress);
-	gtk_progress_configure (progress, 0, 0, total);
 
-	/* Now connect a callback to the mailbox_changed signal of the mailbox
-	 * so we know when each mail is deleted and we can update the appbar
-	 */
-/*	gtk_signal_connect (GTK_OBJECT (mailbox), "mailbox_changed",
-						GTK_SIGNAL_FUNC (on_delete_mailbox_changed), progress);*/
+	/* Try to reserve ownership over the progress bar */
+	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->progress_lock))
+		progress_ownership = TRUE;
+	else
+		progress_ownership = FALSE;
+
+	/* Try to reserver ownership over the status bar */
+	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->status_lock))
+		status_ownership = TRUE;
+	else
+		status_ownership = FALSE;
+
+	gdk_threads_enter ();
+	
+	if (progress_ownership)
+	{
+		/* Configure the progress bar */
+		progress = GTK_PROGRESS (GNOME_APPBAR (widget)->progress);
+		gtk_progress_configure (progress, 0, 0, length);
+	}
+
+	if (status_ownership)
+	{
+		/* Configure the status bar */
+		gnome_appbar_push (GNOME_APPBAR (widget), _("Deleting..."));
+	}
+
 	gdk_threads_leave ();
+	
+	c2_db_freeze (fmailbox);
+	c2_db_freeze (tmailbox);
+	for (l = list, off = 0; l; l = g_list_next (l), off++)
+	{
+		C2Db *db;
+		
+		/* Now do the actual copy */
+		db = c2_db_get_node (fmailbox, GPOINTER_TO_INT (l->data));
 
-	/* Send the delete cmnd */
-//	c2_db_move_
+		if (!db->message)
+		{
+			if (c2_db_load_message (db) < 0)
+			{
+				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+									error_list[C2_FAIL_MESSAGE_LOAD], c2_error_get ());
+				continue;
+			}
+		}
+		
+		gtk_object_ref (GTK_OBJECT (db->message));
+		if (!(c2_db_message_add (tmailbox, db->message) < 0))
+			c2_db_message_remove (fmailbox, GPOINTER_TO_INT (l->data));
+		gtk_object_unref (GTK_OBJECT (db->message));
+
+		if (progress_ownership)
+		{
+			gdk_threads_enter ();
+			gtk_progress_set_value (progress, off);
+			gdk_threads_leave ();
+		}
+	}
+	c2_db_thaw (tmailbox);
+	c2_db_thaw (fmailbox);
+
+	gdk_threads_enter ();
+
+	if (status_ownership)
+	{
+		gnome_appbar_pop (GNOME_APPBAR (widget));
+		pthread_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
+	}
+
+	if (progress_ownership)
+	{
+		gtk_progress_set_percentage (progress, 1.0);
+		pthread_mutex_unlock (&C2_WINDOW (wmain)->progress_lock);
+	}
+
+	gdk_threads_leave ();
 }
 
 static void
 delete (C2WindowMain *wmain)
 {
-	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
+	C2Mailbox *fmailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
+	C2Pthread3 *data;
+	pthread_t thread;
 
+	/* If there's nothing selected there's nothing to delete */
 	if (!GTK_CLIST (wmain->index)->selection)
 		return;
 
 	if (c2_preferences_get_general_options_delete_use_trash ())
-	{ /* We have to save in «Trash» */
-		if (c2_streq (mailbox->name, C2_MAILBOX_GARBAGE))
+	{
+		/* We have to save in «Trash» */
+		if (c2_streq (fmailbox->name, C2_MAILBOX_GARBAGE))
 			/* This is already «Trash», we have to expunge */
 			goto expunge;
 		
@@ -827,10 +922,11 @@ delete (C2WindowMain *wmain)
 		}
 
 		/* Ok, we are ready to move everything to «Trash» */
-		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
-							"And now we move everything to «%s»", C2_MAILBOX_GARBAGE);
-		
-//		cd_db_message_move (mailbox, trash, list);
+		data = g_new0 (C2Pthread3, 1);
+		data->v1 = wmain;
+		data->v2 = fmailbox;
+		data->v3 = GTK_CLIST (wmain->index)->selection;
+		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (delete_thread), data);
 	} else
 	{ /* We have to expunge */
 expunge:
@@ -1066,15 +1162,17 @@ save (C2WindowMain *wmain)
 	C2Message *message;
 	GtkWidget *mail;
 	GtkWidget *dialog;
+	gchar *save_path;
 	gint button;
 
 	mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
 	message = c2_mail_get_message (C2_MAIL (mail));
 	gtk_object_ref (GTK_OBJECT (message));
 
+	c2_preferences_get_general_paths_save (save_path);
 	dialog = gtk_file_selection_new (NULL);
-	gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog),
-									C2_WINDOW (wmain)->application->paths_saving);
+	gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog), save_path);
+	g_free (save_path);
 
 	c2_application_window_add (C2_WINDOW (wmain)->application, GTK_WINDOW (dialog));
 
@@ -1108,9 +1206,7 @@ save (C2WindowMain *wmain)
 			buf = g_dirname (file);
 			dir = g_strdup_printf ("%s" G_DIR_SEPARATOR_S, buf);
 			g_free (buf);
-			gnome_config_set_string ("/"PACKAGE"/Paths/saving", dir);
-			g_free (C2_WINDOW (wmain)->application->paths_saving);
-			C2_WINDOW (wmain)->application->paths_saving = dir;
+			c2_preferences_set_general_paths_save (dir);
 		}	
 
 		if (!message)
@@ -1164,6 +1260,13 @@ on_delete_event (GtkWidget *widget, GdkEventAny *event, gpointer data)
 	return FALSE;
 }
 
+static void
+on_size_allocate (C2WindowMain *wmain, GtkAllocation *alloc)
+{
+	c2_preferences_set_window_main_width (alloc->width);
+	c2_preferences_set_window_main_height (alloc->height);
+}
+
 /**
  * c2_window_main_set_mailbox
  * @wmain: Object where to act.
@@ -1176,7 +1279,7 @@ c2_window_main_set_mailbox (C2WindowMain *wmain, C2Mailbox *mailbox)
 {
 	c2_return_if_fail_obj (mailbox, C2EDATA, GTK_OBJECT (wmain));
 
-	c2_mailbox_list_set_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist), mailbox);
+	c2_mailbox_list_set_selected_object (C2_MAILBOX_LIST (wmain->mlist), GTK_OBJECT (mailbox));
 }
 
 static void
@@ -1357,7 +1460,7 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 }
 
 static gint
-on_mlist_mailbox_selected_pthread (C2WindowMain *wmain)
+on_mlist_object_selected_pthread (C2WindowMain *wmain)
 {
 	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
 	C2Index *index = C2_INDEX (wmain->index);
@@ -1407,15 +1510,22 @@ on_mlist_mailbox_selected_pthread (C2WindowMain *wmain)
 }
 
 static void
-on_mlist_mailbox_selected (C2MailboxList *mlist, C2Mailbox *mailbox, C2WindowMain *wmain)
+on_mlist_object_selected (C2MailboxList *mlist, GtkObject *object, C2WindowMain *wmain)
 {
 	pthread_t thread;
 
-	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_mlist_mailbox_selected_pthread), wmain);
+	if (!C2_IS_MAILBOX (object))
+	{
+		/* If this is not a mailbox we don't want to show anything */
+		c2_index_remove_mailbox (C2_INDEX (wmain->index));
+		return;
+	}
+
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_mlist_object_selected_pthread), wmain);
 }
 
 static void
-on_mlist_mailbox_unselected (C2MailboxList *mlist, C2WindowMain *wmain)
+on_mlist_object_unselected (C2MailboxList *mlist, C2WindowMain *wmain)
 {
 	if (!pthread_mutex_trylock (&wmain->index_lock))
 	{
@@ -1445,10 +1555,10 @@ on_mlist_button_press_event (GtkWidget *widget, GdkEvent *event, C2WindowMain *w
 			node = gtk_ctree_node_nth (GTK_CTREE (widget), row);
 			
 			mailbox = gtk_ctree_node_get_row_data (GTK_CTREE (widget), node);
-			c2_mailbox_list_set_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist), mailbox);
+			c2_mailbox_list_set_selected_object (C2_MAILBOX_LIST (wmain->mlist), GTK_OBJECT (mailbox));
 			gtk_ctree_select (GTK_CTREE (widget), node);
 		} else
-			c2_mailbox_list_set_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist), NULL);
+			c2_mailbox_list_set_selected_object (C2_MAILBOX_LIST (wmain->mlist), NULL);
 
 		gnome_popup_menu_do_popup (glade_xml_get_widget (wmain->ctree_menu, "mnu_ctree"),
 										NULL, NULL, e, NULL);
@@ -1520,6 +1630,12 @@ on_about_activate (GtkWidget *widget, C2WindowMain *wmain)
 
 	c2_html_set_content_from_string (html, string);
 	g_free (string);
+}
+
+static void
+on_help_release_information_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	c2_application_dialog_release_information (C2_WINDOW (wmain)->application);
 }
 
 static void
@@ -1685,6 +1801,7 @@ c2_window_main_add_mailbox_dialog (C2WindowMain *wmain)
 	GtkWidget *menu;
 	GtkOptionMenu *option_menu;
 	GladeXML *xml;
+	gchar *get_path;
 
 	dialog = c2_dialog_new (C2_WINDOW (wmain)->application, _("New mailbox"), "new_mailbox", GNOME_STOCK_BUTTON_HELP,
 							GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
@@ -1722,8 +1839,10 @@ c2_window_main_add_mailbox_dialog (C2WindowMain *wmain)
 
 	gtk_object_set_data (GTK_OBJECT (wmain), "add_mailbox_dialog::xml", xml);
 
+	c2_preferences_get_general_paths_get (get_path);
 	gnome_file_entry_set_default_path (GNOME_FILE_ENTRY (glade_xml_get_widget (xml, "epath_spool")),
-									C2_WINDOW (wmain)->application->paths_get);
+									get_path);
+	g_free (get_path);
 
 re_run_add_mailbox_dialog:
 	switch (gnome_dialog_run (GNOME_DIALOG (dialog)))
@@ -1879,7 +1998,7 @@ re_run_add_mailbox_dialog:
 					return;
 				}
 
-				if (C2_WINDOW (wmain)->application->advanced_load_mailboxes_at_start)
+				if (c2_preferences_get_general_options_start_load ())
 					c2_mailbox_load_db (mailbox);
 
 				/* If this is the first mailbox we need

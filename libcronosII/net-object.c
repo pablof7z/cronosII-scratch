@@ -428,7 +428,6 @@ c2_net_object_read (C2NetObject *nobj, gchar **string, ...)
 		c2_error_object_set (GTK_OBJECT (nobj), -errno);
 		return -1;
 	}
-	printf ("S: %s", *string);
 	byte->state = C2_NET_OBJECT_EXCHANGE;
 	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE],
 					 C2_NET_OBJECT_EXCHANGE_READ, strlen (*string), byte);

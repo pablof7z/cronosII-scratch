@@ -21,20 +21,6 @@
 gint
 main (gint argc, gchar **argv)
 {
-	gchar *string = "\"Pablo Fernández Navarro\" <cronosII@users.sourceforge.net>; "
-					"Bosko <falling@users.sourceforge.net>,                  "
-					"<cronosII-hackers@lists.sourceforge.net>";
-	GList *l;
-
-	if (argc > 1)
-		string = argv[1];
-
-	C2_DEBUG (string);
-	for (l = c2_str_get_emails (string); l; l = g_list_next (l))
-		printf ("<email type=\"%s\">%s</email>\n",
-					c2_str_is_email ((gchar*) l->data) ? "VALID" : "INVALID", (gchar*) l->data);
-	printf ("%s\n", c2_str_are_emails (c2_str_get_emails (string)) ?
-					"All email are valid" : "There're invalid email addresses");
-	
+	c2_streq ("hola", "hola");	
 	return 0;
 }

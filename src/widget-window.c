@@ -180,6 +180,7 @@ c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, .
 		gnome_appbar_push (GNOME_APPBAR (appbar), rmsg);
 		data->v2 = (gpointer) gtk_timeout_add (3000, on_report_timeout, data);
 		report_timeout_id = GPOINTER_TO_INT (data->v2);
+		g_free (rmsg);
 		pthread_mutex_unlock (&window->status_lock);
 	} else
 	{

@@ -40,32 +40,8 @@ extern "C" {
 #define C2_MAILBOX_INBOX					_("Inbox")
 #define C2_MAILBOX_OUTBOX					_("Outbox")
 #define C2_MAILBOX_SENT_ITEMS				_("Sent Items")
-#define C2_MAILBOX_GARBAGE					_("Garbage")
+#define C2_MAILBOX_GARBAGE					_("Trash")
 #define C2_MAILBOX_DRAFTS					_("Drafts")
-
-#define DEFAULT_OPTIONS_CHECK_TIMEOUT		"20"
-#define DEFAULT_OPTIONS_WRAP_OUTGOING_TEXT	"70"
-#define DEFAULT_OPTIONS_MARK_TIMEOUT		"1"
-#define DEFAULT_OPTIONS_PREPEND_CHARACTER	"> "
-#define DEFAULT_OPTIONS_EMPTY_GARBAGE		"0"
-#define DEFAULT_OPTIONS_USE_OUTBOX			"1"
-#define DEFAULT_OPTIONS_CHECK_AT_START		"0"
-#define DEFAULT_OPTIONS_MT_MODE				"1"
-#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
-#	define DEFAULT_OPTIONS_DEFAULT_MIME		"1"
-#else
-#	define DEFAULT_OPTIONS_DEFAULT_MIME		"0"
-#endif
-
-#define DEFAULT_INTERFACE_TITLE				"Cronos II v.%v - %M: %m messages, %n new"
-#define DEFAULT_INTERFACE_TOOLBAR			"2"
-#define DEFAULT_INTERFACE_DATE_FMT			"%d.%m.%Y %H:%M"
-	
-#define DEFAULT_FONTS_MESSAGE_BODY			"Helvetica"
-#define DEFAULT_FONTS_UNREADED_MESSAGE		"-b&h-lucida-bold-r-normal-*-*-100-*-*-p-*-iso8859-1"
-#define DEFAULT_FONTS_READED_MESSAGE		"-b&h-lucida-medium-r-normal-*-*-100-*-*-p-*-iso8859-1"
-#define DEFAULT_FONTS_UNREADED_MAILBOX		"-adobe-helvetica-bold-r-normal-*-12-*-*-*-p-*-iso8859-1"
-#define DEFAULT_FONTS_SOURCE				"0"
 
 #define DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_RED	"0"
 #define DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_GREEN	"0"
@@ -77,40 +53,6 @@ extern "C" {
 #define DEFAULT_COLORS_MESSAGE_FG_GREEN		"0"
 #define DEFAULT_COLORS_MESSAGE_FG_BLUE		"0"
 #define DEFAULT_COLORS_MESSAGE_SOURCE		"0"
-
-#define DEFAULT_PATHS_SAVING				g_get_home_dir ()
-#define DEFAULT_PATHS_GET					g_get_home_dir ()
-#define DEFAULT_PATHS_SMART					"1"
-
-#define DEFAULT_ADVANCED_HTTP_PROXY_ADDR	""
-#define DEFAULT_ADVANCED_HTTP_PROXY_PORT	"80"
-#define DEFAULT_ADVANCED_HTTP_PROXY			"0"
-#define DEFAULT_ADVANCED_FTP_PROXY_ADDR		""
-#define DEFAULT_ADVANCED_FTP_PROXY_PORT		"80"
-#define DEFAULT_ADVANCED_FTP_PROXY			"0"
-#define DEFAULT_ADVANCED_PERSISTENT_SMTP_ADDR	"localhost"
-#define DEFAULT_ADVANCED_PERSISTENT_SMTP_PORT	"25"
-#define DEFAULT_ADVANCED_PERSISTENT_SMTP	"0"
-#define DEFAULT_ADVANCED_USE_INTERNAL_BROWSER	"1"
-#define DEFAULT_ADVANCED_LOAD_MAILBOXES_AT_START "1"
-
-#define DEFAULT_RC_HPAN						"150"
-#define DEFAULT_RC_VPAN						"170"
-#define DEFAULT_RC_CLIST_0					"22"
-#define DEFAULT_RC_CLIST_1					"0"
-#define DEFAULT_RC_CLIST_2					"0"
-#define DEFAULT_RC_CLIST_3					"300"
-#define DEFAULT_RC_CLIST_4					"280"
-#define DEFAULT_RC_CLIST_5					"110"
-#define DEFAULT_RC_CLIST_6					"10"
-#define DEFAULT_RC_CLIST_7					"10"
-#define DEFAULT_RC_WIDTH					"1024" /* XXX */
-#define DEFAULT_RC_HEIGHT					"768" /* XXX */
-#define DEFAULT_RC_SHOWABLE_HEADERS_PREVIEW	"9"
-#define DEFAULT_RC_SHOWABLE_HEADERS_MESSAGE	"63"
-#define DEFAULT_RC_SHOWABLE_HEADERS_COMPOSE	"61"
-#define DEFAULT_RC_SHOWABLE_HEADERS_SAVE	"61"
-#define DEFAULT_RC_SHOWABLE_HEADERS_PRINT	"61"
 
 typedef struct _C2Application C2Application;
 typedef struct _C2ApplicationClass C2ApplicationClass;
@@ -197,26 +139,8 @@ struct _C2Application
 
 	C2Mailbox *mailbox;
 
-	gint options_check_timeout;
-	gint options_wrap_outgoing_text;
-	gint options_mark_timeout;
-	gchar *options_prepend_character;
-	gint options_empty_garbage	: 1;
-	gint options_use_outbox		: 1;
-	gint options_check_at_start	: 1;
-	gint options_mt_mode;
-	C2DefaultMimeType options_default_mime;
-		
 	C2Account *account;
 
-	gchar *interface_title;
-	GtkToolbarStyle interface_toolbar;
-	gchar *interface_date_fmt;
-
-	gchar *fonts_message_body;
-	gchar *fonts_unreaded_message;
-	gchar *fonts_readed_message;
-	gchar *fonts_unreaded_mailbox;
 	GdkFont *fonts_gdk_readed_mails;
 	GdkFont *fonts_gdk_unreaded_mails;
 	GdkFont *fonts_gdk_unreaded_mailbox;
@@ -227,29 +151,6 @@ struct _C2Application
 	GdkColor colors_message_bg;
 	GdkColor colors_message_fg;
 	C2ColorSource colors_message_source;
-
-	gchar *paths_saving;
-	gchar *paths_get;
-	gint paths_smart : 1;
-
-	gchar *advanced_http_proxy_addr;
-	gint advanced_http_proxy_port;
-	gint advanced_http_proxy : 1;
-	gchar *advanced_ftp_proxy_addr;
-	gint advanced_ftp_proxy_port;
-	gint advanced_ftp_proxy : 1;
-	gchar *advanced_persistent_smtp_addr;
-	gint advanced_persistent_smtp_port;
-	gint advanced_persistent_smtp : 1;
-	gint advanced_use_internal_browser : 1;
-	gint advanced_load_mailboxes_at_start : 1;
-	
-	gint rc_hpan;
-	gint rc_vpan;
-	gint rc_clist[8];
-	gint rc_width;
-	gint rc_height;
-	guint rc_showable_headers[C2_SHOWABLE_HEADERS_LAST];
 };
 
 struct _C2ApplicationClass

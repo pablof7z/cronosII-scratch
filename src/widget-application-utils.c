@@ -64,7 +64,7 @@ on_dialog_release_information_window_delete_event (GtkWidget *widget, GdkEvent *
 {
 	C2Application *application = C2_APPLICATION (
 							gtk_object_get_data (GTK_OBJECT (xml), "application"));
-L	c2_application_window_remove (application, GTK_WINDOW (widget));
+	c2_application_window_remove (application, GTK_WINDOW (widget));
 	gtk_object_destroy (GTK_OBJECT (xml));
 
 	return TRUE;
@@ -153,6 +153,8 @@ c2_application_dialog_release_information (C2Application *application)
 	}
 
 	widget = glade_xml_get_widget (xml, "show_at_start_btn");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget),
+								c2_preferences_get_extra_release_information_show ());
 	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
 						GTK_SIGNAL_FUNC (on_dialog_release_information_show_at_start_btn_toggled), NULL);
 	

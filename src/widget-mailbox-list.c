@@ -51,8 +51,8 @@ static void
 on_application_preferences_changed			(C2Application *application, gint key, gpointer value,
 											 C2MailboxList *mlist);
 
-static C2Mailbox *
-get_mailbox_from_node						(C2MailboxList *mlist, GtkCTreeNode *node);
+static GtkObject *
+get_object_from_node						(C2MailboxList *mlist, GtkCTreeNode *node);
 
 static void
 on_mailbox_changed_mailbox					(C2Mailbox *mailbox, C2MailboxChangeType type,
@@ -71,8 +71,8 @@ get_pixmap									(C2Mailbox *mailbox, gboolean open);
 
 enum
 {
-	MAILBOX_SELECTED,
-	MAILBOX_UNSELECTED,
+	OBJECT_SELECTED,
+	OBJECT_UNSELECTED,
 	LAST_SIGNAL
 };
 
@@ -111,23 +111,23 @@ class_init (C2MailboxListClass *klass)
 
 	parent_class = gtk_type_class (gtk_ctree_get_type ());
 
-	signals[MAILBOX_SELECTED] =
-		gtk_signal_new ("mailbox_selected",
+	signals[OBJECT_SELECTED] =
+		gtk_signal_new ("object_selected",
 						GTK_RUN_FIRST,
 						object_class->type,
-						GTK_SIGNAL_OFFSET (C2MailboxListClass, mailbox_selected),
+						GTK_SIGNAL_OFFSET (C2MailboxListClass, object_selected),
 						gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
 						GTK_TYPE_POINTER);
-	signals[MAILBOX_UNSELECTED] =
-		gtk_signal_new ("mailbox_unselected",
+	signals[OBJECT_UNSELECTED] =
+		gtk_signal_new ("object_unselected",
 						GTK_RUN_FIRST,
 						object_class->type,
-						GTK_SIGNAL_OFFSET (C2MailboxListClass, mailbox_unselected),
+						GTK_SIGNAL_OFFSET (C2MailboxListClass, object_unselected),
 						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 	gtk_object_class_add_signals(object_class, signals, LAST_SIGNAL);
 
-	klass->mailbox_selected = NULL;
-	klass->mailbox_unselected = NULL;
+	klass->object_selected = NULL;
+	klass->object_unselected = NULL;
 	object_class->destroy = destroy;
 }
 
@@ -203,15 +203,26 @@ c2_mailbox_list_new (C2Application *application)
 C2Mailbox *
 c2_mailbox_list_get_selected_mailbox (C2MailboxList *mlist)
 {
-	return get_mailbox_from_node (mlist, mlist->selected_node);
+	GtkObject *object = get_object_from_node (mlist, mlist->selected_node);
+
+	if (C2_IS_MAILBOX (object))
+		return C2_MAILBOX (object);
+
+	return NULL;
+}
+
+GtkObject *
+c2_mailbox_list_get_selected_object (C2MailboxList *mlist)
+{
+	return get_object_from_node (mlist, mlist->selected_node);
 }
 
 void
-c2_mailbox_list_set_selected_mailbox (C2MailboxList *mlist, C2Mailbox *mailbox)
+c2_mailbox_list_set_selected_object (C2MailboxList *mlist, GtkObject *object)
 {
 	GtkCTreeNode *node;
 	
-	node = gtk_ctree_find_by_row_data (GTK_CTREE (mlist), gtk_ctree_node_nth (GTK_CTREE (mlist), 0), mailbox);
+	node = gtk_ctree_find_by_row_data (GTK_CTREE (mlist), gtk_ctree_node_nth (GTK_CTREE (mlist), 0), object);
 
 	if (!node)
 		return;
@@ -226,7 +237,7 @@ on_tree_select_row (GtkCTree *ctree, GtkCTreeNode *row, gint column, C2MailboxLi
 {
 	mlist->selected_node = row;
 
-	gtk_signal_emit (GTK_OBJECT (mlist), signals[MAILBOX_SELECTED], get_mailbox_from_node (mlist, row));
+	gtk_signal_emit (GTK_OBJECT (mlist), signals[OBJECT_SELECTED], get_object_from_node (mlist, row));
 }
 
 static void
@@ -234,7 +245,7 @@ on_tree_unselect_row (GtkCTree *ctree, GtkCTreeNode *row, gint column, C2Mailbox
 {
 	mlist->selected_node = NULL;
 
-	gtk_signal_emit (GTK_OBJECT (mlist), signals[MAILBOX_UNSELECTED]);
+	gtk_signal_emit (GTK_OBJECT (mlist), signals[OBJECT_UNSELECTED]);
 }
 
 static void
@@ -271,10 +282,10 @@ on_application_preferences_changed (C2Application *application, gint key, gpoint
 		tree_fill (mlist, application->mailbox, application->account, NULL);
 }
 
-static C2Mailbox *
-get_mailbox_from_node (C2MailboxList *mlist, GtkCTreeNode *node)
+static GtkObject *
+get_object_from_node (C2MailboxList *mlist, GtkCTreeNode *node)
 {
-	return C2_MAILBOX (gtk_ctree_node_get_row_data (GTK_CTREE (mlist), node));
+	return GTK_OBJECT (gtk_ctree_node_get_row_data (GTK_CTREE (mlist), node));
 }
 
 static void
@@ -325,6 +336,9 @@ node_fill (GtkCTree *ctree, GtkCTreeNode *cnode, C2Mailbox *mailbox, C2Db *start
 
 	gtk_ctree_node_set_pixtext (ctree, cnode, 0, text, 2, GNOME_PIXMAP (pixmap)->pixmap,
 								GNOME_PIXMAP (pixmap)->mask);
+
+	if ((*unreaded))
+		g_free (text);
 
 	if (GTK_CTREE_ROW (cnode)->expanded)
 	{
@@ -409,7 +423,6 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 				cnode = gtk_ctree_insert_node (ctree, NULL, NULL, lrow, 4, NULL, NULL, NULL, NULL, FALSE,
 												TRUE);
 				gtk_ctree_node_set_row_data (ctree, cnode, (gpointer) la);
-				gtk_ctree_node_set_selectable (ctree, cnode, FALSE);
 				style = gtk_ctree_node_get_row_style (ctree, cnode);
 				if (!style)
 					style = gtk_style_copy (GTK_WIDGET (ctree)->style);

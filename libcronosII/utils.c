@@ -130,6 +130,7 @@ c2_streq (const gchar *fst, const gchar *snd)
 	const gchar *ptr[2];
 	gchar *_fst;
 	gchar *_snd;
+	gboolean retval = TRUE;
 	
 	if (!fst && snd)
 		return FALSE;
@@ -145,20 +146,28 @@ c2_streq (const gchar *fst, const gchar *snd)
 	for (ptr[0] = _fst, ptr[1] = _snd; ptr[0] || ptr[1]; ptr[0]++, ptr[1]++)
 	{
 		if (*ptr[0] != *ptr[1])
-			return FALSE;
+		{
+			retval = FALSE;
+			break;
+		}
 		if (*ptr[0] == '\0')
 		{
 			if (*ptr[1] == '\0')
-				return TRUE;
+				retval = TRUE;
 			else
-				return FALSE;
+				retval = FALSE;
+			break;
 		}
 		if (*ptr[1] == '\0')
-			return FALSE;
+		{
+			retval = FALSE;
+			break;
+		}
 	}
+	
 	g_free (_fst);
 	g_free (_snd);
-	return TRUE;
+	return retval;
 }
 
 /**
@@ -186,6 +195,7 @@ c2_strneq (const gchar *fst, const gchar *snd, gint length)
 	gchar *_fst;
 	gchar *_snd;
 	gint i;
+	gboolean retval = TRUE;
 	
 	if (!fst && snd)
 		return FALSE;
@@ -204,20 +214,28 @@ c2_strneq (const gchar *fst, const gchar *snd, gint length)
 	for (ptr[0] = _fst, ptr[1] = _snd, i = 0; i < length; ptr[0]++, ptr[1]++, i++)
 	{
 		if (*ptr[1] == '\0')
-			return FALSE;
+		{
+			retval = FALSE;
+			break;
+		}
 		if (*ptr[0] != *ptr[1])
-			return FALSE;
+		{
+			retval = FALSE;
+			break;
+		}
 		if (*ptr[0] == '\0')
 		{
 			if (*ptr[1] == '\0')
-				return TRUE;
+				retval = TRUE;
 			else
-				return FALSE;
+				retval = FALSE;
+			break;
 		}
 	}
+	
 	g_free (_fst);
 	g_free (_snd);
-	return TRUE;
+	return retval;
 }
 
 /**
@@ -335,10 +353,14 @@ gchar *
 c2_str_strip_enclosed (const gchar *str, gchar open, gchar close)
 {
 	gchar *ptr;
+	gint length;
 	
 	c2_return_val_if_fail (str, NULL, C2EDATA);
+
+	length = strlen (str);
 	
-	if (*str == open && *(str+strlen (str)-1) == close)
+	if ((*str == open && *(str+length-1) == close) &&
+		 length > 1)
 		ptr = g_strndup (str+1, strlen (str)-2);
 	else
 		ptr = g_strdup (str);
@@ -793,11 +815,14 @@ c2_str_is_email (const gchar *email)
 	gint length;
 	gboolean dot = FALSE;
 	
+	/* Get the length of the mail */
 	length = strlen (email);
 	
+	/* An empty string is not a mail address */
 	if (!length)
 		return FALSE;
 
+	/* A mail address must have an @ symbol */
 	for (ptr = email; *ptr != '\0'; ptr++)
 		if (*ptr == '@')
 			goto passed1;
@@ -805,20 +830,31 @@ c2_str_is_email (const gchar *email)
 	return FALSE;
 	
 passed1:
+	/* We don't want to evaluate the @ symbol again */
 	ptr++;
 	for (; *ptr != '\0'; ptr++)
 	{
+		/* A mail address must have a . (it does not!) */
 		if (*ptr == '.')
 		{
 			dot = TRUE;
 			continue;
 		}
-		if ((*ptr != '-' && *ptr < 'A') || *ptr > 'z' || (*ptr > 'Z' && *ptr < 'a'))
+
+		/* Check if characters are valid */
+		if ((*ptr != '-' && *ptr < '0') || /* It can't have anything below '0' but the '-' symbol */
+			(*ptr > 'z') || /* It can't have anything over 'z' */
+			(*ptr > '9' && *ptr < 'A') || /* It can't be anything between '9' and 'A' */
+			(*ptr > 'Z' && *ptr < 'a')) /* It can't be anything between 'Z' and 'a' */
 			return FALSE;
 	}
 
+	/* Evaluate the last character */
 	ptr = email+length-1;
-	if (*ptr < 'A' || *ptr > 'z' || *ptr > 'Z' && *ptr < 'a')
+	if ((*ptr < '0') || /* It can't have anything below '0' */
+		(*ptr > 'z') || /* It can't be anything over 'z' */
+		(*ptr > '9' && *ptr < 'A') || /* It can't be anything between '9' and 'A' */
+		(*ptr > 'Z' && *ptr < 'a')) /* It can't be anything between 'Z' and 'a' */
 		return FALSE;
 	else
 		return dot;

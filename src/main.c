@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+i *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ gchar *error_list[] =
 	N_("Message saved successfully."),
 
 	N_("Action cancelled by user."),
+	N_("There is no selected mailbox."),
 	N_("Unknown reason")
 };
 

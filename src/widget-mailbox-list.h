@@ -52,8 +52,8 @@ struct _C2MailboxListClass
 {
 	GtkCTreeClass parent_class;
 
-	void (*mailbox_selected) (C2MailboxList *mlist, C2Mailbox *mailbox);
-	void (*mailbox_unselected) (C2MailboxList *mlist);
+	void (*object_selected) (C2MailboxList *mlist, GtkObject *object);
+	void (*object_unselected) (C2MailboxList *mlist);
 };
 
 GtkType
@@ -65,8 +65,11 @@ c2_mailbox_list_new						(C2Application *application);
 C2Mailbox *
 c2_mailbox_list_get_selected_mailbox	(C2MailboxList *mlist);
 
+GtkObject *
+c2_mailbox_list_get_selected_object		(C2MailboxList *mlist);
+
 void
-c2_mailbox_list_set_selected_mailbox	(C2MailboxList *mlist, C2Mailbox *mailbox);
+c2_mailbox_list_set_selected_object		(C2MailboxList *mlist, GtkObject *object);
 
 #ifdef __cplusplus
 }

@@ -22,6 +22,7 @@
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
+#include "preferences.h"
 #include "widget-HTML.h"
 #include "widget-mail.h"
 #include "widget-part.h"
@@ -71,8 +72,8 @@ void
 c2_mail_set_message (C2Mail *mail, C2Message *message)
 {
 	C2Mime *mime;
-	gboolean text_plain = TRUE;
-	gchar *string, *buf, *html;
+	gboolean text_plain = TRUE, default_is_text_plain;
+	gchar *string, *buf, *html, *default_mime;
 
 	c2_return_if_fail (message, C2EDATA);
 
@@ -82,32 +83,30 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 	gtk_object_ref (GTK_OBJECT (message));
 
 	/* Get the part that should be displayed */
-	mail->application->options_default_mime = 1;
+	default_mime = c2_preferences_get_interface_misc_attachments_default ();
+	if (c2_streq (default_mime, "text/plain"))
+		default_is_text_plain = TRUE;
+	else
+		default_is_text_plain = FALSE;
+	g_free (default_mime);
 	string = message->body;
 	
-	switch (mail->application->options_default_mime)
+	
+	if (default_is_text_plain)
 	{
-		case C2_DEFAULT_MIME_PLAIN:
+		if ((mime = c2_mime_get_part_by_content_type (message->mime, "text/plain")))
+			string = mime->part;
+	} else
+	{
+		if (!(mime = c2_mime_get_part_by_content_type (message->mime, "text/html")))
+		{
 			if ((mime = c2_mime_get_part_by_content_type (message->mime, "text/plain")))
 				string = mime->part;
-			break;
-		case C2_DEFAULT_MIME_HTML:
-			if (!(mime = c2_mime_get_part_by_content_type (message->mime, "text/html")))
-			{
-				if ((mime = c2_mime_get_part_by_content_type (message->mime, "text/plain")))
-					string = mime->part;
-			} else
-			{
-				string = mime->part;
-				text_plain = FALSE;
-			}
-						
-
-			break;
-		default:
-			if ((mime = c2_mime_get_part_by_content_type (message->mime, "text/plain")))
-				string = mime->part;
-			break;
+		} else
+		{
+			string = mime->part;
+			text_plain = FALSE;
+		}
 	}
 
 	if (text_plain && mime)
@@ -340,8 +339,7 @@ interpret_text_plain_symbols (const gchar *plain)
 	gshort red, green, blue;
 	gchar *font;
 	
-	font = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-Fonts/message_body="
-										DEFAULT_FONTS_MESSAGE_BODY, NULL);
+	font = c2_preferences_get_interface_fonts_message_body ();
 	g_string_sprintf (string, "<html>\n"
 					 "<body bgcolor=#ffffff>\n"
 					 "<table border=0><tr><td><pre><font face=\"%s\">\n", font);

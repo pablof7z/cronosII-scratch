@@ -27,7 +27,8 @@
 
 #define SELECTED_MAIL	"mailbox::selected mail"
 
-/* TODO Sorting
+/*
+ * TODO Sorting
  * TODO Right Click menu
  */
 
@@ -239,17 +240,13 @@ c2_index_construct (C2Index *index, C2Application *application)
 	gtk_signal_connect (GTK_OBJECT (clist), "resize_column",
 						GTK_SIGNAL_FUNC (on_resize_column), NULL);
 
-	gtk_clist_set_column_width (clist, 0, atoi (DEFAULT_RC_CLIST_0));
-	gtk_clist_set_column_width (clist, 1, atoi (DEFAULT_RC_CLIST_1));
-	gtk_clist_set_column_width (clist, 2, atoi (DEFAULT_RC_CLIST_2));
-	gtk_clist_set_column_width (clist, 3, atoi (DEFAULT_RC_CLIST_3));
-	gtk_clist_set_column_width (clist, 4, atoi (DEFAULT_RC_CLIST_4));
-	gtk_clist_set_column_width (clist, 5, atoi (DEFAULT_RC_CLIST_5));
-	gtk_clist_set_column_width (clist, 6, atoi (DEFAULT_RC_CLIST_6));
-	gtk_clist_set_column_width (clist, 7, atoi (DEFAULT_RC_CLIST_7));
-
-/*    gtk_widget_show (GTK_WIDGET (clist));
-    gtk_widget_ref (GTK_WIDGET (clist));*/
+	gtk_clist_set_column_width (clist, 0, c2_preferences_get_window_main_index_width_0 ());
+	gtk_clist_set_column_width (clist, 1, c2_preferences_get_window_main_index_width_1 ());
+	gtk_clist_set_column_width (clist, 2, c2_preferences_get_window_main_index_width_2 ());
+	gtk_clist_set_column_width (clist, 3, c2_preferences_get_window_main_index_width_3 ());
+	gtk_clist_set_column_width (clist, 4, c2_preferences_get_window_main_index_width_4 ());
+	gtk_clist_set_column_width (clist, 5, c2_preferences_get_window_main_index_width_5 ());
+	gtk_clist_set_column_width (clist, 6, c2_preferences_get_window_main_index_width_6 ());
 }
 
 static void
@@ -301,6 +298,9 @@ add_message (C2Application *application, GtkCList *clist, C2Db *db, const gchar 
 	
 	gtk_clist_set_row_style (clist, clist->rows-1, style);
 	gtk_clist_set_row_data (clist, clist->rows-1, db);
+	g_free (tmp);
+	g_free (row[5]);
+	g_free (row[7]);
 }
 
 static void
@@ -403,12 +403,32 @@ select_row (C2Index *index, gint row, gint column, GdkEvent *event)
 static void
 on_resize_column (C2Index *index, gint column, gint width)
 {
-	gchar *key = g_strdup_printf ("/"PACKAGE"/Rc/clist[%d]", column);
+	switch (column)
+	{
+		case 0:
+			c2_preferences_set_window_main_index_width_0 (width);
+			break;
+		case 1:
+			c2_preferences_set_window_main_index_width_1 (width);
+			break;
+		case 2:
+			c2_preferences_set_window_main_index_width_2 (width);
+			break;
+		case 3:
+			c2_preferences_set_window_main_index_width_3 (width);
+			break;
+		case 4:
+			c2_preferences_set_window_main_index_width_4 (width);
+			break;
+		case 5:
+			c2_preferences_set_window_main_index_width_5 (width);
+			break;
+		case 6:
+			c2_preferences_set_window_main_index_width_6 (width);
+			break;
+	}
 
-	index->application->rc_clist[column] = width;
-
-	gnome_config_set_int (key, width);
-	g_free (key);
+	c2_preferences_commit ();
 }
 
 static gint
@@ -499,16 +519,11 @@ c2_index_remove_mailbox (C2Index *index)
 }
 
 void
-c2_index_add_message (C2Index *index, C2Db *db)
+c2_index_add_message (C2Index *index, C2Db *db, const gchar *date_fmt)
 {
-	gchar *date_fmt;
-	
 	c2_return_if_fail (db, C2EDATA);
 
-	gnome_config_get_string_with_default ("/"PACKAGE"/Interface-Misc/date_fmt="
-									DEFAULT_INTERFACE_DATE_FMT, NULL);
 	add_message (index->application, GTK_CLIST (index), db, date_fmt);
-	g_free (date_fmt);
 }
 
 void

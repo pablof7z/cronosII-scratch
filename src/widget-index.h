@@ -81,7 +81,7 @@ void
 c2_index_remove_mailbox						(C2Index *index);
 
 void
-c2_index_add_message						(C2Index *index, C2Db *db);
+c2_index_add_message						(C2Index *index, C2Db *db, const gchar *date_fmt);
 
 void
 c2_index_remove_message						(C2Index *index, C2Db *db);

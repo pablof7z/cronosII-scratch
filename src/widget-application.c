@@ -134,6 +134,7 @@ init (C2Application *application)
 	gchar *tmp, *buf;
 	gint quantity = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL);
 	gint i;
+	gboolean load_mailboxes_at_start;
 	
 	application->open_windows = NULL;
 	application->tmp_files = NULL;
@@ -310,42 +311,6 @@ ignore:
 		g_free (tmp);
 	}
 
-	application->options_check_timeout = gnome_config_get_int_with_default
-									("/Cronos II/Options/check_timeout=" DEFAULT_OPTIONS_CHECK_TIMEOUT, NULL);
-	application->options_wrap_outgoing_text = gnome_config_get_int_with_default
-							("/Cronos II/Options/wrap_outgoing_text=" DEFAULT_OPTIONS_WRAP_OUTGOING_TEXT, NULL);
-	application->options_mark_timeout = gnome_config_get_int_with_default
-									("/Cronos II/Options/mark_timeout=" DEFAULT_OPTIONS_MARK_TIMEOUT, NULL);
-	application->options_prepend_character = gnome_config_get_string_with_default
-									("/Cronos II/Options/prepend_character=" DEFAULT_OPTIONS_PREPEND_CHARACTER, NULL);
-	application->options_empty_garbage = gnome_config_get_int_with_default
-									("/Cronos II/Options/empty_garbage=" DEFAULT_OPTIONS_EMPTY_GARBAGE, NULL);
-	application->options_use_outbox = gnome_config_get_int_with_default
-									("/Cronos II/Options/use_outbox=" DEFAULT_OPTIONS_USE_OUTBOX, NULL);
-	application->options_check_at_start = gnome_config_get_int_with_default
-									("/Cronos II/Options/check_at_start=" DEFAULT_OPTIONS_CHECK_AT_START, NULL);
-	application->options_mt_mode = gnome_config_get_int_with_default
-									("/Cronos II/Options/mt_mode=" DEFAULT_OPTIONS_MT_MODE, NULL);
-	application->options_default_mime = gnome_config_get_int_with_default
-									("/Cronos II/Options/default_mime=" DEFAULT_OPTIONS_DEFAULT_MIME, NULL);	
-	application->interface_title = gnome_config_get_string_with_default
-									("/Cronos II/Interface/title=" DEFAULT_INTERFACE_TITLE, NULL);
-	application->interface_toolbar = gnome_config_get_int_with_default
-									("/Cronos II/Interface/toolbar=" DEFAULT_INTERFACE_TOOLBAR, NULL);
-	application->interface_date_fmt = gnome_config_get_string_with_default
-									("/Cronos II/Interface/date_fmt=" DEFAULT_INTERFACE_DATE_FMT, NULL);
-
-	application->fonts_message_body = gnome_config_get_string_with_default
-									("/Cronos II/Fonts/message_body=" DEFAULT_FONTS_MESSAGE_BODY, NULL);
-	application->fonts_unreaded_message = gnome_config_get_string_with_default
-									("/Cronos II/Fonts/unreaded_message=" DEFAULT_FONTS_UNREADED_MESSAGE, NULL);
-	application->fonts_readed_message = gnome_config_get_string_with_default
-									("/Cronos II/Fonts/readed_message=" DEFAULT_FONTS_READED_MESSAGE, NULL);
-	application->fonts_unreaded_mailbox = gnome_config_get_string_with_default
-									("/Cronos II/Fonts/unreaded_mailbox=" DEFAULT_FONTS_UNREADED_MAILBOX, NULL);
-	application->fonts_source = gnome_config_get_int_with_default
-									("/Cronos II/Fonts/source=" DEFAULT_FONTS_SOURCE, NULL);
-	
 	application->colors_replying_original_message.red = gnome_config_get_int_with_default
 			("/Cronos II/Colors/replying_original_message_red=" DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_RED, NULL);
 	application->colors_replying_original_message.green = gnome_config_get_int_with_default
@@ -367,63 +332,8 @@ ignore:
 	application->colors_message_source = gnome_config_get_int_with_default
 									("/Cronos II/Colors/message_source=" DEFAULT_COLORS_MESSAGE_SOURCE, NULL);
 
-	buf = g_strconcat ("/Cronos II/Paths/saving=", g_get_home_dir (), "/", NULL);
-	application->paths_saving = gnome_config_get_string_with_default
-									(buf, NULL);
-	g_free (buf);
-	buf = g_strconcat ("/Cronos II/Paths/get=", g_get_home_dir (), "/", NULL);
-	application->paths_get = gnome_config_get_string_with_default
-									(buf, NULL);
-	g_free (buf);
-	application->paths_smart = gnome_config_get_int_with_default
-									("/Cronos II/Paths/smart=" DEFAULT_PATHS_SMART, NULL);
-
-	application->advanced_http_proxy_addr = gnome_config_get_string_with_default
-									("/Cronos II/Advanced/http_proxy_addr=" DEFAULT_ADVANCED_HTTP_PROXY_ADDR, NULL);
-	application->advanced_http_proxy_port = gnome_config_get_int_with_default
-									("/Cronos II/Advanced/http_proxy_port=" DEFAULT_ADVANCED_HTTP_PROXY_PORT, NULL);
-	application->advanced_http_proxy = gnome_config_get_int_with_default
-									("/Cronos II/Advanced/http_proxy=" DEFAULT_ADVANCED_HTTP_PROXY, NULL);
-	application->advanced_ftp_proxy_addr = gnome_config_get_string_with_default
-									("/Cronos II/Advanced/ftp_proxy_addr=" DEFAULT_ADVANCED_FTP_PROXY_ADDR, NULL);
-	application->advanced_ftp_proxy_port = gnome_config_get_int_with_default
-									("/Cronos II/Advanced/ftp_proxy_port=" DEFAULT_ADVANCED_FTP_PROXY_PORT, NULL);
-	application->advanced_ftp_proxy = gnome_config_get_int_with_default
-									("/Cronos II/Advanced/ftp_proxy=" DEFAULT_ADVANCED_FTP_PROXY, NULL);
-	application->advanced_persistent_smtp_addr = gnome_config_get_string_with_default
-							("/Cronos II/Advanced/persistent_smtp_addr=" DEFAULT_ADVANCED_PERSISTENT_SMTP_ADDR, NULL);
-	application->advanced_persistent_smtp_port = gnome_config_get_int_with_default
-							("/Cronos II/Advanced/persistent_smtp_port=" DEFAULT_ADVANCED_PERSISTENT_SMTP_PORT, NULL);
-	application->advanced_persistent_smtp = gnome_config_get_int_with_default
-									("/Cronos II/Advanced/persistent_smtp=" DEFAULT_ADVANCED_PERSISTENT_SMTP, NULL);
-	application->advanced_use_internal_browser = gnome_config_get_int_with_default
-							("/Cronos II/Advanced/use_internal_browser=" DEFAULT_ADVANCED_USE_INTERNAL_BROWSER, NULL);
-	application->advanced_load_mailboxes_at_start = gnome_config_get_int_with_default
-							("/Cronos II/Advanced/load_mailboxes_at_start=" DEFAULT_ADVANCED_LOAD_MAILBOXES_AT_START, NULL);
-
-	application->rc_hpan = gnome_config_get_int_with_default ("/Cronos II/Rc/hpan=" DEFAULT_RC_HPAN, NULL);
-	application->rc_vpan = gnome_config_get_int_with_default ("/Cronos II/Rc/vpan=" DEFAULT_RC_VPAN, NULL);
-	application->rc_clist[0] = gnome_config_get_int_with_default ("/Cronos II/Rc/clist[0]=" DEFAULT_RC_CLIST_0, NULL);
-	application->rc_clist[1] = gnome_config_get_int_with_default ("/Cronos II/Rc/clist[1]=" DEFAULT_RC_CLIST_1, NULL);
-	application->rc_clist[2] = gnome_config_get_int_with_default ("/Cronos II/Rc/clist[2]=" DEFAULT_RC_CLIST_2, NULL);
-	application->rc_clist[3] = gnome_config_get_int_with_default ("/Cronos II/Rc/clist[3]=" DEFAULT_RC_CLIST_3, NULL);
-	application->rc_clist[4] = gnome_config_get_int_with_default ("/Cronos II/Rc/clist[4]=" DEFAULT_RC_CLIST_4, NULL);
-	application->rc_clist[5] = gnome_config_get_int_with_default ("/Cronos II/Rc/clist[5]=" DEFAULT_RC_CLIST_5, NULL);
-	application->rc_clist[6] = gnome_config_get_int_with_default ("/Cronos II/Rc/clist[6]=" DEFAULT_RC_CLIST_6, NULL);
-	application->rc_clist[7] = gnome_config_get_int_with_default ("/Cronos II/Rc/clist[7]=" DEFAULT_RC_CLIST_7, NULL);
-	application->rc_width = gnome_config_get_int_with_default ("/Cronos II/Rc/width=" DEFAULT_RC_WIDTH, NULL);
-	application->rc_height = gnome_config_get_int_with_default ("/Cronos II/Rc/height=" DEFAULT_RC_HEIGHT, NULL);
-	application->rc_showable_headers[C2_SHOWABLE_HEADERS_PREVIEW] = gnome_config_get_int_with_default
-								("/Cronos II/Rc/showable_headers_preview=" DEFAULT_RC_SHOWABLE_HEADERS_PREVIEW, NULL);
-	application->rc_showable_headers[C2_SHOWABLE_HEADERS_MESSAGE] = gnome_config_get_int_with_default
-								("/Cronos II/Rc/showable_headers_message=" DEFAULT_RC_SHOWABLE_HEADERS_MESSAGE, NULL);
-	application->rc_showable_headers[C2_SHOWABLE_HEADERS_COMPOSE] = gnome_config_get_int_with_default
-								("/Cronos II/Rc/showable_headers_compose=" DEFAULT_RC_SHOWABLE_HEADERS_COMPOSE, NULL);
-	application->rc_showable_headers[C2_SHOWABLE_HEADERS_SAVE] = gnome_config_get_int_with_default
-								("/Cronos II/Rc/showable_headers_save=" DEFAULT_RC_SHOWABLE_HEADERS_SAVE, NULL);
-	application->rc_showable_headers[C2_SHOWABLE_HEADERS_PRINT] = gnome_config_get_int_with_default
-								("/Cronos II/Rc/showable_headers_print=" DEFAULT_RC_SHOWABLE_HEADERS_PRINT, NULL);
-
+	
+	load_mailboxes_at_start = c2_preferences_get_general_options_start_load ();
 	for (application->mailbox = NULL, i = 1; i <= quantity; i++)
 	{
 		gchar *name;
@@ -475,7 +385,7 @@ ignore:
 
 		/* [TODO]
 		 * Maybe fireing a separated thread where to do this? */
-		if (application->advanced_load_mailboxes_at_start)
+		if (load_mailboxes_at_start)
 			c2_mailbox_load_db (mailbox);
 
 		g_free (name);
@@ -540,21 +450,7 @@ destroy (GtkObject *object)
 
 	c2_mailbox_destroy_tree (application->mailbox);
 
-	g_free (application->options_prepend_character);
-	
 	c2_account_free_all (application->account);
-
-	g_free (application->interface_title);
-	g_free (application->interface_date_fmt);
-	g_free (application->fonts_message_body);
-	g_free (application->fonts_unreaded_message);
-	g_free (application->fonts_readed_message);
-	g_free (application->fonts_unreaded_mailbox);
-	g_free (application->paths_saving);
-	g_free (application->paths_get);
-	g_free (application->advanced_http_proxy_addr);
-	g_free (application->advanced_ftp_proxy_addr);
-	g_free (application->advanced_persistent_smtp_addr);
 
 	gtk_main_quit ();
 }

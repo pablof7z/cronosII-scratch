@@ -254,12 +254,69 @@ extern "C" {
 	gnome_config_set_int ("/"PACKAGE"/"ADVANCED"-"MISC"/ftp_port", val)
 
 
-	
+/* Casual Dialogs Preferences
+ *
+ * fmt:
+ * c2_preferences_[set|get]_extra_($dialog_name)_$(etc) ()
+ */
 #define c2_preferences_get_extra_release_information_show() \
 	gnome_config_get_bool_with_default ("/"PACKAGE"/"EXTRA"-release_information/show=true", NULL)
 #define c2_preferences_set_extra_release_information_show(val) \
 	gnome_config_set_bool ("/"PACKAGE"/"EXTRA"-release_information/show", val)
-	
+
+/* Window Specific Preferences
+ *
+ * fmt:
+ * c2_preferences_[set|get]_$(window_name)_$(etc) ()
+ */
+/* Window Main */
+#define c2_preferences_get_window_main_index_width_0() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_0=30", NULL)
+#define c2_preferences_set_window_main_index_width_0(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_0", val)
+#define c2_preferences_get_window_main_index_width_1() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_1=0", NULL)
+#define c2_preferences_set_window_main_index_width_1(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_1", val)
+#define c2_preferences_get_window_main_index_width_2() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_2=0", NULL)
+#define c2_preferences_set_window_main_index_width_2(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_2", val)
+#define c2_preferences_get_window_main_index_width_3() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_3=120", NULL)
+#define c2_preferences_set_window_main_index_width_3(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_3", val)
+#define c2_preferences_get_window_main_index_width_4() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_4=120", NULL)
+#define c2_preferences_set_window_main_index_width_4(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_4", val)
+#define c2_preferences_get_window_main_index_width_5() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_5=80", NULL)
+#define c2_preferences_set_window_main_index_width_5(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_5", val)
+#define c2_preferences_get_window_main_index_width_6() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_6=80", NULL)
+#define c2_preferences_set_window_main_index_width_6(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/index_width_6", val)
+
+#define c2_preferences_get_window_main_vpaned() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/vpaned=180", NULL)
+#define c2_preferences_set_window_main_vpaned(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/vpaned", val)
+#define c2_preferences_get_window_main_hpaned() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/hpaned=150", NULL)
+#define c2_preferences_set_window_main_hpaned(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/hpaned", val)
+
+#define c2_preferences_get_window_main_width() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/width=640", NULL)
+#define c2_preferences_set_window_main_width(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/width", val)
+#define c2_preferences_get_window_main_height() \
+	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/height=480", NULL)
+#define c2_preferences_set_window_main_height(val) \
+	gnome_config_set_int ("/"PACKAGE"/Window-Main/height", val)
+
 
 
 #define c2_preferences_commit() gnome_config_sync ()
