@@ -1,3 +1,9 @@
+Sun Feb 17 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Small bug fix in libcronosII/db.c
+	* Bug fixes in imap
+	* Deleting messages in imap now works!
+	* Adding messages in imap now works!
+
 Thu Feb 14 Pablo Fernández López <pablo@pablossite.net>
 	* Work in the spool module.
 
