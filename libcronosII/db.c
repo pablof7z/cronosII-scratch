@@ -971,7 +971,7 @@ c2_db_load_message (C2Db *db)
 		return TRUE;
 	} else
 		return FALSE;
-	
+
 	return FALSE;
 }
 

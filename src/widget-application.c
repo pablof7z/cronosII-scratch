@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  * Code of this file by:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  */
 #include <config.h>
 #include <gnome.h>
@@ -520,7 +520,7 @@ ignore:
 		/* Connect to the change_mailbox of the outbox mailbox
 		 * to know when we have to send a message.
 		 */
-		if (c2_streq (mailbox->name, C2_MAILBOX_OUTBOX))
+		if (c2_mailbox_get_use_as (mailbox) & C2_MAILBOX_USE_AS_OUTBOX)
 		{
 			gtk_signal_connect (GTK_OBJECT (mailbox), "changed_mailbox",
 								GTK_SIGNAL_FUNC (on_outbox_changed_mailbox), application);

@@ -288,6 +288,12 @@ c2_mail_construct (C2Mail *mail, C2Application *application)
 	gtk_container_add (GTK_CONTAINER (parent), mail->body);
 	gtk_widget_show (mail->body);
 
+#ifdef USE_GTKHTML
+#elif defined (USE_GTKXMHTML)
+#else
+	c2_html_set_font_default (C2_HTML (mail->body), application->fonts_gdk_message_body, NULL, 0);
+#endif
+
 	mail->attachments_scroll = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (mail->attachments_scroll),
 									GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
@@ -405,7 +411,11 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 		gtk_widget_show ((GtkWidget*) mail);
 
 	if (C2_IS_MESSAGE (mail->message) && message != mail->message)
+	{
+		if (GTK_IS_OBJECT (mail->message)) printf ("Ref is %d\n", GTK_OBJECT (mail->message)->ref_count); else printf ("It's not an object.\n");
 		gtk_object_unref (GTK_OBJECT (mail->message));
+		if (GTK_IS_OBJECT (mail->message)) printf ("Ref is %d\n", GTK_OBJECT (mail->message)->ref_count); else printf ("It's not an object.\n");
+	}
 	mail->message = message;
 	gtk_object_ref (GTK_OBJECT (mail->message));
 

@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -149,6 +149,9 @@ on_interface_composer_editor_external_toggled	(GtkWidget *widget, C2DialogPrefer
 
 ENTRY_FUNCTION_DEFINITION (interface_composer, editor_external_cmnd);
 ENTRY_FUNCTION_DEFINITION (interface_misc, date);
+
+static void
+on_interface_misc_date_help_clicked			(GtkWidget *widget, C2DialogPreferences *preferences);
 
 /* Widget Stuff */
 enum
@@ -381,6 +384,10 @@ set_signals (C2DialogPreferences *preferences)
 	widget = glade_xml_get_widget (xml, "interface_misc_date");
 	gtk_signal_connect (GTK_OBJECT (widget), "changed",
 						GTK_SIGNAL_FUNC (on_interface_misc_date_changed), preferences);
+
+	widget = glade_xml_get_widget (xml, "interface_misc_date_help");
+	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
+						GTK_SIGNAL_FUNC (on_interface_misc_date_help_clicked), preferences);
 }
 
 #define SET_BOOLEAN(func, wkey)	\
@@ -1279,6 +1286,13 @@ on_interface_composer_editor_external_toggled (GtkWidget *widget, C2DialogPrefer
 
 ENTRY_FUNCTION (interface_composer, editor_external_cmnd, INTERFACE_COMPOSER, EDITOR_CMND)
 ENTRY_FUNCTION (interface_misc, date, INTERFACE_MISC, DATE)
+
+static void
+on_interface_misc_date_help_clicked (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gnome_help_goto (NULL, "man:strftime");
+}
+
 #endif
 
 /****************************************************
@@ -2149,6 +2163,7 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 		}
 	}
 	gnome_config_set_int ("type", type);
+	printf ("Type = %d\n", type);
 
 	widget = glade_xml_get_widget (xml, "options_account_name");
 	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
@@ -2269,6 +2284,7 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 		widget = glade_xml_get_widget (xml, "incoming_server_username");
 		user = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 		gnome_config_set_string ("incoming_server_username", user);
+		C2_DEBUG (user);
 
 		widget = glade_xml_get_widget (xml, "incoming_auth_remember");
 		rem = GTK_TOGGLE_BUTTON (widget)->active;
