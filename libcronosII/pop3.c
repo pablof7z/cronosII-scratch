@@ -42,6 +42,12 @@ welcome											(C2Pop3 *pop3);
 static gint
 login											(C2Pop3 *pop3);
 
+static gint
+status											(C2Pop3 *pop3);
+
+static gint
+retrieve										(C2Pop3 *pop3, gint mails);
+
 enum
 {
 	STATUS,
@@ -129,6 +135,8 @@ c2_pop3_set_wrong_pass_cb (C2Pop3 *pop3, C2Pop3GetPass func)
 gint
 c2_pop3_fetchmail (C2Pop3 *pop3)
 {
+	gint mails;
+
 	c2_return_val_if_fail (pop3, -1, C2EDATA);
 
 	/* Lock the mutex */
@@ -148,6 +156,20 @@ c2_pop3_fetchmail (C2Pop3 *pop3)
 	}
 
 	if (login (pop3) < 0)
+	{
+		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
+		pthread_mutex_unlock (&pop3->run_lock);
+		return -1;
+	}
+
+	if ((mails = status (pop3)) < 0)
+	{
+		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
+		pthread_mutex_unlock (&pop3->run_lock);
+		return -1;
+	}
+
+	if (retrieve (pop3, mails) < 0)
 	{
 		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
 		pthread_mutex_unlock (&pop3->run_lock);
@@ -197,8 +219,6 @@ login (C2Pop3 *pop3)
 	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
 		return -1;
 
-	C2_DEBUG (string);
-
 	if (c2_strnne (string, "+OK", 3))
 	{
 		string = strstr (string, " ");
@@ -234,11 +254,77 @@ login (C2Pop3 *pop3)
 	} while (i++ < 3 && !logged_in && pop3->pass);
 	
 	if (!logged_in)
+		return -1;
+
+	return 0;
+}
+
+static gint
+status (C2Pop3 *pop3)
+{
+	gchar *string;
+	gint mails;
+
+	if (c2_net_object_send (C2_NET_OBJECT (pop3), "STAT\r\n") < 0)
+		return -1;
+
+	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+		return -1;
+
+	if (c2_strnne (string, "+OK", 3))
 	{
-L		return -1;
+		string = strstr (string, " ");
+		if (string)
+			string++;
+
+		c2_error_set_custom (string);
+		return -1;
 	}
 
-L	return 0;
+	sscanf (string, "+OK %d ", &mails);
+
+	gtk_signal_emit (GTK_OBJECT (pop3), signals[STATUS], mails);
+
+	return mails;
+}
+
+static gint
+retrieve (C2Pop3 *pop3, gint mails)
+{
+	gchar *string;
+	gint i;
+	gint32 length;
+	
+	for (i = 1; i <= mails; i++)
+	{
+		if (pop3->flags & C2_POP3_DO_KEEP_COPY)
+		{
+L			/* TODO */
+		}
+
+		/* Retrieve */
+		if (c2_net_object_send (C2_NET_OBJECT (pop3), "RETR %d\r\n", i) < 0)
+			return -1;
+
+		if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+			return -1;
+
+		if (c2_strnne (string, "+OK", 3))
+		{
+			string = strstr (string, " ");
+			if (string)
+				string++;
+			
+			c2_error_set_custom (string);
+			return -1;
+		}
+
+		sscanf (string, "+OK %d octets\r\n", &length);
+		
+		gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], i, 0, length);
+	}
+
+	return 0;
 }
 
 GtkType

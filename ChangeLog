@@ -1,5 +1,17 @@
 2001-06-19 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
+	* Message Transfer Widget: Created the arrows (RGB and yellow).
+			We are now ready to code the c2_pop3_fetchmail
+			and this widget should already be prepared to
+			show what's going on (through signals).
+	* POP3 module: Welcome function.
+	* Preferences: Fixed the problem that made that when you edit an
+			account the username appear empty and the password with the
+			username on it (actually, the fix was in the Account module,
+			but the preferences module was where you could see it).
+
+2001-06-19 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
 	* Message Transfer Widget: And even more work. We are ready to
 			start coding the fetching of mails, probably tomorrow.
 	* Account module: Changes in order to define the path to develop

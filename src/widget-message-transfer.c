@@ -435,10 +435,11 @@ check_retrieve (C2Pop3 *pop3, gint16 nth, gint32 received, gint32 total, C2Pthre
 	C2MessageTransferQueue *queue = data->v2;
 	gint row = GPOINTER_TO_INT (data->v3);
 
-	if (!received)
+	printf ("%d %d %d\n", nth, received, total);
+/*	if (!received)
 		change_mails_of_queue (mt, queue, row, nth, queue->subtasks[TOTAL]);
 	else
-		change_mail_of_queue (mt, queue, row, received, total);
+		change_mail_of_queue (mt, queue, row, received, total);*/
 }
 
 static void

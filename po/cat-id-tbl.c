@@ -443,22 +443,19 @@ Are you sure you want to delete it?", 305},
   {"Lowest", 321},
   {"Wrap", 322},
   {"Message Tranfer", 323},
-  {"Tasks's list", 324},
-  {"Tasks", 325},
-  {"\
-This bar shows how many task Cronos II has to process related to the \
-transfer of messages", 326},
-  {"%P %%", 327},
-  {"Subtasks", 328},
-  {"This bar shows how many subtasks there are for the current task", 329},
-  {"Progress of subtask", 330},
-  {"Automatically close when finished.", 331},
-  {"Bad Password", 332},
-  {"Account:", 333},
+  {"Subtasks", 324},
+  {"This bar shows how many subtasks there are for the current task", 325},
+  {"%P %%", 326},
+  {"Progress of subtask", 327},
+  {"Tasks's list", 328},
+  {"Type", 329},
+  {"Automatically close when finished.", 330},
+  {"Bad Password", 331},
+  {"Account:", 332},
   {"\
 The server has rejected the password\n\
-you seted for this account.", 334},
-  {"Getting in Touch", 335},
+you seted for this account.", 333},
+  {"Getting in Touch", 334},
   {"\
 You can easily get in touch for help (or just for chating)\n\
 with anyone of the Cronos II comunity (users or developers).\n\
@@ -485,7 +482,7 @@ _I_R_C:\n\
 \n\
 You can chat with both users and developers in the\n\
 OpenProjects network by connecting to the server\n\
-_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 to the channel _#_c_r_o_n_o_s_I_I.", 336},
+_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 to the channel _#_c_r_o_n_o_s_I_I.", 335},
 };
 
-int _msg_tbl_length = 336;
+int _msg_tbl_length = 335;
