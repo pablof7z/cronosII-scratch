@@ -200,7 +200,7 @@ c2_mailbox_destroy (GtkObject *object)
  * @id: Id of mailbox.
  * @type: Type of mailbox.
  * @sort_by: Column to sort the mailbox by.
- * @sort_type: Wheter to use ascending or descending sorting.
+ * @sort_type: Whether to use ascending or descending sorting.
  * ...: Specific information about the mailbox according to the type
  * 		of mailbox.
  * 		Cronos II Mailbox's type: Null.
@@ -541,7 +541,7 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 
 	if (!head)
 	{
-		/* Toplevel */
+		/* TOPLEVEL */
 		for (l = c2_mailbox_get_head (), i = 0; l != NULL; l = l->next, i++)
 		{
 			g_free (l->id);
@@ -551,7 +551,7 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 		}
 	} else
 	{
-		/* Everything below the toplevel */
+		/* Everything below the TOPLEVEL */
 		for (l = head->child, i = 0; l != NULL; l = l->next, i++)
 		{
 			g_free (l->id);

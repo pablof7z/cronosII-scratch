@@ -105,7 +105,7 @@ c2_net_object_run (C2NetObject *nobj)
 /**
  * c2_net_object_send
  * @nobj: The C2NetObject where we need to work.
- * @fmt: Printf complaiment string format to send.
+ * @fmt: Printf compliant string format to send.
  * ...: Printf arguments.
  *
  * This function will write an string to the
@@ -114,7 +114,7 @@ c2_net_object_run (C2NetObject *nobj)
  * fprintf.
  *
  * Return Value:
- * bytes sended or -1;
+ * bytes sent or -1;
  **/
 gint
 c2_net_object_send (C2NetObject *nobj, const gchar *fmt, ...)
@@ -182,7 +182,7 @@ c2_net_object_send (C2NetObject *nobj, const gchar *fmt, ...)
  * from the socket.
  *
  * Return Value:
- * The number of readen bytes or -1;
+ * The number of read bytes or -1;
  **/
 gint
 c2_net_object_read (C2NetObject *nobj, gchar **string)
@@ -395,11 +395,11 @@ destroy (GtkObject *object)
 {
 	C2NetObject *nobj = C2_NET_OBJECT (object);
 	
-	/* Check if the object being destroied is connected */
+	/* Check if the object being destroyed is connected */
 	if (!(nobj->state & C2_NET_OBJECT_OFF))
 	{
 #ifdef USE_DEBUG
-		g_print ("A C2NetObject object is being destroied and it hasn't being shutdown.\n");
+		g_print ("A C2NetObject object is being destroyed and it hasn't being shutdown.\n");
 #endif
 		close (nobj->sock);
 	}

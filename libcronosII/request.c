@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronos/request.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -58,7 +58,7 @@ static C2NetObjectClass *parent_class = NULL;
 /*
  * The request module will use, by now, the gnome-download
  * program, distributed with gnome-core (>= 1.2, < 1.2?)
- * since Http is giving me to much problems and I don't have so much
+ * since Http is giving me too much problems and I don't have so much
  * time to waste with it.
  * 
  * Future versions (probably before Cronos II Scratch becomes Cronos II)
@@ -254,7 +254,7 @@ c2_request_construct (C2Request *request)
 
 	/* We probably shouldn't load everything in memory,
 	 * but save to a file, so we use don't eat all the memory
-	 * when downloading linux 2.4.
+	 * when downloading Linux 2.4.
 	 */
 	while ((bytes = fread (buffer, sizeof (gchar), sizeof (buffer), fd)))
 	{

@@ -337,7 +337,7 @@ c2_db_message_get_from_file (const gchar *path)
  * @db_d: DB descriptor.
  * @mid: mid to search.
  *
- * Searchs in the database @db_d for the mid @mid.
+ * Searches in the database @db_d for the mid @mid.
  *
  * Return Value:
  * The row where @mid was found.

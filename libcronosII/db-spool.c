@@ -22,6 +22,7 @@
 #include "db-spool.h"
 /*hmmm this is almost beautifull in its minimalism -pete ;)*/
 /*yeah, is the shortest module I ever see! but it doesn't have any bugs! :) -pablo */
+/*Ah you coders bugs bugs bugs. No code =nobugs. Code bad code use memory. :(*/
 
 gint
 c2_db_spool_load (C2Mailbox *mailbox)
@@ -32,7 +33,7 @@ c2_db_spool_load (C2Mailbox *mailbox)
 gint
 c2_db_spool_create_structure (C2Mailbox *mailbox)
 {
-	/* This is already done, this function doesn't needs to do anything but
+	/* This is already done, this function doesn't need to do anything but
 	 * return an ok status.
 	 */
 	return 0;
@@ -43,3 +44,5 @@ c2_db_spool_remove_structure (C2Mailbox *mailbox)
 {
 	unlink (mailbox->protocol.spool.path);
 }
+
+/*should this return anything when done ?? -pete..(I would add it if I knew how) */

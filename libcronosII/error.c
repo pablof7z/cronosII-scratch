@@ -48,7 +48,7 @@ c2_error_set (gint err)
  * Will get the error string according to the code.
  *
  * Return Value:
- * A non freeable string describing the error.
+ * A non free-able string describing the error.
  **/
 const gchar *
 c2_error_get (gint err)
