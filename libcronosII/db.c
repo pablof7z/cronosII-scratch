@@ -23,6 +23,7 @@
 #include <unistd.h>
 
 #include "db.h"
+#include "db-cronosII.h"
 #include "error.h"
 #include "utils.h"
 #include "utils-date.h"
@@ -38,9 +39,6 @@ c2_db_destroy									(GtkObject *object);
 
 static C2Db *
 c2_db_load										(C2Mailbox *mailbox);
-
-static C2Db *
-c2_db_load_cronosII								(C2Mailbox *mailbox);
 
 C2Message *
 c2_db_message_get_cronosII						(C2Db *db, gint mid);
@@ -155,9 +153,7 @@ c2_db_destroy (GtkObject *object)
 		for (l = db; l != NULL;)
 		{
 			db = l->next;
-			printf (">> %d (%d)\n", l->position, GTK_OBJECT (l)->ref_count);
 			gtk_object_unref (GTK_OBJECT (l));
-			printf ("<< %d (%d)\n", l->position, GTK_OBJECT (l)->ref_count);
 			l = db;
 		}
 	} else
@@ -180,7 +176,7 @@ c2_db_load (C2Mailbox *mailbox)
 	switch (mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
-			return c2_db_load_cronosII (mailbox);
+			return c2_db_cronosII_load (mailbox);
 		case C2_MAILBOX_IMAP:
 			/* TODO */
 			break;
@@ -190,89 +186,6 @@ c2_db_load (C2Mailbox *mailbox)
 	}
 
 	return NULL;
-}
-
-static C2Db *
-c2_db_load_cronosII (C2Mailbox *mailbox)
-{
-	C2Db *head = NULL, *current = NULL, *next;
-	
-	gchar *path, *line, *buf;
-	FILE *fd;
-
-	gint i;
-	
-	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
-
-	/* Calculate the path */
-	path = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S ".CronosII" G_DIR_SEPARATOR_S,
-						mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
-	
-	/* Open the file */
-	if (!(fd = fopen (path, "rt")))
-	{
-		C2_DEBUG (path);
-		c2_error_set (-errno);
-		g_free (path);
-		return NULL;
-	}
-
-	for (i = 0;(line = c2_fd_get_line (fd)) != NULL;)
-	{
-		if (*line == '?')
-		{
-			g_free (line);
-			continue;
-		}
-
-		next = c2_db_new (NULL);
-		next->message.message = NULL;
-		
-		buf = c2_str_get_word (0, line, '\r');
-		if (buf)
-			next->state = (C2MessageState) *buf;
-		else
-			next->state = C2_MESSAGE_READED;
-		g_free (buf);
-
-		buf = c2_str_get_word (1, line, '\r');
-		if (c2_streq (buf, "MARK"))
-			next->marked = 1;
-		else
-			next->marked = 0;
-		g_free (buf);
-
-		next->subject = c2_str_get_word (3, line, '\r');
-		next->from = c2_str_get_word (4, line, '\r');
-		next->account = c2_str_get_word (6, line, '\r');
-		
-		buf = c2_str_get_word (5, line, '\r');
-		next->date = atoi (buf);
-		g_free (buf);
-
-		next->position = i++;
-		
-		buf = c2_str_get_word (7, line, '\r');
-		next->mid = atoi (buf);
-		g_free (buf);
-
-		next->mailbox = mailbox;
-
-		next->next = NULL;
-		next->previous = current;
-
-		if (current)
-			current->next = next;
-
-		if (!head)
-			head = next;
-
-		current = next;
-
-		g_free (line);
-	}
-
-	return head;
 }
 
 /**

@@ -1620,211 +1620,6 @@ is already taken.</message>
 </widget>
 
 <widget>
-  <class>GnomeDialog</class>
-  <name>dlg_check</name>
-  <width>350</width>
-  <height>340</height>
-  <title>Cronos II : Checking</title>
-  <type>GTK_WINDOW_DIALOG</type>
-  <position>GTK_WIN_POS_NONE</position>
-  <modal>False</modal>
-  <allow_shrink>False</allow_shrink>
-  <allow_grow>False</allow_grow>
-  <auto_shrink>False</auto_shrink>
-  <wmclass_name>cronosII</wmclass_name>
-  <wmclass_class>checking</wmclass_class>
-  <auto_close>False</auto_close>
-  <hide_on_close>True</hide_on_close>
-
-  <widget>
-    <class>GtkVBox</class>
-    <child_name>GnomeDialog:vbox</child_name>
-    <name>dialog-vbox3</name>
-    <homogeneous>False</homogeneous>
-    <spacing>8</spacing>
-    <child>
-      <padding>4</padding>
-      <expand>True</expand>
-      <fill>True</fill>
-    </child>
-
-    <widget>
-      <class>GtkHButtonBox</class>
-      <child_name>GnomeDialog:action_area</child_name>
-      <name>dialog-action_area3</name>
-      <layout_style>GTK_BUTTONBOX_END</layout_style>
-      <spacing>8</spacing>
-      <child_min_width>85</child_min_width>
-      <child_min_height>27</child_min_height>
-      <child_ipad_x>7</child_ipad_x>
-      <child_ipad_y>0</child_ipad_y>
-      <child>
-	<padding>0</padding>
-	<expand>False</expand>
-	<fill>True</fill>
-	<pack>GTK_PACK_END</pack>
-      </child>
-
-      <widget>
-	<class>GtkButton</class>
-	<name>button22</name>
-	<can_default>True</can_default>
-	<can_focus>True</can_focus>
-	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
-      </widget>
-
-      <widget>
-	<class>GtkButton</class>
-	<name>button24</name>
-	<can_default>True</can_default>
-	<can_focus>True</can_focus>
-	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
-      </widget>
-    </widget>
-
-    <widget>
-      <class>GtkVBox</class>
-      <name>vbox4</name>
-      <homogeneous>False</homogeneous>
-      <spacing>3</spacing>
-      <child>
-	<padding>0</padding>
-	<expand>True</expand>
-	<fill>True</fill>
-      </child>
-
-      <widget>
-	<class>GtkProgressBar</class>
-	<name>progress_accounts</name>
-	<value>1</value>
-	<lower>0</lower>
-	<upper>1</upper>
-	<bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
-	<orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
-	<activity_mode>False</activity_mode>
-	<show_text>True</show_text>
-	<format>Checking account %s %v of %u</format>
-	<text_xalign>0.5</text_xalign>
-	<text_yalign>0.5</text_yalign>
-	<child>
-	  <padding>0</padding>
-	  <expand>False</expand>
-	  <fill>False</fill>
-	</child>
-      </widget>
-
-      <widget>
-	<class>GtkProgressBar</class>
-	<name>progress_mails</name>
-	<value>1</value>
-	<lower>0</lower>
-	<upper>1</upper>
-	<bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
-	<orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
-	<activity_mode>False</activity_mode>
-	<show_text>True</show_text>
-	<format>Getting e-mail %v of %u (%p%%)</format>
-	<text_xalign>0.5</text_xalign>
-	<text_yalign>0.5</text_yalign>
-	<child>
-	  <padding>0</padding>
-	  <expand>False</expand>
-	  <fill>False</fill>
-	</child>
-      </widget>
-
-      <widget>
-	<class>GtkProgressBar</class>
-	<name>progress_byes</name>
-	<tooltip>This progress bar indicates the progress of the fetch of the current message.</tooltip>
-	<value>1</value>
-	<lower>0</lower>
-	<upper>1</upper>
-	<bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
-	<orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
-	<activity_mode>False</activity_mode>
-	<show_text>True</show_text>
-	<format>%P %%</format>
-	<text_xalign>0.5</text_xalign>
-	<text_yalign>0.5</text_yalign>
-	<child>
-	  <padding>0</padding>
-	  <expand>False</expand>
-	  <fill>False</fill>
-	</child>
-      </widget>
-
-      <widget>
-	<class>GtkScrolledWindow</class>
-	<name>scrolledwindow2</name>
-	<hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
-	<vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
-	<hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
-	<vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
-	<child>
-	  <padding>0</padding>
-	  <expand>True</expand>
-	  <fill>True</fill>
-	</child>
-
-	<widget>
-	  <class>GtkCList</class>
-	  <name>clist</name>
-	  <can_focus>True</can_focus>
-	  <columns>3</columns>
-	  <column_widths>15,79,80</column_widths>
-	  <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
-	  <show_titles>True</show_titles>
-	  <shadow_type>GTK_SHADOW_IN</shadow_type>
-
-	  <widget>
-	    <class>GtkLabel</class>
-	    <child_name>CList:title</child_name>
-	    <name>label8</name>
-	    <sensitive>False</sensitive>
-	    <label></label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	  </widget>
-
-	  <widget>
-	    <class>GtkLabel</class>
-	    <child_name>CList:title</child_name>
-	    <name>label9</name>
-	    <sensitive>False</sensitive>
-	    <label>Account</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	  </widget>
-
-	  <widget>
-	    <class>GtkLabel</class>
-	    <child_name>CList:title</child_name>
-	    <name>label10</name>
-	    <sensitive>False</sensitive>
-	    <label>Description</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	  </widget>
-	</widget>
-      </widget>
-    </widget>
-  </widget>
-</widget>
-
-<widget>
   <class>GnomeAbout</class>
   <name>dlg_about</name>
   <modal>True</modal>
@@ -2965,6 +2760,291 @@ Are you sure you want to delete it?</message>
       <expand>True</expand>
       <fill>True</fill>
     </child>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeDialog</class>
+  <name>dlg_msg_transfer</name>
+  <title>Message Tranfer</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_CENTER</position>
+  <modal>False</modal>
+  <default_width>400</default_width>
+  <default_height>360</default_height>
+  <allow_shrink>True</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>True</auto_shrink>
+  <wmclass_name>cronosii</wmclass_name>
+  <wmclass_class>dlg_msg_transfer</wmclass_class>
+  <auto_close>False</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox9</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area9</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button67</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button69</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkVBox</class>
+      <name>vbox12</name>
+      <homogeneous>False</homogeneous>
+      <spacing>3</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkFrame</class>
+	<name>frame2</name>
+	<label>Tasks</label>
+	<label_xalign>0</label_xalign>
+	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GtkVBox</class>
+	  <name>vbox13</name>
+	  <border_width>3</border_width>
+	  <homogeneous>False</homogeneous>
+	  <spacing>0</spacing>
+
+	  <widget>
+	    <class>GtkProgressBar</class>
+	    <name>task_progress</name>
+	    <tooltip>This bar shows how many task Cronos II has to process related to the transfer of messages</tooltip>
+	    <value>0</value>
+	    <lower>0</lower>
+	    <upper>100</upper>
+	    <bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
+	    <orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
+	    <activity_mode>False</activity_mode>
+	    <show_text>False</show_text>
+	    <format>%P %%</format>
+	    <text_xalign>0.5</text_xalign>
+	    <text_yalign>0.5</text_yalign>
+	    <child>
+	      <padding>0</padding>
+	      <expand>False</expand>
+	      <fill>False</fill>
+	    </child>
+	  </widget>
+	</widget>
+      </widget>
+
+      <widget>
+	<class>GtkFrame</class>
+	<name>subtasks_frame</name>
+	<label>Subtasks</label>
+	<label_xalign>0</label_xalign>
+	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GtkVBox</class>
+	  <name>vbox14</name>
+	  <border_width>3</border_width>
+	  <homogeneous>False</homogeneous>
+	  <spacing>0</spacing>
+
+	  <widget>
+	    <class>GtkProgressBar</class>
+	    <name>subtasks_progress</name>
+	    <tooltip>This bar shows how many subtasks there are for the current task</tooltip>
+	    <value>0</value>
+	    <lower>0</lower>
+	    <upper>100</upper>
+	    <bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
+	    <orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
+	    <activity_mode>False</activity_mode>
+	    <show_text>False</show_text>
+	    <format>%P %%</format>
+	    <text_xalign>0.5</text_xalign>
+	    <text_yalign>0.5</text_yalign>
+	    <child>
+	      <padding>0</padding>
+	      <expand>False</expand>
+	      <fill>False</fill>
+	    </child>
+	  </widget>
+	</widget>
+      </widget>
+
+      <widget>
+	<class>GtkFrame</class>
+	<name>subtask_frame</name>
+	<label>Progress of subtask</label>
+	<label_xalign>0</label_xalign>
+	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GtkVBox</class>
+	  <name>vbox15</name>
+	  <border_width>3</border_width>
+	  <homogeneous>False</homogeneous>
+	  <spacing>0</spacing>
+
+	  <widget>
+	    <class>GtkProgressBar</class>
+	    <name>subtask_progress</name>
+	    <value>0</value>
+	    <lower>0</lower>
+	    <upper>100</upper>
+	    <bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
+	    <orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
+	    <activity_mode>False</activity_mode>
+	    <show_text>False</show_text>
+	    <format>%P %%</format>
+	    <text_xalign>0.5</text_xalign>
+	    <text_yalign>0.5</text_yalign>
+	    <child>
+	      <padding>0</padding>
+	      <expand>False</expand>
+	      <fill>False</fill>
+	    </child>
+	  </widget>
+	</widget>
+      </widget>
+
+      <widget>
+	<class>GtkFrame</class>
+	<name>frame1</name>
+	<label>Tasks's list</label>
+	<label_xalign>0</label_xalign>
+	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GtkScrolledWindow</class>
+	  <name>scrolledwindow11</name>
+	  <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
+	  <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
+	  <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+	  <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+
+	  <widget>
+	    <class>GtkCList</class>
+	    <name></name>
+	    <can_focus>True</can_focus>
+	    <columns>4</columns>
+	    <column_widths>23,52,88,80</column_widths>
+	    <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
+	    <show_titles>True</show_titles>
+	    <shadow_type>GTK_SHADOW_IN</shadow_type>
+
+	    <widget>
+	      <class>Placeholder</class>
+	      <child_name>CList:title</child_name>
+	    </widget>
+
+	    <widget>
+	      <class>GtkLabel</class>
+	      <child_name>CList:title</child_name>
+	      <name>label59</name>
+	      <label>Type</label>
+	      <justify>GTK_JUSTIFY_CENTER</justify>
+	      <wrap>False</wrap>
+	      <xalign>0.5</xalign>
+	      <yalign>0.5</yalign>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	    </widget>
+
+	    <widget>
+	      <class>GtkLabel</class>
+	      <child_name>CList:title</child_name>
+	      <name>label60</name>
+	      <label>Account</label>
+	      <justify>GTK_JUSTIFY_CENTER</justify>
+	      <wrap>False</wrap>
+	      <xalign>0.5</xalign>
+	      <yalign>0.5</yalign>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	    </widget>
+
+	    <widget>
+	      <class>Placeholder</class>
+	      <child_name>CList:title</child_name>
+	    </widget>
+	  </widget>
+	</widget>
+      </widget>
+
+      <widget>
+	<class>GtkCheckButton</class>
+	<name>auto_close_btn</name>
+	<can_focus>True</can_focus>
+	<label>Automatically close when finished.</label>
+	<active>False</active>
+	<draw_indicator>True</draw_indicator>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+    </widget>
   </widget>
 </widget>
 

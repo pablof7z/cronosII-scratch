@@ -3,6 +3,8 @@ noinst_LIBRARIES = libcronosII.a
 libcronosII_a_SOURCES = \
 	account.c			account.h					\
 	db.c				db.h						\
+	db-cronosII.c		db-cronosII.h				\
+	db-imap.c			db-imap.h					\
 	error.c				error.h						\
 						i18n.h						\
 	mailbox.c			mailbox.h					\

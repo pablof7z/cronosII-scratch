@@ -72,12 +72,14 @@ struct _C2DbClass
 GtkType
 c2_db_get_type									(void);
 
+/* Virtual function */
 C2Db *
 c2_db_new										(C2Mailbox *mailbox);
 
 gint
 c2_db_messages									(const C2Db *db);
 
+/* Virtual function */
 C2Db *
 c2_db_message_add								(C2Db *db, const C2Message *message, gint row);
 
@@ -87,12 +89,15 @@ c2_db_message_set_state							(C2Db *db, gint row, C2MessageState state);
 void
 c2_db_message_swap_mark							(C2Db *db, gint row);
 
+/* Virtual function */
 gint
 c2_db_message_remove							(C2Db *db, gint row);
 
+/* Virtual function */
 void
 c2_db_message_load								(C2Db *db);
 
+/* Virtual function */
 C2Message *
 c2_db_message_get								(C2Db *db, gint row);
 

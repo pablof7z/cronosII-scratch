@@ -42,6 +42,8 @@ c2_mailbox_recreate_tree_ids					(C2Mailbox *head);
 
 #define c2_mailbox_search_by_id(x,y)			_c2_mailbox_search_by_id (x, y, 1)
 
+#define c2_mailbox_get_parent(x,y)				c2_mailbox_search_by_id (x, c2_mailbox_get_parent_id (y->id))
+
 static C2Mailbox *
 _c2_mailbox_search_by_id						(C2Mailbox *head, const gchar *id, guint level);
 
@@ -246,12 +248,9 @@ c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
 	}
 
 	if (!mailbox_head)
-	{
-L		c2_mailbox_set_head (mailbox);
-	} else
-	{
-L		c2_mailbox_insert (mailbox_head, mailbox);
-	}
+		c2_mailbox_set_head (mailbox);
+	else
+		c2_mailbox_insert (mailbox_head, mailbox);
 
 	gtk_signal_emit (GTK_OBJECT (mailbox_head),
 						c2_mailbox_signals[CHANGED_MAILBOXES]);
@@ -286,11 +285,11 @@ c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2Mailbox
 		if ((parent = c2_mailbox_get_head ()))
 		{
 			for (; parent->next; parent = parent->next);
-L			id = g_strdup_printf ("%d", atoi (parent->id)+1);
+			id = g_strdup_printf ("%d", atoi (parent->id)+1);
 			C2_DEBUG (id);
 		} else
 		{
-L			id = g_strdup ("0");
+			id = g_strdup ("0");
 		}
 	}
 
@@ -434,78 +433,61 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
  * @mailbox: Mailbox to remove.
  *
  * Removes a mailbox and all of its children.
+ * 
+ * TODO: Ability to delete the mailbox with ID "0".
  **/
 void
 c2_mailbox_remove (C2Mailbox *mailbox)
 {
-	gchar *parent_id;
-	C2Mailbox *parent, *l;
-	gint position;
+	C2Mailbox *parent = NULL, *previous = NULL, *next;
+	gchar *parent_id, *previous_id, *next_id;
+	gint my_id;
 	
 	c2_return_if_fail (mailbox, C2EDATA);
-
-	if (!C2_MAILBOX_IS_TOPLEVEL (mailbox))
+	
+	/* First get the parent/previous and next mailboxes */
+	if (!(my_id = c2_mailbox_get_id (mailbox->id, -1)))
 	{
-		position = strlen (mailbox->id)-1;
-		parent_id = g_strndup (mailbox->id, position);
-		parent = c2_mailbox_search_by_id (mailbox_head, parent_id);
-		g_free (parent_id);
-		
-		if (!parent)
-		{
-			c2_error_set (C2EDATA);
+		/* This mailbox has no previous mailbox in the same level */
+		if (!(parent_id = c2_mailbox_get_parent_id (mailbox->id)))
 			return;
-		}
-
-		/* Also compare the first child */
-		if (*(parent->child->id+position) != *(mailbox->id+position))
-		{
-			for (l = parent->child; l->next != NULL; l = l->next)
-			{
-				if (*(l->next->id+position) == *(mailbox->id+position))
-				{
-					l->next = l->next->next;
-					l = l->next;
-					gtk_object_unref (GTK_OBJECT (mailbox));
-					break;
-				}
-			}
-		} else
-		{
-			parent->child = parent->child->next;
-			gtk_object_unref (GTK_OBJECT (mailbox));
-		}
+		
+		if (!(parent = c2_mailbox_search_by_id (c2_mailbox_get_head (), parent_id)))
+			return;
+		
+		g_free (parent_id);
 	} else
 	{
-		gchar *bro_id;
-		C2Mailbox *bro;
-
-		bro_id = g_strdup_printf ("%d", (*mailbox->id)-49);
-
-		if (atoi (bro_id) != -1)
-		{
-			if (!(bro = c2_mailbox_search_by_id (c2_mailbox_get_head (), bro_id)))
-			{
-				c2_error_set (C2EDATA);
-				return;
-			}
-
-			bro->next = mailbox->next;
-		} else
-		{
-			mailbox_head = mailbox->next;
-			gtk_object_unref (GTK_OBJECT (mailbox));
-		}
-
-		g_free (bro_id);
+		/* This mailbox has a previous mailbox in the same level */
+		if (!C2_MAILBOX_IS_TOPLEVEL (mailbox))
+			previous_id = g_strdup_printf ("%s-%d", c2_mailbox_get_parent_id (mailbox->id), my_id-1);
+		else
+			previous_id = g_strdup_printf ("%d", my_id-1);
+		
+		if (!(previous = c2_mailbox_search_by_id (c2_mailbox_get_head (), previous_id)))
+			return;
+		
+		g_free (previous_id);
 	}
-
-	c2_mailbox_recreate_tree_ids (NULL);
 	
-	gtk_signal_emit (GTK_OBJECT (mailbox_head),
-						c2_mailbox_signals[CHANGED_MAILBOXES]);
+	/* Here we should already have the parent or the previous mailbox */
+	/* Get the next mailbox */
+	next = mailbox->next;
 
-	return;
+	if (parent)
+		parent->child = next;
+	else
+		previous->next = next;
+
+	if (!parent && (parent = c2_mailbox_get_parent (c2_mailbox_get_head (), mailbox)));
+	else
+		parent = c2_mailbox_get_head ();
+	
+	c2_mailbox_recreate_tree_ids (parent);
+
+	gtk_signal_emit (GTK_OBJECT (c2_mailbox_get_head ()), c2_mailbox_signals[CHANGED_MAILBOXES]);
+
+	gtk_object_unref (GTK_OBJECT (mailbox));
 }
 
 static void
@@ -551,7 +533,6 @@ _c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id, guint level)
 
 	top_id = c2_mailbox_get_id (id, level);
 
-	/* Comparar el primer id y despues llamarme pasandome el strstr (id, "-") */
 	for (l = head; l != NULL; l = l->next)
 	{
 		ck_id = c2_mailbox_get_id (l->id, level);
