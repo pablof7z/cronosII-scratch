@@ -30,3 +30,7 @@ request_LDFLAGS = $(LDFLAGS)
 pop3_test_SOURCES = pop3_test.c
 pop3_test_LDADD = $(LDADD)
 pop3_test_LDFLAGS = $(LDFLAGS)
+
+smtp_SOURCED = smtp.c
+smtp_LDADD = $(LDADD)
+smtp_LDFLAGS = $(LDFLAGS)
