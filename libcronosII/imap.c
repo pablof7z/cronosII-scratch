@@ -86,6 +86,9 @@ c2_imap_get_folder_level (gchar *name);
 static gchar *
 c2_imap_get_folder_heirarchy (gchar *name, guint level);
 
+gchar *
+c2_imap_get_full_folder_name (C2IMAP *imap, C2Mailbox *mailbox);
+
 /* Misc. functions */
 static tag_t
 c2_imap_get_tag								(C2IMAP *imap);
@@ -558,7 +561,12 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 	gchar *buf, *ptr, *start, *name;
 	C2Mailbox *box;
 	
-	if(parent) name = g_strconcat(parent->protocol.IMAP.imap_name, "/%", NULL);
+	if(parent) 
+	{
+		buf = c2_imap_get_full_folder_name(imap, parent);
+		name = g_strconcat(buf, "/%", NULL);
+		g_free(buf);
+	}
 	else name = g_strdup("%");
 	
 	if(!(buf = c2_imap_get_folder_list(imap, NULL, name)))
@@ -631,7 +639,6 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 				{
 					name = g_strndup(ptr2, strlen(ptr2) - 1);
 					g_free(folder->name);
-					folder->protocol.IMAP.imap_name = name;
 					folder->name = c2_imap_get_folder_heirarchy
 						(name, c2_imap_get_folder_level(name));
 					if(!folder->protocol.IMAP.noinferiors)
@@ -682,6 +689,46 @@ c2_imap_get_folder_heirarchy (gchar *name, guint level)
 	}
 	
 	return buf;
+}
+
+/* c2_imap_get_full_folder_name
+ * @imap: C2IMAP object
+ * @mailbox: Mailbox whose name is to be fetched
+ * 
+ * This function is used to find out the full path
+ * of an imap mailbox in standard imap form:
+ * "Inbox/mailing lists/software/CronosII"
+ * 
+ * Return Value:
+ * A freeable string of the full name of the mailbox
+ **/
+gchar *
+c2_imap_get_full_folder_name (C2IMAP *imap, C2Mailbox *mailbox)
+{
+	C2Mailbox *temp;
+	gint level = c2_mailbox_get_level(mailbox->id);
+	gchar *id, *str, *name = NULL;
+	
+	if(level == 1)
+		return g_strdup(mailbox->name);
+	
+	for( ; level > 1; level--)
+	{
+		id = c2_mailbox_get_parent_id(mailbox->id);
+		temp = c2_mailbox_get_by_id(imap->mailboxes, id);
+	 	g_free(id);
+ 		if(!name)
+			name = g_strconcat(temp->name, "/", mailbox->name, NULL);
+		else
+	 	{
+			str = g_strconcat(temp->name, "/", name, NULL);
+		 	g_free(name);
+			name = str;
+		}
+		mailbox = temp;
+	}
+	
+	return name;
 }
 
 static gint
@@ -766,25 +813,27 @@ c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name)
  * The new C2Mailbox on success, NULL on failure
  **/
 C2Mailbox *
-c2_imap_create_folder(C2IMAP *imap, const C2Mailbox *parent, const gchar *name)
+c2_imap_create_folder(C2IMAP *imap, C2Mailbox *parent, const gchar *name)
 {
 	C2Mailbox *mailbox;
-	gchar *reply, *id = NULL;
+	gchar *reply, *buf = NULL, *id = NULL;
 	tag_t tag;
 	
 	c2_mutex_lock(&imap->lock);
 	
 	tag = c2_imap_get_tag(imap);
 	
+	if(parent) buf = c2_imap_get_full_folder_name(imap, parent);
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d CREATE " 
-		"\"%s%s%s\"\r\n", tag, parent ? parent->protocol.IMAP.imap_name : "", 
-		parent ? "/" : "", name) < 0)
+		"\"%s%s%s\"\r\n", tag, buf ? buf : "", buf ? "/" : "", name) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
 		c2_mutex_unlock(&imap->lock);
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+		g_free(buf);
 		return NULL;
 	}
+	g_free(buf);
 	
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
 	{
@@ -820,7 +869,7 @@ c2_imap_create_folder(C2IMAP *imap, const C2Mailbox *parent, const gchar *name)
 gint
 c2_imap_delete_folder(C2IMAP *imap, C2Mailbox *mailbox)
 {
-	gchar *reply;
+	gchar *reply, *name;
 	tag_t tag;
 	
 	printf("folder name is: %s\n", mailbox->name);
@@ -829,14 +878,17 @@ c2_imap_delete_folder(C2IMAP *imap, C2Mailbox *mailbox)
 	
 	tag = c2_imap_get_tag(imap);
 	
+	name = c2_imap_get_full_folder_name(imap, mailbox);
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d DELETE "
-					"\"%s\"\r\n", tag, mailbox->protocol.IMAP.imap_name) < 0)
+					"\"%s\"\r\n", tag, name) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		c2_mutex_unlock(&imap->lock);
+		g_free(name);
 		return -1;
 	}
+	g_free(name);
 	
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
 	{
@@ -874,7 +926,7 @@ c2_imap_delete_folder(C2IMAP *imap, C2Mailbox *mailbox)
 gint
 c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
 {
-	gchar *reply;
+	gchar *reply, *oldname;
 	tag_t tag;
 	gint i;
 	
@@ -882,14 +934,17 @@ c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
 	
 	tag = c2_imap_get_tag(imap);
 	
+	oldname = c2_imap_get_full_folder_name(imap, mailbox);
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d RENAME "
-				"\"%s\" \"%s\"\r\n", mailbox->protocol.IMAP.imap_name, name) < 0)
+				"\"%s\" \"%s\"\r\n", oldname, name) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		c2_mutex_unlock(&imap->lock);
+		g_free(oldname);
 		return -1;
 	}
+	g_free(oldname);
 	
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
 	{
@@ -910,8 +965,6 @@ c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
 	mailbox->name = g_strdup(name);
 	
 	c2_mutex_unlock(&imap->lock);
-	/* fatty but a good precaution to keep folder imap names in sync */
-	c2_imap_populate_folders(imap);
 	
 	return 0;
 }

@@ -123,7 +123,7 @@ gint
 c2_imap_populate_folders					(C2IMAP *imap);
 
 C2Mailbox *
-c2_imap_create_folder						(C2IMAP *imap, const C2Mailbox *parent, const gchar *name);
+c2_imap_create_folder						(C2IMAP *imap, C2Mailbox *parent, const gchar *name);
 
 gint
 c2_imap_delete_folder						(C2IMAP *imap, C2Mailbox *mailbox);
@@ -131,6 +131,10 @@ c2_imap_delete_folder						(C2IMAP *imap, C2Mailbox *mailbox);
 gint
 c2_imap_rename_folder						(C2IMAP *imap, C2Mailbox *mailbox, gchar *name);	
 
+	gchar *
+		c2_imap_get_full_folder_name (C2IMAP *imap, C2Mailbox *mailbox);
+	
+	
 #ifdef __cplusplus
 }
 #endif
