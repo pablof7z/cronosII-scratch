@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +15,12 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández López
+ * Code of this file by:
+ * 		* Pablo Fernández López
+ */
 #ifndef __LIBCRONOSII_DB_H__
 #define __LIBCRONOSII_DB_H__
 
@@ -22,13 +28,25 @@
 extern "C" {
 #endif
 
+#ifdef BUILDING_C2
+#	include <config.h>
+#else
+#	include <cronosII.h>
+#endif
+
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <time.h>
 
 #define C2_TYPE_DB								(c2_db_get_type ())
-#define C2_DB(obj)								(GTK_CHECK_CAST (obj, C2_TYPE_DB, C2Db))
-#define C2_DB_CLASS(klass)						(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_DB, C2DbClass))
+#ifdef USE_DEBUG
+#	define C2_DB(obj)							(GTK_CHECK_CAST (obj, C2_TYPE_DB, C2Db))
+#	define C2_DB_CLASS(klass)					(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_DB, C2DbClass))
+#else
+#	define C2_DB(obj)							((C2Db*)obj)
+#	define C2_DB_CLASS(klass)					((C2DbClass*)klass)
+#endif
+		
 #define C2_IS_DB(obj)							(GTK_CHECK_TYPE (obj, C2_TYPE_DB))
 #define C2_IS_DB_CLASS(klass)					(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_DB))
 
@@ -122,22 +140,22 @@ c2_db_freeze								(C2Mailbox *mailbox);
 void
 c2_db_thaw									(C2Mailbox *mailbox);
 
-gint
+gboolean
 c2_db_load									(C2Mailbox *mailbox);
 
-gint
+gboolean
 c2_db_message_add							(C2Mailbox *mailbox, C2Message *message);
 
-gint
+gboolean
 c2_db_message_add_list						(C2Mailbox *mailbox, GList *list);
 
-gint
-c2_db_message_remove						(C2Mailbox *mailbox, gint position);
+gboolean
+c2_db_message_remove						(C2Mailbox *mailbox, C2Db *db);
 
-gint
+gboolean
 c2_db_message_remove_by_mid					(C2Mailbox *mailbox, gint mid);
 
-gint
+gboolean
 c2_db_message_remove_list					(C2Mailbox *mailbox, GList *list);
 
 void

@@ -15,6 +15,13 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández Navarro
+ * Code of this file by:
+ * 		* Pablo Fernández Navarro
+ * 		* Bosko Blagojevic
+ */
 #include <gtk/gtk.h>
 
 #include <libcronosII/error.h>

@@ -19,7 +19,12 @@
    Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
 /* Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, 1995.  */
-
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández Navarro
+ * Code of this file by:
+ * 		* Ulrich Drepper
+ */
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif

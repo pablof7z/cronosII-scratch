@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +14,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández López
+ * Code of this file by:
+ * 		* Pablo Fernández López
  */
 #include <glib.h>
 
@@ -154,7 +160,7 @@ c2_net_send (guint sock, const gchar *fmt, ...)
 	va_start (args, fmt);
 	retval = c2_net_sendv (sock, fmt, args);
 	va_end (args);
-	
+
 	return retval;
 }
 
@@ -177,6 +183,7 @@ c2_net_sendv (guint sock, const gchar *fmt, va_list args)
 		tracker_set_send (value);
 		bytes += value;
 	}
+	C2_DEBUG (string);
 	g_free (string);
 	
 	return bytes;
@@ -227,6 +234,7 @@ c2_net_read (guint sock, gchar **string)
 	tmpstring[1023] = '\0';
 
 	*string = g_strdup (tmpstring);
+	C2_DEBUG (*string);
 	return bytes;
 }
 

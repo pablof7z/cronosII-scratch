@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,11 +15,23 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández López
+ * Code of this file by:
+ * 		* Pablo Fernández López
+ */
 #ifndef __LIBCRONOSII_MAILBOX_H__
 #define __LIBCRONOSII_MAILBOX_H__
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifdef BUILDING_C2
+#	include <config.h>
+#else
+#	include <cronosII.h>
 #endif
 
 #include <glib.h>
@@ -28,8 +40,14 @@ extern "C" {
 #include <pthread.h>
 	
 #define C2_TYPE_MAILBOX						(c2_mailbox_get_type ())
-#define C2_MAILBOX(obj)						(GTK_CHECK_CAST (obj, C2_TYPE_MAILBOX, C2Mailbox))
-#define C2_MAILBOX_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_MAILBOX, C2MailboxClass))
+#ifdef USE_DEBUG
+#	define C2_MAILBOX(obj)					(GTK_CHECK_CAST (obj, C2_TYPE_MAILBOX, C2Mailbox))
+#	define C2_MAILBOX_CLASS(klass)			(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_MAILBOX, C2MailboxClass))
+#else
+#	define C2_MAILBOX(obj)					((C2Mailbox*)obj)
+#	define C2_MAILBOX_CLASS(klass)			((C2MailboxClass)klass)
+#endif
+
 #define C2_IS_MAILBOX(obj)					(GTK_CHECK_TYPE (obj, C2_TYPE_MAILBOX))
 #define C2_IS_MAILBOX_CLASS(klass)			(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_MAILBOX))
 
@@ -43,7 +61,7 @@ typedef enum _C2MailboxChangeType C2MailboxChangeType;
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include "db.h"
 #	include "imap.h"
-# include "utils-mutex.h"
+#	include "utils-mutex.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -53,8 +71,6 @@ typedef enum _C2MailboxChangeType C2MailboxChangeType;
 enum _C2MailboxSortBy
 {
 	C2_MAILBOX_SORT_STATUS,
-	C2_MAILBOX_SORT_UNUSED1,
-	C2_MAILBOX_SORT_UNUSED2,
 	C2_MAILBOX_SORT_SUBJECT,
 	C2_MAILBOX_SORT_FROM,
 	C2_MAILBOX_SORT_DATE,
@@ -97,6 +113,8 @@ struct _C2Mailbox
 		struct
 		{
 			FILE *fd;
+			gint mid; /* Mid in line where we are */
+			C2Mutex lock;
 		} cronosII;
 		struct
 		{

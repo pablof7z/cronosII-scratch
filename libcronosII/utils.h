@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +14,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández López
+ * Code of this file by:
+ * 		* Pablo Fernández López
  */
 #ifndef __LIBCRONOSII_UTILS_H__
 #define __LIBCRONOSII_UTILS_H__
@@ -63,13 +69,16 @@ typedef struct
 #	define C2_DEBUG(x)						g_print ("%s:%d:%s:%s: %s\n", __FILE__, __LINE__,\
 													__PRETTY_FUNCTION__, #x, x)
 #	define C2_DEBUG_(x)						{ x }
+#	define C2_TODO							g_print ("%s:%d:%s: TODO\n" __FILE__, __LINE__, \
+													__PRETTY_FUNCTION__)
 #else
 #	define L								;
 #	define C2_DEBUG(x)						;
 #	define C2_DEBUG_(x)						;
+#	define C2_TODO							;
 #endif
 
-#define unless(x)							if (!x)
+#define unless(x)							if (FAIL(x))
 	
 gboolean
 c2_strcaseeq								(const gchar *fst, const gchar *snd);
@@ -113,6 +122,9 @@ c2_str_wrap									(const gchar *str, guint8 position);
 
 gchar *
 c2_str_text_to_html							(const gchar *str, gboolean proc_email);
+
+gchar *
+c2_str_get_striped_subject					(const gchar *subject);
 
 GList *
 c2_str_get_emails							(const gchar *string);

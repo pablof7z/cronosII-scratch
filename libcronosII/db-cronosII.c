@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +15,18 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández López
+ * Code of this file by:
+ * 		* Pablo Fernández López
+ */
+
+/* If you are reading this for the first time
+ * you probably want to read the notes in the
+ * file db.c
+ */
+
 #include <glib.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -29,24 +41,330 @@
 #include "mailbox.h"
 #include "utils.h"
 
-#define READ_ONLY "rt"
-#define WRITE_ONLY "at"
-#define READ_WRITE "rt+"
-
 /* [TODO]
  * 010916 - Make a function that returns the last MID of a Mailbox.
  */
 
-static FILE *
-get_index									(C2Mailbox *mailbox, const gchar *mode, gchar **path);
+/**
+ * cache_index
+ * @mailbox:
+ *
+ * This function will try to open a file descriptor
+ * to the index file of the mailbox @mailbox.
+ *
+ * Return Value:
+ * %TRUE if the file descriptor was opened will exist
+ * after the call to this function or %FALSE.
+ **/
+static gboolean
+cache_index (C2Mailbox *mailbox)
+{
+	gchar *path;
+	
+	if (mailbox->protocol.cronosII.fd)
+		return TRUE;
+
+	path = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name,
+							".mbx" G_DIR_SEPARATOR_S "index", NULL);
+	if (!(mailbox->protocol.cronosII.fd = fopen (path, "rt+")))
+	{
+		g_free (path);
+		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
+		return FALSE;
+	}
+	
+	g_free (path);
+	return TRUE;
+}
 
 static gint
-add_message									(C2Mailbox *mailbox, FILE *fd, C2Db *db);
+get_mid_from_position (C2Mailbox *mailbox, gint position)
+{
+	C2Db *db;
 
+	if (mailbox->db)
+	{
+		db = mailbox->db;
+
+		do
+			if (db->position == position)
+				return db->mid;
+		while (c2_db_lineal_next (db));
+	}
+
+	return -1;
+}
+
+static void
+_lock (C2Mailbox *mailbox)
+{
+	c2_mutex_lock (&mailbox->protocol.cronosII.lock);
+}
+
+static void
+_try_lock (C2Mailbox *mailbox)
+{
+	c2_mutex_trylock (&mailbox->protocol.cronosII.lock);
+}
+
+static void
+_unlock (C2Mailbox *mailbox)
+{
+	c2_mutex_unlock (&mailbox->protocol.cronosII.lock);
+}
+
+static void
+_rewind (C2Mailbox *mailbox)
+{
+	rewind (mailbox->protocol.cronosII.fd);
+	mailbox->protocol.cronosII.mid = -1;
+}
+
+/**
+ * This function will find the MID of the line
+ * where the FD is currently set or the MID of
+ * the next valid line.
+ * The FD will be positionated at the start of
+ * the line.
+ **/
 static gint
-remove_message								(C2Mailbox *mailbox, FILE *fd, gint *line,
-											 gint n, C2Db **db);
+mid_in_line (C2Mailbox *mailbox, gint *length)
+{
+	gchar c;
+	gint line_length;
+	gint sep;
+	gint mid = -1;
+	FILE *fd;
 
+	fd = mailbox->protocol.cronosII.fd;
+	
+	/* Go through the line */
+start:
+	for (sep = 0, line_length = 0; fread (&c, 1, sizeof (gchar), fd);)
+	{
+		/* EOF reached */
+		if (c == EOF)
+		{
+			_rewind (mailbox);
+			return -1;
+		}
+
+		/* A D reached */
+		if (!sep && c == 'D')
+		{
+			for (; fread (&c, 1, sizeof (gchar), fd);)
+			{
+				if (c == '\n')
+					goto start;
+				else if (c == EOF)
+				{
+					_rewind (mailbox);
+					return -1;
+				}
+			}
+		}
+
+		/* A \n reached */
+		if (c == '\n')
+			goto start;
+			
+		line_length++;
+			
+		/* A \r reached */
+		if (c == '\r')
+		{
+			if (++sep == 7)
+			{
+				gchar buffer[11];
+				gint bi = 0;
+
+				for (bi = 0;; bi++)
+				{
+					line_length++;
+					fread (&buffer[bi], 1, sizeof (gchar), fd);
+				
+					if (buffer[bi] == '\n' || buffer[bi] == EOF)
+						break;
+				}
+
+				buffer[bi] = 0;
+					
+				mid = atoi (buffer);
+				mailbox->protocol.cronosII.mid = mid;
+
+				fseek (fd, -(line_length), SEEK_CUR);
+				break;
+			}
+		}
+	}
+
+	if (length)
+		*length = line_length;
+	
+	return mid;
+}
+
+/**
+ * This function will do the same
+ * thing as mid_in_line but will
+ * go to the previous line instead
+ * of to the next line.
+ **/
+static gint
+mid_in_line_reverse (C2Mailbox *mailbox, gint *length)
+{
+	gchar c;
+	gint line_length;
+	gint sep;
+	gint mid = -1;
+	FILE *fd;
+
+	fd = mailbox->protocol.cronosII.fd;
+	
+	/* Go through the line */
+start:
+	for (sep = 0, line_length = 0; fread (&c, 1, sizeof (gchar), fd);)
+	{
+		/* EOF reached */
+		if (c == EOF)
+		{
+			_rewind (mailbox);
+			return -1;
+		}
+
+		/* A D reached */
+		if (c == 'D')
+		{
+			if (!c2_fd_move_to (mailbox->protocol.cronosII.fd, '\n', 2, FALSE, TRUE))
+			{
+				c2_error_object_set (GTK_OBJECT (mailbox), c2_errno);
+				_rewind (mailbox);
+				return -1;
+			}
+		}
+
+		/* A \n reached */
+		if (c == '\n')
+			goto start;
+			
+		line_length++;
+			
+		/* A \r reached */
+		if (c == '\r')
+		{
+			if (++sep == 7)
+			{
+				gchar buffer[11];
+				gint bi = 0;
+
+				for (bi = 0;; bi++)
+				{
+					line_length++;
+					fread (&buffer[bi], 1, sizeof (gchar), fd);
+				
+					if (buffer[bi] == '\n' || buffer[bi] == EOF)
+						break;
+				}
+
+				buffer[bi] = 0;
+					
+				mid = atoi (buffer);
+				mailbox->protocol.cronosII.mid = mid;
+
+				fseek (fd, -(line_length), SEEK_CUR);
+				break;
+			}
+		}
+	}
+
+	if (length)
+		*length = line_length;
+	
+	return mid;
+}
+
+/**
+ * This function will go to an specific MID
+ * in an index file.
+ **/
+static gboolean
+goto_mid (C2Mailbox *mailbox, gint req_mid)
+{
+	gboolean found = FALSE;
+	gint line_length;
+	
+	if (!cache_index (mailbox))
+		return FALSE;
+
+	if (mailbox->protocol.cronosII.mid < req_mid)
+	{
+current_mid_less_than_req_mid:
+
+		/* Go through the lines */
+		for (;;)
+		{
+			gint fmid;
+
+			if ((fmid = mid_in_line (mailbox, &line_length)) < 0)
+			{
+				found = FALSE;
+				_rewind (mailbox);
+				break;
+			}
+			
+			if (fmid == req_mid)
+			{
+				found = TRUE;
+				break;
+			} else
+				fseek (mailbox->protocol.cronosII.fd, line_length, SEEK_CUR);
+		}
+	} else if (mailbox->protocol.cronosII.mid > req_mid)
+	{
+		/* FIXME This is an ugly thing to do, lets change it */
+		_rewind (mailbox);
+		goto current_mid_less_than_req_mid;
+
+		/* Go through the lines backwards */
+		for (;;)
+		{
+			if (!c2_fd_move_to (mailbox->protocol.cronosII.fd, '\n', 1, FALSE, TRUE))
+			{
+move_error:
+				c2_error_object_set (GTK_OBJECT (mailbox), c2_errno);
+				found = FALSE;
+				_rewind (mailbox);
+				break;
+			} else
+			{
+				if (!c2_fd_move_to (mailbox->protocol.cronosII.fd, '\r', 7, FALSE, FALSE))
+					goto move_error;
+				if (fseek (mailbox->protocol.cronosII.fd, -1, SEEK_CUR) < 0)
+				{
+					c2_error_set (-errno);
+					goto move_error;
+				}
+
+				if (mid_in_line_reverse (mailbox, &line_length) == req_mid)
+				{
+					found = TRUE;
+					break;
+				} else
+					fseek (mailbox->protocol.cronosII.fd, -(line_length+1), SEEK_CUR);
+			}
+		}
+	} else
+		found = TRUE;
+
+	return found;
+}
+
+
+
+
+/******************************************
+ * Structure functions
+ ******************************************/
 gboolean
 c2_db_cronosII_create_structure (C2Mailbox *mailbox)
 {
@@ -56,7 +374,8 @@ c2_db_cronosII_create_structure (C2Mailbox *mailbox)
 	if (mkdir (path, 0700) < 0)
 	{
 		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
-		g_warning (_("Unable to create structure for Cronos II Db: %s\n"), c2_error_get ());
+		g_warning (_("Unable to create structure for Cronos II Db: %s\n"),
+						c2_error_object_get (GTK_OBJECT (mailbox)));
 		return FALSE;
 	}
 
@@ -112,76 +431,20 @@ c2_db_cronosII_remove_structure (C2Mailbox *mailbox)
 	return TRUE;
 }
 
-static FILE *
-get_index (C2Mailbox *mailbox, const gchar *mode, gchar **path)
+gboolean
+c2_db_cronosII_goto_mid (C2Mailbox *mailbox, gint mid)
 {
-	gchar *_path;
-	FILE *fd;
-
-	/* Calculate the path */
-	_path = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
-
-	/* Open the file */
-	if (!(fd = fopen (_path, mode)))
-	{
-		C2_DEBUG (_path);
-		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
-		return NULL;
-	}
-
-	if (path)
-		*path = _path;
-	else
-		g_free (_path);
-
-	return fd;
-}
-
-static gint
-goto_line (C2Mailbox *mailbox, FILE *fd, gint *line, gint n, C2Db **db)
-{
-	for (;;)
-	{
-		if (fgetc (fd) == '?')
-		{
-			if (!c2_fd_move_to (fd, '\n', 1, TRUE, TRUE))
-			{
-				printf ("Unable to find the next new line, position in "
-						"index file is %ld.\n", ftell (fd)); L
-				return -1;
-			}
-			continue;
-		}
-		fseek (fd, -1, SEEK_CUR);
-
-		/* We can count this as a line because it doesn't starts with '?' */
-		if ((*line)++ != n)
-		{
-			*db = (*db)->next;
-			
-			if (!c2_fd_move_to (fd, '\n', 1, TRUE, TRUE))
-			{
-				return -1;
-			}
-			continue;
-		}
-
-		break;
-	}
-
-	return 0;
+	return goto_mid (mailbox, mid);
 }
 
 void
 c2_db_cronosII_freeze (C2Mailbox *mailbox)
 {
-	mailbox->protocol.cronosII.fd = get_index (mailbox, READ_WRITE, NULL);
 }
 
 void
 c2_db_cronosII_thaw (C2Mailbox *mailbox)
 {
-	fclose (mailbox->protocol.cronosII.fd);
 }
 
 /**
@@ -197,32 +460,49 @@ gint
 c2_db_cronosII_load (C2Mailbox *mailbox)
 {
 	C2Db *current = NULL, *next;
-	gchar *line, *buf;
-	gboolean mark;
 	FILE *fd;
-	gint i, mid;
+	gint position, mid;
+	gchar c, *line, *buf;
+	gboolean mark;
 	time_t date;
 
 	c2_return_val_if_fail_obj (mailbox, -1, C2EDATA, GTK_OBJECT (mailbox));	
 
-	if (!(fd = get_index (mailbox, READ_ONLY, NULL)))
+	/* Initialization */
+	if (!cache_index (mailbox))
 		return -1;
-
-	for (i = 0; (line = c2_fd_get_line (fd)) != NULL;)
+	
+	_lock (mailbox);
+	fd = mailbox->protocol.cronosII.fd;
+	_rewind (mailbox);
+	
+	/* Go through the lines */
+	for (position = 0;;)
 	{
-		if (*line == '?')
+		if (fread (&c, 1, sizeof (gchar), fd) < 1)
+			break;
+
+		/* A D has been reached */
+		if (c == 'D')
 		{
-			g_free (line);
+			/* Lets go to the next line.. */
+			if (!c2_fd_move_to (fd, '\n', 1, TRUE, TRUE))
+				break;
+
+			/* .. and start again */
 			continue;
 		}
 
-		buf = c2_str_get_word (1, line, '\r');
-		if (c2_streq (buf, "MARK"))
-			mark = 1;
-		else
-			mark = 0;
-		g_free (buf);
+		/* Now that we know this is an interesting line,
+		 * lets grab it.
+		 */
+		if (!(line = c2_fd_get_line (fd)))
+		{
+			c2_error_object_set (GTK_OBJECT (mailbox), c2_errno);
+			break;
+		}
 
+		/* Create the new C2Db */
 		buf = c2_str_get_word (5, line, '\r');
 		date = atoi (buf);
 		g_free (buf);
@@ -230,20 +510,27 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 		buf = c2_str_get_word (7, line, '\r');
 		mid = atoi (buf);
 		g_free (buf);
+		mailbox->protocol.cronosII.mid = mid;
+
+		buf = c2_str_get_word (2, line, '\r');
+		mark = atoi (buf);
+		g_free (buf);
 
 		next = c2_db_new (mailbox, mark, c2_str_get_word (3, line, '\r'),
 							c2_str_get_word (4, line, '\r'),
 							c2_str_get_word (6, line, '\r'),
-							date, mid, i+1);
-		
-		buf = c2_str_get_word (0, line, '\r');
-		if (buf)
-		{
-			next->state = (C2MessageState) *buf;
-		} else
-			next->state = C2_MESSAGE_READED;
-		g_free (buf);
+							date, mid, ++position);
 
+		switch (c)
+		{
+			default:
+			case ' ': next->state = C2_MESSAGE_READED; break;
+			case 'N': next->state = C2_MESSAGE_UNREADED; break;
+			case 'R': next->state = C2_MESSAGE_REPLIED; break;
+			case 'F': next->state = C2_MESSAGE_FORWARDED; break;
+		}
+
+		/* Append it to the list */
 		if (current)
 			current->next = next;
 
@@ -251,34 +538,12 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 			mailbox->db = next;
 
 		current = next;
-
-		g_free (line);
-		i++;
 	}
-
-	return i;
-}
-
-static gint
-add_message (C2Mailbox *mailbox, FILE *fd, C2Db *db)
-{
-	gchar *buf;
 	
-	fprintf (fd, "%c\r\r%d\r%s\r%s\r%d\r%s\r%d\n",
-				db->state, db->mark, db->subject, db->from, db->date, db->account, db->mid);
+	_unlock (mailbox);
+	_rewind (mailbox);
 
-	buf = g_strdup_printf ("%s" C2_HOME "%s.mbx/%d", g_get_home_dir (), mailbox->name, db->mid);
-	if (!(fd = fopen (buf, "wt")))
-	{
-		g_free (buf);
-		return -errno;
-	}
-
-	fprintf (fd, "%s\n\n%s", db->message->header, db->message->body);
-	fclose (fd);
-	g_free (buf);
-
-	return 0;
+	return position;
 }
 
 gboolean
@@ -286,7 +551,17 @@ c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 {
 	gint mid = 0;
 	FILE *fd;
+	gchar *buf;
+	C2MessageState state;
 
+	/* Initialization */
+	if (!cache_index (mailbox))
+		return FALSE;
+
+	_lock (mailbox);
+	fd = mailbox->protocol.cronosII.fd;
+
+	/* Get the MID */
 	if (mailbox->db)
 		mid = mailbox->db->prev->prev->mid+1;
 
@@ -295,87 +570,86 @@ c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 
 	db->mid = mid;
 	
-	if (!mailbox->freezed)
+	fseek (fd, 0, SEEK_END);
+
+	switch (db->state)
 	{
-		if (!(fd = get_index (mailbox, WRITE_ONLY, NULL)))
-			return FALSE;
-	} else
-	{
-		fd = mailbox->protocol.cronosII.fd;
-		fseek (fd, 0, SEEK_END);
+		case C2_MESSAGE_READED: state = ' '; break;
+		default:
+		case C2_MESSAGE_UNREADED: state = 'N'; break;
+		case C2_MESSAGE_REPLIED: state = 'R'; break;
+		case C2_MESSAGE_FORWARDED: state = 'F'; break;
 	}
 
-	if ((mid = add_message (mailbox, fd, db)))
+	fprintf (fd, "%c\r\r%d\r%s\r%s\r%d\r%s\r%d\n",
+					state, db->mark, db->subject, db->from,
+					db->date, db->account, db->mid);
+
+	/* Now write to its own file */
+	buf = g_strdup_printf ("%s" C2_HOME "%s.mbx/%d", g_get_home_dir (), mailbox->name, db->mid);
+	if (!(fd = fopen (buf, "wt")))
 	{
-		fclose (fd);
-		c2_error_object_set (GTK_OBJECT (mailbox), mid);
+		g_free (buf);
+		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
 		return FALSE;
 	}
+	g_free (buf);
 
-	if (!mailbox->freezed)
-		fclose (fd);
+	fprintf (fd, "%s\n\n%s", db->message->header, db->message->body);
+	fclose (fd);
+
+	_rewind (mailbox);
+	_unlock (mailbox);
 
 	return TRUE;
-}
-
-static gint
-remove_message (C2Mailbox *mailbox, FILE *fd, gint *line, gint n, C2Db **db)
-{
-	gchar *mpath;
-	
-	if (goto_line (mailbox, fd, line, n, db) < 0)
-		return -1;
-	
-	/* Remove this mail */
-	fputc ('?', fd);
-	if (!c2_fd_move_to (fd, '\n', 1, TRUE, TRUE))
-	{
-		*db = (*db)->next;
-		printf ("Error!\n"); L
-		return -1;
-	}
-	
-	/* Remove mail file */
-	mpath = g_strdup_printf ("%s" C2_HOME "%s.mbx" G_DIR_SEPARATOR_S "%d",
-							 g_get_home_dir (), mailbox->name, (*db)->mid);
-	if (unlink (mpath) < 0)
-	{
-		printf ("Error!\n"); L
-		perror (mpath);
-	}
-	g_free (mpath);
-	*db = (*db)->next;
-
-	return 0;
 }
 
 gint
 c2_db_cronosII_message_remove (C2Mailbox *mailbox, GList *list)
 {
-	FILE *fd;
-	C2Db *db;
 	GList *l;
-	gint line;
 	gint retval = 0;
+	gchar *basedir;
+	gchar *strmid;
+	gchar *path = NULL;
+	gint basedir_length, length;
+	C2Db *db;
 
-	if (!(fd = get_index (mailbox, READ_WRITE, NULL)))
-		return -1;
+	_lock (mailbox);
+
+	basedir = g_strdup_printf ("%s" C2_HOME "%s.mbx" G_DIR_SEPARATOR_S, g_get_home_dir (), mailbox->name);
+	basedir_length = strlen (basedir);
 	
-	fseek (fd, 0, SEEK_SET);
-
-	for (l = list, line = 0, db = mailbox->db; l; l = g_list_next (l))
+	for (l = list; l; l = g_list_next (l))
 	{
-		gint n = GPOINTER_TO_INT (l->data);
+		db = (C2Db*) l->data;
+		
+		if (!goto_mid (mailbox, db->mid))
+			continue;
 
-		if (remove_message (mailbox, fd, &line, n, &db) < 0)
+		fputc ('D', mailbox->protocol.cronosII.fd);
+		fseek (mailbox->protocol.cronosII.fd, -1, SEEK_CUR);
+		strmid = g_strdup_printf ("%d", db->mid);
+		length = basedir_length + strlen (strmid) + 1;
+		path = g_realloc (path, length);
+		strcpy (path, basedir);
+		strcat (path, strmid);
+		path[length-1] = 0;
+		g_free (strmid);
+
+		if (unlink (path) < 0)
 		{
-			retval = -1;
-			break;
+			c2_error_object_set (GTK_OBJECT (mailbox), -errno);
+			perror ("unlink");
+			C2_DEBUG (path);
 		}
 	}
-	
-	fclose (fd);
 
+	g_free (path);
+	g_free (basedir);
+
+	_unlock (mailbox);
+	
 	return retval;
 }
 
@@ -383,33 +657,68 @@ void
 c2_db_cronosII_message_set_state (C2Db *db, C2MessageState state)
 {
 	C2Mailbox *mailbox;
-	gint line;
-	C2Db *_db;
-	FILE *fd;
-	gchar buf[80];
+	gchar c;
+
+	switch (state)
+	{
+		case C2_MESSAGE_UNREADED:
+			c = 'N';
+			break;
+		case C2_MESSAGE_READED:
+			c = ' ';
+			break;
+		case C2_MESSAGE_REPLIED:
+			c = 'R';
+			break;
+		case C2_MESSAGE_FORWARDED:
+			c = 'F';
+			break;
+		default:
+			g_assert_not_reached ();
+	}
 
 	mailbox = db->mailbox;
-	
-	if (!(fd = get_index (mailbox, READ_WRITE, NULL)))
+	_lock (mailbox);
+
+	if (!goto_mid (mailbox, db->mid))
 		return;
 
-	fseek (fd, 0, SEEK_SET);
+	fputc (c, mailbox->protocol.cronosII.fd);
+	fseek (mailbox->protocol.cronosII.fd, -1, SEEK_CUR);
 
-	line = 0;
-	_db = db;
-	printf ("position: %d\n", db->position);
-	if (goto_line (mailbox, fd, &line, db->position, &_db) < 0)
-		L
-	else
-		L
-	fread (buf, 80, sizeof (gchar), fd);
-	printf ("%d - %d\n", line, ftell (fd));
-	printf ("'%s'\n", buf);
+	_unlock (mailbox);
 }
 
 void
 c2_db_cronosII_message_set_mark (C2Db *db, gboolean mark)
 {
+	C2Mailbox *mailbox;
+	FILE *fd;
+	gchar c;
+	gint pos;
+
+	mailbox = db->mailbox;
+	_lock (mailbox);
+
+	if (!goto_mid (mailbox, db->mid))
+		return;
+
+	fd = mailbox->protocol.cronosII.fd;
+
+	/* Move to the 2nd \r */
+	pos = ftell (fd);
+	if (c2_fd_move_to (fd, '\r', 2, TRUE, TRUE) < 0)
+	{
+		fseek (fd, pos, SEEK_SET);
+		_rewind (mailbox);
+		_unlock (mailbox);
+		return;
+	}
+	
+	fputc (mark ? '1' : '0', fd);
+	fseek (fd, pos, SEEK_SET);
+
+	_unlock (mailbox);
 }
 
 C2Message *

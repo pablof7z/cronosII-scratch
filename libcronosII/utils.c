@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +15,13 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández López
+ * Code of this file by:
+ * 		* Pablo Fernández López
+ * 		* Bosko Blagojevic
+ **/
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <stdio.h>
@@ -848,6 +855,114 @@ c2_str_text_to_html (const gchar *str, gboolean proc_email)
 #undef FLUSH
 
 /**
+ * c2_str_get_striped_subject
+ * @subject: Subject to process
+ *
+ * This function will strip all prefixes
+ * and sufixes that a subject might get.
+ * The actual implementation supports:
+ * Prefixes:
+ * 	o "Re:"
+ * 	o "Re[xxxx]:"
+ * 	o "Fw:"
+ * 	o "Fw[xxxx]:"
+ *
+ * Sufixes:
+ *
+ * Return Value:
+ * A freeble string with the striped
+ * subject.
+ **/
+gchar *
+c2_str_get_striped_subject (const gchar *subject)
+{
+	const gchar *ptr;
+	gint start = 0, end = -1;
+
+	for (ptr = subject; *ptr != '\0'; ptr++)
+	{
+		if (c2_strneq (ptr, "Re", 2))
+		{
+			ptr += 2;
+			
+			if (*ptr == '[')
+			{
+				for (; *ptr != '\0'; ptr++)
+					if (*ptr == ']')
+						break;
+				
+				if (*ptr == '\0' || *(ptr+1) != ':')
+				{
+					/* This didn't work.. that's it, finish searching for the prefixes */
+					goto re_didnt_work;
+				}
+
+				/* This worked, go to the next space */
+				for (ptr += 2; *ptr != '\0'; ptr++)
+					if (*ptr != ' ')
+						break;
+
+				start = ptr - subject;
+			} else if (*ptr == ':')
+			{
+				/* This worked, go to the next space */
+				for (ptr++; *ptr != '\0'; ptr++)
+					if (*ptr != ' ')
+						break;
+				
+				start = ptr - subject;
+			} else
+			{
+re_didnt_work:
+				ptr -= 2;
+				break;
+			}
+		} else if (c2_strneq (ptr, "Fwd", 3))
+		{
+			ptr += 3;
+			
+			if (*ptr == '[')
+			{
+				for (; *ptr != '\0'; ptr++)
+					if (*ptr == ']')
+						break;
+				
+				if (*ptr == '\0' || *(ptr+1) != ':')
+				{
+					/* This didn't work.. that's it, finish searching for the prefixes */
+					goto fwd_didnt_work;
+				}
+
+				/* This worked, go to the next space */
+				for (ptr += 2; *ptr != '\0'; ptr++)
+					if (*ptr != ' ')
+						break;
+
+				start = ptr - subject;
+			} else if (*ptr == ':')
+			{
+				/* This worked, go to the next space */
+				for (ptr++; *ptr != '\0'; ptr++)
+					if (*ptr != ' ')
+						break;
+				
+				start = ptr - subject;
+			} else
+			{
+fwd_didnt_work:
+				ptr -= 3;
+				break;
+			}
+		}
+	}
+
+	if (end >= 0)
+		return g_strndup (subject+start, end);
+
+	return g_strdup (subject+start);
+}
+
+/**
  * c2_str_get_emails
  * @string: String to process.
  *
@@ -1425,11 +1540,14 @@ c2_fd_move_to (FILE *fp, gchar c, guint8 cant, gboolean forward, gboolean next)
 				break;
 		if (!next)
 			if (fseek (fp, -1, SEEK_CUR) < 0)
+			{
+				c2_error_set (-errno);
 				return FALSE;
+			}
 		return TRUE;
 	}
 	
-	for (ia = 0, go = 0; s != c; ia++)
+	for (ia = 0, go = 0;; ia++)
 	{
 		if ((s = getc (fp)) == EOF)
 			break;
@@ -1439,7 +1557,10 @@ c2_fd_move_to (FILE *fp, gchar c, guint8 cant, gboolean forward, gboolean next)
 		
 		if (!forward)
 			if (fseek (fp, -2, SEEK_CUR) < 0)
+			{
+				c2_error_set (-errno);
 				return FALSE;
+			}
 	}
 	
 	
@@ -1448,7 +1569,10 @@ c2_fd_move_to (FILE *fp, gchar c, guint8 cant, gboolean forward, gboolean next)
 	if (!next)
 	{
 		if (fseek (fp, -1, SEEK_CUR) < 0)
+		{
+			c2_error_set (-errno);
 			return FALSE;
+		}
 		ia -= 1;
 	}
 	

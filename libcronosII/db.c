@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +14,32 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández López
+ * Code of this file by:
+ * 		* Pablo Fernández López
+ * 		* Bosko Blagojevic
+ */
+/*******************************************
+ *   NOTES                                 *
+ *******************************************
+ * The Cronos II Database Object uses
+ * the position of the C2Db as the referrer
+ * for all operation in exception to
+ * functions that end its name with _by_mid.
+ * All of the GList arguments for several
+ * operations at once require a list of
+ * C2Db's objects in the list as reference.
+ * 
+ * Virtual Functions have to follow this
+ * schema, although they can sort out the
+ * MID of any C2Db by getting the object
+ * with the given position and using the
+ * mid set in the object (db_object->mid),
+ * like the db-cronosII does in its
+ * version 3.0
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -506,17 +532,15 @@ c2_db_thaw (C2Mailbox *mailbox)
  * it does it.
  * 
  * Return Value:
- * 0 if everything was OK, 1 if there was some
- * error, in the last case use c2_error_get
- * to get the error string.
+ * %TRUE on success, %FALSE if there was an error.
  **/
-gint
+gboolean
 c2_db_load (C2Mailbox *mailbox)
 {
-	gint (*func) (C2Mailbox *mailbox) = NULL;
+	gboolean (*func) (C2Mailbox *mailbox) = NULL;
 	gint retval;
 	
-	c2_return_val_if_fail (mailbox, 1, C2EDATA);
+	c2_return_val_if_fail (C2_IS_MAILBOX (mailbox), FALSE, C2EDATA);
 	
 	c2_mutex_lock (&mailbox->lock);
 	
@@ -593,9 +617,9 @@ add_message (C2Mailbox *mailbox, C2Message *message)
  * Appends a message to the mailbox.
  *
  * Return Value:
- * 0 on success, -1 on error.
+ * %TRUE on success, %FALSE on error.
  **/
-gint
+gboolean
 c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 {
 	gint retval = 0;
@@ -616,12 +640,12 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
  * Appends several messages to the mailbox.
  *
  * Return Value:
- * 0 on success, -1 on error.
+ * %TRUE on success, %FALSE on error.
  **/
-gint
+gboolean
 c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 {
-	gint (*func) (C2Mailbox *mailbox, C2Db *db) = NULL;
+	gboolean (*func) (C2Mailbox *mailbox, C2Db *db) = NULL;
 	C2Db *db = NULL;
 	GList *l;
 	gboolean thaw = FALSE;
@@ -633,7 +657,11 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 	}
 
 	if (!c2_db_is_load (mailbox))
+	{
+		c2_mutex_unlock (&mailbox->lock);
 		c2_mailbox_load_db (mailbox);
+		c2_mutex_lock (&mailbox->lock);
+	}
 
 	switch (mailbox->type)
 	{
@@ -656,7 +684,6 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 	 *   The mid of the db passed to the function should be changed
 	 *   by the VFUNCTION to a proper value.
 	 */
-
 	for (l = list; l; l = g_list_next (l))
 	{
 		C2Message *message = C2_MESSAGE (l->data);
@@ -685,7 +712,7 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 		mailbox->signals_queued = 1;
 	}
 
-	return 0;
+	return TRUE;
 }
 
 static gint
@@ -697,20 +724,20 @@ db_message_remove_sort (gconstpointer a, gconstpointer b)
 }
 
 
-gint
-c2_db_message_remove (C2Mailbox *mailbox, gint position)
+gboolean
+c2_db_message_remove (C2Mailbox *mailbox, C2Db *db)
 {
-	gint retval = 0;
+	gboolean retval;
 	GList *list;
 
-	list = g_list_append (NULL, (gpointer) position);
+	list = g_list_append (NULL, db);
 	retval = c2_db_message_remove_list (mailbox, list);
 	g_list_free (list);
 	
 	return retval;
 }
 
-gint
+gboolean
 c2_db_message_remove_by_mid (C2Mailbox *mailbox, gint mid)
 {
 	gint retval = 0;
@@ -720,10 +747,10 @@ c2_db_message_remove_by_mid (C2Mailbox *mailbox, gint mid)
 	if (!(db = c2_db_get_node_by_mid (mailbox, mid)))
 	{
 		c2_error_object_set (GTK_OBJECT (mailbox), C2EDATA);
-		return -1;
+		return FALSE;
 	}
 	
-	list = g_list_append (NULL, (gpointer) db->position);
+	list = g_list_append (NULL, db);
 	retval = c2_db_message_remove_list (mailbox, list);
 	g_list_free (list);
 	
@@ -733,23 +760,22 @@ c2_db_message_remove_by_mid (C2Mailbox *mailbox, gint mid)
 /**
  * c2_db_message_remove_list [VFUNCTION]
  * @mailbox: Mailbox where to act.
- * @list: A GList of number of messages to remove (starting with 0).
+ * @list: A GList of the C2Db's to delete
  *
- * This function will remove a message
+ * This function will remove a list of mails
  * from the mailbox.
  *
  * Return Value:
- * 0 on success, -1 on error.
+ * %TRUE on success, %FALSE on error.
  **/
-gint
+gboolean
 c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 {
-	gint first;
-	gint (*func) (C2Mailbox *mailbox, GList *list) = NULL;
+	gboolean (*func) (C2Mailbox *mailbox, GList *list) = NULL;
 	GList *sorted_list = NULL, *l;
 	
 	C2Db *db;
-	gint i, retval;
+	gint i, retval, first_position = -1;
 	gboolean thaw = FALSE;
 
 	if (!mailbox->freezed)
@@ -757,12 +783,6 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 		c2_db_freeze (mailbox);
 		thaw = TRUE;
 	}
-
-	/* Sort the list (< to >)  */
-	for (l = list; l; l = g_list_next (l))
-		sorted_list = g_list_insert_sorted (sorted_list, l->data, db_message_remove_sort);
-
-	first = GPOINTER_TO_INT (sorted_list->data);
 
 	switch (mailbox->type)
 	{
@@ -781,27 +801,23 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 	retval = func (mailbox, list);
 
 	/* Remove from the loaded db list */
-	db = mailbox->db;
-	i = 0;
-	do
+	for (l = list; l; l = g_list_next (l))
 	{
-		C2Db *_next = db;
+		db = (C2Db*) l->data;
+
+		db->prev->next = db->next;
+		db->next->prev = db->prev;
+
+		/* We want to know which was the mail with the
+		 * shortest position.
+		 */
+		if (first_position < 0 || first_position > db->position)
+			first_position = db->position;
+
+		gtk_object_destroy (GTK_OBJECT (db));
+	}
 	
-		c2_db_lineal_next (_next);
-		
-		if (i++ == GPOINTER_TO_INT (sorted_list->data))
-		{
-			gtk_object_destroy (GTK_OBJECT (db));
-
-			/* Remove the link */
-			if (!(sorted_list = g_list_remove_link (sorted_list, sorted_list)))
-				break;
-		}
-
-		db = _next;
-	} while (db);
-
-	db = c2_db_get_node (mailbox, first ? first-1 : 0);
+	db = c2_db_get_node (mailbox, first_position ? first_position-1 : 0);
 
 	if (thaw)
 	{
@@ -861,6 +877,9 @@ c2_db_message_set_state (C2Db *db, C2MessageState state)
 			break;
 	}
 
+	gtk_signal_emit_by_name (GTK_OBJECT (db->mailbox), "changed_mailbox",
+							C2_MAILBOX_CHANGE_STATE, db);
+
 	func (db, state);
 }
 
@@ -895,6 +914,9 @@ c2_db_message_set_mark (C2Db *db, gboolean mark)
 			break;
 	}
 
+	gtk_signal_emit_by_name (GTK_OBJECT (db->mailbox), "changed_mailbox",
+							C2_MAILBOX_CHANGE_STATE, db);
+	
 	func (db, mark);
 }
 
@@ -905,9 +927,9 @@ c2_db_message_set_mark (C2Db *db, gboolean mark)
  * This function will load a message from the mailbox.
  *
  * Return Value:
- * 0 on success, -1 on error.
+ * %TRUE on success, %FALSE on error.
  **/
-gint
+gboolean
 c2_db_load_message (C2Db *db)
 {
 	C2Message *(*func) (C2Db *db) = NULL;
@@ -929,11 +951,11 @@ c2_db_load_message (C2Db *db)
 	if (db->message)
 	{
 		db->message->mime = c2_mime_new (db->message);
-		return 0;
+		return TRUE;
 	} else
-		return -1;
+		return FALSE;
 	
-	return -1;
+	return FALSE;
 }
 
 /**
