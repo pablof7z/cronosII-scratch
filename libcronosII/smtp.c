@@ -229,7 +229,7 @@ c2_smtp_send_message (C2Smtp *smtp, C2Message *message)
 		g_free(from);
 		
 		/* FINALLY execute the command :-) */
-		if(execl(cmd, NULL) < 0)
+		if(system(cmd) < 0)
 		{
 			c2_smtp_set_error(smtp, _("Problem running local SMTP command to send messages -- Check SMTP settings"));
 			unlink(file_name);
@@ -290,7 +290,8 @@ c2_smtp_connect (C2Smtp *smtp)
 	g_free(buffer);
 	
 	/* TODO: implement EHLO */
-	hostname = c2_net_get_local_hostname(smtp->sock);
+	/* hostname = c2_net_get_local_hostname(smtp->sock); */ /* temp */
+	hostname = g_strdup("CronosII");
 	if(!hostname)
 		hostname = g_strdup("CronosII");
 	if(c2_net_send(smtp->sock, "HELO %s\r\n", hostname) < 0)
@@ -445,7 +446,7 @@ smtp_test_connection(C2Smtp *smtp)
 {
 	gchar *buffer;
 	
-	if(smtp == 0)
+	if(smtp->sock == 0)
 		return FALSE;
 	if(c2_net_send(smtp->sock, "NOOP\r\n") < 0)
 		return FALSE;
@@ -492,8 +493,7 @@ c2_smtp_local_get_recepients(C2Message *message)
 {
 	gchar *to, *cc, *temp;
 	
-	if(!(to = c2_message_get_header_field(message, "To: ")) ||
-		!(cc = c2_message_get_header_field(message, "CC: ")))
+	if(!(to = c2_message_get_header_field(message, "To: ")))
 	{
 		if(to) g_free(to);
 		return NULL;
@@ -502,14 +502,19 @@ c2_smtp_local_get_recepients(C2Message *message)
 	temp = c2_smtp_local_divide_recepients(to);
 	g_free(to);
 	to = temp;
-	temp = c2_smtp_local_divide_recepients(cc);
-	g_free(cc);
-	cc = temp;
+	
+	cc = c2_message_get_header_field(message, "CC:");
+	if(cc)
+	{
+		temp = c2_smtp_local_divide_recepients(cc);
+		g_free(cc);
+		cc = temp;
 		
-	temp = g_strconcat(to, " ", cc, NULL);
-  g_free(to);
-	g_free(cc);
-	to = temp;
+		temp = g_strconcat(to, " ", cc, NULL);
+		g_free(to);
+		g_free(cc);
+		to = temp;
+	}
 	
 	return to;
 }
