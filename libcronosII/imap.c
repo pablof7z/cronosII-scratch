@@ -34,6 +34,13 @@
 #include "imap.h"
 #include "i18n.h" 
 
+#define MOD "IMAP"
+#ifdef USE_DEBUG
+#	define DMOD	TRUE
+#else
+#	define DMOD	FALSE
+#endif
+
 /* C2 IMAP Module in the process of being engineered by Bosko */
 /* TODO: Re-Implement recursive folder listing (its too slow) */
 /* (in progress) TODO: Elegent network problem handling (reconnecting, etc) */
@@ -318,10 +325,16 @@ c2_imap_init (C2IMAP *imap)
 
 				c2_mutex_init (&mylock);
 				c2_mutex_lock (&mylock);
-				printf ("Executing login_failed\n");
+				#ifdef USE_DEBUG
+					if(_debug_imap)
+						C2_PRINTD (MOD, "Executing login_failed\n");
+				#endif
 				cont = C2_IMAP_CLASS_FW (imap)->login_failed (imap, error, &newuser, &newpass, &mylock);
 				c2_mutex_lock (&mylock);
-				printf ("login_failed returned %d!\n", cont);
+				#ifdef USE_DEBUG
+					if(_debug_imap)
+						printf ("login_failed returned %d!\n", cont);
+				#endif
 				c2_mutex_unlock (&mylock);
 				c2_mutex_destroy (&mylock);
 
@@ -1025,26 +1038,43 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 				gchar *ending;
 				if(c2_strneq(ptr, "From: ", 6))
 				{
-					ptr += 6; /* strlen("From: ") + 1; */
+					ptr += 6; /* strlen("From: "); */
 					ending = strstr(ptr, "\r\n");
-					from = g_strndup(ptr, ending - ptr);
-					ptr += strlen(from) + 2;
+					if(ending > ptr) 
+					{
+						from = g_strndup(ptr, ending - ptr);
+						ptr += strlen(from) + 2;
+					}
+					else
+						ptr += 2;
 					i++;
 				}
 				if(c2_strneq(ptr, "Subject: ", 9))
 				{
-					ptr += 9; /* strlen("Subject: ") + 1; */
+					gchar *oldptr = ptr;
+					ptr += 9; /* strlen("Subject: "); */
+					oldptr = ptr;
 					ending = strstr(ptr, "\r\n");
-					subject = g_strndup(ptr, ending - ptr);
-					ptr += strlen(subject) + 2;
+					if(ending > ptr)
+					{	
+						subject = g_strndup(ptr, ending - ptr);
+						ptr += strlen(subject) + 2;
+					}
+					else 
+						ptr += 2;
 					i++;
 				}
 				if(c2_strneq(ptr, "Date: ", 6))
 				{
-					ptr += 6; /* strlen("Date: ") + 1; */
+					ptr += 6; /* strlen("Date: "); */
 					ending = strstr(ptr, "\r\n");
-					date = g_strndup(ptr, ending - ptr);
-					ptr += strlen(date) + 2;
+					if(ending > ptr) 
+					{
+						date = g_strndup(ptr, ending - ptr);
+						ptr += strlen(date) + 2;
+					}
+					else
+						ptr += 2;
 					i++;
 				}
 			}
@@ -1219,7 +1249,10 @@ c2_imap_plaintext_login (C2IMAP *imap)
 
 	if(c2_imap_check_server_reply(reply, tag))
 	{
-		printf("logged in ok!\n\n");
+		#ifdef USE_DEBUG
+			if(_debug_imap)
+				C2_PRINTD (MOD, "logged in ok!\n\n");
+		#endif
 	}
 	else
 	{
@@ -1718,7 +1751,10 @@ c2_imap_load_message (C2IMAP *imap, C2Db *db)
 	gchar *reply, *start, *end, *buf;
 	tag_t tag;
 
-	printf ("Requesting mail '%s'\n", db->subject);
+	#ifdef USE_DEBUG
+		if(_debug_imap)
+			printf ("Requesting mail '%s'\n", db->subject);
+	#endif
 	
 	if(c2_imap_select_mailbox(imap, db->mailbox) < 0)
 	{
@@ -1787,7 +1823,10 @@ GET_BODY:
 	g_free (message->body);
 	message->body = buf;
 	
-	printf ("Mail loaded correctly!\n");
+	#ifdef USE_DEBUG
+		if(_debug_imap)
+			printf ("Mail loaded correctly!\n");
+	#endif
 	return message;
 }
 
