@@ -84,7 +84,8 @@ enum _C2MailboxType
 {
 	C2_MAILBOX_CRONOSII,
 	C2_MAILBOX_IMAP,
-	C2_MAILBOX_SPOOL
+	C2_MAILBOX_SPOOL,
+	C2_MAILBOX_OTHER
 };
 
 enum _C2MailboxChangeType
@@ -137,6 +138,11 @@ struct _C2Mailbox
 		{
 			gchar *path;
 		} spool;
+		struct
+		{
+			gchar    *name;
+			gpointer *obj;
+		} other;
 	} protocol;
 	
 	gint freezed : 1;

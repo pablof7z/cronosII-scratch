@@ -1117,6 +1117,27 @@ c2_db_get_protocol (const gchar *name)
 	return NULL;
 }
 
+/**
+ * c2_db_add_protocol
+ * @name: Name of the new protocol.
+ * @create_struct: Pointer to callback function for creating
+ *                 a new structure via that protocol.
+ * @update_struct: Pointer to callback function for updating
+ *                 a new structure via that protocol.
+ * ...
+ * ... (list continues for remaining items)
+ *
+ * This function registers a new protocol the Cronos II DB 
+ * engine can use to store and access emails. Please fill in
+ * the function links below (use empty functions for the ones
+ * that your db does not support instead of passing NULL
+ * pointers). Also feel free to use the gpointer 
+ * mailbox->protocol.other.obj to store a pointer to your
+ * custom protocol object.
+ *
+ * Return Value:
+ * 0 on success, -1 otherwise (if protocol name already used) 
+ **/
 gint
 c2_db_add_protocol (const gchar *name, gboolean (create_struct) (C2Mailbox*),
 		gboolean (update_struct) (C2Mailbox*), gboolean (remove_struct)(C2Mailbox*),
@@ -1150,11 +1171,34 @@ c2_db_add_protocol (const gchar *name, gboolean (create_struct) (C2Mailbox*),
 	return 0;
 }
 
+/**
+ * c2_db_remove_protocol
+ *
+ * @name: Name of the protocol to remove.
+ *
+ * This function removes the dynamic protocol
+ * entitled @name.
+ *
+ * Return Value:
+ * 0 on success, -1 otherwise
+ **/
 gint
 c2_db_remove_protocol (const gchar *name)
 {	
-	/* TODO */
-	return 0;
+        GList *ptr;
+        C2DbProtocol *proto;
+
+        for(ptr = c2_db_protocol_list; ptr != NULL; ptr = ptr->next)
+        {
+                proto = ptr->data;
+                if(c2_streq(name, proto->name))
+        	{
+			c2_db_protocol_list = g_list_remove(c2_db_protocol_list, proto);
+			g_free(proto->name);
+			g_free(proto);
+			return 0;
+		}
+	}
+
+	return -1;
 }
-
-

@@ -20,6 +20,7 @@
  * 		* Pablo Fernández
  * Code of this file by:
  * 		* Pablo Fernández
+ *		* Bosko Blagojevic
  */
 #include <gnome.h>
 #include <stdlib.h>
@@ -177,6 +178,9 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 		case C2_MAILBOX_SPOOL:
 			g_free (mailbox->protocol.spool.path);
 			break;
+		case C2_MAILBOX_OTHER:
+			g_free (mailbox->protocol.other.name);
+			break;
 	}
 	
 	g_free (mailbox->name);
@@ -265,6 +269,11 @@ _c2_mailbox_new (C2Mailbox **head, const gchar *name, const gchar *id, gboolean 
 			va_start (edata, sort_type);
 			mailbox->protocol.spool.path = g_strdup (va_arg (edata, gchar *));
 			va_end (edata);
+			break;
+		case C2_MAILBOX_OTHER:
+			va_start(edata, sort_type);
+			mailbox->protocol.other.name = g_strdup (va_arg (edata, gchar *));
+			mailbox->protocol.other.obj  = va_arg(edata, gpointer);
 			break;
 #ifdef USE_DEBUG
 		default:
