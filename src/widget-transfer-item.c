@@ -36,6 +36,9 @@ on_cancel_clicked							(GtkWidget *button, C2TransferItem *ti);
 static void
 on_pop3_resolve								(GtkObject *object, C2TransferItem *ti);
 
+static gchar *
+on_pop3_login_failed						(GtkObject *object, const gchar *error, C2TransferItem *ti);
+
 static void
 on_pop3_status								(GtkObject *object, gint mails, C2TransferItem *ti);
 
@@ -263,6 +266,9 @@ c2_transfer_item_start (C2TransferItem *ti)
 			gtk_signal_connect (GTK_OBJECT (ti->account->protocol.pop3), "resolve",
 								GTK_SIGNAL_FUNC (on_pop3_resolve), ti);
 
+			gtk_signal_connect (GTK_OBJECT (ti->account->protocol.pop3), "login_failed",
+								GTK_SIGNAL_FUNC (on_pop3_resolve), ti);
+
 			gtk_signal_connect (GTK_OBJECT (ti->account->protocol.pop3), "status",
 								GTK_SIGNAL_FUNC (on_pop3_status), ti);
 
@@ -290,6 +296,13 @@ on_pop3_resolve (GtkObject *object, C2TransferItem *ti)
 	gdk_threads_enter ();
 	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Connecting"));
 	gdk_threads_leave ();
+}
+
+static gchar *
+on_pop3_login_failed (GtkObject *object, const gchar *error, C2TransferItem *ti)
+{
+L	C2_DEBUG (error);
+L	return "stuff";
 }
 
 static void

@@ -177,10 +177,6 @@ main (gint argc, gchar **argv)
 		transfer_item = c2_transfer_item_new (account, C2_TRANSFER_ITEM_RECEIVE);
 		c2_transfer_list_add_item (C2_TRANSFER_LIST (transfer_list), transfer_item);
 		c2_transfer_item_start (transfer_item);
-
-		transfer_item = c2_transfer_item_new (account, C2_TRANSFER_ITEM_RECEIVE);
-		c2_transfer_list_add_item (C2_TRANSFER_LIST (transfer_list), transfer_item);
-		c2_transfer_item_start (transfer_item);
 	}
 	
 	gdk_threads_enter ();

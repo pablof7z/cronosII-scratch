@@ -41,6 +41,10 @@ static void
 my_marshal_NONE__INT_INT_INT					(GtkObject *object, GtkSignalFunc func,
 												 gpointer func_data, GtkArg * args);
 
+static void
+my_marshal_POINTER__POINTER						(GtkObject *object, GtkSignalFunc func,
+												 gpointer func_data, GtkArg * args);
+
 static gint
 welcome											(C2POP3 *pop3);
 
@@ -56,6 +60,7 @@ retrieve										(C2Account *account, gint mails);
 
 enum
 {
+	LOGIN_FAILED,
 	STATUS,
 	RETRIEVE,
 	LAST_SIGNAL
@@ -112,24 +117,6 @@ c2_pop3_set_flags (C2POP3 *pop3, gint flags)
 	c2_return_if_fail (pop3, C2EDATA);
 
 	pop3->flags = flags;
-}
-
-/**
- * c2_pop3_set_wrong_pass_cb
- * @pop3: C2POP3 object.
- * @func: C2POP3GetPass function.
- *
- * This function sets the function that will be called when a wrong
- * password in this C2POP3 object is found.
- * The C2POP3GetPass type function should return the new password
- * or NULL if it wants to cancel the fetching.
- */
-void
-c2_pop3_set_wrong_pass_cb (C2POP3 *pop3, C2POP3GetPass func)
-{
-	c2_return_if_fail (pop3, C2EDATA);
-
-	pop3->wrong_pass_cb = func;
 }
 
 /**
@@ -227,7 +214,7 @@ welcome (C2POP3 *pop3)
 		logintoken[loginsize-1] = 0;				 /* overwrite the \n with the NULL terminator */
 	
 	
-		// printf("Welcome token  is \"%s\"\n",logintoken);
+		printf("Welcome token  is \"%s\"\n",logintoken);
 		pop3->logintoken = (gchar*)g_malloc(sizeof(gchar) * loginsize);
 		strncpy(pop3->logintoken,logintoken,loginsize); 	/* set the login token so we can use it later in the login call */
 		//printf("pop3->logintoken in login is \"%s\"\n",pop3->logintoken);
@@ -264,14 +251,14 @@ login (C2POP3 *pop3)
 	gint 	 i 		= 0;
 	gboolean logged_in 	= FALSE;
 
-	if (pop3->auth_method == C2_POP3_AUTHENTICATION_APOP)
-	{
-		if (pop3->logintoken == NULL)
+		if (pop3->auth_method == C2_POP3_AUTHENTICATION_APOP)
 		{
-			/* how the hell did this happen? */
-			c2_error_set_custom("Using APOP but didn't get a logintoken in welcome");
-			return -1;
-		}
+			if (pop3->logintoken == NULL)
+			{
+				/* how the hell did this happen? */
+				c2_error_set_custom("Using APOP but didn't get a logintoken in welcome");
+				return -1;
+			}
 
 		// allocate a string for the pass+logintoken so we can get the md5 hash of it
 		apopstring = (gchar*)g_malloc(sizeof(gchar) * (strlen(pop3->pass) + strlen(pop3->logintoken) ) + 1);
@@ -362,9 +349,9 @@ login (C2POP3 *pop3)
 			/* set pop3->pass equal to NULL just in case there is no callback function */
 			pop3->pass = NULL;
 
-			if (pop3->wrong_pass_cb)
-				pop3->pass = pop3->wrong_pass_cb (pop3, string);
-		} else
+L			gtk_signal_emit (GTK_OBJECT (pop3), signals[LOGIN_FAILED], string, &pop3->pass);
+L			C2_DEBUG (pop3->pass);
+L		} else
 			logged_in = TRUE;
 	} while (i++ < 3 && !logged_in && pop3->pass);
 	
@@ -523,6 +510,13 @@ class_init (C2POP3Class *klass)
 	
 	parent_class = gtk_type_class (c2_net_object_get_type ());
 
+	signals[LOGIN_FAILED] =
+		gtk_signal_new ("login_failed",
+					GTK_RUN_LAST,
+					object_class->type,
+					GTK_SIGNAL_OFFSET (C2POP3Class, login_failed),
+					my_marshal_POINTER__POINTER, GTK_TYPE_STRING, 1,
+					GTK_TYPE_STRING);
 	signals[STATUS] =
 		gtk_signal_new ("status",
 					GTK_RUN_FIRST,
@@ -541,6 +535,9 @@ class_init (C2POP3Class *klass)
 	
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 	
+	klass->login_failed = NULL;
+	klass->status = NULL;
+	klass->retrieve = NULL;
 	object_class->destroy = destroy;
 }
 
@@ -549,7 +546,6 @@ init (C2POP3 *pop3)
 {
 	pop3->user = pop3->pass = NULL;
 	pop3->flags = DEFAULT_FLAGS;
-	pop3->wrong_pass_cb = NULL;
 	pthread_mutex_init (&pop3->run_lock, NULL);
 }
 
@@ -583,3 +579,15 @@ my_marshal_NONE__INT_INT_INT (GtkObject *object, GtkSignalFunc func, gpointer fu
 	rfunc = (C2Signal_NONE__INT_INT_INT) func;
 	(*rfunc) (object, GTK_VALUE_INT (args[0]), GTK_VALUE_INT (args[1]), GTK_VALUE_INT (args[2]), func_data);
 }
+
+typedef gchar *(*C2Signal_POINTER__POINTER)	(GtkObject *object, gpointer arg1, gpointer user_data);
+
+static void
+my_marshal_POINTER__POINTER (GtkObject *object, GtkSignalFunc func, gpointer func_data, GtkArg * args)
+{
+	C2Signal_POINTER__POINTER rfunc;
+	gchar **return_val;
+L	return_val = GTK_RETLOC_STRING (args[1]);
+L	rfunc = (C2Signal_POINTER__POINTER) func;
+L	*return_val = (*rfunc) (object, GTK_VALUE_POINTER (args[0]), func_data);
+L}

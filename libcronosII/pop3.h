@@ -38,8 +38,6 @@ typedef struct _C2POP3Class C2POP3Class;
 typedef enum _C2POP3AuthenticationMethod C2POP3AuthenticationMethod;
 typedef enum _C2POP3Flags C2POP3Flags;
 
-typedef gchar* (*C2POP3GetPass) 			(C2POP3 *pop3, const gchar *error);
-
 #ifdef BUILDING_C2
 #	include <config.h>
 #	include "account.h"
@@ -74,7 +72,6 @@ struct _C2POP3
 	gint flags;
 
 	C2POP3AuthenticationMethod auth_method;
-	C2POP3GetPass wrong_pass_cb;
 
 	pthread_mutex_t run_lock;
 };
@@ -83,6 +80,8 @@ struct _C2POP3Class
 {
 	C2NetObjectClass parent_class;
 
+	gchar* (*login_failed) (C2POP3 *pop3, const gchar *error);
+	
 	void (*status) (C2POP3 *pop3, gint mails);
 	void (*retrieve) (C2POP3 *pop3, gint16 nth, gint32 received, gint32 total);
 };
@@ -100,9 +99,6 @@ c2_pop3_new									(const gchar *user, const gchar *pass,
 
 void
 c2_pop3_set_flags							(C2POP3 *pop3, gint flags);
-
-void
-c2_pop3_set_wrong_pass_cb					(C2POP3 *pop3, C2POP3GetPass func);
 
 gint
 c2_pop3_fetchmail							(C2Account *account);
