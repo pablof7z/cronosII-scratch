@@ -67,6 +67,7 @@ CFLAGS = @CFLAGS@
 DATADIRNAME = @DATADIRNAME@
 DLLTOOL = @DLLTOOL@
 FEATURES = @FEATURES@
+GCONFLIBS = @GCONFLIBS@
 GENCAT = @GENCAT@
 GLIB_CFLAGS = @GLIB_CFLAGS@
 GLIB_CONFIG = @GLIB_CONFIG@
@@ -126,6 +127,7 @@ VERSION = @VERSION@
 XPM_LIBS = @XPM_LIBS@
 ZVT_LIBS = @ZVT_LIBS@
 cronosIIpath = @cronosIIpath@
+gconfconfig = @gconfconfig@
 gnomedownload = @gnomedownload@
 l = @l@
 

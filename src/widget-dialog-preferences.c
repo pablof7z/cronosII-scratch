@@ -89,13 +89,22 @@ static void
 on_general_paths_get_changed				(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
-on_identity_name_changed					(GtkWidget *widget, C2DialogPreferences *preferences);
-
-static void
 on_interface_composer_editor_internal_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
 on_interface_composer_editor_external_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_identity_name_changed					(GtkWidget *widget, C2Window *window);
+
+static void
+on_identity_email_changed					(GtkWidget *widget, C2Window *window);
+
+static void
+on_incoming_host_changed					(GtkWidget *widget, C2Window *window);
+
+static void
+on_incoming_user_changed					(GtkWidget *widget, C2Window *window);
 
 static void
 on_general_accounts_incoming_protocol_selection_done	(GtkWidget *pwidget, C2Window *window);
@@ -104,7 +113,7 @@ static void
 on_general_accounts_outgoing_server_protocol_selection_done	(GtkWidget *pwidget, C2Window *window);
 
 static gboolean
-on_general_accounts_druid_page1_next		(GnomeDruidPage *druid_page, GtkWidget *druid,
+on_general_accounts_druid_page0_next		(GnomeDruidPage *druid_page, GtkWidget *druid,
 												C2Window *window);
 
 static gboolean
@@ -698,12 +707,10 @@ on_general_accounts_add_clicked (GtkWidget *pwidget, C2DialogPreferences *prefer
 	c2_window_set_contents_from_glade (C2_WINDOW (window), "dlg_account_editor_contents");
 	gtk_object_set_data (GTK_OBJECT (window), "preferences", preferences);
 
-/*L	widget = glade_xml_get_widget (xml, "identity_name");
-L	gtk_signal_connect (GTK_OBJECT (widget), "changed",
-						GTK_SIGNAL_FUNC (on_identity_name_changed), window);
+	widget = glade_xml_get_widget (xml, "identity_name");
 	if ((buf = g_get_real_name ()))
 		gtk_entry_set_text (GTK_ENTRY (widget), buf);
-L*/
+
 	organization = (gchar *) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_ORGANIZATION, NULL);
 	if (account && organization)
 	{
@@ -727,6 +734,20 @@ L*/
 		}
 	}
 
+	widget = glade_xml_get_widget (xml, "identity_name");
+	gtk_signal_connect (GTK_OBJECT (widget), "changed",
+						GTK_SIGNAL_FUNC (on_identity_name_changed), window);
+
+	widget = glade_xml_get_widget (xml, "identity_email");
+	gtk_signal_connect (GTK_OBJECT (widget), "changed",
+						GTK_SIGNAL_FUNC (on_identity_email_changed), window);
+
+	widget = glade_xml_get_widget (xml, "incoming_server_hostname");
+	gtk_signal_connect (GTK_OBJECT (widget), "changed",
+						GTK_SIGNAL_FUNC (on_incoming_host_changed), window);
+
+
+
 	widget = GTK_OPTION_MENU (glade_xml_get_widget (xml, "incoming_protocol"))->menu;
 	gtk_signal_connect (GTK_OBJECT (widget), "selection_done",
 						GTK_SIGNAL_FUNC (on_general_accounts_incoming_protocol_selection_done), window);
@@ -735,9 +756,9 @@ L*/
 	gtk_signal_connect (GTK_OBJECT (widget), "selection_done",
 						GTK_SIGNAL_FUNC (on_general_accounts_outgoing_server_protocol_selection_done), window);
 
-	widget = glade_xml_get_widget (xml, "page1");
+	widget = glade_xml_get_widget (xml, "page0");
 	gtk_signal_connect (GTK_OBJECT (widget), "next",
-						GTK_SIGNAL_FUNC (on_general_accounts_druid_page1_next), window);
+						GTK_SIGNAL_FUNC (on_general_accounts_druid_page0_next), window);
 
 	widget = glade_xml_get_widget (xml, "page2");
 	gtk_signal_connect (GTK_OBJECT (widget), "next",
@@ -780,20 +801,6 @@ on_general_paths_get_changed (GtkWidget *widget, C2DialogPreferences *preference
 					C2_DIALOG_PREFERENCES_KEY_GENERAL_PATHS_GET, value);
 }
 
-/*
-static void
-on_identity_name_changed (GtkWidget *widget, C2DialogPreferences *preferences)
-{
-	GtkWidget *next;
-L
-	next = GNOME_DRUID (glade_xml_get_widget (C2_DIALOG (preferences)->xml, "druid"))->next;
-	
-	if (!strlen (gtk_entry_get_text (GTK_ENTRY (widget))))
-		gtk_widget_set_sensitive (next, FALSE);
-	else
-		gtk_widget_set_sensitive (next, TRUE);
-}*/
-
 
 static void
 on_interface_composer_editor_internal_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
@@ -817,6 +824,79 @@ on_interface_composer_editor_external_toggled (GtkWidget *widget, C2DialogPrefer
 		gtk_widget_set_sensitive (combo, TRUE);
 	else
 		gtk_widget_set_sensitive (combo, FALSE);
+}
+
+static void
+process_page_identity (GladeXML *xml)
+{
+	GtkWidget *next, *widget;
+	gboolean sensitive = TRUE;
+	gchar *buf, *buf2;
+
+	next = GNOME_DRUID (glade_xml_get_widget (xml, "dlg_account_editor_contents"))->next;
+
+	widget = glade_xml_get_widget (xml, "identity_name");
+	if (!strlen (gtk_entry_get_text (GTK_ENTRY (widget))))
+	{
+		sensitive = FALSE;
+		goto set_sensitive;
+	}
+
+	widget = glade_xml_get_widget (xml, "identity_email");
+	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	if (!strlen (buf) || !(buf2 = strstr (buf, "@")) || strlen (buf2) == 1)
+	{
+		sensitive = FALSE;
+		goto set_sensitive;
+	}
+
+set_sensitive:
+	gtk_widget_set_sensitive (next, sensitive);
+}
+
+static void
+on_identity_name_changed (GtkWidget *widget, C2Window *window)
+{
+	process_page_identity (window->xml);
+}
+
+static void
+on_identity_email_changed (GtkWidget *widget, C2Window *window)
+{
+	GtkWidget *incoming_host, *incoming_user;
+	gchar *buf, *buf2, *ptr;
+	gboolean edit_host = TRUE;
+	gboolean edit_user = TRUE;
+
+	incoming_host = glade_xml_get_widget (window->xml, "incoming_server_hostname");
+	incoming_user = glade_xml_get_widget (window->xml, "incoming_server_username");
+
+	buf = gtk_object_get_data (GTK_OBJECT (incoming_host), "changed");
+	edit_host = GPOINTER_TO_INT ((gpointer) buf);
+	buf = gtk_object_get_data (GTK_OBJECT (incoming_user), "changed");
+	edit_user = GPOINTER_TO_INT ((gpointer) buf);
+	
+	buf = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (window->xml, "identity_email")));
+	ptr = strstr (buf, "@");
+	if (!edit_user)
+	{
+		if (ptr)
+			buf2 = g_strndup (buf, ptr-buf);
+		else
+			buf2 = g_strdup (buf);
+		gtk_entry_set_text (GTK_ENTRY (incoming_user), buf2);
+		g_free (buf2);
+	}
+
+	if (ptr && edit_host)
+		gtk_entry_set_text (GTK_ENTRY (incoming_host), ptr+1);
+	process_page_identity (window->xml);
+}
+
+static void
+on_incoming_host_changed (GtkWidget *widget, C2Window *window)
+{
+	L
 }
 
 static void
@@ -885,46 +965,18 @@ on_general_accounts_outgoing_server_protocol_selection_done (GtkWidget *pwidget,
 }
 
 static gboolean
-on_general_accounts_druid_page1_next (GnomeDruidPage *druid_page, GtkWidget *druid,
+on_general_accounts_druid_page0_next (GnomeDruidPage *druid_page, GtkWidget *druid,
 										C2Window *window)
 {
-	GtkWidget *widget;
 	GladeXML *xml;
-	gchar *buf, *buf2;
+	GnomeDruidPage *page1;
 
-	xml = C2_WINDOW (window)->xml;
-
-	widget = glade_xml_get_widget (xml, "identity_name");
-	if (!strlen (gtk_entry_get_text (GTK_ENTRY (widget))))
-	{
-		GladeXML *exml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"),
-									"dlg_account_error_invalid_name");
-		GtkWidget *edialog = glade_xml_get_widget (exml, "dlg_account_error_invalid_name");
-
-		gnome_dialog_run_and_close (GNOME_DIALOG (edialog));
-		gtk_object_unref (GTK_OBJECT (exml));
-
-		return TRUE;
-	}
-
-	widget = glade_xml_get_widget (xml, "identity_email");
-	buf = gtk_entry_get_text (GTK_ENTRY (widget));
-	if (!strlen (buf) || !(buf2 = strstr (buf, "@")) || strlen (buf2) == 1)
-	{
-		GladeXML *exml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"),
-									"dlg_account_error_invalid_email");
-		GtkWidget *edialog = glade_xml_get_widget (exml, "dlg_account_error_invalid_email");
-
-		gnome_dialog_run_and_close (GNOME_DIALOG (edialog));
-		gtk_object_unref (GTK_OBJECT (exml));
-
-		return TRUE;
-	}
-
-	widget = glade_xml_get_widget (xml, "incoming_server_hostname");
-	gtk_entry_set_text (GTK_ENTRY (widget), buf2+1);
-
-	return FALSE;
+	xml = window->xml;
+	page1 = GNOME_DRUID_PAGE (glade_xml_get_widget (xml, "page1"));
+	gnome_druid_set_page (GNOME_DRUID (druid), page1);
+	process_page_identity (xml);
+	
+	return TRUE;
 }
 
 static gboolean

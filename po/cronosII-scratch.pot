@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-08 23:02-0300\n"
+"POT-Creation-Date: 2001-09-09 13:38-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -458,12 +458,12 @@ msgstr ""
 msgid "Open the main window (default)"
 msgstr ""
 
-#: src/preferences.c:205 src/widget-dialog-preferences.c:468
-#: src/widget-dialog-preferences.c:540
+#: src/preferences.c:205 src/widget-dialog-preferences.c:477
+#: src/widget-dialog-preferences.c:549
 msgid "General"
 msgstr ""
 
-#: src/preferences-trans.h:195 src/preferences.c:209
+#: src/preferences-trans.h:196 src/preferences.c:209
 msgid "Options"
 msgstr ""
 
@@ -475,8 +475,8 @@ msgstr ""
 msgid "Accounts"
 msgstr ""
 
-#: src/preferences.c:221 src/widget-dialog-preferences.c:469
-#: src/widget-dialog-preferences.c:550
+#: src/preferences.c:221 src/widget-dialog-preferences.c:478
+#: src/widget-dialog-preferences.c:559
 msgid "Interface"
 msgstr ""
 
@@ -488,36 +488,36 @@ msgstr ""
 msgid "Colors"
 msgstr ""
 
-#: src/widget-dialog-preferences.c:470 src/widget-dialog-preferences.c:560
+#: src/widget-dialog-preferences.c:479 src/widget-dialog-preferences.c:569
 msgid "Advanced"
 msgstr ""
 
 #: src/preferences-trans.h:29 src/trans.h:204
-#: src/widget-dialog-preferences.c:478
+#: src/widget-dialog-preferences.c:487
 msgid "Preferences"
 msgstr ""
 
-#: src/preferences-trans.h:144 src/widget-dialog-preferences.c:696
+#: src/preferences-trans.h:144 src/widget-dialog-preferences.c:705
 msgid "Account Editor"
 msgstr ""
 
-#: src/preferences-trans.h:168 src/widget-dialog-preferences.c:838
-#: src/widget-dialog-preferences.c:1086
+#: src/preferences-trans.h:168 src/widget-dialog-preferences.c:918
+#: src/widget-dialog-preferences.c:1138
 msgid "POP3"
 msgstr ""
 
-#: src/preferences-trans.h:169 src/widget-dialog-preferences.c:838
-#: src/widget-dialog-preferences.c:1095
+#: src/preferences-trans.h:169 src/widget-dialog-preferences.c:918
+#: src/widget-dialog-preferences.c:1147
 msgid "IMAP"
 msgstr ""
 
-#: src/preferences-trans.h:184 src/widget-dialog-preferences.c:870
-#: src/widget-dialog-preferences.c:976
+#: src/preferences-trans.h:185 src/widget-dialog-preferences.c:950
+#: src/widget-dialog-preferences.c:1028
 msgid "SMTP"
 msgstr ""
 
-#: src/preferences-trans.h:185 src/widget-dialog-preferences.c:876
-#: src/widget-dialog-preferences.c:995
+#: src/preferences-trans.h:186 src/widget-dialog-preferences.c:956
+#: src/widget-dialog-preferences.c:1047
 msgid "Sendmail"
 msgstr ""
 
@@ -617,7 +617,7 @@ msgstr ""
 
 #: src/preferences-trans.h:12 src/preferences-trans.h:16
 #: src/preferences-trans.h:20 src/preferences-trans.h:23
-#: src/preferences-trans.h:213 src/trans.h:100 src/trans.h:203 src/trans.h:210
+#: src/preferences-trans.h:214 src/trans.h:100 src/trans.h:203 src/trans.h:210
 msgid "Error"
 msgstr ""
 
@@ -706,7 +706,7 @@ msgstr ""
 msgid "Let know the user."
 msgstr ""
 
-#: src/preferences-trans.h:43 src/preferences-trans.h:179
+#: src/preferences-trans.h:43 src/preferences-trans.h:180
 msgid "Outgoing mail"
 msgstr ""
 
@@ -1149,102 +1149,106 @@ msgstr ""
 msgid "Protocol:"
 msgstr ""
 
-#: src/preferences-trans.h:170 src/preferences-trans.h:186
+#: src/preferences-trans.h:170 src/preferences-trans.h:187
 msgid "Server information"
 msgstr ""
 
-#: src/preferences-trans.h:171 src/preferences-trans.h:187 src/trans.h:115
+#: src/preferences-trans.h:171 src/preferences-trans.h:188 src/trans.h:115
 msgid "Hostname:"
 msgstr ""
 
-#: src/preferences-trans.h:172 src/preferences-trans.h:188 src/trans.h:112
+#: src/preferences-trans.h:172 src/preferences-trans.h:189 src/trans.h:112
 msgid "Port:"
 msgstr ""
 
-#: src/preferences-trans.h:173 src/preferences-trans.h:189
+#: src/preferences-trans.h:173 src/preferences-trans.h:190
 msgid "Use Secure Server Layer (SSL)."
 msgstr ""
 
-#: src/preferences-trans.h:174 src/preferences-trans.h:190
-msgid "Authentication"
+#: src/preferences-trans.h:174 src/trans.h:116 src/trans.h:170 src/trans.h:212
+msgid "Username:"
 msgstr ""
 
 #: src/preferences-trans.h:175 src/preferences-trans.h:191
-msgid "Authentication method:"
+msgid "Authentication"
 msgstr ""
 
 #: src/preferences-trans.h:176 src/preferences-trans.h:192
+msgid "Authentication method:"
+msgstr ""
+
+#: src/preferences-trans.h:177 src/preferences-trans.h:193
 msgid "Password"
 msgstr ""
 
-#: src/preferences-trans.h:177
+#: src/preferences-trans.h:178
 msgid "APOP"
 msgstr ""
 
-#: src/preferences-trans.h:178 src/preferences-trans.h:193 src/trans.h:214
+#: src/preferences-trans.h:179 src/preferences-trans.h:194 src/trans.h:214
 msgid "Remember password."
 msgstr ""
 
-#: src/preferences-trans.h:180
+#: src/preferences-trans.h:181
 msgid ""
 "Please, fill in the information regarding the outgoing mail.\n"
 "If you don't know the protocol your server uses you should ask your\n"
 "system administrator or your ISP or just use the Sendmail protocol."
 msgstr ""
 
-#: src/preferences-trans.h:183
+#: src/preferences-trans.h:184
 msgid "Server Protocol:"
 msgstr ""
 
-#: src/preferences-trans.h:194
+#: src/preferences-trans.h:195
 msgid "This server requires authentication."
 msgstr ""
 
-#: src/preferences-trans.h:196
+#: src/preferences-trans.h:197
 msgid "Account Information"
 msgstr ""
 
-#: src/preferences-trans.h:197 src/trans.h:109
+#: src/preferences-trans.h:198 src/trans.h:109
 msgid "Name:"
 msgstr ""
 
-#: src/preferences-trans.h:198
+#: src/preferences-trans.h:199
 msgid "Signature"
 msgstr ""
 
-#: src/preferences-trans.h:199
+#: src/preferences-trans.h:200
 msgid "Signature file (plain):"
 msgstr ""
 
-#: src/preferences-trans.h:200
+#: src/preferences-trans.h:201
 msgid "Signature file (HTML):"
 msgstr ""
 
-#: src/preferences-trans.h:201
+#: src/preferences-trans.h:202
 msgid "Multiple server access options"
 msgstr ""
 
-#: src/preferences-trans.h:202
+#: src/preferences-trans.h:203
 msgid "Leave message in the server."
 msgstr ""
 
-#: src/preferences-trans.h:203
+#: src/preferences-trans.h:204
 msgid "Remove messages which are"
 msgstr ""
 
-#: src/preferences-trans.h:204
+#: src/preferences-trans.h:205
 msgid "days all."
 msgstr ""
 
-#: src/preferences-trans.h:205
+#: src/preferences-trans.h:206
 msgid "Automatically check this account."
 msgstr ""
 
-#: src/preferences-trans.h:206
+#: src/preferences-trans.h:207
 msgid "Finished"
 msgstr ""
 
-#: src/preferences-trans.h:207
+#: src/preferences-trans.h:208
 msgid ""
 "Congratulations, you have successfully configured\n"
 "your account for use with Cronos II.\n"
@@ -1252,7 +1256,7 @@ msgid ""
 "Press «Finish» to store the new configuration."
 msgstr ""
 
-#: src/preferences-trans.h:211
+#: src/preferences-trans.h:212
 msgid ""
 "The name you entered is\n"
 "not valid."
@@ -1657,10 +1661,6 @@ msgstr ""
 
 #: src/trans.h:114
 msgid "Type here the hostname where this mailbox is stored"
-msgstr ""
-
-#: src/trans.h:116 src/trans.h:170 src/trans.h:212
-msgid "Username:"
 msgstr ""
 
 #: src/trans.h:117 src/trans.h:169 src/trans.h:213

@@ -131,7 +131,9 @@ c2_init (gint argc, gchar **argv)
 	c2_hash_init ();
 
 #ifdef USE_GTKHTML
+#ifdef USE_GCONF
 	gconf_init (argc, argv, NULL);
+#endif
 #endif
 }
 

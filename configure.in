@@ -196,6 +196,30 @@ fi
 AC_DEFINE_UNQUOTED(GNOME_DOWNLOAD_PATH, "$gnomedownload")
 
 dnl #######################################################
+dnl   GConf
+dnl #######################################################
+
+AC_ARG_ENABLE([gconf],
+[  --disable-gconf           Disable the use of GConf [default=auto]],
+[ gconf=$enableval ], [ gconf=yes ])
+
+AC_MSG_CHECKING(for GConf)
+if test "$gconf" = "yes"; then
+	AC_MSG_RESULT(yes)
+	AC_PATH_PROG(gconfconfig, gconf-config)
+	if test "_$gconfconfig" = _; then
+		AC_MSG_CHECKING(gconf-config path)
+		AC_MSG_ERROR([the gconf-config script could not be found.])
+	else
+		GCONFLIBS=`gconf-config --libs`
+		AC_DEFINE(USE_GCONF)
+		FEATURES="$FEATURES GConf"
+	fi
+else
+	AC_MSG_RESULT(no)
+fi
+
+dnl #######################################################
 dnl   GtkHTML
 dnl #######################################################
 
@@ -211,7 +235,7 @@ if test "$gtkhtml" = "yes"; then
 		FEATURES="$FEATURES 'HTML (GtkHTML)'"
 		AC_DEFINE(USE_GTKHTML)
 		AC_MSG_RESULT(yes)
-		HTMLLIBS="-lgtkhtml"
+		HTMLLIBS=`gnome-config --libs gtkhtml`
 	else
 		html="no"
 		AC_MSG_RESULT(no)
@@ -267,6 +291,7 @@ AC_DEFINE_UNQUOTED(C2_PLUGIN_VERSION_MAJOR, $C2_PLUGIN_VERSION_MAJOR)
 AC_DEFINE_UNQUOTED(C2_PLUGIN_VERSION_MINOR, $C2_PLUGIN_VERSION_MINOR)
 AC_DEFINE_UNQUOTED(C2_PLUGIN_VERSION_MICRO, $C2_PLUGIN_VERSION_MICRO)
 AC_SUBST(HTMLLIBS)
+AC_SUBST(GCONFLIBS)
 AC_SUBST(LIBS)
 AC_SUBST(CFLAGS)
 AC_SUBST(FEATURES)
@@ -301,5 +326,6 @@ echo  Building test suite..............: $test_suite
 echo  Building with debugging routines.: $debug
 echo
 echo  Building with HTML support.......: $html
+echo  Building with GConf support......: $gconf
 echo
 echo  Run \'make\' to start compiling this software.

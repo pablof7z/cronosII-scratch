@@ -40,12 +40,12 @@ cronosII_scratch_SOURCES = \
 
 cronosII_scratch_LDADD = \
 	./$(top_builddir)/libcronosII/libcronosII.a \
-	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
+	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
 
 cronosII_scratch_LDFLAGS = \
 	./././$(top_builddir)/libcronosII/libcronosII.a \
 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) \
-	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
+	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
 
 ui_text_editor_SOURCES = \
 	object-ui-data.c			object-ui-data.h			\
@@ -53,12 +53,12 @@ ui_text_editor_SOURCES = \
 
 ui_text_editor_LDADD = \
 	./$(top_builddir)/libcronosII/libcronosII.a \
-	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
+	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
 
 ui_text_editor_LDFLAGS = \
 	./././$(top_builddir)/libcronosII/libcronosII.a \
 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) \
-	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
+	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
 	
 EXTRA_DIST = \
 	README.FAQ			\

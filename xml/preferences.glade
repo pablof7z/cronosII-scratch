@@ -3070,7 +3070,7 @@ Do you want to continue?</message>
 
     <widget>
       <class>GnomeDruidPageStart</class>
-      <name>druidpagestart2</name>
+      <name>page0</name>
       <title>Account Setup</title>
       <text>Cronos II supports several identities through the usage
 of different accounts.
@@ -3543,10 +3543,10 @@ IMAP
 	      <class>GtkTable</class>
 	      <name>table13</name>
 	      <border_width>4</border_width>
-	      <rows>2</rows>
+	      <rows>3</rows>
 	      <columns>4</columns>
 	      <homogeneous>False</homogeneous>
-	      <row_spacing>0</row_spacing>
+	      <row_spacing>4</row_spacing>
 	      <column_spacing>4</column_spacing>
 
 	      <widget>
@@ -3666,6 +3666,56 @@ IMAP
 		<draw_indicator>True</draw_indicator>
 		<child>
 		  <left_attach>0</left_attach>
+		  <right_attach>4</right_attach>
+		  <top_attach>2</top_attach>
+		  <bottom_attach>3</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<name>label177</name>
+		<label>Username:</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>0</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<child>
+		  <left_attach>0</left_attach>
+		  <right_attach>1</right_attach>
+		  <top_attach>1</top_attach>
+		  <bottom_attach>2</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkEntry</class>
+		<name>incoming_server_username</name>
+		<can_focus>True</can_focus>
+		<editable>True</editable>
+		<text_visible>True</text_visible>
+		<text_max_length>0</text_max_length>
+		<text></text>
+		<child>
+		  <left_attach>1</left_attach>
 		  <right_attach>4</right_attach>
 		  <top_attach>1</top_attach>
 		  <bottom_attach>2</bottom_attach>

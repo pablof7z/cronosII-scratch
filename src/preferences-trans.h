@@ -171,6 +171,7 @@ gchar *s = N_("Server information");
 gchar *s = N_("Hostname:");
 gchar *s = N_("Port:");
 gchar *s = N_("Use Secure Server Layer (SSL).");
+gchar *s = N_("Username:");
 gchar *s = N_("Authentication");
 gchar *s = N_("Authentication method:");
 gchar *s = N_("Password");
