@@ -511,17 +511,17 @@ c2_str_get_enclosed_text_backward (const gchar *str, gchar enc1, gchar enc2, gui
 gint
 c2_str_count_lines (const gchar *str)
 {
-   gchar *ptr;
-   gint counter = 1;
-   
-   if(!str)
-     return 0;
-   
-   for(ptr = C2_CHAR(str); *ptr; ptr++)
-      if(*ptr == '\n' && *(ptr+1))
-	counter++;
-   
-   return counter;
+	gchar *ptr;
+	gint counter = 1;
+
+	if(!str)
+		return 0;
+	
+	for(ptr = C2_CHAR(str); *ptr; ptr++)
+		if(*ptr == '\n' && *(ptr+1))
+			counter++;
+	
+	return counter;
 }
 
 /**
