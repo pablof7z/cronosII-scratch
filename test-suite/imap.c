@@ -30,8 +30,20 @@
 void
 run_imap(C2IMAP *imap)
 {	
+	GList *list = NULL;
+	
 	if(c2_imap_init(imap) < 0)
+	{	
 		printf("failed to login\n");
+		return;
+	}
+	if(c2_imap_get_folder_list(imap, &list, "", "*") < 0)
+	{
+		printf("failed to get folder list\n");
+		return;
+	}
+	
+	printf("\nCronosII IMAP capability testing Completed successfully!\n");
 }
 
 gint
