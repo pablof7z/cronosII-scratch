@@ -18,6 +18,7 @@
 #include <glade/glade.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <config.h>
 #ifdef USE_GTKHTML
 #	include <gtkhtml/gtkhtml.h>
@@ -1880,6 +1881,8 @@ create_message (C2Composer *composer)
 	gchar *buf, *buf1;
 	gint i;
 	GList *l;
+	struct tm *tm;
+	time_t ti;
 
 	/* Create message */
 	message = c2_message_new ();
@@ -1926,6 +1929,14 @@ create_message (C2Composer *composer)
 		g_string_append (header, buf);
 		g_free (buf);
 	}
+
+	/* Date */
+	buf = g_new0 (gchar, 39);
+	time (&ti);
+	tm = localtime (&ti);
+	strftime (buf, 39, "Date: %a, %d %b %Y %H:%M:%S %z\n", tm);
+	g_string_append (header, buf);
+	g_free (buf);
 
 	/* Subject */
 	widget = glade_xml_get_widget (xml, "subject");

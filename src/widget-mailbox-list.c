@@ -75,6 +75,9 @@ static void
 on_menu_use_as_drafts_toggled				(GtkWidget *widget, C2MailboxList *mlist);
 
 static void
+on_menu_subscribed_toggled					(GtkWidget *widget, C2MailboxList *mlist);
+
+static void
 on_menu_mailboxes_list_activate				(GtkWidget *widget, C2MailboxList *mlist);
 
 static void
@@ -259,6 +262,8 @@ c2_mailbox_list_new (C2Application *application)
 						GTK_SIGNAL_FUNC (on_menu_use_as_trash_toggled), mlist);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "use_as_drafts")), "toggled",
 						GTK_SIGNAL_FUNC (on_menu_use_as_drafts_toggled), mlist);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "subscribed")), "toggled",
+						GTK_SIGNAL_FUNC (on_menu_subscribed_toggled), mlist);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "mailboxes_list")), "activate",
 						GTK_SIGNAL_FUNC (on_menu_mailboxes_list_activate), mlist);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "only_subscribed")), "toggled",
@@ -367,6 +372,25 @@ on_mlist_button_press_event (GtkWidget *mlist, GdkEvent *event)
 			gtk_widget_show (glade_xml_get_widget (xml, "sep02"));
 			gtk_widget_hide (glade_xml_get_widget (xml, "mailboxes_list"));
 			gtk_widget_hide (glade_xml_get_widget (xml, "only_subscribed"));
+
+			if (C2_MAILBOX (object)->type == C2_MAILBOX_IMAP)
+			{
+				if (!C2_MAILBOX (object)->protocol.IMAP.noselect)
+				{
+					gtk_widget_hide (glade_xml_get_widget (xml, "subscribe"));
+					gtk_widget_show (glade_xml_get_widget (xml, "unsubscribe"));
+				} else
+				{
+					gtk_widget_show (glade_xml_get_widget (xml, "subscribe"));
+					gtk_widget_hide (glade_xml_get_widget (xml, "unsubscribe"));
+				}
+				gtk_widget_show (glade_xml_get_widget (xml, "sep03"));
+			} else
+			{
+				gtk_widget_hide (glade_xml_get_widget (xml, "subscribe"));
+				gtk_widget_hide (glade_xml_get_widget (xml, "unsubscribe"));
+				gtk_widget_hide (glade_xml_get_widget (xml, "sep03"));
+			}
 		} else
 		{
 			gtk_widget_hide (glade_xml_get_widget (xml, "delete_mailbox"));
@@ -377,6 +401,7 @@ on_mlist_button_press_event (GtkWidget *mlist, GdkEvent *event)
 			gtk_widget_hide (glade_xml_get_widget (xml, "use_as_trash"));
 			gtk_widget_hide (glade_xml_get_widget (xml, "use_as_drafts"));
 			gtk_widget_hide (glade_xml_get_widget (xml, "sep01"));
+			gtk_widget_hide (glade_xml_get_widget (xml, "sep03"));
 
 			if (C2_IS_ACCOUNT (object))
 			{
@@ -617,6 +642,11 @@ on_menu_use_as_drafts_toggled (GtkWidget *widget, C2MailboxList *mlist)
 	gnome_config_set_int (path, mailbox->use_as);
 	gnome_config_sync ();
 	g_free (path);
+}
+
+static void
+on_menu_subscribed_toggled (GtkWidget *widget, C2MailboxList *mlist)
+{
 }
 
 static void

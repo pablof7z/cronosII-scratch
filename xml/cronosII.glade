@@ -2479,6 +2479,27 @@ result in the lost of all mails in it.</label>
 
   <widget>
     <class>GtkCheckMenuItem</class>
+    <name>subscribe</name>
+    <label>_Subscribe</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>unsubscribe</name>
+    <label>_Unsubscribe</label>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>sep03</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkCheckMenuItem</class>
     <name>use_as_inbox</name>
     <tooltip>Download new mails to this mailbox</tooltip>
     <signal>
