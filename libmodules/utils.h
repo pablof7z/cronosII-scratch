@@ -64,6 +64,12 @@ c2_fd_get_line									(FILE *fd);
 gchar *
 c2_fd_get_word									(FILE *fd);
 
+gint
+c2_file_binary_copy								(const gchar *from_path, const gchar *target_path);
+
+gint
+c2_file_binary_move								(const gchar *from_path, const gchar *target_path);
+
 gboolean
 c2_file_exists									(const gchar *file);
 

@@ -522,8 +522,70 @@ c2_fd_get_word (FILE *fd)
 }
 
 /**
- * c2_file_copy
- * @
+ * c2_file_binary_copy
+ * @from_path: Path to the file that is going to be copied.
+ * @target_path: Path to the file where is going to be done the copy.
+ *
+ * This function copies a file into other
+ * in a binary way.
+ *
+ * Return Value:
+ * 0 is success, 1 on error (c2_errno gets a proper value).
+ **/
+gint
+c2_file_binary_copy (const gchar *from_path, const gchar *target_path)
+{
+	gchar buf[100];
+	FILE *frm;
+	FILE *dst;
+	
+	c2_return_val_if_fail (from_path, 1, C2EDATA);
+	c2_return_val_if_fail (target_path, 1, C2EDATA);
+	
+	if (!(frm = fopen (from_path, "rt")))
+	{
+		c2_error_set (-errno);
+		return FALSE;
+	}
+	
+	if (!(dst = fopen (target_path, "wt")))
+	{
+		c2_error_set (-errno);
+		fclose (frm);
+		return FALSE;
+	}
+	
+	for (;;)
+	{
+		if (fread (buf, 1, sizeof (buf), frm) < sizeof (buf)-1) break;
+		fwrite (buf, 1, sizeof (buf), dst);
+	}
+	
+	fclose (frm);
+	fclose (dst);
+	
+	return 0;
+}
+
+/**
+ * c2_file_binary_move
+ * @from_path: Path to the file that is going to be moved.
+ * @target_path: Path to the file where is going to be done the move.
+ *
+ * This function moves a file into other
+ * in a binary way.
+ *
+ * Return Value:
+ * 0 is success, 1 on error (c2_errno gets a proper value).
+ **/
+gint
+c2_file_binary_move (const gchar *from_path, const gchar *target_path)
+{
+	if (c2_file_binary_copy (from_path, target_path))
+		return 1;
+	unlink (from_path);
+	return 0;
+}
 
 /**
  * c2_file_exists

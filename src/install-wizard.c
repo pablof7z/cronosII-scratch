@@ -205,7 +205,7 @@ upgrade_database (const gchar *mbox)
 	c2_db_unload (db);
 
 	/* Move the file to the right location */
-	c2_file_binary_mv (path[TEMP], path[SOURCE]);
+	c2_file_binary_move (path[TEMP], path[SOURCE]);
 
 	g_free (path[TEMP]);
 	g_free (path[SOURCE]);
