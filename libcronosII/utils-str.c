@@ -871,7 +871,7 @@ c2_str_text_to_html (const gchar *str, gboolean proc_email)
  **/
 
 gchar *
-c2_str_html_to_text (const gchar *str, unsigned int flags) {
+c2_str_html_to_text (gchar *str, unsigned int flags) {
 	gchar *retval;
 	gboolean in_tag = FALSE;
 	gboolean in_sym = FALSE;

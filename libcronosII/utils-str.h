@@ -89,7 +89,7 @@ c2_str_text_to_html							(const gchar *str, gboolean proc_email);
 #define C2_STRIP_HTML_DO_SYMBOLS   0x00000010
 
 gchar *
-c2_str_html_to_text 						(char *oldmessage, unsigned int flags);
+c2_str_html_to_text 						(gchar *str, unsigned int flags);
 
 gchar *
 c2_str_get_striped_subject					(const gchar *subject);
