@@ -28,6 +28,7 @@ extern "C" {
 
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <libcronosII/mailbox.h>
+#	include <libcronosII/utils-mutex.h>
 #	include "widget-application.h"
 #	include "widget-window.h"
 #else
@@ -73,8 +74,8 @@ struct _C2WindowMain
 	GladeXML *ctree_menu;
 	GladeXML *toolbar_menu;
 
-	pthread_mutex_t index_lock;
-	pthread_mutex_t body_lock;
+	C2Mutex index_lock;
+	C2Mutex body_lock;
 };
 
 struct _C2WindowMainClass

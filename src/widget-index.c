@@ -61,6 +61,9 @@ static void
 select_row									(C2Index *index, gint row, gint column, GdkEvent *event);
 
 static void
+unselect_row								(C2Index *index, gint row, gint column, GdkEvent *event);
+
+static void
 on_resize_column							(C2Index *index, gint column, gint width);
 
 static void
@@ -71,6 +74,7 @@ on_application_preferences_changed			(C2Application *application, gint key, gpoi
 enum
 {
 	SELECT_MESSAGE,			/* Click in a row */
+	UNSELECT_MESSAGE,
 	OPEN_MESSAGE,			/* Double click in a row */
 	LAST_SIGNAL
 };
@@ -122,6 +126,13 @@ class_init (C2IndexClass *klass)
 						GTK_SIGNAL_OFFSET(C2IndexClass, select_message),
 						gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
 						GTK_TYPE_POINTER);
+	signals[UNSELECT_MESSAGE] =
+		gtk_signal_new ("unselect_message",
+						GTK_RUN_FIRST,
+						object_class->type,
+						GTK_SIGNAL_OFFSET (C2IndexClass, unselect_message),
+						gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+						GTK_TYPE_POINTER);
     signals[OPEN_MESSAGE] =
 		gtk_signal_new("open_message",
 						GTK_RUN_FIRST,
@@ -132,6 +143,7 @@ class_init (C2IndexClass *klass)
 	gtk_object_class_add_signals(object_class, signals, LAST_SIGNAL);
 
     klass->select_message = NULL;
+	klass->unselect_message = NULL;
     klass->open_message = NULL;
 	klass->reload = reload;
 	klass->sort = sort;
@@ -240,9 +252,9 @@ c2_index_construct (C2Index *index, C2Application *application, C2IndexMode mode
 
     gtk_signal_connect (GTK_OBJECT (clist), "select-row",
 						GTK_SIGNAL_FUNC (select_row), NULL);
-/*	gtk_signal_connect (GTK_OBJECT (clist), "unselect-row",
+	gtk_signal_connect (GTK_OBJECT (clist), "unselect-row",
 						GTK_SIGNAL_FUNC (unselect_row), NULL);
-	gtk_signal_connect (GTK_OBJECT (clist), "button_press_event",
+/*	gtk_signal_connect (GTK_OBJECT (clist), "button_press_event",
 						GTK_SIGNAL_FUNC (button_press_event), NULL); */
 	gtk_signal_connect (GTK_OBJECT (clist), "resize_column",
 						GTK_SIGNAL_FUNC (on_resize_column), NULL);
@@ -331,7 +343,8 @@ reload (C2Index *index)
 		do
 			add_message (index->application, clist, db, date_fmt);
 		while (c2_db_lineal_next (db));
-	}
+	} else
+		gtk_signal_emit (GTK_OBJECT (index), signals[UNSELECT_MESSAGE], NULL);
 	g_free (date_fmt);
 
 	selected_mail = get_selected_mail (index);
@@ -430,6 +443,16 @@ select_row (C2Index *index, gint row, gint column, GdkEvent *event)
 		}
 #endif
 	}
+}
+
+static void
+unselect_row (C2Index *index, gint row, gint column, GdkEvent *event)
+{
+	C2Db *node;
+
+	node = C2_DB (gtk_clist_get_row_data (GTK_CLIST (GTK_WIDGET (index)), row));
+	gtk_signal_emit (GTK_OBJECT (index), signals[UNSELECT_MESSAGE], node);
+	set_selected_mail (index, -1);
 }
 
 static void
@@ -599,4 +622,36 @@ void
 c2_index_remove_message (C2Index *index, C2Db *db)
 {
 		
+}
+
+void
+c2_index_select_next_message (C2Index *index)
+{
+	gint sr;
+
+	sr = GTK_CLIST (index)->selection ? GPOINTER_TO_INT (GTK_CLIST (index)->selection->data) : -1;
+
+	if (sr < 0 || sr >= GTK_CLIST (index)->rows)
+		return;
+	
+	gtk_clist_freeze (GTK_CLIST (index));
+	gtk_clist_unselect_all (GTK_CLIST (index));
+	gtk_clist_select_row (GTK_CLIST (index), sr+1, 3);
+	gtk_clist_thaw (GTK_CLIST (index));
+}
+
+void
+c2_index_select_previous_message (C2Index *index)
+{
+	gint sr;
+
+	sr = GTK_CLIST (index)->selection ? GPOINTER_TO_INT (GTK_CLIST (index)->selection->data) : -1;
+
+	if (sr <= 0)
+		return;
+	
+	gtk_clist_freeze (GTK_CLIST (index));
+	gtk_clist_unselect_all (GTK_CLIST (index));
+	gtk_clist_select_row (GTK_CLIST (index), sr-1, 3);
+	gtk_clist_thaw (GTK_CLIST (index));
 }

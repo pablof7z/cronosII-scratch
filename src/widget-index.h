@@ -65,6 +65,7 @@ struct _C2IndexClass
 	GtkCListClass parent_class;
 
 	void (*select_message) (C2Index *index, C2Db *node);
+	void (*unselect_message) (C2Index *index, C2Db *node);
 	void (*open_message) (C2Index *index, C2Db *node);
 
 	/* Not functions */
@@ -101,18 +102,18 @@ c2_index_update_message						(C2Index *index, C2Db *db);
 void
 c2_index_select_message						(C2Index *index, C2Db *db);
 
-gboolean
-c2_index_exists_previous_message			(C2Index *index);
+void
+c2_index_select_next_message				(C2Index *index);
 
-gboolean
-c2_index_exists_next_message				(C2Index *index);
+void
+c2_index_select_previous_message			(C2Index *index);
 
 /* Sorting */
 void
 c2_index_sort								(C2Index *index);
 
 void
-c2_index_install_hints						(C2Index *index, GtkWidget *appbar, pthread_mutex_t *lock);
+c2_index_install_hints						(C2Index *index, GtkWidget *appbar, C2Mutex *lock);
 
 #ifdef __cplusplus
 }

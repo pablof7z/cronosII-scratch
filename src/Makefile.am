@@ -32,6 +32,7 @@ cronosII_SOURCES = \
 	widget-mail.c				widget-mail.h				\
 	widget-mailbox-list.c		widget-mailbox-list.h		\
 	widget-part.c				widget-part.h				\
+	widget-select-list.c		widget-select-list.h		\
 	widget-sidebar.c			widget-sidebar.h			\
 	widget-toolbar.c			widget-toolbar.h			\
 	widget-transfer-item.c		widget-transfer-item.h		\

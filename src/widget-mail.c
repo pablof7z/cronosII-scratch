@@ -35,6 +35,7 @@
 #include "widget-mail.h"
 #include "widget-part.h"
 #include "widget-dialog.h"
+#include "widget-select-list.h"
 
 /* [TODO]
  * 010920 Interpret some HTML symbols too.
@@ -491,7 +492,7 @@ c2_mail_get_headers_visible (C2Mail *mail)
 }
 
 void
-c2_mail_install_hints (C2Mail *mail, GtkWidget *appbar, pthread_mutex_t *lock)
+c2_mail_install_hints (C2Mail *mail, GtkWidget *appbar, C2Mutex *lock)
 {
 	c2_html_install_hints (C2_HTML (mail->body), appbar, lock);
 }
@@ -878,7 +879,7 @@ attachments_tool_process_save (C2Mime *mime, const gchar *path, gint nth)
 		c2_error_set (-errno);
 		return;
 	}
-	fprintf (fd, "%s", c2_mime_get_part (mime));
+	fwrite (c2_mime_get_part (mime), sizeof (gchar), mime->length, fd);
 	fclose (fd);
 	g_free (filename);
 }
@@ -888,25 +889,27 @@ attachments_tool_process (C2Mail *mail)
 {
 	GtkWidget *dialog;
 	GtkWidget *widget;
-	GtkCList *clist;
 	GladeXML *xml;
-	C2Mime *mime;
 	gchar *path;
 	gint i;
+	GSList *list, *l;
 
 	dialog = GTK_WIDGET (gtk_object_get_data (GTK_OBJECT (mail), "attachments_tool"));
 	xml = C2_DIALOG (dialog)->xml;
 	
-	clist = GTK_CLIST (glade_xml_get_widget (xml, "clist"));
+	widget = glade_xml_get_widget (xml, "select_list");
+	list = c2_select_list_get_active_items_data (C2_SELECT_LIST (widget));
 	
 	widget = glade_xml_get_widget (xml, "save_entry");
 	path = gtk_entry_get_text (GTK_ENTRY (gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (widget))));
-	c2_preferences_set_general_paths_save (path);
-	c2_preferences_commit ();
+	if (c2_preferences_get_general_paths_smart ())
+	{
+		c2_preferences_set_general_paths_save (path);
+		c2_preferences_commit ();
+	}
 
-	for (i = 1, mime = c2_mail_get_message (mail)->mime; mime; i++, mime = mime->next)
-		if (gtk_clist_get_row_data (clist, i-1))
-			attachments_tool_process_save (mime, path, i);
+	for (l = list, i = 0; l; l = g_slist_next (l))
+		attachments_tool_process_save (C2_MIME (l->data), path, i++);
 }
 
 static void
@@ -936,44 +939,13 @@ on_attachments_tool_apply_btn_clicked (GtkWidget *widget, C2Mail *mail)
 	attachments_tool_process (mail);
 }
 
-static void
-on_attachments_tool_clist_select_row (GtkCList *clist, gint row, gint column)
-{
-	GtkWidget *pixmap;
-	const gchar *data;
-
-	data = (gchar*) gtk_clist_get_row_data (clist, row);
-	if (!data)
-	{
-		pixmap = gtk_object_get_data (GTK_OBJECT (clist), "pixmap-on");
-		if (!pixmap)
-		{
-			pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/check-on.png");
-			gtk_object_set_data (GTK_OBJECT (clist), "pixmap-on", pixmap);
-		}
-		gtk_clist_set_row_data (clist, row, "on");
-	} else
-	{
-		pixmap = gtk_object_get_data (GTK_OBJECT (clist), "pixmap-off");
-		if (!pixmap)
-		{
-			pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/check-off.png");
-			gtk_object_set_data (GTK_OBJECT (clist), "pixmap-off", pixmap);
-		}
-		gtk_clist_set_row_data (clist, row, NULL);
-	}
-
-	gtk_clist_set_pixmap (clist, row, 0,
-								GNOME_PIXMAP (pixmap)->pixmap, GNOME_PIXMAP (pixmap)->mask);
-}
-
 GtkWidget *
 c2_mail_attachments_tool_new (C2Mail *mail)
 {
 	GtkWidget *dialog;
 	GtkWidget *contents;
 	GtkWidget *widget;
-	GtkWidget *pixmap_on = NULL, *pixmap_off = NULL, *icon;
+	GtkWidget *icon;
 	C2Mime *mime;
 	gchar *buf;
 
@@ -998,22 +970,15 @@ c2_mail_attachments_tool_new (C2Mail *mail)
 	g_free (buf);
 
 	/* Set contents */
-	widget = glade_xml_get_widget (C2_DIALOG (dialog)->xml, "clist");
-	gtk_signal_connect (GTK_OBJECT (widget), "select_row",
-						GTK_SIGNAL_FUNC (on_attachments_tool_clist_select_row), NULL);
+	widget = glade_xml_get_widget (C2_DIALOG (dialog)->xml, "select_list");
+
 	for (mime = mail->message->mime; mime; mime = mime->next)
 	{
-		gchar *row[] = { NULL, NULL, NULL, mime->description, NULL };
+		gchar *row[] = { NULL, NULL, mime->description, NULL };
 		gchar *type;
 		const gchar *path;
-		
-		gtk_clist_append (GTK_CLIST (widget), row);
-
-		/* Pixmap */
-		if (!pixmap_off)
-			pixmap_off = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/check-off.png");
-		gtk_clist_set_pixmap (GTK_CLIST (widget), GTK_CLIST (widget)->rows-1, 0,
-								GNOME_PIXMAP (pixmap_off)->pixmap, GNOME_PIXMAP (pixmap_off)->mask);
+	
+		c2_select_list_append_item (C2_SELECT_LIST (widget), row, mime);
 
 		/* Icon */
 		type = g_strdup_printf ("%s/%s", mime->type, mime->subtype);
@@ -1035,22 +1000,15 @@ c2_mail_attachments_tool_new (C2Mail *mail)
 				type = filename;
 			}
 		}
-		gtk_clist_set_text (GTK_CLIST (widget), GTK_CLIST (widget)->rows-1, 2, type);
+		C2_DEBUG (type);
+		printf ("Wrinting to %d, %d\n", c2_select_list_last (C2_SELECT_LIST (widget)), 2);
+		gtk_clist_set_text (GTK_CLIST (widget), c2_select_list_last (C2_SELECT_LIST (widget)), 2, type);
 		g_free (type);
 		
-		gtk_clist_set_selectable (GTK_CLIST (widget), GTK_CLIST (widget)->rows-1, 0);
-
 		if (c2_strneq (mime->disposition, "attachment", 10))
-			on_attachments_tool_clist_select_row (GTK_CLIST (widget),
-											GTK_CLIST (widget)->rows-1, 0);
+			c2_select_list_set_active (C2_SELECT_LIST (widget),
+										c2_select_list_last (C2_SELECT_LIST (widget)), TRUE);
 	}
-	gtk_clist_set_column_auto_resize (GTK_CLIST (widget), 0, TRUE);
-	gtk_clist_set_column_auto_resize (GTK_CLIST (widget), 1, TRUE);
-	gtk_clist_set_column_auto_resize (GTK_CLIST (widget), 2, TRUE);
-	gtk_clist_set_column_auto_resize (GTK_CLIST (widget), 3, TRUE);
-	
-	gtk_object_set_data (GTK_OBJECT (widget), "check-on", pixmap_on);
-	gtk_object_set_data (GTK_OBJECT (widget), "check-off", pixmap_off);
 
 	gnome_dialog_button_connect (GNOME_DIALOG (dialog), 0,
 									GTK_SIGNAL_FUNC (on_attachments_tool_ok_btn_clicked), mail);

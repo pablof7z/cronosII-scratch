@@ -125,7 +125,7 @@ init (C2HTML *obj)
 #else
 #endif
 
-	pthread_mutex_init (&obj->lock, NULL);
+	c2_mutex_init (&obj->lock);
 	g_datalist_init (&obj->link_manager_data);
 	obj->appbar = NULL;
 	obj->appbar_lock = NULL;
@@ -322,7 +322,7 @@ c2_html_get_line (C2HTML *html)
 }
 
 void
-c2_html_install_hints (C2HTML *html, GtkWidget *appbar, pthread_mutex_t *lock)
+c2_html_install_hints (C2HTML *html, GtkWidget *appbar, C2Mutex *lock)
 {
 	c2_return_if_fail (appbar, C2EDATA);
 

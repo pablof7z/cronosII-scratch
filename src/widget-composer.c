@@ -449,32 +449,32 @@ send_ (C2Composer *composer, C2ComposerSendType type)
 	C2Message *message;
 	C2Mailbox *mailbox;
 	gchar *buf;
-L
+
 	gdk_threads_enter ();
 	message = create_message (composer);
-L	gdk_threads_leave ();
+	gdk_threads_leave ();
 
 	/* Set the Send Now state of the message */
 	buf = message->header;
 	message->header = g_strdup_printf ("%s\n"
 									   "X-CronosII-Send-Type: %d\n",
 									   message->header, type);
-L
+
 	mailbox = c2_mailbox_get_by_name (C2_WINDOW (composer)->application->mailbox, C2_MAILBOX_OUTBOX);
 	if (!mailbox)
 		g_assert_not_reached ();
-L
+
 	c2_db_freeze (mailbox);
 	if (!c2_db_message_add (mailbox, message))
 	{
 		c2_db_thaw (mailbox);
 
 		gdk_threads_enter ();
-L		gtk_widget_destroy (GTK_WIDGET (composer));
+		gtk_widget_destroy (GTK_WIDGET (composer));
 		gdk_threads_leave ();
 	} else
 	{
-L		c2_db_thaw (mailbox);
+		c2_db_thaw (mailbox);
 		
 		/* Make the send buttons sensitive again */
 	}
@@ -1883,7 +1883,6 @@ autodefine_type:
 		
 		buf = g_basename (attach->file);
 		mime->disposition = g_strdup_printf ("attachment; filename=\"%s\"", buf);
-		g_free (buf);
 
 		mime->description = g_strdup (attach->description);
 		mime->encoding = g_strdup ("base64");

@@ -8,6 +8,7 @@
 #undef USE_DEBUG
 #undef PREFIX
 #undef URL
+#undef FEATURES_URL
 #undef USE_SPOOL_DIR
 #undef USE_XMAILER
 #undef GNOME_DOWNLOAD_PATH

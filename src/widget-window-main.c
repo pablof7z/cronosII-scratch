@@ -137,6 +137,18 @@ static void
 on_menubar_file_exit_activate				(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
+on_menubar_view_toolbar_activate			(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_view_mail_preview_activate		(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_view_headers_activate			(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_view_mail_source_activate		(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_menubar_message_reply_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
@@ -153,6 +165,15 @@ on_menubar_message_move_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_menubar_message_delete_activate			(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_message_next_activate			(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_message_previous_activate		(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_settings_features_download_activate	(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_menubar_settings_preferences_activate	(GtkWidget *widget, C2WindowMain *wmain);
@@ -224,6 +245,9 @@ static void
 on_index_select_message						(GtkWidget *index, C2Db *node, C2WindowMain *wmain);
 
 static void
+on_index_unselect_message					(C2Index *index, C2Db *node, C2WindowMain *wmain);
+
+static void
 on_mlist_object_selected					(C2MailboxList *mlist, GtkObject *object, C2WindowMain *wmain);
 
 static void
@@ -276,6 +300,7 @@ C2ToolbarItem toolbar_items[] =
 {
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_check",
 		N_("Check"), PKGDATADIR "/pixmaps/receive.png",
 		N_("Check for incoming mails"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_check_clicked), NULL,
@@ -283,6 +308,7 @@ C2ToolbarItem toolbar_items[] =
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_send",
 		N_("Send"), PKGDATADIR "/pixmaps/send.png",
 		N_("Send outgoing mails"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_send_clicked), NULL,
@@ -290,6 +316,7 @@ C2ToolbarItem toolbar_items[] =
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_search",
 		N_("Search"), PKGDATADIR "/pixmaps/find.png",
 		N_("Search a message in existent mailboxes"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_search_clicked), NULL,
@@ -297,6 +324,7 @@ C2ToolbarItem toolbar_items[] =
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_save",
 		N_("Save"), PKGDATADIR "/pixmaps/save.png",
 		N_("Save selected message"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_save_clicked), NULL,
@@ -304,6 +332,7 @@ C2ToolbarItem toolbar_items[] =
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_print",
 		N_("Print"), PKGDATADIR "/pixmaps/print.png",
 		N_("Print selected message"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_print_clicked), NULL,
@@ -311,6 +340,7 @@ C2ToolbarItem toolbar_items[] =
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_delete",
 		N_("Delete"), PKGDATADIR "/pixmaps/delete.png",
 		N_("Delete selected mails"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_delete_clicked), NULL,
@@ -318,6 +348,7 @@ C2ToolbarItem toolbar_items[] =
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_copy",
 		N_("Copy"), PKGDATADIR "/pixmaps/copy-message.png",
 		N_("Copy selected mails"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_copy_clicked), NULL,
@@ -325,6 +356,7 @@ C2ToolbarItem toolbar_items[] =
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_move",
 		N_("Move"), PKGDATADIR "/pixmaps/move-message.png",
 		N_("Move selected mails"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_move_clicked), NULL,
@@ -332,6 +364,7 @@ C2ToolbarItem toolbar_items[] =
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_compose",
 		N_("Compose"), PKGDATADIR "/pixmaps/mail-write.png",
 		N_("Compose a new message"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_compose_clicked), NULL,
@@ -339,6 +372,7 @@ C2ToolbarItem toolbar_items[] =
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_reply",
 		N_("Reply"), PKGDATADIR "/pixmaps/reply.png",
 		N_("Reply selected message"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_reply_clicked), NULL,
@@ -346,6 +380,7 @@ C2ToolbarItem toolbar_items[] =
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_reply_all",
 		N_("Reply All"), PKGDATADIR "/pixmaps/reply-all.png",
 		N_("Reply selected message to all recipients"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_reply_all_clicked), NULL,
@@ -353,6 +388,7 @@ C2ToolbarItem toolbar_items[] =
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_forward",
 		N_("Forward"), PKGDATADIR "/pixmaps/forward.png",
 		N_("Forward selected message"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_forward_clicked), NULL,
@@ -360,20 +396,23 @@ C2ToolbarItem toolbar_items[] =
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_previous",
 		N_("Previous"), PKGDATADIR "/pixmaps/prev.png",
-		N_("Select previous message"), FALSE,
+		N_("Select previous message"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_previous_clicked), NULL,
 		NULL, NULL
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_next",
 		N_("Next"), PKGDATADIR "/pixmaps/next.png",
-		N_("Select next message"), FALSE,
+		N_("Select next message"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_next_clicked), NULL,
 		NULL, NULL
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_contacts",
 		N_("Contacts"), PKGDATADIR "/pixmaps/contacts.png",
 		N_("Open the Contacts Address Book"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_contacts_clicked), NULL,
@@ -381,20 +420,23 @@ C2ToolbarItem toolbar_items[] =
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_close",
 		N_("Close"), PKGDATADIR "/pixmaps/close.png",
+		
 		N_("Close the main window of Cronos II"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_close_clicked), NULL,
 		NULL, NULL
 	},
 	{
 		C2_TOOLBAR_BUTTON,
+		"toolbar_exit",
 		N_("Exit"), PKGDATADIR "/pixmaps/exit.png",
-		N_("Exit Cronos II"), TRUE,
+		N_("Close all windows of Cronos II"), TRUE,
 		GTK_SIGNAL_FUNC (on_toolbar_exit_clicked), NULL,
 		NULL, NULL
 	},
 	{
-		C2_TOOLBAR_SPACE, NULL, NULL, NULL, FALSE, NULL, NULL, NULL
+		C2_TOOLBAR_SPACE, NULL, NULL, NULL, NULL, FALSE, NULL, NULL, NULL
 	}
 };
 
@@ -450,8 +492,8 @@ class_init (C2WindowMainClass *klass)
 static void
 init (C2WindowMain *wmain)
 {
-	pthread_mutex_init (&wmain->index_lock, NULL);
-	pthread_mutex_init (&wmain->body_lock, NULL);
+	c2_mutex_init (&wmain->index_lock);
+	c2_mutex_init (&wmain->body_lock);
 }
 
 GtkWidget *
@@ -472,6 +514,7 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	GladeXML *xml;
 	GtkWidget *window = NULL;
 	GtkWidget *widget;
+	GtkWidget *menuitem;
 	GtkWidget *hpaned;
 	GtkWidget *vpaned;
 	GtkWidget *index_scroll;
@@ -551,10 +594,18 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
       			GTK_SIGNAL_FUNC (on_mlist_button_press_event), wmain);
 
 	/* Toolbar */
-	widget = glade_xml_get_widget (xml, "docktoolbar");
+	widget = glade_xml_get_widget (xml, "dockitem_toolbar");
+	menuitem = glade_xml_get_widget (xml, "view_toolbar");
 	toolbar_style = gnome_config_get_int_with_default ("/"PACKAGE"/Toolbar::Window Main/type=0", NULL);
 	wmain->toolbar = c2_toolbar_new (toolbar_style);
 	gtk_container_add (GTK_CONTAINER (widget), wmain->toolbar);
+	if (c2_preferences_get_window_main_toolbar_visible ())
+	{
+		gtk_widget_show (widget);
+
+		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
+	} else
+		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
 	
 	gtk_signal_connect (GTK_OBJECT (wmain->toolbar), "changed",
 						GTK_SIGNAL_FUNC (on_toolbar_changed), wmain);
@@ -577,6 +628,7 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 		{
 			case C2_TOOLBAR_BUTTON:
 				widget = c2_toolbar_append_button (C2_TOOLBAR (wmain->toolbar),
+										toolbar_items[val].name,
 										toolbar_items[val].button_pixmap,
 										toolbar_items[val].button_label,
 										toolbar_items[val].button_tooltip,
@@ -588,8 +640,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 										wmain);
 				break;
 			case C2_TOOLBAR_WIDGET:
-				c2_toolbar_append_widget (C2_TOOLBAR (wmain->toolbar), toolbar_items[val].widget,
-										toolbar_items[val].widget_tooltip);
+				c2_toolbar_append_widget (C2_TOOLBAR (wmain->toolbar), toolbar_items[val].name,
+										toolbar_items[val].widget, toolbar_items[val].widget_tooltip);
 				break;
 			case C2_TOOLBAR_SPACE:
 				c2_toolbar_append_space (C2_TOOLBAR (wmain->toolbar));
@@ -601,10 +653,23 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 								("/"PACKAGE"/Toolbar::Window Main/tooltips=true", NULL));
 	gtk_widget_show (wmain->toolbar);
 
+	/* Filters Toolbar */
+	widget = glade_xml_get_widget (xml, "filter_pixmap");
+	gnome_pixmap_load_file (GNOME_PIXMAP (widget), PKGDATADIR "/pixmaps/filter.png");
+
 	/* Vpaned */
 	vpaned = glade_xml_get_widget (xml, "vpaned");
-	gtk_paned_set_position (GTK_PANED (vpaned), 
-						c2_preferences_get_window_main_vpaned ());
+	menuitem = glade_xml_get_widget (xml, "view_mail_preview");
+	if (c2_preferences_get_window_main_mail_preview_visible ())
+	{
+		gtk_paned_set_position (GTK_PANED (vpaned), 
+							c2_preferences_get_window_main_vpaned ());
+		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
+	} else
+	{
+		gtk_paned_set_position (GTK_PANED (vpaned), gdk_screen_height ());
+		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
+	}
 
 	appbar = glade_xml_get_widget (xml, "appbar");
 
@@ -615,14 +680,26 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gtk_widget_show (wmain->index);
 	gtk_signal_connect (GTK_OBJECT (wmain->index), "select_message",
 							GTK_SIGNAL_FUNC (on_index_select_message), wmain);
+	gtk_signal_connect (GTK_OBJECT (wmain->index), "unselect_message",
+							GTK_SIGNAL_FUNC (on_index_unselect_message), wmain);
 
 	/* Mail */
 	wmain->mail = c2_mail_new (application);
 	widget = glade_xml_get_widget (xml, "vpaned");
 	gtk_paned_add2 (GTK_PANED (widget), wmain->mail);
-	gtk_widget_show (wmain->mail);
+	if (c2_preferences_get_window_main_mail_preview_visible ())
+		gtk_widget_show (wmain->mail);
 	c2_mail_install_hints (C2_MAIL (wmain->mail), appbar, &C2_WINDOW (wmain)->status_lock);
-	c2_mail_set_headers_visible (C2_MAIL (wmain->mail), c2_preferences_get_widget_mail_headers_visible ());
+	menuitem = glade_xml_get_widget (xml, "view_headers");
+	if (c2_preferences_get_widget_mail_headers_visible ())
+	{
+		c2_mail_set_headers_visible (C2_MAIL (wmain->mail), TRUE);
+		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
+	} else
+	{
+		c2_mail_set_headers_visible (C2_MAIL (wmain->mail), FALSE);
+		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
+	}
 
 	/* Button */
 	button = glade_xml_get_widget (xml, "appbar_button");
@@ -631,7 +708,7 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gtk_widget_show (pixmap);
 
 	/* Connect all signals: menues, toolbar, buttons, etc. */
-	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "docktoolbar")), "button_press_event",
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "dockitem_toolbar")), "button_press_event",
 							GTK_SIGNAL_FUNC (on_docktoolbar_button_press_event), wmain);
 	
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_new_message")), "activate",
@@ -651,6 +728,15 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_egg_separator")), "activate",
 							GTK_SIGNAL_FUNC (on_eastern_egg_separator_activate), wmain);
 
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_toolbar")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_view_toolbar_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_mail_preview")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_view_mail_preview_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_headers")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_view_headers_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_mail_source")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_view_mail_source_activate), wmain);
+
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_reply")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_message_reply_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_reply_all")), "activate",
@@ -663,9 +749,15 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_menubar_message_move_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_delete")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_message_delete_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_next")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_message_next_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_previous")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_message_previous_activate), wmain);
 	
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "settings_preferences")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_settings_preferences_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "settings_features_download")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_settings_features_download_activate), wmain);
 	
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "help_getting_in_touch")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_help_getting_in_touch_activate), wmain);
@@ -765,13 +857,13 @@ copy_thread (C2Pthread4 *data)
 	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "appbar");
 
 	/* Try to reserve ownership over the progress bar */
-	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->progress_lock))
+	if (!c2_mutex_trylock (&C2_WINDOW (wmain)->progress_lock))
 		progress_ownership = TRUE;
 	else
 		progress_ownership = FALSE;
 
 	/* Try to reserver ownership over the status bar */
-	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->status_lock))
+	if (!c2_mutex_trylock (&C2_WINDOW (wmain)->status_lock))
 		status_ownership = TRUE;
 	else
 		status_ownership = FALSE;
@@ -823,13 +915,13 @@ copy_thread (C2Pthread4 *data)
 	if (status_ownership)
 	{
 		gnome_appbar_pop (GNOME_APPBAR (widget));
-		pthread_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
+		c2_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
 	}
 
 	if (progress_ownership)
 	{
 		gtk_progress_set_percentage (progress, 1.0);
-		pthread_mutex_unlock (&C2_WINDOW (wmain)->progress_lock);
+		c2_mutex_unlock (&C2_WINDOW (wmain)->progress_lock);
 	}
 
 	gdk_threads_leave ();
@@ -890,13 +982,13 @@ delete_thread (C2Pthread3 *data)
 	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "appbar");
 
 	/* Try to reserve ownership over the progress bar */
-	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->progress_lock))
+	if (!c2_mutex_trylock (&C2_WINDOW (wmain)->progress_lock))
 		progress_ownership = TRUE;
 	else
 		progress_ownership = FALSE;
 
 	/* Try to reserver ownership over the status bar */
-	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->status_lock))
+	if (!c2_mutex_trylock (&C2_WINDOW (wmain)->status_lock))
 		status_ownership = TRUE;
 	else
 		status_ownership = FALSE;
@@ -960,13 +1052,13 @@ delete_thread (C2Pthread3 *data)
 	if (status_ownership)
 	{
 		gnome_appbar_pop (GNOME_APPBAR (widget));
-		pthread_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
+		c2_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
 	}
 
 	if (progress_ownership)
 	{
 		gtk_progress_set_percentage (progress, 1.0);
-		pthread_mutex_unlock (&C2_WINDOW (wmain)->progress_lock);
+		c2_mutex_unlock (&C2_WINDOW (wmain)->progress_lock);
 	}
 
 	gdk_threads_leave ();
@@ -1082,13 +1174,13 @@ move_thread (C2Pthread4 *data)
 	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "appbar");
 
 	/* Try to reserve ownership over the progress bar */
-	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->progress_lock))
+	if (!c2_mutex_trylock (&C2_WINDOW (wmain)->progress_lock))
 		progress_ownership = TRUE;
 	else
 		progress_ownership = FALSE;
 
 	/* Try to reserver ownership over the status bar */
-	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->status_lock))
+	if (!c2_mutex_trylock (&C2_WINDOW (wmain)->status_lock))
 		status_ownership = TRUE;
 	else
 		status_ownership = FALSE;
@@ -1152,13 +1244,13 @@ move_thread (C2Pthread4 *data)
 	if (status_ownership)
 	{
 		gnome_appbar_pop (GNOME_APPBAR (widget));
-		pthread_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
+		c2_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
 	}
 
 	if (progress_ownership)
 	{
 		gtk_progress_set_percentage (progress, 1.0);
-		pthread_mutex_unlock (&C2_WINDOW (wmain)->progress_lock);
+		c2_mutex_unlock (&C2_WINDOW (wmain)->progress_lock);
 	}
 
 	gdk_threads_leave ();
@@ -1193,11 +1285,13 @@ move (C2WindowMain *wmain)
 static void
 next (C2WindowMain *wmain)
 {
+	c2_index_select_next_message (C2_INDEX (wmain->index));
 }
 
 static void
 previous (C2WindowMain *wmain)
 {
+	c2_index_select_previous_message (C2_INDEX (wmain->index));
 }
 
 static void
@@ -1230,102 +1324,35 @@ reply_all (C2WindowMain *wmain)
 }
 
 static void
-on_save_ok_clicked (GtkWidget *widget, gint *button)
-{
-	*button = 1;
-	gtk_main_quit ();
-}
-
-static void
-on_save_cancel_clicked (GtkWidget *widget, gint *button)
-{
-	*button = 0;
-	gtk_main_quit ();
-}
-
-static void
-on_save_delete_event (GtkWidget *widget, GdkEvent *e, gint *button)
-{
-	*button = 0;
-	gtk_main_quit ();
-}
-
-static void
 save (C2WindowMain *wmain)
 {
 	C2Message *message;
-	GtkWidget *dialog;
-	gchar *save_path;
-	gint button;
+	FILE *fd;
 
 	message = c2_mail_get_message (C2_MAIL (wmain->mail));
 	gtk_object_ref (GTK_OBJECT (message));
-
-	c2_preferences_get_general_paths_save (save_path);
-	dialog = gtk_file_selection_new (NULL);
-	gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog), save_path);
-	g_free (save_path);
-
-	c2_application_window_add (C2_WINDOW (wmain)->application, GTK_WINDOW (dialog));
-
-	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->ok_button), "clicked",
-						GTK_SIGNAL_FUNC (on_save_ok_clicked), &button);
-	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->cancel_button), "clicked",
-						GTK_SIGNAL_FUNC (on_save_cancel_clicked), &button);
-	gtk_signal_connect (GTK_OBJECT (dialog), "delete_event",
-						GTK_SIGNAL_FUNC (on_save_delete_event), &button);
-	
-	gtk_widget_show (dialog);
-	gtk_main ();
-
-	if (!button)
-		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-							error_list[C2_CANCEL_USER]);
-	else
+	if (!message)
 	{
-		const gchar *file;
-		FILE *fd;
-
-		file = gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog));
-
-		if (!strlen (file))
-			goto no_name;
-
-		if (gnome_config_get_bool_with_default ("/"PACKAGE"/Paths/smart=true", NULL))
-		{
-			gchar *dir, *buf;
-
-			buf = g_dirname (file);
-			dir = g_strdup_printf ("%s" G_DIR_SEPARATOR_S, buf);
-			g_free (buf);
-			c2_preferences_set_general_paths_save (dir);
-		}	
-
-		if (!message)
-		{
-			c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-								error_list[C2_FAIL_MESSAGE_SAVE], _("Unable to find message."));
-			goto no_name;
-		}
-
-		if (!(fd = fopen (file, "w")))
-		{
-			c2_error_set (-errno);
-
-			c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-								error_list[C2_FAIL_MESSAGE_SAVE], c2_error_get ());
-			goto no_name;
-		}
-
-		fprintf (fd, "%s\n\n%s", message->header, message->body);
-		fclose (fd);
-
-		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
-								error_list[C2_SUCCESS_MESSAGE_SAVE]);
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+							error_list[C2_FAIL_MESSAGE_SAVE], _("Unable to find message."));
+		goto no_name;
 	}
+
+	fd = c2_application_dialog_select_file_save (C2_WINDOW (wmain)->application, NULL);
+	
+	if (!fd)
+	{
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+							error_list[C2_FAIL_MESSAGE_SAVE], c2_error_get ());
+		goto no_name;
+	}
+
+	fprintf (fd, "%s\n\n%s", message->header, message->body);
+	fclose (fd);
+
+	c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
+							error_list[C2_SUCCESS_MESSAGE_SAVE]);
 no_name:
-	c2_application_window_remove (C2_WINDOW (wmain)->application, GTK_WINDOW (dialog));
-	gtk_widget_destroy (dialog);
 	gtk_object_unref (GTK_OBJECT (message));
 }
 
@@ -1549,6 +1576,72 @@ on_menubar_file_exit_activate (GtkWidget *widget, C2WindowMain *wmain)
 	C2_WINDOW_MAIN_CLASS_FW (wmain)->exit (wmain);
 }
 
+static void
+on_menubar_view_toolbar_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	GtkWidget *toolbar;
+	gboolean active = GTK_CHECK_MENU_ITEM (widget)->active;
+
+	toolbar = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "dockitem_toolbar");
+	
+	if (active)
+		gtk_widget_show (toolbar);
+	else
+		gtk_widget_hide (toolbar);
+
+	c2_preferences_set_window_main_toolbar_visible (active);
+	c2_preferences_commit ();
+
+	gtk_widget_queue_resize (GTK_WIDGET (wmain));
+}
+
+static void
+on_menubar_view_mail_preview_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	GtkWidget *vpaned = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "vpaned");
+	GtkCList *clist = GTK_CLIST (wmain->index);
+	gint row = clist->selection ? GPOINTER_TO_INT (clist->selection->data) : -1;
+	gboolean active = GTK_CHECK_MENU_ITEM (widget)->active;
+	
+	if (active)
+	{
+		gtk_widget_show (wmain->mail);
+		gtk_paned_set_position (GTK_PANED (vpaned), 
+						c2_preferences_get_window_main_vpaned ());
+	} else
+	{
+		gtk_widget_hide (wmain->mail);
+		gtk_paned_set_position (GTK_PANED (vpaned), gdk_screen_height ());
+	}
+
+	c2_preferences_set_window_main_mail_preview_visible (active);
+	c2_preferences_commit ();
+
+	/* FIXME I have no idea why this shit doesn't work... */
+	
+	if (row > 0 && gtk_clist_row_is_visible (clist, row) != GTK_VISIBILITY_FULL)
+		gtk_clist_moveto (clist, row, 0, 0, 0);
+}
+
+static void
+on_menubar_view_headers_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	gboolean active = GTK_CHECK_MENU_ITEM (widget)->active;
+
+	c2_preferences_set_widget_mail_headers_visible (active);
+	c2_mail_set_headers_visible (C2_MAIL (wmain->mail), active);
+}
+
+static void
+on_menubar_view_mail_source_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2Message *message;
+
+	if (!C2_IS_MESSAGE ((message = c2_mail_get_message (C2_MAIL (wmain->mail)))))
+		return;
+	
+	c2_application_dialog_mail_source (C2_WINDOW (wmain)->application, message);
+}
 
 static void
 on_menubar_message_reply_activate (GtkWidget *widget, C2WindowMain *wmain)
@@ -1587,12 +1680,30 @@ on_menubar_message_delete_activate (GtkWidget *widget, C2WindowMain *wmain)
 }
 
 static void
+on_menubar_message_next_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->next (wmain);
+}
+
+static void
+on_menubar_message_previous_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->previous (wmain);
+}
+
+static void
 on_menubar_settings_preferences_activate (GtkWidget *widget, C2WindowMain *wmain)
 {
 	GtkWidget *preferences;
 
 	preferences = c2_dialog_preferences_new (C2_WINDOW (wmain)->application);
 	gtk_widget_show (preferences);	
+}
+
+static void
+on_menubar_settings_features_download_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	c2_application_dialog_add_features (C2_WINDOW (wmain)->application);
 }
 
 static void
@@ -1724,6 +1835,9 @@ on_toolbar_send_clicked (GtkWidget *widget, C2WindowMain *wmain)
 static void
 on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 {
+	GtkWidget *widget;
+	GladeXML *xml;
+	
 	if (g_list_length (GTK_CLIST (index)->selection) > 1)
 		return;
 
@@ -1752,6 +1866,163 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 	c2_mail_set_message (C2_MAIL (wmain->mail), node->message);
 
 	/* Set some widgets sensivity */
+	xml = C2_WINDOW (wmain)->xml;
+	
+	widget = glade_xml_get_widget (xml, "message_previous");
+	gtk_widget_set_sensitive (widget, !c2_db_is_first (node));
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_previous");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, !c2_db_is_first (node));
+	
+	widget = glade_xml_get_widget (xml, "message_next");
+	gtk_widget_set_sensitive (widget, !c2_db_is_last (node));
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_next");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, !c2_db_is_last (node));
+
+	widget = glade_xml_get_widget (xml, "message_copy");
+	gtk_widget_set_sensitive (widget, TRUE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_copy");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, TRUE);
+
+	widget = glade_xml_get_widget (xml, "message_move");
+	gtk_widget_set_sensitive (widget, TRUE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_move");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, TRUE);
+
+	widget = glade_xml_get_widget (xml, "file_save");
+	gtk_widget_set_sensitive (widget, TRUE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_save");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, TRUE);
+
+	widget = glade_xml_get_widget (xml, "file_print");
+	gtk_widget_set_sensitive (widget, TRUE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_print");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, TRUE);
+
+	widget = glade_xml_get_widget (xml, "message_delete");
+	gtk_widget_set_sensitive (widget, TRUE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_delete");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, TRUE);
+
+	widget = glade_xml_get_widget (xml, "message_expunge");
+	gtk_widget_set_sensitive (widget, TRUE);
+
+	widget = glade_xml_get_widget (xml, "message_reply");
+	gtk_widget_set_sensitive (widget, TRUE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_reply");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, TRUE);
+
+	widget = glade_xml_get_widget (xml, "message_reply_all");
+	gtk_widget_set_sensitive (widget, TRUE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_reply_all");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, TRUE);
+
+	widget = glade_xml_get_widget (xml, "message_forward");
+	gtk_widget_set_sensitive (widget, TRUE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_forward");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, TRUE);
+}
+
+static void
+on_index_unselect_message (C2Index *index, C2Db *node, C2WindowMain *wmain)
+{
+	GtkWidget *widget;
+	GladeXML *xml;
+
+	/* Set some widgets sensivity */
+	xml = C2_WINDOW (wmain)->xml;
+	
+	widget = glade_xml_get_widget (xml, "message_previous");
+	gtk_widget_set_sensitive (widget, FALSE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_previous");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, FALSE);
+	
+	widget = glade_xml_get_widget (xml, "message_next");
+	gtk_widget_set_sensitive (widget, FALSE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_next");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, FALSE);
+
+	widget = glade_xml_get_widget (xml, "message_copy");
+	gtk_widget_set_sensitive (widget, FALSE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_copy");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, FALSE);
+
+	widget = glade_xml_get_widget (xml, "message_move");
+	gtk_widget_set_sensitive (widget, FALSE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_move");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, FALSE);
+
+	widget = glade_xml_get_widget (xml, "file_save");
+	gtk_widget_set_sensitive (widget, FALSE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_save");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, FALSE);
+
+	widget = glade_xml_get_widget (xml, "file_print");
+	gtk_widget_set_sensitive (widget, FALSE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_print");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, FALSE);
+
+	widget = glade_xml_get_widget (xml, "message_delete");
+	gtk_widget_set_sensitive (widget, FALSE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_delete");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, FALSE);
+
+	widget = glade_xml_get_widget (xml, "message_expunge");
+	gtk_widget_set_sensitive (widget, FALSE);
+
+	widget = glade_xml_get_widget (xml, "message_reply");
+	gtk_widget_set_sensitive (widget, FALSE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_reply");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, FALSE);
+
+	widget = glade_xml_get_widget (xml, "message_reply_all");
+	gtk_widget_set_sensitive (widget, FALSE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_reply_all");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, FALSE);
+
+	widget = glade_xml_get_widget (xml, "message_forward");
+	gtk_widget_set_sensitive (widget, FALSE);
+	
+	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_forward");
+	if (GTK_IS_WIDGET (widget))
+		gtk_widget_set_sensitive (widget, FALSE);
 }
 
 static gint
@@ -1785,7 +2056,7 @@ on_mlist_object_selected_pthread (C2WindowMain *wmain)
 			return 0;
 	}
 	
-	if (pthread_mutex_trylock (&wmain->index_lock))
+	if (c2_mutex_trylock (&wmain->index_lock))
 		return 0;
 	
 	gdk_threads_enter ();
@@ -1799,7 +2070,7 @@ on_mlist_object_selected_pthread (C2WindowMain *wmain)
 						c2_db_length_type (mailbox, C2_MESSAGE_UNREADED));
 	gdk_threads_leave ();
 
-	pthread_mutex_unlock (&wmain->index_lock);
+	c2_mutex_unlock (&wmain->index_lock);
 	return 0;
 }
 
@@ -1821,12 +2092,12 @@ on_mlist_object_selected (C2MailboxList *mlist, GtkObject *object, C2WindowMain 
 static void
 on_mlist_object_unselected (C2MailboxList *mlist, C2WindowMain *wmain)
 {
-	if (!pthread_mutex_trylock (&wmain->index_lock))
+	if (!c2_mutex_trylock (&wmain->index_lock))
 	{
 		GtkWidget *index = wmain->index;
 
 		c2_index_remove_mailbox (C2_INDEX (index));
-		pthread_mutex_unlock (&wmain->index_lock);
+		c2_mutex_unlock (&wmain->index_lock);
 	}
 }
 
@@ -2698,6 +2969,7 @@ c2_window_main_toolbar_configuration_dialog (C2WindowMain *wmain)
 					{
 						case C2_TOOLBAR_BUTTON:
 							widget = c2_toolbar_append_button (C2_TOOLBAR (wmain->toolbar),
+													toolbar_items[val].name,
 													toolbar_items[val].button_pixmap,
 													toolbar_items[val].button_label,
 													toolbar_items[val].button_tooltip,
@@ -2709,8 +2981,8 @@ c2_window_main_toolbar_configuration_dialog (C2WindowMain *wmain)
 											wmain);
 							break;
 						case C2_TOOLBAR_WIDGET:
-							c2_toolbar_append_widget (C2_TOOLBAR (wmain->toolbar), toolbar_items[val].widget,
-											toolbar_items[val].widget_tooltip);
+							c2_toolbar_append_widget (C2_TOOLBAR (wmain->toolbar), toolbar_items[val].name,
+											toolbar_items[val].widget, toolbar_items[val].widget_tooltip);
 							break;
 						case C2_TOOLBAR_SPACE:
 							c2_toolbar_append_space (C2_TOOLBAR (wmain->toolbar));

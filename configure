@@ -6189,6 +6189,10 @@ cat >> confdefs.h <<EOF
 #define C2_PLUGIN_VERSION_MICRO $C2_PLUGIN_VERSION_MICRO
 EOF
 
+cat >> confdefs.h <<EOF
+#define FEATURES_URL "http://cronosII.sf.net/remote_application_data/features.dat"
+EOF
+
 
 
 

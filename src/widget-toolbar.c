@@ -61,6 +61,8 @@ struct Item
 {
 	C2ToolbarItemType type;
 
+	gchar *name;
+
 	union
 	{
 		struct
@@ -195,13 +197,14 @@ c2_toolbar_set_tooltips (C2Toolbar *toolbar, gboolean active)
 }
 
 GtkWidget *
-c2_toolbar_append_button (C2Toolbar *toolbar, gchar *pixmap, gchar *label,
+c2_toolbar_append_button (C2Toolbar *toolbar, gchar *name, gchar *pixmap, gchar *label,
 						  gchar *tooltip, gboolean force_label)
 {
 	struct Item *item;
 
 	item = g_new0 (struct Item, 1);
 	item->type = C2_TOOLBAR_BUTTON;
+	item->name = name;
 	item->inf.button.pixmap = pixmap;
 	item->inf.button.label = label;
 	item->inf.button.tooltip = tooltip;
@@ -218,7 +221,7 @@ c2_toolbar_append_button (C2Toolbar *toolbar, gchar *pixmap, gchar *label,
 }
 
 void
-c2_toolbar_append_widget (C2Toolbar *toolbar, GtkWidget *widget, gchar *tooltip)
+c2_toolbar_append_widget (C2Toolbar *toolbar, gchar *name, GtkWidget *widget, gchar *tooltip)
 {
 	if (!toolbar->freezed)
 		gtk_signal_emit (GTK_OBJECT (toolbar), signals[CHANGED]);
@@ -405,4 +408,30 @@ create_item_space (C2Toolbar *toolbar)
 	gtk_widget_ref (align);
 
 	return align;
+}
+
+GtkWidget *
+c2_toolbar_get_item (C2Toolbar *toolbar, const gchar *name)
+{
+	GList *l;
+
+	for (l = toolbar->items; l; l = g_list_next (l))
+	{
+		struct Item *item = (struct Item*) l->data;
+
+		if (c2_streq (item->name, name))
+		{
+			switch (item->type)
+			{
+				case C2_TOOLBAR_BUTTON:
+					return item->inf.button.widget;
+				case C2_TOOLBAR_WIDGET:
+					return item->inf.widget.widget;
+				case C2_TOOLBAR_SPACE:
+					return item->inf.space.widget;
+			}
+		}
+	}
+
+	return NULL;
 }

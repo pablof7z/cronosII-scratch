@@ -60,6 +60,7 @@ struct _C2Sidebar
 	GtkVBox box;
 
 	C2SidebarSection *section;
+	C2SidebarSection *selected;
 
 	C2SidebarButtonType buttons_type;
 	gint tooltips		: 1;

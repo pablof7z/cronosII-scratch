@@ -1,8 +1,38 @@
+Tue Dec 18 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* Work in the Website.
+
+Mon Dec 17 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* Work in the new widget Select List.
+	* Ported the Attachments Tool dialog to use the new widget.
+	* Created the new dialog to download & install new features:
+	  it already lists the available new features.
+
+Sun Dec 16 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* Fixed a bug in the c2_application_dialog_select_file_save.
+	* Work in the toolbar to be able to get a button by its name.
+	* Initial work for the sensitivity of the buttons in the main window.
+	* Previous and Next button are now working.
+	* Ported all widgets to use C2Mutex.
+	* GtkHTML: when mouse is over an URL it will be shown in the statusbar.
+
 Sat Dec 15 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Fixed the interaction between C2Mailbox, C2Db, and C2IMAP
 	  to enforce proper object responsibilty and services. Also,
-		update C2IMAP test module to comply to new access methods.
+	  update C2IMAP test module to comply to new access methods.
 	* Fixed minor bugs in some of the above modules.
+
+Fri Dec 14 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* View menu is now working.
+	* New dialog "Mail Source".
+	* Fixed a bug in the c2_application_dialog_select_file_save.
+	* Changed C2_WINDOW_MAIN (wmain)->save in order to use
+	  c2_application_dialog_select_file_save.
+
+Wed Dec 12 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* Fixed the bug that caused encoded attachments to save
+	  wrong to disk.
+	* Fixed a crash in the installer.
+	* A little of spool work.
 
 Tue Dec 11 Pablo Fernández Navarro <cronosII@users.sf.net>
 	* Some work in the mail widget.

@@ -91,7 +91,7 @@ gboolean
 c2_mail_get_headers_visible						(C2Mail *mail);
 
 void
-c2_mail_install_hints							(C2Mail *mail, GtkWidget *appbar, pthread_mutex_t *lock);
+c2_mail_install_hints							(C2Mail *mail, GtkWidget *appbar, C2Mutex *lock);
 
 GtkWidget *
 c2_mail_attachments_tool_new					(C2Mail *mail);

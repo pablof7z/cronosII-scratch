@@ -22,10 +22,15 @@
 extern "C" {
 #endif
 
+#include <libcronosII/message.h>
+
 gboolean
 c2_application_check_account_exists			(C2Application *application);
 
 /* Dialogs */
+void
+c2_application_dialog_add_features			(C2Application *application);
+
 void
 c2_application_dialog_release_information	(C2Application *application);
 
@@ -43,6 +48,9 @@ c2_application_dialog_select_mailbox		(C2Application *application, GtkWindow *pa
 
 FILE *
 c2_application_dialog_select_file_save		(C2Application *application, gchar **file);
+
+void
+c2_application_dialog_mail_source			(C2Application *application, C2Message *message);
 
 #ifdef __cplusplus
 }

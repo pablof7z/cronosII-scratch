@@ -105,6 +105,7 @@ init (C2Sidebar *sidebar)
 {
 	sidebar->buttons_type = C2_SIDEBAR_BUTTON_TEXT_UNDER_ICON;
 	sidebar->tooltips = 1;
+	sidebar->selected = NULL;
 }
 
 GtkWidget *
@@ -261,24 +262,91 @@ c2_sidebar_set_contents (C2Sidebar *sidebar, C2SidebarSection *list)
 	gtk_widget_show (button);
 }
 
+static gint
+timeout (C2Pthread4 *data)
+{
+	GtkWidget *hide, *show;
+	gint hside = -1, sside = -1;
+	gint numcntl = 0;
+	gint retcntl = 0;
+
+	if (data->v1)
+	{
+		numcntl++;
+		hide = GTK_WIDGET (data->v1);
+	}
+	if (data->v2)
+	{
+		numcntl++;
+		show = GTK_WIDGET (data->v2);
+	}
+
+	if (data->v1)
+	{
+		hside = hide->allocation.height;
+		if (25 >= hside)
+		{
+			retcntl++;
+			gtk_widget_hide (hide);
+		}
+	}
+	if (data->v2)
+	{
+		sside = show->allocation.height;
+		if (GPOINTER_TO_INT (data->v4) >= sside)
+			retcntl++;
+	}
+
+	if (retcntl == numcntl)
+		return FALSE;
+
+	if (data->v1)
+	{
+		gtk_widget_set_usize (hide, -1, hside-5);
+		data->v3 = (gpointer) hside;
+	}
+	if (data->v2)
+	{
+		gtk_widget_set_usize (show, -1, sside+5);
+		data->v4 = (gpointer) sside;
+	}
+
+	return TRUE;
+}
+
 static void
 on_section_button_clicked (GtkWidget *button, C2Sidebar *sidebar)
 {
+	C2Pthread4 *data;
+	GtkWidget *widget;
 	C2SidebarSection *l;
 	C2SidebarSection *section = NULL;
 
+	data = g_new0 (C2Pthread4, 1);
+	
+	if (sidebar->selected)
+	{
+		GtkWidget *vbox = gtk_object_get_data (GTK_OBJECT (sidebar->selected->button), "panel");
+		data->v1 = vbox;
+	} else
+		data->v1 = NULL;
+
 	for (l = sidebar->section; l->name; l++)
 	{
-		GtkWidget *vbox = gtk_object_get_data (GTK_OBJECT (l->button), "panel");
-		
-		if (l->button != button)
-			gtk_widget_hide (vbox);
-		else
-		{
-			section = l;
-			gtk_widget_show (vbox);
-		}
+		if (l->button == button)
+			break;
 	}
+
+	sidebar->selected = l;
+	
+	widget = GTK_WIDGET (gtk_object_get_data (GTK_OBJECT (button), "panel"));
+	data->v2 = widget;
+	data->v3 = (gpointer) -1;
+	data->v4 = (gpointer) -1;
+
+	gtk_widget_show (widget);
+
+	gtk_timeout_add (7, timeout, data);
 
 	if (section)
 		gtk_signal_emit (GTK_OBJECT (sidebar), signals[SECTION_SELECTED], section->name);

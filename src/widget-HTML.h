@@ -45,6 +45,7 @@ extern "C" {
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <libcronosII/mime.h>
 #	include <libcronosII/utils.h>
+#	include <libcronosII/utils-mutex.h>
 #	include "widget-application.h"
 #else
 #	include <cronosII.h>
@@ -82,7 +83,7 @@ struct _C2HTML
 #else
 	GtkText parent;
 #endif
-	pthread_mutex_t lock;
+	C2Mutex lock;
 
 	GData *link_manager_data;
 
@@ -98,7 +99,7 @@ struct _C2HTML
 	C2Application *application;
 
 	GtkWidget *appbar;
-	pthread_mutex_t *appbar_lock;
+	C2Mutex *appbar_lock;
 };
 
 struct _C2HTMLClass
@@ -156,7 +157,7 @@ guint
 c2_html_get_line							(C2HTML *html);
 
 void
-c2_html_install_hints						(C2HTML *html, GtkWidget *appbar, pthread_mutex_t *lock);
+c2_html_install_hints						(C2HTML *html, GtkWidget *appbar, C2Mutex *lock);
 
 #ifdef __cplusplus
 }

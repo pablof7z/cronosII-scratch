@@ -68,6 +68,8 @@ typedef struct
 #	define C2_DEBUG(x)						;
 #	define C2_DEBUG_(x)						;
 #endif
+
+#define unless(x)							if (!x)
 	
 gboolean
 c2_strcaseeq								(const gchar *fst, const gchar *snd);

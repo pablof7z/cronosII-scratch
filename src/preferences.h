@@ -310,6 +310,15 @@ extern "C" {
  * c2_preferences_[set|get]_$(window_name)_$(etc) ()
  */
 /* Window Main */
+#define c2_preferences_get_window_main_toolbar_visible() \
+	gnome_config_get_bool_with_default ("/"PACKAGE"/Window-Main/toolbar_visible=true", NULL)
+#define c2_preferences_set_window_main_toolbar_visible(val) \
+	gnome_config_set_bool ("/"PACKAGE"/Window-Main/toolbar_visible", val)
+#define c2_preferences_get_window_main_mail_preview_visible() \
+	gnome_config_get_bool_with_default ("/"PACKAGE"/Window-Main/mail_preview_visible=true", NULL)
+#define c2_preferences_set_window_main_mail_preview_visible(val) \
+	gnome_config_set_bool ("/"PACKAGE"/Window-Main/mail_preview_visible", val)
+	
 #define c2_preferences_get_window_main_index_width_0() \
 	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_0=30", NULL)
 #define c2_preferences_set_window_main_index_width_0(val) \

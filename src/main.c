@@ -202,6 +202,8 @@ main (gint argc, gchar **argv)
 
 	gdk_threads_enter ();
 
+	c2_font_bold = "-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1";
+
 	/* Get the Version of the Application */
 	version = c2_preferences_get_application_version ();
 	if (!version)
@@ -213,8 +215,6 @@ main (gint argc, gchar **argv)
 	/* Create the Application object */
 	application = c2_application_new (PACKAGE);
 	
-	c2_font_bold = "-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1";
-
 	/* Open specified windows */
 	if (flags.open_main_window)
 		CREATE_WINDOW_MAIN;

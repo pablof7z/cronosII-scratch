@@ -90,6 +90,11 @@ struct C2InstallAction
 		TRUE
 	},
 	{
+		C2_INSTALL_ACTION_DIR_MK,
+		"~/.c2/spool", NULL, NULL,
+		TRUE
+	},
+	{
 		C2_INSTALL_ACTION_FILE_RM,
 		"~/.gnome/"PACKAGE, NULL, NULL,
 		FALSE

@@ -12,6 +12,7 @@ pixmap_DATA = \
 	delete.png			\
 	drafts.png			\
 	exit.png			\
+	filter.png			\
 	find.png			\
 	folder-closed.png	\
 	folder-opened.png	\

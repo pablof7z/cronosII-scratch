@@ -15,26 +15,55 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __LIBCRONOSII_UTILS_DATE_H__
-#define __LIBCRONOSII_UTILS_DATE_H__
+#ifndef __LIBCRONOSII_VDB_H__
+#define __LIBCRONOSII_VDB_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <time.h>
+#include <gtk/gtk.h>
+#include <libcronosII/db.h>
 
-gint
-c2_date_get_month							(const gchar *strmnt);
+#define C2_VDB(obj)							(GTK_CHECK_CAST (obj, c2_vdb_get_type (), C2VDb))
+#define C2_VDB_CLASS(klass)					(GTK_CHECK_CLASS_CAST (klass, c2_vdb_get_type (), C2VDbClass))
+#define C2_IS_VDB(obj)						(GTK_CHECK_TYPE (obj, c2_vdb_get_type ())
+#define C2_IS_VDB_CLASS(obj)				(GTK_CHECK_CLASS_TYPE (klass, c2_vdb_get_type ())
 
-time_t
-c2_date_parse								(const gchar *strtime);
+typedef struct _C2VDb C2VDb;
+typedef struct _C2VDbClass C2VDbClass;
 
-time_t
-c2_date_parse_fmt2							(const gchar *strtime);
+#include <libcronosII/vmailbox.h>
 
-time_t
-c2_date_parse_fmt3							(const gchar *strtime);
+struct _C2VDb
+{
+	GtkObject object;
+	
+	C2Db *db;
+
+	gint position;
+
+	C2VMailbox *mailbox;
+	C2VDb *prev;
+	C2VDb *next;
+};
+
+struct _C2VDbClass
+{
+	GtkObjectClass parent_class;
+};
+
+GtkType
+c2_vdb_get_type								(void);
+
+C2VDb *
+c2_vdb_new									(C2Db *db);
+
+C2VDb *
+c2_vdb_append								(C2VDb *head, C2VDb *item);
+
+C2Message *
+c2_vdb_get_message							(C2VDb *vdb);
 
 #ifdef __cplusplus
 }

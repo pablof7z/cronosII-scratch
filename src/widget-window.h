@@ -36,6 +36,7 @@ typedef struct _C2WindowClass C2WindowClass;
 typedef enum _C2WindowReportType C2WindowReportType;
 
 #ifdef BUILDING_C2
+#	include <libcronosII/utils-mutex.h>
 #	include "widget-application.h"
 #else
 #	include <cronosII.h>
@@ -56,8 +57,8 @@ struct _C2Window
 	C2Application *application;
 	GladeXML *xml;
 
-	pthread_mutex_t status_lock;
-	pthread_mutex_t progress_lock;
+	C2Mutex status_lock;
+	C2Mutex progress_lock;
 };
 
 struct _C2WindowClass

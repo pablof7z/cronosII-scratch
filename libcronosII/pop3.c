@@ -698,7 +698,7 @@ no_uidl:
 static gboolean
 uidl_in_db (C2Account *account, const gchar *uidl)
 {
-	gchar *path, *buf;
+	gchar *path, *buf = NULL;
 	FILE *fd;
 
 	path = g_strconcat (g_get_home_dir (), C2_HOME, "uidl" G_DIR_SEPARATOR_S, account->name, NULL);

@@ -51,6 +51,8 @@ enum _C2ToolbarItemType
 struct _C2ToolbarItem
 {
 	C2ToolbarItemType type;
+
+	gchar *name;
 	
 	gchar *button_label, *button_pixmap, *button_tooltip;
 	gboolean button_force_label;
@@ -105,14 +107,18 @@ void
 c2_toolbar_set_tooltips						(C2Toolbar *toolbar, gboolean active);
 
 GtkWidget *
-c2_toolbar_append_button					(C2Toolbar *toolbar, gchar *pixmap, gchar *label,
+c2_toolbar_append_button					(C2Toolbar *toolbar, gchar *name, gchar *pixmap, gchar *label,
 											 gchar *tooltip, gboolean force_label);
 
 void
-c2_toolbar_append_widget					(C2Toolbar *toolbar, GtkWidget *widget, gchar *tooltip);
+c2_toolbar_append_widget					(C2Toolbar *toolbar, gchar *name, GtkWidget *widget,
+											 gchar *tooltip);
 
 void
 c2_toolbar_append_space						(C2Toolbar *toolbar);
+
+GtkWidget *
+c2_toolbar_get_item							(C2Toolbar *toolbar, const gchar *name);
 
 #ifdef __cplusplus
 }

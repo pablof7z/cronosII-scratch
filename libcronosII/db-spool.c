@@ -37,9 +37,38 @@
 /*Cool! I´m coding from Paris with my new laptop! -pablo */
 /*Crap! I'm coding in Buenos Aires without electricity (it went off) -pablo */
 
+#define index_file(mbox, v) \
+	{ \
+		gchar *hd = g_get_home_dir (); \
+		v = g_strconcat (hd, "/.c2/spool/", mbox->name, NULL); \
+		g_free (hd); \
+	}
+
 gboolean
 c2_db_spool_create_structure (C2Mailbox *mailbox)
 {
+	gchar *ipath;
+	gint fd;
+
+	if ((fd = open (mailbox->protocol.spool.path, O_CREAT, S_IRUSR | S_IWUSR)) < 0)
+	{
+		c2_error_set (-errno);
+		return FALSE;
+	}
+
+	close (fd);
+
+	index_file (mailbox, ipath);
+	if ((fd = open (ipath, O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)) < 0)
+	{
+		c2_error_set (-errno);
+		return FALSE;
+	}
+
+	close (fd);
+	g_free (ipath);
+	
+	return TRUE;
 }
 
 gboolean
@@ -50,6 +79,23 @@ c2_db_spool_update_structure (C2Mailbox *mailbox)
 gboolean
 c2_db_spool_remove_structure (C2Mailbox *mailbox)
 {
+	gchar *ipath;
+	
+	if ((unlink (mailbox->protocol.spool.path)) < 0)
+	{
+		c2_error_set (-errno);
+		return FALSE;
+	}
+
+	index_file (mailbox, ipath);
+	if ((unlink (ipath)) < 0)
+	{
+		c2_error_set (-errno);
+		g_free (ipath);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 gint

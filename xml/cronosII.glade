@@ -51,7 +51,7 @@
 
     <widget>
       <class>GnomeDockItem</class>
-      <name>dockitem1</name>
+      <name>dockitem_menubar</name>
       <border_width>2</border_width>
       <placement>GNOME_DOCK_TOP</placement>
       <band>0</band>
@@ -128,7 +128,7 @@
 		    <handler>on_new_mailbox_activate</handler>
 		    <last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
 		  </signal>
-		  <label>M_ailbox</label>
+		  <label>M_ailbox...</label>
 		  <right_justify>False</right_justify>
 		  <stock_icon>GNOME_STOCK_MENU_HOME</stock_icon>
 		</widget>
@@ -148,7 +148,7 @@
 		    <handler>on_new_conact_activate</handler>
 		    <last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
 		  </signal>
-		  <label>_Contact</label>
+		  <label>_Contact...</label>
 		  <right_justify>False</right_justify>
 		  <icon>mcard.xpm</icon>
 		</widget>
@@ -276,7 +276,7 @@
 		<handler>on_file_save_activate</handler>
 		<last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
 	      </signal>
-	      <label>_Save</label>
+	      <label>_Save...</label>
 	      <right_justify>False</right_justify>
 	      <icon>save16.xpm</icon>
 	    </widget>
@@ -294,7 +294,7 @@
 		<handler>on_file_print_activate</handler>
 		<last_modification_time>Wed, 08 Aug 2001 18:25:47 GMT</last_modification_time>
 	      </signal>
-	      <label>_Print</label>
+	      <label>_Print...</label>
 	      <right_justify>False</right_justify>
 	      <icon>print16.xpm</icon>
 	    </widget>
@@ -348,66 +348,104 @@
 
 	    <widget>
 	      <class>GtkCheckMenuItem</class>
-	      <name>view_from</name>
-	      <label>_From</label>
+	      <name>view_toolbar</name>
+	      <accelerator>
+		<modifiers>GDK_CONTROL_MASK | GDK_SHIFT_MASK</modifiers>
+		<key>GDK_T</key>
+		<signal>activate</signal>
+	      </accelerator>
+	      <signal>
+		<name>activate</name>
+		<handler>on_toolbar_activate</handler>
+		<last_modification_time>Thu, 13 Dec 2001 00:58:48 GMT</last_modification_time>
+	      </signal>
+	      <label>_Toolbar</label>
+	      <active>True</active>
+	      <always_show_toggle>True</always_show_toggle>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>separator22</name>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkCheckMenuItem</class>
+	      <name>view_mailboxes_list</name>
+	      <accelerator>
+		<modifiers>GDK_CONTROL_MASK | GDK_SHIFT_MASK</modifiers>
+		<key>GDK_M</key>
+		<signal>activate</signal>
+	      </accelerator>
+	      <signal>
+		<name>activate</name>
+		<handler>on_view_mailboxes_list_activate</handler>
+		<last_modification_time>Fri, 14 Dec 2001 04:28:37 GMT</last_modification_time>
+	      </signal>
+	      <label>_Mailboxes List</label>
 	      <active>True</active>
 	      <always_show_toggle>True</always_show_toggle>
 	    </widget>
 
 	    <widget>
 	      <class>GtkCheckMenuItem</class>
-	      <name>view_account</name>
-	      <label>_Account</label>
+	      <name>view_mail_preview</name>
+	      <accelerator>
+		<modifiers>GDK_CONTROL_MASK | GDK_SHIFT_MASK</modifiers>
+		<key>GDK_P</key>
+		<signal>activate</signal>
+	      </accelerator>
+	      <signal>
+		<name>activate</name>
+		<handler>on_mail_preview_activate</handler>
+		<last_modification_time>Thu, 13 Dec 2001 00:57:47 GMT</last_modification_time>
+	      </signal>
+	      <label>Mail _Preview</label>
 	      <active>True</active>
 	      <always_show_toggle>True</always_show_toggle>
 	    </widget>
 
 	    <widget>
 	      <class>GtkCheckMenuItem</class>
-	      <name>view_to</name>
-	      <label>_To</label>
-	      <active>False</active>
+	      <name>view_headers</name>
+	      <accelerator>
+		<modifiers>GDK_CONTROL_MASK | GDK_SHIFT_MASK</modifiers>
+		<key>GDK_H</key>
+		<signal>activate</signal>
+	      </accelerator>
+	      <signal>
+		<name>activate</name>
+		<handler>on_headers_activate</handler>
+		<last_modification_time>Thu, 13 Dec 2001 00:58:48 GMT</last_modification_time>
+	      </signal>
+	      <label>_Headers</label>
+	      <active>True</active>
 	      <always_show_toggle>True</always_show_toggle>
 	    </widget>
 
 	    <widget>
-	      <class>GtkCheckMenuItem</class>
-	      <name>view_carbon_copy</name>
-	      <label>_Carbon Copy</label>
-	      <active>False</active>
-	      <always_show_toggle>True</always_show_toggle>
+	      <class>GtkMenuItem</class>
+	      <name>separator21</name>
+	      <right_justify>False</right_justify>
 	    </widget>
 
 	    <widget>
-	      <class>GtkCheckMenuItem</class>
-	      <name>view_blind_carbon_copy</name>
-	      <label>_Blind Carbon Copy</label>
-	      <active>False</active>
-	      <always_show_toggle>True</always_show_toggle>
-	    </widget>
-
-	    <widget>
-	      <class>GtkCheckMenuItem</class>
-	      <name>view_date</name>
-	      <label>_Date</label>
-	      <active>False</active>
-	      <always_show_toggle>True</always_show_toggle>
-	    </widget>
-
-	    <widget>
-	      <class>GtkCheckMenuItem</class>
-	      <name>view_subject</name>
-	      <label>_Subject</label>
-	      <active>False</active>
-	      <always_show_toggle>True</always_show_toggle>
-	    </widget>
-
-	    <widget>
-	      <class>GtkCheckMenuItem</class>
-	      <name>view_priority</name>
-	      <label>_Priority</label>
-	      <active>False</active>
-	      <always_show_toggle>True</always_show_toggle>
+	      <class>GtkPixmapMenuItem</class>
+	      <name>view_mail_source</name>
+	      <accelerator>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
+		<key>GDK_U</key>
+		<signal>activate</signal>
+	      </accelerator>
+	      <signal>
+		<name>activate</name>
+		<handler>on_mail_source_activate</handler>
+		<last_modification_time>Thu, 13 Dec 2001 01:00:12 GMT</last_modification_time>
+	      </signal>
+	      <label>Mail _Source</label>
+	      <right_justify>False</right_justify>
+	      <stock_icon>GNOME_STOCK_MENU_ALIGN_JUSTIFY</stock_icon>
 	    </widget>
 	  </widget>
 	</widget>
@@ -426,7 +464,7 @@
 	      <class>GtkPixmapMenuItem</class>
 	      <name>mailbox_speed_up</name>
 	      <sensitive>False</sensitive>
-	      <label>_Speed Up</label>
+	      <label>_Speed Up...</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_TIMER</stock_icon>
 	    </widget>
@@ -441,7 +479,7 @@
 	      <class>GtkPixmapMenuItem</class>
 	      <name>mailbox_import</name>
 	      <sensitive>False</sensitive>
-	      <label>_Import</label>
+	      <label>_Import...</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_HOME</stock_icon>
 	    </widget>
@@ -450,7 +488,7 @@
 	      <class>GtkPixmapMenuItem</class>
 	      <name>mailbox_export</name>
 	      <sensitive>False</sensitive>
-	      <label>_Export</label>
+	      <label>_Export...</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_CONVERT</stock_icon>
 	    </widget>
@@ -541,7 +579,7 @@
 		<key>GDK_C</key>
 		<signal>activate</signal>
 	      </accelerator>
-	      <label>_Copy</label>
+	      <label>_Copy...</label>
 	      <right_justify>False</right_justify>
 	      <icon>copy-message16.xpm</icon>
 	    </widget>
@@ -555,7 +593,7 @@
 		<key>GDK_M</key>
 		<signal>activate</signal>
 	      </accelerator>
-	      <label>_Move</label>
+	      <label>_Move...</label>
 	      <right_justify>False</right_justify>
 	      <icon>move-message16.xpm</icon>
 	    </widget>
@@ -768,6 +806,44 @@
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
+	      <name>settings_features</name>
+	      <label>_Features</label>
+	      <right_justify>False</right_justify>
+	      <stock_icon>GNOME_STOCK_MENU_INDEX</stock_icon>
+
+	      <widget>
+		<class>GtkMenu</class>
+		<name>settings_features_menu</name>
+
+		<widget>
+		  <class>GtkPixmapMenuItem</class>
+		  <name>settings_features_download</name>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_setting_features_download_activate</handler>
+		    <last_modification_time>Mon, 17 Dec 2001 05:00:45 GMT</last_modification_time>
+		  </signal>
+		  <label>_Download new features from Internet...</label>
+		  <right_justify>False</right_justify>
+		  <stock_icon>GNOME_STOCK_MENU_REFRESH</stock_icon>
+		</widget>
+
+		<widget>
+		  <class>GtkMenuItem</class>
+		  <name>settings_features_separator</name>
+		  <right_justify>False</right_justify>
+		</widget>
+	      </widget>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>separator24</name>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkPixmapMenuItem</class>
 	      <name>settings_preferences</name>
 	      <signal>
 		<name>activate</name>
@@ -822,7 +898,7 @@
 		<key>GDK_F2</key>
 		<signal>activate</signal>
 	      </accelerator>
-	      <label>_Quick Tips</label>
+	      <label>_Quick Tips...</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_BOOK_RED</stock_icon>
 	    </widget>
@@ -840,7 +916,7 @@
 		<handler>on_getting_in_touch_activate</handler>
 		<last_modification_time>Wed, 08 Aug 2001 18:26:28 GMT</last_modification_time>
 	      </signal>
-	      <label>_Getting in Touch</label>
+	      <label>_Getting in Touch...</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_VOLUME</stock_icon>
 	    </widget>
@@ -854,7 +930,7 @@
 	    <widget>
 	      <class>GtkMenuItem</class>
 	      <name>help_release_information</name>
-	      <label>_Release Information</label>
+	      <label>_Release Information...</label>
 	      <right_justify>False</right_justify>
 	    </widget>
 
@@ -878,7 +954,7 @@
 		<handler>on_help_about_plugins_activate</handler>
 		<last_modification_time>Fri, 14 Sep 2001 16:48:44 GMT</last_modification_time>
 	      </signal>
-	      <label>About _Plugins</label>
+	      <label>About _Plugins...</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_ABOUT</stock_icon>
 	    </widget>
@@ -889,13 +965,14 @@
 
     <widget>
       <class>GnomeDockItem</class>
-      <name>docktoolbar</name>
+      <name>dockitem_toolbar</name>
       <border_width>1</border_width>
+      <visible>False</visible>
       <tooltip>Icon Menu Bar</tooltip>
       <placement>GNOME_DOCK_TOP</placement>
       <band>1</band>
       <position>0</position>
-      <offset>77</offset>
+      <offset>0</offset>
       <locked>False</locked>
       <exclusive>True</exclusive>
       <never_floating>False</never_floating>
@@ -905,6 +982,184 @@
 
       <widget>
 	<class>Placeholder</class>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GnomeDockItem</class>
+      <name>dockitem_filter</name>
+      <visible>False</visible>
+      <placement>GNOME_DOCK_TOP</placement>
+      <band>2</band>
+      <position>0</position>
+      <offset>0</offset>
+      <locked>False</locked>
+      <exclusive>True</exclusive>
+      <never_floating>False</never_floating>
+      <never_vertical>True</never_vertical>
+      <never_horizontal>False</never_horizontal>
+      <shadow_type>GTK_SHADOW_OUT</shadow_type>
+
+      <widget>
+	<class>GtkHBox</class>
+	<name>hbox23</name>
+	<border_width>2</border_width>
+	<homogeneous>False</homogeneous>
+	<spacing>4</spacing>
+
+	<widget>
+	  <class>GtkButton</class>
+	  <name>filter_button</name>
+	  <relief>GTK_RELIEF_NONE</relief>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+
+	  <widget>
+	    <class>GtkHBox</class>
+	    <name>hbox24</name>
+	    <homogeneous>False</homogeneous>
+	    <spacing>4</spacing>
+
+	    <widget>
+	      <class>GnomePixmap</class>
+	      <name>filter_pixmap</name>
+	      <child>
+		<padding>0</padding>
+		<expand>True</expand>
+		<fill>True</fill>
+	      </child>
+	    </widget>
+
+	    <widget>
+	      <class>GtkLabel</class>
+	      <name>label81</name>
+	      <label>_Filters:</label>
+	      <justify>GTK_JUSTIFY_CENTER</justify>
+	      <wrap>False</wrap>
+	      <xalign>0.5</xalign>
+	      <yalign>0.5</yalign>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	      <child>
+		<padding>0</padding>
+		<expand>False</expand>
+		<fill>False</fill>
+	      </child>
+	    </widget>
+	  </widget>
+	</widget>
+
+	<widget>
+	  <class>GtkOptionMenu</class>
+	  <name>optionmenu1</name>
+	  <height>24</height>
+	  <can_focus>True</can_focus>
+	  <items>From
+To
+Date
+Account
+Subject
+Body
+</items>
+	  <initial_choice>0</initial_choice>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+	</widget>
+
+	<widget>
+	  <class>GtkOptionMenu</class>
+	  <name>optionmenu2</name>
+	  <height>24</height>
+	  <can_focus>True</can_focus>
+	  <items>contains
+is equal to
+</items>
+	  <initial_choice>0</initial_choice>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+	</widget>
+
+	<widget>
+	  <class>GnomeEntry</class>
+	  <name>entry1</name>
+	  <max_saved>10</max_saved>
+	  <child>
+	    <padding>0</padding>
+	    <expand>True</expand>
+	    <fill>True</fill>
+	  </child>
+
+	  <widget>
+	    <class>GtkEntry</class>
+	    <child_name>GnomeEntry:entry</child_name>
+	    <name>combo-entry6</name>
+	    <can_focus>True</can_focus>
+	    <editable>True</editable>
+	    <text_visible>True</text_visible>
+	    <text_max_length>0</text_max_length>
+	    <text></text>
+	  </widget>
+	</widget>
+
+	<widget>
+	  <class>GtkCheckButton</class>
+	  <name>checkbutton1</name>
+	  <can_focus>True</can_focus>
+	  <label>Cas_e sensitive</label>
+	  <active>False</active>
+	  <draw_indicator>True</draw_indicator>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+	</widget>
+
+	<widget>
+	  <class>GtkButton</class>
+	  <name>button124</name>
+	  <can_focus>True</can_focus>
+	  <relief>GTK_RELIEF_NONE</relief>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+
+	  <widget>
+	    <class>GtkHBox</class>
+	    <name>hbox25</name>
+	    <homogeneous>False</homogeneous>
+	    <spacing>2</spacing>
+
+	    <widget>
+	      <class>GnomePixmap</class>
+	      <name>pixmap1</name>
+	      <child>
+		<padding>0</padding>
+		<expand>True</expand>
+		<fill>True</fill>
+	      </child>
+	    </widget>
+
+	    <widget>
+	      <class>Placeholder</class>
+	    </widget>
+	  </widget>
+	</widget>
+
+	<widget>
+	  <class>Placeholder</class>
+	</widget>
       </widget>
     </widget>
 
@@ -4200,32 +4455,17 @@ expunge the selected mails?</message>
 	</child>
 
 	<widget>
-	  <class>GtkCList</class>
-	  <name>clist</name>
-	  <columns>4</columns>
-	  <column_widths>17,80,80,80</column_widths>
-	  <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
-	  <show_titles>False</show_titles>
+	  <class>GtkViewport</class>
+	  <name>viewport4</name>
 	  <shadow_type>GTK_SHADOW_IN</shadow_type>
 
 	  <widget>
-	    <class>Placeholder</class>
-	    <child_name>CList:title</child_name>
-	  </widget>
-
-	  <widget>
-	    <class>Placeholder</class>
-	    <child_name>CList:title</child_name>
-	  </widget>
-
-	  <widget>
-	    <class>Placeholder</class>
-	    <child_name>CList:title</child_name>
-	  </widget>
-
-	  <widget>
-	    <class>Placeholder</class>
-	    <child_name>CList:title</child_name>
+	    <class>Custom</class>
+	    <name>select_list</name>
+	    <creation_function>c2_select_list_new_from_glade</creation_function>
+	    <int1>3</int1>
+	    <int2>0</int2>
+	    <last_modification_time>Mon, 17 Dec 2001 21:19:47 GMT</last_modification_time>
 	  </widget>
 	</widget>
       </widget>
@@ -4260,6 +4500,269 @@ expunge the selected mails?</message>
 	    <text_visible>True</text_visible>
 	    <text_max_length>0</text_max_length>
 	    <text></text>
+	  </widget>
+	</widget>
+      </widget>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeDialog</class>
+  <name>dlg_mail_source</name>
+  <visible>False</visible>
+  <title>Mail Source</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>True</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <wmclass_name>dlg_mail_source</wmclass_name>
+  <wmclass_class>cronosii</wmclass_class>
+  <auto_close>False</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox26</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area26</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button127</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_CLOSE</stock_button>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkScrolledWindow</class>
+      <name>scrolledwindow16</name>
+      <hscrollbar_policy>GTK_POLICY_NEVER</hscrollbar_policy>
+      <vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
+      <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+      <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkText</class>
+	<name>text</name>
+	<can_focus>True</can_focus>
+	<editable>False</editable>
+	<text></text>
+      </widget>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeDialog</class>
+  <name>dlg_add_features</name>
+  <title>Add features</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>False</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <auto_close>False</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox27</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area27</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button130</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_HELP</stock_button>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button131</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<label>Add Features</label>
+	<stock_pixmap>GNOME_STOCK_PIXMAP_ADD</stock_pixmap>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button132</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkVBox</class>
+      <name>vbox21</name>
+      <homogeneous>False</homogeneous>
+      <spacing>4</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkFrame</class>
+	<name>frame6</name>
+	<border_width>1</border_width>
+	<label_xalign>0</label_xalign>
+	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+
+	<widget>
+	  <class>GtkHBox</class>
+	  <name>hbox26</name>
+	  <border_width>8</border_width>
+	  <homogeneous>False</homogeneous>
+	  <spacing>0</spacing>
+
+	  <widget>
+	    <class>GtkLabel</class>
+	    <name>label82</name>
+	    <label>Cronos II is prepared to add new cool features in any time you want.
+
+What follow is a list of all available features of Cronos II that you can download from the Internet and install in a quick and easy way.</label>
+	    <justify>GTK_JUSTIFY_FILL</justify>
+	    <wrap>True</wrap>
+	    <xalign>0</xalign>
+	    <yalign>0.5</yalign>
+	    <xpad>0</xpad>
+	    <ypad>0</ypad>
+	    <child>
+	      <padding>0</padding>
+	      <expand>True</expand>
+	      <fill>True</fill>
+	    </child>
+	  </widget>
+	</widget>
+      </widget>
+
+      <widget>
+	<class>GtkFrame</class>
+	<name>frame5</name>
+	<width>533</width>
+	<height>157</height>
+	<label>New Features available</label>
+	<label_xalign>0</label_xalign>
+	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GtkVBox</class>
+	  <name>vbox22</name>
+	  <homogeneous>False</homogeneous>
+	  <spacing>0</spacing>
+
+	  <widget>
+	    <class>GtkLabel</class>
+	    <name>status_label</name>
+	    <label>Downloading...</label>
+	    <justify>GTK_JUSTIFY_CENTER</justify>
+	    <wrap>False</wrap>
+	    <xalign>0.5</xalign>
+	    <yalign>0.5</yalign>
+	    <xpad>0</xpad>
+	    <ypad>0</ypad>
+	    <child>
+	      <padding>0</padding>
+	      <expand>False</expand>
+	      <fill>False</fill>
+	    </child>
+	  </widget>
+
+	  <widget>
+	    <class>GtkScrolledWindow</class>
+	    <name>scroll</name>
+	    <border_width>3</border_width>
+	    <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
+	    <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
+	    <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+	    <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+	    <child>
+	      <padding>0</padding>
+	      <expand>True</expand>
+	      <fill>True</fill>
+	    </child>
+
+	    <widget>
+	      <class>Custom</class>
+	      <name>select_list</name>
+	      <creation_function>c2_select_list_new_from_glade</creation_function>
+	      <int1>3</int1>
+	      <int2>0</int2>
+	      <last_modification_time>Mon, 17 Dec 2001 15:29:02 GMT</last_modification_time>
+	    </widget>
 	  </widget>
 	</widget>
       </widget>

@@ -109,6 +109,23 @@ c2_html_gtkhtml_link_clicked (GtkHTML *gtkhtml, const gchar *url, gpointer data)
 void
 c2_html_gtkhtml_on_url (GtkHTML *gtkhtml, const gchar *url, gpointer data)
 {
+	C2Mutex *mutex;
+	
+	if (!GNOME_IS_APPBAR (C2_HTML (gtkhtml)->appbar))
+		return;
+
+	mutex = C2_HTML (gtkhtml)->appbar_lock;
+	
+	if (mutex)
+	{
+		if (c2_mutex_trylock (mutex))
+			return;
+	}
+
+	gnome_appbar_set_status (GNOME_APPBAR (C2_HTML (gtkhtml)->appbar),
+							url ? url : "");
+
+	c2_mutex_unlock (mutex);
 }
 
 static void

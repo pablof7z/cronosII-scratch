@@ -82,8 +82,8 @@ init (C2Window *window)
 {
 	window->application = NULL;
 	window->xml = NULL;
-	pthread_mutex_init (&window->status_lock, NULL);
-	pthread_mutex_init (&window->progress_lock, NULL);
+	c2_mutex_init (&window->status_lock);
+	c2_mutex_init (&window->progress_lock);
 }
 
 static void
@@ -95,8 +95,8 @@ destroy (GtkObject *object)
 
 	c2_application_window_remove (window->application, GTK_WINDOW (window));
 
-	pthread_mutex_destroy (&window->status_lock);
-	pthread_mutex_destroy (&window->progress_lock);
+	c2_mutex_destroy (&window->status_lock);
+	c2_mutex_destroy (&window->progress_lock);
 
 	if (GLADE_IS_XML (window->xml))
 		gtk_object_unref (GTK_OBJECT (window->xml));
@@ -163,7 +163,7 @@ c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, .
 	msg = g_strdup_vprintf (fmt, args);
 	va_end (args);
 
-	if (!pthread_mutex_trylock (&window->status_lock))
+	if (!c2_mutex_trylock (&window->status_lock))
 	{
 		GtkWidget *appbar = glade_xml_get_widget (window->xml, "appbar");
 		C2Pthread2 *data;
@@ -181,7 +181,7 @@ c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, .
 		gnome_appbar_push (GNOME_APPBAR (appbar), msg);
 		data->v2 = (gpointer) gtk_timeout_add (3000, on_report_timeout, data);
 		report_timeout_id = GPOINTER_TO_INT (data->v2);
-		pthread_mutex_unlock (&window->status_lock);
+		c2_mutex_unlock (&window->status_lock);
 	} else
 	{
 		if (type == C2_WINDOW_REPORT_WARNING)
@@ -217,12 +217,12 @@ on_report_timeout (gpointer data)
 	C2Window *window = C2_WINDOW (data2->v1);
 	gint16 id = GPOINTER_TO_INT (data2->v2);
 
-	if (C2_IS_WINDOW (window) && id == report_timeout_id && !pthread_mutex_trylock (&window->status_lock))
+	if (C2_IS_WINDOW (window) && id == report_timeout_id && !c2_mutex_trylock (&window->status_lock))
 	{
 		GtkWidget *appbar = glade_xml_get_widget (window->xml, "appbar");
 
 		gnome_appbar_pop (GNOME_APPBAR (appbar));
-		pthread_mutex_unlock (&window->status_lock);
+		c2_mutex_unlock (&window->status_lock);
 	}
 
 	g_free (data2);
@@ -235,13 +235,13 @@ c2_window_set_activity (C2Window *window, gboolean state)
 {
 	if (state)
 	{
-		if (!pthread_mutex_trylock (&window->progress_lock))
+		if (!c2_mutex_trylock (&window->progress_lock))
 		{
 			GtkWidget *appbar = glade_xml_get_widget (window->xml, "appbar");
 
 			if (!appbar)
 			{
-				pthread_mutex_unlock (&window->progress_lock);
+				c2_mutex_unlock (&window->progress_lock);
 				return;
 			}
 
@@ -254,7 +254,7 @@ c2_window_set_activity (C2Window *window, gboolean state)
 
 		gtk_progress_set_activity_mode (gnome_appbar_get_progress (GNOME_APPBAR (appbar)), FALSE);
 		gtk_progress_set_value (gnome_appbar_get_progress (GNOME_APPBAR (appbar)), 0);
-		pthread_mutex_unlock (&window->progress_lock);
+		c2_mutex_unlock (&window->progress_lock);
 	}
 }
 
@@ -263,9 +263,9 @@ on_activity_timeout (gpointer data)
 {
 	C2Window *window = C2_WINDOW (data);
 
-	if (!pthread_mutex_trylock (&window->progress_lock))
+	if (!c2_mutex_trylock (&window->progress_lock))
 	{
-		pthread_mutex_unlock (&window->progress_lock);
+		c2_mutex_unlock (&window->progress_lock);
 	} else
 	{
 		GtkWidget *appbar = glade_xml_get_widget (window->xml, "appbar");

@@ -15,18 +15,23 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#include <libcronosII/db.h>
-#include <libcronosII/message.h>
+#include <libcronosII/utils-filter.h>
 
 gint
 main (gint argc, gchar **argv)
 {
 	C2Message *message;
+	const gchar *field = argv[2], *match = argv[1];
+	gboolean res;
 
 	gtk_init (&argc, &argv);
 
 	message = c2_db_message_get_from_file ("message.eml");
-	message->mime = c2_mime_new (message);
+
+	printf ("I'm going to search '%s' in '%s'.\n\n", match, field);
+
+	res = c2_filter_match_message (message, C2_FILTER_MATCH_CONTAINS, FALSE, field, match);
+	printf ("Result: %d\n", res);
 
 	return 0;
 }

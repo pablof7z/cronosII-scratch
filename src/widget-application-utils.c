@@ -16,12 +16,14 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <libcronosII/error.h>
+#include <libcronosII/request.h>
 
 #include "preferences.h"
 #include "widget-HTML.h"
 #include "widget-application.h"
 #include "widget-dialog-preferences.h"
 #include "widget-mailbox-list.h"
+#include "widget-select-list.h"
 
 /* TODO
  * 20011208 There's still a lack for the c2_application_dialog_select_file_get
@@ -56,6 +58,118 @@ c2_application_check_account_exists (C2Application *application)
 	}
 
 	return FALSE;
+}
+
+static void
+on_dialog_add_features_thread_disconnect (C2Request *request, C2NetObjectByte *byte, gboolean success,
+											GladeXML *xml)
+{
+	GtkWidget *widget;
+	const gchar *source;
+	gchar *ptr;
+
+	if (!success)
+	{
+		gchar *buf;
+		
+		gdk_threads_enter ();
+		buf = g_strdup_printf (_("Failed: %s"), c2_error_object_get (GTK_OBJECT (request)));
+		widget = glade_xml_get_widget (xml, "status_label");
+		gtk_label_set_text (GTK_LABEL (widget), buf);
+		g_free (buf);
+		gdk_threads_leave ();
+
+		return;
+	}
+
+	source = c2_request_get_source (request);
+
+	widget = glade_xml_get_widget (xml, "select_list");
+
+	gdk_threads_enter ();
+	gtk_widget_hide (glade_xml_get_widget (xml, "status_label"));
+	gdk_threads_leave ();
+
+	for (ptr = source; *ptr != '\0';)
+	{
+		gchar *name, *size, *desc, *url;
+		gint s, len;
+
+		name = c2_str_get_word (0, ptr, '\r');
+		size = c2_str_get_word (1, ptr, '\r');
+		desc = c2_str_get_word (2, ptr, '\r');
+		url  = c2_str_get_word (3, ptr, '\r');
+
+		len = strlen (size);
+		
+		s = atoi (size);
+		g_free (size);
+		if ((s/1024) > 1024)
+			size = g_strdup_printf ("%.2f Mb", (gfloat) (s/1024)/1024);
+		else
+			size = g_strdup_printf ("%.2f Kb", (gfloat) (s/1024));
+
+		ptr += strlen (name) + len + strlen (desc) + strlen (url) + 4;
+
+		if (*ptr != '\0')
+			ptr++;
+
+		{
+			gchar *row[] = { name, size, desc };
+			
+			gdk_threads_enter ();
+			c2_select_list_append_item (C2_SELECT_LIST (widget), row, g_strndup (url, strlen (url)-1));
+			gdk_threads_leave ();
+		}
+
+		g_free (name);
+		g_free (size);
+		g_free (desc);
+		g_free (url);
+	}	
+
+	gtk_object_destroy (GTK_OBJECT (request));
+}
+
+static void
+dialog_add_features_thread (GladeXML *xml)
+{
+	C2Request *request;
+
+	request = c2_request_new (FEATURES_URL);
+	gtk_signal_connect (GTK_OBJECT (request), "disconnect",
+						GTK_SIGNAL_FUNC (on_dialog_add_features_thread_disconnect), xml);
+	c2_request_run (request);
+}
+
+void
+c2_application_dialog_add_features (C2Application *application)
+{
+	GtkWidget *widget;
+	GladeXML *xml;
+	pthread_t thread;
+
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_add_features");
+
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (dialog_add_features_thread), xml);
+
+	widget = glade_xml_get_widget (xml, "dlg_add_features");
+	c2_application_window_add (application, GTK_WINDOW (widget));
+
+	switch (gnome_dialog_run (GNOME_DIALOG (widget)))
+	{
+		case 0:
+			break;
+		case 1:
+			break;
+		default:
+		case 2:
+			c2_application_window_remove (application, (GTK_WINDOW (widget)));
+			gnome_dialog_close (GNOME_DIALOG (widget));
+			break;
+	}
+	
+	gtk_object_destroy (GTK_OBJECT (xml));
 }
 
 static void
@@ -526,10 +640,83 @@ rerun:
 	if (!(fd = fopen (buf, "w")))
 		c2_error_set (-errno);
 
-	c2_preferences_set_general_paths_save (buf);
-	c2_preferences_commit ();
+	if (c2_preferences_get_general_paths_smart ())
+	{
+		gchar *dir, *buf2;
+
+		buf2 = g_dirname (buf);
+		dir = g_strdup_printf ("%s" G_DIR_SEPARATOR_S, buf2);
+		g_free (buf2);
+		c2_preferences_set_general_paths_save (dir);
+		c2_preferences_commit ();
+		g_free (dir);
+	}
 	c2_application_window_remove (application, GTK_WINDOW (filesel));
 	gtk_widget_destroy (filesel);
 
 	return fd;
+}
+
+/**
+ * c2_application_dialog_mail_source
+ * @application: Application object.
+ * @message: Message to display.
+ *
+ * This function will popup a dialog which will show
+ * the source code of @message.
+ **/
+void
+c2_application_dialog_mail_source (C2Application *application, C2Message *message)
+{
+	GladeXML *xml;
+	GtkWidget *widget;
+	GdkColor green = { 0, 0x2d00, 0x8a00, 0x5700 };
+	GdkColor red = { 0, 0xa500, 0x2900, 0x2900 };
+	GdkFont *font_normal, *font_bold;
+	gchar *ptr, *line = NULL;
+	GtkText *text;
+
+	gdk_color_alloc (gdk_colormap_get_system (), &green);
+	gdk_color_alloc (gdk_colormap_get_system (), &red);
+	font_normal = gdk_font_load ("-adobe-courier-medium-r-normal-*-*-140-*-*-m-*-iso8859-1");
+	font_bold = gdk_font_load ("-adobe-courier-bold-r-normal-*-*-140-*-*-m-*-iso8859-1");
+	
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_mail_source");
+
+	/* Set the header */
+	widget = glade_xml_get_widget (xml, "text");
+	text = GTK_TEXT (widget);
+	
+	for (ptr = message->header; *ptr != '\0';)
+	{
+		/* Get the current line */
+		line = c2_str_get_line (ptr);
+		ptr += strlen (line);
+
+		if (*line == ' ' || *line == '\t')
+			gtk_text_insert (text, font_normal, NULL, NULL, line, -1);
+		else
+		{
+			gchar *word = c2_str_get_word (0, line, ' ');
+			gint length = strlen (word);
+			
+			gtk_text_insert (text,
+							*(word+length-1) == ':' ? font_bold : font_normal,
+							c2_strneq (word, "X-", 2) ? &red : &green,
+							NULL, word, length);
+			gtk_text_insert (text, font_normal, NULL, NULL, line+length, -1);
+			g_free (word);
+		}
+		g_free (line);
+	}
+
+	/* Set the body */
+	gtk_text_insert (text, font_normal, NULL, NULL, "\n\n", 2);
+	gtk_text_insert (text, font_normal, NULL, NULL, message->body, -1);
+	
+	widget = glade_xml_get_widget (xml, "dlg_mail_source");
+	gtk_widget_set_usize (widget, c2_preferences_get_window_main_width (),
+								  c2_preferences_get_window_main_height ());
+	gnome_dialog_run_and_close (GNOME_DIALOG (widget));
+	gtk_object_destroy (GTK_OBJECT (xml));
 }
