@@ -1,0 +1,24 @@
+<!--<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[]>-->
+<!--Place Holder for an Address book Manual-->
+<!--addressbook.sgml-->
+ <sect1 id="Addressbook-final">
+ <title>The AddressBook</title>
+<para>At this stage both the packages built for &app; &ver; have support for the new addressbook compiled in. (i.e. the RPM available from the web site and the Debian package available via unstable packages (apt-get install cronosii)</para>
+
+ <para>The address book is a relatively new feature for Cronos.
+ As of CronosII version 0.2.2 it works very well however much more is planned for this 
+ particular extension to Cronos and so it must still be considered to be an early form of what promises to be a very powerful stand alone application in its own right.
+ </para>
+<sect2 id="addressbook-notes">
+<title>Points of Interest</title>
+<orderedlist><title>Notes</title>
+<listitem>The addressbook is an application in its own right</listitem>
+<listitem>You will find it on your gnome menus as a seperate (2nd) Addressbook</listitem>
+<listitem>When you save the contents of your addressbook you will find them automagically in your
+GnomeCard default book and Visa Versa (I just checked !)</listitem>
+<listitem>You do need to save when you have finished making entries</listitem>
+<listitem>As you enter addresses into the fields you should find that they either auto complete or you are presented with a list of choices from your book.</listitem>
+</orderedlist>
+ <para>I have yet to start on this section of the manual
+ </para>
+ </sect1>     
