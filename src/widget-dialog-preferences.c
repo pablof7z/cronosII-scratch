@@ -154,6 +154,9 @@ static void
 on_interface_misc_date_help_clicked			(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
+on_interface_misc_attachments_default_selection_done (GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
 on_interface_misc_mail_warn_selection_done	(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
@@ -400,6 +403,10 @@ set_signals (C2DialogPreferences *preferences)
 	widget = glade_xml_get_widget (xml, "interface_misc_date_help");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
 						GTK_SIGNAL_FUNC (on_interface_misc_date_help_clicked), preferences);
+
+	widget = GTK_OPTION_MENU (glade_xml_get_widget (xml, "interface_misc_attachments_default"))->menu;
+	gtk_signal_connect (GTK_OBJECT (widget), "selection_done",
+						GTK_SIGNAL_FUNC (on_interface_misc_attachments_default_selection_done), preferences);
 
 	widget = GTK_OPTION_MENU (glade_xml_get_widget (xml, "interface_misc_mail_warn"))->menu;
 	gtk_signal_connect (GTK_OBJECT (widget), "selection_done",
@@ -653,7 +660,7 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 		{ NULL, PKGDATADIR "/pixmaps/general_options.png" },
 		{ NULL, PKGDATADIR "/pixmaps/general_accounts.png" },
 		{ NULL, PKGDATADIR "/pixmaps/general_paths.png" },
-		{ NULL,	PKGDATADIR "/pixmaps/general_plugins.png" },
+//		{ NULL,	PKGDATADIR "/pixmaps/general_plugins.png" }, Plugins won't be here
 		{ NULL, NULL }
 	};
 
@@ -684,7 +691,7 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 	general_icons[0].name = _(GENERAL_OPTIONS);
 	general_icons[1].name = _(GENERAL_ACCOUNTS);
 	general_icons[2].name = _(GENERAL_PATHS);
-	general_icons[3].name = _(GENERAL_PLUGINS);
+//	general_icons[3].name = _(GENERAL_PLUGINS);
 
 	interface_icons[0].name = _(INTERFACE_FONTS);
 	interface_icons[1].name = _(INTERFACE_HTML);
@@ -1348,6 +1355,31 @@ static void
 on_interface_misc_date_help_clicked (GtkWidget *widget, C2DialogPreferences *preferences)
 {
 	gnome_help_goto (NULL, "man:strftime");
+}
+
+static void
+on_interface_misc_attachments_default_selection_done (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	GtkWidget *menu = glade_xml_get_widget (C2_DIALOG (preferences)->xml, "interface_misc_attachments_default");
+	gchar *selection;
+
+	if (GTK_BIN (menu)->child)
+	{
+		GtkWidget *child = GTK_BIN (menu)->child;
+
+		if (GTK_LABEL (child))
+		{
+			gtk_label_get (GTK_LABEL (child), &selection);
+
+			if (strstr (selection, "HTML"))
+				c2_preferences_set_interface_misc_attachments_default ("text/html");
+			else
+				c2_preferences_set_interface_misc_attachments_default ("text/plain");
+		}
+	}
+
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_MISC_ATTACHMENTS);
 }
 
 static void

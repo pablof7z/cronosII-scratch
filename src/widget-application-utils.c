@@ -623,6 +623,105 @@ re_run_add_mailbox_dialog:
 	}		
 }
 
+static void
+dialog_remove_mailbox_thread (C2Dialog *dialog)
+{
+	C2Application *application;
+	C2Mailbox *mailbox;
+	GtkWidget *button;
+	gint toggle;
+
+	application = dialog->application;
+	mailbox = C2_MAILBOX (gtk_object_get_data (GTK_OBJECT (dialog), "mailbox"));
+	
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_IMAP:
+		case C2_MAILBOX_SPOOL:
+			button = GTK_WIDGET (gtk_object_get_data (GTK_OBJECT (dialog), "toggle"));
+			toggle = GTK_TOGGLE_BUTTON (button)->active;
+	}
+
+	c2_mailbox_remove (&application->mailbox, mailbox);
+
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_IMAP:
+			break;
+			
+		case C2_MAILBOX_SPOOL:
+			if (!toggle)
+				unlink (mailbox->protocol.spool.path);
+			break;
+			
+		case C2_MAILBOX_CRONOSII:
+		case C2_MAILBOX_OTHER:
+			break;
+	}
+
+	gtk_object_unref (GTK_OBJECT (mailbox));
+}
+
+void
+c2_application_dialog_remove_mailbox (C2Application *application, C2Mailbox *mailbox)
+{
+	GtkWidget *dialog;
+	GtkWidget *label;
+	GtkWidget *button;
+	pthread_t thread;
+	
+	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
+	c2_return_if_fail (C2_IS_MAILBOX (mailbox), C2EDATA);
+
+	dialog = c2_dialog_new (application, _("Mailbox deletion confirm"),
+									"remove_mailbox", NULL, GNOME_STOCK_BUTTON_OK,
+									GNOME_STOCK_BUTTON_CANCEL, NULL);
+	gtk_object_set_data (GTK_OBJECT (dialog), "mailbox", mailbox);
+
+	label = gtk_label_new (_("You are about to delete a mailbox.\n"
+							 "After deleting it you will not be able to\n"
+							 "recover your messages."));
+	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox), label, TRUE, TRUE, 0);
+	gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_LEFT);
+	gtk_widget_show (label);
+	
+	/* According to the type of mailbox is the dialog we have to display */
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+		case C2_MAILBOX_OTHER:
+			button = NULL;
+			break;
+			
+		case C2_MAILBOX_IMAP:
+			button = gtk_check_button_new_with_label (_("Just unsubscribe, do not delete the mailbox."));
+			break;
+			
+		case C2_MAILBOX_SPOOL:
+			button = gtk_check_button_new_with_label (_("Do not delete the spool file."));
+			break;
+	}
+
+	if (button)
+	{
+		gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox), button, FALSE, TRUE, 0);
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
+		gtk_widget_show (button);
+		gtk_object_set_data (GTK_OBJECT (dialog), "toggle", button);
+	}
+
+	switch (gnome_dialog_run (GNOME_DIALOG (dialog)))
+	{
+		case 0:
+			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (dialog_remove_mailbox_thread), dialog);
+			break;
+
+		default:
+		case 1:
+			gnome_dialog_close (GNOME_DIALOG (dialog));
+	}
+}
+
 static gint
 on_dialog_incoming_mail_warning_darea_expose_event (GtkWidget *widget, GdkEventExpose *e, GtkWidget *window)
 {

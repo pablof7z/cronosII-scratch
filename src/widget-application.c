@@ -890,7 +890,7 @@ _check_real (C2Application *application)
 
 		wti = c2_transfer_item_new (application, account, C2_TRANSFER_ITEM_RECEIVE);
 		c2_transfer_list_add_item (C2_TRANSFER_LIST (wtl), wti);
-		plist = g_slist_prepend (plist, (gpointer) wti);
+		plist = g_slist_append (plist, (gpointer) wti);
 	}
 
 	/* If it is not "check::silent" we remove the timeout

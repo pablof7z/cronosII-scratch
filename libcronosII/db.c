@@ -631,8 +631,12 @@ add_message (C2Mailbox *mailbox, C2Message *message)
 		date = time (NULL);
 
 	subject = c2_message_get_header_field (message, "Subject:");
+	if (mailbox->use_as & C2_MAILBOX_USE_AS_OUTBOX ||
+		mailbox->use_as & C2_MAILBOX_USE_AS_SENT_ITEMS)
+		from = c2_message_get_header_field (message, "To:");
+	else
 		from = c2_message_get_header_field (message, "From:");
-		account = c2_message_get_header_field (message, "X-CronosII-Account:");
+	account = c2_message_get_header_field (message, "X-CronosII-Account:");
 
 	db = c2_db_new (mailbox, marked, subject ? subject : "",
 					from ? from : "",

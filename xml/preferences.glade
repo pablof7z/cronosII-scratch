@@ -2787,8 +2787,8 @@ gvim
 		<name>interface_misc_attachments_default</name>
 		<height>22</height>
 		<can_focus>True</can_focus>
-		<items>text/plain
-text/html
+		<items>unformatted text (plain)
+formatted text (HTML)
 </items>
 		<initial_choice>0</initial_choice>
 		<child>

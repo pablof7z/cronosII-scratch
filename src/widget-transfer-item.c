@@ -412,8 +412,6 @@ c2_transfer_item_start_smtp_thread (C2TransferItem *ti)
 {
 	gint id;
 
-	printf ("Haciendo %s\n", __PRETTY_FUNCTION__);
-
 	id = smtp_get_id_from_ti (ti);
 	ti->type_info.send.id = id;
 	c2_smtp_send_message (ti->type_info.send.smtp, ti->type_info.send.db->message, id);
@@ -423,8 +421,6 @@ void
 c2_transfer_item_start (C2TransferItem *ti)
 {
 	pthread_t thread;
-
-	printf ("Haciendo %s\n", __PRETTY_FUNCTION__);
 
 	if (ti->type == C2_TRANSFER_ITEM_RECEIVE)
 	{

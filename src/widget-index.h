@@ -56,6 +56,7 @@ enum _C2IndexMode
 struct _C2Index
 {
 	GtkCList clist;
+	GtkWidget *clist_titles_label[C2_MAILBOX_SORT_LAST];
 	GtkWidget *clist_titles_arrow[C2_MAILBOX_SORT_LAST];
 	gint unreaded_messages;
 	gint total_messages;

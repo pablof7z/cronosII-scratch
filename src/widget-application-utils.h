@@ -41,6 +41,9 @@ void
 c2_application_dialog_add_mailbox		(C2Application *application);
 
 void
+c2_application_dialog_remove_mailbox	(C2Application *application, C2Mailbox *mailbox);
+
+void
 c2_application_dialog_incoming_mail_warning	(C2Application *application);
 
 void

@@ -910,6 +910,15 @@ static void
 close_ (C2WindowMain *wmain)
 {
 	C2Application *application = C2_WINDOW (wmain)->application;
+	GtkWidget *widget;
+
+	if (!GTK_IS_OBJECT (wmain->mlist))
+		return;
+
+	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "hpaned");
+	c2_preferences_set_window_main_hpaned (GTK_PANED (widget)->child1_size);
+	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "vpaned");
+	c2_preferences_set_window_main_vpaned (GTK_PANED (widget)->child1_size);
 	
 	/* Disconnect to signals connected to object that might not be destroyed */
 	gtk_signal_disconnect_by_func (GTK_OBJECT (application),
@@ -1912,14 +1921,38 @@ on_index_select_message_thread (C2Pthread3 *data)
 	C2Db *node = C2_DB (data->v2);
 	C2WindowMain *wmain = C2_WINDOW_MAIN (data->v3);
 	GtkWidget *widget;
+	GtkWidget *appbar = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "appbar");
 	GladeXML *xml;
+	gboolean status = FALSE;
 
 	g_free (data);
 
 	if (!C2_IS_MESSAGE (node->message))
 	{
-		/* [TODO] This should be in a separated thread */
+		gdk_threads_enter ();
+		if (c2_mutex_trylock (&C2_WINDOW (wmain)->status_lock) == 0)
+		{
+			if (c2_mutex_trylock (&C2_WINDOW (wmain)->progress_lock) == 0)
+			{
+				c2_mutex_unlock (&C2_WINDOW (wmain)->progress_lock);
+				gnome_appbar_push (GNOME_APPBAR (appbar), _("Loading message..."));
+				c2_window_set_activity (C2_WINDOW (wmain), TRUE);
+				status = TRUE;
+			} else
+				c2_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
+		}
+		gdk_threads_leave ();
+
 		c2_db_load_message (node);
+
+		gdk_threads_enter ();
+		if (status)
+		{
+			gnome_appbar_pop (GNOME_APPBAR (appbar));
+			c2_window_set_activity (C2_WINDOW (wmain), FALSE);
+			c2_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
+		}
+		gdk_threads_leave ();
 
 		if (!C2_IS_MESSAGE (node->message))
 		{
@@ -2023,7 +2056,7 @@ on_index_select_message_thread (C2Pthread3 *data)
 		gtk_widget_set_sensitive (widget, TRUE);
 
 	gdk_threads_leave ();
-L}
+}
 
 static void
 on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)

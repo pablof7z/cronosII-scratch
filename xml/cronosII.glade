@@ -239,32 +239,6 @@
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
-	      <name>file_address_book</name>
-	      <sensitive>False</sensitive>
-	      <tooltip>Open the Address Book</tooltip>
-	      <accelerator>
-		<modifiers>0</modifiers>
-		<key>GDK_D</key>
-		<signal>activate</signal>
-	      </accelerator>
-	      <signal>
-		<name>activate</name>
-		<handler>on_address_book_activate</handler>
-		<last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
-	      </signal>
-	      <label>_Address Book</label>
-	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_BOOK_RED</stock_icon>
-	    </widget>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>separator1</name>
-	      <right_justify>False</right_justify>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
 	      <name>file_save</name>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
@@ -841,94 +815,12 @@
 
 	<widget>
 	  <class>GtkMenuItem</class>
-	  <name>filters</name>
-	  <label>F_ilters</label>
-	  <right_justify>False</right_justify>
-
-	  <widget>
-	    <class>GtkMenu</class>
-	    <name>filters_menu</name>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>filters_rule_manager</name>
-	      <signal>
-		<name>activate</name>
-		<handler>on_filters_remove_rule_activate</handler>
-		<last_modification_time>Sat, 12 Jan 2002 09:24:09 GMT</last_modification_time>
-	      </signal>
-	      <label>_Rule Manager...</label>
-	      <right_justify>False</right_justify>
-	      <icon>filter.xpm</icon>
-	    </widget>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>separator26</name>
-	      <right_justify>False</right_justify>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>filters_apply_rule</name>
-	      <signal>
-		<name>activate</name>
-		<handler>on_filters_apply_rule_activate</handler>
-		<last_modification_time>Sat, 12 Jan 2002 10:21:24 GMT</last_modification_time>
-	      </signal>
-	      <label>_Apply rule to selected mailbox</label>
-	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_INDEX</stock_icon>
-	    </widget>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkMenuItem</class>
 	  <name>settings1</name>
 	  <stock_item>GNOMEUIINFO_MENU_SETTINGS_TREE</stock_item>
 
 	  <widget>
 	    <class>GtkMenu</class>
 	    <name>settings1_menu</name>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>settings_features</name>
-	      <label>_Features</label>
-	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_INDEX</stock_icon>
-
-	      <widget>
-		<class>GtkMenu</class>
-		<name>settings_features_menu</name>
-
-		<widget>
-		  <class>GtkPixmapMenuItem</class>
-		  <name>settings_features_download</name>
-		  <signal>
-		    <name>activate</name>
-		    <handler>on_setting_features_download_activate</handler>
-		    <last_modification_time>Mon, 17 Dec 2001 05:00:45 GMT</last_modification_time>
-		  </signal>
-		  <label>_Download new features from Internet...</label>
-		  <right_justify>False</right_justify>
-		  <stock_icon>GNOME_STOCK_MENU_REFRESH</stock_icon>
-		</widget>
-
-		<widget>
-		  <class>GtkMenuItem</class>
-		  <name>settings_features_separator</name>
-		  <right_justify>False</right_justify>
-		</widget>
-	      </widget>
-	    </widget>
-
-	    <widget>
-	      <class>GtkMenuItem</class>
-	      <name>separator24</name>
-	      <right_justify>False</right_justify>
-	    </widget>
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
@@ -1533,6 +1425,7 @@ entered is invalid.</message>
     <widget>
       <class>GtkVBox</class>
       <name>dlg_mailbox_properties_contents</name>
+      <height>278</height>
       <homogeneous>False</homogeneous>
       <spacing>5</spacing>
       <child>
@@ -1724,6 +1617,7 @@ result in the lost of all mails in it.</label>
 	  <widget>
 	    <class>GtkFrame</class>
 	    <name>frame9</name>
+	    <height>167</height>
 	    <label>Parent</label>
 	    <label_xalign>0</label_xalign>
 	    <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>

@@ -1,3 +1,15 @@
+Sat Jun  8 Pablo Fernández <sandokan at pablossite dot net>
+	* Changed the header field that will be shown when displaying
+	  the mailboxes set to be used as OUTBOX and/or SENT ITEMS.
+
+Fri Jun  7 Pablo Fernández <sandokan at pablossite dot net>
+	* Fixed the bug that caused that the vpaned and hpaned
+	  values weren't saved.
+	* Fixed an strange bug that caused c2 to crash when checking
+	  several accounts (three at least) at the same time.
+	* Fixed the bug that made impossible to change the default
+	  part (text/plain or text/html).
+
 Thu Jun  6 Pablo Fernández <sandokan at pablossite dot net>
 	* Fixed a crash when creating an account in an specific manner.
 

@@ -504,6 +504,16 @@ on_menu_new_mailbox_activate (GtkWidget *widget, C2MailboxList *mlist)
 static void
 on_menu_delete_mailbox_activate (GtkWidget *widget, C2MailboxList *mlist)
 {
+	C2Application *application;
+	C2Mailbox *mailbox;
+
+	/* Get the selected mailbox */
+L	if (!C2_IS_MAILBOX ((mailbox = C2_MAILBOX (c2_mailbox_list_get_selected_object (mlist)))))
+		return;
+	
+L	application = C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (mlist), "application"));
+
+L	c2_application_dialog_remove_mailbox (application, mailbox);
 }
 
 static void
@@ -920,7 +930,23 @@ static void
 init_imap (C2IMAP *imap)
 {
 	if (c2_imap_init (imap) < 0)
+	{
+		gchar *error;
+		GtkWidget *dialog;
+		
+		gdk_threads_enter ();
+		error = c2_error_object_get (GTK_OBJECT (imap));
+
+		if (error)
+		{
+			dialog = gnome_warning_dialog (error);
+			gnome_dialog_run_and_close (dialog);
+		}
+		
+		gdk_threads_leave ();
+		
 		return;
+	}
 	
 	c2_imap_populate_folders (imap);
 }

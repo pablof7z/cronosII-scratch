@@ -1015,3 +1015,67 @@ c2_mailbox_get_configuration_id (C2Mailbox *mailbox)
 	
 	return i;
 }
+
+void
+c2_mailbox_rebuild_configuration_tree (C2Mailbox *head)
+{
+	C2Mailbox *l;
+	gint id;
+	gchar *path;
+	
+	for (l = head; l; l = l->next)
+	{
+		printf ("Rebuilding '%s'", l->name);
+		id = c2_mailbox_get_configuration_id (l);
+		printf ("id = '%d'", id);
+
+		path = g_strdup_printf ("/" PACKAGE "/Mailbox %d", id);
+		gnome_config_push_prefix (path);
+		g_free (path);
+
+		gnome_config_set_string ("name", l->name);
+		gnome_config_set_string ("id", l->id);
+		gnome_config_set_int ("type", l->type);
+		gnome_config_set_int ("sort_by", l->sort_by);
+		gnome_config_set_int ("sort_type", l->sort_type);
+		gnome_config_set_int ("use_as", l->use_as);
+
+		switch (l->type)
+		{
+			case C2_MAILBOX_CRONOSII:
+				break;
+			case C2_MAILBOX_SPOOL:
+				gnome_config_set_string ("path", l->protocol.spool.path);
+				break;
+			case C2_MAILBOX_IMAP:
+				break;
+			case C2_MAILBOX_OTHER:
+				break;
+		}
+
+		gnome_config_pop_prefix ();
+
+		printf ("\n");
+
+		if (l->child)
+			c2_mailbox_rebuild_configuration_tree (l->child);
+	}
+
+	gnome_config_set_int ("/" PACKAGE "/Mailboxes/quantity", id);
+
+	for (;; id++)
+	{
+		path = g_strdup_printf ("/" PACKAGE "/Mailbox %d", id);
+
+		if (!gnome_config_has_section (path))
+		{
+			g_free (path);
+			break;
+		}
+
+		gnome_config_clean_section (path);
+		g_free (path);
+	}
+
+	gnome_config_sync ();
+}

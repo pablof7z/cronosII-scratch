@@ -25,6 +25,7 @@
 #include <time.h>
 
 #include <libcronosII/error.h>
+#include <libcronosII/mailbox.h>
 
 #include "main.h"
 #include "preferences.h"
@@ -563,6 +564,8 @@ c2_index_construct (C2Index *index, C2Application *application, C2IndexMode mode
 				return;
 		}
 
+		index->clist_titles_label[i] = label;
+
 		if (label)
 		{
 			gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
@@ -693,6 +696,15 @@ c2_index_set_mailbox (C2Index *index, C2Mailbox *mailbox)
     index->mailbox = mailbox;
     _connect (index);
 
+	if (mailbox->use_as & C2_MAILBOX_USE_AS_OUTBOX ||
+		mailbox->use_as & C2_MAILBOX_USE_AS_SENT_ITEMS)
+	{
+		gtk_label_set_text (index->clist_titles_label[C2_MAILBOX_SORT_FROM], _("To"));
+	} else
+	{
+		gtk_label_set_text (index->clist_titles_label[C2_MAILBOX_SORT_FROM], _("From"));
+	}
+
     C2_INDEX_CLASS_FW (index)->reload (index);
 }
 
@@ -808,6 +820,13 @@ add_message (C2Application *application, GtkCList *clist, C2Db *db, const gchar 
 	gchar *from;
 	
 	from = c2_str_get_sender (db->from);
+	
+	if (!from || !strlen (from))
+	{
+		g_free (from);
+		from = db->from;
+	}
+	
 	tm = localtime (&db->date);
 	row[COLUMN_SUBJECT] = db->subject;
 	row[COLUMN_FROM] = from;

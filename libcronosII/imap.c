@@ -1697,60 +1697,67 @@ c2_imap_load_message (C2IMAP *imap, C2Db *db)
 	C2Message *message;
 	gchar *reply, *start, *end, *buf;
 	tag_t tag;
-L	
+
+	printf ("Requesting mail '%s'\n", db->subject);
+	
 	if(c2_imap_select_mailbox(imap, db->mailbox) < 0)
-		return NULL;
-L	
+	{
+	L	return NULL;
+	}
+	
 	tag = c2_imap_get_tag(imap);
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d FETCH %i "
 		 "(RFC822)\r\n", tag, db->position+1) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
-		return NULL;
+	L	return NULL;
 	}
-L	
+	
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
-		return NULL;
-L	
+	{
+	L	return NULL;
+	}
+	
 	if(!c2_imap_check_server_reply(reply, tag))
 	{
 		c2_imap_set_error(imap, reply + C2TagLen + 3);
 		g_free(reply);
-		return NULL;
+	L	return NULL;
 	}
-L	
+	
 	if(!(start = strstr(reply, "\r\n")))
 	{
 		g_free(reply);
-		return NULL;
+	L	return NULL;
 	}
-L	start += 2;
+	start += 2;
 	if(!(end = strstr(start, "\r\n\r\n")))
 		if(!(end = strstr(start, ")\r\nCronosII-")))
 		{
 			g_free(reply);
-			return NULL;
+		L	return NULL;
 		}
-L	
+	
 	message = c2_message_new();
 	message->header = g_strndup(start, end - start);
 	start = end + 4;
 	end = strstr(start, "OK FETCH completed");
 	end -= (C2TagLen + 5); /* C2TagLen + '\r\n)\r\n' */
 	message->body = g_strndup(start, end - start);
-L
+
 	g_free(reply);
-L
+
 	/* Strip all the \r */
 	buf = c2_str_replace_all (message->header, "\r", "");
 	g_free (message->header);
 	message->header = buf;
-L	
-L	buf = c2_str_replace_all (message->body, "\r", "");
-L	g_free (message->body);
-L	message->body = buf;
-L	
+	
+	buf = c2_str_replace_all (message->body, "\r", "");
+	g_free (message->body);
+	message->body = buf;
+	
+	printf ("Mail loaded correctly!\n");
 	return message;
 }
 
