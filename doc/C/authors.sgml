@@ -1,4 +1,17 @@
 <sect1 id="authors">
-<title>Cronos II Authors</title>
-<para>PLACE HOLDER</para>
+<title>Cronos II Developers</title>
+<para>&app; is brought to you by the following developers:</para>
+<itemizedlist>
+    <listitem><para>Pablo </para><email>&pablo;</email></listitem>
+    <listitem><para>Bosco</para><email>&bosco;</email></listitem> 
+    <listitem><para>Jason</para><email>&jason;</email></listitem>
+    <listitem><para>Marc</para><email>&marc;</email></listitem>
+    <listitem><para>Yves</para><email>&yves</email></listitem> 
+    <listitem><para></para><email></email></listitem> 
+    <listitem><para></para><email></email></listitem> 
+    <listitem><para></para><email></email></listitem> 
+    <listitem><para></para><email></email></listitem> 
+    <listitem><para></para><email></email></listitem> 
+    <listitem><para></para><email></email></listitem>
+</itemizedlist>
 </sect1>
