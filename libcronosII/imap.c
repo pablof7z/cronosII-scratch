@@ -74,7 +74,7 @@ static gint
 c2_imap_plaintext_login (C2IMAP *imap);
 
 static gchar*
-c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name);
+c2_imap_get_mailbox_list(C2IMAP *imap, const gchar *reference, const gchar *name);
 
 static gint
 c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox);
@@ -82,19 +82,19 @@ c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox);
 static gint
 c2_imap_close_mailbox (C2IMAP *imap);
 
-/* Internal Folder Managment */
+/* Internal Mailbox Managment */
 
 static gint
-c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *head);
+c2_imap_mailbox_loop(C2IMAP *imap, C2Mailbox *head);
 
 static guint
-c2_imap_get_folder_level (gchar *name);
+c2_imap_get_mailbox_level (gchar *name);
 
 static gchar *
-c2_imap_get_folder_heirarchy (gchar *name, guint level);
+c2_imap_get_mailbox_heirarchy (gchar *name, guint level);
 
 gchar *
-c2_imap_get_full_folder_name (C2IMAP *imap, C2Mailbox *mailbox);
+c2_imap_get_full_mailbox_name (C2IMAP *imap, C2Mailbox *mailbox);
 
 /* Misc. functions */
 static tag_t
@@ -536,7 +536,7 @@ c2_imap_populate_folders (C2IMAP *imap)
 		c2_mailbox_destroy_tree(imap->mailboxes);
 	imap->mailboxes = NULL; 
 	
-	if(c2_imap_folder_loop(imap, NULL) < 0)
+	if(c2_imap_mailbox_loop(imap, NULL) < 0)
 	{
 		c2_mutex_unlock(&imap->lock);
 		return -1;
@@ -546,7 +546,7 @@ c2_imap_populate_folders (C2IMAP *imap)
 	return 0;
 }
 
-/** c2_imap_folder_loop
+/** c2_imap_mailbox_loop
  * 
  * @imap: a locked C2IMAP Object
  * @parent: C2Mailbox for which to scan under for children,
@@ -560,19 +560,19 @@ c2_imap_populate_folders (C2IMAP *imap)
  * 0 on success, -1 otherwise
  **/
 static gint
-c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
+c2_imap_mailbox_loop(C2IMAP *imap, C2Mailbox *parent)
 {
 	gchar *buf, *ptr, *start, *name;
 	
 	if(parent)
 	{
-		buf = c2_imap_get_full_folder_name(imap, parent);
+		buf = c2_imap_get_full_mailbox_name(imap, parent);
 		name = g_strconcat(buf, "/%", NULL);
 		g_free(buf);
 	}
 	else name = g_strdup("%");
 	
-	if(!(buf = c2_imap_get_folder_list(imap, NULL, name)))
+	if(!(buf = c2_imap_get_mailbox_list(imap, NULL, name)))
 	{
 		g_free(name);
 		return -1;
@@ -641,14 +641,14 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 					else
 						name = g_strndup(ptr2, strlen(ptr2) - 1);
 					folder = c2_mailbox_new_with_parent(&imap->mailboxes,
-							c2_imap_get_folder_heirarchy (name, c2_imap_get_folder_level(name)), 
+							c2_imap_get_mailbox_heirarchy (name, c2_imap_get_mailbox_level(name)), 
 							id, C2_MAILBOX_IMAP, C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap, FALSE);
 					g_free(name);
 					folder->protocol.IMAP.noinferiors = noinferiors;
 					folder->protocol.IMAP.noselect = noselect;
 					folder->protocol.IMAP.marked = marked;
 					if(!folder->protocol.IMAP.noinferiors)
-						if(c2_imap_folder_loop(imap, folder) < 0)
+						if(c2_imap_mailbox_loop(imap, folder) < 0)
 							return -1;
 					num = 0;
 					start = ptr+1;
@@ -662,7 +662,7 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 }
 
 static guint
-c2_imap_get_folder_level (gchar *name)
+c2_imap_get_mailbox_level (gchar *name)
 {
 	gchar *ptr;
 	guint num = 1;
@@ -674,7 +674,7 @@ c2_imap_get_folder_level (gchar *name)
 }
 
 static gchar *
-c2_imap_get_folder_heirarchy (gchar *name, guint level)
+c2_imap_get_mailbox_heirarchy (gchar *name, guint level)
 {
 	gchar *buf = NULL, *start, *end;
 	
@@ -697,7 +697,7 @@ c2_imap_get_folder_heirarchy (gchar *name, guint level)
 	return buf;
 }
 
-/* c2_imap_get_full_folder_name
+/* c2_imap_get_full_mailbox_name
  * @imap: C2IMAP object
  * @mailbox: Mailbox whose name is to be fetched
  * 
@@ -709,7 +709,7 @@ c2_imap_get_folder_heirarchy (gchar *name, guint level)
  * A freeable string of the full name of the mailbox
  **/
 gchar *
-c2_imap_get_full_folder_name (C2IMAP *imap, C2Mailbox *mailbox)
+c2_imap_get_full_mailbox_name (C2IMAP *imap, C2Mailbox *mailbox)
 {
 	C2Mailbox *temp;
 	gint level = c2_mailbox_get_level(mailbox->id);
@@ -742,21 +742,16 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 {
 	/* TODO: 
 	 * 	(done!) (1) Select box
-	 *  (2) Build C2Db linked list according to messages */
-	gint retval = 0;
+	 *  (2) Build C2Db linked list according to messages 
+	 *  (done!) (3) Close box 
+	 **/
 	
-	if(!imap->lock.lock)
-	{
-		c2_mutex_lock(&imap->lock);
-		retval = c2_imap_select_mailbox (imap, mailbox);
-		c2_mutex_unlock(&imap->lock);
-	}
-	else
-		retval = c2_imap_select_mailbox (imap, mailbox);
-
+	if(c2_imap_select_mailbox(imap, mailbox) < 0)
+		return -1;
+	if(c2_imap_close_mailbox(imap) < 0)
+		return -1;
 	
-	if(retval == 0) c2_imap_close_mailbox(imap);
-	return retval;
+	return 0;
 }
 
 /** c2_imap_select_mailbox
@@ -767,13 +762,14 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
  * Performs a 'select' operation on the specified mailbox.
  * 
  * Return Value:
- * Number of mails in the box or -1 on failure
+ * Number of messages in the box or -1 on failure
  **/
 static gint
 c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 {
 	tag_t tag;
 	gchar *reply, *ptr, *name, *line = NULL;
+	gint retval;
 	
 	tag = c2_imap_get_tag(imap);
 	
@@ -783,9 +779,10 @@ c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 		return -1;
 	}
 	
-	if(!(name = c2_imap_get_full_folder_name(imap, mailbox)))
+	if(!(name = c2_imap_get_full_mailbox_name(imap, mailbox)))
 	{
-		c2_imap_set_error(imap, _("Invalid IMAP mailbox"));
+		c2_imap_set_error(imap, _("Invalid IMAP mailbox. Try re-starting CronosII and"
+															" resycning your IMAP mailbox tree."));
 		return -1;
 	}
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d SELECT "
@@ -820,7 +817,7 @@ c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 		}
 	}
 	while(c2_strstr_case_insensitive(line, "EXISTS") == NULL);
-	//printf("EXISTS: %i\n", atoi(line+2));
+	retval = atoi(line+2);
 	g_free(line);
 	
 	imap->state = C2IMAPSelected;
@@ -828,6 +825,18 @@ c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 	return 0;
 }
 
+/**
+ * 
+ * c2_imap_close_mailbox
+ * 
+ * @imap: a locked IMAP object
+ * 
+ * Closes any currently opened (selected) mailbox
+ * on IMAP session @imap.
+ * 
+ * Return Value:
+ * 0 on success, -1 on failure
+ **/
 static gint
 c2_imap_close_mailbox (C2IMAP *imap)
 {
@@ -888,7 +897,7 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	return 0;
 }
 
-/** c2_imap_get_folder_list
+/** c2_imap_get_mailbox_list
  * @imap: a locked C2IMAP object
  * @reference: folder reference
  * @name: folder name or wildcard
@@ -901,7 +910,7 @@ c2_imap_plaintext_login (C2IMAP *imap)
  * A freeable string of the LIST reply.
  **/
 static gchar*
-c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name)
+c2_imap_get_mailbox_list(C2IMAP *imap, const gchar *reference, const gchar *name)
 {
 	tag_t tag;
 	gchar *reply;
@@ -929,33 +938,29 @@ c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name)
 }
 
 /**
- * c2_imap_create_folder
- * @imap: The IMAP object.
- * @reference: An parent folder, or NULL for top-level folders
+ * c2_imap_create_mailbox
+ * @imap: A locked IMAP object.
+ * @parent: A parent mailbox, or NULL for top-level folders
  * @name: Name of folder we want to delete
  *
- * This function will create the folder
- * @reference/@name
+ * This function will create the mailbox @name
  * 
  * Return Value:
  * The new C2Mailbox on success, NULL on failure
  **/
 gboolean
-c2_imap_create_folder(C2IMAP *imap, C2Mailbox *parent, const gchar *name)
+c2_imap_create_mailbox(C2IMAP *imap, C2Mailbox *parent, const gchar *name)
 {
 	gchar *reply, *buf = NULL;
 	tag_t tag;
 
-	c2_mutex_lock(&imap->lock);
-
 	tag = c2_imap_get_tag(imap);
 
-	if(parent) buf = c2_imap_get_full_folder_name(imap, parent);
+	if(parent) buf = c2_imap_get_full_mailbox_name(imap, parent);
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d CREATE "
 		"\"%s%s%s\"\r\n", tag, buf ? buf : "", buf ? "/" : "", name) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		c2_mutex_unlock(&imap->lock);
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		g_free(buf);
 		return FALSE;
@@ -963,12 +968,7 @@ c2_imap_create_folder(C2IMAP *imap, C2Mailbox *parent, const gchar *name)
 	g_free(buf);
 	
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
-	{
-		c2_mutex_unlock(&imap->lock);
 		return FALSE;
-	}
-	
-	c2_mutex_unlock(&imap->lock);
 	
 	if(!c2_imap_check_server_reply(reply, tag))
 	{
@@ -981,8 +981,8 @@ c2_imap_create_folder(C2IMAP *imap, C2Mailbox *parent, const gchar *name)
 }
 
 /**
- * c2_imap_delete_folder
- * @imap: The IMAP object.
+ * c2_imap_delete_mailbox
+ * @imap: A locked IMAP object.
  * @name: Name of folder we want to delete
  *
  * This function will delete the specified IMAP
@@ -991,46 +991,37 @@ c2_imap_create_folder(C2IMAP *imap, C2Mailbox *parent, const gchar *name)
  * Return Value:
  * 0 on success, -1 on failure
  **/
-gint
-c2_imap_delete_folder(C2IMAP *imap, C2Mailbox *mailbox)
+gboolean
+c2_imap_delete_mailbox(C2IMAP *imap, C2Mailbox *mailbox)
 {
 	gchar *reply, *name;
 	tag_t tag;
 	
-	c2_mutex_lock(&imap->lock);
-	
 	tag = c2_imap_get_tag(imap);
 	
-	name = c2_imap_get_full_folder_name(imap, mailbox);
+	name = c2_imap_get_full_mailbox_name(imap, mailbox);
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d DELETE "
 					"\"%s\"\r\n", tag, name) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
-		c2_mutex_unlock(&imap->lock);
 		g_free(name);
-		return -1;
+		return FALSE;
 	}
 	g_free(name);
 	
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
-	{
-		c2_mutex_unlock(&imap->lock);
-		return -1;
-	}
+		return FALSE;
 	
 	if(!c2_imap_check_server_reply(reply, tag))
 	{	
 		c2_imap_set_error(imap, reply + C2TagLen + 3);
-		c2_mutex_unlock(&imap->lock);
 		g_free(reply);
-		return -1;
+		return FALSE;
 	}
 	g_free(reply);
 	
-	c2_mutex_unlock(&imap->lock);
-	
-	return 0;
+	return TRUE;
 }
 
 /**
@@ -1055,7 +1046,7 @@ c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
 	
 	tag = c2_imap_get_tag(imap);
 	
-	oldname = c2_imap_get_full_folder_name(imap, mailbox);
+	oldname = c2_imap_get_full_mailbox_name(imap, mailbox);
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d RENAME "
 				"\"%s\" \"%s\"\r\n", oldname, name) < 0)
 	{

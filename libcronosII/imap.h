@@ -133,15 +133,15 @@ gint
 c2_imap_populate_folders					(C2IMAP *imap);
 
 gboolean
-c2_imap_create_folder						(C2IMAP *imap, C2Mailbox *parent, const gchar *name);
+c2_imap_create_mailbox					(C2IMAP *imap, C2Mailbox *parent, const gchar *name);
 
-gint
-c2_imap_delete_folder						(C2IMAP *imap, C2Mailbox *mailbox);
+gboolean
+c2_imap_delete_mailbox						(C2IMAP *imap, C2Mailbox *mailbox);
 	
 gint
-c2_imap_rename_folder						(C2IMAP *imap, C2Mailbox *mailbox, gchar *name);
+c2_imap_rename_mailbox					(C2IMAP *imap, C2Mailbox *mailbox, gchar *name);
 	
-gint
+gboolean
 c2_imap_load_mailbox						(C2IMAP *imap, C2Mailbox *mailbox);
 
 gchar *

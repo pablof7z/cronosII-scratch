@@ -27,13 +27,16 @@ c2_db_imap_create_structure (C2Mailbox *mailbox)
 {
 	gchar *temp;
 	C2Mailbox *parent;
+	C2IMAP *imap = mailbox->protocol.IMAP.imap;
 	gboolean return_val;
 	
 	temp = c2_mailbox_get_parent_id(mailbox->id);
-	parent = c2_mailbox_get_by_id(mailbox->protocol.IMAP.imap->mailboxes, temp);
+	parent = c2_mailbox_get_by_id(imap->mailboxes, temp);
 	
+	c2_mutex_lock(&imap->lock);
 	return_val = 
-		c2_imap_create_folder(mailbox->protocol.IMAP.imap, parent, mailbox->name);
+		c2_imap_create_mailbox(imap, parent, mailbox->name);
+	c2_mutex_unlock(&imap->lock);
 	
 	g_free(temp);
 	return return_val;
@@ -48,13 +51,28 @@ c2_db_imap_update_structure (C2Mailbox *mailbox)
 gboolean
 c2_db_imap_remove_structure (C2Mailbox *mailbox)
 {
-	return c2_imap_delete_folder(mailbox->protocol.IMAP.imap, mailbox);
+	C2IMAP *imap = mailbox->protocol.IMAP.imap;
+	gboolean retval;
+	
+	c2_mutex_lock(&imap->lock);
+	retval = c2_imap_delete_mailbox(imap, mailbox);
+	c2_mutex_unlock(&imap->lock);
+	
+	return retval;
 }
 
 gint
 c2_db_imap_load (C2Mailbox *mailbox)
 {
-	return c2_imap_load_mailbox(mailbox->protocol.IMAP.imap, mailbox);
+	C2IMAP *imap = mailbox->protocol.IMAP.imap;
+	gint retval, trylock;
+	
+	trylock = c2_mutex_trylock(&imap->lock);
+	retval = c2_imap_load_mailbox(mailbox->protocol.IMAP.imap, mailbox);
+	if(trylock == 0)
+		c2_mutex_unlock(&imap->lock);
+	
+	return retval;
 }
 
 void
