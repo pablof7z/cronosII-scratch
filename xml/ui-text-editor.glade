@@ -268,6 +268,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>button7</name>
+	  <tooltip>close editor</tooltip>
 	  <label>Quit</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_EXIT</stock_pixmap>
 	  <child>
@@ -327,6 +328,7 @@
   <class>GnomeAbout</class>
   <name>dlg_about</name>
   <modal>True</modal>
+  <logo>cronosII.png</logo>
   <copyright>Copyright 2000 Pablo Fernández Navarro</copyright>
   <authors>Pablo Fernández Navarro
 </authors>

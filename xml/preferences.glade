@@ -41,20 +41,21 @@
       <class>GnomeDruidPageStart</class>
       <name>druidpagestart1</name>
       <title>New Account Wizard</title>
-      <text>Cronos II supports several identities through the usage of different
+      <text>Cronos II supports several identities through the use of different
 mail accounts.
 
 This wizard will guide you in the setting up of your new mail account.
 
-If you need help with some field in this wizard, just leave your pointer
-for a few seconds over it and a little help will pop up.
-For further help you can use the help manual, accessible from the
+If you need help with some field in this wizard, leave your pointer
+over that area  and a little help will pop up.
+For more extensive help use the help manual, accessible from the
 Help menu.</text>
       <title_color>255,255,255</title_color>
       <text_color>0,0,0</text_color>
       <background_color>25,25,112</background_color>
       <logo_background_color>25,25,112</logo_background_color>
       <textbox_color>255,255,255</textbox_color>
+      <logo_image>cronosII.png</logo_image>
     </widget>
 
     <widget>
@@ -121,7 +122,7 @@ Help menu.</text>
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>person_name</name>
-	    <tooltip>This is the name that will identify this account in outgoing messages.</tooltip>
+	    <tooltip>This is the name that will identify you for this account in outgoing messages.</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -172,7 +173,7 @@ Help menu.</text>
 	  <widget>
 	    <class>GtkLabel</class>
 	    <name>label50</name>
-	    <label>Person Name:</label>
+	    <label>Your Name or Alias:</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
 	    <xalign>1</xalign>
@@ -222,7 +223,7 @@ Help menu.</text>
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>reply_to</name>
-	    <tooltip>Required if you want mail sent back to a different address.</tooltip>
+	    <tooltip>Required only if you want mail sent back to a different address.</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -272,7 +273,7 @@ Help menu.</text>
 	  <widget>
 	    <class>GtkLabel</class>
 	    <name>label84</name>
-	    <label>Organization:</label>
+	    <label>Organisation:</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
 	    <xalign>1</xalign>
@@ -745,8 +746,9 @@ Help menu.</text>
 	  <widget>
 	    <class>GtkCheckButton</class>
 	    <name>leave_messages</name>
+	    <tooltip>Prevents the mail being removed from your mailbox at the server.</tooltip>
 	    <can_focus>True</can_focus>
-	    <label>Leave downloaded messages in server.</label>
+	    <label>Leave downloaded messages at server.</label>
 	    <active>False</active>
 	    <draw_indicator>True</draw_indicator>
 	    <child>
@@ -1203,7 +1205,7 @@ Please choose another.</message>
   <name>dlg_account_new_error_wrong_email</name>
   <visible>False</visible>
   <message_box_type>GNOME_MESSAGE_BOX_ERROR</message_box_type>
-  <message>The E-Mail address you
+  <message>The E-Mail address 
 entered is not valid.</message>
   <title>Error</title>
   <position>GTK_WIN_POS_CENTER</position>
@@ -2187,7 +2189,7 @@ Are you sure you want this?</message>
 		      <class>GtkCheckButton</class>
 		      <name>general_options_exit_expunge</name>
 		      <can_focus>True</can_focus>
-		      <label>Expunge mails in Garbage mailbox.</label>
+		      <label>Empty Garbage. (expunge garbage mailbox)</label>
 		      <active>False</active>
 		      <draw_indicator>True</draw_indicator>
 		      <child>
@@ -2233,7 +2235,7 @@ Are you sure you want this?</message>
 		    <widget>
 		      <class>GtkLabel</class>
 		      <name>label107</name>
-		      <label>Mark messages as readed after</label>
+		      <label>Mark messages as read after</label>
 		      <justify>GTK_JUSTIFY_CENTER</justify>
 		      <wrap>False</wrap>
 		      <xalign>0.5</xalign>
@@ -2326,7 +2328,7 @@ Are you sure you want this?</message>
 		      <update_policy>GTK_UPDATE_ALWAYS</update_policy>
 		      <snap>False</snap>
 		      <wrap>False</wrap>
-		      <value>1</value>
+		      <value>10</value>
 		      <lower>0</lower>
 		      <upper>100</upper>
 		      <step>1</step>
@@ -2382,7 +2384,7 @@ Are you sure you want this?</message>
 		    <class>GtkCheckButton</class>
 		    <name>general_options_incoming_warn</name>
 		    <can_focus>True</can_focus>
-		    <label>Let know the user.</label>
+		    <label>Inform User of incoming mail</label>
 		    <active>False</active>
 		    <draw_indicator>True</draw_indicator>
 		    <child>
@@ -2451,7 +2453,7 @@ Are you sure you want this?</message>
 		      <update_policy>GTK_UPDATE_ALWAYS</update_policy>
 		      <snap>False</snap>
 		      <wrap>False</wrap>
-		      <value>1</value>
+		      <value>72</value>
 		      <lower>0</lower>
 		      <upper>100</upper>
 		      <step>1</step>
@@ -3609,7 +3611,7 @@ Are you sure you want this?</message>
 	  <widget>
 	    <class>GtkFrame</class>
 	    <name>frame26</name>
-	    <label>Font by occation</label>
+	    <label>Font by message Status</label>
 	    <label_xalign>0</label_xalign>
 	    <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
 	    <child>
@@ -3631,7 +3633,7 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GtkLabel</class>
 		<name>label137</name>
-		<label>Readed mails:</label>
+		<label>Read mails:</label>
 		<justify>GTK_JUSTIFY_CENTER</justify>
 		<wrap>False</wrap>
 		<xalign>0</xalign>
@@ -3657,7 +3659,7 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GtkLabel</class>
 		<name>label138</name>
-		<label>Unreaded mails:</label>
+		<label>Unread mails:</label>
 		<justify>GTK_JUSTIFY_CENTER</justify>
 		<wrap>False</wrap>
 		<xalign>0</xalign>
@@ -3683,7 +3685,7 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GtkLabel</class>
 		<name>label139</name>
-		<label>Unreaded mailbox:</label>
+		<label>Unread mailbox:</label>
 		<justify>GTK_JUSTIFY_CENTER</justify>
 		<wrap>False</wrap>
 		<xalign>0</xalign>
@@ -3709,9 +3711,9 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GnomeFontPicker</class>
 		<name>interface_fonts_readed_mails</name>
-		<tooltip>Font to be used for listing mails that have been opened.</tooltip>
+		<tooltip>Font to be used for listing opened mail.</tooltip>
 		<can_focus>True</can_focus>
-		<title>Select font for readed mais</title>
+		<title>Select font for read mais</title>
 		<preview_text>Pablo was in Paris.</preview_text>
 		<mode>GNOME_FONT_PICKER_MODE_FONT_INFO</mode>
 		<show_size>False</show_size>
@@ -3736,9 +3738,9 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GnomeFontPicker</class>
 		<name>fontpicker2</name>
-		<tooltip>Font to be used for listing mails that have not been opened.</tooltip>
+		<tooltip>Font to be used for listing unopened mail.</tooltip>
 		<can_focus>True</can_focus>
-		<title>Select font for unreaded mails</title>
+		<title>Select font for unread mails</title>
 		<preview_text>Pablo was in Vienn.</preview_text>
 		<mode>GNOME_FONT_PICKER_MODE_FONT_INFO</mode>
 		<show_size>False</show_size>
@@ -3763,10 +3765,10 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GnomeFontPicker</class>
 		<name>fontpicker3</name>
-		<tooltip>Font to be used for listing mailbox that have unreaded mails in it.</tooltip>
+		<tooltip>Font to be used for listing mailboxes that have unread mails in them.</tooltip>
 		<can_focus>True</can_focus>
-		<title>Select font for unreaded mailbox</title>
-		<preview_text>Pablo was in Rome.</preview_text>
+		<title>Select font for unread mailbox</title>
+		<preview_text>Pablo was in Rome. Yves drank some wine.</preview_text>
 		<mode>GNOME_FONT_PICKER_MODE_FONT_INFO</mode>
 		<show_size>False</show_size>
 		<use_font>True</use_font>
@@ -3851,7 +3853,7 @@ Are you sure you want this?</message>
 		<class>GtkRadioButton</class>
 		<name>interface_html_images_partial_download</name>
 		<can_focus>True</can_focus>
-		<label>Download if remitent is in address book.</label>
+		<label>Download if sender is in address book.</label>
 		<active>False</active>
 		<draw_indicator>True</draw_indicator>
 		<group>interface_html_images</group>
@@ -3931,7 +3933,7 @@ Are you sure you want this?</message>
 		<class>GtkRadioButton</class>
 		<name>interface_html_links_internal</name>
 		<can_focus>True</can_focus>
-		<label>Open using internal browser.</label>
+		<label>Open using CronosII internal browser.</label>
 		<active>False</active>
 		<draw_indicator>True</draw_indicator>
 		<group>interface_html_links</group>
@@ -3946,7 +3948,7 @@ Are you sure you want this?</message>
 		<class>GtkRadioButton</class>
 		<name>interface_html_links_mailto</name>
 		<can_focus>True</can_focus>
-		<label>Do not open unless is a &quot;mailto:&quot; link.</label>
+		<label>Open on &quot;mailto:&quot; links only.</label>
 		<active>False</active>
 		<draw_indicator>True</draw_indicator>
 		<group>interface_html_links</group>
@@ -4047,7 +4049,7 @@ Are you sure you want this?</message>
 		  <editable>True</editable>
 		  <text_visible>True</text_visible>
 		  <text_max_length>0</text_max_length>
-		  <text></text>
+		  <text>&gt;</text>
 		  <child>
 		    <padding>0</padding>
 		    <expand>False</expand>
@@ -4070,7 +4072,7 @@ Are you sure you want this?</message>
 		<widget>
 		  <class>GtkLabel</class>
 		  <name>label143</name>
-		  <label>Highlight with color	</label>
+		  <label>Highlight colour</label>
 		  <justify>GTK_JUSTIFY_CENTER</justify>
 		  <wrap>False</wrap>
 		  <xalign>0.5</xalign>
@@ -4087,6 +4089,7 @@ Are you sure you want this?</message>
 		<widget>
 		  <class>GnomeColorPicker</class>
 		  <name>interface_composer_quote_color</name>
+		  <tooltip>launch colour chooser</tooltip>
 		  <can_focus>True</can_focus>
 		  <dither>True</dither>
 		  <use_alpha>False</use_alpha>
@@ -4168,6 +4171,7 @@ Are you sure you want this?</message>
 		  <items>gnome-edit
 gvim
 emacs
+xemacs
 gnp
 gedit
 abiword
