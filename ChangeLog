@@ -1,5 +1,10 @@
+Sat Jun  1 Pablo Fernández <sandokan at pablossite dot net>
+	* Fixed a compilation time bug (gcc 3 (I'm starting to hate
+	  that version!)).
+
 Fri May 31 Pablo Fernández <sandokan at pablossite dot net>
 	* Fixed a bug for the GtkText code.
+	* Applied patchs sent by Ben Hines.
 
 Thu May 30 Pablo Fernández <sandokan at pablossite dot net>
 	* Applied a patch by Geronimo Poppino.

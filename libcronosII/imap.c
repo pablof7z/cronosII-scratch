@@ -1792,7 +1792,7 @@ c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState *state)
 	 case C2_MESSAGE_FORWARDED:
 		cmd = g_strdup("+FLAGS.SILENT (\"\\Forwarded\")");
 		break;
-	 case NULL:
+	 case '\0': /* Pointer with no data = NULL, *pointer with no data = 0 !!!! */
 		if(db->mark)
 			cmd = g_strdup("-FLAGS.SILENT (\\Flagged)");
 		else

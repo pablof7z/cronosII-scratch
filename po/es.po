@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Cronos II 0.0.3\n"
-"POT-Creation-Date: 2002-05-30 22:06+0200\n"
+"POT-Creation-Date: 2002-05-31 21:26+0200\n"
 "PO-Revision-Date: 2001-08-07 00:25-0300\n"
 "Last-Translator: Pablo Fernández <sandokan@cronosII.org>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -221,7 +221,7 @@ msgstr ""
 msgid "Critical Internal Error: Writing to Mutex Pipe\n"
 msgstr ""
 
-#: libcronosII/utils.c:1561
+#: libcronosII/utils.c:1560
 msgid "Bad syntaxes, quotes aren't closed.\n"
 msgstr ""
 
