@@ -503,9 +503,11 @@ this mailbox?", 408},
   {"Try this new information", 425},
   {"Account:", 426},
   {"\
-The server has rejected the password\n\
-set for this account. \n\
-Please enter the correct information here.", 427},
+The server has rejected the username/password\n\
+combination: 'invalid username/password'.\n\
+\n\
+Provide the correct information for logging in\n\
+in the following fields.", 427},
   {"Getting in Touch", 428},
   {"Close this dialog", 429},
   {"\

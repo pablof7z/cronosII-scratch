@@ -198,45 +198,6 @@
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
-	      <name>file_persistent_smtp</name>
-	      <label>Persistent _SMTP</label>
-	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_REFRESH</stock_icon>
-
-	      <widget>
-		<class>GtkMenu</class>
-		<name>file_persistent_smtp_menu</name>
-
-		<widget>
-		  <class>GtkPixmapMenuItem</class>
-		  <name>file_persistent_smtp_connect</name>
-		  <signal>
-		    <name>activate</name>
-		    <handler>on_persistent_smtp_connect_activate</handler>
-		    <last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
-		  </signal>
-		  <label>_Connect</label>
-		  <right_justify>False</right_justify>
-		  <stock_icon>GNOME_STOCK_MENU_HOME</stock_icon>
-		</widget>
-
-		<widget>
-		  <class>GtkPixmapMenuItem</class>
-		  <name>file_persistent_smtp_disconnect</name>
-		  <signal>
-		    <name>activate</name>
-		    <handler>on_persistent_smtp_disconnect_activate</handler>
-		    <last_modification_time>Wed, 08 Aug 2001 18:25:27 GMT</last_modification_time>
-		  </signal>
-		  <label>_Disconnect</label>
-		  <right_justify>False</right_justify>
-		  <stock_icon>GNOME_STOCK_MENU_STOP</stock_icon>
-		</widget>
-	      </widget>
-	    </widget>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
 	      <name>file_send_unsent_mails</name>
 	      <accelerator>
 		<modifiers>0</modifiers>
@@ -499,7 +460,7 @@
 	      </accelerator>
 	      <label>_Reply</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_MAIL_RPL</stock_icon>
+	      <icon>reply.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -512,7 +473,7 @@
 	      </accelerator>
 	      <label>Reply _all</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_MAIL_RPL</stock_icon>
+	      <icon>reply.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -525,7 +486,7 @@
 	      </accelerator>
 	      <label>_Forward</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_MAIL_FWD</stock_icon>
+	      <icon>forward.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -545,7 +506,7 @@
 	      </accelerator>
 	      <label>_Copy</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_COPY</stock_icon>
+	      <icon>copy.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -559,7 +520,7 @@
 	      </accelerator>
 	      <label>_Move</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_JUMP_TO</stock_icon>
+	      <icon>move.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -658,7 +619,7 @@
 		  </accelerator>
 		  <label>_Read</label>
 		  <right_justify>False</right_justify>
-		  <stock_icon>GNOME_STOCK_MENU_BLANK</stock_icon>
+		  <icon>read.xpm</icon>
 		</widget>
 
 		<widget>
@@ -804,15 +765,20 @@
 	      </accelerator>
 	      <label>_User Manual</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_BLANK</stock_icon>
+	      <stock_icon>GNOME_STOCK_MENU_BOOK_GREEN</stock_icon>
 	    </widget>
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>help_quick_tips</name>
+	      <accelerator>
+		<modifiers>0</modifiers>
+		<key>GDK_F2</key>
+		<signal>activate</signal>
+	      </accelerator>
 	      <label>_Quick Tips</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_BLANK</stock_icon>
+	      <stock_icon>GNOME_STOCK_MENU_BOOK_RED</stock_icon>
 	    </widget>
 
 	    <widget>
@@ -848,6 +814,19 @@
 		<last_modification_time>Thu, 03 May 2001 03:40:20 GMT</last_modification_time>
 	      </signal>
 	      <stock_item>GNOMEUIINFO_MENU_ABOUT_ITEM</stock_item>
+	    </widget>
+
+	    <widget>
+	      <class>GtkPixmapMenuItem</class>
+	      <name>help_about_plugins</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_help_about_plugins_activate</handler>
+		<last_modification_time>Fri, 14 Sep 2001 16:48:44 GMT</last_modification_time>
+	      </signal>
+	      <label>About _Plugins</label>
+	      <right_justify>False</right_justify>
+	      <stock_icon>GNOME_STOCK_MENU_ABOUT</stock_icon>
 	    </widget>
 	  </widget>
 	</widget>
