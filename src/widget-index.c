@@ -374,16 +374,13 @@ c2_index_add_mailbox (C2Index *index, C2Mailbox *mbox)
 		} while (c2_db_lineal_next (db));
 	}
 
-	gtk_clist_thaw (clist);
 	index->mbox = mbox;
 
 	selected_mail = get_selected_mail (index);
-	printf ("Selected mail is %d\n", selected_mail);
 	if (selected_mail < 0)
-	{
-		printf ("Since is < 0, I'm going to use %d\n", clist->rows-1);
 		selected_mail = GTK_CLIST (index)->rows-1;
-	}
+
+	gtk_clist_thaw (clist);
 	gtk_clist_select_row (clist, selected_mail, 5);
 }
 
@@ -405,7 +402,6 @@ get_selected_mail (C2Index *index)
 
 	i = gtk_object_get_data (GTK_OBJECT (mailbox), SELECTED_MAIL);
 
-	printf ("Getting selected to %d (%d)\n", GPOINTER_TO_INT (i)-1, i ? TRUE : FALSE);
 	if (!i)
 		return -1;
 
@@ -417,7 +413,6 @@ set_selected_mail (C2Index *index, gint i)
 {
 	C2Mailbox *mailbox = index->mbox;
 
-	printf ("Setting selected to %d\n", i+1);
 	gtk_object_set_data (GTK_OBJECT (mailbox), SELECTED_MAIL, (gpointer) i+1);
 }
 
@@ -432,12 +427,32 @@ c2_index_sort (C2Index *index)
 static void
 select_row (C2Index *index, gint row, gint column, GdkEvent *event)
 {
+	GtkVisibility visibility;
+	GtkCList *clist = GTK_CLIST (index);
 	C2Db *node;
+	gint top;
 	
 	/* Get the Db node */
 	if ((node = C2_DB (gtk_clist_get_row_data (GTK_CLIST (GTK_WIDGET (index)), row))))
 		gtk_signal_emit (GTK_OBJECT (index), signals[SELECT_MESSAGE], node);
 	set_selected_mail (index, row);
+
+	/* Now scroll */
+	visibility = gtk_clist_row_is_visible (clist, row);
+
+	switch (visibility)
+	{
+		case GTK_VISIBILITY_NONE:
+			gtk_clist_moveto (clist, row, -1, 0.5, 0);
+			break;
+		case GTK_VISIBILITY_PARTIAL:
+			top = ((clist->row_height * row) + ((row + 1) * 1) + clist->voffset);
+			
+			if ((top < 0))
+				gtk_clist_moveto (clist, row, -1, 0.2, 0);
+			else
+				gtk_clist_moveto (clist, row, -1, 0.8, 0);
+	}
 }
 
 static void

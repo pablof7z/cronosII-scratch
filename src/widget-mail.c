@@ -305,11 +305,11 @@ html_link_manager_cid (C2HTML *html, const gchar *url, C2Pthread2 *data)
 	if (!mime)
 		return;
 
-	tmpfile = c2_get_tmp_file ();
+	tmpfile = c2_get_tmp_file (NULL);
 	if (!(fd = fopen (tmpfile, "w")))
 	{
 		c2_error_set (-errno);
-		g_warning ("Unable to write to tmpfile %s: %d\n", tmpfile, c2_error_get (c2_errno));
+		g_warning ("Unable to write to tmpfile %s: %d\n", tmpfile, c2_error_get ());
 		g_free (tmpfile);
 	} else
 	{

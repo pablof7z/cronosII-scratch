@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#ifdef USE_GTKXMHTMLd
+#ifdef USE_GTKXMHTML
 
 #include <gnome.h>
 #include <glade/glade.h>
@@ -52,11 +52,12 @@ on_gtkxmhtml_image_load_pthread_request_disconnect (C2Request *request, gboolean
 		 * 1. Get a tmpfile path.
 		 * 2. Save the image.
 		 * 3. Load the image. */
-		tmpfile = c2_get_tmp_file ();
+		tmpfile = c2_get_tmp_file (NULL);
 		if (!(fd = fopen (tmpfile, "w")))
 		{
 #ifdef USE_DEBUG
-			g_print ("Unable to open to %s: %s\n", tmpfile, c2_error_get (-errno));
+			c2_error_set (-errno);
+			g_print ("Unable to open to %s: %s\n", tmpfile, c2_error_get ());
 #endif
 			gdk_threads_enter ();
 			new_image = XmHTMLImageDefaultProc (widget, DATADIR "/Cronos II/pixmaps/no-image.png", NULL, 0);
