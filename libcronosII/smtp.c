@@ -203,7 +203,7 @@ c2_smtp_send_message (C2Smtp *smtp, C2Message *message)
 		if(c2_smtp_local_write_msg(message, file_name) < 0) 
 		{
 			g_free(file_name);
-			smtp_set_error(smtp, _("System Error: Unable to write message to disk for local SMTP command"));
+			c2_smtp_set_error(smtp, _("System Error: Unable to write message to disk for local SMTP command"));
 			pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
@@ -212,7 +212,7 @@ c2_smtp_send_message (C2Smtp *smtp, C2Message *message)
 		if(!(from = c2_message_get_header_field(message, "From: ")) || 
 			!(to = c2_smtp_local_get_recepients(message)))
 		{
-			smtp_set_error(smtp, _("Internal C2 Error: Unable to fetch headers in email message"));
+			c2_smtp_set_error(smtp, _("Internal C2 Error: Unable to fetch headers in email message"));
 			unlink(file_name);
 			if(from) g_free(from);
 			g_free(file_name);
@@ -236,7 +236,7 @@ c2_smtp_send_message (C2Smtp *smtp, C2Message *message)
 		/* FINALLY execute the command :-) */
 		if(execl(cmd, NULL) < 0)
 		{
-			smtp_set_error(smtp, _("Problem running local SMTP command to send messages -- Check SMTP settings"));
+			c2_smtp_set_error(smtp, _("Problem running local SMTP command to send messages -- Check SMTP settings"));
 			unlink(file_name);
 			g_free(file_name);
 			g_free(cmd);
