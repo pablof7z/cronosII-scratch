@@ -1,9 +1,11 @@
 This file is to explain the emoticons:
 All images created with gimp at 16 pixels by 16 pixels.
 Each image saved in xpm and png for GTK and Gnome use.
+***No longer is xpm built by default however if we move away (back) to a pure gtk appthen we will need to convert these to xpm at least until gtk2 is stable.***
 Images built from the ASCII string with some small modifications for clarity only.
 (no art involved here)
 I checked the emoticons at various sites about the net. " google emoticons".
+please see the change log for the latest news.
 
 File		=	ASCII string
 emoticon-angry	=	>:<
