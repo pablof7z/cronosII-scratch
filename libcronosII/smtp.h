@@ -99,6 +99,7 @@ struct _C2SMTP
 	gchar *user, *pass;
 	gchar *smtp_local_cmd;
 
+	C2NetObjectByte *persistent; /* for persistent connections */
 	gint flags;
 	
 	pthread_mutex_t lock;
