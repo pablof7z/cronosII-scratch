@@ -72,6 +72,10 @@ static void
 on_smtp_smtp_update							(C2SMTP *smtp, gint id,
 											 guint length, guint bytes, C2TransferItem *ti);
 
+static void
+on_smtp_finished							(C2SMTP *smtp, gint id,
+											 gboolean success, C2TransferItem *ti);
+
 enum
 {
 	STATE_CHANGED,
@@ -421,6 +425,8 @@ c2_transfer_item_start (C2TransferItem *ti)
 							GTK_SIGNAL_FUNC (on_smtp_resolve), ti);*/
 		gtk_signal_connect (GTK_OBJECT (ti->type_info.send.smtp), "smtp_update",
 							GTK_SIGNAL_FUNC (on_smtp_smtp_update), ti);
+		gtk_signal_connect (GTK_OBJECT (ti->type_info.send.smtp), "finished",
+							GTK_SIGNAL_FUNC (on_smtp_finished), ti);
 
 		gtk_progress_set_show_text (GTK_PROGRESS (ti->progress_mail), TRUE);
 		gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Resolving"));
@@ -642,7 +648,7 @@ on_pop3_disconnect (GtkObject *object, gboolean success, C2NetObjectByte *byte, 
 	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
 	gdk_threads_leave ();
 
-//	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
+	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
 }
 
 static void
@@ -666,9 +672,28 @@ on_smtp_smtp_update (C2SMTP *smtp, gint id, guint length, guint bytes, C2Transfe
 
 	gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), bytes);
 
-	if (bytes == length)
+	gdk_threads_leave ();
+}
+
+static void
+on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
+{
+	C2TransferItem *_ti;
+	
+	gdk_threads_enter ();
+	if (!(_ti = smtp_get_ti_from_id (ti, id)))
 	{
-		gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Completed"));
+		gdk_threads_leave ();
+		return;
 	}
+	
+	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail),
+									success ? _("Completed") : _("Failed"));
+	gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
+	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
+
+	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
+
+	/* Move the message from «Outbox» to «Sent Items» */
 	gdk_threads_leave ();
 }

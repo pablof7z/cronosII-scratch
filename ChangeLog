@@ -1,5 +1,8 @@
 Mon Nov 05 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Undo & Redo are working.
+	* Changes in order to use the new finished signal of the SMTP module.
+	* Changes in order to use the old finish signal of the Transfer Item
+	  widget.
 
 Sun Nov 04 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Little changes to the mailbox module requested by Bosko.
