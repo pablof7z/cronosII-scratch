@@ -1,6 +1,214 @@
 <sect1 id="preferences">
 <title>Preferences</title>
 <para>The Preferences Dialog is opened from the<guimenuitem> Menu Bar</guimenuitem> on the Main Window.</para>
+<informalexample>
+<para>
+Settings => Preferences
+</para>
+</informalexample>
+<para>Open the Preference Dialog to access all configuration items for &app; 
+</para>
+<para>The Dialog initially presents you with clickable buttons in the left hand column. Select the area you wish to work on and a graphical  menu will open. Choose the area you need to configure  and the appropriate interface will open in the larger work area .</para>
+<para>The first item needed to be set up is : <link linkend="general-accounts">Accounts</link></para>
+<itemizedlist>
+   <listitem><para><link linkend="general">General</link></para></listitem>
+<listitem>    <itemizedlist>
+     <listitem><para><link linkend="general-options">Options</link></para></listitem>
+     <listitem><para><link linkend="general-accounts">Accounts</link></para></listitem>
+     <listitem><para><link linkend="general-paths">Paths</link></para></listitem> 
+     <listitem><para><link linkend="general-plugins">Plugins</link></para></listitem>  
+    </itemizedlist> </listitem>
+   <listitem><para><link linkend="interface">Interface</link></para></listitem>
+   <listitem> <itemizedlist>
+     <listitem><para><link linkend="interface-fonts">Fonts</link></para></listitem>
+     <listitem><para><link linkend="interface-html">HTML</link></para></listitem>
+     <listitem><para><link linkend="interface-composer">Composer</link></para></listitem> 
+     <listitem><para><link linkend="interface-miscellaneous">Miscellaneous</link></para></listitem>  
+    </itemizedlist></listitem>
+ <listitem><para><link linkend="advanced">Advanced</link></para></listitem>
+    <listitem><itemizedlist>
+     <listitem><para><link linkend="advanced-miscellaneous">Miscellaneous</link></para></listitem>
+     <listitem><para></para></listitem>
+     <listitem><para></para></listitem> 
+     <listitem><para></para></listitem>  
+    </itemizedlist> </listitem>   
+</itemizedlist>
+
+<sect2 id="general">
+<title>General  Options</title>
+<informalexample>
+<para>Settings => Preferences => General 
+</para></informalexample>
+<para>Here you configure required and other  major options. 
+</para>
+
+ <itemizedlist>
+     <listitem><para><link linkend="general-options">Options</link></para></listitem>
+     <listitem><para><link linkend="general-accounts">Accounts</link></para></listitem>
+     <listitem><para><link linkend="general-paths">Paths</link></para></listitem> 
+     <listitem><para><link linkend="general-plugins">Plugins</link></para></listitem>  
+    </itemizedlist> 
+
+<sect3 id="general-options">
+<title>Running  Options</title>
+<informalexample>
+<para>
+Settings => Preferences => General => Options
+</para>
+</informalexample>
+<para>
+The dialog gives an interface to set some useful general running options, arranged in five broad areas:
+<itemizedlist>
+	 <listitem><para><link linkend="options-startup">Start Up Actions</link></para></listitem>
+	  <listitem><para><link linkend="options-exit">Exit Actions</link></para></listitem>
+	 <listitem><para><link linkend="options-timeout">Timeouts</link></para></listitem> 
+	 <listitem><para><link linkend="options-incoming">Incoming</link></para></listitem>
+	  <listitem><para><link linkend="options-outgoing">Outgoing</link></para></listitem>
+</itemizedlist>
+</para>
+
+<sect4  id="options-startup">
+<title>Startup</title>
+<para>The top left section of the dialog contains two "toggles" . If you want &app; to check for mail automatically at startup and load all mailboxes check the appropriate button.
+</para>
+</sect4>
+
+<sect4 id="options-exit">
+<title>Exit</title>
+<para>On the top right hand side of the preferences dialog you find a toggle for actions to take when &app; shuts down. Currently there is only the choice to empty the garbage or not.
+</para>
+<para>Select this button to clean out deleted mail from the garbage mailbox. </para>
+</sect4>
+
+<sect4 id="options-timeout">
+<title>Timeouts</title>
+<para>The Timeouts Section of the preferences dialog contains two small scrollable entry areas. These are for setting the length of time &app; will wait before:</para>
+
+	    <para>Marking any selected mail as having been read.</para>
+	    <para>Checking any active, configured accounts for new mail.</para>
+
+
+</sect4>
+
+<sect4 id="options-incoming">
+<title>Incoming</title>
 <para>
 </para>
+</sect4>
+
+<sect4 id="options-outgoing">
+<title>Outgoing</title>
+<para>
+</para>
+</sect4>
+
+</sect3>
+
+<sect3 id="general-accounts">
+<title>Accounts</title>
+<informalexample>
+<para>Settings => Preferences => General => Accounts
+</para>
+</informalexample>
+</sect3>
+&accounts;
+
+
+<sect3 id="general-paths">
+<title>Paths</title>
+<informalexample>
+<para>Settings => Preferences => General => Paths
+</para>
+</informalexample>
+</sect3>
+
+<sect3 id="general-plugins">
+<title>Plugins</title>
+<informalexample>
+<para>Settings => Preferences => General => Plugins
+</para>
+</informalexample>
+</sect3>
+</sect2>
+
+<sect2 id="interface">
+<title>Interface</title>
+<informalexample>
+<para>Settings => Preferences => Interface
+</para>
+</informalexample>
+<para>
+Configure the &app; User Interface from these dialogs.
+</para>
+<para>
+<itemizedlist>
+     <listitem><para><link linkend="interface-fonts">Fonts</link></para></listitem>
+     <listitem><para><link linkend="interface-html">HTML</link></para></listitem>
+     <listitem><para><link linkend="interface-composer">Composer</link></para></listitem> 
+     <listitem><para><link linkend="interface-miscellaneous">Miscellaneous</link></para></listitem>  
+    </itemizedlist>
+</para>
+
+<sect3 id="interface-fonts">
+<title>Fonts</title>
+<informalexample>
+<para>Settings => Preferences => Interface => Fonts
+</para>
+</informalexample>
+</sect3>
+
+<sect3 id="interface-html">
+<title>HTML</title>
+<informalexample>
+<para>Settings => Preferences => Interface => HTML
+</para>
+</informalexample>
+</sect3>
+
+<sect3 id="interface-composer">
+<title>Composer </title>
+<informalexample>
+<para>Settings => Preferences => Interface => Composer
+</para>
+</informalexample>
+</sect3>
+
+<sect3 id="interface-miscellaneous">
+<title>Miscellaneous Display Items</title>
+
+<informalexample>
+<para>Settings => Preferences => Interface => Misc..
+</para>
+</informalexample>
+<para>Set the window manager format</para>
+</sect3>
+</sect2>
+<!--
+<sect3 id="">
+<title></title>
+<informalexample>
+<para>Settings => Preferences => Interface => Misc..
+</para>
+</informalexample>
+</sect3>
+-->
+<sect2 id="advanced">
+<title>Advanced Options</title>
+<informalexample>
+<para>
+Settings => Preferences => Advanced
+</para>
+</informalexample>
+
+<sect3 id="advanced-miscellaneous">
+<title> Proxy Settings</title>
+<informalexample>
+<para>
+Settings => Preferences => Advanced => Misc.
+</para>
+</informalexample>
+<para> Enter the full address and  Port Numbers for any required HTTP or  FTP proxy. To use the proxy settings select the toggle buttons to the left.</para>
+</sect3>
+</sect2>
 </sect1>
+

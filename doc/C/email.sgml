@@ -1,0 +1,21 @@
+<!-- email.sgml : a basic explanation of how email works and what a newbie level user will need to know to set cronos II up. -->
+<sect1 id="email">
+<title>Email - What you need to know.</title>
+<para>This section outines what information you will need to have at hand to configure &app; and a brief introduction to how and what email is.</para>
+<sect2 id="needed-info">
+<title>Needed Information</title>
+<para>To configure &app; you will need to have at hand the following information:</para>
+<orderedlist>
+<listitem><para>A valid email address at a  Mail Server. (You can have multiple providers and use your local server as well) </para></listitem>
+<listitem><para>An optional  separate Reply To address if you require one. This can be a web based account or a "forwarding account" if you like. </para></listitem>
+<listitem><para>The Incoming  Mail Server Protocol. Most commonly Post Office Protocol (POP or one of it's variations) or IMAP (Internet Message Access Protocol). </para></listitem>
+<listitem><para>The Hostname of the Mail Server. </para></listitem>
+<listitem><para>The Mail Servers " Listening"  Port Number. (default settings are provided by &app;) </para></listitem>
+<listitem><para>The access password for that Mail Server. (This may be different from your normal login password and should be different to your local password.) </para></listitem>
+
+<listitem><para> </para></listitem>
+<listitem><para> </para></listitem>
+<listitem><para> </para></listitem>
+</orderedlist>
+</sect2>
+</sect1>

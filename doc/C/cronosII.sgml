@@ -18,6 +18,7 @@
 <!ENTITY pier "m3tr0@dei.unipd.it">
 <!ENTITY jeremy "witti@onramp.net">
 <!ENTITY spaghetty "spaghetty@libero.it">
+
 <!ENTITY marc "mustangg@users.sourceforge.net">
 <!ENTITY website "http://cronosii.sourceforge.net/">
 <!ENTITY app "CronosII">
@@ -30,6 +31,8 @@
 <!ENTITY addressbook SYSTEM "addressbook.sgml">
 <!ENTITY plugins SYSTEM "plugins.sgml">
 <!ENTITY bugs SYSTEM "bugs.sgml">
+<!ENTITY accounts SYSTEM "accounts.sgml">
+<!ENTITY email SYSTEM "email.sgml">
 ]>
 <!-- This file for basic introduction and redirection-->
 
@@ -56,7 +59,7 @@
     <title>Cronos II Users Manual </title>
     <copyright>
       <year>2001</year>
-      <holder>Peter Gossner</holder>
+      <holder>&app; Developers</holder>
       <holder>Pablo Fernadez Navarro</holder>
     </copyright>
 
@@ -105,16 +108,28 @@
 <title>Introduction</title>
 <para>
 <application>Cronos II</application> is an Email application, a Mail User Agent. The Developers
-aim for reliabilty, simplicity, speed and flexibility while gradually increasing the feature set. 
-<application>&app;</application> comes with an addressbook, spellchecker, mail filtering and other plugins that extend base functions and add a little fun.
+aim for reliability, simplicity, speed and flexibility while gradually increasing the feature set. 
+<application>&app;</application> comes with an address book, spell checker, mail filtering and other plugins that extend base functions and add a little fun.
 </para>
 <note>
-<para>If you have just installed &app; you need to <link linkend="preferences">configure your accounts</link> before you can send or recieve mail. You can also configure other elements of your user interface and mail formats from the<link linkend="preferences"> <guimenuitem> Preferences Menu </guimenuitem> </link>on the<link linkend="mainwindow"> Main Window.</link></para>
-<para>See <xref linkend="preferences">for initial configuration instructions.</para>
+<para>If you have just installed &app; you need to <link linkend="account-dialog">configure your accounts</link> before you can send or receive mail. You can also configure other elements of your user interface and mail formats from the<link linkend="preferences"> <guimenuitem> Preferences Menu </guimenuitem> </link> on the<link linkend="mainwindow"> Main Window.</link></para>
+<para>See <xref linkend="preferences"> for initial configuration instructions.</para>
 
 </note>
+<sect2 id="about">
+<title>About this Manual</title>
+      <para>This Manual was written by Peter Gossner <email> &pete;</email> Please send comments, criticism, ideas and suggestions to the &app; Developers List &developers;.
+  </para>
+<para>User Interface Navigation is represented as follows:</para>
+<example>
+<title>Navigation</title>
+	<para>File => Exit</para>
+	<para>Means you should select the Button "File" and then the Button "Exit" to (in this case) close &app;</para> 
+</example>
+</sect2>
 
 </sect1>
+&email;
 &preferences;
 &mainwindow;
 &composer;
