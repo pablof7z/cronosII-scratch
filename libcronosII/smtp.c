@@ -27,6 +27,9 @@
 
 /* hard-hat area, in progress by bosko */
 /* feel free to mess around -- help me get this module up to spec faster! */
+/* TODO: SMTP will read the message for a "From:" header and send the content
+ *       in "MAIL FROM:". This is wrong because "From:" can have any crap in it
+ *       but "MAIL FROM:" must have just the email address. (posted by pablo)
 /* TODO: fix smtp_update signal to work with multiple connections */
 /* TODO: make c2_smtp_send_message() break off into thread and return early */
 /* TODO: implement authentication (posted by pablo) */

@@ -59,14 +59,13 @@ main (gint argc, gchar **argv)
 	
 	gtk_init(&argc, &argv);
 	
-	smtp = c2_smtp_new(C2_SMTP_REMOTE, "smtp.arnet.com.ar", 25, FALSE, FALSE, NULL, NULL);
+	smtp = c2_smtp_new(C2_SMTP_REMOTE, "firewall", 25, FALSE, FALSE, NULL, NULL);
 
 	//gtk_signal_connect(GTK_OBJECT(smtp), "smtp_update", GTK_SIGNAL_FUNC(on_smtp_update), NULL);
 	
 	msg = g_new0(C2Message, 1);
 	msg->header = g_strdup("From: testing<ice@fcc.net>\n"
-													"To: ice@fcc.net\n"
-													"CC: cronosII@users.sourceforge.net\n"
+													"To: cronosII@users.sourceforge.net\n"
 													"Subject: Testing C2 smtp module!");
 	msg->body = g_strdup("Testing 1-2-3\n");
 	msg->mime = NULL;
