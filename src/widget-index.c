@@ -335,7 +335,7 @@ reload (C2Index *index)
 	g_free (date_fmt);
 
 	selected_mail = get_selected_mail (index);
-	if (selected_mail < 0)
+	if (selected_mail < 0 || selected_mail > clist->rows-1)
 		selected_mail = clist->rows-1;
 
 	gtk_clist_thaw (clist);
