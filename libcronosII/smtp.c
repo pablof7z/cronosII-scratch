@@ -28,8 +28,8 @@
 /* hard-hat area, in progress by bosko */
 /* feel free to mess around -- help me get this module up to spec faster! */
 /* TODO: implement authentication (posted by pablo) */
-/* (in progress) TODO: update C2 SMTP to be a real GtkObject w/ signals etc */
 /* (in progress) TODO: create a test-module */
+/* (done!) TODO: update C2 SMTP to be a real GtkObject w/ signals etc */
 /* (done!) TODO: implement sending of MIME attachments */
 /* (done!) TODO: implement BCC */
 /* (done!) TODO: implement local sendmail capability */
@@ -44,6 +44,7 @@ enum
 
 static guint signals[LAST_SIGNAL] = { 0 };
 
+/* Private GtkObject functions */
 static void
 class_init									(C2SMTPClass *klass);
 
@@ -53,6 +54,7 @@ init										(C2SMTP *smtp);
 static void
 destroy										(GtkObject *object);
 
+/* Remote SMTP server functions */
 static gint
 c2_smtp_connect								(C2SMTP *smtp);
 
@@ -71,9 +73,6 @@ c2_smtp_send_message_contents				(C2SMTP *smtp, C2Message *message);
 static gint
 c2_smtp_send_message_mime_headers			(C2SMTP *smtp, C2Message *message, gchar **boundary);
 
-static gchar *
-c2_smtp_mime_make_message_boundary			(void);
-
 static gint
 c2_smtp_send_message_mime					(C2SMTP *smtp, C2Message *message, gchar *boundary, 
 											 const guint len, guint *sent);
@@ -84,9 +83,7 @@ smtp_test_connection						(C2SMTP *smtp);
 static void
 smtp_disconnect								(C2SMTP *smtp);
 
-static void
-c2_smtp_set_error							(C2SMTP *smtp, const gchar *error);
-
+/* Local SMTP program functions */
 static gint
 c2_smtp_local_write_msg						(C2Message *message, gchar *file_name);
 
@@ -95,6 +92,13 @@ c2_smtp_local_get_recepients				(C2Message *message);
 
 static gchar *
 c2_smtp_local_divide_recepients				(gchar *to);
+
+/* Misc. functions */
+static void
+c2_smtp_set_error							(C2SMTP *smtp, const gchar *error);
+
+static gchar *
+c2_smtp_mime_make_message_boundary			(void);
 
 #define DEFAULT_FLAGS C2_SMTP_DO_NOT_PERSIST | C2_SMTP_DO_NOT_LOSE_PASSWORD
 
@@ -366,6 +370,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 			pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
+		gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], message, 1, 1);
 		g_free(file_name);
 		g_free(cmd);
 		unlink(file_name);
@@ -1020,7 +1025,7 @@ c2_smtp_local_divide_recepients(gchar *to)
 static gint
 c2_smtp_send_rcpt (C2SMTP *smtp, gchar *to)
 {
-	gchar *ptr, *start, *buf;
+	gchar *ptr, *ptr2, *start, *buf;
 	
 	for(ptr = start = to; *ptr != '\0'; ptr++)
 	{
@@ -1029,6 +1034,19 @@ c2_smtp_send_rcpt (C2SMTP *smtp, gchar *to)
 			if(*(ptr+1) == '\0') ptr++;
 			buf = g_strndup(start, ptr - start);
 			start += (ptr - start) + 1;
+			
+			/* weed out the actual address between the "<>",
+			 * for compability reasons w/ some servers */
+			if(ptr2 = strstr(buf, "<"))
+			{
+				gchar *ptr3;
+				if(ptr3 = strstr(buf, ">"))
+				{
+					gchar *final = g_strndup(ptr2+1, ptr3 - (ptr2+1));
+					g_free(buf);
+					buf = final;
+				}
+			}
 			if(c2_net_object_send(C2_NET_OBJECT(smtp), "RCPT TO: %s\r\n", buf) < 0)
 			{
 				c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
