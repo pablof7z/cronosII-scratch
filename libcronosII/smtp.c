@@ -36,28 +36,28 @@
 /* TODO: implement authentication (posted by pablo) */
 
 static gint
-c2_smtp_connect (C2Smtp *smtp);
+c2_smtp_connect (C2SMTP *smtp);
 
 static gint
-c2_smtp_send_headers (C2Smtp *smtp, C2Message *message);
+c2_smtp_send_headers (C2SMTP *smtp, C2Message *message);
 
 static gint
-c2_smtp_send_message_contents(C2Smtp *smtp, C2Message *message);
+c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message);
 
 static gint
-c2_smtp_send_message_mime(C2Smtp *smtp, C2Message *message);
+c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message);
 
 static gboolean
-smtp_test_connection(C2Smtp *smtp);
+smtp_test_connection(C2SMTP *smtp);
 
 static void
-smtp_disconnect(C2Smtp *smtp);
+smtp_disconnect(C2SMTP *smtp);
 
 static GList *
 get_mail_addresses (const gchar *string);
 
 static void
-c2_smtp_set_error(C2Smtp *smtp, const gchar *error);
+c2_smtp_set_error(C2SMTP *smtp, const gchar *error);
 
 static gint
 c2_smtp_local_write_msg(C2Message *message, gchar *file_name);
@@ -73,15 +73,15 @@ c2_smtp_local_divide_recepients(gchar *to);
 #define SOCK_READ_FAILED  _("Internal socket read operation failed")
 #define SOCK_WRITE_FAILED _("Internal socket write operation failed")
 
-static C2Smtp *cached_smtp = NULL;
+static C2SMTP *cached_smtp = NULL;
 
-C2Smtp *
+C2SMTP *
 c2_smtp_new (C2SMTPType type, ...)
 {
-	C2Smtp *smtp;
+	C2SMTP *smtp;
 	va_list args;
 
-	smtp = g_new0 (C2Smtp, 1);
+	smtp = g_new0 (C2SMTP, 1);
 	smtp->type = type;
 	smtp->sock = 0;
 	smtp->error = NULL;
@@ -125,7 +125,7 @@ c2_smtp_new (C2SMTPType type, ...)
 }
 
 void
-c2_smtp_set_flags (C2Smtp *smtp, gint flags)
+c2_smtp_set_flags (C2SMTP *smtp, gint flags)
 {
 	c2_return_if_fail (smtp, C2EDATA);
 
@@ -133,7 +133,7 @@ c2_smtp_set_flags (C2Smtp *smtp, gint flags)
 }
 
 void
-c2_smtp_free (C2Smtp *smtp)
+c2_smtp_free (C2SMTP *smtp)
 {
 	if (!smtp)
 		smtp = cached_smtp;
@@ -155,7 +155,7 @@ c2_smtp_free (C2Smtp *smtp)
 }
 
 gint
-c2_smtp_send_message (C2Smtp *smtp, C2Message *message) 
+c2_smtp_send_message (C2SMTP *smtp, C2Message *message) 
 {
 	gchar *buffer;
 	
@@ -257,7 +257,7 @@ c2_smtp_send_message (C2Smtp *smtp, C2Message *message)
 }
 
 static gint
-c2_smtp_connect (C2Smtp *smtp)
+c2_smtp_connect (C2SMTP *smtp)
 {
 	gchar *ip = NULL;
 	gchar *hostname = NULL;
@@ -335,7 +335,7 @@ c2_smtp_connect (C2Smtp *smtp)
 }
 
 static gint
-c2_smtp_send_headers(C2Smtp *smtp, C2Message *message)
+c2_smtp_send_headers(C2SMTP *smtp, C2Message *message)
 {
 	gchar *buffer;
 	gchar *temp;
@@ -448,7 +448,7 @@ c2_smtp_send_headers(C2Smtp *smtp, C2Message *message)
 }
 
 static gint
-c2_smtp_send_message_contents(C2Smtp *smtp, C2Message *message)
+c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 {
 	gchar *ptr, *start, *buf, *contents = message->header;
 	
@@ -488,7 +488,7 @@ c2_smtp_send_message_contents(C2Smtp *smtp, C2Message *message)
 }
 
 static gint
-c2_smtp_send_message_mime(C2Smtp *smtp, C2Message *message)
+c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message)
 {
 	/* TODO */
 	
@@ -496,7 +496,7 @@ c2_smtp_send_message_mime(C2Smtp *smtp, C2Message *message)
 }
 													
 static gboolean
-smtp_test_connection(C2Smtp *smtp)
+smtp_test_connection(C2SMTP *smtp)
 {
 	gchar *buffer;
 	
@@ -512,7 +512,7 @@ smtp_test_connection(C2Smtp *smtp)
 }
 
 static void
-smtp_disconnect(C2Smtp *smtp)
+smtp_disconnect(C2SMTP *smtp)
 {
 	if(!smtp)
 		smtp = cached_smtp;
@@ -633,7 +633,7 @@ get_mail_addresses (const gchar *string)
 }
 
 static void
-c2_smtp_set_error(C2Smtp *smtp, const gchar *error) 
+c2_smtp_set_error(C2SMTP *smtp, const gchar *error) 
 {
 	if(smtp->error) g_free(smtp->error);
 	smtp->error = g_strdup(error);

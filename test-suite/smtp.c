@@ -29,7 +29,7 @@
 gint
 main (gint argc, gchar **argv)
 {
-	C2Smtp *smtp;
+	C2SMTP *smtp;
 	C2Message *msg;
 	
 	smtp = c2_smtp_new(C2_SMTP_REMOTE, "smtp.arnet.com.ar", 25, FALSE, NULL, NULL);

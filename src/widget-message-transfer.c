@@ -23,6 +23,7 @@
 
 #include "widget-message-transfer.h"
 
+#if 0
 typedef enum _C2MessageTransferState C2MessageTransferState;
 
 enum _C2MessageTransferState
@@ -676,3 +677,4 @@ destroy (GtkObject *obj)
 
 	gtk_object_destroy (GTK_OBJECT (C2_DIALOG (mt)->xml));
 }
+#endif

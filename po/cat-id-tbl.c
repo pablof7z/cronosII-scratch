@@ -310,25 +310,25 @@ help menu.", 247},
   {"Reply-To Address:", 254},
   {"Submit Personal Card:", 255},
   {"[TODO]", 256},
-  {"Incoming mail server", 257},
   {"\
-Please, fill in the information regarding the incoming mail server.\n\
+Please, fill in the information regarding the incoming mail.\n\
 If you don't know the protocol the server uses you should ask your\n\
-system administrator or your ISP.", 258},
-  {"Server Protocol:", 259},
-  {"Server information", 260},
-  {"Hostname:", 261},
-  {"Port:", 262},
+system administrator or your ISP.", 257},
+  {"Protocol:", 258},
+  {"Server information", 259},
+  {"Hostname:", 260},
+  {"Port:", 261},
+  {"Use Secure Server Layer (SSL).", 262},
   {"Authentication", 263},
   {"Authentication method:", 264},
   {"Password", 265},
   {"APOP", 266},
   {"Remember password.", 267},
-  {"Outgoing mail server", 268},
   {"\
-Please, fill in the information regarding the outgoing mail server.\n\
+Please, fill in the information regarding the outgoing mail.\n\
 If you don't know the protocol your server uses you should ask your\n\
-system administrator or your ISP or just use the Sendmail protocol.", 269},
+system administrator or your ISP or just use the Sendmail protocol.", 268},
+  {"Server Protocol:", 269},
   {"This server requires authentication.", 270},
   {"Account Information", 271},
   {"Name:", 272},

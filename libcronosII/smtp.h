@@ -60,19 +60,19 @@ typedef struct
 	
 	gint sock;
 	pthread_mutex_t lock;
-} C2Smtp;
+} C2SMTP;
 
-C2Smtp *
+C2SMTP *
 c2_smtp_new (C2SMTPType type, ...);
 
 void
-c2_smtp_set_flags (C2Smtp *smtp, gint flags);
+c2_smtp_set_flags (C2SMTP *smtp, gint flags);
 
 gint
-c2_smtp_send_message (C2Smtp *smtp, C2Message *message);
+c2_smtp_send_message (C2SMTP *smtp, C2Message *message);
 
 void
-c2_smtp_free (C2Smtp *smtp);
+c2_smtp_free (C2SMTP *smtp);
 
 #ifdef __cplusplus
 }

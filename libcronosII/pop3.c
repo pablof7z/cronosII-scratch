@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,10 +29,10 @@
 #define DEFAULT_FLAGS C2_POP3_DONT_KEEP_COPY | C2_POP3_DONT_LOSE_PASSWORD
 
 static void
-class_init										(C2Pop3Class *klass);
+class_init										(C2POP3Class *klass);
 
 static void
-init											(C2Pop3 *pop3);
+init											(C2POP3 *pop3);
 
 static void
 destroy											(GtkObject *object);
@@ -42,13 +42,13 @@ my_marshal_NONE__INT_INT_INT					(GtkObject *object, GtkSignalFunc func,
 												 gpointer func_data, GtkArg * args);
 
 static gint
-welcome											(C2Pop3 *pop3);
+welcome											(C2POP3 *pop3);
 
 static gint
-login											(C2Pop3 *pop3);
+login											(C2POP3 *pop3);
 
 static gint
-status											(C2Pop3 *pop3);
+status											(C2POP3 *pop3);
 
 
 static gint
@@ -72,16 +72,16 @@ static C2NetObject *parent_class = NULL;
  * @host: Hostame.
  * @port: Port.
  *
- * This function will create a new C2Pop3 with
+ * This function will create a new C2POP3 with
  * the data you pass it and with some default configuration.
  * 
  * Return Value:
- * The allocated C2Pop3 object or NULL if there was an error.
+ * The allocated C2POP3 object or NULL if there was an error.
  **/
-C2Pop3 *
+C2POP3 *
 c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port)
 {
-	C2Pop3 *pop3;
+	C2POP3 *pop3;
 	
 	c2_return_val_if_fail (user || host, NULL, C2EDATA);
 	
@@ -97,7 +97,7 @@ c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port)
 
 /**
  * c2_pop3_set_flags
- * @pop3: An allocated C2Pop3 object.
+ * @pop3: An allocated C2POP3 object.
  * @flags: Flags to set in the object.
  *
  * This function will force to change the flags
@@ -106,7 +106,7 @@ c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port)
  * to the users preferences.
  **/
 void
-c2_pop3_set_flags (C2Pop3 *pop3, gint flags)
+c2_pop3_set_flags (C2POP3 *pop3, gint flags)
 {
 	c2_return_if_fail (pop3, C2EDATA);
 
@@ -115,16 +115,16 @@ c2_pop3_set_flags (C2Pop3 *pop3, gint flags)
 
 /**
  * c2_pop3_set_wrong_pass_cb
- * @pop3: C2Pop3 object.
- * @func: C2Pop3GetPass function.
+ * @pop3: C2POP3 object.
+ * @func: C2POP3GetPass function.
  *
  * This function sets the function that will be called when a wrong
- * password in this C2Pop3 object is found.
- * The C2Pop3GetPass type function should return the new password
+ * password in this C2POP3 object is found.
+ * The C2POP3GetPass type function should return the new password
  * or NULL if it wants to cancel the fetching.
  */
 void
-c2_pop3_set_wrong_pass_cb (C2Pop3 *pop3, C2Pop3GetPass func)
+c2_pop3_set_wrong_pass_cb (C2POP3 *pop3, C2POP3GetPass func)
 {
 	c2_return_if_fail (pop3, C2EDATA);
 
@@ -145,7 +145,7 @@ c2_pop3_set_wrong_pass_cb (C2Pop3 *pop3, C2Pop3GetPass func)
 gint
 c2_pop3_fetchmail (C2Account *account)
 {
-	C2Pop3 *pop3 = account->protocol.pop3;
+	C2POP3 *pop3 = account->protocol.pop3;
 	gint mails;
 
 	c2_return_val_if_fail (pop3, -1, C2EDATA);
@@ -197,7 +197,7 @@ c2_pop3_fetchmail (C2Account *account)
 }
 
 static gint
-welcome (C2Pop3 *pop3)
+welcome (C2POP3 *pop3)
 {
 	gchar *string 		= NULL;
 	gchar *logintokenpos	= NULL;
@@ -207,7 +207,7 @@ welcome (C2Pop3 *pop3)
 	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
 		return -1;
 
-	if(pop3->flags & C2_POP3_DO_USE_APOP)
+	if(pop3->auth_method == C2_POP3_AUTHENTICATION_APOP)
 	{
 		// They want to use APOP so we need to get the timestamp and
 		// domain name from the welcome message
@@ -251,7 +251,7 @@ welcome (C2Pop3 *pop3)
 }
 
 static gint
-login (C2Pop3 *pop3)
+login (C2POP3 *pop3)
 {
 	gchar *string;
 	gchar *apopstring;
@@ -263,7 +263,7 @@ login (C2Pop3 *pop3)
 	gint 	 i 		= 0;
 	gboolean logged_in 	= FALSE;
 
-	if (pop3->flags & C2_POP3_DO_USE_APOP)
+	if (pop3->auth_method == C2_POP3_AUTHENTICATION_APOP)
 	{
 		if (pop3->logintoken == NULL)
 		{
@@ -374,7 +374,7 @@ login (C2Pop3 *pop3)
 }
 
 static gint
-status (C2Pop3 *pop3)
+status (C2POP3 *pop3)
 {
 	gchar *string;
 	gint mails;
@@ -405,7 +405,7 @@ status (C2Pop3 *pop3)
 static gint
 retrieve (C2Account *account, gint mails)
 {
-	C2Pop3 *pop3 = account->protocol.pop3;
+	C2POP3 *pop3 = account->protocol.pop3;
 	C2Message *message;
 	gchar *string;
 	gint i, len;
@@ -497,8 +497,8 @@ c2_pop3_get_type (void)
 	{
 		static const GtkTypeInfo info = {
 			"C2Pop3",
-			sizeof (C2Pop3),
-			sizeof (C2Pop3Class),
+			sizeof (C2POP3),
+			sizeof (C2POP3Class),
 			(GtkClassInitFunc) class_init,
 			(GtkObjectInitFunc) init,
 			/* reserved_1 */ NULL,
@@ -513,7 +513,7 @@ c2_pop3_get_type (void)
 }
 
 static void
-class_init (C2Pop3Class *klass)
+class_init (C2POP3Class *klass)
 {
 	GtkObjectClass *object_class;
 	
@@ -525,7 +525,7 @@ class_init (C2Pop3Class *klass)
 		gtk_signal_new ("status",
 					GTK_RUN_FIRST,
 					object_class->type,
-					GTK_SIGNAL_OFFSET (C2Pop3Class, status),
+					GTK_SIGNAL_OFFSET (C2POP3Class, status),
 					gtk_marshal_NONE__INT, GTK_TYPE_NONE, 1,
 					GTK_TYPE_INT);
 
@@ -533,7 +533,7 @@ class_init (C2Pop3Class *klass)
 		gtk_signal_new ("retrieve",
 					GTK_RUN_FIRST,
 					object_class->type,
-					GTK_SIGNAL_OFFSET (C2Pop3Class, retrieve),
+					GTK_SIGNAL_OFFSET (C2POP3Class, retrieve),
 					my_marshal_NONE__INT_INT_INT, GTK_TYPE_NONE, 3,
 					GTK_TYPE_INT, GTK_TYPE_INT, GTK_TYPE_INT);
 	
@@ -543,7 +543,7 @@ class_init (C2Pop3Class *klass)
 }
 
 static void
-init (C2Pop3 *pop3)
+init (C2POP3 *pop3)
 {
 	pop3->user = pop3->pass = NULL;
 	pop3->flags = DEFAULT_FLAGS;
@@ -554,7 +554,7 @@ init (C2Pop3 *pop3)
 static void
 destroy (GtkObject *object)
 {
-	C2Pop3 *pop3 = C2_POP3 (object);
+	C2POP3 *pop3 = C2_POP3 (object);
 
 	if (c2_net_object_is_offline (C2_NET_OBJECT (pop3)))
 #ifdef USE_DEBUG

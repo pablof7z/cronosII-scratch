@@ -25,6 +25,7 @@ extern "C" {
 #include <gtk/gtk.h>
 
 #ifdef BUILDING_C2
+#	include <config.h>
 #	include "utils-net.h"
 #else
 #	include <cronosII.h>
@@ -40,6 +41,7 @@ typedef struct _C2NetObject C2NetObject;
 typedef struct _C2NetObjectClass C2NetObjectClass;
 typedef enum _C2NetObjectExchangeType C2NetObjectExchangeType;
 typedef enum _C2NetObjectState C2NetObjectState;
+typedef enum _C2NetObjectFlags C2NetObjectFlags;
 
 enum _C2NetObjectExchangeType
 {
@@ -58,6 +60,15 @@ enum _C2NetObjectState
 	C2_NET_OBJECT_ERROR			= 0x0020
 };
 
+enum _C2NetObjectFlags
+{
+	C2_NET_OBJECT_INIT			= 0		/* Don't use it, is just for compatibility */
+#ifdef USE_SSL
+	,
+	C2_NET_OBJECT_SSL			= 1 << 0
+#endif
+};
+
 struct _C2NetObject
 {
 	GtkObject object;
@@ -66,6 +77,8 @@ struct _C2NetObject
 	
 	gchar *host;
 	guint port;
+
+	gint flags;
 
 	gint8 state;
 };
@@ -100,10 +113,10 @@ void
 c2_net_object_disconnect_with_error				(C2NetObject *nobj);
 
 void
-c2_net_object_set_flags							(C2NetObject *nobj, gint8 flags);
+c2_net_object_set_state							(C2NetObject *nobj, gint8 flags);
 
 void
-c2_net_object_append_flags						(C2NetObject *nobj, gint8 flags);
+c2_net_object_append_state						(C2NetObject *nobj, gint8 flags);
 
 gint
 c2_net_object_run								(C2NetObject *nobj);

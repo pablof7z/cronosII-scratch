@@ -3427,7 +3427,7 @@ help menu.</text>
     <widget>
       <class>GnomeDruidPageStandard</class>
       <name>page2</name>
-      <title>Incoming mail server</title>
+      <title>Incoming mail</title>
       <title_color>255,255,255</title_color>
       <background_color>53,69,163</background_color>
       <logo_background_color>53,69,163</logo_background_color>
@@ -3470,7 +3470,7 @@ help menu.</text>
 	    <widget>
 	      <class>GtkLabel</class>
 	      <name>label159</name>
-	      <label>Please, fill in the information regarding the incoming mail server.
+	      <label>Please, fill in the information regarding the incoming mail.
 If you don't know the protocol the server uses you should ask your
 system administrator or your ISP.</label>
 	      <justify>GTK_JUSTIFY_LEFT</justify>
@@ -3496,7 +3496,7 @@ system administrator or your ISP.</label>
 	    <widget>
 	      <class>GtkLabel</class>
 	      <name>label160</name>
-	      <label>Server Protocol:</label>
+	      <label>Protocol:</label>
 	      <justify>GTK_JUSTIFY_CENTER</justify>
 	      <wrap>False</wrap>
 	      <xalign>0.5</xalign>
@@ -3512,7 +3512,7 @@ system administrator or your ISP.</label>
 
 	    <widget>
 	      <class>GtkOptionMenu</class>
-	      <name>incoming_server_type</name>
+	      <name>incoming_protocol</name>
 	      <height>23</height>
 	      <can_focus>True</can_focus>
 	      <items>POP3
@@ -3543,7 +3543,7 @@ IMAP
 	      <class>GtkTable</class>
 	      <name>table13</name>
 	      <border_width>4</border_width>
-	      <rows>1</rows>
+	      <rows>2</rows>
 	      <columns>4</columns>
 	      <homogeneous>False</homogeneous>
 	      <row_spacing>0</row_spacing>
@@ -3602,30 +3602,6 @@ IMAP
 	      </widget>
 
 	      <widget>
-		<class>GtkEntry</class>
-		<name>incoming_server_hostname</name>
-		<can_focus>True</can_focus>
-		<editable>True</editable>
-		<text_visible>True</text_visible>
-		<text_max_length>0</text_max_length>
-		<text></text>
-		<child>
-		  <left_attach>1</left_attach>
-		  <right_attach>2</right_attach>
-		  <top_attach>0</top_attach>
-		  <bottom_attach>1</bottom_attach>
-		  <xpad>0</xpad>
-		  <ypad>0</ypad>
-		  <xexpand>True</xexpand>
-		  <yexpand>False</yexpand>
-		  <xshrink>False</xshrink>
-		  <yshrink>False</yshrink>
-		  <xfill>True</xfill>
-		  <yfill>False</yfill>
-		</child>
-	      </widget>
-
-	      <widget>
 		<class>GtkSpinButton</class>
 		<name>incoming_server_port</name>
 		<can_focus>True</can_focus>
@@ -3646,6 +3622,53 @@ IMAP
 		  <right_attach>4</right_attach>
 		  <top_attach>0</top_attach>
 		  <bottom_attach>1</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkEntry</class>
+		<name>incoming_server_hostname</name>
+		<can_focus>True</can_focus>
+		<editable>True</editable>
+		<text_visible>True</text_visible>
+		<text_max_length>0</text_max_length>
+		<text></text>
+		<child>
+		  <left_attach>1</left_attach>
+		  <right_attach>2</right_attach>
+		  <top_attach>0</top_attach>
+		  <bottom_attach>1</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkCheckButton</class>
+		<name>incoming_server_ssl</name>
+		<can_focus>True</can_focus>
+		<label>Use Secure Server Layer (SSL).</label>
+		<active>False</active>
+		<draw_indicator>True</draw_indicator>
+		<child>
+		  <left_attach>0</left_attach>
+		  <right_attach>4</right_attach>
+		  <top_attach>1</top_attach>
+		  <bottom_attach>2</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -3721,20 +3744,20 @@ APOP
 		    <fill>False</fill>
 		  </child>
 		</widget>
-	      </widget>
 
-	      <widget>
-		<class>GtkCheckButton</class>
-		<name>incoming_auth_remember</name>
-		<can_focus>True</can_focus>
-		<label>Remember password.</label>
-		<active>False</active>
-		<draw_indicator>True</draw_indicator>
-		<child>
-		  <padding>0</padding>
-		  <expand>False</expand>
-		  <fill>False</fill>
-		</child>
+		<widget>
+		  <class>GtkCheckButton</class>
+		  <name>incoming_auth_remember</name>
+		  <can_focus>True</can_focus>
+		  <label>Remember password.</label>
+		  <active>True</active>
+		  <draw_indicator>True</draw_indicator>
+		  <child>
+		    <padding>0</padding>
+		    <expand>False</expand>
+		    <fill>False</fill>
+		  </child>
+		</widget>
 	      </widget>
 	    </widget>
 	  </widget>
@@ -3745,7 +3768,7 @@ APOP
     <widget>
       <class>GnomeDruidPageStandard</class>
       <name>page3</name>
-      <title>Outgoing mail server</title>
+      <title>Outgoing mail</title>
       <title_color>255,255,255</title_color>
       <background_color>53,68,163</background_color>
       <logo_background_color>52,68,162</logo_background_color>
@@ -3788,7 +3811,7 @@ APOP
 	    <widget>
 	      <class>GtkLabel</class>
 	      <name>label166</name>
-	      <label>Please, fill in the information regarding the outgoing mail server.
+	      <label>Please, fill in the information regarding the outgoing mail.
 If you don't know the protocol your server uses you should ask your
 system administrator or your ISP or just use the Sendmail protocol.</label>
 	      <justify>GTK_JUSTIFY_LEFT</justify>
@@ -3861,7 +3884,7 @@ Sendmail
 	      <class>GtkTable</class>
 	      <name>table14</name>
 	      <border_width>4</border_width>
-	      <rows>1</rows>
+	      <rows>2</rows>
 	      <columns>4</columns>
 	      <homogeneous>False</homogeneous>
 	      <row_spacing>4</row_spacing>
@@ -3920,6 +3943,38 @@ Sendmail
 	      </widget>
 
 	      <widget>
+		<class>GtkSpinButton</class>
+		<name>outgoing_server_port</name>
+		<can_focus>True</can_focus>
+		<climb_rate>1</climb_rate>
+		<digits>0</digits>
+		<numeric>False</numeric>
+		<update_policy>GTK_UPDATE_ALWAYS</update_policy>
+		<snap>False</snap>
+		<wrap>False</wrap>
+		<value>25</value>
+		<lower>1</lower>
+		<upper>99999</upper>
+		<step>1</step>
+		<page>10</page>
+		<page_size>10</page_size>
+		<child>
+		  <left_attach>3</left_attach>
+		  <right_attach>4</right_attach>
+		  <top_attach>0</top_attach>
+		  <bottom_attach>1</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
 		<class>GtkEntry</class>
 		<name>outgoing_server_hostname</name>
 		<can_focus>True</can_focus>
@@ -3934,7 +3989,7 @@ Sendmail
 		  <bottom_attach>1</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
-		  <xexpand>True</xexpand>
+		  <xexpand>False</xexpand>
 		  <yexpand>False</yexpand>
 		  <xshrink>False</xshrink>
 		  <yshrink>False</yshrink>
@@ -3944,26 +3999,17 @@ Sendmail
 	      </widget>
 
 	      <widget>
-		<class>GtkSpinButton</class>
-		<name>outgoing_server_port</name>
+		<class>GtkCheckButton</class>
+		<name>outgoing_server_ssl</name>
 		<can_focus>True</can_focus>
-		<climb_rate>1</climb_rate>
-		<digits>0</digits>
-		<numeric>False</numeric>
-		<update_policy>GTK_UPDATE_ALWAYS</update_policy>
-		<snap>False</snap>
-		<wrap>False</wrap>
-		<value>1</value>
-		<lower>1</lower>
-		<upper>99999</upper>
-		<step>1</step>
-		<page>10</page>
-		<page_size>10</page_size>
+		<label>Use Secure Server Layer (SSL).</label>
+		<active>False</active>
+		<draw_indicator>True</draw_indicator>
 		<child>
-		  <left_attach>3</left_attach>
+		  <left_attach>0</left_attach>
 		  <right_attach>4</right_attach>
-		  <top_attach>0</top_attach>
-		  <bottom_attach>1</bottom_attach>
+		  <top_attach>1</top_attach>
+		  <bottom_attach>2</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -3993,34 +4039,11 @@ Sendmail
 	      <class>GtkTable</class>
 	      <name>table17</name>
 	      <border_width>4</border_width>
-	      <rows>3</rows>
-	      <columns>2</columns>
+	      <rows>2</rows>
+	      <columns>3</columns>
 	      <homogeneous>False</homogeneous>
 	      <row_spacing>0</row_spacing>
 	      <column_spacing>4</column_spacing>
-
-	      <widget>
-		<class>GtkCheckButton</class>
-		<name>checkbutton5</name>
-		<can_focus>True</can_focus>
-		<label>This server requires authentication.</label>
-		<active>False</active>
-		<draw_indicator>True</draw_indicator>
-		<child>
-		  <left_attach>0</left_attach>
-		  <right_attach>2</right_attach>
-		  <top_attach>0</top_attach>
-		  <bottom_attach>1</bottom_attach>
-		  <xpad>0</xpad>
-		  <ypad>0</ypad>
-		  <xexpand>False</xexpand>
-		  <yexpand>False</yexpand>
-		  <xshrink>False</xshrink>
-		  <yshrink>False</yshrink>
-		  <xfill>True</xfill>
-		  <yfill>False</yfill>
-		</child>
-	      </widget>
 
 	      <widget>
 		<class>GtkLabel</class>
@@ -4077,13 +4100,36 @@ Sendmail
 		<name>outgoing_auth_remember</name>
 		<can_focus>True</can_focus>
 		<label>Remember password.</label>
+		<active>True</active>
+		<draw_indicator>True</draw_indicator>
+		<child>
+		  <left_attach>2</left_attach>
+		  <right_attach>3</right_attach>
+		  <top_attach>1</top_attach>
+		  <bottom_attach>2</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkCheckButton</class>
+		<name>outgoing_auth_required</name>
+		<can_focus>True</can_focus>
+		<label>This server requires authentication.</label>
 		<active>False</active>
 		<draw_indicator>True</draw_indicator>
 		<child>
 		  <left_attach>0</left_attach>
-		  <right_attach>2</right_attach>
-		  <top_attach>2</top_attach>
-		  <bottom_attach>3</bottom_attach>
+		  <right_attach>3</right_attach>
+		  <top_attach>0</top_attach>
+		  <bottom_attach>1</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -4102,7 +4148,7 @@ Sendmail
 
     <widget>
       <class>GnomeDruidPageStandard</class>
-      <name>druidpagestandard8</name>
+      <name>page4</name>
       <title>Options</title>
       <title_color>255,255,255</title_color>
       <background_color>53,68,163</background_color>
@@ -4378,7 +4424,7 @@ Sendmail
 	      <name>options_auto_check</name>
 	      <can_focus>True</can_focus>
 	      <label>Automatically check this account.</label>
-	      <active>False</active>
+	      <active>True</active>
 	      <draw_indicator>True</draw_indicator>
 	      <child>
 		<padding>0</padding>
@@ -4393,7 +4439,7 @@ Sendmail
 
     <widget>
       <class>GnomeDruidPageFinish</class>
-      <name>druidpagefinish2</name>
+      <name>page5</name>
       <title>Finished</title>
       <text>Congratulations, you have successfully configured
 your account for use with Cronos II.

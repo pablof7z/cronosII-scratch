@@ -113,20 +113,20 @@ static void
 init (C2Application *application)
 {
 	C2Account *account;
-	gchar *account_name, *person_name, *organization, *email, *reply_to, *pop3_host,
-			*pop3_user, *pop3_pass, *smtp_host, *smtp_user, *smtp_pass,
-			*signature;
-	gint pop3_port, pop3_flags, smtp_port;
-	gboolean active, smtp_authentication, keep_copy, signature_automatic;
+	gchar *account_name, *full_name, *organization, *email, *reply_to, *incoming_host,
+			*incoming_user, *incoming_pass, *outgoing_host, *outgoing_user, *outgoing_pass,
+			*signature_plain, *signature_html;
+	gint incoming_port, incoming_flags, outgoing_port;
+	gboolean active, incoming_ssl, outgoing_authentication, outgoing_ssl, keep_copy;
 	C2AccountType account_type;
-	C2AccountSignatureType signature_type;
-	C2SMTPType smtp_type;
+	C2SMTPType outgoing_protocol;
 	gchar *tmp, *buf;	
-	gint quantity = gnome_config_get_int_with_default ("/Cronos II/Mailboxes/quantity=0", NULL);
+	gint quantity = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL);
 	gint i;
 	
 	application->open_windows = NULL;
 	application->tmp_files = NULL;
+	application->account = NULL;
 
 	/* Load accounts */
 	for (i = 0;; i++)
@@ -135,58 +135,66 @@ init (C2Application *application)
 		gnome_config_push_prefix (tmp);
 
 		if (!(account_name = gnome_config_get_string ("name")))
+		{
+			gnome_config_pop_prefix ();
+			g_free (tmp);
 			break;
+		}
 
-		person_name = gnome_config_get_string ("per_name");
+		full_name = gnome_config_get_string ("full_name");
 		organization = gnome_config_get_string ("organization");
 		email = gnome_config_get_string ("email");
 		reply_to = gnome_config_get_string ("reply_to");
 		active = gnome_config_get_bool ("options.active");
 
-		account_type = gnome_config_get_int ("protocol_type");
+		account_type = gnome_config_get_int ("incoming_protocol");
 
 		switch (account_type)
 		{
 			case C2_ACCOUNT_POP3:
-				pop3_host = gnome_config_get_string ("pop3_hostname");
-				pop3_port = gnome_config_get_int ("pop3_port");
-				pop3_user = gnome_config_get_string ("pop3_username");
-				pop3_pass = gnome_config_get_string ("pop3_password");
-				pop3_flags = gnome_config_get_int ("pop3_flags");
+			case C2_ACCOUNT_IMAP:
+				incoming_host = gnome_config_get_string ("incoming_hostname");
+				incoming_port = gnome_config_get_int ("incoming_port");
+				incoming_user = gnome_config_get_string ("incoming_username");
+				incoming_pass = gnome_config_get_string ("incoming_password");
+				incoming_flags = gnome_config_get_int ("incoming_flags");
+				incoming_ssl = gnome_config_get_bool ("incoming_ssl");
 				break;
 		}
 
-		smtp_type = gnome_config_get_int ("smtp_type");
+		outgoing_protocol = gnome_config_get_int ("outgoing_protocol");
 
-		switch (smtp_type)
+		switch (outgoing_protocol)
 		{
 			case C2_SMTP_REMOTE:
-				smtp_host = gnome_config_get_string ("smtp_hostname");
-				smtp_port = gnome_config_get_int ("smtp_port");
-				smtp_authentication = gnome_config_get_bool ("smtp_authentication");
-				smtp_user = gnome_config_get_string ("smtp_username");
-				smtp_pass = gnome_config_get_string ("smtp_password");
+				outgoing_host = gnome_config_get_string ("outgoing_hostname");
+				outgoing_port = gnome_config_get_int ("outgoing_port");
+				outgoing_authentication = gnome_config_get_bool ("outgoing_authentication");
+				outgoing_user = gnome_config_get_string ("outgoing_username");
+				outgoing_pass = gnome_config_get_string ("outgoing_password");
+				outgoing_ssl = gnome_config_get_bool ("outgoing_ssl");
 				break;
 		}
 
-		signature_type = gnome_config_get_int ("signature.type");
-		signature = gnome_config_get_string ("signature.string");
-		signature_automatic = gnome_config_get_bool ("signature.automatic");
+		signature_plain = gnome_config_get_string ("signature.plain");
+		signature_html = gnome_config_get_string ("signature.html");
 
-		switch (smtp_type)
+		switch (outgoing_protocol)
 		{
 			case C2_SMTP_REMOTE:
-				account = c2_account_new (account_name, person_name, organization, email, reply_to,
-											active, account_type, smtp_type, signature_type, signature,
-											signature_automatic, pop3_host, pop3_port, pop3_user, pop3_pass,
-											pop3_flags,
-											smtp_host, smtp_port, smtp_authentication, smtp_user, smtp_pass);
+				account = c2_account_new (account_name, full_name, organization, email, reply_to,
+											active, signature_plain, signature_html, account_type,
+											outgoing_protocol, incoming_host, incoming_port,
+											incoming_user, incoming_pass, incoming_ssl,
+											incoming_flags,
+											outgoing_host, outgoing_port, outgoing_ssl,
+											outgoing_authentication, outgoing_user, outgoing_pass);
 				break;
 			case C2_SMTP_LOCAL:
-				account = c2_account_new (account_name, person_name, organization, email, reply_to,
-											active, account_type, smtp_type, signature_type, signature,
-											signature_automatic, pop3_host, pop3_port, pop3_user, pop3_pass,
-											pop3_flags);
+				account = c2_account_new (account_name, full_name, organization, email, reply_to,
+											active, signature_plain, signature_html, account_type,
+											outgoing_protocol, incoming_host, incoming_port, incoming_user,
+											incoming_pass, incoming_flags, incoming_ssl);
 				break;
 		}
 		

@@ -160,23 +160,24 @@ gchar *s = N_("Organization:");
 gchar *s = N_("Reply-To Address:");
 gchar *s = N_("Submit Personal Card:");
 gchar *s = N_("[TODO]");
-gchar *s = N_("Incoming mail server");
-gchar *s = N_("Please, fill in the information regarding the incoming mail server.\n"
+gchar *s = N_("Incoming mail");
+gchar *s = N_("Please, fill in the information regarding the incoming mail.\n"
               "If you don't know the protocol the server uses you should ask your\n"
               "system administrator or your ISP.");
-gchar *s = N_("Server Protocol:");
+gchar *s = N_("Protocol:");
 gchar *s = N_("POP3");
 gchar *s = N_("IMAP");
 gchar *s = N_("Server information");
 gchar *s = N_("Hostname:");
 gchar *s = N_("Port:");
+gchar *s = N_("Use Secure Server Layer (SSL).");
 gchar *s = N_("Authentication");
 gchar *s = N_("Authentication method:");
 gchar *s = N_("Password");
 gchar *s = N_("APOP");
 gchar *s = N_("Remember password.");
-gchar *s = N_("Outgoing mail server");
-gchar *s = N_("Please, fill in the information regarding the outgoing mail server.\n"
+gchar *s = N_("Outgoing mail");
+gchar *s = N_("Please, fill in the information regarding the outgoing mail.\n"
               "If you don't know the protocol your server uses you should ask your\n"
               "system administrator or your ISP or just use the Sendmail protocol.");
 gchar *s = N_("Server Protocol:");
@@ -185,11 +186,12 @@ gchar *s = N_("Sendmail");
 gchar *s = N_("Server information");
 gchar *s = N_("Hostname:");
 gchar *s = N_("Port:");
+gchar *s = N_("Use Secure Server Layer (SSL).");
 gchar *s = N_("Authentication");
-gchar *s = N_("This server requires authentication.");
 gchar *s = N_("Authentication method:");
 gchar *s = N_("Password");
 gchar *s = N_("Remember password.");
+gchar *s = N_("This server requires authentication.");
 gchar *s = N_("Options");
 gchar *s = N_("Account Information");
 gchar *s = N_("Name:");

@@ -36,7 +36,6 @@ extern "C" {
 typedef struct _C2Account C2Account;
 typedef struct _C2AccountClass C2AccountClass;
 typedef enum _C2AccountType C2AccountType;
-typedef enum _C2AccountSignatureType C2AccountSignatureType;
 
 #ifdef HAVE_CONFIG_H
 #	include "mailbox.h"
@@ -48,13 +47,8 @@ typedef enum _C2AccountSignatureType C2AccountSignatureType;
 
 enum _C2AccountType
 {
-	C2_ACCOUNT_POP3
-};
-
-enum _C2AccountSignatureType
-{
-	C2_ACCOUNT_SIGNATURE_STATIC,
-	C2_ACCOUNT_SIGNATURE_DYNAMIC
+	C2_ACCOUNT_POP3,
+	C2_ACCOUNT_IMAP
 };
 
 struct _C2Account
@@ -63,7 +57,7 @@ struct _C2Account
 
 	gchar *name;
 	
-	gchar *per_name;
+	gchar *full_name;
 	gchar *organization;
 	
 	gchar *email;
@@ -73,10 +67,11 @@ struct _C2Account
 	
 	union
 	{
-		C2Pop3 *pop3;
+		C2POP3 *pop3;
+//		C2IMAP *imap;
 	} protocol;
 
-	C2Smtp *smtp;
+	C2SMTP *smtp;
 
 	struct
 	{
@@ -85,9 +80,8 @@ struct _C2Account
 
 	struct
 	{
-		C2AccountSignatureType type;
-		gchar *string;
-		gboolean automatic;
+		gchar *plain;
+		gchar *html;
 	} signature;
 
 	struct _C2Account *next;
@@ -102,14 +96,13 @@ GtkType
 c2_account_get_type									(void);
 
 C2Account *
-c2_account_new										(const gchar *name, const gchar *per_name,
+c2_account_new										(const gchar *name, const gchar *full_name,
 													 const gchar *organization, const gchar *email,
 													 const gchar *reply_to, gboolean active,
-													 C2AccountType account_type,
-													 C2SMTPType smtp_type,
-													 C2AccountSignatureType signature_type,
-													 const gchar *signature,
-													 gboolean signature_automatic, ...);
+													 const gchar *signature_plain,
+													 const gchar *signature_html,
+													 C2AccountType account_type, C2SMTPType smtp_type,
+													 ...);
 
 void
 c2_account_free										(C2Account *account);

@@ -153,7 +153,7 @@ c2_net_object_send (C2NetObject *nobj, const gchar *fmt, ...)
 		 * and fire the disconnect signal.
 		 */
 		close (nobj->sock);
-		c2_net_object_set_flags (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR);
+		c2_net_object_set_state (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR);
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE);
 		c2_error_set (-errno);
 		g_free (string);
@@ -213,7 +213,7 @@ c2_net_object_read (C2NetObject *nobj, gchar **string)
 		 * and fire the disconnect signal.
 		 */
 		close (nobj->sock);
-		c2_net_object_set_flags (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR);
+		c2_net_object_set_state (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR);
 		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE);
 		c2_error_set (-errno);
 		return -1;
@@ -260,15 +260,15 @@ c2_net_object_cancel (C2NetObject *nobj)
 }
 
 void
-c2_net_object_set_flags (C2NetObject *nobj, gint8 flags)
+c2_net_object_set_state (C2NetObject *nobj, gint8 state)
 {
-	nobj->state = flags;
+	nobj->state = state;
 }
 
 void
-c2_net_object_append_flags (C2NetObject *nobj, gint8 flags)
+c2_net_object_append_state (C2NetObject *nobj, gint8 state)
 {
-	nobj->state |= flags;
+	nobj->state |= state;
 }
 
 GtkType

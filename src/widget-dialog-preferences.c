@@ -85,21 +85,29 @@ static void
 on_interface_composer_editor_external_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
-on_general_accounts_incoming_server_type_selection_done	(GtkWidget *widget, C2Window *window);
+on_general_accounts_incoming_protocol_selection_done	(GtkWidget *pwidget, C2Window *window);
 
 static void
-on_general_accounts_outgoing_server_protocol_selection_done	(GtkWidget *widget, C2Window *window);
+on_general_accounts_outgoing_server_protocol_selection_done	(GtkWidget *pwidget, C2Window *window);
 
 static gboolean
-on_general_accounts_druid_page1_next			(GnomeDruidPage *druid_page, GtkWidget *druid,
+on_general_accounts_druid_page1_next		(GnomeDruidPage *druid_page, GtkWidget *druid,
 												C2Window *window);
 
 static gboolean
-on_general_accounts_druid_page2_next			(GnomeDruidPage *druid_page, GtkWidget *druid,
+on_general_accounts_druid_page2_next		(GnomeDruidPage *druid_page, GtkWidget *druid,
 												C2Window *window);
 
 static gboolean
-on_general_accounts_druid_page3_next			(GnomeDruidPage *druid_page, GtkWidget *druid,
+on_general_accounts_druid_page3_next		(GnomeDruidPage *druid_page, GtkWidget *druid,
+												C2Window *window);
+
+static gboolean
+on_general_accounts_druid_page4_next		(GnomeDruidPage *druid_page, GtkWidget *druid,
+												C2Window *window);
+
+static void
+on_general_accounts_druid_page5_finish		(GnomeDruidPage *druid_page, GtkWidget *druid,
 												C2Window *window);
 
 enum
@@ -683,7 +691,7 @@ on_general_accounts_add_clicked (GtkWidget *pwidget, C2DialogPreferences *prefer
 
 	if (account)
 	{
-		C2Smtp *smtp = account->smtp;
+		C2SMTP *smtp = account->smtp;
 		
 		widget = glade_xml_get_widget (xml, "outgoing_server_protocol");
 		gtk_option_menu_set_history (GTK_OPTION_MENU (widget), smtp->type);
@@ -697,9 +705,9 @@ on_general_accounts_add_clicked (GtkWidget *pwidget, C2DialogPreferences *prefer
 		}
 	}
 
-	widget = GTK_OPTION_MENU (glade_xml_get_widget (xml, "incoming_server_type"))->menu;
+	widget = GTK_OPTION_MENU (glade_xml_get_widget (xml, "incoming_protocol"))->menu;
 	gtk_signal_connect (GTK_OBJECT (widget), "selection_done",
-						GTK_SIGNAL_FUNC (on_general_accounts_incoming_server_type_selection_done), window);
+						GTK_SIGNAL_FUNC (on_general_accounts_incoming_protocol_selection_done), window);
 
 	widget = GTK_OPTION_MENU (glade_xml_get_widget (xml, "outgoing_server_protocol"))->menu;
 	gtk_signal_connect (GTK_OBJECT (widget), "selection_done",
@@ -716,6 +724,14 @@ on_general_accounts_add_clicked (GtkWidget *pwidget, C2DialogPreferences *prefer
 	widget = glade_xml_get_widget (xml, "page3");
 	gtk_signal_connect (GTK_OBJECT (widget), "next",
 						GTK_SIGNAL_FUNC (on_general_accounts_druid_page3_next), window);
+
+	widget = glade_xml_get_widget (xml, "page4");
+	gtk_signal_connect (GTK_OBJECT (widget), "next",
+						GTK_SIGNAL_FUNC (on_general_accounts_druid_page4_next), window);
+
+	widget = glade_xml_get_widget (xml, "page5");
+	gtk_signal_connect (GTK_OBJECT (widget), "finish",
+						GTK_SIGNAL_FUNC (on_general_accounts_druid_page5_finish), window);
 
 	gtk_widget_show (window);
 	
@@ -747,10 +763,10 @@ on_interface_composer_editor_external_toggled (GtkWidget *widget, C2DialogPrefer
 }
 
 static void
-on_general_accounts_incoming_server_type_selection_done (GtkWidget *widget, C2Window *window)
+on_general_accounts_incoming_protocol_selection_done (GtkWidget *pwidget, C2Window *window)
 {
 	GladeXML *xml = C2_WINDOW (window)->xml;
-	GtkWidget *menu = glade_xml_get_widget (xml, "incoming_server_type");
+	GtkWidget *menu = glade_xml_get_widget (xml, "incoming_protocol");
 	GtkWidget *widget;
 	gchar *selection;
 	
@@ -778,7 +794,7 @@ on_general_accounts_incoming_server_type_selection_done (GtkWidget *widget, C2Wi
 }
 
 static void
-on_general_accounts_outgoing_server_protocol_selection_done (GtkWidget *widget, C2Window *window)
+on_general_accounts_outgoing_server_protocol_selection_done (GtkWidget *pwidget, C2Window *window)
 {
 	GladeXML *xml = C2_WINDOW (window)->xml;
 	GtkWidget *menu = glade_xml_get_widget (xml, "outgoing_server_protocol");
@@ -946,11 +962,23 @@ on_general_accounts_druid_page4_next (GnomeDruidPage *druid_page, GtkWidget *dru
 	widget = glade_xml_get_widget (xml, "options_account_name");
 	buf = gtk_entry_get_text (GTK_ENTRY (widget));
 
-	if (!strlen (buf) || c2_mailbox_get_by_name (C2_WINDOW (window)->application->account, buf))
+	if (!strlen (buf))
 	{
 		GladeXML *exml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"),
-										"dlg_account_error_invalid_host");
-		GtkWidget *edialog = glade_xml_get_widget (exml, "dlg_account_error_invalid_host");
+										"dlg_account_error_invalid_account");
+		GtkWidget *edialog = glade_xml_get_widget (exml, "dlg_account_error_invalid_account");
+					
+		gnome_dialog_run_and_close (GNOME_DIALOG (edialog));
+		gtk_object_unref (GTK_OBJECT (exml));
+					
+		return TRUE;
+	}
+
+	if (c2_account_get_by_name (C2_WINDOW (window)->application->account, buf))
+	{
+		GladeXML *exml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"),
+										"dlg_account_error_used_account");
+		GtkWidget *edialog = glade_xml_get_widget (exml, "dlg_account_error_used_account");
 					
 		gnome_dialog_run_and_close (GNOME_DIALOG (edialog));
 		gtk_object_unref (GTK_OBJECT (exml));
@@ -961,22 +989,74 @@ on_general_accounts_druid_page4_next (GnomeDruidPage *druid_page, GtkWidget *dru
 	return FALSE;
 }
 
-static gboolean
-on_general_accounts_druid_page_finish (GnomeDruidPage *druid_page, GtkWidget *druid,
+static void
+on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *druid,
 										C2Window *window)
 {
 	GtkWidget *widget;
 	GladeXML *xml;
 	GtkWidget *menu;
 	gchar *buf, *buf2, *selection;
-	gchar *full_name, *mail, *org, *reply_to, *pop3_hostname, *smtp_hostname, *name, *sign_plain,
-			*sign_html;
-	gboolean activate, leave_copy;
-
+	gchar *full_name, *mail, *organization, *reply_to, *incoming_hostname, *incoming_user, *incoming_pass,
+			*smtp_hostname, *name, *signature_plain, *signature_html;
+	gint incoming_port, outgoing_port;
+	gboolean active, leave_copy, incoming_ssl, outgoing_ssl;
+	C2AccountType incoming_protocol;
 
 	xml = C2_WINDOW (window)->xml;
 
+	widget = glade_xml_get_widget (xml, "identity_name");
+	full_name = gtk_entry_get_text (GTK_ENTRY (widget));
+	
+	widget = glade_xml_get_widget (xml, "identity_email");
+	mail = gtk_entry_get_text (GTK_ENTRY (widget));
+	
+	widget = glade_xml_get_widget (xml, "identity_organization");
+	organization = gtk_entry_get_text (GTK_ENTRY (widget));
+
+	widget = glade_xml_get_widget (xml, "identity_reply_to");
+	reply_to= gtk_entry_get_text (GTK_ENTRY (widget));
+
+	widget = glade_xml_get_widget (xml, "incoming_protocol");
+	if (GTK_BIN (widget)->child)
+	{
+		GtkWidget *child = GTK_BIN (widget)->child;
+
+		if (GTK_LABEL (child))
+		{
+			gtk_label_get (GTK_LABEL (child), &selection);
+
+			if (c2_streq (selection, _("POP3")))
+			{
+				incoming_protocol = C2_ACCOUNT_POP3;
+				
+				widget = glade_xml_get_widget (xml, "incoming_server_hostname");
+				incoming_hostname = gtk_entry_get_text (GTK_ENTRY (widget));
+				
+				widget = glade_xml_get_widget (xml, "incoming_server_port");
+				incoming_port = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+			} else if (c2_streq (selection, _("IMAP")))
+			{
+				incoming_protocol = C2_ACCOUNT_IMAP;
+				
+				widget = glade_xml_get_widget (xml, "incoming_server_hostname");
+				incoming_hostname = gtk_entry_get_text (GTK_ENTRY (widget));
+				
+				widget = glade_xml_get_widget (xml, "incoming_server_port");
+				incoming_port = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+
+				widget = glade_xml_get_widget (xml, "incoming_server_ssl");
+				incoming_ssl = GTK_TOGGLE_BUTTON (widget)->active;
+
+				
+			}
+		}
+	}
 	
 
-	return FALSE;
+	C2_DEBUG (full_name);
+	C2_DEBUG (mail);
+	C2_DEBUG (organization);
+	C2_DEBUG (incoming_hostname);
+	printf ("Port: %d\n", incoming_port);
 }

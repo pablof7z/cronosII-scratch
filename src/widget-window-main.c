@@ -508,6 +508,7 @@ on_preferences_activated (GtkWidget *widget)
 static void
 on_check_clicked (GtkWidget *widget, C2WindowMain *wmain)
 {
+#if 0
 	static GtkWidget *mt = NULL;
 	C2Account *account;
 
@@ -529,6 +530,7 @@ on_check_clicked (GtkWidget *widget, C2WindowMain *wmain)
 										C2_MESSAGE_TRANSFER_CHECK);
 	
 	c2_message_transfer_thaw (C2_MESSAGE_TRANSFER (mt));
+#endif
 }
 
 static void
