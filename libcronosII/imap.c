@@ -52,8 +52,8 @@ static gint
 c2_imap_plaintext_login (C2IMAP *imap);
 
 /* Misc. functions */
-static void
-c2_imap_tag (C2IMAP *imap);
+static tag_t
+c2_imap_get_tag								(C2IMAP *imap);
 
 static void
 c2_imap_set_error(C2IMAP *imap, const gchar *error);
@@ -231,7 +231,7 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	C2IMAP *imap = C2_IMAP(data);
 	gchar *buf, *buf2, *ptr = NULL;
 	gchar *final = NULL;
-	gint tag = 0;
+	tag_t tag = 0;
 	
 	pthread_mutex_lock(&imap->lock);
 	
@@ -269,13 +269,18 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	pthread_mutex_unlock(&imap->lock);
 }
 
-static void
-c2_imap_tag(C2IMAP *imap)
+static tag_t
+c2_imap_get_tag (C2IMAP *imap)
 {
-	if(imap->cmnd >= 1000)
-		imap->cmnd = 0;
-	else
-		imap->cmnd++;
+	tag_t tag;
+
+	/* No, there's no error here, cmnd is an unsigned int of 10 bits,
+	 * thus, the greatest number is 1023 and the lowest 0...
+	 */
+	
+	tag = imap->cmnd++;
+
+	return tag;
 }
 
 static void
@@ -294,14 +299,15 @@ c2_imap_set_error(C2IMAP *imap, const gchar *error)
 static gint
 c2_imap_plaintext_login (C2IMAP *imap)
 {	
-	gint tag;
+	tag_t tag;
 	
-	tag = imap->cmnd;
-	c2_imap_tag(imap);
-	if(c2_net_object_send(C2_NET_OBJECT(imap), "CronosII-%03d LOGIN %s %s\r\n", 
+	tag = c2_imap_get_tag (imap);
+
+	if(c2_net_object_send(C2_NET_OBJECT(imap), "CronosII-%04d LOGIN %s %s\r\n", 
 												tag, imap->user, imap->pass) < 0)
 	{
-		c2_imap_tag(imap);
+		/* Bosko, are you sure you want to increment the tag again here? -pablo */
+		c2_imap_get_tag (imap);
 		pthread_mutex_unlock(&imap->lock);
 		return -1;
 	}

@@ -45,6 +45,7 @@ extern "C" {
 typedef struct _C2IMAP C2IMAP;
 typedef struct _C2IMAPClass C2IMAPClass;
 typedef enum _C2IMAPAuthenticationType C2IMAPAuthenticationType;
+typedef unsigned int tag_t;
 
 enum _C2IMAPAuthenticationType
 {
@@ -62,7 +63,7 @@ struct _C2IMAP
 	gchar *user;
 	gchar *pass;
 
-	gint cmnd;
+	tag_t cmnd : 10;
 
 	gint auth_remember :1;		/* %TRUE = Store password */
 
