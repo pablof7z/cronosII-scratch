@@ -616,11 +616,24 @@ db_message_remove_sort (gconstpointer a, gconstpointer b)
 	return ga > gb;
 }
 
+
+gint
+c2_db_message_remove (C2Mailbox *mailbox, gint position)
+{
+	gint retval = 0;
+	GList *list;
+
+	list = g_list_append (NULL, (gpointer) position);
+	retval = c2_db_message_remove_list (mailbox, list);
+	g_list_free (list);
+	
+	return retval;
+}
+
 /**
- * c2_db_message_remove [VFUNCTION]
+ * c2_db_message_remove_list [VFUNCTION]
  * @mailbox: Mailbox where to act.
- * @db: Node to remove.
- * @n: Number of mails to delete.
+ * @list: A GList of number of messages to remove (position in db).
  *
  * This function will remove a message
  * from the mailbox.
@@ -629,7 +642,7 @@ db_message_remove_sort (gconstpointer a, gconstpointer b)
  * 0 on success, -1 on error.
  **/
 gint
-c2_db_message_remove (C2Mailbox *mailbox, GList *list)
+c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 {
 	gint first;
 	gint (*func) (C2Mailbox *mailbox, GList *list);
@@ -800,8 +813,11 @@ c2_db_message_set_mark (C2Db *db, gboolean mark)
  * @db: C2Db node to load.
  *
  * This function will load a message from the mailbox.
+ *
+ * Return Value:
+ * 0 on success, -1 on error.
  **/
-void
+gint
 c2_db_load_message (C2Db *db)
 {
 	C2Message *(*func) (C2Db *db);
@@ -821,7 +837,13 @@ c2_db_load_message (C2Db *db)
 
 	db->message = func (db);
 	if (db->message)
+	{
 		db->message->mime = c2_mime_new (db->message);
+		return 0;
+	} else
+		return -1;
+	
+	return -1;
 }
 
 /**

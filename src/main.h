@@ -30,6 +30,20 @@ extern "C" {
 
 /* Global variables */
 C2Application *application;
+extern gchar *error_list[];
+
+enum
+{
+	C2_FAIL_MESSAGE_LOAD,
+	C2_FAIL_MESSAGE_SAVE,
+	C2_FAIL_MAILBOX_LOAD,
+	C2_FAIL_MAILBOX_CREATE,
+
+	C2_SUCCESS_MESSAGE_SAVE,
+	
+	C2_CANCEL_USER,
+	C2_UNKNOWN_REASON
+};
 
 #ifdef __cplusplus
 }

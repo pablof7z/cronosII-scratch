@@ -30,6 +30,19 @@
 static gint
 idle										(C2Application *application);
 
+gchar *error_list[] =
+{
+	N_("Failed to load message: %s."),
+	N_("Failed to save message: %s."),
+	N_("Failed to load mailbox «%s»: %s."),
+	N_("Failed to create mailbox «%s»: %s."),
+
+	N_("Message saved successfully."),
+
+	N_("Action cancelled by user."),
+	N_("Unknown reason")
+};
+
 static struct {
 	gboolean open_composer;
 	

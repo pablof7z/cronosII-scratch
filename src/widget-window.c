@@ -181,6 +181,30 @@ c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, .
 		data->v2 = (gpointer) gtk_timeout_add (3000, on_report_timeout, data);
 		report_timeout_id = GPOINTER_TO_INT (data->v2);
 		pthread_mutex_unlock (&window->status_lock);
+	} else
+	{
+		if (type == C2_WINDOW_REPORT_WARNING)
+		{
+			GtkWidget *dialog = gnome_warning_dialog (rmsg);
+
+			c2_application_window_add (window->application, GTK_WINDOW (dialog));
+			gtk_object_ref (GTK_OBJECT (dialog));
+
+			gnome_dialog_run (GNOME_DIALOG (dialog));
+			
+			gtk_object_destroy (GTK_OBJECT (dialog));
+		} else if (type == C2_WINDOW_REPORT_ERROR)
+		{
+			GtkWidget *dialog = gnome_error_dialog (rmsg);
+
+			c2_application_window_add (window->application, GTK_WINDOW (dialog));
+			gtk_object_ref (GTK_OBJECT (dialog));
+
+			gnome_dialog_run (GNOME_DIALOG (dialog));
+
+			gtk_object_destroy (GTK_OBJECT (dialog));
+		}
+		g_free (rmsg);
 	}
 
 	g_free (msg);

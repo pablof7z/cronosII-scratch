@@ -9,6 +9,10 @@ art work:
 widget-mail:
 			o Italic is not recognized/translated.
 
+dialogs:
+			o Add mailbox dialog: redisign it, is not intuitive enough, use the
+			  mailbox list widget.
+
 supports:
 			o MH mailbox.
 			o Themes.

@@ -131,7 +131,13 @@ gint
 c2_db_message_add							(C2Mailbox *mailbox, C2Message *message);
 
 gint
-c2_db_message_remove						(C2Mailbox *mailbox, GList *list);
+c2_db_message_add_list						(C2Mailbox *mailbox, GList *list);
+
+gint
+c2_db_message_remove						(C2Mailbox *mailbox, gint position);
+
+gint
+c2_db_message_remove_list					(C2Mailbox *mailbox, GList *list);
 
 void
 c2_db_message_set_state						(C2Db *db, C2MessageState state);
@@ -143,7 +149,7 @@ c2_db_message_set_mark						(C2Db *db, gboolean marked);
 /***********************
  * [DataBase Querying] *
  ***********************/
-void
+gint
 c2_db_load_message							(C2Db *db);
 
 void

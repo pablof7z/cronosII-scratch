@@ -25,6 +25,7 @@
 #include <libcronosII/mime.h>
 #include <libcronosII/utils.h>
 
+#include "main.h"
 #include "preferences.h"
 #include "widget-composer.h"
 #include "widget-dialog-preferences.h"
@@ -756,7 +757,7 @@ copy (C2WindowMain *wmain)
 	if (!(tmailbox = c2_application_dialog_select_mailbox (
 									C2_WINDOW (wmain)->application, GTK_WINDOW (wmain))))
 	{
-		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE, _("Action cancelled by user."));
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE, error_list[C2_CANCEL_USER]);
 		return;
 	}
 
@@ -820,7 +821,7 @@ delete (C2WindowMain *wmain)
 			if (!dlg_confirm_delete_message (wmain))
 			{
 				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
-									_("Deletion cancelled by user"));
+									error_list[C2_CANCEL_USER]);
 				return;
 			}
 		}
@@ -849,8 +850,8 @@ expunge_thread (C2WindowMain *wmain)
 {
 	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
 	
-L	c2_db_message_remove (mailbox, GTK_CLIST (wmain->index)->selection);
-L}
+	c2_db_message_remove (mailbox, GTK_CLIST (wmain->index)->selection);
+}
 
 static void
 expunge (C2WindowMain *wmain)
@@ -864,7 +865,7 @@ expunge (C2WindowMain *wmain)
 	if (!dlg_confirm_expunge_message (wmain))
 	{
 		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
-							_("Deletion cancelled by user"));
+							error_list[C2_CANCEL_USER]);
 		return;
 	}
 
@@ -877,8 +878,131 @@ forward (C2WindowMain *wmain)
 }
 
 static void
+move_thread (C2Pthread4 *data)
+{
+	C2WindowMain *wmain = C2_WINDOW_MAIN (data->v1);
+	C2Mailbox *fmailbox = C2_MAILBOX (data->v2);
+	C2Mailbox *tmailbox = C2_MAILBOX (data->v3);
+	GList *list = (GList*) data->v4;
+	GList *l;
+	GtkWidget *widget;
+	GtkProgress *progress;
+	gint length, off;
+	gboolean progress_ownership;
+	gboolean status_ownership;
+	
+	g_free (data);
+
+	/* Get the length of our list */
+	length = g_list_length (list);
+
+	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "appbar");
+
+	/* Try to reserve ownership over the progress bar */
+	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->progress_lock))
+		progress_ownership = TRUE;
+	else
+		progress_ownership = FALSE;
+
+	/* Try to reserver ownership over the status bar */
+	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->status_lock))
+		status_ownership = TRUE;
+	else
+		status_ownership = FALSE;
+
+	gdk_threads_enter ();
+	
+	if (progress_ownership)
+	{
+		/* Configure the progress bar */
+		progress = GTK_PROGRESS (GNOME_APPBAR (widget)->progress);
+		gtk_progress_configure (progress, 0, 0, length);
+	}
+
+	if (status_ownership)
+	{
+		/* Configure the status bar */
+		gnome_appbar_push (GNOME_APPBAR (widget), _("Moveing..."));
+	}
+
+	gdk_threads_leave ();
+	
+	c2_db_freeze (fmailbox);
+	c2_db_freeze (tmailbox);
+	for (l = list, off = 0; l; l = g_list_next (l), off++)
+	{
+		C2Db *db;
+		
+		/* Now do the actual copy */
+		db = c2_db_get_node (fmailbox, GPOINTER_TO_INT (l->data));
+
+		if (!db->message)
+		{
+			if (c2_db_load_message (db) < 0)
+			{
+				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+									error_list[C2_FAIL_MESSAGE_LOAD], c2_error_get ());
+				continue;
+			}
+		}
+		
+		gtk_object_ref (GTK_OBJECT (db->message));
+		if (!(c2_db_message_add (tmailbox, db->message) < 0))
+			c2_db_message_remove (fmailbox, GPOINTER_TO_INT (l->data));
+		gtk_object_unref (GTK_OBJECT (db->message));
+
+		if (progress_ownership)
+		{
+			gdk_threads_enter ();
+			gtk_progress_set_value (progress, off);
+			gdk_threads_leave ();
+		}
+	}
+	c2_db_thaw (tmailbox);
+	c2_db_thaw (fmailbox);
+
+	gdk_threads_enter ();
+
+	if (status_ownership)
+	{
+		gnome_appbar_pop (GNOME_APPBAR (widget));
+		pthread_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
+	}
+
+	if (progress_ownership)
+	{
+		gtk_progress_set_percentage (progress, 1.0);
+		pthread_mutex_unlock (&C2_WINDOW (wmain)->progress_lock);
+	}
+
+	gdk_threads_leave ();
+}
+
+static void
 move (C2WindowMain *wmain)
 {
+	GtkWidget *widget;
+	C2Mailbox *fmailbox, *tmailbox;
+	C2Pthread4 *data;
+	pthread_t thread;
+
+	if (!GTK_CLIST (wmain->index)->selection)
+		return;
+
+	fmailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
+	if (!(tmailbox = c2_application_dialog_select_mailbox (
+									C2_WINDOW (wmain)->application, GTK_WINDOW (wmain))))
+	{
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE, error_list[C2_CANCEL_USER]);
+		return;
+	}
+
+	data = g_new0 (C2Pthread4, 1);
+	data->v1 = wmain;
+	data->v2 = fmailbox;
+	data->v3 = tmailbox;
+	data->v4 = GTK_CLIST (wmain->index)->selection;
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (move_thread), data);
 }
 
 static void
@@ -966,7 +1090,7 @@ save (C2WindowMain *wmain)
 
 	if (!button)
 		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-							_("Message saving aborted."));
+							error_list[C2_CANCEL_USER]);
 	else
 	{
 		const gchar *file;
@@ -992,7 +1116,7 @@ save (C2WindowMain *wmain)
 		if (!message)
 		{
 			c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-								_("Message saving failed: Unable to find message."));
+								error_list[C2_FAIL_MESSAGE_SAVE], _("Unable to find message."));
 			goto no_name;
 		}
 
@@ -1001,7 +1125,7 @@ save (C2WindowMain *wmain)
 			c2_error_set (-errno);
 
 			c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-								_("Message saving failed: %s"), c2_error_get ());
+								error_list[C2_FAIL_MESSAGE_SAVE], c2_error_get ());
 			goto no_name;
 		}
 
@@ -1009,7 +1133,7 @@ save (C2WindowMain *wmain)
 		fclose (fd);
 
 		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
-								_("Message saved successfully."));
+								error_list[C2_SUCCESS_MESSAGE_SAVE]);
 	}
 no_name:
 	c2_application_window_remove (C2_WINDOW (wmain)->application, GTK_WINDOW (dialog));
@@ -1207,7 +1331,9 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 	
 	if (!node->message)
 	{
+		/* [TODO] This should be in a separated thread */
 		c2_db_load_message (node);
+
 		if (!node->message)
 		{
 			/* Something went wrong */
@@ -1216,10 +1342,12 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 			error = c2_error_object_get (GTK_OBJECT (node));
 			if (error)
 				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-								_("Message failed to load: %s."), error);
+								error_list[C2_FAIL_MESSAGE_LOAD], error);
 			else
 				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-								_("Message failed to load."));
+								error_list[C2_FAIL_MESSAGE_LOAD], error_list[C2_UNKNOWN_REASON]);
+
+			return;
 		}
 	}
 
@@ -1245,7 +1373,8 @@ on_mlist_mailbox_selected_pthread (C2WindowMain *wmain)
 		{
 			/* Something went wrong... */
 			c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-							_("The mailbox '%s' couldn't be loaded"), mailbox->name);
+							error_list[C2_FAIL_MAILBOX_LOAD], mailbox->name,
+							c2_error_object_get (GTK_OBJECT (mailbox)));
 			c2_index_remove_mailbox (index);
 			c2_window_set_activity (C2_WINDOW (wmain), FALSE);
 			gtk_widget_queue_draw (GTK_WIDGET (index));
@@ -1734,7 +1863,7 @@ re_run_add_mailbox_dialog:
 				if (!mailbox)
 				{
 					c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-										_("Unable to create mailbox"));
+										error_list[C2_FAIL_MAILBOX_CREATE], name);
 					switch (type)
 					{
 						case C2_MAILBOX_IMAP:
