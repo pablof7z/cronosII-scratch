@@ -46,7 +46,7 @@ static GList *
 get_mail_addresses (const gchar *string);
 
 static void
-c2_smtp_set_error(C2Smtp *smtp, gchar *error);
+c2_smtp_set_error(C2Smtp *smtp, const gchar *error);
 
 #define DEFAULT_FLAGS C2_SMTP_DONT_PERSIST
 
@@ -333,7 +333,7 @@ c2_smtp_send_headers(C2Smtp *smtp, C2Message *message)
 			g_list_free(to);
 			break;
 		}
-		if(!c2_strneq(buffer, "250", 3))
+		if(!c2_strneq(buffer, "250", 3) && !s2_strneq(buffer, "251", 3))
 		{
 			c2_smtp_set_error(smtp, _("SMTP server did not reply to 'RCPT TO:' in a friendly way"));
 			g_free(buffer);
@@ -387,10 +387,10 @@ smtp_test_connection(C2Smtp *smtp)
 		return FALSE;
 	if(c2_net_read(smtp->sock, &buffer) < 0)
 		return FALSE;
+	g_free(buffer);
 	
 	return TRUE;
 }
-
 
 static void
 smtp_disconnect(C2Smtp *smtp)
@@ -426,8 +426,8 @@ get_mail_addresses (const gchar *string)
 }
 
 static void
-c2_smtp_set_error(C2Smtp *smtp, gchar *error) 
+c2_smtp_set_error(C2Smtp *smtp, const gchar *error) 
 {
-	if(smtp->error) g_free(error);
+	if(smtp->error) g_free(smtp->error);
 	smtp->error = g_strdup(error);
 }
