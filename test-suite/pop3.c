@@ -19,6 +19,7 @@
 #include <glib.h>
 
 #include <libcronosII/pop3.h>
+#include <libcronosII/smtp.h>
 #include <libcronosII/account.h>
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
@@ -36,9 +37,8 @@ main (gint argc, gchar **argv)
 	flags = C2_POP3_DO_KEEP_COPY;
 
 	inbox = c2_mailbox_new ("Inbox", "0", C2_MAILBOX_CRONOSII, 0, 0);
-   	pop3 = c2_pop3_new(argv[1], argv[2], "localhost", 110, FALSE);
-	act  = c2_account_new("a","a","a","aa","a",TRUE,NULL, NULL, C2_ACCOUNT_POP3,C2_SMTP_LOCAL,"a",110, argv[1], argv[2], FALSE, 0);
-	act->protocol.pop3 = pop3;
+	pop3 = c2_pop3_new("localhost", 110, argv[1], argv[2], FALSE);
+	act  = c2_account_new(C2_ACCOUNT_POP3, "Me", "root@localhost");
 
 	c2_pop3_set_flags(pop3,flags);
 
@@ -47,7 +47,7 @@ main (gint argc, gchar **argv)
 //		
 //	}
 
-	c2_pop3_fetchmail(act, inbox);
+	c2_pop3_fetchmail(pop3, act, inbox);
 
 
 	//c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
