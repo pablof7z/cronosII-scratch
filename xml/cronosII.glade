@@ -4588,6 +4588,7 @@ expunge the selected mails?</message>
 <widget>
   <class>GnomeDialog</class>
   <name>dlg_add_features</name>
+  <visible>False</visible>
   <title>Add features</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>

@@ -197,6 +197,7 @@ gchar *s = N_("Attachments Tool");
 gchar *s = N_("Save selected attachments to disk");
 gchar *s = N_("Mail Source");
 gchar *s = N_("Add features");
+gchar *s = N_("Add Features");
 gchar *s = N_("Cronos II is prepared to add new cool features in any time you want.\n"
               "\n"
               "What follow is a list of all available features of Cronos II that you can download from the Internet and install in a quick and easy way.");

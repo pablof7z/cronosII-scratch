@@ -546,6 +546,7 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 
 	smtp = (C2SMTP*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, NULL);
 
+	gdk_threads_enter ();
 	tl = c2_application_window_get (application, C2_WIDGET_TRANSFER_LIST_TYPE);
 	if (!tl || !C2_IS_TRANSFER_LIST (tl))
 		tl = c2_transfer_list_new (application);
@@ -556,6 +557,7 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 
 	gtk_widget_show (tl);
 	gdk_window_raise (tl->window);
+	gdk_threads_leave ();
 }
 
 C2Application *

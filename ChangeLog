@@ -1,5 +1,8 @@
 Tue Dec 18 Pablo Fernández Navarro <cronosII@users.sf.net>
 	* Work in the Website.
+	* Fixed a bug in the composer that might crash the application
+	  everytime you wanted to send a mail (actually the bug was
+	  in the application widget).
 
 Mon Dec 17 Pablo Fernández Navarro <cronosII@users.sf.net>
 	* Work in the new widget Select List.
