@@ -8,6 +8,7 @@ Sat Mar 16 Pablo Fernández López <pablo@pablossite.net>
 Sat Mar 16 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Big IMAP bug fix and some subscribtion facility in IMAP.
 	* Some little features in IMAP.
+	* Added c2_imap_subscribe_mailbox() and *_unsubscrbe_mailbox. 
 
 Fri Mar 15 Pablo Fernández López <pablo@pablossite.net>
 	* Started the integrate of the IMAP module with the UI (UI~IMAP).
