@@ -2,6 +2,7 @@ Tue Oct 09 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work with the deletion in the db module.
 	* Added a couple of functions to the module.
 	* Fixed a bug in c2_net_object_send().
+	* Added support to understand mailto: links (-l flag).
 	* Some little SMTP work.
 	* Added RFC821 to the rfc's directory.
 
