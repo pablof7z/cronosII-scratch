@@ -1830,6 +1830,22 @@ GET_BODY:
 	return message;
 }
 
+gint
+c2_imap_message_remove_states (C2Db *db)
+{
+	C2IMAP *imap = db->mailbox->protocol.IMAP.imap;
+	C2MessageState state = db->state;
+	gchar *cmd = NULL;
+	tag_t tag;
+
+	if(c2_imap_select_mailbox(imap, db->mailbox) < 0)
+		return -1;
+
+	/* TODO: finish me! */
+
+	return 0;
+}
+
 /** c2_imap_message_set_state
  * 
  * @imap: A locked IMAP object
