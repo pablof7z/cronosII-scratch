@@ -21,7 +21,8 @@ libcronosII_a_SOURCES = \
 	smtp.c				smtp.h						\
 	utils.c				utils.h						\
 	utils-date.c		utils-date.h				\
-	utils-net.c			utils-net.h
+	utils-net.c			utils-net.h					\
+	utils-mutex.c		utils-mutex.h
 
 libcronosII_a_LIBADD = @LIBOBJS@
 

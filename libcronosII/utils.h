@@ -68,21 +68,6 @@ typedef struct
 #	define C2_DEBUG(x)						;
 #	define C2_DEBUG_(x)						;
 #endif
-
-gint
-c2_mutex_init								(pthread_mutex_t *mutex);
-	
-gint
-c2_mutex_lock								(pthread_mutex_t *mutex);
-	
-gint
-c2_mutex_trylock							(pthread_mutex_t *mutex);
-	
-gint
-c2_mutex_unlock								(pthread_mutex_t *mutex);
-
-gint
-c2_mutex_destroy							(pthread_mutex_t *mutex);
 	
 gboolean
 c2_strcaseeq								(const gchar *fst, const gchar *snd);

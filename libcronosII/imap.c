@@ -241,10 +241,10 @@ c2_imap_init (C2IMAP *imap)
 static void
 destroy(GtkObject *object)
 {
-	/*g_free(C2_IMAP(object)->user);
+	g_free(C2_IMAP(object)->user);
 	g_free(C2_IMAP(object)->pass);
 	g_free(C2_IMAP(object)->host);
-	c2_mutex_destroy(&C2_IMAP(object)->lock);*/
+	c2_mutex_destroy(&C2_IMAP(object)->lock);
 }
 
 static void
@@ -482,7 +482,8 @@ c2_imap_plaintext_login (C2IMAP *imap)
 		return -1;
 	}
 	
-	printf("WE GOT BACK: %s\n", reply);
+	printf("\tWE GOT BACK: %s\n", reply);
+	return 0;
 	if(c2_imap_check_server_reply(reply, tag))
 	{
 		printf("logged in ok!\n\n");

@@ -32,66 +32,6 @@
  */
 
 /**
- * c2_mutex_init
- * @mutex: A pointer to the mutex
- * 
- * Initializes a mutex to be a standard POSIX
- * mutex, follow the rules, and play nicely. 
- * The purpose of this function is mostly to 
- * overcome differences between the default 
- * mutex behaivor on different systems (i.e.
- * freebsd's default mutex are not POSIX )
- * 
- * Return Value:
- * 0 on success
- **/
-gint
-c2_mutex_init (pthread_mutex_t *mutex)
-{
-	gint return_val;
-	
-#ifdef MUTEX_TYPE_FAST
-	pthread_mutexattr_t attr;
-	
-	pthread_mutexattr_init (&attr);
-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_NORMAL);
-	
-	return_val = pthread_mutex_init(mutex, &attr);
-	
-	pthread_mutexattr_destroy(&attr);
-#else
-	return_val = pthread_mutex_init(mutex, NULL);
-#endif
-	
-	return return_val;
-}
-
-gint
-c2_mutex_lock (pthread_mutex_t *mutex)
-{
-	return pthread_mutex_lock(mutex);
-}
-
-gint
-c2_mutex_trylock (pthread_mutex_t *mutex)
-{
-	return pthread_mutex_trylock(mutex);
-}
-
-gint
-c2_mutex_unlock (pthread_mutex_t *mutex)
-{
-	return pthread_mutex_unlock(mutex);
-}
-
-gint
-c2_mutex_destroy (pthread_mutex_t *mutex)
-{
-	return pthread_mutex_destroy(mutex);
-}
-
-
-/**
  * c2_strcaseeq
  * @fst: A pointer to a string.
  * @snd: A pointer to a string.

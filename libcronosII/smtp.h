@@ -57,6 +57,7 @@ extern "C" {
 #ifdef BUILDING_C2
 #	include "db.h"
 #	include "net-object.h"
+# include "utils-mutex.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -102,7 +103,7 @@ struct _C2SMTP
 	C2NetObjectByte *persistent; /* for persistent connections */
 	gint flags;
 	
-	pthread_mutex_t lock;
+	C2Mutex lock;
 };
 	
 struct _C2SMTPClass

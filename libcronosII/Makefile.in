@@ -134,7 +134,7 @@ l = @l@
 
 noinst_LIBRARIES = libcronosII.a
 
-libcronosII_a_SOURCES =  	account.c			account.h						db.c				db.h							db-cronosII.c		db-cronosII.h					db-imap.c			db-imap.h						db-spool.c			db-spool.h						error.c				error.h												i18n.h							hash.c				hash.h												hash-definitions.h				imap.c				imap.h							mailbox.c			mailbox.h						md5.c				md5.h							message.c			message.h						mime.c				mime.h							net-object.c		net-object.h					pop3.c				pop3.h							request.c			request.h						smtp.c				smtp.h							utils.c				utils.h							utils-date.c		utils-date.h					utils-net.c			utils-net.h
+libcronosII_a_SOURCES =  	account.c			account.h						db.c				db.h							db-cronosII.c		db-cronosII.h					db-imap.c			db-imap.h						db-spool.c			db-spool.h						error.c				error.h												i18n.h							hash.c				hash.h												hash-definitions.h				imap.c				imap.h							mailbox.c			mailbox.h						md5.c				md5.h							message.c			message.h						mime.c				mime.h							net-object.c		net-object.h					pop3.c				pop3.h							request.c			request.h						smtp.c				smtp.h							utils.c				utils.h							utils-date.c		utils-date.h					utils-net.c			utils-net.h		utils-mutex.c	utils-mutex.h
 
 
 libcronosII_a_LIBADD = @LIBOBJS@
@@ -155,7 +155,7 @@ LDFLAGS = @LDFLAGS@
 libcronosII_a_DEPENDENCIES =  @LIBOBJS@
 libcronosII_a_OBJECTS =  account.o db.o db-cronosII.o db-imap.o \
 db-spool.o error.o hash.o imap.o mailbox.o md5.o message.o mime.o \
-net-object.o pop3.o request.o smtp.o utils.o utils-date.o utils-net.o
+net-object.o pop3.o request.o smtp.o utils.o utils-date.o utils-net.o utils-mutex.o
 AR = ar
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
