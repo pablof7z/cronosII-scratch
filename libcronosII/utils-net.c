@@ -23,11 +23,19 @@
  */
 #include <glib.h>
 #include <string.h>
+#include <config.h>
 
 #include "error.h"
 #include "utils.h"
 #include "utils-str.h"
 #include "utils-net.h"
+
+#define MOD	"Net Object"
+#ifdef USE_DEBUG
+#	define DMOD	TRUE
+#else
+#	define DMOD	FALSE
+#endif
 
 /* TODO
  * 20011208 (/me is a little bit drunk still) There's no timeout stuff! -Pablo
@@ -177,14 +185,43 @@ c2_net_sendv (guint sock, const gchar *fmt, va_list args)
 
 	length = strlen (string);
 
+#ifdef USE_DEBUG
+	if (_debug_net_object)
+	{
+		C2_PRINTD (MOD, "Send: '");
+		fflush (stdout);
+	}
+#endif
+	
 	for (ptr = string, i = 0; i < length; ptr++, i++)
 	{
+#ifdef USE_DEBUG
+		if (_debug_net_object)
+		{
+			if (*ptr == '\r')
+				printf ("\\r");
+			else if (*ptr == '\n')
+				printf ("\\n");
+			else
+				printf ("%c", *ptr);
+			fflush (stdout);
+		}
+#endif
 		if ((value = send (sock, ptr, 1, 0)) < 0)
 			c2_error_set (-errno);
 		
 		tracker_set_send (value);
 		bytes += value;
 	}
+
+#ifdef USE_DEBUG
+	if (_debug_net_object)
+	{
+		printf ("'\n");
+		fflush (stdout);
+	}
+#endif
+	
 	g_free (string);
 	
 	return bytes;
@@ -210,6 +247,14 @@ c2_net_read (guint sock, gchar **string)
 	gint bytes = 0, i, byte;
 	gchar c[1];
 	
+#ifdef USE_DEBUG
+	if (_debug_net_object)
+	{
+		C2_PRINTD (MOD, "Read: '");
+		fflush (stdout);
+	}
+#endif
+	
 	for (i = 0; i < 1023; i++)
 	{
 		if ((byte = read (sock, c, 1)) < 0)
@@ -217,6 +262,20 @@ c2_net_read (guint sock, gchar **string)
 			c2_error_set (-errno);
 			return -1;
 		}
+
+#ifdef USE_DEBUG
+		if (_debug_net_object)
+		{
+			if (*c == '\r')
+				printf ("\\r");
+			else if (*c == '\n')
+				printf ("\\n");
+			else
+				printf ("%c", *c);
+			fflush (stdout);
+		}
+#endif
+		
 		bytes += byte;
 		if (!bytes)
 		{
@@ -234,6 +293,13 @@ c2_net_read (guint sock, gchar **string)
 	}
 	tmpstring[1023] = '\0';
 
+#ifdef USE_DEBUG
+	if (_debug_net_object)
+	{
+		printf ("'\n");
+		fflush (stdout);
+	}
+#endif
 	*string = g_strdup (tmpstring);
 	return bytes;
 }

@@ -33,7 +33,7 @@ item 17=17
 item 18=16
 
 [General-Options]
-start_check=true
+start_check=false
 start_load=true
 outbox_sent_items=true
 delete_use_trash=true

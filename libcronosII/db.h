@@ -65,8 +65,8 @@ typedef struct _C2DbProtocol C2DbProtocol;
 #	include <cronosII.h>
 #endif
 
-#define c2_db_is_first(db)					((db)&&(db->position<=db->prev->position))
-#define c2_db_is_last(db)					((db)&&(db->position>=db->next->position))
+#define c2_db_is_first(db)					(C2_IS_DB (db)&&(db->position<=db->prev->position))
+#define c2_db_is_last(db)					(C2_IS_DB (db)&&(db->position>=db->next->position))
 #define c2_db_lineal_next(db)				(c2_db_is_last (db)?0:(db=db->next))
 #define c2_db_is_load(mailbox)				((mailbox)&&(mailbox->db_is_loaded))
 

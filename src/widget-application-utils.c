@@ -244,6 +244,10 @@ c2_application_dialog_password (C2Application *application)
 	widget = glade_xml_get_widget (xml, "dlg_req_password");
 	if (gnome_preferences_get_dialog_centered ())
 		gtk_window_set_position (GTK_WINDOW (widget), GTK_WIN_POS_CENTER);
+	
+	gtk_widget_realize (widget);
+	
+	gdk_window_set_decorations(widget->window, 0);
 
 rerun:
 	widget = glade_xml_get_widget (xml, "dlg_req_password");

@@ -351,7 +351,7 @@ sort_subject (C2Db *db1, C2Db *db2)
 	db1_subject = c2_str_get_striped_subject (db1->subject);
 	db2_subject = c2_str_get_striped_subject (db2->subject);
 
-	retval = strcmp (db1_subject, db2_subject);
+	retval = strcasecmp (db1_subject, db2_subject);
 
 	g_free (db1_subject);
 	g_free (db2_subject);
@@ -362,7 +362,7 @@ sort_subject (C2Db *db1, C2Db *db2)
 static gint
 sort_from (C2Db *db1, C2Db *db2)
 {
-	return strcmp (db1->from, db2->from);
+	return strcasecmp (db1->from, db2->from);
 }
 
 static gint
@@ -374,7 +374,7 @@ sort_date (C2Db *db1, C2Db *db2)
 static gint
 sort_account (C2Db *db1, C2Db *db2)
 {
-	return strcmp (db1->account, db2->account);
+	return strcasecmp (db1->account, db2->account);
 }
 
 static gint
@@ -512,9 +512,9 @@ sort (C2Index *index, C2MailboxSortBy sort_by, GtkSortType sort_type)
 GtkWidget *
 c2_index_new (C2Application *application, C2IndexMode mode)
 {
-    C2Index *index;
+	C2Index *index;
 	
-    index = gtk_type_new (c2_index_get_type());
+	index = gtk_type_new (c2_index_get_type());
 	c2_index_construct (index, application, mode);
 
 	gtk_signal_connect (GTK_OBJECT (application), "application_preferences_changed",
@@ -537,8 +537,8 @@ c2_index_construct (C2Index *index, C2Application *application, C2IndexMode mode
 	index->mode = mode;
 
 	/* create the clist */
-    gtk_clist_construct (GTK_CLIST (index), COLUMN_LAST, titles);
-    clist = GTK_CLIST (index);
+	gtk_clist_construct (GTK_CLIST (index), COLUMN_LAST, titles);
+	clist = GTK_CLIST (index);
 
 	/* Create the columns */
 	for (i = 0; i < COLUMN_LAST; i++)
@@ -590,12 +590,12 @@ c2_index_construct (C2Index *index, C2Application *application, C2IndexMode mode
 	
    	gtk_clist_columns_autosize (clist);
 	gtk_clist_column_titles_show (clist);
-    gtk_clist_set_row_height (clist, 16);
+	gtk_clist_set_row_height (clist, 16);
 	gtk_clist_set_selection_mode (clist, GTK_SELECTION_EXTENDED);
 
 	gtk_signal_connect (GTK_OBJECT (index), "click_column",
 		       GTK_SIGNAL_FUNC(on_clist_click_column), NULL);
-    gtk_signal_connect (GTK_OBJECT (clist), "select-row",
+	gtk_signal_connect (GTK_OBJECT (clist), "select-row",
 						GTK_SIGNAL_FUNC (on_clist_select_row), NULL);
 	gtk_signal_connect (GTK_OBJECT (clist), "unselect-row",
 						GTK_SIGNAL_FUNC (on_clist_unselect_row), NULL);

@@ -289,7 +289,7 @@ c2_db_set_message (C2Db *db, C2Message *message)
 {
 	if (C2_IS_MESSAGE (db->message))
 		gtk_signal_disconnect_by_func (GTK_OBJECT (db->message),
-								GTK_SIGNAL_FUNC (message_destroy), db);
+						GTK_SIGNAL_FUNC (message_destroy), db);
 	if (C2_IS_MESSAGE (message))
 		gtk_signal_connect (GTK_OBJECT (message), "destroy",
 							GTK_SIGNAL_FUNC (message_destroy), db);

@@ -1086,6 +1086,15 @@ compact_mailboxes_on_timeout (GtkWidget *progress)
 }
 
 static void
+on_compact_mailboxes_inform_close_btn (GtkWidget *btn, GladeXML *xml)
+{
+	GtkWidget *widget = glade_xml_get_widget (xml, "dlg_compact_inform");
+
+	gtk_widget_destroy (widget);
+	gtk_object_destroy (GTK_OBJECT (xml));
+}
+
+static void
 compact_mailboxes_thread (GladeXML *xml)
 {
 	C2Mailbox *mailbox;
@@ -1093,21 +1102,26 @@ compact_mailboxes_thread (GladeXML *xml)
 	GtkWidget *label, *progress, *hbox;
 	gchar *buf;
 	guint16 timeout;
-	gint *cbytes, *tbytes, i;
+	gint cbytes, tbytes, i;
+	GladeXML *ixml;
+	GtkWidget *iwidget;
+	gchar *ibuf, *ibuf2, *ibuf3;
 
 	application = C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (xml), "application"));
-	cbytes = g_new0 (gint, 1);
-	tbytes = g_new0 (gint, 1);
-	*cbytes = 0;
-	*tbytes = 0;
-	gtk_object_set_data (GTK_OBJECT (xml), "cbytes", (gpointer) cbytes);
-	gtk_object_set_data (GTK_OBJECT (xml), "tbytes", (gpointer) tbytes);
+	cbytes = 0;
+	tbytes = 0;
+	gtk_object_set_data (GTK_OBJECT (xml), "cbytes", (gpointer) &cbytes);
+	gtk_object_set_data (GTK_OBJECT (xml), "tbytes", (gpointer) &tbytes);
+
+	gdk_threads_enter ();
 	
 	hbox = glade_xml_get_widget (xml, "hbox");
 	label = glade_xml_get_widget (xml, "mailbox_label");
 	progress = glade_xml_get_widget (xml, "progress");
 
 	gtk_widget_show (hbox);
+
+	gdk_threads_leave ();
 
 	for (mailbox = application->mailbox, i = 0; mailbox; mailbox = mailbox->next, i++)
 	{
@@ -1121,7 +1135,7 @@ compact_mailboxes_thread (GladeXML *xml)
 		gtk_progress_set_percentage (GTK_PROGRESS (progress), 0);
 		gdk_threads_leave ();
 
-		timeout = gtk_timeout_add (10, (GtkFunction)compact_mailboxes_on_timeout, progress);
+		timeout = gtk_timeout_add (10, compact_mailboxes_on_timeout, progress);
 
 		c2_db_compact (mailbox);
 
@@ -1134,10 +1148,6 @@ compact_mailboxes_thread (GladeXML *xml)
 
 	/* Show the information dialog */
 	{
-		GladeXML *ixml;
-		GtkWidget *iwidget;
-		gchar *ibuf, *ibuf2, *ibuf3;
-
 		gdk_threads_enter ();
 		
 		ixml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_compact_inform");
@@ -1147,7 +1157,6 @@ compact_mailboxes_thread (GladeXML *xml)
 		gtk_label_get (GTK_LABEL (iwidget), &ibuf);
 		ibuf2 = g_strdup_printf ("%d", i);
 		ibuf3 = c2_str_replace_all (ibuf, _("%MAILBOXES%"), ibuf2);
-		g_free (ibuf);
 		g_free (ibuf2);
 		ibuf = ibuf3;
 		gtk_label_set_text (GTK_LABEL (iwidget), ibuf);
@@ -1156,13 +1165,12 @@ compact_mailboxes_thread (GladeXML *xml)
 		iwidget = glade_xml_get_widget (ixml, "cspace_label");
 		gtk_label_get (GTK_LABEL (iwidget), &ibuf);
 
-		if (*cbytes < 1024)
-			ibuf2 = g_strdup_printf ("%d bytes", *cbytes);
+		if (cbytes < 1024)
+			ibuf2 = g_strdup_printf ("%d bytes", cbytes);
 		else
-			ibuf2 = g_strdup_printf ("%.1f Mb", (*cbytes)/1024);
+			ibuf2 = g_strdup_printf ("%.1f Mb", (cbytes)/1024);
 
 		ibuf3 = c2_str_replace_all (ibuf, _("%CSPACE%"), ibuf2);
-		g_free (ibuf);
 		g_free (ibuf2);
 		ibuf = ibuf3;
 		gtk_label_set_text (GTK_LABEL (iwidget), ibuf);
@@ -1171,18 +1179,20 @@ compact_mailboxes_thread (GladeXML *xml)
 		iwidget = glade_xml_get_widget (ixml, "tspace_label");
 		gtk_label_get (GTK_LABEL (iwidget), &ibuf);
 
-		if (*tbytes < 1024)
-			ibuf2 = g_strdup_printf ("%d bytes", *tbytes);
+		if (tbytes < 1024)
+			ibuf2 = g_strdup_printf ("%d bytes", tbytes);
 		else
-			ibuf2 = g_strdup_printf ("%.1f Mb", (*tbytes)/1024);
+			ibuf2 = g_strdup_printf ("%.1f Mb", (tbytes)/1024);
 
 		ibuf3 = c2_str_replace_all (ibuf, _("%TSPACE%"), ibuf2);
-		g_free (ibuf);
 		g_free (ibuf2);
 		ibuf = ibuf3;
 		gtk_label_set_text (GTK_LABEL (iwidget), ibuf);
 
 		iwidget = glade_xml_get_widget (ixml, "dlg_compact_inform");
+
+//		gnome_dialog_button_connect (GNOME_DIALOG (iwidget), 0,
+//						GTK_SIGNAL_FUNC (on_compact_mailboxes_inform_close_btn), xml);
 
 		gtk_widget_show (iwidget);
 
@@ -1190,10 +1200,6 @@ compact_mailboxes_thread (GladeXML *xml)
 
 		gdk_threads_leave ();
 	}
-
-	/* Free everything */
-	g_free (cbytes);
-	g_free (tbytes);
 }
 
 static void
@@ -1720,7 +1726,7 @@ _expunge_thread (C2Pthread2 *data)
 
 	gdk_threads_leave ();
 
-L	/* Start deleting */
+	/* Start deleting */
 	c2_db_freeze (fmailbox);
 	for (l = list, off = 0; l; l = g_list_next (l), off++)
 	{
@@ -1739,10 +1745,10 @@ L	/* Start deleting */
 	}
 	c2_db_thaw (fmailbox);
 
-L	g_list_free (list);
+	g_list_free (list);
 
 	gdk_threads_enter ();
-L	
+	
 	if (status_ownership)
 	{
 		gnome_appbar_pop (GNOME_APPBAR (widget));
@@ -1778,7 +1784,7 @@ _expunge (C2Application *application, GList *list, C2Window *window)
 
 	/* Ok, we are ready to move everything to «Trash» */
 	/* Fire the thread */
-	data = (C2Pthread2*)g_new0 (C2Pthread3, 1);
+	data = g_new0 (C2Pthread2, 1);
 	data->v1 = g_list_copy (list);
 	data->v2 = window;
 

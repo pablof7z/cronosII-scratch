@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  * Code of this file by:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  */
 #include <glib.h>
 #include <stdio.h>
@@ -33,6 +33,7 @@
 #include "utils.h"
 #include "utils-str.h"
 #include "error.h"
+#include "i18n.h"
 
 static gchar *
 fix_timezone (const gchar *tz);
@@ -313,13 +314,13 @@ c2_date_parse_fmt2 (const gchar *strtime)
 
 static gchar *dates[] =
 {
-	"Mon",
-	"Tue",
-	"Wed",
-	"Thu",
-	"Fri",
-	"Sat",
-	"Sun"
+	N_("Mon"),
+	N_("Tue"),
+	N_("Wed"),
+	N_("Thu"),
+	N_("Fri"),
+	N_("Sat"),
+	N_("Sun")
 };
 
 /**
@@ -424,12 +425,12 @@ c2_date_parse_fmt3 (const gchar *strtime)
 }
 
 const gchar *Months[] = {
-	"Jan", "Feb",
-	"Mar", "Apr",
-	"May", "Jun",
-	"Jul", "Aug",
-	"Sep", "Oct",
-	"Nov", "Dec"
+	N_("Jan"), N_("Feb"),
+	N_("Mar"), N_("Apr"),
+	N_("May"), N_("Jun"),
+	N_("Jul"), N_("Aug"),
+	N_("Sep"), N_("Oct"),
+	N_("Nov"), N_("Dec")
 };
 
 gint

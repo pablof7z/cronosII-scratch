@@ -16,14 +16,15 @@ endif
 bin_PROGRAMS = cronosII $(UI_TEXT_EDITOR)
 
 cronosII_SOURCES = \
-	install.c												\
-	main.c						main.h						\
-	object-ui-data.c			object-ui-data.h			\
-								preferences.h				\
+					dialogs.h			\
+	install.c							\
+	main.c				main.h				\
+	object-ui-data.c		object-ui-data.h		\
+					preferences.h			\
 	widget-HTML-gtkhtml.c		widget-HTML-gtkhtml.h		\
 	widget-HTML-gtkxmhtml.c		widget-HTML-gtkxmhtml.h		\
-	widget-HTML-text.c			widget-HTML-text.h			\
-	widget-HTML.c				widget-HTML.h				\
+	widget-HTML-text.c			widget-HTML-text.h	\
+	widget-HTML.c				widget-HTML.h			\
 	widget-application-utils.c	widget-application-utils.h	\
 	widget-application.c		widget-application.h		\
 	widget-composer.c			widget-composer.h			\

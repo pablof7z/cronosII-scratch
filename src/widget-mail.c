@@ -858,6 +858,8 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 	gboolean text_plain = TRUE, default_is_text_plain;
 	gchar *string, *buf, *default_mime;
 
+	c2_return_if_fail (C2_IS_MAIL (mail), C2EDATA);
+
 	if (!C2_IS_MESSAGE (message))
 	{
 		gtk_widget_hide ((GtkWidget*) mail);

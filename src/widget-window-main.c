@@ -583,6 +583,7 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gint toolbar_style;
 	gint i;
 	GList *l;
+	GdkColor grey = { 0, 0x7700, 0x7700, 0x7700 };
 
 	c2_window_construct (C2_WINDOW (wmain), application, "Cronos II", "wmain", NULL);
 	gtk_signal_connect (GTK_OBJECT (application), "window_changed",
@@ -636,6 +637,27 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gtk_signal_connect (GTK_OBJECT (wmain->mlist), "object_unselected",
 								GTK_SIGNAL_FUNC (on_mlist_object_unselected), wmain);
 
+	gdk_color_alloc (gdk_colormap_get_system (), &grey);
+	widget = glade_xml_get_widget (xml, "mailbox_name_event");
+	style = gtk_style_copy (gtk_widget_get_style (widget));
+	style->bg[GTK_STATE_NORMAL] = grey;
+	gtk_widget_set_style (widget, style);
+
+	widget = glade_xml_get_widget (xml, "mailbox_name_event_parent");
+	style = gtk_style_copy (gtk_widget_get_style (widget));
+	style->bg[GTK_STATE_NORMAL] = style->white;
+	gtk_widget_set_style (widget, style);
+	widget = glade_xml_get_widget (xml, "mailbox_name_label");
+	style = gtk_style_copy (gtk_widget_get_style (widget));
+	style->fg[GTK_STATE_NORMAL] = style->white;
+	style->font = gdk_font_load (c2_font_bold);
+	gtk_widget_set_style (widget, style);
+	widget = glade_xml_get_widget (xml, "mailbox_num_label");
+	style = gtk_style_copy (gtk_widget_get_style (widget));
+	style->fg[GTK_STATE_NORMAL] = style->white;
+	style->font = gdk_font_load (c2_font_bold);
+	gtk_widget_set_style (widget, style);
+
 	/* Menubar */
 	widget = glade_xml_get_widget (xml, "file_check_mail_all_accounts");
 	for (l = gtk_container_children (GTK_CONTAINER (widget)); l; l = g_list_next (l))
@@ -670,7 +692,6 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 						GTK_SIGNAL_FUNC (on_toolbar_changed), wmain);
 
 	/* Set the buttons of the toolbar */
-	c2_toolbar_freeze (C2_TOOLBAR (wmain->toolbar));
 	for (i = 1;; i++)
 	{
 		gchar *key;
@@ -707,7 +728,6 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 				break;
 		}
 	}
-	c2_toolbar_thaw (C2_TOOLBAR (wmain->toolbar));
 	c2_toolbar_set_tooltips (C2_TOOLBAR (wmain->toolbar), gnome_config_get_bool_with_default
 								("/"PACKAGE"/Toolbar::Window Main/tooltips=true", NULL));
 	gtk_widget_show (wmain->toolbar);
@@ -2213,6 +2233,8 @@ on_mlist_object_selected_pthread (C2WindowMain *wmain)
 {
 	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
 	C2Index *index = C2_INDEX (wmain->index);
+	GtkWidget *widget;
+	gchar *buf, *buf2 = NULL;
 	
 	gdk_threads_enter ();
 	c2_window_set_activity (C2_WINDOW (wmain), TRUE);
@@ -2243,6 +2265,58 @@ on_mlist_object_selected_pthread (C2WindowMain *wmain)
 		return 0;
 	
 	gdk_threads_enter ();
+	
+	/* Lets put the Mailbox name and the Mailbox Num */
+	buf = buf2 = g_strdup_printf ("%s", mailbox->name);
+	
+	if (mailbox->use_as != 0)
+	{
+		if (mailbox->use_as & C2_MAILBOX_USE_AS_INBOX)
+		{
+			buf = g_strdup_printf (_("%s, mailbox where incoming mail are stored"), buf2);
+			g_free (buf2);
+			buf2 = buf;
+		}
+
+		if (mailbox->use_as & C2_MAILBOX_USE_AS_OUTBOX)
+		{
+			buf = g_strdup_printf (_("%s, mailbox where unsent mails are stored"), buf2);
+			g_free (buf2);
+			buf2 = buf;
+		}
+
+		if (mailbox->use_as & C2_MAILBOX_USE_AS_SENT_ITEMS)
+		{
+			buf = g_strdup_printf (_("%s, mailbox where sent mails are stored"), buf2);
+			g_free (buf2);
+			buf2 = buf;
+		}
+
+		if (mailbox->use_as & C2_MAILBOX_USE_AS_TRASH)
+		{
+			buf = g_strdup_printf (_("%s, mailbox where deleted mails are stored"), buf2);
+			g_free (buf2);
+			buf2 = buf;
+		}
+
+		if (mailbox->use_as & C2_MAILBOX_USE_AS_DRAFTS)
+		{
+			buf = g_strdup_printf (_("%s, mailbox where mails you save with the composer are stored"), buf2);
+			g_free (buf2);
+			buf2 = buf;
+		}
+	}
+
+	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mailbox_name_label");
+	gtk_label_set_text (GTK_LABEL (widget), buf);
+	g_free (buf);
+
+	buf = g_strdup_printf (_("%d mails, %d new"), c2_db_length (mailbox), c2_db_length_type (mailbox, C2_MESSAGE_UNREADED));
+	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mailbox_num_label");
+	gtk_label_set_text (GTK_LABEL (widget), buf);
+	g_free (buf);
+	
+	
 	c2_index_clear (index);
 	c2_index_set_mailbox (index, mailbox);
 	c2_window_set_activity (C2_WINDOW (wmain), FALSE);

@@ -405,8 +405,8 @@ main (gint argc, gchar **argv)
 
 	gdk_threads_enter ();
 
-	c2_font_bold	= "-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1";
-	c2_font_italic	= "-adobe-helvetica-medium-o-normal-*-*-120-*-*-p-*-iso8859-1";
+	c2_font_bold	= _("-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-*-1"); /* Translators: Replace the last * with the iso code of the language you are translating (i.e. spanish: "iso8859-1") */
+	c2_font_italic	= _("-adobe-helvetica-medium-o-normal-*-*-120-*-*-p-*-*-1");
 
 	/* Get the Version of the Application */
 	version = c2_preferences_get_application_version ();
