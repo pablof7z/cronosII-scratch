@@ -1,3 +1,20 @@
+/*  Cronos II Mail Client /libcronosII/date-utils.c
+ *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,7 +55,7 @@ static struct tz_t
 	{ "egt",     1,     0,     1 }, /* Eastern Greenland */
 	{ "est",     5,     0,     1 },
 	{ "gmt",     0,     0,     0 },
-	{ "gst",     4,     0,     0 }, /* Presian Gulf */
+	{ "gst",     4,     0,     0 }, /* Persian Gulf */
 	{ "hkt",     8,     0,     0 }, /* Hong Kong */
 	{ "ict",     7,     0,     0 }, /* Indochina */
 	{ "idt",     3,     0,     0 }, /* Israel DST */
