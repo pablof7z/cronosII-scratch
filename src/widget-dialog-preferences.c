@@ -1385,6 +1385,9 @@ on_account_editor_options_multiple_access_leave_toggled (GtkWidget *widget, C2Wi
 static void
 on_account_editor_options_multiple_access_remove_toggled (GtkWidget *widget, C2Window *window);
 
+static void
+on_account_editor_druid_cancel				(GnomeDruid *druid, C2Window *window);
+
 static gint
 on_account_editor_druid_page0_next			(GnomeDruidPage *druid_page, GtkWidget *druid, C2Window *window);
 
@@ -1431,6 +1434,8 @@ c2_dialog_preferences_account_editor_new (C2Application *application, C2DialogPr
 	{ /* Set the data of the account */
 		C2SMTP *smtp;
 
+		/* Identify Page */
+		
 		/* Real Name */
 		widget = glade_xml_get_widget (xml, "identity_name");
 		gtk_entry_set_text (GTK_ENTRY (widget),
@@ -1475,6 +1480,19 @@ c2_dialog_preferences_account_editor_new (C2Application *application, C2DialogPr
 
 			widget = glade_xml_get_widget (xml, "incoming_auth_remember");
 			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), c2_pop3_get_save_password (pop3));
+
+			/* Multiple Access Leave */
+			widget = glade_xml_get_widget (xml, "options_multiple_access_leave");
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget),
+										pop3->flags & C2_POP3_DO_KEEP_COPY);
+
+			widget = glade_xml_get_widget (xml, "options_multiple_access_remove");
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget),
+										pop3->copies_in_server_life_time);
+
+			widget = glade_xml_get_widget (xml, "options_multiple_access_remove_value");
+			gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget),
+										pop3->copies_in_server_life_time);
 		} else if (account->type == C2_ACCOUNT_IMAP)
 		{
 			C2IMAP *imap = C2_IMAP (c2_account_get_extra_data (account, C2_ACCOUNT_KEY_INCOMING, NULL));
@@ -1520,6 +1538,25 @@ c2_dialog_preferences_account_editor_new (C2Application *application, C2DialogPr
 			widget = glade_xml_get_widget (xml, "outgoing_server_password");
 			gtk_entry_set_text (GTK_ENTRY (widget), smtp->pass);
 		}
+
+		/* Options page */
+		
+		/* Account name */
+		widget = glade_xml_get_widget (xml, "options_account_name");
+		gtk_entry_set_text (GTK_ENTRY (widget), account->name);
+
+		/* Signature */
+		widget = glade_xml_get_widget (xml, "options_signature_plain");
+		gnome_file_entry_set_default_path (GNOME_FILE_ENTRY (widget),
+						(gchar*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_SIGNATURE_PLAIN, NULL));
+		widget = glade_xml_get_widget (xml, "options_signature_html");
+		gnome_file_entry_set_default_path (GNOME_FILE_ENTRY (widget),
+						(gchar*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_SIGNATURE_HTML, NULL));
+
+		/* Automatically check */
+		widget = glade_xml_get_widget (xml, "options_auto_check");
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget),
+						(gint) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_ACTIVE, NULL));
 	} else
 			
 	{ /* Set some data from the default account */
@@ -1633,6 +1670,10 @@ c2_dialog_preferences_account_editor_new (C2Application *application, C2DialogPr
 	widget = glade_xml_get_widget (xml, "options_multiple_access_remove");
 	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
 						GTK_SIGNAL_FUNC (on_account_editor_options_multiple_access_remove_toggled), window);
+
+	widget = glade_xml_get_widget (xml, "dlg_account_editor_contents");
+	gtk_signal_connect (GTK_OBJECT (widget), "cancel",
+						GTK_SIGNAL_FUNC (on_account_editor_druid_cancel), window);
 
 	widget = glade_xml_get_widget (xml, "page0");
 	gtk_signal_connect (GTK_OBJECT (widget), "next",
@@ -1996,7 +2037,7 @@ process_page_options (GladeXML *xml, C2Window *window)
 	buf = gtk_entry_get_text (GTK_ENTRY (widget));
 	if (!strlen (buf) ||
 		((saccount = c2_account_get_by_name (window->application->account, buf)) &&
-	     c2_strne (saccount->name, account->name)))
+	     c2_strne (saccount->name, buf)))
 	{
 		sensitive = FALSE;
 		goto options_set_sensitive;
@@ -2045,6 +2086,13 @@ on_account_editor_options_multiple_access_remove_toggled(GtkWidget *widget, C2Wi
 		gtk_widget_set_sensitive (multiple_access_remove_value, TRUE);
 	else
 		gtk_widget_set_sensitive (multiple_access_remove_value, FALSE);
+}
+
+static void
+on_account_editor_druid_cancel (GnomeDruid *druid, C2Window *window)
+{
+	gtk_object_destroy (GTK_OBJECT (window->xml));
+	gtk_widget_destroy (GTK_WIDGET (window));
 }
 
 static gint
@@ -2211,12 +2259,13 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 		boolean = GTK_TOGGLE_BUTTON (widget)->active;
 		gnome_config_set_bool ("incoming_auth_remember", boolean);
 
+		widget = glade_xml_get_widget (xml, "incoming_server_password");
+		pass = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
+
 		if (boolean)
-		{
-			widget = glade_xml_get_widget (xml, "incoming_server_password");
-			pass = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 			gnome_config_set_string ("incoming_server_password", pass);
-		}
+		else
+			gnome_config_set_string ("incoming_server_password", "");
 
 		widget = glade_xml_get_widget (xml, "incoming_server_ssl");
 		boolean = GTK_TOGGLE_BUTTON (widget)->active;

@@ -1047,6 +1047,19 @@
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_ABOUT</stock_icon>
 	    </widget>
+
+	    <widget>
+	      <class>GtkPixmapMenuItem</class>
+	      <name>help_donations</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_donations_activate</handler>
+		<last_modification_time>Thu, 04 Apr 2002 14:11:52 GMT</last_modification_time>
+	      </signal>
+	      <label>_Donations</label>
+	      <right_justify>False</right_justify>
+	      <stock_icon>GNOME_STOCK_MENU_HOME</stock_icon>
+	    </widget>
 	  </widget>
 	</widget>
       </widget>

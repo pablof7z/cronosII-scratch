@@ -72,6 +72,7 @@
 #undef USE_ADVANCED_EDITOR
 #undef USE_UI_TEXT_EDITOR
 #undef USE_UNIX_SOCKET
+#undef USE_MESSAGE_CACHE
 #undef C2_PLUGIN_VERSION_MAJOR
 #undef C2_PLUGIN_VERSION_MINOR
 #undef C2_PLUGIN_VERSION_MICRO
@@ -130,6 +131,9 @@
 /* Define if you have the strstr function.  */
 #undef HAVE_STRSTR
 
+/* Define if you have the <X11/SM/SMlib.h> header file.  */
+#undef HAVE_X11_SM_SMLIB_H
+
 /* Define if you have the <argz.h> header file.  */
 #undef HAVE_ARGZ_H
 
@@ -156,9 +160,6 @@
 
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H
-
-/* Define if you have the <X11/SM/SMlib.h> header file.  */
-#undef HAVE_X11_SM_SMLIB_H
 
 /* Define if you have the i library (-li).  */
 #undef HAVE_LIBI

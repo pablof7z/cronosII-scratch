@@ -1,5 +1,5 @@
 /*  Cronos II - A GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández Navarro
+ * 		* Pablo Fernández
  * Code of this file by:
- * 		* Pablo Fernández Navarro
+ * 		* Pablo Fernández
  */
 #include <gtk/gtk.h>
 #include <config.h>
@@ -146,6 +146,9 @@ http_retrieve (C2Request *request)
 	 * TODO Someone that knows a little of HTTP/1.0 and HTTP/1.1 error
 	 * TODO codes, please, develop this.
 	 */
+	if (c2_strneq (request->source, "HTTP"))
+	{
+	}
 }
 
 static void
@@ -234,7 +237,7 @@ static void
 c2_request_construct (C2Request *request)
 {
 	gchar *cmnd = g_strconcat ("lynx -source ", request->url, NULL);
-	gchar buffer[1024], *ptr;
+	gchar buffer[1024], *ptr, *tmp;
 	FILE *fd;
 	gint bytes, total_bytes = 0;
 
@@ -265,9 +268,6 @@ c2_request_construct (C2Request *request)
 	 */
 	while ((bytes = fread (buffer, sizeof (gchar), sizeof (buffer), fd)))
 	{
-		fprintf (stderr, "%d: %d %d\n", __LINE__, bytes, total_bytes);
-		
-		buffer[bytes] = 0;
 		/* If this is the first line and starts with Content-Type, fuck it and the next one too */
 		if (!total_bytes)
 		{
@@ -281,7 +281,6 @@ c2_request_construct (C2Request *request)
 			bytes -= ptr-buffer;
 		} else
 			ptr = buffer;
-		fprintf (stderr, "%d: %d %d\n", __LINE__, bytes, total_bytes);
 
 		/* This f*cking sh*t is still giving problems downloading
 		 * the f*cking images through the motherf*cker http, the only
@@ -291,14 +290,17 @@ c2_request_construct (C2Request *request)
 		 * get back later with it (or other could do it, I don't want
 		 * to see any http crap any more! (sh*t, I'm really pissed!)
 		 */
-		request->source = g_realloc (request->source, total_bytes+bytes);
-		memcpy (request->source + total_bytes, ptr, bytes);
+		tmp = g_new0 (gchar, total_bytes+bytes);
+		memcpy (tmp, request->source, total_bytes);
+		memcpy (tmp+total_bytes, ptr, bytes);
+		g_free (request->source);
+		request->source = tmp;
 		total_bytes += bytes;
 		request->got_size = total_bytes;
 		gtk_signal_emit_by_name (GTK_OBJECT (request), "exchange", C2_NET_OBJECT_EXCHANGE_READ, bytes);
 	}
 	
-	request->source[total_bytes] = 0;
+//	request->source[total_bytes] = 0;
 	
 	pclose (fd);
 

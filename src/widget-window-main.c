@@ -225,6 +225,9 @@ static void
 on_menubar_help_about_activate				(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
+on_menubar_help_donations_activate			(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_toolbar_changed							(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
@@ -838,6 +841,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_menubar_help_release_information_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "help_about")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_help_about_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "help_donations")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_help_donations_activate), wmain);	
 
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (wmain->toolbar_menu, "text_beside_icons")), "activate",
 							GTK_SIGNAL_FUNC (on_mnu_toolbar_text_beside_icons_activate), wmain);
@@ -1822,6 +1827,12 @@ static void
 on_menubar_help_about_activate (GtkWidget *widget, C2WindowMain *wmain)
 {
 	c2_application_dialog_about (C2_WINDOW (wmain)->application);
+}
+
+static void
+on_menubar_help_donations_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	gnome_url_show (URL "site/donations.php");
 }
 
 static void

@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  * Code of this file by:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  * 		* Bosko Blagojevic
  */
 /*******************************************
@@ -950,6 +950,15 @@ gboolean
 c2_db_load_message (C2Db *db)
 {
 	C2Message *(*func) (C2Db *db) = NULL;
+
+	c2_return_val_if_fail (C2_IS_DB (db), FALSE, C2EDATA);
+
+	if (C2_IS_MESSAGE (db->message))
+	{
+		printf ("Using a cached message\n");
+		return TRUE;
+	}
+	printf ("Going to load the message\n");
 
 	switch (db->mailbox->type)
 	{

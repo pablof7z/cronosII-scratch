@@ -176,6 +176,7 @@ c2_net_sendv (guint sock, const gchar *fmt, va_list args)
 
 	length = strlen (string);
 
+	C2_DEBUG (string);
 	for (ptr = string, i = 0; i < length; ptr++, i++)
 	{
 		if ((value = send (sock, ptr, 1, 0)) < 0)
@@ -232,6 +233,7 @@ c2_net_read (guint sock, gchar **string)
 		}
 	}
 	tmpstring[1023] = '\0';
+	C2_DEBUG (tmpstring);
 
 	*string = g_strdup (tmpstring);
 	return bytes;

@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  * Code of this file by:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  * 		* Bosko Blagojevic
  **/
 #include <glib.h>
@@ -202,7 +202,9 @@ c2_strneq (const gchar *fst, const gchar *snd, gint length)
 	gboolean retval = TRUE;
 	
 	if (!fst && snd)
+	{
 		return FALSE;
+	}
 	if (fst && !snd)
 		return FALSE;
 	if (!fst && !snd)
@@ -1061,6 +1063,66 @@ c2_str_get_email (const gchar *string)
 
 finish:
 	return email;
+}
+
+/**
+ * c2_str_get_sender
+ * @string: String to process
+ *
+ * This function will look for the sender
+ * from a From: header.
+ *
+ * Formats:
+ * "$name" <$email> = $name
+ * $name <$email> = $name
+ * $str = $str
+ * <$email> = email
+ * 
+ * Return Value:
+ * The sender or %NULL.
+ **/
+gchar *
+c2_str_get_sender (const gchar *string)
+{
+	const gchar *ptr;
+	
+	if (!string || !strlen (string))
+		return NULL;
+
+	/* If it starts with " we will return all the quoted string */
+	if (*string == '"')
+	{
+		for (ptr = string+1; *ptr != '\0' && *ptr != '"'; ptr++)
+			;
+		if (ptr)
+			return g_strndup (string+1, ptr-string-1);
+	}
+
+	/* If it starts with < we will retorn the quoted string */
+	if (*string == '<')
+	{
+		for (ptr = string+1; *ptr != '\0' && *ptr != '>'; ptr++)
+			;
+		if (ptr)
+			return g_strndup (string+1, ptr-string-1);
+	}
+
+	/* If it contains a < we will return whatever there is before of it
+	 * (If there's something). */
+	if ((ptr = strchr (string, '<')))
+	{
+		const gchar *ptr2;
+
+		for (--ptr; ptr != string; ptr--)
+			if (*ptr != ' ' && *ptr != '\t')
+				break;
+
+		for (ptr2 = string; ptr2 <= ptr; ptr2++)
+			if (*ptr2 != ' ' && *ptr2 != '\t')
+				return g_strndup (ptr2, ptr-ptr2+1);
+	}
+
+	return g_strdup (string);
 }
 
 /**

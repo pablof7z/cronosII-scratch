@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +14,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández
+ * Code of this file by:
+ * 		* Pablo Fernández
  */
 #include <gnome.h>
 #include <ctype.h>
@@ -411,13 +417,13 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 		gtk_widget_show ((GtkWidget*) mail);
 
 	if (C2_IS_MESSAGE (mail->message) && message != mail->message)
-	{
-		if (GTK_IS_OBJECT (mail->message)) printf ("Ref is %d\n", GTK_OBJECT (mail->message)->ref_count); else printf ("It's not an object.\n");
 		gtk_object_unref (GTK_OBJECT (mail->message));
-		if (GTK_IS_OBJECT (mail->message)) printf ("Ref is %d\n", GTK_OBJECT (mail->message)->ref_count); else printf ("It's not an object.\n");
-	}
 	mail->message = message;
+
+#ifdef USE_MESSAGE_CACHE
+	/* Perhaps your machine has 10Gb of RAM memory and you want to waste 'em in Cronos II... */
 	gtk_object_ref (GTK_OBJECT (mail->message));
+#endif
 
 	/* Get the part that should be displayed */
 	default_mime = c2_preferences_get_interface_misc_attachments_default ();

@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ on_html_http_link_clicked_disconnect (C2Request *request, gboolean success, C2Pt
 
 	ptr = (request->source+request->got_size)-length;
 
-	gtk_html_stream_write (stream, ptr, length);
+	gtk_html_stream_write (stream, request->source, request->got_size);
 	gtk_html_end (html, stream, success ? GTK_HTML_STREAM_OK : GTK_HTML_STREAM_ERROR);
 }
 
@@ -137,15 +137,12 @@ on_html_http_url_requested_exchange (C2Request *request, C2NetObjectExchangeType
 }
 
 static void
-on_html_http_url_requested_disconnect (C2Request *request, gboolean success, C2Pthread2 *data)
+on_html_http_url_requested_disconnect (C2Request *request, C2NetObjectByte *byte, gboolean success, C2Pthread2 *data)
 {
 	GtkHTMLStream *stream = data->v2;
-	const gchar *ptr;
-	gint length = request->got_size;
 
-	ptr = (request->source+request->got_size)-length;
-
-	gtk_html_stream_write (stream, ptr, length);
+	gtk_html_stream_write (stream, request->source, request->got_size);
+	gtk_html_stream_close (stream, GTK_HTML_STREAM_OK);
 }
 
 static void

@@ -1,12 +1,26 @@
-Wed Apr 3  Bosko Blagojevic <falling@users.sourceforge.net>
+Thu Apr  4 Pablo Fernández <sandokan@pablossite.net>
+	* Added the function c2_str_get_sender().
+	* Fixed some stuff in the mail widget (GtkHTML implementation).
+	* Fixed some stuff in the request module (HTTP implementation).
+
+Wed Apr  3 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Added c2_imap_reconnect.
 	* Fixed bug to properly kill gdk_input listeners
 	  on closed IMAP sockets.
 	* Added another check for specific incoming untagged
 	  data to check for auto-logouts from server.
 
+Wed Apr  3 Pablo Fernández <sandokan@pablossite.net>
+	* Fixed a bug that could cause a lot of useless memory usage.
+	* Added the --enable-message-cache ./configure parameter.
+	* Fixed a bug in the preferences dialog.
+	* Fixed a couple of stupid mistakes in the error.c file.
+
 Wed Mar 20 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Added c2_imap_mailbox_is_subscribed()
+
+Tue Mar 19 Pablo Fernández López <pablo@pablossite.net>
+	* Fixed a bug in IMAP: striped all '\r' when loading messages.
 
 Mon Mar 18 Pablo Fernández López <pablo@pablossite.net>
 	* Added the Subscribe/Unsubscribe to the popup menu of the mlist.

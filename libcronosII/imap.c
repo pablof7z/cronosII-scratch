@@ -1648,7 +1648,7 @@ C2Message *
 c2_imap_load_message (C2IMAP *imap, C2Db *db)
 {
 	C2Message *message;
-	gchar *reply, *start, *end;
+	gchar *reply, *start, *end, *buf;
 	tag_t tag;
 	
 	if(c2_imap_select_mailbox(imap, db->mailbox) < 0)
@@ -1692,8 +1692,18 @@ c2_imap_load_message (C2IMAP *imap, C2Db *db)
 	end = strstr(start, "OK FETCH completed");
 	end -= (C2TagLen + 5); /* C2TagLen + '\r\n)\r\n' */
 	message->body = g_strndup(start, end - start);
-	
+
 	g_free(reply);
+
+	/* Strip all the \r */
+	buf = c2_str_replace_all (message->header, "\r", "");
+	g_free (message->header);
+	message->header = buf;
+	
+	buf = c2_str_replace_all (message->body, "\r", "");
+	g_free (message->body);
+	message->body = buf;
+	
 	return message;
 }
 

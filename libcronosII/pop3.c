@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández Navarro
+ * 		* Pablo Fernández
  * Code of this file by:
- * 		* Pablo Fernández Navarro
+ * 		* Pablo Fernández
  */
 #include <glib.h>
 #include <unistd.h>
@@ -439,10 +439,17 @@ login (C2POP3 *pop3)
 	{
 		gint retval;
 		
-		if (pop3->auth_method == C2_POP3_AUTHENTICATION_APOP)
-			retval = login_apop (pop3);
-		else
-			retval = login_plain (pop3);
+		if (!pop3->pass || !strlen (pop3->pass))
+		{
+			c2_error_object_set_custom (GTK_OBJECT (pop3), _("No password was entered"));
+			retval = 0;
+		} else
+		{
+			if (pop3->auth_method == C2_POP3_AUTHENTICATION_APOP)
+				retval = login_apop (pop3);
+			else
+				retval = login_plain (pop3);
+		}
 		
 		if (retval == -1)
 			return -1;
@@ -541,9 +548,16 @@ login_plain (C2POP3 *pop3)
 	
 	if (c2_strnne (string, "+OK", 3))
 	{
+		gchar *ptr;
+		
 		string = strstr (string, " ");
 		if (string)
 			string++;
+		
+		ptr = strchr (string, '\r');
+		if (ptr)
+			*ptr = '\0';
+		
 		c2_error_object_set_custom (GTK_OBJECT (pop3), string);
 		return 0;
 	} else
@@ -584,9 +598,16 @@ login_apop (C2POP3 *pop3)
 
 	if (c2_strnne (string, "+OK", 3))
 	{
+		gchar *ptr;
+
 		string = strstr (string, " ");
 		if (string)
 			string++;
+		
+		ptr = strchr (string, '\r');
+		if (ptr)
+			*ptr = '\0';
+		
 		c2_error_object_set_custom (GTK_OBJECT (pop3), string);
 		return 0;
 	} else

@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  * Code of this file by:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  */
 #ifndef __LIBCRONOSII_UTILS_H__
 #define __LIBCRONOSII_UTILS_H__
@@ -136,6 +136,9 @@ c2_str_get_emails							(const gchar *string);
 
 gchar *
 c2_str_get_email							(const gchar *email);
+
+gchar *
+c2_str_get_sender							(const gchar *string);
 
 gboolean
 c2_str_is_email								(const gchar *email);
