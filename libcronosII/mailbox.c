@@ -180,7 +180,7 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 static void
 destroy (GtkObject *object)
 {
-	C2Mailbox *mailbox, *l, *n;
+	C2Mailbox *mailbox;
 
 	mailbox = C2_MAILBOX (object);
 	c2_mailbox_destroy_node (mailbox);
@@ -279,7 +279,7 @@ C2Mailbox *
 c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *parent_id, C2MailboxType type,
 							C2MailboxSortBy sort_by, GtkSortType sort_type, ...)
 {
-	C2Mailbox *value;
+	C2Mailbox *value = NULL;
 	gboolean create_db_struct = TRUE;
 	gchar *id;
 	va_list edata;
@@ -324,6 +324,9 @@ c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *pa
 			break;
 	}
 	g_free (id);
+	
+	if(!value) 
+		return NULL;
 
 	/* Create the structure */
 	if (create_db_struct && !c2_db_create_structure (value))
@@ -476,7 +479,7 @@ gboolean
 c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 {
 	C2Mailbox *parent = NULL, *previous = NULL, *next;
-	gchar *parent_id, *previous_id, *next_id;
+	gchar *parent_id, *previous_id;
 	gint my_id;
 	
 	c2_return_val_if_fail (mailbox, FALSE, C2EDATA);
@@ -509,12 +512,14 @@ c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 		g_free (parent_id);
 	} else
 	{
+		my_id--;
 		/* This mailbox has a previous mailbox in the same level */
 		if (!C2_MAILBOX_IS_TOPLEVEL (mailbox))
-			previous_id = g_strdup_printf ("%s-%d", c2_mailbox_get_parent_id (mailbox->id), my_id-1);
+			previous_id = g_strdup_printf ("%s-%d", c2_mailbox_get_parent_id (mailbox->id), my_id);
 		else
-			previous_id = g_strdup_printf ("%d", my_id-1);
-		
+			previous_id = g_strdup_printf ("%d", my_id);
+		my_id++;
+
 		if (!(previous = c2_mailbox_search_by_id (*head, previous_id)))
 		{
 			c2_mutex_unlock(&mailbox->lock);
@@ -580,9 +585,7 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 static C2Mailbox *
 _c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id, guint level)
 {
-	const gchar *ptr;
 	C2Mailbox *l;
-	gint pos = 0;
 	gint top_id;
 	gint ck_id;
 
@@ -743,7 +746,12 @@ c2_mailbox_get_id (const gchar *id, gint number)
 
 	if (number < 0)
 	{
-		for (ptr = id+strlen (id)-1; *ptr != '\0' && *ptr != '-'; ptr--);
+		/* quickie fix for 1st-level mailboxes */
+		if(!strstr(id, "-"))
+			return atoi(id);
+		
+		for (ptr = id+strlen (id)-1; *ptr != '\0' && *ptr != '-'; ptr--)
+			;
 		if (!ptr)
 			return -1;
 	
@@ -825,7 +833,7 @@ c2_mailbox_get_by_id (C2Mailbox *head, const gchar *id)
 gboolean
 c2_mailbox_load_db (C2Mailbox *mailbox)
 {
-	c2_return_if_fail (mailbox, C2EDATA);
+	c2_return_val_if_fail (mailbox, FALSE, C2EDATA);
 
 	/* Check if it is already loaded */
 	if (mailbox->db)

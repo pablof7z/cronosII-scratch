@@ -42,39 +42,10 @@ c2_db_imap_create_structure (C2Mailbox *mailbox)
 	return return_val;
 }
 
-/* func will try updating the struct anyway */
 gboolean
 c2_db_imap_update_structure (C2Mailbox *mailbox)
 {
-	C2IMAP *imap = mailbox->protocol.IMAP.imap;
-	C2Db *ptr;
-	
-	if(!mailbox->db)
-	{
-    /* if fail: tell calling func to update */
-		if(c2_db_imap_load(mailbox) < 0)
-			return TRUE;
-    /* otherwise: all is well and return FALSE */
-		else
-			return FALSE;
-	}
-	
-	c2_mutex_lock(&imap->lock);
-	for(ptr = mailbox->db; ptr->next; ptr = ptr->next)
-		/*GET TO THE LAST ITEM */;
-	for( ; ptr ; ptr = ptr->prev)
-		gtk_object_destroy(GTK_OBJECT(ptr));
-	
-	if(c2_db_imap_load(mailbox) < 0)
-	{
-		c2_mutex_unlock(&imap->lock);
-		return TRUE;
-	}
-	else
-	{
-		c2_mutex_unlock(&imap->lock);
-		return FALSE;
-	}
+	return TRUE;
 }
 
 gboolean
@@ -112,8 +83,26 @@ c2_db_imap_message_add (C2Mailbox *mailbox, C2Db *db)
 {
 }
 
+gint
+c2_db_imap_message_remove (C2Mailbox *mailbox, GList *list)
+{
+	C2IMAP *imap = mailbox->protocol.IMAP.imap;
+	gint retval;
+	
+	c2_mutex_lock(&imap->lock);
+	retval = c2_imap_message_remove(imap, list);
+	c2_mutex_unlock(&imap->lock);
+	
+	return retval;
+}
+
 void
-c2_db_imap_message_remove (C2Mailbox *mailbox, C2Db *db, gint n)
+c2_db_imap_freeze (C2Mailbox *mailbox)
+{
+}
+
+void
+c2_db_imap_thaw (C2Mailbox *mailbox)
 {
 }
 
