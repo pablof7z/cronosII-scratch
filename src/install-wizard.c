@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-*/appearance is spelt incorrectly throughout this app generally but here we seem
+/*appearance is spelt incorrectly throughout this app generally but here we seem
 * to be constucting a subdirectory that the user may have to access !!
 *Can this be fixed, or is it too late. -pete. */
 #include <gnome.h>
