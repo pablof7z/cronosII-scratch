@@ -23,6 +23,11 @@
 #include "utils-net.h"
 
 gboolean
+c2_db_imap_create_structure (C2Mailbox *mailbox)
+{
+}
+
+gboolean
 c2_db_imap_update_structure (C2Mailbox *mailbox)
 {
 }

@@ -36,10 +36,7 @@
 /* (in progress) TODO: Create, rename, and remove folders */
 /* (in progress)TODO: Internal folder managment + syncronization */
 /* (done!) TODO: Function for reading server replies */
-/* (in progress -- fuckin' bugs!) TODO: Get list of folders */
-
-/* temp!! */
-gboolean c2_db_imap_create_structure(C2Mailbox *mailbox) {}
+/* (done!) TODO: Get list of folders */
 
 /* Private GtkObject functions */
 static void
@@ -515,6 +512,15 @@ check:
 	return FALSE;
 }
 
+/** c2_imap_populate_folders
+ * @imap: imap object in which to populate folders tree
+ * 
+ * Destroy's the old IMAP folder tree (if any) and creates
+ * a new one.
+ * 
+ * Return Value:
+ * 0 on success, -1 otherwise
+ **/
 gint
 c2_imap_populate_folders (C2IMAP *imap)
 {
@@ -529,19 +535,59 @@ c2_imap_populate_folders (C2IMAP *imap)
 	return 0;
 }
 
+/** c2_imap_folder_loop
+ * 
+ * @imap: C2IMAP Object
+ * @parent: C2Mailbox for which to scan under for children,
+ *          can be NULL, if scanning from top level of 
+ *          folder heirarchy.
+ * 
+ * This is a recursive function which builds the 
+ * imap->mailboxes folder tree.
+ * 
+ * Return Value:
+ * 0 on success, -1 otherwise
+ **/
 static gint
 c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 {
 	gchar *buf, *ptr, *start, *name;
 	C2Mailbox *box;
-
+	
 	if(parent) name = g_strconcat(parent->name, "/%", NULL);
 	else name = g_strdup("%");
-
+	
 	if(!(buf = c2_imap_get_folder_list(imap, NULL, name)))
+	{
+		g_free(name);
 		return -1;
-
-	for(ptr = start = buf; *ptr; ptr++)
+	}
+	
+	start = buf;
+	
+	/* if this is a recursive call... */
+	if(parent) 
+	{
+		/* check to make sure there are child folders under this one
+		 * and not that the server is just repeating itself w/ the 
+		 * parent folder name */
+		if(c2_str_count_lines(buf) < 3)
+		{
+				g_free(name);
+				g_free(buf);
+				return 0;
+		}
+		/* skip the first folder, which repeates itself */
+		else
+		{
+			while(start[0] != '\n') 
+				start++;
+			start++;
+		}
+	}
+  
+	
+	for(ptr = start; *ptr; ptr++)
 	{
 		if(*start != '*')
 			break;
@@ -557,7 +603,6 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 			
 			folder = c2_mailbox_new_with_parent(&imap->mailboxes, "*", id, C2_MAILBOX_IMAP,
 						C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap);
-			printf("yoooo!\n");
 			buf2 = g_strndup(start, ptr - start);
 			
 			folder->protocol.IMAP.noinferiors = FALSE;
@@ -585,9 +630,10 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 					num++;
 				else if(num == 3)
 				{
-					printf("then name of the mailbox is: %s\n", ptr2);
+					int i;
 					g_free(folder->name);
-					folder->name = g_strdup(ptr2);
+					folder->name = g_strndup(ptr2, strlen(ptr2) - 1);
+					printf("the name of the mailbox is: %s\n", folder->name);
 					if(!folder->protocol.IMAP.noinferiors)
 						if(c2_imap_folder_loop(imap, folder) < 0)
 							return -1;
@@ -773,11 +819,11 @@ c2_imap_delete_folder(C2IMAP *imap, const gchar *name)
 	
 	  if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d DELETE "
 													"\"%s\"\r\n", tag, name) < 0)
-	 {
-		     c2_imap_set_error(imap, NET_WRITE_FAILED);
-		     gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
-		     return -1;
-	 }
+		{
+			c2_imap_set_error(imap, NET_WRITE_FAILED);
+			gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+			return -1;
+		}
 	
 	  if(!(reply = c2_imap_get_server_reply(imap, tag)))
 		    return -1;

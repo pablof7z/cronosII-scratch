@@ -97,6 +97,9 @@ c2_str_get_enclosed_text					(const gchar *str, gchar enc1, gchar enc2, guint ar
 gchar *
 c2_str_get_enclosed_text_backward			(const gchar *str, gchar enc1, gchar enc2, guint args, ...);
 
+gint
+c2_str_count_lines                                                      (const gchar *str);
+   
 gchar *
 c2_str_get_line								(const gchar *str);
 

@@ -500,8 +500,33 @@ c2_str_get_enclosed_text_backward (const gchar *str, gchar enc1, gchar enc2, gui
 }
 
 /**
+ * c2_str_count_lines
+ * @str: A pointer to a string
+ * 
+ * Countes the number of lines in the string.
+ * 
+ * Return Value:
+ * Number of lines in the string, or 0 if the string is NULL
+ **/
+gint
+c2_str_count_lines (const gchar *str)
+{
+   gchar *ptr;
+   gint counter = 1;
+   
+   if(!str)
+     return 0;
+   
+   for(ptr = C2_CHAR(str); *ptr; ptr++)
+      if(*ptr == '\n' && *(ptr+1))
+	counter++;
+   
+   return counter;
+}
+
+/**
  * c2_str_get_line
- * @str: A pointer to an string object where the next line should be searched.
+ * @str: A pointer to a string object where the next line should be searched.
  *
  * Searches for the next line.
  * Note that this function should be used with a pointer
