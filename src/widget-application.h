@@ -32,7 +32,7 @@ extern "C" {
 #endif
 #include <gnome.h>
 
-#define C2_APPLICATION_GLADE_FILE(x)		(PKGDATADIR G_DIR_SEPARATOR_S x ".glade")
+#define C2_APPLICATION_GLADE_FILE(x)		(GLADEDIR G_DIR_SEPARATOR_S x ".glade")
 
 #define C2_APPLICATION(obj)					(GTK_CHECK_CAST (obj, c2_application_get_type (), C2Application))
 #define C2_APPLICATION_CLASS(klass)			(GTK_CHECK_CLASS_CAST (klass, c2_application_get_type (), C2ApplicationClass))

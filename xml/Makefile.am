@@ -1,10 +1,11 @@
-gladeui_DATA = \
-	cronosII.glade		\
-	cronosII-composer.glade \
-	preferences.glade	\
+gladeui_DATA =				\
+	cronosII.glade			\
+	composer.glade			\
+	install.glade			\
+	preferences.glade		\
 	ui-text-editor.glade
 
-gladeuidir = $(pkgdatadir)
+gladeuidir = $(pkgdatadir)/ui
 
 Pmap_DATA = \
 	copy16.xpm		\
@@ -34,7 +35,7 @@ Pmap_DATA = \
 	send16.xpm		\
 	unread.xpm
 
-Pmapdir = $(pkgdatadir)
+Pmapdir = $(pkgdatadir)/ui
 
 
-EXTRA_DIST = $(Pmap_DATA) cronosII.glade cronosII-composer.glade preferences.glade ui-text-editor.glade
+EXTRA_DIST = $(Pmap_DATA) $(gladeui_DATA)

@@ -18,7 +18,10 @@
 #include <glade/glade.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <gtkhtml/gtkhtml.h>
+#include <config.h>
+#ifdef USE_GTKHTML
+#	include <gtkhtml/gtkhtml.h>
+#endif
 
 #include <libcronosII/account.h>
 #include <libcronosII/error.h>
@@ -33,7 +36,7 @@
 #include "widget-transfer-item.h"
 #include "widget-window.h"
 
-#define XML_FILE "cronosII-composer"
+#define XML_FILE "composer"
 
 #define GET_WINDOW_WIDTH	gnome_config_get_int_with_default ("/"PACKAGE"/Composer/width=640", NULL)
 #define GET_WINDOW_HEIGHT	gnome_config_get_int_with_default ("/"PACKAGE"/Composer/height=480", NULL)

@@ -133,7 +133,7 @@ gnomedownload = @gnomedownload@
 l = @l@
 
 DEFS = @DEFS@ -DLOCALEDIR=\"${localedir}\"
-INCLUDES = -DBUILDING_C2 -I$(top_srcdir) -I$(includedir) 	`gnome-config --cflags gnome` 	 -DG_LOG_DOMAIN=\"CronosII\" -DGNOMELOCALEDIR=\""$(datadir)/locale"\" 	 -I../intl -I$(top_srcdir)/intl $(GNOME_INCLUDEDIR) -DDATADIR=\"${datadir}\" -DPKGDATADIR=\"${pkgdatadir}\"
+INCLUDES = -DBUILDING_C2 -I$(top_srcdir) -I$(includedir) 	`gnome-config --cflags gnome` 	 -DG_LOG_DOMAIN=\"CronosII\" -DGNOMELOCALEDIR=\""$(datadir)/locale"\" 	 -I../intl -I$(top_srcdir)/intl $(GNOME_INCLUDEDIR) -DDATADIR=\"${datadir}\" 	 -DPKGDATADIR=\"${pkgdatadir}\" -DGLADEDIR=\"${pkgdatadir}/ui\"
 
 @USE_UI_TEXT_EDITOR_TRUE@UI_TEXT_EDITOR = ui-text-editor
 @USE_UI_TEXT_EDITOR_FALSE@UI_TEXT_EDITOR = 
