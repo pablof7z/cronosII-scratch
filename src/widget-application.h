@@ -79,9 +79,8 @@ extern "C" {
 #define DEFAULT_COLORS_MESSAGE_SOURCE		"0"
 
 #define DEFAULT_PATHS_SAVING				g_get_home_dir ()
-#define DEFAULT_PATHS_DOWNLOAD				g_get_home_dir ()
 #define DEFAULT_PATHS_GET					g_get_home_dir ()
-#define DEFAULT_PATHS_ALWAYS_USE			"1"
+#define DEFAULT_PATHS_SMART					"1"
 
 #define DEFAULT_ADVANCED_HTTP_PROXY_ADDR	""
 #define DEFAULT_ADVANCED_HTTP_PROXY_PORT	"80"
@@ -230,9 +229,8 @@ struct _C2Application
 	C2ColorSource colors_message_source;
 
 	gchar *paths_saving;
-	gchar *paths_download;
 	gchar *paths_get;
-	gint paths_always_use : 1;
+	gint paths_smart : 1;
 
 	gchar *advanced_http_proxy_addr;
 	gint advanced_http_proxy_port;

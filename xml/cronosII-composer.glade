@@ -83,7 +83,7 @@
 	      </signal>
 	      <label>_Send Now</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_MAIL_SND</stock_icon>
+	      <icon>send16.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -102,7 +102,7 @@
 	      </signal>
 	      <label>Send _Later</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_MAIL_SND</stock_icon>
+	      <icon>mail16.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -130,13 +130,20 @@
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
-	      <name>file_save</name>
+	      <name>save</name>
+	      <accelerator>
+		<modifiers>GDK_CONTROL_MASK | GDK_MOD1_MASK</modifiers>
+		<key>GDK_S</key>
+		<signal>activate</signal>
+	      </accelerator>
 	      <signal>
 		<name>activate</name>
 		<handler>on_save_activate</handler>
 		<last_modification_time>Thu, 09 Aug 2001 18:05:30 GMT</last_modification_time>
 	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_SAVE_ITEM</stock_item>
+	      <label>_Save</label>
+	      <right_justify>False</right_justify>
+	      <icon>save16.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -155,7 +162,7 @@
 	      </signal>
 	      <label>_Save as Draft</label>
 	      <right_justify>False</right_justify>
-	      <stock_icon>GNOME_STOCK_MENU_SAVE</stock_icon>
+	      <icon>save16.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -189,34 +196,48 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>edit_cut</name>
+	      <sensitive>False</sensitive>
 	      <signal>
 		<name>activate</name>
-		<handler>on_cut_activate</handler>
+		<handler>on_edit_cut_activate</handler>
 		<last_modification_time>Wed, 08 Aug 2001 02:43:34 GMT</last_modification_time>
 	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_CUT_ITEM</stock_item>
+	      <label>C_ut</label>
+	      <right_justify>False</right_justify>
+	      <icon>cut16.xpm</icon>
 	    </widget>
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>edit_copy</name>
+	      <sensitive>False</sensitive>
+	      <accelerator>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
+		<key>GDK_C</key>
+		<signal>activate</signal>
+	      </accelerator>
 	      <signal>
 		<name>activate</name>
-		<handler>on_copy_activate</handler>
+		<handler>on_edit_copy_activate</handler>
 		<last_modification_time>Wed, 08 Aug 2001 02:43:34 GMT</last_modification_time>
 	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_COPY_ITEM</stock_item>
+	      <label>_Copy</label>
+	      <right_justify>False</right_justify>
+	      <icon>copy16.xpm</icon>
 	    </widget>
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>edit_paste</name>
+	      <sensitive>False</sensitive>
 	      <signal>
 		<name>activate</name>
-		<handler>on_paste_activate</handler>
+		<handler>on_edit_paste_activate</handler>
 		<last_modification_time>Wed, 08 Aug 2001 02:43:34 GMT</last_modification_time>
 	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_PASTE_ITEM</stock_item>
+	      <label>_Paste</label>
+	      <right_justify>False</right_justify>
+	      <icon>paste16.xpm</icon>
 	    </widget>
 
 	    <widget>
@@ -256,6 +277,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>edit_undo</name>
+	      <sensitive>False</sensitive>
 	      <signal>
 		<name>activate</name>
 		<handler>on_undo_activate</handler>
@@ -267,6 +289,7 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>edit_redo</name>
+	      <sensitive>False</sensitive>
 	      <signal>
 		<name>activate</name>
 		<handler>on_redo_activate</handler>
@@ -514,28 +537,6 @@
 	    </widget>
 	  </widget>
 	</widget>
-
-	<widget>
-	  <class>GtkMenuItem</class>
-	  <name>help</name>
-	  <stock_item>GNOMEUIINFO_MENU_HELP_TREE</stock_item>
-
-	  <widget>
-	    <class>GtkMenu</class>
-	    <name>help_menu</name>
-
-	    <widget>
-	      <class>GtkPixmapMenuItem</class>
-	      <name>help_about</name>
-	      <signal>
-		<name>activate</name>
-		<handler>on_about_activate</handler>
-		<last_modification_time>Wed, 08 Aug 2001 03:03:02 GMT</last_modification_time>
-	      </signal>
-	      <stock_item>GNOMEUIINFO_MENU_ABOUT_ITEM</stock_item>
-	    </widget>
-	  </widget>
-	</widget>
       </widget>
     </widget>
 
@@ -710,8 +711,8 @@
 
 	<widget>
 	  <class>GtkTable</class>
-	  <name>table3</name>
-	  <rows>5</rows>
+	  <name>headers_table</name>
+	  <rows>6</rows>
 	  <columns>3</columns>
 	  <homogeneous>False</homogeneous>
 	  <row_spacing>3</row_spacing>
@@ -1078,6 +1079,76 @@
 	      <xfill>True</xfill>
 	      <yfill>False</yfill>
 	    </child>
+	  </widget>
+
+	  <widget>
+	    <class>GtkLabel</class>
+	    <name>attachments_label</name>
+	    <visible>False</visible>
+	    <label>Attachments:</label>
+	    <justify>GTK_JUSTIFY_CENTER</justify>
+	    <wrap>False</wrap>
+	    <xalign>1</xalign>
+	    <yalign>0.5</yalign>
+	    <xpad>0</xpad>
+	    <ypad>0</ypad>
+	    <child>
+	      <left_attach>0</left_attach>
+	      <right_attach>1</right_attach>
+	      <top_attach>5</top_attach>
+	      <bottom_attach>6</bottom_attach>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	      <xexpand>False</xexpand>
+	      <yexpand>False</yexpand>
+	      <xshrink>False</xshrink>
+	      <yshrink>False</yshrink>
+	      <xfill>True</xfill>
+	      <yfill>False</yfill>
+	    </child>
+	  </widget>
+
+	  <widget>
+	    <class>GtkViewport</class>
+	    <name>attachments_container</name>
+	    <visible>False</visible>
+	    <shadow_type>GTK_SHADOW_IN</shadow_type>
+	    <child>
+	      <left_attach>1</left_attach>
+	      <right_attach>3</right_attach>
+	      <top_attach>5</top_attach>
+	      <bottom_attach>6</bottom_attach>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	      <xexpand>False</xexpand>
+	      <yexpand>False</yexpand>
+	      <xshrink>False</xshrink>
+	      <yshrink>False</yshrink>
+	      <xfill>True</xfill>
+	      <yfill>True</yfill>
+	    </child>
+
+	    <widget>
+	      <class>GtkScrolledWindow</class>
+	      <name>attachments_scroll</name>
+	      <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
+	      <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
+	      <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+	      <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+
+	      <widget>
+		<class>GnomeIconList</class>
+		<name>attachments_list</name>
+		<can_focus>True</can_focus>
+		<selection_mode>GTK_SELECTION_MULTIPLE</selection_mode>
+		<icon_width>76</icon_width>
+		<row_spacing>4</row_spacing>
+		<column_spacing>2</column_spacing>
+		<text_spacing>2</text_spacing>
+		<text_editable>False</text_editable>
+		<text_static>False</text_static>
+	      </widget>
+	    </widget>
 	  </widget>
 	</widget>
 
@@ -1698,10 +1769,9 @@ double-click the message.</message>
   <class>GnomeDialog</class>
   <name>dlg_insert_attachment</name>
   <width>444</width>
-  <height>177</height>
   <title>Insert New Attachment</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
-  <position>GTK_WIN_POS_NONE</position>
+  <position>GTK_WIN_POS_CENTER</position>
   <modal>False</modal>
   <allow_shrink>False</allow_shrink>
   <allow_grow>False</allow_grow>
@@ -1714,7 +1784,7 @@ double-click the message.</message>
     <child_name>GnomeDialog:vbox</child_name>
     <name>dialog-vbox5</name>
     <homogeneous>False</homogeneous>
-    <spacing>8</spacing>
+    <spacing>4</spacing>
     <child>
       <padding>4</padding>
       <expand>True</expand>
@@ -1743,13 +1813,21 @@ double-click the message.</message>
 	<name>button12</name>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_HELP</stock_button>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button14</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
 	<label>Attach</label>
 	<stock_pixmap>GNOME_STOCK_PIXMAP_ATTACH</stock_pixmap>
       </widget>
 
       <widget>
 	<class>GtkButton</class>
-	<name>button14</name>
+	<name>button17</name>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
@@ -1768,13 +1846,24 @@ double-click the message.</message>
       </child>
 
       <widget>
-	<class>GnomePixmap</class>
-	<name>pixmap</name>
+	<class>GtkAlignment</class>
+	<name>alignment1</name>
+	<xalign>0.5</xalign>
+	<yalign>0.5</yalign>
+	<xscale>0.71</xscale>
+	<yscale>0.65</yscale>
 	<child>
 	  <padding>0</padding>
 	  <expand>True</expand>
 	  <fill>True</fill>
 	</child>
+
+	<widget>
+	  <class>GnomePixmap</class>
+	  <name>pixmap</name>
+	  <width>36</width>
+	  <height>36</height>
+	</widget>
       </widget>
 
       <widget>
@@ -1783,8 +1872,8 @@ double-click the message.</message>
 	<rows>3</rows>
 	<columns>2</columns>
 	<homogeneous>False</homogeneous>
-	<row_spacing>6</row_spacing>
-	<column_spacing>6</column_spacing>
+	<row_spacing>4</row_spacing>
+	<column_spacing>4</column_spacing>
 	<child>
 	  <padding>0</padding>
 	  <expand>True</expand>
@@ -1842,7 +1931,7 @@ double-click the message.</message>
 	  <widget>
 	    <class>GtkEntry</class>
 	    <child_name>GnomeEntry:entry</child_name>
-	    <name>combo-entry3</name>
+	    <name>file</name>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -1905,7 +1994,7 @@ double-click the message.</message>
 
 	<widget>
 	  <class>GtkEntry</class>
-	  <name>description_str</name>
+	  <name>description</name>
 	  <can_focus>True</can_focus>
 	  <editable>True</editable>
 	  <text_visible>True</text_visible>
@@ -1928,10 +2017,15 @@ double-click the message.</message>
 	</widget>
 
 	<widget>
-	  <class>GtkHBox</class>
-	  <name>hbox2</name>
-	  <homogeneous>False</homogeneous>
-	  <spacing>4</spacing>
+	  <class>GtkLabel</class>
+	  <name>type</name>
+	  <label></label>
+	  <justify>GTK_JUSTIFY_CENTER</justify>
+	  <wrap>False</wrap>
+	  <xalign>0</xalign>
+	  <yalign>0.5</yalign>
+	  <xpad>0</xpad>
+	  <ypad>0</ypad>
 	  <child>
 	    <left_attach>1</left_attach>
 	    <right_attach>2</right_attach>
@@ -1944,51 +2038,12 @@ double-click the message.</message>
 	    <xshrink>False</xshrink>
 	    <yshrink>False</yshrink>
 	    <xfill>True</xfill>
-	    <yfill>True</yfill>
+	    <yfill>False</yfill>
 	  </child>
-
-	  <widget>
-	    <class>GnomePixmap</class>
-	    <name>pixmap</name>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>True</fill>
-	    </child>
-	  </widget>
-
-	  <widget>
-	    <class>GtkLabel</class>
-	    <name>type_label</name>
-	    <label></label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>0</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <child>
-	      <padding>0</padding>
-	      <expand>True</expand>
-	      <fill>True</fill>
-	    </child>
-	  </widget>
 	</widget>
       </widget>
     </widget>
   </widget>
-</widget>
-
-<widget>
-  <class>GnomeAbout</class>
-  <name>dlg_about</name>
-  <modal>True</modal>
-  <copyright>Copyright 2001 Pablo Fernández Navarro</copyright>
-  <authors>Pablo Fernández Navarro
-</authors>
-  <comments>The Cronos II Composer is part of the Cronos II application.
- 
-Web Site at: http://cronosII.sourceforge.net/</comments>
 </widget>
 
 <widget>
@@ -2051,6 +2106,45 @@ Web Site at: http://cronosII.sourceforge.net/</comments>
 	<fill>True</fill>
       </child>
     </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GtkMenu</class>
+  <name>mnu_attachments</name>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>remove_attachments</name>
+    <tooltip>Remove selected attachments</tooltip>
+    <signal>
+      <name>activate</name>
+      <handler>on_remove_attachments_activate</handler>
+      <last_modification_time>Sat, 29 Sep 2001 18:39:16 GMT</last_modification_time>
+    </signal>
+    <label>_Remove attachments</label>
+    <right_justify>False</right_justify>
+    <stock_icon>GNOME_STOCK_MENU_TRASH</stock_icon>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separator10</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>properties</name>
+    <tooltip>Edit properties of selected attachment</tooltip>
+    <signal>
+      <name>activate</name>
+      <handler>on_properties_activate</handler>
+      <last_modification_time>Sat, 29 Sep 2001 18:39:16 GMT</last_modification_time>
+    </signal>
+    <label>_Properties</label>
+    <right_justify>False</right_justify>
+    <stock_icon>GNOME_STOCK_MENU_PROP</stock_icon>
   </widget>
 </widget>
 

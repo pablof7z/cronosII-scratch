@@ -360,20 +360,16 @@ ignore:
 	application->colors_message_source = gnome_config_get_int_with_default
 									("/Cronos II/Colors/message_source=" DEFAULT_COLORS_MESSAGE_SOURCE, NULL);
 
-	buf = g_strconcat ("/Cronos II/Paths/saving=", g_get_home_dir (), NULL);
+	buf = g_strconcat ("/Cronos II/Paths/saving=", g_get_home_dir (), "/", NULL);
 	application->paths_saving = gnome_config_get_string_with_default
 									(buf, NULL);
 	g_free (buf);
-	buf = g_strconcat ("/Cronos II/Paths/download=", g_get_home_dir (), NULL);
-	application->paths_download = gnome_config_get_string_with_default
-									(buf, NULL);
-	g_free (buf);
-	buf = g_strconcat ("/Cronos II/Paths/get=", g_get_home_dir (), NULL);
+	buf = g_strconcat ("/Cronos II/Paths/get=", g_get_home_dir (), "/", NULL);
 	application->paths_get = gnome_config_get_string_with_default
 									(buf, NULL);
 	g_free (buf);
-	application->paths_always_use = gnome_config_get_int_with_default
-									("/Cronos II/Paths/always_use=" DEFAULT_PATHS_ALWAYS_USE, NULL);
+	application->paths_smart = gnome_config_get_int_with_default
+									("/Cronos II/Paths/smart=" DEFAULT_PATHS_SMART, NULL);
 
 	application->advanced_http_proxy_addr = gnome_config_get_string_with_default
 									("/Cronos II/Advanced/http_proxy_addr=" DEFAULT_ADVANCED_HTTP_PROXY_ADDR, NULL);
@@ -531,7 +527,6 @@ destroy (GtkObject *object)
 	g_free (application->fonts_readed_message);
 	g_free (application->fonts_unreaded_mailbox);
 	g_free (application->paths_saving);
-	g_free (application->paths_download);
 	g_free (application->paths_get);
 	g_free (application->advanced_http_proxy_addr);
 	g_free (application->advanced_ftp_proxy_addr);

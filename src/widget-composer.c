@@ -37,6 +37,15 @@ static void
 destroy										(GtkObject *object);
 
 static void
+on_to_changed								(GtkWidget *widget, C2Composer *composer);
+
+static void
+on_icon_list_button_press_event				(GtkWidget *widget, GdkEventButton *e, C2Composer *composer);
+
+static void
+add_attachment								(C2Composer *composer, gchar *file, gchar *description, gint nth);
+
+static void
 on_application_preferences_changed_account	(C2Application *application, gint key, gpointer value,
 											 GtkCombo *combo);
 
@@ -45,7 +54,16 @@ on_application_preferences_changed_editor_external_cmnd	(C2Application *applicat
 											gpointer value, GtkLabel *label);
 
 static void
+on_mnu_attachments_remove_activate			(GtkWidget *widget, C2Composer *composer);
+
+static void
 on_run_external_editor_clicked				(GtkWidget *widget, C2Composer *composer);
+
+static void
+on_attachments_clicked						(GtkWidget *widgetv, C2Composer *composer);
+
+static void
+on_mnu_attachments_edit_activate			(GtkWidget *widget, C2Composer *composer);
 
 enum
 {
@@ -122,11 +140,12 @@ class_init (C2ComposerClass *klass)
 						GTK_TYPE_INT);
 
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
-
+	
 	klass->changed_title = NULL;
 	klass->send_now = NULL;
 	klass->send_later = NULL;
 	klass->save_draft = NULL;
+	klass->add_attachment = add_attachment;
 }
 
 static void
@@ -162,7 +181,6 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	GtkWidget *scroll;
 	GtkWidget *widget;
 	gchar *str, *buf;
-	gint i;
 	GladeXML *xml;
 	
 	c2_window_construct (C2_WINDOW (composer), application, _("Composer"), "composer");
@@ -175,44 +193,47 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 
 	c2_window_set_contents_from_glade (C2_WINDOW (composer), "wnd_composer_contents");
 
-	for (i = 0; i <= 9; i++)
+	widget = glade_xml_get_widget (xml, "file_send_now");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = glade_xml_get_widget (xml, "file_send_later");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = glade_xml_get_widget (xml, "edit_cut");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = glade_xml_get_widget (xml, "edit_copy");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = glade_xml_get_widget (xml, "edit_paste");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = glade_xml_get_widget (xml, "edit_undo");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = glade_xml_get_widget (xml, "edit_redo");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = glade_xml_get_widget (xml, "insert_image");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = glade_xml_get_widget (xml, "insert_link");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = glade_xml_get_widget (xml, "send_now_btn");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = glade_xml_get_widget (xml, "send_later_btn");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = glade_xml_get_widget (xml, "undo_btn");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = glade_xml_get_widget (xml, "redo_btn");
+	gtk_widget_set_sensitive (widget, FALSE);
+
+	buf = gnome_config_get_string ("/"PACKAGE"/Interface-Composer/editor");
+
+	if (c2_streq (buf, "external"))
 	{
-		switch (i)
-		{
-			case 0:
-				str = "file_send_now";
-				break;
-			case 1:
-				str = "file_send_later";
-				break;
-			case 2:
-				str = "edit_undo";
-				break;
-			case 3:
-				str = "edit_redo";
-				break;
-			case 4:
-				str = "insert_image";
-				break;
-			case 5:
-				str = "insert_link";
-				break;
-			case 6:
-				str = "send_now_btn";
-				break;
-			case 7:
-				str = "send_later_btn";
-				break;
-			case 8:
-				str = "undo_btn";
-				break;
-			case 9:
-				str = "redo_btn";
-				break;
-		}
-		
-		if ((widget = glade_xml_get_widget (xml, str)))
-			gtk_widget_set_sensitive (widget, FALSE);
+		widget = glade_xml_get_widget (xml, "edit_select_all");
+		gtk_widget_set_sensitive (widget, FALSE);
+		widget = glade_xml_get_widget (xml, "edit_clear");
+		gtk_widget_set_sensitive (widget, FALSE);
+		widget = glade_xml_get_widget (xml, "edit_find");
+		gtk_widget_set_sensitive (widget, FALSE);
+		widget = glade_xml_get_widget (xml, "edit_replace");
+		gtk_widget_set_sensitive (widget, FALSE);
+		widget = glade_xml_get_widget (xml, "edit_spell_check");
+		gtk_widget_set_sensitive (widget, FALSE);
 	}
 
 	/* Fill the account combo */
@@ -223,14 +244,15 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 						GTK_SIGNAL_FUNC (on_application_preferences_changed_account),
 						GTK_COMBO (widget));
 
-
-
+	/* Set options for the attachments list */
+	widget = glade_xml_get_widget (xml, "attachments_list");
+	GNOME_ICON_LIST (widget)->pad10 = GNOME_ICON_LIST_TEXT_RIGHT;
+	gtk_signal_connect_after (GTK_OBJECT (widget), "button_press_event",
+						GTK_SIGNAL_FUNC (on_icon_list_button_press_event), composer);
 
 	/* Create the actual editor widget */
 	scroll = glade_xml_get_widget (xml, "scroll");
 
-	buf = gnome_config_get_string ("/"PACKAGE"/Interface-Composer/editor");
-	
 	if (c2_streq (buf, "external"))
 	{
 		GtkWidget *viewport;
@@ -256,7 +278,7 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 		gtk_container_set_border_width (GTK_CONTAINER (vbox), GNOME_PAD_SMALL);
 		gtk_widget_set_usize (vbox, 70, -1);
 
-		label = gtk_label_new (_("You selected to use an external editor "
+		label = gtk_label_new (_("You have choosen to use an external editor "
 								 "instead of the built-in with Cronos II.\n"
 								 "\n"
 								 "Click the button below to run the editor "
@@ -306,8 +328,101 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 
 	g_free (buf);
 
+	/* Connect signals */
+	widget = glade_xml_get_widget (xml, "insert_attachment");
+	gtk_signal_connect (GTK_OBJECT (widget), "activate",
+						GTK_SIGNAL_FUNC (on_attachments_clicked), composer);
+	
+	widget = glade_xml_get_widget (xml, "attach_btn");
+	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
+						GTK_SIGNAL_FUNC (on_attachments_clicked), composer);
+
+	widget = glade_xml_get_widget (xml, "to");
+	gtk_signal_connect (GTK_OBJECT (widget), "changed",
+						GTK_SIGNAL_FUNC (on_to_changed), composer);
+	
+
 	gtk_signal_connect_object (GTK_OBJECT (composer), "destroy",
 							GTK_SIGNAL_FUNC (destroy), NULL);
+}
+
+static const gchar *
+get_pixmap (const gchar *filename)
+{
+	const gchar *type = gnome_mime_type_or_default (filename, "");
+	const gchar *pixmap = type || !strlen (type) ? gnome_mime_get_value (type, "icon-filename") : NULL;
+
+	return pixmap;
+}
+
+static void
+add_attachment (C2Composer *composer, gchar *file, gchar *description, gint nth)
+{
+	GtkWidget *widget;
+	
+	if (c2_file_is_directory (file))
+	{
+	} else
+	{
+		/* Add attachment as file */
+		C2ComposerAttachment *attach;
+		gchar *filename;
+		const gchar *pixmapfile;
+		gchar *dynpixmap;
+		
+		attach = g_new0 (C2ComposerAttachment, 1);
+		attach->file = file;
+		attach->type = gnome_mime_type_or_default (file, "application/octet-stream");
+		attach->description = description;
+
+		filename = g_basename (file);
+		pixmapfile = get_pixmap (filename);
+		
+		if (!pixmapfile || !c2_file_exists (pixmapfile))
+			dynpixmap = g_strdup (PKGDATADIR "/pixmaps/unknown-file.png");
+
+		widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_list");
+
+		if (nth < 0)
+		{
+			gnome_icon_list_append (GNOME_ICON_LIST (widget),
+									pixmapfile ? pixmapfile : dynpixmap, filename);
+			gnome_icon_list_set_icon_data (GNOME_ICON_LIST (widget), GNOME_ICON_LIST (widget)->icons-1,
+									attach);
+		} else
+		{
+			gnome_icon_list_insert (GNOME_ICON_LIST (widget), nth,
+									pixmapfile ? pixmapfile : dynpixmap, filename);
+			gnome_icon_list_set_icon_data (GNOME_ICON_LIST (widget), nth, attach);
+		}
+
+		if (!pixmapfile)
+			g_free (dynpixmap);
+	}
+
+	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_label");
+	gtk_widget_show (widget);
+	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_container");
+	gtk_widget_show (widget);
+}
+
+static void
+on_to_changed (GtkWidget *widget, C2Composer *composer)
+{
+	GladeXML *xml;
+	gboolean sensitive;
+
+	if (!c2_str_is_email (gtk_entry_get_text (GTK_ENTRY (widget))))
+		sensitive = FALSE;
+	else
+		sensitive = TRUE;
+	
+	xml = C2_WINDOW (composer)->xml;
+
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "file_send_now"), sensitive);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "file_send_later"), sensitive);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "send_now_btn"), sensitive);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "send_later_btn"), sensitive);
 }
 
 static void
@@ -372,11 +487,183 @@ on_run_external_editor_clicked (GtkWidget *widget, C2Composer *composer)
 	}
 	if (!pid)
 	{
-        execlp(cmnd, "cronosII-external-editor", filename, NULL);
+        execlp (cmnd, "cronosII-external-editor", filename, NULL);
 		g_assert_not_reached ();
         _exit(-1);
 	} else
 	{
-		fprintf(stderr, "Parent: forked a child with pid = %d\n", (int)pid);
+		fprintf (stderr, "Parent: forked a child with pid = %d\n", (int)pid);
 	}
+}
+
+static void
+on_attachments_dialog_file_changed (GtkWidget *widget, GladeXML *xml)
+{
+	GtkWidget *wbuf;
+	gchar *file;
+	
+	file = gtk_entry_get_text (GTK_ENTRY (widget));
+	wbuf = glade_xml_get_widget (xml, "type");
+	gtk_label_set_text (GTK_LABEL (wbuf), gnome_mime_type_or_default (file, _("unknown")));
+
+	wbuf = glade_xml_get_widget (xml, "pixmap");
+	gnome_pixmap_load_file (GNOME_PIXMAP (wbuf), get_pixmap (file));
+}
+
+static gint
+add_attachment_dialog (C2Composer *composer, gchar **file,
+		gchar **description)
+{
+	GladeXML *xml;
+	GtkWidget *widget, *wbuf;
+
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE (XML_FILE), "dlg_insert_attachment");
+	widget = glade_xml_get_widget (xml, "dlg_insert_attachment");
+
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file")), "changed",
+						GTK_SIGNAL_FUNC (on_attachments_dialog_file_changed), xml);
+
+	wbuf = glade_xml_get_widget (xml, "file");
+	if (*file)
+		gtk_entry_set_text (GTK_ENTRY (wbuf), *file);
+
+	wbuf = glade_xml_get_widget (xml, "description");
+	if (*file)
+		gtk_entry_set_text (GTK_ENTRY (wbuf), *description);
+
+	c2_application_window_add (C2_WINDOW (composer)->application, GTK_WINDOW (widget));
+
+run:
+	switch (gnome_dialog_run (GNOME_DIALOG (widget)))
+	{
+		case 0:
+			/* [TODO]
+			 * Open the help window
+			 */
+			goto run;
+		case 1:
+			g_free (*file);
+			g_free (*description);
+			
+			wbuf = glade_xml_get_widget (xml, "file");
+			*file = g_strdup (gtk_entry_get_text (GTK_ENTRY (wbuf)));
+			wbuf = glade_xml_get_widget (xml, "description");
+			*description = g_strdup (gtk_entry_get_text (GTK_ENTRY (wbuf)));
+			
+			c2_application_window_remove (C2_WINDOW (composer)->application, GTK_WINDOW (widget));
+			gnome_dialog_close (GNOME_DIALOG (widget));
+			gtk_object_destroy (GTK_OBJECT (xml));
+			return 0;
+		case 2:
+			c2_application_window_remove (C2_WINDOW (composer)->application, GTK_WINDOW (widget));
+			gnome_dialog_close (GNOME_DIALOG (widget));
+			gtk_object_destroy (GTK_OBJECT (xml));
+			return -1;
+	}
+
+	return -1;
+}
+
+static void
+on_attachments_clicked (GtkWidget *widgetv, C2Composer *composer)
+{
+	gchar *file, *description;
+
+	file = description = NULL;
+
+	if (add_attachment_dialog (composer, &file, &description))
+		return;
+
+	C2_COMPOSER_CLASS_FW (composer)->add_attachment (composer, file, description, -1);
+}
+
+static void
+on_icon_list_button_press_event (GtkWidget *widget, GdkEventButton *e, C2Composer *composer)
+{
+	GladeXML *xml;
+	GtkWidget *wbuf, *il;
+	
+	switch (e->button)
+	{
+		case 3:
+			il = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_list");
+			
+			if (!g_list_length (GNOME_ICON_LIST (il)->selection))
+				return;
+			xml = glade_xml_new (C2_APPLICATION_GLADE_FILE (XML_FILE), "mnu_attachments");
+			wbuf = glade_xml_get_widget (xml, "mnu_attachments");
+			gtk_widget_show (wbuf);
+
+			gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "remove_attachments")), "activate",
+								GTK_SIGNAL_FUNC (on_mnu_attachments_remove_activate), composer);
+			gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "properties")), "activate",
+								GTK_SIGNAL_FUNC (on_mnu_attachments_edit_activate), composer);
+
+			gnome_popup_menu_do_popup (wbuf, NULL, NULL, e, NULL);
+			break;
+	}
+}
+
+static void
+on_mnu_attachments_remove_activate (GtkWidget *widget, C2Composer *composer)
+{
+	GtkWidget *il;
+	GList *l, *s;
+	
+	il = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_list");
+
+	s = g_list_copy (GNOME_ICON_LIST (il)->selection);
+
+	gnome_icon_list_freeze (GNOME_ICON_LIST (il));
+	for (l = s; l; l = g_list_next (l))
+	{
+		gint nth = GPOINTER_TO_INT (l->data);
+		C2ComposerAttachment *attach = (C2ComposerAttachment*)
+							gnome_icon_list_get_icon_data (GNOME_ICON_LIST (il), nth);
+
+		g_free (attach->file);
+		g_free (attach->description);
+		g_free (attach);
+
+		gnome_icon_list_remove (GNOME_ICON_LIST (il), nth);
+	}
+	gnome_icon_list_thaw (GNOME_ICON_LIST (il));
+	g_list_free (s);
+
+	if (!GNOME_ICON_LIST (il)->icons)
+	{
+		il = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_label");
+		gtk_widget_hide (il);
+		il = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_container");
+		gtk_widget_hide (il);
+		gtk_widget_queue_resize (GTK_WIDGET (composer));
+	}
+}
+
+static void
+on_mnu_attachments_edit_activate (GtkWidget *widget, C2Composer *composer)
+{
+	GtkWidget *il;
+	GList *l, *s;
+
+	il = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_list");
+
+	s = g_list_copy (GNOME_ICON_LIST (il)->selection);
+
+	for (l = s; l; l = g_list_next (l))
+	{
+		gint nth = GPOINTER_TO_INT (l->data);
+		C2ComposerAttachment *attach = (C2ComposerAttachment*)
+							gnome_icon_list_get_icon_data (GNOME_ICON_LIST (il), nth);
+		gchar *file = attach->file, *description = attach->description;
+
+		if (add_attachment_dialog (composer, &file, &description))
+			return;
+
+		gnome_icon_list_freeze (GNOME_ICON_LIST (il));
+		gnome_icon_list_remove (GNOME_ICON_LIST (il), nth);
+		C2_COMPOSER_CLASS_FW (composer)->add_attachment (composer, file, description, nth);
+		gnome_icon_list_thaw (GNOME_ICON_LIST (il));
+	}
+	g_list_free (s);
 }

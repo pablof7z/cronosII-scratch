@@ -1645,6 +1645,10 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 	xml = C2_WINDOW (window)->xml;
 
 	nth = general_accounts_get_next_account_number ();
+	
+	buf = g_strdup_printf ("/"PACKAGE"/Account %d/", nth);
+	gnome_config_push_prefix (buf);
+	g_free (buf);
 
 	widget = glade_xml_get_widget (xml, "incoming_protocol");
 	if (GTK_BIN (widget)->child)
@@ -1668,9 +1672,8 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 	gnome_config_set_string ("account_name", buf);
 	
 	widget = glade_xml_get_widget (xml, "identity_email");
-	buf2 = gtk_entry_get_text (GTK_ENTRY (widget));
+	buf = gtk_entry_get_text (GTK_ENTRY (widget));
 	gnome_config_set_string ("identity_email", buf);
-	C2_DEBUG (buf2);
 
 	account = c2_account_new (type, buf, buf2);
 	C2_DIALOG (preferences)->application->account =
@@ -1856,8 +1859,9 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 	boolean = GTK_TOGGLE_BUTTON (widget)->active;
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_ACTIVE, GTK_TYPE_BOOL, &boolean);
 	gnome_config_set_bool ("options_auto_check", boolean);
-
+	
 	gnome_config_sync ();
+	gnome_config_pop_prefix ();
 
 	set_values_accounts (preferences);
 	gtk_widget_destroy (GTK_WIDGET (window));
@@ -1879,11 +1883,11 @@ general_accounts_get_next_account_number (void)
 		buf = g_strdup_printf ("/"PACKAGE"/Account %d/", i);
 		gnome_config_push_prefix (buf);
 		name = gnome_config_get_string ("account_name");
-		g_free (name);
 		g_free (buf);
+		gnome_config_pop_prefix ();
 		if (!name)
 			return i;
-		gnome_config_pop_prefix ();
+		g_free (name);
 	}
 }
 

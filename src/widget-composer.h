@@ -36,15 +36,24 @@ extern "C" {
 
 #define C2_COMPOSER(obj)					(GTK_CHECK_CAST (obj, c2_composer_get_type (), C2Composer))
 #define C2_COMPOSER_CLASS(klass)			(GTK_CHECK_CLASS_CAST (klass, c2_composer_get_type (), C2ComposerClass))
+#define C2_COMPOSER_CLASS_FW(obj)			(C2_COMPOSER_CLASS (((GtkObject*) (obj))->klass))
 
 typedef struct _C2Composer C2Composer;
 typedef struct _C2ComposerClass C2ComposerClass;
+typedef struct _C2ComposerAttachment C2ComposerAttachment;
 typedef enum _C2ComposerType C2ComposerType;
 
 enum _C2ComposerType
 {
 	C2_COMPOSER_TYPE_INTERNAL,
 	C2_COMPOSER_TYPE_EXTERNAL
+};
+
+struct _C2ComposerAttachment
+{
+	gchar *file;
+	const gchar *type;
+	gchar *description;
 };
 
 struct _C2Composer
@@ -76,6 +85,8 @@ struct _C2ComposerClass
 	void (*send_later) (C2Composer *composer);
 	
 	void (*save_draft) (C2Composer *composer, gint draft_id);
+
+	void (*add_attachment) (C2Composer *composer, gchar *file, gchar *description, gint nth);
 };
 
 /* GTK+ general functions */

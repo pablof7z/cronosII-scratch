@@ -411,6 +411,55 @@ c2_str_get_word (guint8 word_n, const gchar *str, gchar ch)
 }
 
 /**
+ * c2_str_is_email
+ * @email: String to evaluate.
+ *
+ * This function evaluates if @email is a valid
+ * inet email address.
+ *
+ * Return Value:
+ * %TRUE if it is an email or %FALSE.
+ **/
+gboolean
+c2_str_is_email (const gchar *email)
+{
+	const gchar *ptr;
+	gint length;
+	gboolean dot = FALSE;
+	
+	length = strlen (email);
+	
+	if (!length)
+		return FALSE;
+
+	for (ptr = email; ptr; ptr++)
+		if (*ptr == '@')
+			goto passed1;
+	
+	return FALSE;
+	
+passed1:
+	ptr++;
+	for (; *ptr != '\0'; ptr++)
+	{
+		if (*ptr == '.')
+		{
+			dot = TRUE;
+			continue;
+		}
+		if ((*ptr != '-' && *ptr < 'A') || *ptr > 'z' || (*ptr > 'Z' && *ptr < 'a'))
+			return FALSE;
+	}
+
+	ptr = email+length-1;
+	if (*ptr < 'A' || *ptr > 'z' || *ptr > 'Z' && *ptr < 'a')
+		return FALSE;
+	else
+		return dot;
+
+	return FALSE;
+}
+/**
  * c2_get_tmp_file
  * @template: Template to use for the file name, %NULL if
  *            the name does not require any special name.

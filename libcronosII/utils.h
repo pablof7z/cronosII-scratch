@@ -96,13 +96,16 @@ c2_str_get_line									(const gchar *str);
 gchar *
 c2_str_get_word									(guint8 word_n, const gchar *str, gchar ch);
 
+gboolean
+c2_str_is_email									(const gchar *email);
+
 gchar *
 c2_get_tmp_file									(const gchar *template);
 
 gint
 c2_get_file										(const gchar *path, gchar **string);
 
-gchar *
+char *
 c2_fd_get_line									(FILE *fd);
 
 gchar *

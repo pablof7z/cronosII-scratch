@@ -1,3 +1,7 @@
+Sat Sep 29 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* A lot of work in the composer: attachments adding, editing and
+	  removing is working; valid email in To: field is working.
+
 Fri Sep 28 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Little work in the IMAP module.
 	* Work in the composer widget.
