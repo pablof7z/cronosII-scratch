@@ -1,4 +1,4 @@
-<sect1 id=main-window>
+<section id=main-window>
 <title>The Main Interface</title>
 <para>PLACE HOLDER</para>
 <para>The main window for &app; is the first window that opens when you launch &app;.</para>
@@ -9,15 +9,15 @@ Alternatively launching with the help switch :<programlisting>cronosII --help</p
 <para>Otherwise &app; will be found under Internet Applications or Perhaps Mailers on your Graphical User Interface Menus..</para>
 </informalexample>
 
-<sect2 id=the-window>
+<section id=the-window>
 <title>The Main Window</title>
 <para>Describe Main Window Layout and GTK</para>
 <para>The Main window is based built from the Gnome Tool Kit (GTK) Gnome and Glade. The Interface is built automatically for you each time you launch &app;.  This means (among other things) that you can configure the look and function preneted to you yourself if you like. For now however we will simply consider the default interface. </para>
 <para>Along the top of the window you will see a text based file menu and beneath that an Icon based menu that gives convenient access to &app; functions. As the text based menu is a little more comprehensive this manual will address functions from that menu and refer the reader to that description where there is duplication within the Icon Menus.</para>
 <para>Beneath the menu bars there are two main areas: The area to the left shows you a graphical representation on the mailboxes you have configured. To the right there is a larger area which is irself split horizontally. The Upper section shows the list of mail in the currently selected mailbox and the lower area the contents of the currently selected mail in that list.</para>
-</sect2>
+</section>
 
-<sect2 id=main-filemenu>
+<section id=main-filemenu>
 <title>File Menu</title>
 
 <para>Open this menu to work with individual messages and accounts.</para>
@@ -39,20 +39,20 @@ Alternatively launching with the help switch :<programlisting>cronosII --help</p
 <listitem><para>Exit</para><para>Close &app;. End this mail session.</para></listitem>
 
 </itemizedlist>
-</sect2>
+</section>
 
-<sect2 id=main-editmenu>
+<section id=main-editmenu>
 <title>Edit Menu</title>
 <para>Currently this Menu has the single subitem of Find.</para>
 <para>Complete ME when this works ...........................................................................</para>
-</sect2>
+</section>
 
-<sect2 id=main-view>
+<section id=main-view>
 <title>View</title>
 <para>This menu allows you to decide which information to display about the currently selected mail.</para>
-</sect2>
+</section>
 
-<sect2 id=main-mailbox>
+<section id=main-mailbox>
 <title>Mailbox</title>
 <para>This menu gives access to some utility options for your mailbox collection.</para>
 <itemizedlist>
@@ -62,9 +62,9 @@ Alternatively launching with the help switch :<programlisting>cronosII --help</p
 <listitem><para>Empty Garbage</para></listitem>
 <listitem><para></para></listitem>
 </itemizedlist>
-</sect2>
+</section>
 
-<sect2 id=main-message>
+<section id=main-message>
 <title>Message</title>
 <itemizedlist>
 <listitem>
@@ -91,22 +91,20 @@ Alternatively launching with the help switch :<programlisting>cronosII --help</p
 <listitem>
 <para>Recovery</para></listitem>
 </itemizedlist>
-</sect2>
+</section>
 
-<sect2 id=main-settings>
+<section id=main-settings>
 <title>Settings</title>
 <para></para>
-</sect2>
+</section>
 
-<sect2 id=main-windows>
+<section id=main-windows>
 <title>Windows</title>
 <para></para>
-</sect2>
+</section>
 
-<sect2 id=main-help>
+<section id=main-help>
 <title>Help</title>
 <para></para>
-</sect2>
-
-
-</sect1>
+</section>
+</section>

@@ -1,5 +1,5 @@
 <!-- Accounts.sgml  Restrict to preferences -->
-<sect1 id="account-dialog">
+<section id="account-dialog">
 <title>The Account Setup Dialog</title>
 <para>
 &app; supports the use of multiple accounts using separate identities and various mail transfer protocols. These include POP, APOP, SMTP, IMAP and your local mail spool (e.g. Sendmail).
@@ -60,4 +60,4 @@ This is the method used near universally for SENDING mail across the Internet.</
 </orderedlist>
 </example>
 
-</sect1>
+</section>

@@ -1,4 +1,4 @@
-<sect1 id="preferences">
+<section id="preferences">
 <title>Preferences</title>
 <para>The Preferences Dialog is opened from the<guimenuitem> Menu Bar</guimenuitem> on the Main Window.</para>
 <informalexample>
@@ -18,7 +18,7 @@ Settings => Preferences
      <listitem><para><link linkend="general-paths">Paths</link></para></listitem> 
      <listitem><para><link linkend="general-plugins">Plugins</link></para></listitem>  
     </itemizedlist> </listitem>
-   <listitem><para><link linkend="interface">Interface</link></para></listitem>
+   <listitem><para><link linkend="interfaces">Interface</link></para></listitem>
    <listitem> <itemizedlist>
      <listitem><para><link linkend="interface-fonts">Fonts</link></para></listitem>
      <listitem><para><link linkend="interface-html">HTML</link></para></listitem>
@@ -40,25 +40,25 @@ Settings => Preferences
 
 
 <!--
-<sect2 id="">
+<section id="">
 <title></title>
 <informalexample>
 <para>Settings => Preferences => Interface => Misc..
 </para>
 </informalexample>
-</sect2>
+</section>
 -->
-<sect2 id="advanced">
+<section id="advanced">
 <title>Advanced Options</title>
 <informalexample>
 <para>
 Settings => Preferences => Advanced
 </para>
 </informalexample>
-</sect2>
+</section>
 
 
-<sect2 id="advanced-miscellaneous">
+<section id="advanced-miscellaneous">
 <title> Proxy Settings</title>
 <informalexample>
 <para>
@@ -67,6 +67,6 @@ Settings => Preferences => Advanced => Misc.
 </informalexample>
 <para> Enter the full address and  Port Numbers for any required HTTP or  FTP proxy. To use the proxy settings select the toggle buttons to the left.</para>
 
-</sect2>
-</sect1>
+</section>
+</section>
 

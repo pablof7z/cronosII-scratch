@@ -1,4 +1,4 @@
-<sect1 id=switches>
+<section id=switches>
 <title>Command Line Options</title>
 <para>ADD A SMALL SECTION ON USING COMMAND LINE SWITCHES</para>
 <para></para>
@@ -59,4 +59,4 @@ Cronos II options
   --wmain                              Open the main window (default)
 
 </programlisting>
-</sect1>
+</section>

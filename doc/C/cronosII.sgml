@@ -1,9 +1,6 @@
-
-<!DOCTYPE Article PUBLIC "-//GNOME//DTD DocBook PNG Variant V1.1//EN"[
-   <!--  Template Version: 1.0.1  (do not remove this line) -->
-<!-- !DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[-->
-<!ENTITY version "C2 Scratch"> 
-<!ENTITY manver "Version: 3.0.0">
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.1//EN"[
+<!ENTITY version "Pre-release"> 
+<!ENTITY manver "Version: 3.0.1">
 <!-- Developers-->
 
 <!ENTITY andre "digitalcoder@users.sourceforge.net">
@@ -23,11 +20,11 @@
 <!ENTITY app "Cronos II">
 <!ENTITY website "http://cronosii.sourceforge.net/">
 <!ENTITY developers "CronosII-Hackers@lists.sourceforge.net">
-<!ENTITY users "CronosII-users@lists.sourceforge.net ">
+<!ENTITY users "CronosII-users@lists.sourceforge.net">
 <!ENTITY security "cronosii-security@lists.sourceforge.net">
 <!ENTITY announce "cronosii-announce@lists.sourceforge.net">
 
-<!-- Documents to include (and sequence) -->
+<!-- Documents to include (and rough sequence) -->
 
 <!ENTITY FDL SYSTEM "fdl.sgml"> 
 <!ENTITY mainwindow SYSTEM "mainwindow.sgml">
@@ -37,7 +34,7 @@
 <!ENTITY addressbook SYSTEM "addressbook.sgml">
 <!ENTITY general-accounts SYSTEM "accounts.sgml">
 <!ENTITY general-options SYSTEM "general-options.sgml">
-<!ENTITY general-plugins SYSTEM "plugins.sgml">
+<!ENTITY general-plugins SYSTEM "general-plugins.sgml">
 <!ENTITY plugins SYSTEM "plugins-extension.sgml">
 <!ENTITY bugs SYSTEM "bugs.sgml">
 <!ENTITY email SYSTEM "email.sgml">
@@ -45,31 +42,97 @@
 <!ENTITY gtk-brief SYSTEM "gtk-brief.sgml">
 <!ENTITY switches SYSTEM "switches.sgml">
 <!ENTITY latest SYSTEM "latest.sgml">
-
 ]>
-<!-- This is a GNOME documentation template, designed by the GNOME
-  Documentation Project Team. Please use it for writing GNOME
-  documentation, making obvious changes. In particular, all the words
-  written in UPPERCASE (with the exception of GNOME) should be
-  replaced. As for "legalnotice", please leave the reference
-  unchanged.
 
-  Remember that this is a guide, rather than a perfect model to follow
-  slavishly. Make your manual logical and readable.  And don't forget
-  to remove these comments in your final documentation!  ;-)
-  -->
 
 <!-- =============Document Header ============================= -->
-<article id="index"> <!-- please do not change the id -->
+<book id="index"> <!-- please do not change the id, else the browser won't find it -->
+  <bookinfo>
 
-  <artheader>
-    <title>Cronos II Users Manual </title>
-    <copyright>
-      <year>2001</year>
+	<author>
+	  <firstname>Peter</firstname>
+	  <surname>Gossner</surname>
+	  <honorific>Docs</honorific>
+	  <affiliation>
+		<orgname><trademark>
+			CronosII Hackers</trademark></orgname>
+	  </affiliation>
+	</author>
+	<copyright>
+		<year>2001</year>
+      <year> 2002</year>
       <holder>&app; Developers</holder>
-      <holder>Pablo Fernadez Navarro</holder>
+      <holder>Pablo Fernández López </holder>
     </copyright>
+	<legalnotice>
+      <para>
+        Permission is granted to copy, distribute and/or modify this
+        document under the terms of the <citetitle>GNU Free
+		  Documentation License</citetitle>, Version 1.1 or any later
+        version published by the Free Software Foundation with no
+        Invariant Sections, no Front-Cover Texts, and no Back-Cover
+        Texts. You may obtain a copy of the <citetitle>GNU Free
+		  Documentation License</citetitle> from the Free Software
+        Foundation by visiting <ulink type="http"
+									  url="http://www.fsf.org"> their Web site</ulink> or by writing
+        to: Free Software Foundation, Inc., 59 Temple Place - Suite
+        330, Boston, MA 02111-1307, USA.
+      </para>
 
+      <para>
+        Many of the names used by companies to distinguish their
+        products and services are claimed as trademarks. Where those
+        names appear in any Cronos II documentation, they have been printed in caps or initial caps. In all cases no ownership, endorsement or other infringement of copyright or intellectual property is intended directly or otherwise.
+      </para>
+    </legalnotice>
+
+	<!-- this is the version of manual, not application --> 
+    <releaseinfo>
+	  This is &manver; of &app; Users Manual.
+    </releaseinfo>
+
+  </bookinfo>
+  <preface>
+	<title>Preface</title>
+	<para>  This is &manver; of &app; Users Manual. 
+	  It is written in SGML and is often rebuilt as HTML on your system. If needs be you can rebuild it as PDF, Post Script or even Rich Text from the SGML sources. </para>
+	<section id="about">
+	  <title>About this Manual</title>
+      <para>This Manual was written by Peter Gossner <email> &pete;</email> Please send comments, criticism, ideas and suggestions to the &app; Developers List <email>&developers; </email>
+	  </para>
+	  <para>Currently there are no "screen-shots" included in this manual. The assumption is that you have a working version of &app;.</para><para>For clarity please launch &app; and refer to it as you go along. This manual is written from the point of view of the Users Interface. </para>
+	  <para>From a terminal or console emulator under X type:
+		<programlisting>cronosII & </programlisting>If your using GNOME will also find a &app; launcher on  the INTERNET menu. Debian users should also find a launcher within their Debian Menus. </para>
+
+	  <para>User Interface Navigation is represented as follows:</para>
+	  <example>
+		<title>Navigation</title>
+
+		<para>File => Exit</para>
+		<para>Means you should select the Button "File" and then the Button "Exit" to (in this case) close &app;</para> 
+	  </example>
+	  <example>
+		<title>Command Line Entry</title>
+		<para>Information needed to be entered onto a terminal command line, e.g On an Xterm or Eterm is</para>
+		<programlisting>shown like this</programlisting>
+	  </example>
+
+	  <section id="itsnot">
+		<title>What this manual is not </title>
+		<blockquote>
+		  <para>This is not an install manual, developers reference, or perhaps even up to date. &app; is extensible and full of features. There are often many ways to achieve any particular objective, here I usually document only the most obvious, at all times trying to keep the new user in mind. </para>
+		  <para>If something is confusing, overly dense or in any other way<emphasis> NOT helpful</emphasis>  please let me know and I will endeavor to fix it.( for you, and everybody else who probably hasn't asked about it) In short please feel free to complain, criticize and send feedback, we are trying to build software that works for<emphasis> YOU</emphasis>.
+			<citation>Pete: Your Documenter</citation>
+		  </para>
+		</blockquote>
+	  </section>
+	</section>
+  </preface>
+<!-- this article level is probably a bad idea but it fits well with the gnome docs style-->
+  <article> 
+    <title>Cronos II Users Manual </title>
+
+   
   <!-- translators: uncomment this:
 
   <copyright>
@@ -82,36 +145,10 @@
   <!-- do not put authorname in the header except in copyright - use
   section "authors" below -->
 
-    <legalnotice>
-      <para>
-        Permission is granted to copy, distribute and/or modify this
-        document under the terms of the <citetitle>GNU Free
-        Documentation License</citetitle>, Version 1.1 or any later
-        version published by the Free Software Foundation with no
-        Invariant Sections, no Front-Cover Texts, and no Back-Cover
-        Texts. You may obtain a copy of the <citetitle>GNU Free
-        Documentation License</citetitle> from the Free Software
-        Foundation by visiting <ulink type="http"
-        url="http://www.fsf.org">their Web site</ulink> or by writing
-        to: Free Software Foundation, Inc., 59 Temple Place - Suite
-        330, Boston, MA 02111-1307, USA.
-      </para>
-      <para>
-        Many of the names used by companies to distinguish their
-        products and services are claimed as trademarks. Where those
-        names appear in any GNOME documentation, and those trademarks
-        are made aware to the members of the GNOME Documentation
-        Project, the names have been printed in caps or initial caps.
-      </para>
-    </legalnotice>
+   
 
-  <!-- this is the version of manual, not application --> 
-    <releaseinfo>
-       This is &manver; of &app; Users Manual.
-    </releaseinfo>
-
-  </artheader>
-<sect1 id=introduction>
+ 
+<section id=introduction>
 <title>Introduction</title>
 <para>
 <application>Cronos II</application> is an Email application, a Mail User Agent. The Developers
@@ -123,34 +160,19 @@ aim for reliability, simplicity, speed and flexibility while gradually increasin
 <para>See <xref linkend="preferences"> for initial configuration instructions.</para>
 
 </note>
-<sect2 id="about">
-<title>About this Manual</title>
-      <para>This Manual was written by Peter Gossner <email> &pete;</email> Please send comments, criticism, ideas and suggestions to the &app; Developers List <email>&developers; </email>
-  </para>
-<para>User Interface Navigation is represented as follows:</para>
-<example>
-<title>Navigation</title>
-	<para>File => Exit</para>
-	<para>Means you should select the Button "File" and then the Button "Exit" to (in this case) close &app;</para> 
-</example>
-<example>
-<title>Command Line Entry</title>
-	<para>Information needed to be entered onto a terminal command line, e.g On an Xterm or Eterm is</para>
-<programlisting>shown like this</programlisting>
-</example>
-</sect2>
-</sect1>
-<!-- here are the many other sections of this document. you should be able to change the build/read order here at will -->
+
+</section>
+<!-- here are the many other sections of this document. you should be able to change the build/read order here at will. Just add each new doc as a SECTION -->
 
 &email;
 &preferences;
 &general-options;
+&interface;
 &general-plugins;
 &general-accounts;
 &mainwindow;
 &composer;
 &addressbook;
-&plugins;
 &bugs;
 &authors;
 &gtk-brief;
@@ -158,3 +180,4 @@ aim for reliability, simplicity, speed and flexibility while gradually increasin
 &latest;
 <!-- END OF DOCUMENT -->
 </article>
+</book>

@@ -1,7 +1,7 @@
 <!--<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[ ]-->
 <!--gtk-brief.sgml Tue Mar 20 10:52:07 PM CST 2001 pete petergozz>-->
 <!--Parent Document = cronosII.sgml-->
-<sect1 id="gtk">
+<section id="gtk">
 <title>GTK </title>
 <subtitle>A (Very) Quick Intro</subtitle>
 <para>GTK is short for the Gimp Tool Kit</para>
@@ -26,7 +26,7 @@ Gnome Web Site </ulink> http://www.gnome.org
 </para>
 </listitem>
 </orderedlist>
-<sect2 id="gtk-tips-features">
+<section id="gtk-tips-features">
 <title>
 How To
 </title>
@@ -54,7 +54,7 @@ How To
  </para>
  </listitem>
  </itemizedlist>
- <sect3 id ="reconfigure-shortcuts">
+ <section id ="reconfigure-shortcuts">
  <title>Shortcuts </title>
  <subtitle>Roll Your Own</subtitle>
  <para>
@@ -63,8 +63,8 @@ How To
  You don't have to press the control or alt (meta) keys as well, just any key not already being
  used in that particular menu.
  </para>
- </sect3>
- <sect3 id="breakway-menus">
+ </section>
+ <section id="breakway-menus">
  <title>Tear Off Menus</title>
  <para>Create a floating version of any menu by doing the following:
  </para>
@@ -86,8 +86,8 @@ How To
  </para>
  </listitem>
   </itemizedlist>
- </sect3>
- <sect3 id="move-menu-bars">
+ </section>
+ <section id="move-menu-bars">
  <title>Make some tool space</title>
  <para> Sometimes 
  you just need or want too many tool-bars open to sensibly fit at the head
@@ -103,9 +103,9 @@ How To
  an important part of learning for most mammals  so ..
  have a go........!
  </para>
- </sect3>
-</sect2>
-</sect1>
+ </section>
+</section>
+</section>
 
 
 

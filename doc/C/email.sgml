@@ -1,8 +1,8 @@
 <!-- email.sgml : a basic explanation of how email works and what a newbie level user will need to know to set cronos II up. -->
-<sect1 id="email">
+<section id="email">
 <title>Email - Getting Started</title>
 <para>This section outlines what information you will need to have at hand to configure &app; and a generic  introduction to how and what email is.</para>
-<sect2 id="needed-info">
+<section id="needed-info">
 <title>Needed Information</title>
 <para>To configure &app; you will need to have at hand the following information:</para>
 <orderedlist>
@@ -18,41 +18,41 @@
 <listitem><para>Your Username at the SMTP server </para></listitem>
 </orderedlist>
 <para>See <xref linkend="account-dialog"> to go onto set up Accounts on &app;. </para>
-</sect2>
-</sect1>
+</section>
+</section>
 
-<sect1 id="about-email">
-<title> An Introduction to Email"</title>
+<section id="about-email">
+<title>" An Introduction to Email "</title>
 <!-- find a better title  -->
 <para> What is all this stuff about MUA 's and SMTP servers ? Why do we attach things to an email ? Like most issues to do with the Internet or even computing generally the terminology is often in itself not self explanatory. Perhaps there is a place (here) to briefly outline how email works.</para>
 <para>First a quick look at the structure of an email: </para>
-<sect2 id="about-email-structure">
+<section id="about-email-structure">
 <title>The physical structure</title>
 <para> Classically an email is a text (ASCII) file that has two sections. A header and a body. The header functions much like the envelope in a paper based mail system and the body like the letter itself inside the envelope. An attachment might be thought of as a parcel that you have to pick up from the Post Office separately.</para>
 <para>Propriety formats aside this approach is a reliable and proven method of sending a message to a postbox  within a network and by extension the Internet. Like a paper mail it is the envelope that does all of the work and like that envelope it takes collective agreement to standards and processes to get the thing from one part of the planet to another.</para>
 <para>Lets walk through the broad steps that take place when we write, send and receive an email. </para>
-</sect2>
-<sect2 id="about-email-events">
+</section>
+<section id="about-email-events">
 <title>A chain of events</title>
 <para>Having composed a message the chain of events starts when we select the send button (widget) on our MUA. Cronos II is a Mail User Agent and like all MUA's exists to save you the trouble of hand coding the Mail Header and automates connecting to your network to send (or receive mail). When you choose Save or send &app; writes a Mail Header which contains the Recipients address and a Return Address (among other things). It then sends this the mail to the Post Office usually a SMTP server.</para> 
 <para> So you have a letter, an &apos; envelope &apos;, all filled out, and your MUA has sent it out to your SMTP
 (Simple Mail Transfer Protocol) Server to deliver it to an address or indeed a collection of addresses possibly scattered about the planet. The SMTP server will most probably ask you authenticate yourself. </para>
-<para>Authentication  is usually done by checking in with a password. (often much more than this is done )  This makes it more difficult for somebody to use your mail account to send fake or unsolicited mail to unsuspecting recipients. Many MUA (&app; included) allow you to preconfigure this step and so allow automatic authentication.</para>
+<para>Authentication  is usually done by checking in with a password. (often much more than this is done )  This makes it more difficult for somebody to use your mail account to send fake or unsolicited mail to unsuspecting recipients. Many MUA (&app; included) allow you to PRE-configure this step and so allow automatic authentication.</para>
 <para>Once authenticated, the mail  header is parsed (looked through) and the recipients address found.  Using standard protocols the SMTP server directs the message to the receiving (or client server) which duly sends back a short message saying "Got it". The sender then simply stops and waits for its next task. Should the message be undeliverable or the address unknown the Sending server will post the sender an message identifying the original mail and addressee and often the error code with a brief explanation of the error type. 
 .</para>
 <para>Now just like a Post Office the SMTP can both Receive and Send messages, however it usually forwards incoming mail onto the "Mail In" department to handle the final steps in distribution. This is where protocols like POP and IMAP come into use. </para>
-</sect2>
-<sect2 id="about-email-popandimap">
+</section>
+<section id="about-email-popandimap">
 <title>POP and IMAP</title>
 <para>The main difference between POP and IMAP (from a users perspective) is that IMAP holds onto the messages for you,  sending  a simple list of the waiting Mail, which you then choose from. The full contents of any mail are not downloaded onto the viewing machine until you decide you want to read that particular message. Why ?.. Well this becomes an increasingly useful feature on busy network based systems where bandwidth (resources) are always at a premium. The system (and other users) are not held up moving many Kilobytes of dubious data.  IMAP also supports other features such as extensions to the basic ASCII format, mail box sharing (and others) which are very useful in highly networked multiuser multi-workstation  environments. In short you read IMAP mail from the Mail Account and only download mail you wish to keep on your local machine.</para>
 <para>POP mail is downloaded by default onto your local machine attachments and all. This is most useful for people with dial-up accounts or other temporary network connections. &app; does take full advantage of this protocol by allowing you to; define maximum download sizes, keep copies of the mail on the mail server, and set default times to hold messages for. For most people this is acceptable and practical. </para>
-</sect2>
-<sect2 id="about-email-conclusion">
+</section>
+<section id="about-email-conclusion">
 <title>Conclusion </title>
 <para>So to summarise:  Mail Sent by you is passed onto the SMTP server which auto-magically
 shunts it to the receiving server for the person (s) you have addressed it to. As the addressee of the mail you access these messages through your POP, IMAP or other Incoming Server. It's just like having two separate mail boxes: One for sending mail out into the wide and open world and one for receiving mail into your home or place of work. </para>
 <para>&app; is a MUA that handles most of the background work for you. All you need to tell it is the addresses and secrets needed to access those various servers. By the way all of the information transmitted between machines is encapsulated by various other protocols. Your modem might talk with your ISP main Server using PPP and that server will then communicate with the rest of the Internet (and your machine) using TCP/IP. These protocols simply carry information in packets which is sorted out at either end of "connections" by a process generally known as demultiplexing. Perhaps at this time it will be sufficient to say that "demuxing" has been around for a very long time and that this is some of  what all that stuff about ports is about. Ports are essentially virtual keyholes on a system that have agreed  purposes. There are default ports allocated for most protocols and it is through these ports that applications connect to each other and can be reasonably sure that they will be speaking the same digital language.</para>
-</sect2>
-</sect1>
+</section>
+</section>
 
 

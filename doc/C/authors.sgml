@@ -1,8 +1,8 @@
-<sect1 id="authors">
+<section id="authors">
 <title>Cronos II Developers</title>
-<para>&app; is brought to you by the following developers:</para>
-<itemizedlist>
-    <listitem><para>Pablo Martín Fernández Navarro <email>&pablo;</email></para></listitem>
+<para>&app; has been  brought to you by the following developers:</para>
+<!--<itemizedlist>
+    <listitem><para>Pablo Martín Fernández Lopez <email>&pablo;</email></para></listitem>
     <listitem><para>Bosko Blagojevic<email>&bosko;</email></para></listitem> 
     <listitem><para>Jason Copenhaver <email>&jason;</email></para></listitem>
     <listitem><para>Marc Zaritsky<email>&marc;</email></para></listitem>
@@ -14,4 +14,12 @@
     <listitem><para><email></email></para></listitem> 
     <listitem><para><email></email></para></listitem>
 </itemizedlist>
-</sect1>
+<para>The main developers for this version are:</para>
+<itemizedlist>
+		<listitem><para>Pablo Martín Fernández Lopez <email>&pablo;</email><simplelist><listitem>Majority of API and development leader</listitem></simplelist></listitem>
+		<listitem><para>Bosko Blagojevic<email>&bosko;</email><simplelist><listitem>IMAP support and some smileys</listitem></simplelist></listitem>
+		<listitem><para>Peter Gossner<email>&pete;</email></para><simplelist><listitem>Documentation and some smileys</listitem></simplelist></listitem>
+		<listitem><simplelist><listitem></listitem></simplelist></listitem>
+		<listitem><simplelist><listitem></listitem></simplelist></listitem>
+</itemizedlist>-->
+</section>
