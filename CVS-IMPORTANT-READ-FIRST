@@ -1,4 +1,10 @@
 Note by: Pablo Fernández Navarro
+Date: 2001.10.27
+
+You probably want to compile c2 with the option --disable-htmleditor
+activated in ./configure so you are able to use the composer.
+
+Note by: Pablo Fernández Navarro
 Date: 23.6.2001
 
 Cronos II path has changed, please, before executing c2 for first time create the directory
