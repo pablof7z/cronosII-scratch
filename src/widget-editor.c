@@ -32,6 +32,16 @@ class_init									(C2EditorClass *klass);
 static void
 init										(C2Editor *editor);
 
+#ifndef USE_ADVANCED_EDITOR
+static void
+on_text_insert_text							(GtkText *widget, const gchar *text, gint length,
+											 gint *position, C2Editor *editor);
+
+static void
+on_text_delete_text							(GtkText *widget, gint start_pos, gint end_pos,
+											 C2Editor *editor);
+#endif
+
 enum
 {
 	EDITOR_CHANGED,
@@ -154,8 +164,36 @@ c2_editor_new (void)
 	gtk_container_add (GTK_CONTAINER (scroll), editor->text);
 	gtk_widget_show (editor->text);
 
+	/* Connect to signals */
+#ifdef USE_ADVANCED_EDITOR
+#error The Advanced editor support has not be finished, you should specify the \
+	   --disable-htmleditor flag to the configure script.
+#else
+	gtk_signal_connect (GTK_OBJECT (editor->text), "insert_text",
+						GTK_SIGNAL_FUNC (on_text_insert_text), editor);
+	gtk_signal_connect (GTK_OBJECT (editor->text), "delete_text",
+						GTK_SIGNAL_FUNC (on_text_delete_text), editor);
+#endif
+
 	return GTK_WIDGET (editor);
 }
+
+#ifndef USE_ADVANCED_EDITOR
+static void
+on_text_insert_text (GtkText *widget, const gchar *text, gint length, gint *position, C2Editor *editor)
+{
+	gchar *buf = g_strndup (text, length);
+	
+	c2_editor_operations_add (editor, C2_EDITOR_OPERATION_INSERT, buf, length, *position);
+	g_free (buf);
+}
+
+static void
+on_text_delete_text (GtkText *widget, gint start_pos, gint end_pos, C2Editor *editor)
+{
+	c2_editor_operations_add (editor, C2_EDITOR_OPERATION_DELETE, NULL, end_pos-start_pos, start_pos);
+}
+#endif
 
 void
 c2_editor_freeze (C2Editor *editor)
@@ -215,4 +253,123 @@ c2_editor_get_text (C2Editor *editor)
 #else
 	return gtk_editable_get_chars (GTK_EDITABLE (editor->text), 0, -1);
 #endif
+}
+
+void
+c2_editor_operations_add (C2Editor *editor, C2EditorOperationType type, const gchar *text,
+							gint length, gint position)
+{
+	C2EditorOperation *op;
+	
+	printf ("Merge: ");
+	if (c2_editor_operations_merge (editor, type, text, length, position))
+	{
+		printf ("Success.\n");
+		return;
+	}
+
+	printf ("Failed.\n");
+
+	/* No marging capable, create the new operation and prepend
+	 * it to the list of operations */
+	op = g_new0 (C2EditorOperation, 1);
+
+	op->type = type;
+	op->text = g_strdup (text);
+	op->length = length;
+	op->position = position;
+
+	if (length > 1)
+		op->merge = 0;
+	else
+		op->merge = 1;
+
+	editor->operations = g_list_prepend (editor->operations, op);
+}
+
+/**
+ * c2_editor_operations_merge
+ * @editor: Editor object.
+ * @op: Operation to work with.
+ *
+ * This function will try to merge two changes
+ * in order to act operations not in byte order
+ * but with words style.
+ * 
+ * Return Value:
+ * %TRUE if merging was successful, %FALSE if not.
+ **/
+gboolean
+c2_editor_operations_merge (C2Editor *editor, C2EditorOperationType type, const gchar *text,
+							gint length, gint position)
+{
+	C2EditorOperation *last_op;
+	gchar *buf;
+
+	/* We can't merge with nothing! */
+	if (!editor->operations)
+		return FALSE;
+	
+	/* It is like this because the list is in reverse order */
+	last_op = C2_EDITOR_OPERATION (editor->operations->data);
+
+	/* If the op we are trying to merge and the last op aren't
+	 * of the same type we can't do the merge.
+	 */
+	if (last_op->type != type)
+		return FALSE;
+
+	/* If the last op doesn't want to merge we don't */
+	if (!last_op->merge)
+		return FALSE;
+
+	if (type == C2_EDITOR_OPERATION_INSERT)
+	{
+		/* We can merge */
+			
+		/* Realloc */
+		buf = g_realloc (last_op->text, (last_op->length+length)*sizeof (gchar));
+
+		/* Copy the memory */
+		memmove (buf, last_op->text, last_op->length);
+		memmove (buf+last_op->length, text, length);
+		last_op->text = buf;
+
+		/* Now update the position */
+		if (last_op->position > position)
+			last_op->position = position;
+
+		/* And now the length */
+		last_op->length += length;
+	} else
+	{
+		
+	}
+	
+	return TRUE;
+}
+
+void
+c2_editor_operations_undo (C2Editor *editor)
+{
+	C2EditorOperation *op;
+
+	op = C2_EDITOR_OPERATION (editor->operations->data); /**/
+
+	switch (op->type)
+	{
+		case C2_EDITOR_OPERATION_INSERT:
+#ifdef USE_ADVANCED_EDITOR
+#else
+			printf ("%d %d\n", op->position, op->position+op->length);
+			gtk_editable_delete_text (GTK_EDITABLE (editor->text), op->position,
+										op->position+op->length);
+#endif
+			break;
+	}
+}
+
+void
+c2_editor_operations_redo (C2Editor *editor)
+{
 }

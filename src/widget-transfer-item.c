@@ -22,6 +22,10 @@
 #include "widget-transfer-item.h"
 #include "widget-transfer-list.h"
 
+/* [TODO]
+ * 20011102 Make the width dynamically.
+ */
+
 #define MAX_CHARS_IN_LABEL		33
 #define WIDGET_WIDTH			210
 

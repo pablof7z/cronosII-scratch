@@ -77,6 +77,7 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 
 	c2_return_if_fail (message, C2EDATA);
 
+
 	if (C2_IS_MESSAGE (mail->message) && message != mail->message)
 		gtk_object_unref (GTK_OBJECT (mail->message));
 	mail->message = message;
@@ -120,7 +121,7 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 	buf = c2_str_wrap (string, 75);
 	g_free (string);
 	string = buf;
-	
+
 	c2_html_set_content_from_string (C2_HTML (mail->body), string);
 
 	if (text_plain)

@@ -168,20 +168,21 @@ remove_message (C2Mailbox *mailbox, FILE *fd, gint *line, gint n, C2Db **db)
 		{
 			if (!c2_fd_move_to (fd, '\n', 1, TRUE, TRUE))
 			{
-				printf ("Error!\n"); L
+				printf ("Unable to find the next new line, position in "
+						"index file is %ld.\n", ftell (fd)); L
 				return -1;
 			}
 			continue;
 		}
 		fseek (fd, -1, SEEK_CUR);
 
+		/* We can count this as a line because it doesn't starts with '?' */
 		if ((*line)++ != n)
 		{
 			*db = (*db)->next;
 			
 			if (!c2_fd_move_to (fd, '\n', 1, TRUE, TRUE))
 			{
-				printf ("Error!\n"); L
 				return -1;
 			}
 			continue;
@@ -203,15 +204,11 @@ remove_message (C2Mailbox *mailbox, FILE *fd, gint *line, gint n, C2Db **db)
 			printf ("Error!\n"); L
 			perror (mpath);
 		}
-		perror (mpath);
 		g_free (mpath);
 		*db = (*db)->next;
 		break;
 	}
 
-	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
-							 C2_MAILBOX_CHANGE_REMOVE, (*db)->prev);
-	
 	return 0;
 }
 
@@ -390,7 +387,7 @@ c2_db_cronosII_message_remove (C2Mailbox *mailbox, GList *list)
 	FILE *fd;
 	C2Db *db;
 	GList *l;
-	gint line = 0;
+	gint line;
 	gint retval = 0;
 
 	/* Remove from index first */

@@ -445,6 +445,11 @@ c2_db_thaw (C2Mailbox *mailbox)
 
 	func (mailbox);
 	pthread_mutex_unlock (&mailbox->lock);
+
+	/* Now emit queued signals */
+	if (mailbox->signals_queued)
+		gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
+										C2_MAILBOX_CHANGE_ANY, mailbox->db);
 }
 
 /**
@@ -578,9 +583,10 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 	gboolean thaw = FALSE;
 
 	if (!mailbox->freezed)
-		pthread_mutex_lock (&mailbox->lock);
-	else
+	{
+		c2_db_freeze (mailbox);
 		thaw = TRUE;
+	}
 
 	if (!c2_db_is_load (mailbox))
 		c2_mailbox_load_db (mailbox);
@@ -618,16 +624,23 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 
 		gtk_object_unref (GTK_OBJECT (message));
 		c2_db_set_message (db, NULL);
-
-		gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
-							C2_MAILBOX_CHANGE_ADD, db->prev);
 	}
 	
 	mailbox->db_is_loaded = 1;
 
-	if (!thaw)
-		pthread_mutex_unlock (&mailbox->lock);
-	
+	if (thaw)
+	{
+		c2_db_thaw (mailbox);
+		gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
+								 C2_MAILBOX_CHANGE_ADD, db->prev);
+	} else
+	{
+		/* I don't own the freezing, so I have to
+		 * queue the signaling.
+		 */
+		mailbox->signals_queued = 1;
+	}
+
 	return 0;
 }
 
@@ -701,6 +714,7 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 	}
 
 	/* Remove from the db */
+	printf ("Calling with a list of %d length\n", g_list_length (list));
 	retval = func (mailbox, list);
 
 	/* Remove from the loaded db list */
@@ -745,12 +759,19 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 	} while (db);
 
 	db = c2_db_get_node (mailbox, first ? first-1 : 0);
-	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
-							C2_MAILBOX_CHANGE_REMOVE,
-							db);
 
 	if (thaw)
+	{
 		c2_db_thaw (mailbox);
+		gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
+								 C2_MAILBOX_CHANGE_REMOVE, db);
+	} else
+	{
+		/* I don't own the freezing, so I have to
+		 * queue the signaling.
+		 */
+		mailbox->signals_queued = 1;
+	}
 
 	return retval;
 }

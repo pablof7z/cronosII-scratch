@@ -47,9 +47,6 @@ c2_mailbox_recreate_tree_ids				(C2Mailbox *head);
 static C2Mailbox *
 _c2_mailbox_search_by_id					(C2Mailbox *head, const gchar *id, guint level);
 
-static gchar *
-c2_mailbox_create_id_from_parent			(C2Mailbox *head, C2Mailbox *parent);
-
 enum
 {
 	CHANGED_MAILBOXES,
@@ -137,6 +134,7 @@ init (C2Mailbox *mailbox)
 	mailbox->next = NULL;
 	mailbox->child = NULL;
 	mailbox->freezed = 0;
+	mailbox->signals_queued = 0;
 
 	pthread_mutex_init (&mailbox->lock, NULL);
 	
@@ -266,7 +264,6 @@ C2Mailbox *
 c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *parent_id, C2MailboxType type,
 							C2MailboxSortBy sort_by, GtkSortType sort_type, ...)
 {
-	C2Mailbox *parent;
 	C2Mailbox *value;
 	gchar *id;
 	gchar *host, *user, *pass, *path;
@@ -277,6 +274,8 @@ c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *pa
 
 	if (parent_id)
 	{
+		C2Mailbox *parent;
+
 		if (!(parent = c2_mailbox_search_by_id (*head, parent_id)))
 		{
 			c2_error_set (C2EDATA);
@@ -286,15 +285,9 @@ c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *pa
 		id = c2_mailbox_create_id_from_parent (*head, parent);
 	} else
 	{
-		if ((parent = *head))
-		{
-			for (; parent->next; parent = parent->next);
-			id = g_strdup_printf ("%d", atoi (parent->id)+1);
-		} else
-		{
-			id = g_strdup ("0");
-		}
+		id = c2_mailbox_create_id_from_parent (*head, NULL);
 	}
+	C2_DEBUG (id);
 
 	switch (type)
 	{
@@ -603,7 +596,18 @@ _c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id, guint level)
 	return l;
 }
 
-static gchar *
+/**
+ * c2_mailbox_create_id_from_parent
+ * @head: Head of the mailboxes list.
+ * @parent: Mailbox to be parent of the new ID.
+ *
+ * This function will create an ID usinf @parent
+ * as the parent of the new ID.
+ *
+ * Return Value:
+ * The new ID:
+ **/
+gchar *
 c2_mailbox_create_id_from_parent (C2Mailbox *head, C2Mailbox *parent)
 {
 	C2Mailbox *l;
@@ -611,16 +615,19 @@ c2_mailbox_create_id_from_parent (C2Mailbox *head, C2Mailbox *parent)
 	
 	if (!parent)
 	{
-		for (l = head; l->next != NULL; l = l->next)
-			;
-		id = g_strdup (l->id);
-		/* Add 1 to the previous ID */
-		*(id+strlen (id)-1) = (*(id+strlen (id)-1)-48)+1;
+		if ((l = head))
+		{
+			for (; l->next; l = l->next)
+				;
+			id = g_strdup_printf ("%d", atoi (l->id)+1);
+		} else
+			id = g_strdup ("0");
 	} else
 	{
 		if (parent->child)
 		{
-			for (l = parent->child; l->next != NULL; l = l->next);
+			for (l = parent->child; l->next != NULL; l = l->next)
+				;
 			id = g_strdup_printf ("%s-%d", c2_mailbox_get_parent_id (l->id), c2_mailbox_get_id (l->id, -1)+1);
 		} else
 			id = g_strdup_printf ("%s-0", parent->id);

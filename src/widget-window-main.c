@@ -843,7 +843,7 @@ delete_thread (C2Pthread3 *data)
 	
 	c2_db_freeze (fmailbox);
 	c2_db_freeze (tmailbox);
-	for (l = list, off = 0; l; l = g_list_next (l), off++)
+	for (l = list, off = 0; l; l = g_list_next (l))
 	{
 		C2Db *db;
 		
@@ -862,7 +862,7 @@ delete_thread (C2Pthread3 *data)
 		
 		gtk_object_ref (GTK_OBJECT (db->message));
 		if (!(c2_db_message_add (tmailbox, db->message) < 0))
-			c2_db_message_remove (fmailbox, GPOINTER_TO_INT (l->data));
+			c2_db_message_remove (fmailbox, GPOINTER_TO_INT (l->data)-(off++));
 		gtk_object_unref (GTK_OBJECT (db->message));
 
 		if (progress_ownership)

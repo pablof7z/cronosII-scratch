@@ -30,16 +30,36 @@ extern "C" {
 #	include <cronosII.h>
 #endif
 
-#ifdef USE_GTKHTML
+#ifdef USE_ADVANCED_EDITOR
 #	include <gtkhtml/gtkhtml.h>
-
+#else
+#	include <gtk/gtktext.h>
 #endif
 
 #define C2_EDITOR(obj)						(GTK_CHECK_CAST (obj, c2_editor_get_type (), C2Editor))
 #define C2_EDITOR_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, c2_editor_get_type (), C2Editor))
+#define C2_EDITOR_OPERATION(obj)			((C2EditorOperation*)obj)
 
 typedef struct _C2Editor C2Editor;
 typedef struct _C2EditorClass C2EditorClass;
+typedef struct _C2EditorOperation C2EditorOperation;
+typedef enum _C2EditorOperationType C2EditorOperationType;
+
+enum _C2EditorOperationType
+{
+	C2_EDITOR_OPERATION_INSERT,
+	C2_EDITOR_OPERATION_DELETE
+};
+
+struct _C2EditorOperation
+{
+	C2EditorOperationType type;
+	gchar *text;
+	gint length;
+	gint position;
+
+	gint merge : 1;
+};
 
 struct _C2Editor
 {
@@ -85,18 +105,26 @@ c2_editor_get_text							(C2Editor *editor);
 void
 c2_editor_set_text							(C2Editor *editor, const gchar *text);
 
-/* Undo & Redo */
+/* Operations (Undo & Redo) */
 void
-c2_editor_undo								(C2Editor *editor);
-
-void
-c2_editor_redo								(C2Editor *editor);
+c2_editor_operations_add					(C2Editor *editor, C2EditorOperationType type,
+											 const gchar *text, gint length, gint position);
 
 gboolean
-c2_editor_undo_available					(C2Editor *editor);
+c2_editor_operations_merge					(C2Editor *editor, C2EditorOperationType type,
+											 const gchar *text, gint length, gint position);
+
+void
+c2_editor_operations_undo					(C2Editor *editor);
+
+void
+c2_editor_operations_redo					(C2Editor *editor);
 
 gboolean
-c2_editor_redo_available					(C2Editor *editor);
+c2_editor_operations_undo_available			(C2Editor *editor);
+
+gboolean
+c2_editor_operations_redo_available			(C2Editor *editor);
 
 #ifdef __cplusplus
 }

@@ -471,7 +471,10 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 	GtkWidget *tl;
 	C2TransferItem *ti;
 	gchar *buf;
-L	
+
+	/* I think c2 won't notice when a composer adds a message
+	 * to the outbox mailbox when the mailbox is freezed
+	 */
 	if (change != C2_MAILBOX_CHANGE_ADD)
 		return;
 

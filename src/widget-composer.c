@@ -18,6 +18,7 @@
 #include <glade/glade.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <gtkhtml/gtkhtml.h>
 
 #include <libcronosII/account.h>
 #include <libcronosII/error.h>
@@ -102,6 +103,12 @@ on_icon_list_button_press_event				(GtkWidget *widget, GdkEventButton *e, C2Comp
 
 static void
 on_send_now_clicked							(GtkWidget *widget, C2Composer *composer);
+
+static void
+on_toolbar_undo_clicked						(GtkWidget *widget, C2Composer *composer);
+
+static void
+on_toolbar_redo_clicked						(GtkWidget *widget, C2Composer *composer);
 
 static void
 on_application_preferences_changed_account	(C2Application *application, gint key, gpointer value,
@@ -331,9 +338,9 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	widget = glade_xml_get_widget (xml, "send_later_btn");
 	gtk_widget_set_sensitive (widget, FALSE);
 	widget = glade_xml_get_widget (xml, "undo_btn");
-	gtk_widget_set_sensitive (widget, FALSE);
+	gtk_widget_set_sensitive (widget, TRUE);
 	widget = glade_xml_get_widget (xml, "redo_btn");
-	gtk_widget_set_sensitive (widget, FALSE);
+	gtk_widget_set_sensitive (widget, TRUE);
 
 	buf = gnome_config_get_string ("/"PACKAGE"/Interface-Composer/editor");
 
@@ -462,6 +469,12 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	widget = glade_xml_get_widget (xml, "send_now_btn");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
 						GTK_SIGNAL_FUNC (on_send_now_clicked), composer);
+	widget = glade_xml_get_widget (xml, "undo_btn");
+	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
+						GTK_SIGNAL_FUNC (on_toolbar_undo_clicked), composer);
+	widget = glade_xml_get_widget (xml, "redo_btn");
+	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
+						GTK_SIGNAL_FUNC (on_toolbar_redo_clicked), composer);
 	widget = glade_xml_get_widget (xml, "attach_btn");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
 						GTK_SIGNAL_FUNC (on_attachments_clicked), composer);
@@ -672,6 +685,18 @@ static void
 on_send_now_clicked (GtkWidget *widget, C2Composer *composer)
 {
 	C2_COMPOSER_CLASS_FW (composer)->send_now (composer);
+}
+
+static void
+on_toolbar_undo_clicked (GtkWidget *widget, C2Composer *composer)
+{
+	c2_editor_operations_undo (C2_EDITOR (composer->editor));
+}
+
+static void
+on_toolbar_redo_clicked (GtkWidget *widget, C2Composer *composer)
+{
+	c2_editor_operations_redo (C2_EDITOR (composer->editor));
 }
 
 static void

@@ -1,3 +1,12 @@
+Sun Nov 04 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Little changes to the mailbox module requested by Bosko.
+
+Sat Nov 03 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Fixed a bug that caused a crash when displaying mails longer
+	  than 4096 bytes.
+	* Work in the Operations functions (Undo & Redo) in the Editor
+	  widget (aka composer).
+
 Tue Nov 01 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed a bug that caused c2 not to destroy messages after downloading
 	  them from POP3 (the message object).

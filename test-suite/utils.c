@@ -21,6 +21,11 @@
 gint
 main (gint argc, gchar **argv)
 {
-	c2_streq ("hola", "hola");	
+	gchar *file;
+
+	c2_get_file ("utils.txt", &file);
+
+	c2_str_wrap (file, 75);
+
 	return 0;
 }

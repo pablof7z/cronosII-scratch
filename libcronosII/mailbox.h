@@ -73,7 +73,9 @@ enum _C2MailboxChangeType
 {
 	C2_MAILBOX_CHANGE_ADD,
 	C2_MAILBOX_CHANGE_REMOVE,
-	C2_MAILBOX_CHANGE_STATE /* State of a/several mail/s */
+	C2_MAILBOX_CHANGE_STATE,
+
+	C2_MAILBOX_CHANGE_ANY
 };
 
 struct _C2Mailbox
@@ -106,6 +108,7 @@ struct _C2Mailbox
 	} protocol;
 	
 	gint freezed : 1;
+	gint signals_queued : 1;
 
 	pthread_mutex_t lock;
 	
@@ -164,6 +167,9 @@ void
 c2_mailbox_remove								(C2Mailbox **head, C2Mailbox *mailbox);
 
 #define c2_mailbox_get_parent_id(x)				c2_mailbox_get_complete_id (x, c2_mailbox_get_level (x)-1)
+
+gchar *
+c2_mailbox_create_id_from_parent				(C2Mailbox *head, C2Mailbox *parent);
 
 gint
 c2_mailbox_get_level							(const gchar *id);

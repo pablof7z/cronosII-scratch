@@ -16,20 +16,16 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <glib.h>
-#include <gnome.h>
+#include <gtk/gtk.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <pthread.h>
 
 #include "error.h"
+#include "i18n.h"
 #include "utils.h"
-
-/* [TODO]
- * [DONE] 011014 There's a bug in c2_str_is_email, it
- *               won't detect as mail the format "name" <email>
- *               or <email>.
- */
 
 /**
  * c2_strcaseeq
@@ -616,7 +612,7 @@ c2_str_get_word (guint8 word_n, const gchar *str, gchar ch)
 	wcntl = 0; \
 	last_wrappable_position = NULL;
 #define FLUSH \
-	if (buf_pos == BUFFER) \
+	if (buf_pos == BUFFER-1) \
 	{ \
 		/* Flush everything */ \
 		if (!gstring) \
