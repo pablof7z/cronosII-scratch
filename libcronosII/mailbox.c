@@ -140,7 +140,6 @@ init (C2Mailbox *mailbox)
 		mailbox->protocol.IMAP.noinferiors = FALSE;
 		mailbox->protocol.IMAP.noselect = FALSE;
 		mailbox->protocol.IMAP.marked = FALSE;
-		mailbox->protocol.IMAP.imap_name = NULL;
 	}
 
 	c2_mutex_init (&mailbox->lock);
@@ -167,9 +166,6 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 		gtk_object_unref (GTK_OBJECT (mailbox->db));
 	if (mailbox->child)
 		gtk_object_unref (GTK_OBJECT (mailbox->child));
-	if(mailbox->type == C2_MAILBOX_IMAP)
-		if(mailbox->protocol.IMAP.imap_name)
-			g_free(mailbox->protocol.IMAP.imap_name);
 	
 	c2_mutex_unlock(&mailbox->lock);
 	c2_mutex_destroy(&mailbox->lock);
@@ -771,6 +767,39 @@ c2_mailbox_get_by_name (C2Mailbox *head, const gchar *name)
 		{
 			C2Mailbox *s;
 			if ((s = c2_mailbox_get_by_name (l->child, name)))
+				return s;
+		}
+	}
+
+	return NULL;
+}
+
+/**
+ * c2_mailbox_get_by_id
+ * @head: Head where to search.
+ * @id: Id of the mailbox to get
+ *
+ * Searches recursively for a mailbox
+ * with id @id.
+ *
+ * Return Value:
+ * The requested mailbox or NULL.
+ **/
+C2Mailbox *
+c2_mailbox_get_by_id (C2Mailbox *head, const gchar *id)
+{
+	C2Mailbox *l;
+	
+	c2_return_val_if_fail (id, NULL, C2EDATA);
+
+	for (l = head; l != NULL; l = l->next)
+	{
+		if (c2_streq (l->id, id))
+			return l;
+		if (l->child)
+		{
+			C2Mailbox *s;
+			if ((s = c2_mailbox_get_by_id (l->child, id)))
 				return s;
 		}
 	}

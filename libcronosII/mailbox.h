@@ -101,7 +101,6 @@ struct _C2Mailbox
 		struct
 		{
 			C2IMAP *imap;
-			gchar *imap_name;
 			gboolean marked;
 			gboolean noinferiors;
 			gboolean noselect;
@@ -187,6 +186,9 @@ c2_mailbox_get_id								(const gchar *id, gint number);
 
 C2Mailbox *
 c2_mailbox_get_by_name							(C2Mailbox *head, const gchar *name);
+	
+C2Mailbox *
+c2_mailbox_get_by_id (C2Mailbox *head, const gchar *id);
 
 gboolean
 c2_mailbox_load_db								(C2Mailbox *mailbox);
