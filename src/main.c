@@ -233,6 +233,8 @@ c2_config_init (void)
 
 	c2_app.options_check_timeout = gnome_config_get_int_with_default
 									("/cronosII/Options/check_timeout=" DEFAULT_OPTIONS_CHECK_TIMEOUT, NULL);
+	c2_app.options_wrap_outgoing_text = gnome_config_get_int_with_default
+							("/cronosII/Options/wrap_outgoing_text=" DEFAULT_OPTIONS_WRAP_OUTGOING_TEXT, NULL);
 	c2_app.options_mark_timeout = gnome_config_get_int_with_default
 									("/cronosII/Options/mark_timeout=" DEFAULT_OPTIONS_MARK_TIMEOUT, NULL);
 	c2_app.options_prepend_character = gnome_config_get_string_with_default

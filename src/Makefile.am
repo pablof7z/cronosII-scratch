@@ -21,11 +21,11 @@ cronos_SOURCES = \
 	
 
 cronos_LDADD = \
-	$(top_builddir)/libcronosII/libcronosII.a \
+	./$(top_builddir)/libcronosII/libcronosII.a \
 	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
 
 cronos_LDFLAGS = \
-	$(top_builddir)/libcronosII/libcronosII.a \
+	./././$(top_builddir)/libcronosII/libcronosII.a \
 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) \
 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
 

@@ -139,10 +139,10 @@ bin_PROGRAMS = cronos
 cronos_SOURCES =  	c2-app.c					c2-app.h						c2-main-window.c			c2-main-window.h				install-wizard.c											main-window.c				main-window.h					main.c														preferences.c												widget-index.c				widget-index.h					widget-html.c				widget-html.h					widget-mail.c				widget-mail.h					widget-message-transfer.c	widget-message-transfer.h		widget-part.c				widget-part.h
 
 
-cronos_LDADD =  	$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
+cronos_LDADD =  	./$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
 
 
-cronos_LDFLAGS =  	$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
+cronos_LDFLAGS =  	./././$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
 
 
 EXTRA_DIST =  	README.FAQ				xpm/forward.xpm			xpm/mark.xpm			xpm/mini_about.xpm		xpm/mini_error.xpm		xpm/new.xpm				xpm/read.xpm			xpm/reply.xpm			xpm/unread.xpm
@@ -157,7 +157,7 @@ LDFLAGS = @LDFLAGS@
 cronos_OBJECTS =  c2-app.o c2-main-window.o install-wizard.o \
 main-window.o main.o preferences.o widget-index.o widget-html.o \
 widget-mail.o widget-message-transfer.o widget-part.o
-cronos_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+cronos_DEPENDENCIES =  ./$(top_builddir)/libcronosII/libcronosII.a
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)

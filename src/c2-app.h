@@ -45,6 +45,7 @@ extern "C" {
 #define MAILBOX_DRAFTS		_("Drafts"	)
 
 #define DEFAULT_OPTIONS_CHECK_TIMEOUT			"20"
+#define DEFAULT_OPTIONS_WRAP_OUTGOING_TEXT		"70"
 #define DEFAULT_OPTIONS_MARK_TIMEOUT			"1"
 #define DEFAULT_OPTIONS_PREPEND_CHARACTER		"> "
 #define DEFAULT_OPTIONS_EMPTY_GARBAGE			"0"
@@ -59,7 +60,7 @@ extern "C" {
 
 #define DEFAULT_INTERFACE_TITLE					"Cronos II v.%v - %M: %m messages, %n new"
 #define DEFAULT_INTERFACE_TOOLBAR				"2"
-#define DEFAULT_INTERFACE_DATE_FMT				"%Y.%m.%d %H:%M %z"
+#define DEFAULT_INTERFACE_DATE_FMT				"%d.%m.%Y %H:%M"
 	
 #define DEFAULT_FONTS_MESSAGE_BODY				"-adobe-courier-medium-r-normal-*-*-120-*-*-m-*-iso8859-1"
 #define DEFAULT_FONTS_UNREADED_MESSAGE			"-b&h-lucida-bold-r-normal-*-*-100-*-*-p-*-iso8859-1"
@@ -184,6 +185,7 @@ struct C2Application
 	C2Mailbox *mailbox;
 
 	gint options_check_timeout;
+	gint options_wrap_outgoing_text;
 	gint options_mark_timeout;
 	gchar *options_prepend_character;
 	gint options_empty_garbage	: 1;

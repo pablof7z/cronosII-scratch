@@ -2,7 +2,7 @@ Note by: Pablo Fernández Navarro
 Date: 23.6.2001
 
 To successfully (did I spell this word right?) compile
-c2s (Cronos II Scratch) you need to ./configure with the --disable-gtk-xmhtml
+c2s (Cronos II Scratch) you need to ./configure with the --disable-gtkxmhtml
 flag.
 
 Note by: Pablo Fernández Navarro
