@@ -108,7 +108,7 @@ cmnd_list (GList *list)
 		{
 			gchar subject[40];
 
-			bzero (subject, sizeof (subject));
+			memset (subject, 0, sizeof (subject));
 			if (strlen (db->subject) > 39)
 			{
 				strncpy (subject, db->subject, 36);

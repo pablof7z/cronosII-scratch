@@ -1,3 +1,7 @@
+Wed Sep 11 Daniel Fairhead
+	* Changed c2_str_html_to_text to use BUFFER rather than gstring.
+	* Fixed bzero to memset for compatibility.
+
 Mon Aug 12 Bosko Blaogojevic
 	* Fixed bug in libcronosII/imap.c
 	* Added some module debugging printing in imap.c

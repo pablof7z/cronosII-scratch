@@ -300,6 +300,7 @@ c2_html_set_content_from_string (C2HTML *html, const gchar *string)
 #else
 	newstring = c2_str_html_to_text(string,C2_STRIP_HTML_DO_SYMBOLS);
 	gtk_text_insert (GTK_TEXT (html), html->font, html->fore, NULL, newstring, -1);
+	g_free (newstring);
 #endif
 	c2_html_thaw (html);
 }

@@ -762,7 +762,7 @@ c2_str_wrap (const gchar *str, guint8 position)
 			gstring = g_string_new (buffer); \
 		else \
 			g_string_append (gstring, buffer); \
-		bzero (buffer, BUFFER); \
+		memset (buffer, 0, BUFFER); \
 		buf_pos = 0; \
 	}
 gchar *
@@ -778,7 +778,7 @@ c2_str_text_to_html (const gchar *str, gboolean proc_email)
 	if (!str)
 		return NULL;
 
-	bzero (buffer, BUFFER);
+	memset (buffer, 0, BUFFER);
 	
 	for (ptr = str, buf_pos = 0; *ptr != '\0'; ptr++)
 	{
@@ -870,10 +870,38 @@ c2_str_text_to_html (const gchar *str, gboolean proc_email)
  * A newly allocated string without the HTML symbols.
  **/
 
+#define BUFFER 100
+#define APPEND(c) \
+	{ \
+		buffer[buf_pos++] = c; \
+		buffer[buf_pos] = 0; \
+		FLUSH; \
+	}
+#define FLUSH \
+	if (buf_pos >= BUFFER-1) \
+	{ \
+		/* Flush everything */ \
+		if (!gstring) \
+			gstring = g_string_new (buffer); \
+		else \
+			g_string_append (gstring, buffer); \
+		memset (buffer, 0, BUFFER); \
+		buf_pos = 0; \
+	}
+#define RESET \
+	{ \
+		memset (buffer, 0, BUFFER); \
+		buf_pos = 0; \
+	}
+
 gchar *
 c2_str_html_to_text (gchar *str, unsigned int flags)
 {
+	gchar buffer[BUFFER];
+	guint buf_pos;
+	GString *gstring = NULL;
 	gchar *retval;
+	gchar *tagtext;
 	gboolean in_tag = FALSE;
 	gboolean in_sym = FALSE;
 	gchar *current_char;
@@ -881,13 +909,14 @@ c2_str_html_to_text (gchar *str, unsigned int flags)
 	gboolean symbol_replace = FALSE;
 	gboolean require_html = FALSE;
 	gboolean will_parse = FALSE;
-	GString *tag=g_string_new (NULL);
-	gint j=0;
 
 	if (!str || !strlen (str))
 		return NULL;
+
+	RESET;
 	
 	retval = g_new0 (gchar, strlen(str));
+
 	if ((flags & C2_STRIP_HTML_REQUIRE_HTML) == C2_STRIP_HTML_REQUIRE_HTML)
 	{
 		require_html = TRUE;
@@ -908,7 +937,6 @@ c2_str_html_to_text (gchar *str, unsigned int flags)
 	
 	dst = retval;
 	
-	
 	for (current_char = str; *current_char; current_char++)
 	{
 		if (will_parse)
@@ -916,51 +944,80 @@ c2_str_html_to_text (gchar *str, unsigned int flags)
 #if 0
 			*dst++ = 'a';
 #else
+	
+			
 			if (*current_char == '<')
 			{
 				in_tag = TRUE;
-				g_string_assign(tag,"");
 			}
 			/* open symbol tag */
 			if ((*current_char == '&')&&(symbol_replace))
 			{
 				in_sym = TRUE;
-				g_string_assign(tag,"");
 			}
 			/* normal tag. print it. */
 			if ((in_tag == FALSE)&&(in_sym == FALSE))
 			{
-				g_string_assign(tag,"");
-				*dst++ = *current_char;
+				/* is double space. in html is ignored. */
+				if ((*current_char == ' ')&&(*current_char != *str))
+				{
+					if (*(current_char - 1) == ' ') 
+					{
+					}else{
+						*dst++ = *current_char;
+					}
+				}else{
+					*dst++ = *current_char;
+				}
 			}
 			/* is within a tag. */
 			if ((in_tag == TRUE)||(in_sym == TRUE))
 			{
-				j = strlen(tag->str);
-				g_string_append (tag, current_char);
-				g_string_truncate(tag, j+1);
+				APPEND(*current_char);
 			}
 			/* close tag. */
 			if (*current_char == '>')
 			{
-				in_tag = FALSE;
-				g_string_down(tag);
-				if (c2_strstr_case_insensitive(tag->str,"<br>"))
+				
+				if (gstring)
 				{
-					*dst++ = '\n';
+					tagtext = g_strconcat (gstring->str, buffer, NULL);
+					g_string_free (gstring, FALSE);
+				} else {
+					tagtext = g_strdup (buffer);
 				}
-				g_string_assign(tag,"");
+
+				in_tag = FALSE;
+				if (c2_strstr_case_insensitive(tagtext,"<br>")) *dst++ = '\n';
+				if (c2_strstr_case_insensitive(tagtext,"<b>")) *dst++ = '*';
+				if (c2_strstr_case_insensitive(tagtext,"</b>")) *dst++ = '*';
+				if (c2_strstr_case_insensitive(tagtext,"<u>")) *dst++ = '_';
+				if (c2_strstr_case_insensitive(tagtext,"</u>")) *dst++ = '_';
+				if (c2_strstr_case_insensitive(tagtext,"<i>")) *dst++ = '/';
+				if (c2_strstr_case_insensitive(tagtext,"</i>")) *dst++ = '/';
+				
+				g_free (tagtext);
+				RESET;
 			}
 			if ((*current_char == ';')&&(symbol_replace))
 			{
+				if (gstring)
+				{
+					tagtext = g_strconcat (gstring->str, buffer, NULL);
+					g_string_free (gstring, FALSE);
+				} else {
+					tagtext = g_strdup (buffer);
+				}
+					
 				in_sym = FALSE;
-				if (c2_strstr_case_insensitive(tag->str,"&amp;")) *dst++ = '&';
-				if (c2_strstr_case_insensitive(tag->str,"&nbsp;")) *dst++ = ' ';
-				if (c2_strstr_case_insensitive(tag->str,"&lt;")) *dst++ = '<';
-				if (c2_strstr_case_insensitive(tag->str,"&gt;")) *dst++ = '>';
-				if (c2_strstr_case_insensitive(tag->str,"&quot;")) *dst++ = '"';
+				if (c2_strstr_case_insensitive(tagtext,"&amp;")) *dst++ = '&';
+				if (c2_strstr_case_insensitive(tagtext,"&nbsp;")) *dst++ = ' ';
+				if (c2_strstr_case_insensitive(tagtext,"&lt;")) *dst++ = '<';
+				if (c2_strstr_case_insensitive(tagtext,"&gt;")) *dst++ = '>';
+				if (c2_strstr_case_insensitive(tagtext,"&quot;")) *dst++ = '"';
 
-				g_string_assign(tag,"");
+				g_free (tagtext);
+				RESET;
 			}
 #endif			
 		} else
@@ -972,6 +1029,10 @@ c2_str_html_to_text (gchar *str, unsigned int flags)
 	*dst = '\0';
 	return retval;
 } 
+#undef BUFFER
+#undef APPEND
+#undef FLUSH
+#undef RESET
 
 
 /**
