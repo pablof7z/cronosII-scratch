@@ -128,10 +128,11 @@ init (C2TransferItem *ti)
 	ti->state = 0;
 	ti->tooltip = NULL;
 	ti->account = NULL;
+	ti->application = NULL;
 }
 
 C2TransferItem *
-c2_transfer_item_new (C2Account *account, C2TransferItemType type, ...)
+c2_transfer_item_new (C2Application *application, C2Account *account, C2TransferItemType type, ...)
 {
 	C2TransferItem *ti;
 	va_list args;
@@ -139,14 +140,15 @@ c2_transfer_item_new (C2Account *account, C2TransferItemType type, ...)
 	ti = gtk_type_new (c2_transfer_item_get_type ());
 
 	va_start (args, type);
-	c2_transfer_item_construct (ti, account, type, args);
+	c2_transfer_item_construct (ti, application, account, type, args);
 	va_end (args);
 
 	return ti;
 }
 
 void
-c2_transfer_item_construct (C2TransferItem *ti, C2Account *account, C2TransferItemType type, va_list args)
+c2_transfer_item_construct (C2TransferItem *ti, C2Application *application, C2Account *account,
+C2TransferItemType type, va_list args)
 {
 	GtkTooltips *tooltips;
 	GtkWidget *label, *button, *pixmap, *box, *bpixmap;
@@ -154,6 +156,7 @@ c2_transfer_item_construct (C2TransferItem *ti, C2Account *account, C2TransferIt
 	
 	ti->account = account;
 	ti->type = type;
+	ti->application = application;
 
 	/* Store the extra-information */
 	if (type == C2_TRANSFER_ITEM_RECEIVE)
@@ -257,6 +260,18 @@ fire_c2_account_check_in_its_own_thread (C2Account *account)
 	c2_account_check (account);
 }
 
+static void
+c2_transfer_item_start_pop3_thread (C2Pthread3 *data)
+{
+	C2POP3 *pop3 = C2_POP3 (data->v1);
+	C2Account *account = C2_ACCOUNT (data->v2);
+	C2Mailbox *inbox = C2_MAILBOX (data->v3);
+
+	g_free (data);
+	
+	c2_pop3_fetchmail (pop3, account, inbox);
+}
+
 void
 c2_transfer_item_start (C2TransferItem *ti)
 {
@@ -267,6 +282,26 @@ c2_transfer_item_start (C2TransferItem *ti)
 		if (ti->account->type == C2_ACCOUNT_POP3)
 		{
 			C2POP3 *pop3 = C2_POP3 (c2_account_get_extra_data (ti->account, C2_ACCOUNT_KEY_INCOMING, NULL));
+			C2Pthread3 *data;
+			C2Mailbox *inbox;
+
+			if (!(inbox = c2_mailbox_get_by_name (ti->application->mailbox, C2_MAILBOX_INBOX)))
+			{
+				/* There's no Inbox mailbox, create it */
+				ti->application->mailbox = c2_mailbox_new_with_parent (C2_MAILBOX_INBOX, NULL,
+												C2_MAILBOX_CRONOSII, 0, 0);
+				if (!(inbox = ti->application->mailbox))
+				{
+					gtk_progress_set_show_text (GTK_PROGRESS (ti->progress_mail), TRUE);
+					gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail),
+									_("No Inbox mailbox"));
+					on_pop3_disconnect (NULL, FALSE, ti);
+					return;
+				}
+				gtk_signal_emit_by_name (GTK_OBJECT (inbox), "changed_mailboxes");
+			}
+				
+			
 
 			gtk_signal_connect (GTK_OBJECT (pop3), "resolve",
 								GTK_SIGNAL_FUNC (on_pop3_resolve), ti);
@@ -286,7 +321,11 @@ c2_transfer_item_start (C2TransferItem *ti)
 			gtk_progress_set_show_text (GTK_PROGRESS (ti->progress_mail), TRUE);
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Resolving"));
 
-			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_pop3_fetchmail), pop3);
+			data = g_new0 (C2Pthread3, 1);
+			data->v1 = (gpointer) pop3;
+			data->v2 = (gpointer) ti->account;
+			data->v3 = (gpointer) inbox;
+			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (c2_transfer_item_start_pop3_thread), data);
 		} else if (ti->account->type == C2_ACCOUNT_IMAP)
 		{
 #ifdef USE_DEBUG
@@ -313,6 +352,23 @@ on_pop3_resolve (GtkObject *object, C2TransferItem *ti)
 static gboolean
 on_pop3_login_failed (GtkObject *object, const gchar *error, gchar **user, gchar **pass, C2TransferItem *ti)
 {
+	GladeXML *xml;
+	GtkWidget *dialog;
+	GtkWidget *contents;
+
+	gdk_threads_enter ();
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_req_pass_contents");
+	contents = glade_xml_get_widget (xml, "dlg_req_pass_contents");
+	dialog = c2_dialog_new (ti->application, _("Login failed"), "req_pass",
+							GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
+	C2_DIALOG (dialog)->xml = xml;
+	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox), contents, TRUE, TRUE, 0);
+	
+	switch (gnome_dialog_run (GNOME_DIALOG (dialog)))
+	{
+	}
+	gdk_threads_leave ();
+
 	return TRUE;
 }
 

@@ -157,7 +157,7 @@ on_button0_clicked (GtkWidget *widget, C2TransferList *tl)
 static void
 on_button1_clicked (GtkWidget *widget, C2TransferList *tl)
 {
-	gtk_widget_hide (GTK_WIDGET (tl));
+	gtk_widget_destroy (GTK_WIDGET (tl));
 }
 
 void

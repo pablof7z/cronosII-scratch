@@ -215,7 +215,7 @@ ignore:
 			case C2_ACCOUNT_IMAP:
 				{
 					gchar *host, *user, *pass;
-					gint port, flags = 0;
+					gint port, flags = 0, days;
 					gboolean ssl;
 					C2POP3AuthenticationMethod auth_method;
 					
@@ -229,6 +229,17 @@ ignore:
 						flags |= C2_POP3_DO_NOT_LOSE_PASSWORD;
 					else
 						flags |= C2_POP3_DO_LOSE_PASSWORD;
+					if (gnome_config_get_bool ("options_multiple_access_leave"))
+					{
+						flags |= C2_POP3_DO_KEEP_COPY;
+
+						if (gnome_config_get_bool ("options_multiple_access_remove"))
+							days = gnome_config_get_int ("options_multiple_access_remove_value");
+						else
+							days = 0;
+					} else
+						flags |= C2_POP3_DO_NOT_KEEP_COPY;
+					
 					
 
 					if (account_type == C2_ACCOUNT_POP3)
@@ -237,6 +248,7 @@ ignore:
 						pop3 = c2_pop3_new (host, port, user, pass, ssl);
 						c2_pop3_set_flags (pop3, flags);
 						c2_pop3_set_auth_method (pop3, auth_method);
+						c2_pop3_set_leave_copy (pop3, days ? TRUE : FALSE, days);
 						c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, pop3);
 					} else if (account_type == C2_ACCOUNT_IMAP)
 						g_warning ("The IMAP protocol has not been coded yet for Cronos II.\n");

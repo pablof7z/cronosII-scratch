@@ -67,6 +67,7 @@ struct _C2TransferItem
 	gchar *tooltip;
 
 	C2Account *account;
+	C2Application *application;
 
 	union
 	{
@@ -101,11 +102,12 @@ GtkType
 c2_transfer_item_get_type					(void);
 
 C2TransferItem *
-c2_transfer_item_new						(C2Account *account, C2TransferItemType type, ...);
+c2_transfer_item_new						(C2Application *application, C2Account *account,
+											 C2TransferItemType type, ...);
 
 void
-c2_transfer_item_construct					(C2TransferItem *ti, C2Account *account,
-											 C2TransferItemType type, va_list args);
+c2_transfer_item_construct					(C2TransferItem *ti, C2Application *application,
+											 C2Account *account, C2TransferItemType type, va_list args);
 
 void
 c2_transfer_item_start						(C2TransferItem *ti);

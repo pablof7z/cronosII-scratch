@@ -388,7 +388,7 @@ on_toolbar_check_clicked (GtkWidget *widget, C2WindowMain *wmain)
 		if (!GPOINTER_TO_INT (data))
 			continue;
 
-		wti = c2_transfer_item_new (account, C2_TRANSFER_ITEM_RECEIVE);
+		wti = c2_transfer_item_new (application, account, C2_TRANSFER_ITEM_RECEIVE);
 		c2_transfer_list_add_item (C2_TRANSFER_LIST (wtl), wti);
 		c2_transfer_item_start (wti);
 	}

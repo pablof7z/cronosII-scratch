@@ -2766,7 +2766,7 @@ this mailbox?</message>
   <widget>
     <class>GtkVBox</class>
     <child_name>GnomeDialog:vbox</child_name>
-    <name>dialog-vbox10</name>
+    <name>dlg_req_pass_vbox</name>
     <homogeneous>False</homogeneous>
     <spacing>8</spacing>
     <child>
@@ -2813,7 +2813,7 @@ this mailbox?</message>
 
     <widget>
       <class>GtkTable</class>
-      <name>table4</name>
+      <name>dlg_req_pass_contents</name>
       <rows>5</rows>
       <columns>2</columns>
       <homogeneous>False</homogeneous>
@@ -2949,9 +2949,11 @@ this mailbox?</message>
       <widget>
 	<class>GtkLabel</class>
 	<name>label61</name>
-	<label>The server has rejected the password
-set for this account. 
-Please enter the correct information here.</label>
+	<label>The server has rejected the username/password
+combination: 'invalid username/password'.
+
+Provide the correct information for logging in
+in the following fields.</label>
 	<justify>GTK_JUSTIFY_LEFT</justify>
 	<wrap>False</wrap>
 	<xalign>0.5</xalign>

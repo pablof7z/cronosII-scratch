@@ -305,10 +305,10 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 static gint
 welcome (C2POP3 *pop3)
 {
-	gchar *string 		= NULL;
-	gchar *logintokenpos	= NULL;
-	gchar *logintoken	= NULL;
-	gint  loginsize 	= 0;
+	gchar *string = NULL;
+	gchar *logintokenpos = NULL;
+	gchar *logintoken = NULL;
+	gint  loginsize = 0;
 
 	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
 		return -1;
@@ -318,21 +318,21 @@ welcome (C2POP3 *pop3)
 		// They want to use APOP so we need to get the timestamp and
 		// domain name from the welcome message
 
-		logintokenpos 	= strstr(string,"<"); 			/* login token start with the first <  */
+		logintokenpos = strstr(string,"<"); 	/* login token start with the first <  */
 		if (logintokenpos == NULL) 				/* no < means they don't support APOP */
 		{
 			c2_error_set_custom ("Server does not support APOP");
 			return -1;
 		}
 
-		loginsize 	= strlen(logintokenpos)-1;		/* don't want the trailing \n  */
-		logintoken 	= (gchar*)g_malloc(sizeof(gchar) * loginsize);
+		loginsize = strlen(logintokenpos)-1;		/* don't want the trailing \n  */
+		logintoken = g_new (gchar, loginsize);
 	
 		strncpy(logintoken,logintokenpos,strlen(logintokenpos)); /* copy everything from the "<" to the \0 */
 		logintoken[loginsize-1] = 0;				 /* overwrite the \n with the NULL terminator */
 	
 	
-		printf("Welcome token  is \"%s\"\n",logintoken);
+		printf("Welcome token is \"%s\"\n",logintoken);
 		pop3->logintoken = (gchar*)g_malloc(sizeof(gchar) * loginsize);
 		strncpy(pop3->logintoken,logintoken,loginsize); 	/* set the login token so we can use it later in the login call */
 		//printf("pop3->logintoken in login is \"%s\"\n",pop3->logintoken);
@@ -515,22 +515,48 @@ status (C2POP3 *pop3, C2Account *account)
 
 	/* Bosko's suggestion. 08/09/01 --pablo */
 	if (!mails)
+	{
+		C2_DEBUG (account->name);
 		uidl_clean (account);
+	}
 	
 	if (pop3->flags & C2_POP3_DO_KEEP_COPY)
 	{
 		gint i;
+		
+		if (c2_net_object_send (C2_NET_OBJECT (pop3), "UIDL\r\n") < 0)
+			return NULL;
 
-		for (i = 1; i <= mails; i++)
+		if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+			return NULL;
+
+		if (c2_strnne (string, "+OK", 3))
 		{
-			if (uidl (pop3, account, i))
-				list = g_slist_append (list, (gpointer) i);
+			g_free (string);
+			goto no_uidl;
+		}
+
+		for (i = 1; ; i++)
+		{
+			gchar *prompt;
+			gchar *uidl;
+			
+			if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+				return NULL;
+
+			prompt = g_strdup_printf ("%d %%s\r\n", i);
+			C2_DEBUG (prompt);
+			sscanf (string, prompt, &uidl);
+			C2_DEBUG (uidl);
+			g_free (uidl);
+			g_free (prompt);
 		}
 	} else
 	{
 		/* Append every message to the download list */
 		gint i;
 
+no_uidl:
 		for (i = 1; i <= mails; i++)
 			list = g_slist_append (list, (gpointer) i);
 	}
@@ -541,8 +567,45 @@ status (C2POP3 *pop3, C2Account *account)
 }
 
 static gboolean
-uidl (C2POP3 *pop3, C2Account *account, gint mails)
+uidl_get (C2POP3 *pop3, C2Account *account, const gchar *string)
 {
+	gchar *path;
+	FILE *fd;
+
+	path = g_strconcat (g_get_home_dir (), C2_HOME, "uidl" G_DIR_SEPARATOR_S, account->name, NULL);
+	if (!(fd = fopen (path, "at")))
+	{
+		c2_error_set (-errno);
+#ifdef USE_DEBUG
+		g_warning ("Unable to add an UIDL: %s\n", c2_error_get (c2_errno));
+#endif
+		g_free (path);
+		return;
+	}
+	
+	fprintf (fd, "%s\n", string);
+	fclose (fd);
+}
+
+static void
+uidl_set (C2POP3 *pop3, C2Account *account, const gchar *string)
+{
+	gchar *path;
+	FILE *fd;
+
+	path = g_strconcat (g_get_home_dir (), C2_HOME, "uidl" G_DIR_SEPARATOR_S, account->name, NULL);
+	if (!(fd = fopen (path, "at")))
+	{
+		c2_error_set (-errno);
+#ifdef USE_DEBUG
+		g_warning ("Unable to add an UIDL: %s\n", c2_error_get (c2_errno));
+#endif
+		g_free (path);
+		return;
+	}
+	
+	fprintf (fd, "%s\n", string);
+	fclose (fd);
 }
 
 static void
