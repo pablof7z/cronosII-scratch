@@ -31,9 +31,10 @@
 /* (in progress) TODO: implement local sendmail capability */
 /* TODO: upgrade this module to use the C2 Net-Object */
 /* (in progress) TODO: create a test-module */
-/* (in progress) TODO: implement BCC */
+/* (done!) TODO: implement BCC */
 /* TODO: implement sending of MIME attachments */
 /* TODO: implement authentication (posted by pablo) */
+/* TODO: implement EHLO */
 
 static gint
 c2_smtp_connect (C2SMTP *smtp);
