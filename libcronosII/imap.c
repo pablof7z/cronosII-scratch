@@ -564,7 +564,6 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 {
 	gchar *buf, *ptr, *start, *name;
 	
-	printf("word...");
 	if(parent)
 	{
 		buf = c2_imap_get_full_folder_name(imap, parent);
@@ -637,7 +636,10 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 					num++;
 				else if(num == 3)
 				{
-					name = g_strndup(ptr2, strlen(ptr2) - 1);
+					if(*ptr2 == '"')
+						name = g_strndup(ptr2+1, strlen(ptr2) - 3);
+					else
+						name = g_strndup(ptr2, strlen(ptr2) - 1);
 					folder = c2_mailbox_new_with_parent(&imap->mailboxes,
 							c2_imap_get_folder_heirarchy (name, c2_imap_get_folder_level(name)), 
 							id, C2_MAILBOX_IMAP, C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap, FALSE);
@@ -645,7 +647,6 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 					folder->protocol.IMAP.noinferiors = noinferiors;
 					folder->protocol.IMAP.noselect = noselect;
 					folder->protocol.IMAP.marked = marked;
-					printf("done!\n");
 					if(!folder->protocol.IMAP.noinferiors)
 						if(c2_imap_folder_loop(imap, folder) < 0)
 							return -1;
@@ -788,7 +789,7 @@ c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 		return -1;
 	}
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d SELECT "
-					"%s\r\n", tag, name) < 0)
+					"\"%s\"\r\n", tag, name) < 0)
 	{
 		g_free(name);
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
