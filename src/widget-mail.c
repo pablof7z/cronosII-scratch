@@ -53,6 +53,15 @@ c2_mail_init								(C2Mail *mail);
 static void
 c2_mail_destroy								(GtkObject *object);
 
+static void
+on_box_size_allocate						(GtkWidget *widget, GtkAllocation *a, C2Mail *mail);
+
+static gboolean
+on_attachments_button_press_event			(GtkWidget *btn, GdkEventButton *e, C2Mail *mail);
+
+static void
+on_mail_parent_set							(GtkWidget *widget, GtkWidget *prev, C2Mail *mail);
+
 #ifdef USE_GTKHTML
 void
 html_link_manager_cid						(C2HTML *html, const gchar *url, GtkHTMLStream *stream);
@@ -123,6 +132,7 @@ c2_mail_class_init (C2MailClass *klass)
 static void
 c2_mail_init (C2Mail *mail)
 {
+	mail->window = NULL;
 	mail->message = NULL;
 }
 
@@ -138,6 +148,8 @@ c2_mail_new (C2Application *application)
 {
 	C2Mail *mail;
 	mail = gtk_type_new (c2_mail_get_type ());
+	GTK_BOX (mail)->spacing = 3;
+	GTK_BOX (mail)->homogeneous = 0;
 	c2_mail_construct (mail, application);
 	return GTK_WIDGET (mail);
 }
@@ -147,14 +159,40 @@ c2_mail_construct (C2Mail *mail, C2Application *application)
 {
 	GtkWidget *parent;
 	GtkWidget *scroll;
+	GtkWidget *hbox, *image, *widget;
 	gchar *buf;
+	GtkStyle *style;
+	GtkTooltips *tooltips;
 
 	mail->application = application;
 
+	gtk_signal_connect (GTK_OBJECT (mail), "parent_set",
+						GTK_SIGNAL_FUNC (on_mail_parent_set), mail);
+
+	tooltips = gtk_tooltips_new ();
+
 	/* Headers */
-#ifdef USE_GTKHTML
+	hbox = gtk_hbox_new (FALSE, 2);
+	gtk_box_pack_start (GTK_BOX (mail), hbox, FALSE, TRUE, 0);
+	gtk_widget_show (hbox);
+
+	mail->attachments_button = gtk_button_new ();
+	gtk_box_pack_end (GTK_BOX (hbox), mail->attachments_button, FALSE, FALSE, 0);
+	gtk_container_set_border_width (GTK_CONTAINER (mail->attachments_button), 2);
+	gtk_button_set_relief (GTK_BUTTON (mail->attachments_button), GTK_RELIEF_NONE);
+	GTK_WIDGET_UNSET_FLAGS (mail->attachments_button, GTK_CAN_FOCUS);
+	gtk_tooltips_set_tip (tooltips, mail->attachments_button,
+							_("Click here for the list of attachments in this mail."), NULL);
+	gtk_signal_connect (GTK_OBJECT (mail->attachments_button), "button_press_event",
+						GTK_SIGNAL_FUNC (on_attachments_button_press_event), mail);
+
+	image = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/attachments.png");
+	gtk_container_add (GTK_CONTAINER (mail->attachments_button), image);
+	gtk_widget_show (image);
+
+#ifdef USE_GTKHTMLd
 	scroll = gtk_viewport_new (NULL, NULL);
-	gtk_box_pack_start (GTK_BOX (mail), scroll, FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), scroll, TRUE, TRUE, 0);
 	gtk_widget_show (scroll);
 	gtk_viewport_set_shadow_type (GTK_VIEWPORT (scroll), GTK_SHADOW_IN);
 	
@@ -184,13 +222,61 @@ c2_mail_construct (C2Mail *mail, C2Application *application)
 		gtk_widget_show (mail->headers);
 	g_free (buf);
 #else
-	mail->headers = gtk_table_new (5, 4, GNOME_PAD_SMALL);
-	gtk_box_pack_start (GTK_BOX (mail), mail->headers, FALSE, FALSE, 0);
+	mail->headers = gtk_vbox_new (FALSE, 2);
+	gtk_box_pack_start (GTK_BOX (hbox), mail->headers, FALSE, FALSE, 0);
+	gtk_widget_show (mail->headers);
+	gtk_signal_connect (GTK_OBJECT (mail->headers), "size_allocate",
+						GTK_SIGNAL_FUNC (on_box_size_allocate), mail);
 
-	buf = c2_preferences_get_widget_mail_headers ();
-	if (c2_streq (buf, "normal") || c2_streq (buf, "all"))
-		gtk_widget_show (mail->headers);
-	g_free (buf);
+	hbox = gtk_hbox_new (FALSE, 3);
+	gtk_box_pack_start (GTK_BOX (mail->headers), hbox, TRUE, TRUE, 0);
+	gtk_widget_show (hbox);
+	
+	widget = gtk_label_new (_("From:"));
+	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+	style = gtk_style_copy (gtk_widget_get_style (widget));
+	style->font = gdk_font_load ("-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1");
+	gtk_widget_set_style (widget, style);
+	gtk_widget_show (widget);
+
+	mail->from_label = gtk_label_new ("");
+	gtk_box_pack_start (GTK_BOX (hbox), mail->from_label, FALSE, FALSE, 0);
+	gtk_widget_show (mail->from_label);
+
+	widget = gtk_label_new (_("   To:"));
+	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+	style->font = gdk_font_load ("-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1");
+	gtk_widget_set_style (widget, style);
+	gtk_widget_show (widget);
+
+	mail->to_label = gtk_label_new ("");
+	gtk_box_pack_start (GTK_BOX (hbox), mail->to_label, FALSE, FALSE, 0);
+	gtk_widget_show (mail->to_label);
+
+	widget = gtk_label_new (_("   CC:"));
+	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+	style->font = gdk_font_load ("-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1");
+	gtk_widget_set_style (widget, style);
+	gtk_widget_show (widget);
+
+	mail->cc_label = gtk_label_new ("");
+	gtk_box_pack_start (GTK_BOX (hbox), mail->cc_label, FALSE, FALSE, 0);
+	gtk_widget_show (mail->cc_label);
+
+	hbox = gtk_hbox_new (FALSE, 3);
+	gtk_box_pack_start (GTK_BOX (mail->headers), hbox, TRUE, TRUE, 0);
+	gtk_widget_show (hbox);
+	
+	widget = gtk_label_new (_("Subject:"));
+	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+	style = gtk_style_copy (gtk_widget_get_style (widget));
+	style->font = gdk_font_load ("-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1");
+	gtk_widget_set_style (widget, style);
+	gtk_widget_show (widget);
+
+	mail->subject_label = gtk_label_new ("");
+	gtk_box_pack_start (GTK_BOX (hbox), mail->subject_label, FALSE, FALSE, 0);
+	gtk_widget_show (mail->subject_label);
 #endif
 	
 #ifdef USE_GTKHTML
@@ -201,7 +287,7 @@ c2_mail_construct (C2Mail *mail, C2Application *application)
 	
 	parent = gtk_scrolled_window_new (NULL, NULL);
 	gtk_container_add (GTK_CONTAINER (scroll), parent);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (parent), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (parent), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 #elif defined (USE_GTKXMHTML)
 	parent = gtk_viewport_new (NULL, NULL);
 	gtk_box_pack_start (GTK_BOX (mail), parent, TRUE, TRUE, 0);
@@ -221,17 +307,170 @@ c2_mail_construct (C2Mail *mail, C2Application *application)
 #endif
 }
 
-#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
+static void
+on_mail_parent_set (GtkWidget *widget, GtkWidget *prev, C2Mail *mail)
+{
+	GtkWidget *w;
+
+	if (!GTK_IS_WIDGET (GTK_WIDGET (mail)->parent))
+		return;
+	
+	/* Find the window where the mail widget is to be packed */
+	for (w = GTK_WIDGET (mail)->parent; GTK_IS_WIDGET (w->parent); w = w->parent)
+		;
+
+	if (GTK_IS_WINDOW (w))
+		mail->window = w;
+	else
+		mail->window = NULL;
+}
+
+static void
+on_box_size_allocate (GtkWidget *widget, GtkAllocation *a, C2Mail *mail)
+{
+}
+
+static gboolean
+on_attachments_button_press_event (GtkWidget *btn, GdkEventButton *e, C2Mail *mail)
+{
+	C2Message *message;
+	C2Mime *mime;
+	GtkWidget *menu;
+	GtkWidget *hbox;
+	GtkWidget *item;
+	GtkWidget *label;
+	GtkWidget *event;
+	GtkStyle *style;
+	GdkColor dark_blue = { 0, 0x1100, 0x1400, 0x7c00 };
+	GdkColor white = { 0, 0xffff, 0xffff, 0xffff };
+	GtkTooltips *tooltips = NULL;
+	
+	menu = gtk_menu_new ();
+
+	message = c2_mail_get_message (mail);
+
+	event = gtk_event_box_new ();
+	gtk_widget_show (event);
+	style = gtk_style_copy (gtk_widget_get_style (event));
+	style->bg[GTK_STATE_NORMAL] = dark_blue;
+	style->bg[GTK_STATE_ACTIVE] = dark_blue;
+	style->bg[GTK_STATE_PRELIGHT] = dark_blue;
+	style->bg[GTK_STATE_SELECTED] = dark_blue;
+	style->bg[GTK_STATE_INSENSITIVE] = dark_blue;
+	gtk_widget_set_style (event, style);
+
+	label = gtk_label_new (_("Attachments"));
+	gtk_container_add (GTK_CONTAINER (event), label);
+	gtk_widget_show (label);
+	style = gtk_style_copy (gtk_widget_get_style (label));
+	gdk_color_alloc (gdk_colormap_get_system (), &dark_blue);
+	gdk_color_alloc (gdk_colormap_get_system (), &white);
+	style->fg[GTK_STATE_NORMAL] = white;
+	style->fg[GTK_STATE_ACTIVE] = white;
+	style->fg[GTK_STATE_PRELIGHT] = white;
+	style->fg[GTK_STATE_INSENSITIVE] = white;
+	style->fg[GTK_STATE_SELECTED] = white;
+	style->font = gdk_font_load ("-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1");
+	gtk_widget_set_style (label, style);
+
+	item = gtk_menu_item_new ();
+	gtk_container_add (GTK_CONTAINER (item), event);
+	gtk_menu_append (GTK_MENU (menu), item);
+	gtk_widget_show (item);
+	
+	for (mime = message->mime; mime; mime = mime->next)
+	{
+		GtkWidget *pixmap;
+		const gchar *path;
+		gchar *type, *buf2;
+		
+		hbox = gtk_hbox_new (FALSE, 4);
+		gtk_widget_show (hbox);
+		
+		/* Pixmap */
+		type = g_strdup_printf ("%s/%s", mime->type, mime->subtype);
+		path = gnome_mime_get_value (type, "icon-filename");
+		if (!path || !g_file_exists (path))
+			path = g_strdup (PKGDATADIR "/pixmaps/unknown.png");
+		pixmap = gnome_pixmap_new_from_file (path);
+		gtk_box_pack_start (GTK_BOX (hbox), pixmap, FALSE, FALSE, 0);
+		gtk_widget_show (pixmap);
+
+		if (mime->disposition)
+		{
+			gchar *filename;
+			
+			if ((filename = c2_mime_get_parameter_value (mime->disposition, "filename")))
+			{
+				g_free (type);
+				type = filename;
+			}
+		}
+		
+		label = gtk_label_new (type);
+		gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+		gtk_widget_show (label);
+
+		item = gtk_menu_item_new ();
+		gtk_container_add (GTK_CONTAINER (item), hbox);
+		gtk_menu_append (GTK_MENU (menu), item);
+		gtk_widget_show (item);
+		if (mime->description)
+		{
+			if (!tooltips)
+			{
+				tooltips = gtk_tooltips_new ();
+				gtk_tooltips_set_delay (tooltips, 100);
+			}
+
+			gtk_tooltips_set_tip (tooltips, item, mime->description, NULL);
+		}
+	}
+
+	event = gtk_event_box_new ();
+	gtk_widget_show (event);
+	style = gtk_style_copy (gtk_widget_get_style (event));
+	style->bg[GTK_STATE_NORMAL] = dark_blue;
+	style->bg[GTK_STATE_ACTIVE] = dark_blue;
+	style->bg[GTK_STATE_PRELIGHT] = dark_blue;
+	style->bg[GTK_STATE_SELECTED] = dark_blue;
+	style->bg[GTK_STATE_INSENSITIVE] = dark_blue;
+	gtk_widget_set_style (event, style);
+	gtk_widget_set_usize (event, -1, 4);
+
+	item = gtk_menu_item_new ();
+	gtk_container_add (GTK_CONTAINER (item), event);
+	gtk_menu_append (GTK_MENU (menu), item);
+	gtk_widget_show (item);
+	gtk_widget_set_sensitive (item, FALSE);
+	
+	gnome_popup_menu_do_popup (menu, NULL, NULL, e, NULL);
+	return TRUE;
+}
+
+static void
+set_headers_attachments (C2Mail *mail, C2Message *message)
+{
+	gchar *buf;
+
+	buf = c2_message_get_header_field (message, "Content-Type:");
+	if (c2_strneq (buf, "multipart/", 10))
+		gtk_widget_show (mail->attachments_button);
+	else
+		gtk_widget_hide (mail->attachments_button);
+	g_free (buf);
+}
+
+#if defined (USE_GTKHTMLd) || defined (USE_GTKXMHTML)
 static void
 set_headers (C2Mail *mail, C2Message *message)
 {
 	gchar *html;
 	const gchar *start, *end;
 	gchar *buf, *buf2;
-	gchar *from, *to, *cc, *subject, *attachments;
+	gchar *from, *to, *cc, *subject;
 	gchar *references;
 	gchar *show_type;
-	C2Mime *mime;
 
 	start = "<html><body bgcolor=#ffffff marginwidth=2 marginheight=2>"
 			"<table border=1 cellspacing=0 cellpadding=2 width=100\%>";
@@ -241,7 +480,7 @@ set_headers (C2Mail *mail, C2Message *message)
 	if (c2_streq (show_type, "normal"))
 	{
 		/* Subject */
-		buf = c2_message_get_header_field (message, "\nSubject:");
+		buf = c2_message_get_header_field (message, "Subject:");
 		if (!buf || !strlen (buf))
 			buf = "«No Subject»";
 		else
@@ -268,7 +507,7 @@ set_headers (C2Mail *mail, C2Message *message)
 		g_free (buf);
 
 		/* To */
-		buf = c2_message_get_header_field (message, "\nTo:");
+		buf = c2_message_get_header_field (message, "To:");
 		buf2 = c2_str_text_to_html (buf, TRUE);
 		g_free (buf);
 		buf = buf2;
@@ -279,7 +518,7 @@ set_headers (C2Mail *mail, C2Message *message)
 		g_free (buf);
 
 		/* CC */
-		buf = c2_message_get_header_field (message, "\nCC:");
+		buf = c2_message_get_header_field (message, "CC:");
 		buf2 = c2_str_text_to_html (buf, TRUE);
 		g_free (buf);
 		buf = buf2;
@@ -291,37 +530,16 @@ set_headers (C2Mail *mail, C2Message *message)
 		g_free (buf);
 
 		/* Attachments */
-		buf = c2_message_get_header_field (message, "\nContent-Type:");
-		if (c2_strneq (buf, "multipart/", 10))
-		{
-			GString *gstring;
-			gint i;
-
-			gstring = g_string_new (_("<tr><td><b>Attachments:</b></td><td>"));
-
-			for (mime = message->mime, i = 0; mime; mime = mime->next, i++)
-			{
-				buf2 = g_strdup_printf (_("<a href=\"mime://%d\"><object classid=\"mail::attachments\" name=\"%s/%s\" type=\"mime\"></a>&nbsp;"),
-										i, mime->type, mime->subtype);
-				g_string_append (gstring, buf2);
-				g_free (buf2);
-			}
-			attachments = gstring->str;
-
-			g_string_free (gstring, FALSE);
-		} else
-			attachments = NULL;
-		g_free (buf);
+		set_headers_attachments (mail, message);
 
 		/* Create HTML */
 		html = g_strconcat (start, subject, from ? from : "", to ? to : "",
-							cc ? cc : "", attachments ? attachments : "", end, NULL);
+							cc ? cc : "", end, NULL);
 		
 		g_free (from);
 		g_free (to);
 		g_free (cc);
 		g_free (subject);
-		g_free (attachments);
 	}
 	g_free (show_type);
 
@@ -329,6 +547,57 @@ set_headers (C2Mail *mail, C2Message *message)
 	g_free (html);
 
 	gtk_widget_set_usize (mail->headers, -1, GTK_LAYOUT (mail->headers)->height-5);
+}
+#else
+static void
+set_headers (C2Mail *mail, C2Message *message)
+{
+	gchar *buf, *buf2;
+	gchar *references;
+	gchar *show_type;
+	C2Mime *mime;
+
+	show_type = c2_preferences_get_widget_mail_headers ();
+	if (c2_streq (show_type, "normal"))
+	{
+		/* Subject */
+		buf = c2_message_get_header_field (message, "Subject:");
+		if (!buf || !strlen (buf))
+			buf = "«No Subject»";
+		gtk_label_set_text (GTK_LABEL (mail->subject_label), buf);
+		g_free (buf);
+	}
+		
+	/* From */
+	buf = c2_message_get_header_field (message, "From:");
+	if (buf)
+		gtk_label_set_text (GTK_LABEL (mail->from_label), buf);
+	else
+		gtk_label_set_text (GTK_LABEL (mail->from_label), _("(nobody)"));
+	g_free (buf);
+
+	/* To */
+	buf = c2_message_get_header_field (message, "To:");
+	if (buf)
+		gtk_label_set_text (GTK_LABEL (mail->to_label), buf);
+	else
+		gtk_label_set_text (GTK_LABEL (mail->to_label), "");
+	g_free (buf);
+
+	/* CC */
+	buf = c2_message_get_header_field (message, "CC:");
+	if (buf)
+		gtk_label_set_text (GTK_LABEL (mail->cc_label), buf);
+	else
+		gtk_label_set_text (GTK_LABEL (mail->cc_label), "");
+	g_free (buf);
+
+	/* Attachments */
+	set_headers_attachments (mail, message);
+
+	g_free (show_type);
+
+//	gtk_widget_set_usize (mail->headers, -1, GTK_LAYOUT (mail->headers)->height-5);
 }
 #endif
 
@@ -455,7 +724,7 @@ html_object_requested (GtkHTML *html, GtkHTMLEmbedded *e, C2Mail *mail)
 
 	if (c2_streq (e->classid+6, "attachments"))
 	{
-		widget = gtk_button_new_with_label (_("Attachments"));
+		widget = gtk_hbox_new (TRUE, 2);
 		gtk_widget_show (widget);
 		gtk_container_add (GTK_CONTAINER (e), widget);
 

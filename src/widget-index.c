@@ -134,6 +134,7 @@ class_init (C2IndexClass *klass)
     klass->select_message = NULL;
     klass->open_message = NULL;
 	klass->reload = reload;
+	klass->sort = sort;
 }
 
 static void
@@ -368,7 +369,7 @@ void
 c2_index_sort (C2Index *index)
 {
 	gtk_clist_freeze (GTK_CLIST (index));
-	sort (index);
+	C2_INDEX_CLASS_FW (index)->sort (index);
 	gtk_clist_thaw (GTK_CLIST (index));
 }
 
@@ -490,10 +491,12 @@ sort (C2Index *index)
 #endif
 			break;
 		case C2_MAILBOX_SORT_DATE:
+			printf ("Sort by date\n");
 			gtk_clist_set_compare_func (clist, date_compare);
 			break;
 		default:
 			gtk_clist_set_compare_func(clist, string_compare);
+			gtk_clist_sort (clist);
 	}
 	
 	gtk_clist_sort (clist);

@@ -9,7 +9,8 @@ If you find an unlisted bug, please, report it
 using our <a href="http://sourceforge.net/bugs/?group_id=7093">online forms</a>.
 
 <ul>
-<li>You can not check for mail several times in the same session.
+<li> When Cronos II (with no HTML support) displays a message
+with no text/plain part it crashes.
 </ul>
 </font>
 </body>

@@ -483,7 +483,7 @@ send_ (C2Application *application)
 
 			c2_db_load_message (db);
 			
-			buf = c2_message_get_header_field (db->message, "\nX-CronosII-Account:");
+			buf = c2_message_get_header_field (db->message, "X-CronosII-Account:");
 			account = c2_account_get_by_name (application->account, buf);
 			g_free (buf);
 			if (!account)
@@ -527,7 +527,7 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 
 	c2_db_load_message (db);
 
-	buf = c2_message_get_header_field (db->message, "\nX-CronosII-Send-Type:");
+	buf = c2_message_get_header_field (db->message, "X-CronosII-Send-Type:");
 	if (((C2ComposerSendType) atoi (buf)) != C2_COMPOSER_SEND_NOW)
 	{
 		g_free (buf);
@@ -536,7 +536,7 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 	}
 	g_free (buf);
 
-	buf = c2_message_get_header_field (db->message, "\nX-CronosII-Account:");
+	buf = c2_message_get_header_field (db->message, "X-CronosII-Account:");
 	account = c2_account_get_by_name (application->account, buf);
 	g_free (buf);
 	if (!account)

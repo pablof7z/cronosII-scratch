@@ -1151,7 +1151,7 @@ set_message_account (C2Composer *composer, C2Message *message)
 	GtkWidget *widget;
 	gchar *buf, *buf2;
 
-	buf = c2_message_get_header_field (message, "\nX-CronosII-Account:");
+	buf = c2_message_get_header_field (message, "X-CronosII-Account:");
 	account = c2_account_get_by_name (C2_WINDOW (composer)->application->account, buf);
 	if (!account)
 	{
@@ -1188,14 +1188,14 @@ set_message_to (C2Composer *composer, C2Message *message)
 	{
 		case C2_COMPOSER_ACTION_REPLY:
 		case C2_COMPOSER_ACTION_REPLY_ALL:
-			if (!(buf = c2_message_get_header_field (message, "\nReply-To:")))
-				buf = c2_message_get_header_field (message, "\nFrom:");
+			if (!(buf = c2_message_get_header_field (message, "Reply-To:")))
+				buf = c2_message_get_header_field (message, "From:");
 			widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "to");
 			gtk_entry_set_text (GTK_ENTRY (widget), buf);
 			g_free (buf);
 			break;
 		case C2_COMPOSER_ACTION_DRAFT:
-			buf = c2_message_get_header_field (message, "\nTo:");
+			buf = c2_message_get_header_field (message, "To:");
 			widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "to");
 			gtk_entry_set_text (GTK_ENTRY (widget), buf);
 			g_free (buf);
@@ -1213,7 +1213,7 @@ set_message_cc (C2Composer *composer, C2Message *message)
 	{
 		case C2_COMPOSER_ACTION_REPLY_ALL:
 		case C2_COMPOSER_ACTION_DRAFT:
-			buf = c2_message_get_header_field (message, "\nCC:");
+			buf = c2_message_get_header_field (message, "CC:");
 			widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "cc");
 			gtk_entry_set_text (GTK_ENTRY (widget), buf);
 			g_free (buf);
@@ -1231,7 +1231,7 @@ set_message_bcc (C2Composer *composer, C2Message *message)
 	{
 		case C2_COMPOSER_ACTION_REPLY_ALL:
 		case C2_COMPOSER_ACTION_DRAFT:
-			buf = c2_message_get_header_field (message, "\nBCC:");
+			buf = c2_message_get_header_field (message, "BCC:");
 			widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "bcc");
 			gtk_entry_set_text (GTK_ENTRY (widget), buf);
 			g_free (buf);
@@ -1245,7 +1245,7 @@ set_message_subject (C2Composer *composer, C2Message *message)
 	GtkWidget *widget;
 	gchar *buf, *buf2;
 
-	buf2 = c2_message_get_header_field (message, "\nSubject:");
+	buf2 = c2_message_get_header_field (message, "Subject:");
 	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "subject");
 	
 	switch (composer->action)
@@ -1273,7 +1273,7 @@ set_message_in_reply_to (C2Composer *composer, C2Message *message)
 {
 	gchar *buf, *buf2;
 
-	buf = c2_message_get_header_field (message, "\nMessage-ID:");
+	buf = c2_message_get_header_field (message, "Message-ID:");
 	if (!buf)
 		return;
 
@@ -1286,11 +1286,11 @@ set_message_references (C2Composer *composer, C2Message *message)
 {
 	gchar *id, *ref, *buf;
 
-	id = c2_message_get_header_field (message, "\nMessage-ID:");
+	id = c2_message_get_header_field (message, "Message-ID:");
 	if (!id)
 		return;
 	
-	ref = c2_message_get_header_field (message, "\nReferences:");
+	ref = c2_message_get_header_field (message, "References:");
 
 	/* I don't like the cutting of the references header that some
 	 * mail clients seems to do, thus why this will not do it
@@ -1423,7 +1423,7 @@ set_message_body (C2Composer *composer, C2Message *message)
 		
 		append (composer, "\n\n", 0, 0, 0);
 	
-		if (!(buf = c2_message_get_header_field (message, "\nDate:")))
+		if (!(buf = c2_message_get_header_field (message, "Date:")))
 		{
 			date = c2_date_parse (buf);
 			g_free (buf);
@@ -1435,7 +1435,7 @@ set_message_body (C2Composer *composer, C2Message *message)
 		strftime (tbuf, 128, date_fmt, tm);
 		g_free (date_fmt);
 
-		from = c2_message_get_header_field (message, "\nFrom:");
+		from = c2_message_get_header_field (message, "From:");
 
 		buf = g_strdup_printf (_("On %s, %s wrote:\n"), tbuf, from);
 		append (composer, buf, 0, 0, 0);
@@ -1895,7 +1895,7 @@ autodefine_type:
 			goto autodefine_type;
 		
 		mime->type = g_strndup (buf, buf1-buf);
-		mime->subtype = g_strdup (buf1);
+		mime->subtype = g_strdup (buf1+1);
 		g_free (buf);
 		
 		buf = g_basename (attach->file);

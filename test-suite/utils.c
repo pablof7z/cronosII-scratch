@@ -15,26 +15,18 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#include <libcronosII/utils.h>
 #include <libcronosII/db.h>
+#include <libcronosII/message.h>
 
 gint
 main (gint argc, gchar **argv)
 {
-	long int i;
+	C2Message *message;
 
-	
-	printf ("plain = \"%s\"\n", argv[1]);
-	printf ("html = \"%s\"\n", c2_str_text_to_html (argv[1], TRUE));
+	gtk_init (&argc, &argv);
 
-	for (i = 0; i <= 0xffff; i++)
-		;
-
-	printf ("Counted until %d\n", 0xffff);
-
-	g_free (g_malloc (500));
-
-	printf ("Allocated and freed 500 bytes\n");
+	message = c2_db_message_get_from_file ("message.eml");
+	message->mime = c2_mime_new (message);
 
 	return 0;
 }

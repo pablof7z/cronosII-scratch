@@ -1,34 +1,21 @@
 <html>
 <body bgcolor=#ffffff>
 <font face="Helvetica">
-<TABLE BORDER=0 WIDTH=100% CELLPADDING=3 CELLSPACING=0>
+<h3 align=center>Missing Features</h3>
 
-<TR><TD BGCOLOR=#000099>
-<h1 align=left><font color="#ffffff">Missing Features</font></h1>
-</td>
-</tr>
-<tr bgcolor="#cccccc">
-<td>
 This is a list of features that are missing from this release of Cronos II but are to be
-implemented in a short time.<br>
-</td>
-</tr>
-<tr bgcolor="#ababff">
-<td>
+implemented in a short time.
+
 <ul>
-<<<<<<< features.html.in
 <li>IMAP support.</li>
 <li>Spool support.</li>
 <li>Search support.</li>
 <li>Print support.</li>
 <li>Drafts support.</li>
-<li>Message headers display.</li>
 <li>Message mark support.</li>
 <li>Importing & Exporting support.</li>
 <li>Downloading images in HTML messages from an external location.</li>
 </ul>
-</td>
-</tr>
 
 </font>
 </body>

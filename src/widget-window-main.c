@@ -1361,7 +1361,7 @@ send_ (C2WindowMain *wmain)
 
 			c2_db_load_message (db);
 			
-			buf = c2_message_get_header_field (db->message, "\nX-CronosII-Account:");
+			buf = c2_message_get_header_field (db->message, "X-CronosII-Account:");
 			account = c2_account_get_by_name (application->account, buf);
 			g_free (buf);
 			if (!account)

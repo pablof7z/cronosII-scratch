@@ -171,14 +171,35 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 	const gchar *msg_ptr;
 	const gchar *start_ptr, *end_ptr;
 	gchar *chunk = NULL, *ptr;
-	size_t size, wbytes;
+	size_t size, wbytes, field_length;
 	
+	field_length = strlen (field);
+
 	/* Search for the field */
-	if (!(msg_ptr = c2_strstr_case_insensitive (message, field)))
+	for (msg_ptr = message; *msg_ptr != '\0'; msg_ptr++)
+		if (msg_ptr == message || (msg_ptr > message) && *(msg_ptr-1) == '\n')
+		{
+			if (c2_strneq (msg_ptr, field, field_length))
+				break;
+			else if (*msg_ptr == '\n')
+			{
+				msg_ptr = NULL;
+				break;
+			} else
+			{
+				for (; *msg_ptr != '\0' && *msg_ptr != '\n'; msg_ptr++)
+					;
+
+				if (*msg_ptr == '\0')
+					msg_ptr--;
+			}
+		}
+	
+	if (!msg_ptr || *msg_ptr == '\0')
 		return NULL;
 
 	/* Set a pointer to the start of the value */
-	start_ptr = msg_ptr+strlen (field);
+	start_ptr = msg_ptr+field_length;
 	if (*start_ptr == ':')
 		ptr++;
 	for (; *start_ptr != '\0' && *start_ptr == ' '; start_ptr++);
@@ -196,10 +217,14 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 				/* Go through the '\t''s and the white spaces */
 				/* Duplicated on porpouse: So if there's a "\t \t " it will successfully
 				 * parse */
-				while (*end_ptr == '\t') end_ptr++;
-				while (*end_ptr == ' ') end_ptr++;
-				while (*end_ptr == '\t') end_ptr++;
-				while (*end_ptr == ' ') end_ptr++;
+				while (*end_ptr == '\t')
+					end_ptr++;
+				while (*end_ptr == ' ')
+					end_ptr++;
+				while (*end_ptr == '\t')
+					end_ptr++;
+				while (*end_ptr == ' ')
+					end_ptr++;
 				end_ptr--;
 			}
 			else
@@ -216,20 +241,22 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 		{
 			*(ptr++) = *start_ptr;
 			wbytes++;
-		}
-		else
+		} else
 		{
 			if (*(++start_ptr) == '\t' || *start_ptr == ' ')
 			{
 				*(ptr++) = ' ';
 				wbytes++;
-				while (*start_ptr == '\t') start_ptr++;
-				while (*start_ptr == ' ') start_ptr++;
-				while (*start_ptr == '\t') start_ptr++;
-				while (*start_ptr == ' ') start_ptr++;
+				while (*start_ptr == '\t')
+					start_ptr++;
+				while (*start_ptr == ' ')
+					start_ptr++;
+				while (*start_ptr == '\t')
+					start_ptr++;
+				while (*start_ptr == ' ')
+					start_ptr++;
 				start_ptr--;
-			}
-			else
+			} else
 				break;
 		}
 	}
@@ -313,7 +340,7 @@ c2_message_fix_broken_message (C2Message *message)
 		return NULL;
 	}
 
-	buf = c2_message_get_header_field (message, "\nContent-Type:");
+	buf = c2_message_get_header_field (message, "Content-Type:");
 	
 	if (c2_strneq (buf, "multipart", 9))
 	{

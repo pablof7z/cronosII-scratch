@@ -45,15 +45,17 @@ struct _C2Mail
 	GtkVBox vbox;
 
 	C2Application *application;
+	GtkWidget *window;
 
 	C2Message *message;
 	
 	/* Headers */
 	GtkWidget *headers;
-/*	GtkWidget *from_label[2];
-	GtkWidget *cc_label[2];
-	GtkWidget *subject_label[2];
-	GtkWidget *attachment_button;*/
+	GtkWidget *from_label;
+	GtkWidget *to_label;
+	GtkWidget *cc_label;
+	GtkWidget *subject_label;
+	GtkWidget *attachments_button;
 
 	/* Part Shower */
 	GtkWidget *body;

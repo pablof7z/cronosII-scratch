@@ -63,34 +63,37 @@ struct _C2MimeClass
 };
 
 guint
-c2_mime_get_type								(void);
+c2_mime_get_type							(void);
 
 C2Mime *
-c2_mime_new										(C2Message *message);
+c2_mime_new									(C2Message *message);
 
 void
-c2_mime_construct								(C2Mime **head, C2Message *message);
+c2_mime_construct							(C2Mime **head, C2Message *message);
 
 gint
 c2_mime_length								(C2Mime *mime);
 
 C2Mime *
-c2_mime_append									(C2Mime *head, C2Mime *mime);
+c2_mime_append								(C2Mime *head, C2Mime *mime);
 
 const gchar *
-c2_mime_get_part								(C2Mime *mime);
+c2_mime_get_part							(C2Mime *mime);
 
 C2Mime *
-c2_mime_get_part_by_content_type				(C2Mime *mime, const gchar *content_type);
+c2_mime_get_part_by_content_type			(C2Mime *mime, const gchar *content_type);
 
 gchar *
-c2_mime_encode_base64							(gchar *data, gint *length);
+c2_mime_get_parameter_value					(const gchar *parameter, const gchar *field);
 
 gchar *
-c2_mime_decode_base64							(gchar *data, gint *length);
+c2_mime_encode_base64						(gchar *data, gint *length);
 
 gchar *
-c2_mime_decode_quoted_printable					(gchar *message, gint *length);
+c2_mime_decode_base64						(gchar *data, gint *length);
+
+gchar *
+c2_mime_decode_quoted_printable				(gchar *message, gint *length);
 
 #ifdef __cplusplus
 }

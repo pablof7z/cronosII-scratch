@@ -82,6 +82,7 @@ no_mime_information:
 		(*head)->subtype = g_strdup ("plain");
 		(*head)->id = NULL;
 		(*head)->parameter = NULL;
+		(*head)->description = NULL;
 		(*head)->encoding = g_strdup ("7bit");
 		
 		g_free (mime_version);
@@ -137,7 +138,7 @@ no_mime_information:
 		(*head)->parameter = parameter;
 		(*head)->disposition = c2_message_get_header_field (message, "Content-Disposition:");
 		(*head)->encoding = c2_message_get_header_field (message, "Content-Transfer-Encoding:");
-		buf = c2_message_get_header_field (message, "\nContent-ID:");
+		buf = c2_message_get_header_field (message, "Content-ID:");
 		if (buf)
 			(*head)->id = c2_str_strip_enclosed (buf, '<', '>');
 		else
@@ -289,6 +290,7 @@ get_mime_parts (const gchar *body, const gchar *boundary, const gchar *parent_bo
 				mime->id = NULL;
 			g_free (buf);
 
+			mime->description = c2_message_str_get_header_field (ptr, "Content-Description:");
 			mime->disposition = c2_message_str_get_header_field (ptr, "Content-Disposition:");
 			mime->encoding = c2_message_str_get_header_field (ptr, "Content-Transfer-Encoding:");
 			head = c2_mime_append (head, mime);
@@ -367,6 +369,7 @@ c2_mime_init (C2Mime *mime)
 	mime->subtype = NULL;
 	mime->id = NULL;
 	mime->parameter = NULL;
+	mime->description = NULL;
 	mime->disposition = NULL;
 	mime->encoding = NULL;
 	mime->previous = NULL;
@@ -468,6 +471,22 @@ c2_mime_get_part_by_content_type (C2Mime *mime, const gchar *content_type)
 	g_free (parameter);
 
 	return l;
+}
+
+/**
+ * c2_mime_get_parameter_value
+ * @parameter: Parameter where to search.
+ * @field: Field of the parameter desired.
+ *
+ * Looks in a parameter for a field.
+ *
+ * Return Value:
+ * The desired field of the parameter or %NULL
+ **/
+gchar *
+c2_mime_get_parameter_value (const gchar *parameter, const gchar *field)
+{
+	return get_parameter_value (parameter, field);
 }
 
 static gchar base64_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
