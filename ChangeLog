@@ -1,3 +1,13 @@
+Wed Nov 21 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Fixed the bug that caused that mails marked to be send now
+	  didn't got send until you pressed the "Send" button in the
+	  main window.
+	* Fixed many bugs in the composer.
+
+Tue Nov 20 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Fixed the bug that caused the composer to create messages missing
+	  one new line character at the end of the body.
+
 Mon Nov 19 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Updated DB Module to use C2Mutex's for portability.
 	* Updated Mailbox Module to use C2Mutex's for portability.

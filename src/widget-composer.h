@@ -51,12 +51,19 @@ typedef struct _C2ComposerClass C2ComposerClass;
 typedef struct _C2ComposerAttachment C2ComposerAttachment;
 typedef enum _C2ComposerAction C2ComposerAction;
 typedef enum _C2ComposerSendType C2ComposerSendType;
+typedef enum _C2ComposerSaveType C2ComposerSaveType;
 typedef enum _C2ComposerType C2ComposerType;
 
 enum _C2ComposerType
 {
 	C2_COMPOSER_TYPE_INTERNAL,
 	C2_COMPOSER_TYPE_EXTERNAL
+};
+
+enum _C2ComposerSaveType
+{
+	C2_COMPOSER_SAVE_DRAFT,
+	C2_COMPOSER_SAVE_FILE
 };
 
 enum _C2ComposerSendType
@@ -100,6 +107,7 @@ struct _C2Composer
 
 	/* Save */
 	gchar *file;
+	C2ComposerSaveType save_type;
 
 	/* Draft recovery */
 	gint draft_id;

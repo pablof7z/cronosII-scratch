@@ -461,10 +461,13 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 	C2TransferItem *ti;
 	gchar *buf;
 
+	if (!C2_IS_DB (db))
+		return;
+
 	/* I think c2 won't notice when a composer adds a message
 	 * to the outbox mailbox when the mailbox is freezed
 	 */
-	if (change != C2_MAILBOX_CHANGE_ADD)
+	if (change != C2_MAILBOX_CHANGE_ANY)
 		return;
 
 	db = db->next;
@@ -472,12 +475,13 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 	c2_db_load_message (db);
 
 	buf = c2_message_get_header_field (db->message, "\nX-CronosII-Send-Type:");
-	if (((C2ComposerSendType) (*buf)) != C2_COMPOSER_SEND_NOW)
+	if (((C2ComposerSendType) atoi (buf)) != C2_COMPOSER_SEND_NOW)
 	{
 		g_free (buf);
 		gtk_object_unref (GTK_OBJECT (db->message));
 		return;
 	}
+	g_free (buf);
 
 	buf = c2_message_get_header_field (db->message, "\nX-CronosII-Account:");
 	account = c2_account_get_by_name (application->account, buf);

@@ -495,14 +495,16 @@ get_word (const gchar *cptr, gchar **extra, gboolean *new_line)
 							ptr[0] == ','); ptr++)
 		g_string_append_c (sextra, ptr[0]);
 	
-	for (end = ptr; end && (end[0] != ' ' &&
+	for (end = ptr; end[0] != '\0' && (end[0] != ' ' &&
 							end[0] != '\t' &&
 							end[0] != ','); end++)
+	{
 		if (*end == '\n')
 		{
 			*new_line = TRUE;
 			break;
 		}
+	}
 	
 	if (end)
 		word = g_strndup (ptr, end-ptr);

@@ -28,6 +28,7 @@
 #include <libcronosII/message.h>
 #include <libcronosII/smtp.h>
 
+#include "main.h"
 #include "preferences.h"
 #include "widget-application.h"
 #include "widget-composer.h"
@@ -86,6 +87,9 @@ static void
 open_file									(C2Composer *composer);
 
 static void
+save_as										(C2Composer *composer);
+
+static void
 send_										(C2Composer *composer, C2ComposerSendType type);
 
 static void
@@ -93,7 +97,6 @@ send_now									(C2Composer *composer);
 
 static void
 send_later									(C2Composer *composer);
-
 
 
 static void
@@ -118,10 +121,13 @@ static void
 on_send_later_clicked						(GtkWidget *widget, C2Composer *composer);
 
 static void
-on_toolbar_undo_clicked						(GtkWidget *widget, C2Composer *composer);
+on_undo_clicked								(GtkWidget *widget, C2Composer *composer);
 
 static void
-on_toolbar_redo_clicked						(GtkWidget *widget, C2Composer *composer);
+on_redo_clicked								(GtkWidget *widget, C2Composer *composer);
+
+static void
+on_save_as_clicked							(GtkWidget *widget, C2Composer *composer);
 
 static void
 on_editor_undo_available					(GtkWidget *widget, gboolean available, C2Composer *composer);
@@ -215,6 +221,7 @@ class_init (C2ComposerClass *klass)
 	klass->save_draft = save_draft; */
 	klass->add_attachment = add_attachment;
 	klass->autosave = autosave;
+	klass->save_as = save_as;
 }
 
 static void
@@ -225,6 +232,7 @@ init (C2Composer *composer)
 	composer->action = 0;
 	composer->autosave_id = -1;
 	composer->file = NULL;
+	composer->save_type = 0;
 	composer->draft_id = -1;
 	composer->eheaders = NULL;
 }
@@ -232,39 +240,6 @@ init (C2Composer *composer)
 static void
 destroy (GtkObject *object)
 {
-}
-
-static void
-send_ (C2Composer *composer, C2ComposerSendType type)
-{
-	C2Message *message;
-	C2Mailbox *mailbox;
-	GladeXML *xml;
-	gchar *buf;
-
-	gdk_threads_enter ();
-	message = create_message (composer);
-	gdk_threads_leave ();
-
-	/* Set the Send Now state of the message */
-	buf = message->header;
-	message->header = g_strdup_printf ("%s\n"
-									   "X-CronosII-Send-Type: %d\n",
-									   message->header, type);
-
-	mailbox = c2_mailbox_get_by_name (C2_WINDOW (composer)->application->mailbox, C2_MAILBOX_OUTBOX);
-	if (!mailbox)
-		g_assert_not_reached ();
-
-	if (!c2_db_message_add (mailbox, message))
-	{
-		gdk_threads_enter ();
-		gtk_widget_destroy (GTK_WIDGET (composer));
-		gdk_threads_leave ();
-	} else
-	{
-		/* Make the send buttons sensitive again */
-	}
 }
 
 static void
@@ -332,6 +307,112 @@ autosave (C2Composer *composer)
 }
 
 static void
+on_save_as_ok_clicked (GtkWidget *widget, gint *button)
+{
+	*button = 1;
+	gtk_main_quit ();
+}
+
+static void
+on_save_as_cancel_clicked (GtkWidget *widget, gint *button)
+{
+	*button = 0;
+	gtk_main_quit ();
+}
+
+static void
+on_save_as_delete_event (GtkWidget *widget, GdkEvent *e, gint *button)
+{
+	*button = 0;
+	gtk_main_quit ();
+}
+
+static void
+save_as (C2Composer *composer)
+{
+	GtkWidget *dialog;
+	gchar *buf, *file;
+	C2Message *message;
+	gint button;
+	FILE *fd;
+
+	dialog = gtk_file_selection_new (_("Save as"));
+	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
+	gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (composer));
+
+	c2_preferences_get_general_paths_save (buf);
+	gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog), buf);
+	g_free (buf);
+
+	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->ok_button), "clicked",
+						GTK_SIGNAL_FUNC (on_save_as_ok_clicked), &button);
+	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->cancel_button), "clicked",
+						GTK_SIGNAL_FUNC (on_save_as_cancel_clicked), &button);
+	gtk_signal_connect (GTK_OBJECT (dialog), "delete_event",
+						GTK_SIGNAL_FUNC (on_save_as_delete_event), &button);
+
+	c2_application_window_add (C2_WINDOW (composer)->application, GTK_WINDOW (dialog));
+	gtk_widget_show (dialog);
+	gtk_main ();
+
+	if (!button)
+	{
+		c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING,
+							error_list[C2_CANCEL_USER]);
+		c2_application_window_remove (C2_WINDOW (composer)->application, GTK_WINDOW (dialog));
+		gtk_widget_destroy (dialog);
+
+		return;
+	}
+	
+	file = g_strdup (gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog)));
+	
+	c2_application_window_remove (C2_WINDOW (composer)->application, GTK_WINDOW (dialog));
+	gtk_widget_destroy (dialog);
+
+	message = create_message (composer);
+
+}
+
+static void
+send_ (C2Composer *composer, C2ComposerSendType type)
+{
+	C2Message *message;
+	C2Mailbox *mailbox;
+	GladeXML *xml;
+	gchar *buf;
+
+	gdk_threads_enter ();
+	message = create_message (composer);
+	gdk_threads_leave ();
+
+	/* Set the Send Now state of the message */
+	buf = message->header;
+	message->header = g_strdup_printf ("%s\n"
+									   "X-CronosII-Send-Type: %d\n",
+									   message->header, type);
+
+	mailbox = c2_mailbox_get_by_name (C2_WINDOW (composer)->application->mailbox, C2_MAILBOX_OUTBOX);
+	if (!mailbox)
+		g_assert_not_reached ();
+
+	c2_db_freeze (mailbox);
+	if (!c2_db_message_add (mailbox, message))
+	{
+		c2_db_thaw (mailbox);
+
+		gdk_threads_enter ();
+		gtk_widget_destroy (GTK_WIDGET (composer));
+		gdk_threads_leave ();
+	} else
+	{
+		c2_db_thaw (mailbox);
+		
+		/* Make the send buttons sensitive again */
+	}
+}
+
+static void
 send_now_thread (C2Composer *composer)
 {
 	send_ (composer, C2_COMPOSER_SEND_NOW);
@@ -364,6 +445,8 @@ send_later (C2Composer *composer)
 
 	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (send_later_thread), composer);
 }
+
+
 
 GtkWidget *
 c2_composer_new (C2Application *application)
@@ -557,9 +640,22 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	widget = glade_xml_get_widget (xml, "file_send_now");
 	gtk_signal_connect (GTK_OBJECT (widget), "activate",
 						GTK_SIGNAL_FUNC (on_send_now_clicked), composer);
+	widget = glade_xml_get_widget (xml, "file_save_as");
+	gtk_signal_connect (GTK_OBJECT (widget), "activate",
+						GTK_SIGNAL_FUNC (on_save_as_clicked), composer);
+	
+	widget = glade_xml_get_widget (xml, "edit_undo");
+	gtk_signal_connect (GTK_OBJECT (widget), "activate",
+						GTK_SIGNAL_FUNC (on_undo_clicked), composer);
+	widget = glade_xml_get_widget (xml, "edit_redo");
+	gtk_signal_connect (GTK_OBJECT (widget), "activate",
+						GTK_SIGNAL_FUNC (on_redo_clicked), composer);
+	
 	widget = glade_xml_get_widget (xml, "insert_attachment");
 	gtk_signal_connect (GTK_OBJECT (widget), "activate",
 						GTK_SIGNAL_FUNC (on_attachments_clicked), composer);
+	
+
 	
 	widget = glade_xml_get_widget (xml, "send_now_btn");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
@@ -567,12 +663,18 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	widget = glade_xml_get_widget (xml, "send_later_btn");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
 						GTK_SIGNAL_FUNC (on_send_later_clicked), composer);
+
+	widget = glade_xml_get_widget (xml, "save_as_btn");
+	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
+						GTK_SIGNAL_FUNC (on_save_as_clicked), composer);
+	
 	widget = glade_xml_get_widget (xml, "undo_btn");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
-						GTK_SIGNAL_FUNC (on_toolbar_undo_clicked), composer);
+						GTK_SIGNAL_FUNC (on_undo_clicked), composer);
 	widget = glade_xml_get_widget (xml, "redo_btn");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
-						GTK_SIGNAL_FUNC (on_toolbar_redo_clicked), composer);
+						GTK_SIGNAL_FUNC (on_redo_clicked), composer);
+	
 	widget = glade_xml_get_widget (xml, "attach_btn");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
 						GTK_SIGNAL_FUNC (on_attachments_clicked), composer);
@@ -667,12 +769,16 @@ on_editor_undo_available (GtkWidget *widget, gboolean available, C2Composer *com
 {
 	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "undo_btn");
 	gtk_widget_set_sensitive (widget, available);
+	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "edit_undo");
+	gtk_widget_set_sensitive (widget, available);
 }
 
 static void
 on_editor_redo_available (GtkWidget *widget, gboolean available, C2Composer *composer)
 {
 	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "redo_btn");
+	gtk_widget_set_sensitive (widget, available);
+	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "edit_redo");
 	gtk_widget_set_sensitive (widget, available);
 }
 
@@ -745,6 +851,12 @@ on_run_external_editor_clicked (GtkWidget *widget, C2Composer *composer)
 }
 
 static void
+on_save_as_clicked (GtkWidget *widget, C2Composer *composer)
+{
+	C2_COMPOSER_CLASS_FW (composer)->save_as (composer);
+}
+
+static void
 on_send_now_clicked (GtkWidget *widget, C2Composer *composer)
 {
 	C2_COMPOSER_CLASS_FW (composer)->send_now (composer);
@@ -757,13 +869,13 @@ on_send_later_clicked (GtkWidget *widget, C2Composer *composer)
 }
 
 static void
-on_toolbar_undo_clicked (GtkWidget *widget, C2Composer *composer)
+on_undo_clicked (GtkWidget *widget, C2Composer *composer)
 {
 	c2_editor_operations_undo (C2_EDITOR (composer->editor));
 }
 
 static void
-on_toolbar_redo_clicked (GtkWidget *widget, C2Composer *composer)
+on_redo_clicked (GtkWidget *widget, C2Composer *composer)
 {
 	c2_editor_operations_redo (C2_EDITOR (composer->editor));
 }
@@ -1624,6 +1736,12 @@ create_message (C2Composer *composer)
 		fread (buf, sizeof (gchar), length, fd);
 		fclose (fd);
 	}
+
+	/* Add a '\n' to the end of the body */
+	i = strlen (buf);
+	buf = g_realloc (buf, i+1);
+	buf[i] = '\n';
+	buf[i+1] = '\0';
 	
 	/* The body is the first attachment */
 	mime = c2_mime_new (NULL);
