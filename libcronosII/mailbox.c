@@ -1025,9 +1025,7 @@ c2_mailbox_rebuild_configuration_tree (C2Mailbox *head)
 	
 	for (l = head; l; l = l->next)
 	{
-		printf ("Rebuilding '%s'", l->name);
 		id = c2_mailbox_get_configuration_id (l);
-		printf ("id = '%d'", id);
 
 		path = g_strdup_printf ("/" PACKAGE "/Mailbox %d", id);
 		gnome_config_push_prefix (path);
@@ -1054,8 +1052,6 @@ c2_mailbox_rebuild_configuration_tree (C2Mailbox *head)
 		}
 
 		gnome_config_pop_prefix ();
-
-		printf ("\n");
 
 		if (l->child)
 			c2_mailbox_rebuild_configuration_tree (l->child);

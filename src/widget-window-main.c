@@ -152,6 +152,9 @@ static void
 on_menubar_file_print_activate				(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
+on_menubar_file_close_activate				(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_menubar_file_exit_activate				(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
@@ -569,14 +572,11 @@ void
 c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 {
 	GladeXML *xml;
-	GtkWidget *window = NULL;
 	GtkWidget *widget;
 	GtkWidget *menuitem;
 	GtkWidget *hpaned;
 	GtkWidget *vpaned;
 	GtkWidget *index_scroll;
-	GtkWidget *button;
-	GtkWidget *pixmap;
 	GtkWidget *appbar;
 	GtkWidget *scroll;
 	GtkStyle *style;
@@ -805,6 +805,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_menubar_file_save_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_print")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_file_print_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_close")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_file_close_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_exit")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_file_exit_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_egg_separator")), "activate",
@@ -934,9 +936,9 @@ close_ (C2WindowMain *wmain)
 	
 	/* Disconnect to signals connected to object that might not be destroyed */
 	gtk_signal_disconnect_by_func (GTK_OBJECT (application),
-									GTK_SIGNAL_FUNC (on_application_window_changed), wmain);
+					GTK_SIGNAL_FUNC (on_application_window_changed), wmain);
 	gtk_signal_disconnect_by_func (GTK_OBJECT (application),
-									GTK_SIGNAL_FUNC (on_application_application_preferences_changed), wmain);
+					GTK_SIGNAL_FUNC (on_application_application_preferences_changed), wmain);
 
 	/* Destroy objects */
 	gtk_object_destroy (GTK_OBJECT (wmain->toolbar));
@@ -946,6 +948,7 @@ close_ (C2WindowMain *wmain)
 	gtk_object_destroy (GTK_OBJECT (C2_WINDOW (wmain)->xml));
 	c2_mutex_destroy (&wmain->index_lock);
 	c2_mutex_destroy (&wmain->body_lock);
+	gtk_widget_destroy (GTK_WIDGET (wmain));
 }
 
 static void
@@ -1488,6 +1491,12 @@ static void
 on_menubar_file_print_activate (GtkWidget *widget, C2WindowMain *wmain)
 {
 	C2_WINDOW_MAIN_CLASS_FW (wmain)->print (wmain);
+}
+
+static void
+on_menubar_file_close_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->close (wmain);
 }
 
 static void

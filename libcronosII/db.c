@@ -415,7 +415,7 @@ gboolean
 c2_db_create_structure (C2Mailbox *mailbox)
 {
 	gboolean (*func) (C2Mailbox *mailbox) = NULL;
-	gboolean retval;
+	gboolean retval = FALSE;
 	
 	c2_return_val_if_fail (mailbox, FALSE, C2EDATA);
 
@@ -468,7 +468,7 @@ gboolean
 c2_db_update_structure (C2Mailbox *mailbox)
 {
 	gboolean (*func) (C2Mailbox *mailbox) = NULL;
-	gboolean retval;
+	gboolean retval = FALSE;
 
 #ifdef USE_DEBUG
 	if (_debug_db)
@@ -517,7 +517,7 @@ gboolean
 c2_db_remove_structure (C2Mailbox *mailbox)
 {
 	gboolean (*func) (C2Mailbox *mailbox) = NULL;
-	gboolean retval;
+	gboolean retval = FALSE;
 
 #ifdef USE_DEBUG
 	if (_debug_db)
@@ -884,13 +884,13 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 	return TRUE;
 }
 
-static gint
+/*static gint
 db_message_remove_sort (gconstpointer a, gconstpointer b)
 {
 	gint ga = GPOINTER_TO_INT (a), gb = GPOINTER_TO_INT (b);
 	
 	return ga > gb;
-}
+}*/
 
 
 gboolean

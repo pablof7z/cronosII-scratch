@@ -24,6 +24,7 @@
 #include <gtk/gtk.h>
 #include <config.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "request.h"
 #include "error.h"
@@ -39,14 +40,14 @@ init											(C2Request *request);
 static void
 destroy											(GtkObject *object);
 
-static void
+/*static void
 c2_request_construct_http						(C2Request *request);
 
 static void
 c2_request_construct_ftp						(C2Request *request);
 
 static void
-c2_request_construct_file						(C2Request *request);
+c2_request_construct_file						(C2Request *request);*/
 
 static void
 parse_url										(const gchar *or_url, gchar **host, guint *port, gchar **path);

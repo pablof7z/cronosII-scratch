@@ -213,7 +213,10 @@ destroy (GtkObject *object)
 	
 	c2_return_if_fail (C2_IS_MESSAGE (object), C2EDATA);
 
-	C2_PRINTD (MOD, "The object is being destroyed\n");
+#ifdef USE_DEBUG
+	if (_debug_message)
+		C2_PRINTD (MOD, "The object is being destroyed\n");
+#endif
 
 	message = C2_MESSAGE (object);
 

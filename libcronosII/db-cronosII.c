@@ -77,7 +77,7 @@ cache_index (C2Mailbox *mailbox)
 	return TRUE;
 }
 
-static gint
+/*static gint
 get_mid_from_position (C2Mailbox *mailbox, gint position)
 {
 	C2Db *db;
@@ -93,7 +93,7 @@ get_mid_from_position (C2Mailbox *mailbox, gint position)
 	}
 
 	return -1;
-}
+}*/
 
 static void
 _lock (C2Mailbox *mailbox)
@@ -101,11 +101,11 @@ _lock (C2Mailbox *mailbox)
 	c2_mutex_lock (&mailbox->protocol.cronosII.lock);
 }
 
-static void
+/*static void
 _try_lock (C2Mailbox *mailbox)
 {
 	c2_mutex_trylock (&mailbox->protocol.cronosII.lock);
-}
+}*/
 
 static void
 _unlock (C2Mailbox *mailbox)
@@ -755,7 +755,7 @@ void
 c2_db_cronosII_message_set_state (C2Db *db, C2MessageState state)
 {
 	C2Mailbox *mailbox;
-	gchar c;
+	gchar c = ' ';
 
 	switch (state)
 	{
@@ -792,7 +792,6 @@ c2_db_cronosII_message_set_mark (C2Db *db, gboolean mark)
 {
 	C2Mailbox *mailbox;
 	FILE *fd;
-	gchar c;
 	gint pos;
 
 	mailbox = db->mailbox;

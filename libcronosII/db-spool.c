@@ -178,7 +178,7 @@ c2_spool_queue_item_new (C2Mailbox *mailbox, C2Db *db, C2DbSpoolQueueAction acti
 static C2DbSpoolQueue *
 queue_item_new (C2DbSpoolQueue *queue, C2DbSpoolQueueAction action, C2Db *db, gpointer edata, gint mid)
 {
-	C2DbSpoolQueueItem *item, *li;
+	C2DbSpoolQueueItem *item/*, *li*/;
 	
 	/* This is done later... */
 	/* Search the Queue looking for an action over this mid
@@ -362,8 +362,8 @@ commit (C2Mailbox *mailbox)
 {
 	C2DbSpoolQueue *queue, *l = NULL;
 	FILE *spool, *tmp;
-	gchar *tmp_path;
-	C2DbSpoolQueueAction qaction;
+	gchar *tmp_path = NULL;
+	C2DbSpoolQueueAction qaction = 0;
 	C2Db *qdb = NULL;
 	gpointer qedata;
 	gint qmid;
@@ -693,11 +693,13 @@ c2_db_spool_create_structure (C2Mailbox *mailbox)
 gboolean
 c2_db_spool_update_structure (C2Mailbox *mailbox)
 {
+	return TRUE;
 }
 
 gboolean
 c2_db_spool_remove_structure (C2Mailbox *mailbox)
 {
+	return TRUE;
 }
 
 void
@@ -990,7 +992,7 @@ c2_db_spool_load_message (C2Db *db)
 {
 	FILE *fd;
 	C2Message *message;
-	gchar *chunk, c;
+	gchar *chunk = NULL, c;
 	gint iLength=0;
 
 	/* Open the spool file */
