@@ -39,6 +39,7 @@
 #include <libcronosII/smtp.h>
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
+#include <libcronosII/utils-mutex.h>
 
 #include "main.h"
 #include "preferences.h"
@@ -59,14 +60,18 @@
 #define MOD "[Widget] Application"
 #define DMOD FALSE
 
-static gchar *remote_commands[] =
+struct {
+	const gchar *cmnd;
+	void (*func) (C2Application *application, gpointer data);
+} commands[] =
 {
-	C2_REMOTE_COMMAND_WINDOW_MAIN_NEW,
-	C2_REMOTE_COMMAND_WINDOW_MAIN_RAISE,
-	C2_REMOTE_COMMAND_COMPOSER_NEW,
-	C2_REMOTE_COMMAND_CHECK_MAIL,
-	C2_REMOTE_COMMAND_EXIT,
-	NULL
+	{ C2_COMMAND_WINDOW_MAIN_NEW, command_wmain_new },
+	{ C2_COMMAND_WINDOW_MAIN_RAISE, command_wmain_raise },
+	{ C2_COMMAND_WINDOW_MAIN_HIDE, command_wmain_hide },
+	{ C2_COMMAND_COMPOSER_NEW, command_composer_new },
+	{ C2_COMMAND_CHECK_MAIL, command_check_mail },
+	{ C2_COMMAND_EXIT, command_exit },
+	{ NULL, NULL }
 };
 
 static void
@@ -275,6 +280,8 @@ init (C2Application *application)
 			goto _init;
 		}
 
+		application->server_lock = g_new0 (C2Mutex, 1);
+		c2_mutex_init (application->server_lock);
 		gdk_input_add (application->server_socket, GDK_INPUT_READ, on_server_read, application);
 		application->acting_as_server = 1;
 	} else
@@ -636,6 +643,7 @@ on_server_read (C2Application *application, gint sock, GdkInputCondition cond)
 	size_t size;
 	gchar *path;
 
+	c2_mutex_lock (application->server_lock);
 	
 start:
 	if (c2_net_read (sock, &buffer) < 0)
@@ -674,7 +682,7 @@ start:
 	g_free (buffer);
 	perror ("read");
 
-	gdk_input_add (sock, GDK_INPUT_READ, on_server_read, application);
+	c2_mutex_unlock (application->server_lock);
 }
 
 static void
@@ -1484,6 +1492,21 @@ GSList *
 c2_application_open_windows (C2Application *application)
 {
 	return application->open_windows;
+}
+
+void
+c2_application_command (C2Application *application, const gchar *cmnd, gpointer data)
+{
+	gint i;
+
+	for (i = 0; commands[i].func; i++)
+	{
+		if (c2_streq (commands[i].cmnd, cmnd))
+		{
+			commands[i].func (application, data);
+			break;
+		}
+	}
 }
 
 static void

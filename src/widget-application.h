@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -58,11 +58,12 @@ extern "C" {
 
 #define C2_UNIX_SOCKET						"server"
 
-#define C2_REMOTE_COMMAND_WINDOW_MAIN_NEW	"window main::new"
-#define C2_REMOTE_COMMAND_WINDOW_MAIN_RAISE	"window main::raise"
-#define C2_REMOTE_COMMAND_COMPOSER_NEW		"composer::new"
-#define C2_REMOTE_COMMAND_CHECK_MAIL		"check mail"
-#define C2_REMOTE_COMMAND_EXIT				"exit"
+#define C2_COMMAND_WINDOW_MAIN_NEW	"window main::new"
+#define C2_COMMAND_WINDOW_MAIN_RAISE	"window main::raise"
+#define C2_COMMAND_WINDOW_MAIN_HIDE	"window main::hide"
+#define C2_COMMAND_COMPOSER_NEW		"composer::new"
+#define C2_COMMAND_CHECK_MAIL		"check mail"
+#define C2_COMMAND_EXIT				"exit"
 
 typedef struct _C2Application C2Application;
 typedef struct _C2ApplicationClass C2ApplicationClass;
@@ -103,6 +104,7 @@ struct _C2Application
 	 */
 	gint acting_as_server : 1;
 	gint running_as_server : 1;
+	C2Mutex *server_lock;
 
 	C2Mailbox *mailbox;
 
@@ -168,6 +170,13 @@ c2_application_window_get					(C2Application *application, const gchar *type);
 
 GSList *
 c2_application_open_windows					(C2Application *application);
+
+/****************
+ * [ Commands ] *
+ ****************/
+
+void
+c2_application_command						(C2Application *application, const gchar *cmnd, gpointer edata);
 
 /***********************
  * [Application Utils] *
