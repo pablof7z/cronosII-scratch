@@ -17,6 +17,7 @@
  */
 #include <config.h>
 
+#include <libcronosII/smtp.h>
 #include <libcronosII/utils.h>
 
 #include "widget-dialog-preferences.h"
@@ -27,6 +28,79 @@ class_init									(C2DialogPreferencesClass *klass);
 
 static void
 init										(C2DialogPreferences *preferences);
+
+static void
+set_signals									(C2DialogPreferences *preferences);
+
+static void
+set_values									(C2DialogPreferences *preferences);
+
+static void
+on_sidebar_subsection_selected				(C2Sidebar *sidebar, const gchar *section, const gchar *subsection,
+											 C2DialogPreferences *preferences);
+
+static void
+on_general_options_start_check_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
+	
+static void
+on_general_options_start_load_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
+	
+static void
+on_general_options_exit_expunge_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
+	
+static gint
+on_general_options_timeout_mark_focus_out_event	(GtkWidget *widget, GdkEventFocus *event,
+											C2DialogPreferences *preferences);
+
+static void
+on_general_options_timeout_mark_activate	(GtkWidget *widget, C2DialogPreferences *preferences);
+	
+static gint
+on_general_options_timeout_check_focus_out_event	(GtkWidget *widget, GdkEventFocus *event,
+											C2DialogPreferences *preferences);
+
+static void
+on_general_options_timeout_check_activate	(GtkWidget *widget, C2DialogPreferences *preferences);
+	
+static void
+on_general_options_incoming_warn_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static gint
+on_general_options_outgoing_wrap_focus_out_event	(GtkWidget *widget, GdkEventFocus *event,
+											C2DialogPreferences *preferences);
+
+static void
+on_general_options_outgoing_wrap_activate	(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_general_options_outgoing_outbox_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static GtkWidget *
+on_general_accounts_add_clicked				(GtkWidget *pwidget, C2DialogPreferences *preferences);
+
+static void
+on_interface_composer_editor_internal_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_interface_composer_editor_external_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_general_accounts_incoming_server_type_selection_done	(GtkWidget *widget, C2Window *window);
+
+static void
+on_general_accounts_outgoing_server_protocol_selection_done	(GtkWidget *widget, C2Window *window);
+
+static gboolean
+on_general_accounts_druid_page1_next			(GnomeDruidPage *druid_page, GtkWidget *druid,
+												C2Window *window);
+
+static gboolean
+on_general_accounts_druid_page2_next			(GnomeDruidPage *druid_page, GtkWidget *druid,
+												C2Window *window);
+
+static gboolean
+on_general_accounts_druid_page3_next			(GnomeDruidPage *druid_page, GtkWidget *druid,
+												C2Window *window);
 
 enum
 {
@@ -96,8 +170,234 @@ c2_dialog_preferences_new (C2Application *application)
 	c2_dialog_preferences_construct (preferences, application);
 	gtk_widget_set_usize (GTK_WIDGET (preferences), 670, 400);
 
+	set_signals (preferences);
+	set_values (preferences);
+
 	return GTK_WIDGET (preferences);
 }
+
+static void
+set_signals (C2DialogPreferences *preferences)
+{
+	GladeXML *xml;
+	GtkWidget *widget;
+
+	xml = C2_DIALOG (preferences)->xml;
+
+	widget = glade_xml_get_widget (xml, "general_options_start_check");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_general_options_start_check_toggled), preferences);
+	
+	widget = glade_xml_get_widget (xml, "general_options_start_load");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_general_options_start_load_toggled), preferences);
+	
+	widget = glade_xml_get_widget (xml, "general_options_exit_expunge");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_general_options_exit_expunge_toggled), preferences);
+	
+	widget = glade_xml_get_widget (xml, "general_options_timeout_mark");
+	gtk_signal_connect (GTK_OBJECT (widget), "focus_out_event",
+						GTK_SIGNAL_FUNC (on_general_options_timeout_mark_focus_out_event), preferences);
+	gtk_signal_connect (GTK_OBJECT (widget), "activate",
+						GTK_SIGNAL_FUNC (on_general_options_timeout_mark_activate), preferences);
+	
+	widget = glade_xml_get_widget (xml, "general_options_timeout_check");
+	gtk_signal_connect (GTK_OBJECT (widget), "focus_out_event",
+						GTK_SIGNAL_FUNC (on_general_options_timeout_check_focus_out_event), preferences);
+	gtk_signal_connect (GTK_OBJECT (widget), "activate",
+						GTK_SIGNAL_FUNC (on_general_options_timeout_check_activate), preferences);
+	
+	widget = glade_xml_get_widget (xml, "general_options_incoming_warn");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_general_options_incoming_warn_toggled), preferences);
+
+	widget = glade_xml_get_widget (xml, "general_options_outgoing_wrap");
+	gtk_signal_connect (GTK_OBJECT (widget), "focus_out_event",
+						GTK_SIGNAL_FUNC (on_general_options_outgoing_wrap_focus_out_event), preferences);
+	gtk_signal_connect (GTK_OBJECT (widget), "activate",
+						GTK_SIGNAL_FUNC (on_general_options_outgoing_wrap_activate), preferences);
+
+	widget = glade_xml_get_widget (xml, "general_options_outgoing_outbox");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_general_options_outgoing_outbox_toggled), preferences);
+
+	widget = glade_xml_get_widget (xml, "general_accounts_add");
+	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
+						GTK_SIGNAL_FUNC (on_general_accounts_add_clicked), preferences);
+
+	widget = glade_xml_get_widget (xml, "interface_composer_editor_internal");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_interface_composer_editor_internal_toggled), preferences);
+
+	widget = glade_xml_get_widget (xml, "interface_composer_editor_external");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_interface_composer_editor_external_toggled), preferences);
+}
+
+#define SET_BOOLEAN(section, subsection, key, value, wkey)	\
+	boolv = gnome_config_get_bool_with_default \
+				("/"PACKAGE"/"section"-"subsection"/"key"="value, NULL); \
+	widgetv = glade_xml_get_widget (xml, wkey"_"key); \
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widgetv), boolv)
+#define SET_FLOAT(section, subsection, key, value, wkey)	\
+	floatv = gnome_config_get_float_with_default \
+				("/"PACKAGE"/"section"-"subsection"/"key"="value, NULL); \
+	widgetv = glade_xml_get_widget (xml, wkey"_"key); \
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (widgetv), floatv)
+#define SET_INT(section, subsection, key, value, wkey)	\
+	intv = gnome_config_get_float_with_default \
+				("/"PACKAGE"/"section"-"subsection"/"key"="value, NULL); \
+	widgetv = glade_xml_get_widget (xml, wkey"_"key); \
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (widgetv), intv)
+#define SET_STRING(section, subsection, key, value, wkey)	\
+	charv = gnome_config_get_string_with_default \
+				("/"PACKAGE"/"section"-"subsection"/"key"="value, NULL); \
+	widgetv = glade_xml_get_widget (xml, wkey"_"key); \
+	gtk_entry_set_text (GTK_ENTRY (widgetv), charv); \
+	g_free (charv)
+#define SET_COLOR(section, subsection, key, red, green, blue, wkey)	\
+	widgetv = glade_xml_get_widget (xml, wkey"_"key); \
+	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (widgetv), \
+		gnome_config_get_int_with_default ("/"PACKAGE"/"section"-"key".red="red, NULL), \
+		gnome_config_get_int_with_default ("/"PACKAGE"/"section"-"key".green="green, NULL), \
+		gnome_config_get_int_with_default ("/"PACKAGE"/"section"-"key".blue="blue, NULL), 0);\
+	
+
+static void
+set_values (C2DialogPreferences *preferences)
+{
+	gint intv;
+	gfloat floatv;
+	gboolean boolv;
+	gchar *charv;
+	GtkWidget *widgetv;
+	GladeXML *xml;
+	gchar *buf;
+
+	xml = C2_DIALOG (preferences)->xml;
+	
+	SET_BOOLEAN ("General", "Options", "start_check", "false", "general_options");
+	SET_BOOLEAN ("General", "Options", "start_load", "true", "general_options");
+	SET_BOOLEAN ("General", "Options", "exit_expunge", "false", "general_options");
+	SET_FLOAT ("General", "Options", "timeout_mark", "1.5", "general_options");	
+	SET_INT ("General", "Options", "timeout_check", "20", "general_options");
+	SET_BOOLEAN ("General", "Options", "incoming_warn", "false", "general_options");
+	SET_INT ("General", "Options", "outgoing_wrap", "72", "general_options");
+	SET_BOOLEAN ("General", "Options", "outgoing_outbox", "true", "general_options");
+
+
+	
+	buf = g_strdup_printf ("/"PACKAGE"/General-Paths/save=%s", g_get_home_dir ());
+	charv = gnome_config_get_string_with_default (buf, NULL);
+	widgetv = glade_xml_get_widget (xml, "general_paths_save");
+	gtk_entry_set_text (GTK_ENTRY (gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (widgetv))),
+						charv);
+	g_free (buf);
+	g_free (charv);
+	
+	buf = g_strdup_printf ("/"PACKAGE"/General-Paths/get=%s", g_get_home_dir ());
+	charv = gnome_config_get_string_with_default (buf, NULL);
+	widgetv = glade_xml_get_widget (xml, "general_paths_get");
+	gtk_entry_set_text (GTK_ENTRY (gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (widgetv))),
+						charv);
+	g_free (buf);
+	g_free (charv);
+	
+	SET_BOOLEAN ("General", "Paths", "smart", "true", "general_paths");
+
+
+	
+	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-Fonts/readed_mails="
+							"-adobe-helvetica-medium-r-normal-*-*-120-*-*-p-*-iso8859-1", NULL);
+	widgetv = glade_xml_get_widget (xml, "interface_fonts_readed_mails");
+	gnome_font_picker_set_font_name (GNOME_FONT_PICKER (widgetv), charv);
+	g_free (charv);
+	
+	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-Fonts/unreaded_mails="
+							"-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1", NULL);
+	widgetv = glade_xml_get_widget (xml, "interface_fonts_unreaded_mails");
+	gnome_font_picker_set_font_name (GNOME_FONT_PICKER (widgetv), charv);
+	g_free (charv);
+	
+	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-Fonts/unreaded_mails="
+							"-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1", NULL);
+	widgetv = glade_xml_get_widget (xml, "interface_fonts_unreaded_mailbox");
+	gnome_font_picker_set_font_name (GNOME_FONT_PICKER (widgetv), charv);
+	g_free (charv);
+
+
+	
+	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-HTML/images=full_download", NULL);
+	if (c2_streq (charv, "full_download"))
+		widgetv = glade_xml_get_widget (xml, "interface_html_images_full_download");
+	else if (c2_streq (charv, "partial_download"))
+		widgetv = glade_xml_get_widget (xml, "interface_html_images_partial_download");
+	else if (c2_streq (charv, "user_download"))
+		widgetv = glade_xml_get_widget (xml, "interface_html_images_user_download");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widgetv), TRUE);
+	g_free (charv);
+	
+	SET_BOOLEAN ("Interface", "HTML", "images_confirm", "false", "interface_html");
+	
+	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-HTML/links=default", NULL);
+	if (c2_streq (charv, "default"))
+		widgetv = glade_xml_get_widget (xml, "interface_html_links_default");
+	else if (c2_streq (charv, "internal"))
+		widgetv = glade_xml_get_widget (xml, "interface_html_links_internal");
+	else if (c2_streq (charv, "mailto"))
+		widgetv = glade_xml_get_widget (xml, "interface_html_links_mailto");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widgetv), TRUE);
+	g_free (charv);
+	
+	SET_BOOLEAN ("Interface", "HTML", "links_confirm", "false", "interface_html");
+	SET_BOOLEAN ("Interface", "HTML", "interpret_text_plain", "false", "interface_html");
+
+
+	SET_STRING ("Interface", "Composer", "quote_character", "> ", "interface_composer");
+	SET_COLOR ("Interface", "Composer", "quote_color", "52428", "52428", "52428", "interface_composer");
+
+	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-Composer/editor=internal", NULL);
+	if (c2_streq (charv, "internal"))
+		widgetv = glade_xml_get_widget (xml, "interface_composer_editor_internal");
+	else if (c2_streq (charv, "external"))
+		widgetv = glade_xml_get_widget (xml, "interface_composer_editor_external");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widgetv), TRUE);
+	gtk_signal_emit_by_name (GTK_OBJECT (widgetv), "toggled");
+
+	SET_STRING ("Interface", "Composer", "editor_external_cmnd", "gnome-edit", "interface_composer");
+
+
+	
+	SET_STRING ("Interface", "Misc", "title", "%M - %a %v", "interface_misc");
+	SET_STRING ("Interface", "Misc", "date", "%d.%m.%Y %H:%M %z", "interface_misc");
+
+	charv = gnome_config_get_string_with_default
+				("/"PACKAGE"/Interface-Misc/attachments_default=text/html", NULL);
+	widgetv = glade_xml_get_widget (xml, "interface_misc_attachments_default");
+	if (c2_streq (charv, "text/plain"))
+		gtk_option_menu_set_history (GTK_OPTION_MENU (widgetv), 0);
+	else if (c2_streq (charv, "text/html"))
+		gtk_option_menu_set_history (GTK_OPTION_MENU (widgetv), 1);
+
+
+	SET_BOOLEAN ("Advanced", "Misc", "proxy_http", "false", "advanced_misc");
+	SET_STRING ("Advanced", "Misc", "proxy_http_host", "", "advanced_misc");
+	SET_INT ("Advanced", "Misc", "proxy_http_port", "8080", "advanced_misc");
+	SET_BOOLEAN ("Advanced", "Misc", "proxy_ftp", "false", "advanced_misc");
+	SET_STRING ("Advanced", "Misc", "proxy_ftp_host", "", "advanced_misc");
+	SET_INT ("Advanced", "Misc", "proxy_ftp_port", "8080", "advanced_misc");
+}
+
+#define GENERAL_OPTIONS		"Options"
+#define GENERAL_ACCOUNTS	"Accounts"
+#define GENERAL_PATHS		"Paths"
+#define GENERAL_PLUGINS		"Plugins"
+#define INTERFACE_FONTS		"Fonts"
+#define INTERFACE_HTML		"HTML"
+#define INTERFACE_COMPOSER	"Composer"
+#define INTERFACE_MISC		"Misc"
+#define ADVANCED_MISC		"Misc"
 
 void
 c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application *application)
@@ -112,25 +412,25 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 	
 	static C2SidebarSubSection general_icons[] =
 	{
-		{ N_("Options"), PKGDATADIR "/pixmaps/general_options.png" },
-		{ N_("Accounts"), PKGDATADIR "/pixmaps/general_accounts.png" },
-		{ N_("Paths"), PKGDATADIR "/pixmaps/general_paths.png" },
-		{ N_("Plugins"),	PKGDATADIR "/pixmaps/general_plugins.png" },
+		{ N_(GENERAL_OPTIONS), PKGDATADIR "/pixmaps/general_options.png" },
+		{ N_(GENERAL_ACCOUNTS), PKGDATADIR "/pixmaps/general_accounts.png" },
+		{ N_(GENERAL_PATHS), PKGDATADIR "/pixmaps/general_paths.png" },
+		{ N_(GENERAL_PLUGINS),	PKGDATADIR "/pixmaps/general_plugins.png" },
 		{ NULL, NULL }
 	};
 
 	static C2SidebarSubSection interface_icons[] =
 	{
-		{ N_("Fonts"), PKGDATADIR "/pixmaps/interface_fonts.png" },
-		{ N_("HTML"), PKGDATADIR "/pixmaps/interface_html.png" },
-		{ N_("Composer"), PKGDATADIR "/pixmaps/interface_composer.png" },
-		{ N_("Misc"),	PKGDATADIR "/pixmaps/interface_misc.png" },
+		{ N_(INTERFACE_FONTS), PKGDATADIR "/pixmaps/interface_fonts.png" },
+		{ N_(INTERFACE_HTML), PKGDATADIR "/pixmaps/interface_html.png" },
+		{ N_(INTERFACE_COMPOSER), PKGDATADIR "/pixmaps/interface_composer.png" },
+		{ N_(INTERFACE_MISC),	PKGDATADIR "/pixmaps/interface_misc.png" },
 		{ NULL, NULL }
 	};
 
 	static C2SidebarSubSection advanced_icons[] =
 	{
-		{ N_("Misc"), PKGDATADIR "/pixmaps/advanced_misc.png" },
+		{ N_(ADVANCED_MISC), PKGDATADIR "/pixmaps/advanced_misc.png" },
 		{ NULL, NULL }
 	};
 
@@ -141,7 +441,7 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 		{ N_("Advanced"), advanced_icons, NULL },
 		{ NULL, NULL, NULL }
 	};
-	GtkWidget *sidebar;
+	GtkWidget *sidebar, *widget, *container;
 	GtkStyle *style;
 
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"), "dlg_preferences_contents");
@@ -151,8 +451,532 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (preferences)->vbox), glade_xml_get_widget (xml,
 							"dlg_preferences_contents"), TRUE, TRUE, 0);
 
+	/* Construct the pages */
+	widget = gnome_stock_pixmap_widget_at_size (GTK_WIDGET (preferences), GNOME_STOCK_PIXMAP_ADD, 18, 18);
+	container = glade_xml_get_widget (xml, "general_accounts_add_pixmap");
+	gtk_box_pack_start (GTK_BOX (container), widget, TRUE, TRUE, 0);
+	gtk_widget_show (widget);
+
+	widget = gnome_stock_pixmap_widget_at_size(GTK_WIDGET(preferences), GNOME_STOCK_PIXMAP_PROPERTIES, 18, 18);
+	container = glade_xml_get_widget (xml, "general_accounts_edit_pixmap");
+	gtk_box_pack_start (GTK_BOX (container), widget, TRUE, TRUE, 0);
+	gtk_widget_show (widget);
+
+	widget = gnome_stock_pixmap_widget_at_size (GTK_WIDGET (preferences), GNOME_STOCK_PIXMAP_REMOVE, 18, 18);
+	container = glade_xml_get_widget (xml, "general_accounts_remove_pixmap");
+	gtk_box_pack_start (GTK_BOX (container), widget, TRUE, TRUE, 0);
+	gtk_widget_show (widget);
+
+	widget = gnome_stock_pixmap_widget_at_size (GTK_WIDGET (preferences), GNOME_STOCK_PIXMAP_UP, 18, 18);
+	container = glade_xml_get_widget (xml, "general_accounts_up_pixmap");
+	gtk_box_pack_start (GTK_BOX (container), widget, TRUE, TRUE, 0);
+	gtk_widget_show (widget);
+
+	widget = gnome_stock_pixmap_widget_at_size (GTK_WIDGET (preferences), GNOME_STOCK_PIXMAP_DOWN, 18, 18);
+	container = glade_xml_get_widget (xml, "general_accounts_down_pixmap");
+	gtk_box_pack_start (GTK_BOX (container), widget, TRUE, TRUE, 0);
+	gtk_widget_show (widget);
+
+	widget = gnome_stock_pixmap_widget_at_size (GTK_WIDGET (preferences), GNOME_STOCK_PIXMAP_ADD, 18, 18);
+	container = glade_xml_get_widget (xml, "general_plugins_add_pixmap");
+	gtk_box_pack_start (GTK_BOX (container), widget, TRUE, TRUE, 0);
+	gtk_widget_show (widget);
+
+	widget = gnome_stock_pixmap_widget_at_size (GTK_WIDGET (preferences), GNOME_STOCK_PIXMAP_REMOVE, 18, 18);
+	container = glade_xml_get_widget (xml, "general_plugins_remove_pixmap");
+	gtk_box_pack_start (GTK_BOX (container), widget, TRUE, TRUE, 0);
+	gtk_widget_show (widget);
+
+	widget = gnome_stock_pixmap_widget_at_size (GTK_WIDGET (preferences), GNOME_STOCK_PIXMAP_PREFERENCES, 18, 18);
+	container = glade_xml_get_widget (xml, "general_plugins_configure_pixmap");
+	gtk_box_pack_start (GTK_BOX (container), widget, TRUE, TRUE, 0);
+	gtk_widget_show (widget);
+
 	/* Sidebar */
 	sidebar = glade_xml_get_widget (xml, "sidebar");
 	c2_sidebar_set_contents (C2_SIDEBAR (sidebar), sidebar_info);
 	gtk_widget_show (sidebar);
+
+	gtk_signal_connect (GTK_OBJECT (sidebar), "subsection_selected",
+							GTK_SIGNAL_FUNC (on_sidebar_subsection_selected), preferences);
+}
+
+static void
+on_sidebar_subsection_selected (C2Sidebar *sidebar, const gchar *section, const gchar *subsection,
+								C2DialogPreferences *preferences)
+{
+	GtkNotebook *notebook = GTK_NOTEBOOK (glade_xml_get_widget (C2_DIALOG (preferences)->xml, "notebook"));
+	gint page = 0;
+	
+	if (c2_streq (section, _("General")))
+	{
+		if (c2_streq (subsection, _(GENERAL_OPTIONS)))
+			page = C2_DIALOG_PREFERENCES_SUBSECTION_GENERAL_OPTIONS;
+		else if (c2_streq (subsection, _(GENERAL_ACCOUNTS)))
+			page = C2_DIALOG_PREFERENCES_SUBSECTION_GENERAL_ACCOUNTS;
+		else if (c2_streq (subsection, _(GENERAL_PATHS)))
+			page = C2_DIALOG_PREFERENCES_SUBSECTION_GENERAL_PATHS;
+		else if (c2_streq (subsection, _(GENERAL_PLUGINS)))
+			page = C2_DIALOG_PREFERENCES_SUBSECTION_GENERAL_PLUGINS;
+	} else if (c2_streq (section, _("Interface")))
+	{
+		if (c2_streq (subsection, _(INTERFACE_FONTS)))
+			page = C2_DIALOG_PREFERENCES_SUBSECTION_INTERFACE_FONTS;
+		else if (c2_streq (subsection, _(INTERFACE_HTML)))
+			page = C2_DIALOG_PREFERENCES_SUBSECTION_INTERFACE_HTML;
+		else if (c2_streq (subsection, _(INTERFACE_COMPOSER)))
+			page = C2_DIALOG_PREFERENCES_SUBSECTION_INTERFACE_COMPOSER;
+		else if (c2_streq (subsection, _(INTERFACE_MISC)))
+			page = C2_DIALOG_PREFERENCES_SUBSECTION_INTERFACE_MISC;
+	} else if (c2_streq (section, _("Advanced")))
+	{
+		if (c2_streq (subsection, _(ADVANCED_MISC)))
+			page = C2_DIALOG_PREFERENCES_SUBSECTION_ADVANCED_MISC;
+	}
+
+	gtk_notebook_set_page (notebook, page);
+}
+
+static void
+on_general_options_start_check_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
+	
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_START_CHECK, bool);
+	gnome_config_set_bool ("/"PACKAGE"/General-Options/start_check", bool);
+}
+	
+static void
+on_general_options_start_load_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
+
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_START_LOAD, bool);
+	gnome_config_set_bool ("/"PACKAGE"/General-Options/start_load", bool);
+}
+	
+static void
+on_general_options_exit_expunge_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
+	
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_EXIT_EXPUNGE, bool);
+	gnome_config_set_bool ("/"PACKAGE"/General-Options/exit_expunge", bool);
+}
+	
+static gint
+on_general_options_timeout_mark_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
+											C2DialogPreferences *preferences)
+{
+	gfloat value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (widget));
+	
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_TIMEOUT_MARK, value);
+	gnome_config_set_float ("/"PACKAGE"/General-Options/timeout_mark", value);
+	return FALSE;
+}
+
+static void
+on_general_options_timeout_mark_activate (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gfloat value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (widget));
+	
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_TIMEOUT_MARK, value);
+	gnome_config_set_float ("/"PACKAGE"/General-Options/timeout_mark", value);
+}
+	
+static gint
+on_general_options_timeout_check_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
+											C2DialogPreferences *preferences)
+{
+	gint value = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_TIMEOUT_CHECK, value);
+	gnome_config_set_int ("/"PACKAGE"/General-Options/timeout_check", value);
+	return FALSE;
+}
+
+static void
+on_general_options_timeout_check_activate (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gint value = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+	
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_TIMEOUT_CHECK, value);
+	gnome_config_set_int ("/"PACKAGE"/General-Options/timeout_check", value);
+}
+	
+static void
+on_general_options_incoming_warn_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
+	
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_INCOMING_WARN, bool);
+	gnome_config_set_bool ("/"PACKAGE"/General-Options/incoming_warn", bool);
+}
+
+static gint
+on_general_options_outgoing_wrap_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
+											C2DialogPreferences *preferences)
+{
+	gint value = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+	
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_OUTGOING_WRAP, value);
+	gnome_config_set_int ("/"PACKAGE"/General-Options/outgoing_wrap", value);
+	return FALSE;
+}
+
+static void
+on_general_options_outgoing_wrap_activate (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gint value = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+	
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_OUTGOING_WRAP, value);
+	gnome_config_set_int ("/"PACKAGE"/General-Options/outgoing_wrap", value);
+}
+
+static void
+on_general_options_outgoing_outbox_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gboolean bool = GTK_TOGGLE_BUTTON (widget)->active;
+	
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+						C2_DIALOG_PREFERENCES_KEY_GENERAL_OPTIONS_OUTGOING_OUTBOX, bool);
+	gnome_config_set_bool ("/"PACKAGE"/General-Options/outgoing_outbox", bool);
+}
+
+static GtkWidget *
+on_general_accounts_add_clicked (GtkWidget *pwidget, C2DialogPreferences *preferences)
+{
+	/* This function returns the window so it can be used as a construct function */
+	GtkWidget *window, *widget;
+	GladeXML *xml;
+	gchar *buf;
+	C2Account *account;
+
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"), "druid");
+	account = C2_DIALOG (preferences)->application->account;
+	window = c2_window_new (C2_DIALOG (preferences)->application, _("Account Editor"), "account_editor");
+	C2_WINDOW (window)->xml = xml;
+	c2_window_set_contents_from_glade (C2_WINDOW (window), "druid");
+	gtk_object_set_data (GTK_OBJECT (window), "preferences", preferences);
+
+	if ((buf = g_get_real_name ()))
+	{
+		widget = glade_xml_get_widget (xml, "identity_name");
+		gtk_entry_set_text (GTK_ENTRY (widget), buf);
+		g_free (buf);
+	}
+
+	if (account && account->organization)
+	{
+		widget = glade_xml_get_widget (xml, "identity_organization");
+		gtk_entry_set_text (GTK_ENTRY (widget), account->organization);
+	}
+
+	if (account)
+	{
+		C2Smtp *smtp = account->smtp;
+		
+		widget = glade_xml_get_widget (xml, "outgoing_server_protocol");
+		gtk_option_menu_set_history (GTK_OPTION_MENU (widget), smtp->type);
+
+		if (smtp->type == C2_SMTP_REMOTE)
+		{
+			widget = glade_xml_get_widget (xml, "outgoing_server_hostname");
+			gtk_entry_set_text (GTK_ENTRY (widget), smtp->host);
+			widget = glade_xml_get_widget (xml, "outgoing_server_port");
+			gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), smtp->port);
+		}
+	}
+
+	widget = GTK_OPTION_MENU (glade_xml_get_widget (xml, "incoming_server_type"))->menu;
+	gtk_signal_connect (GTK_OBJECT (widget), "selection_done",
+						GTK_SIGNAL_FUNC (on_general_accounts_incoming_server_type_selection_done), window);
+
+	widget = GTK_OPTION_MENU (glade_xml_get_widget (xml, "outgoing_server_protocol"))->menu;
+	gtk_signal_connect (GTK_OBJECT (widget), "selection_done",
+						GTK_SIGNAL_FUNC (on_general_accounts_outgoing_server_protocol_selection_done), window);
+
+	widget = glade_xml_get_widget (xml, "page1");
+	gtk_signal_connect (GTK_OBJECT (widget), "next",
+						GTK_SIGNAL_FUNC (on_general_accounts_druid_page1_next), window);
+
+	widget = glade_xml_get_widget (xml, "page2");
+	gtk_signal_connect (GTK_OBJECT (widget), "next",
+						GTK_SIGNAL_FUNC (on_general_accounts_druid_page2_next), window);
+
+	widget = glade_xml_get_widget (xml, "page3");
+	gtk_signal_connect (GTK_OBJECT (widget), "next",
+						GTK_SIGNAL_FUNC (on_general_accounts_druid_page3_next), window);
+
+	gtk_widget_show (window);
+	
+	return window;
+}
+
+static void
+on_interface_composer_editor_internal_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	GladeXML *xml = C2_DIALOG (preferences)->xml;
+	GtkWidget *combo = glade_xml_get_widget (xml, "interface_composer_editor_combo");
+
+	if (!GTK_TOGGLE_BUTTON (widget)->active)
+		gtk_widget_set_sensitive (combo, TRUE);
+	else
+		gtk_widget_set_sensitive (combo, FALSE);
+}
+
+static void
+on_interface_composer_editor_external_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	GladeXML *xml = C2_DIALOG (preferences)->xml;
+	GtkWidget *combo = glade_xml_get_widget (xml, "interface_composer_editor_combo");
+
+	if (GTK_TOGGLE_BUTTON (widget)->active)
+		gtk_widget_set_sensitive (combo, TRUE);
+	else
+		gtk_widget_set_sensitive (combo, FALSE);
+}
+
+static void
+on_general_accounts_incoming_server_type_selection_done (GtkWidget *widget, C2Window *window)
+{
+	GladeXML *xml = C2_WINDOW (window)->xml;
+	GtkWidget *menu = glade_xml_get_widget (xml, "incoming_server_type");
+	GtkWidget *widget;
+	gchar *selection;
+	
+	if (GTK_BIN (menu)->child)
+	{
+		GtkWidget *child = GTK_BIN (menu)->child;
+
+		if (GTK_LABEL (child))
+		{
+			gtk_label_get (GTK_LABEL (child), &selection);
+
+			if (c2_streq (selection, _("POP3")) || c2_streq (selection, _("IMAP")))
+			{
+				widget = glade_xml_get_widget (xml, "incoming_server_host_label");
+				gtk_widget_show (widget);
+				widget = glade_xml_get_widget (xml, "incoming_server_hostname");
+				gtk_widget_show (widget);
+				widget = glade_xml_get_widget (xml, "incoming_server_port_label");
+				gtk_widget_show (widget);
+				widget = glade_xml_get_widget (xml, "incoming_server_port");
+				gtk_widget_show (widget);
+			}
+		}
+	}
+}
+
+static void
+on_general_accounts_outgoing_server_protocol_selection_done (GtkWidget *widget, C2Window *window)
+{
+	GladeXML *xml = C2_WINDOW (window)->xml;
+	GtkWidget *menu = glade_xml_get_widget (xml, "outgoing_server_protocol");
+	GtkWidget *widget;
+	gchar *selection;
+
+	widget = glade_xml_get_widget (xml, "outgoing_server_protocol");
+	if (GTK_BIN (widget)->child)
+	{
+		GtkWidget *child = GTK_BIN (widget)->child;
+
+		if (GTK_LABEL (child))
+		{
+			gtk_label_get (GTK_LABEL (child), &selection);
+
+			if (c2_streq (selection, _("SMTP")))
+			{
+				widget = glade_xml_get_widget (xml, "outgoing_server_frame");
+				gtk_widget_show (widget);
+				widget = glade_xml_get_widget (xml, "outgoing_auth_frame");
+				gtk_widget_show (widget);
+			} else if (c2_streq (selection, _("Sendmail")))
+			{
+				widget = glade_xml_get_widget (xml, "outgoing_server_frame");
+				gtk_widget_hide (widget);
+				widget = glade_xml_get_widget (xml, "outgoing_auth_frame");
+				gtk_widget_hide (widget);
+			}
+		}
+	}
+}
+
+static gboolean
+on_general_accounts_druid_page1_next (GnomeDruidPage *druid_page, GtkWidget *druid,
+										C2Window *window)
+{
+	GtkWidget *widget;
+	GladeXML *xml;
+	gchar *buf, *buf2;
+
+	xml = C2_WINDOW (window)->xml;
+
+	widget = glade_xml_get_widget (xml, "identity_name");
+	if (!strlen (gtk_entry_get_text (GTK_ENTRY (widget))))
+	{
+		GladeXML *exml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"),
+									"dlg_account_error_invalid_name");
+		GtkWidget *edialog = glade_xml_get_widget (exml, "dlg_account_error_invalid_name");
+
+		gnome_dialog_run_and_close (GNOME_DIALOG (edialog));
+		gtk_object_unref (GTK_OBJECT (exml));
+
+		return TRUE;
+	}
+
+	widget = glade_xml_get_widget (xml, "identity_email");
+	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	if (!strlen (buf) || !(buf2 = strstr (buf, "@")) || strlen (buf2) == 1)
+	{
+		GladeXML *exml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"),
+									"dlg_account_error_invalid_email");
+		GtkWidget *edialog = glade_xml_get_widget (exml, "dlg_account_error_invalid_email");
+
+		gnome_dialog_run_and_close (GNOME_DIALOG (edialog));
+		gtk_object_unref (GTK_OBJECT (exml));
+
+		return TRUE;
+	}
+
+	widget = glade_xml_get_widget (xml, "incoming_server_hostname");
+	gtk_entry_set_text (GTK_ENTRY (widget), buf2+1);
+
+	return FALSE;
+}
+
+static gboolean
+on_general_accounts_druid_page2_next (GnomeDruidPage *druid_page, GtkWidget *druid,
+										C2Window *window)
+{
+	GtkWidget *widget;
+	GladeXML *xml;
+	gchar *buf, *buf2;
+
+	xml = C2_WINDOW (window)->xml;
+
+	widget = glade_xml_get_widget (xml, "incoming_server_hostname");
+	if (!strlen (gtk_entry_get_text (GTK_ENTRY (widget))))
+	{
+		GladeXML *exml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"),
+									"dlg_account_error_invalid_host");
+		GtkWidget *edialog = glade_xml_get_widget (exml, "dlg_account_error_invalid_host");
+
+		gnome_dialog_run_and_close (GNOME_DIALOG (edialog));
+		gtk_object_unref (GTK_OBJECT (exml));
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static gboolean
+on_general_accounts_druid_page3_next (GnomeDruidPage *druid_page, GtkWidget *druid,
+										C2Window *window)
+{
+	GtkWidget *widget;
+	GladeXML *xml;
+	GtkWidget *menu;
+	gchar *buf, *buf2, *selection;
+
+	xml = C2_WINDOW (window)->xml;
+
+	widget = glade_xml_get_widget (xml, "outgoing_server_protocol");
+	if (GTK_BIN (widget)->child)
+	{
+		GtkWidget *child = GTK_BIN (widget)->child;
+
+		if (GTK_LABEL (child))
+		{
+			gtk_label_get (GTK_LABEL (child), &selection);
+
+			if (c2_streq (selection, _("SMTP")))
+			{
+				widget = glade_xml_get_widget (xml, "outgoing_server_frame");
+				gtk_widget_show (widget);
+				widget = glade_xml_get_widget (xml, "outgoing_auth_frame");
+				gtk_widget_show (widget);
+
+				widget = glade_xml_get_widget (xml, "outgoing_server_hostname");
+				if (!strlen (gtk_entry_get_text (GTK_ENTRY (widget))))
+				{
+					GladeXML *exml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"),
+											"dlg_account_error_invalid_host");
+					GtkWidget *edialog = glade_xml_get_widget (exml, "dlg_account_error_invalid_host");
+					
+					gnome_dialog_run_and_close (GNOME_DIALOG (edialog));
+					gtk_object_unref (GTK_OBJECT (exml));
+					
+					return TRUE;
+				}
+			} else if (c2_streq (selection, _("Sendmail")))
+			{
+				widget = glade_xml_get_widget (xml, "outgoing_server_frame");
+				gtk_widget_show (widget);
+				widget = glade_xml_get_widget (xml, "outgoing_auth_frame");
+				gtk_widget_show (widget);
+			}
+		}
+	}	
+
+	return FALSE;
+}
+
+static gboolean
+on_general_accounts_druid_page4_next (GnomeDruidPage *druid_page, GtkWidget *druid,
+										C2Window *window)
+{
+	GtkWidget *widget;
+	GladeXML *xml;
+	GtkWidget *menu;
+	gchar *buf, *buf2, *selection;
+
+	xml = C2_WINDOW (window)->xml;
+
+	widget = glade_xml_get_widget (xml, "options_account_name");
+	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+
+	if (!strlen (buf) || c2_mailbox_get_by_name (C2_WINDOW (window)->application->account, buf))
+	{
+		GladeXML *exml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"),
+										"dlg_account_error_invalid_host");
+		GtkWidget *edialog = glade_xml_get_widget (exml, "dlg_account_error_invalid_host");
+					
+		gnome_dialog_run_and_close (GNOME_DIALOG (edialog));
+		gtk_object_unref (GTK_OBJECT (exml));
+					
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static gboolean
+on_general_accounts_druid_page_finish (GnomeDruidPage *druid_page, GtkWidget *druid,
+										C2Window *window)
+{
+	GtkWidget *widget;
+	GladeXML *xml;
+	GtkWidget *menu;
+	gchar *buf, *buf2, *selection;
+	gchar *full_name, *mail, *org, *reply_to, *pop3_hostname, *smtp_hostname, *name, *sign_plain,
+			*sign_html;
+	gboolean activate, leave_copy;
+
+
+	xml = C2_WINDOW (window)->xml;
+
+	
+
+	return FALSE;
 }

@@ -222,7 +222,7 @@ dnl   GtkHtml
 dnl #######################################################
 
 AC_ARG_ENABLE([gtkhtml],
-[  --enable-gtkhtml          Use the GtkHtml widget for showing messages [default=no]],
+[  --enable-gtkhtml          Use the GtkHtml widget for showing messages [default=auto]],
 [ gtkhtml=$enableval ], [ gtkhtml=yes ])
 
 AC_MSG_CHECKING(for GtkHTML)

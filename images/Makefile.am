@@ -1,13 +1,22 @@
 pixmapdir = $(pkgdatadir)/pixmaps
 pixmap_DATA = \
+	advanced_misc.png	\
 	blue_arrow.png		\
 	drafts.png			\
 	folder-closed.png	\
 	folder-opened.png	\
 	forward.png			\
 	garbage.png			\
+	general_accounts.png\
+	general_options.png	\
+	general_paths.png	\
+	general_plugins.png	\
 	green_arrow.png		\
 	inbox.png			\
+	interface_composer.png	\
+	interface_fonts.png	\
+	interface_html.png	\
+	interface_misc.png	\
 	loading-image.png	\
 	mailbox.png			\
 	mails.png			\

@@ -4349,17 +4349,43 @@ Sendmail
 	  </widget>
 
 	  <widget>
-	    <class>GtkCheckButton</class>
-	    <name>options_leave</name>
-	    <can_focus>True</can_focus>
-	    <label>Leave message in the server.</label>
-	    <active>False</active>
-	    <draw_indicator>True</draw_indicator>
+	    <class>GtkVBox</class>
+	    <name>vbox44</name>
+	    <homogeneous>False</homogeneous>
+	    <spacing>0</spacing>
 	    <child>
 	      <padding>0</padding>
 	      <expand>False</expand>
 	      <fill>False</fill>
 	    </child>
+
+	    <widget>
+	      <class>GtkCheckButton</class>
+	      <name>options_leave</name>
+	      <can_focus>True</can_focus>
+	      <label>Leave message in the server.</label>
+	      <active>False</active>
+	      <draw_indicator>True</draw_indicator>
+	      <child>
+		<padding>0</padding>
+		<expand>False</expand>
+		<fill>False</fill>
+	      </child>
+	    </widget>
+
+	    <widget>
+	      <class>GtkCheckButton</class>
+	      <name>options_auto_check</name>
+	      <can_focus>True</can_focus>
+	      <label>Automatically check this account.</label>
+	      <active>False</active>
+	      <draw_indicator>True</draw_indicator>
+	      <child>
+		<padding>0</padding>
+		<expand>False</expand>
+		<fill>False</fill>
+	      </child>
+	    </widget>
 	  </widget>
 	</widget>
       </widget>

@@ -69,7 +69,7 @@ struct _C2SidebarClass
 {
 	GtkVBoxClass parent_class;
 
-	void (*section_selected) (C2Sidebar *sidebar, const gchar *name);
+	void (*section_selected) (C2Sidebar *sidebar, const gchar *section, const gchar *subsection);
 	void (*subsection_selected) (C2Sidebar *sidebar, const gchar *section, const gchar *subsection);
 };
 

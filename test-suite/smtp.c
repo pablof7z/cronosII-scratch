@@ -32,11 +32,11 @@ main (gint argc, gchar **argv)
 	C2Smtp *smtp;
 	C2Message *msg;
 	
-	smtp = c2_smtp_new(C2_SMTP_REMOTE, "mail.your.isp.net", 25, FALSE, NULL, NULL);
+	smtp = c2_smtp_new(C2_SMTP_REMOTE, "smtp.arnet.com.ar", 25, FALSE, NULL, NULL);
 	
 	msg = g_new0(C2Message, 1);
 	msg->header = g_strdup("From: testing<testing@cronosii.sourceforge.net>\n"
-													"To: your.email@users.sourceforge.net\n"
+													"To: cronosII@users.sourceforge.net\n"
 													"Subject: Testing C2 smtp module!");
 	msg->body = g_strdup("Testing 1-2-3");
 	

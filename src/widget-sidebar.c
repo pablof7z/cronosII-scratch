@@ -31,6 +31,9 @@ init										(C2Sidebar *sidebar);
 static void
 on_section_button_clicked					(GtkWidget *button, C2Sidebar *sidebar);
 
+static void
+on_subsection_button_clicked				(GtkWidget *button, C2Sidebar *sidebar);
+
 enum
 {
 	SECTION_SELECTED,
@@ -117,32 +120,50 @@ c2_sidebar_set_contents (C2Sidebar *sidebar, C2SidebarSection *list)
 {
 	C2SidebarSection *l;
 	GtkTooltips *tooltips = sidebar->tooltips ? gtk_tooltips_new () : NULL;
+	GtkWidget *button;
 
 	sidebar->section = list;
 
+	button = gtk_button_new ();
+	gtk_box_pack_start (GTK_BOX (sidebar), button, FALSE, TRUE, 0);
+	gtk_widget_set_usize (button, -1, 4);
+	gtk_widget_set_sensitive (button, FALSE);
+	gtk_widget_show (button);
+	
 	for (l = list; l->name; l++)
 	{
 		C2SidebarSubSection *sl;
-		GtkWidget *button, *vbox, *viewport;
+		GtkWidget *vbox, *viewport, *scroll;
 		GSList *bgroup = NULL;
+		GtkStyle *style;
 
 		button = gtk_button_new_with_label (l->name);
 		gtk_box_pack_start (GTK_BOX (sidebar), button, FALSE, TRUE, 0);
 		gtk_widget_show (button);
 		l->button = button;
 
-		viewport = gtk_scrolled_window_new (NULL, NULL);
-		gtk_box_pack_start (GTK_BOX (sidebar), viewport, TRUE, TRUE, 0);
-		gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (viewport), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-		gtk_widget_hide (viewport);
+		scroll = gtk_scrolled_window_new (NULL, NULL);
+		gtk_box_pack_start (GTK_BOX (sidebar), scroll, TRUE, TRUE, 0);
+		gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+		gtk_widget_hide (scroll);
+
+		viewport = gtk_viewport_new (NULL, NULL);
+		gtk_container_add (GTK_CONTAINER (scroll), viewport);
+		gtk_widget_show (viewport);
+		style = gtk_style_copy (gtk_widget_get_style (viewport));
+		
+		style->bg[GTK_STATE_NORMAL].red = 0x7000;
+		style->bg[GTK_STATE_NORMAL].green = 0x8000;
+		style->bg[GTK_STATE_NORMAL].blue = 0x9000;
+		
+		gdk_color_alloc (gdk_colormap_get_system (), &style->bg[GTK_STATE_NORMAL]);
+		gtk_widget_set_style (viewport, style);
 
 		vbox = gtk_vbox_new (FALSE, 10);
-		gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (viewport), vbox);
-//		gtk_container_add (GTK_CONTAINER (viewport), vbox);
-//		gtk_box_pack_start (GTK_BOX (sidebar), vbox, TRUE, TRUE, 0);
+		gtk_container_add (GTK_CONTAINER (viewport), vbox);
 		gtk_widget_show (vbox);
 		
-		gtk_object_set_data (GTK_OBJECT (button), "panel", viewport);
+		gtk_object_set_data (GTK_OBJECT (button), "panel", scroll);
 		gtk_signal_connect (GTK_OBJECT (button), "clicked",
 							GTK_SIGNAL_FUNC (on_section_button_clicked), sidebar);
 		
@@ -166,6 +187,9 @@ c2_sidebar_set_contents (C2Sidebar *sidebar, C2SidebarSection *list)
 			gtk_object_set_data (GTK_OBJECT (button), "section", l);
 			gtk_object_set_data (GTK_OBJECT (button), "subsection", sl);
 
+			gtk_signal_connect (GTK_OBJECT (button), "clicked",
+								GTK_SIGNAL_FUNC (on_subsection_button_clicked), sidebar);
+
 			switch (sidebar->buttons_type)
 			{
 				case C2_SIDEBAR_BUTTON_JUST_TEXT:
@@ -173,7 +197,12 @@ c2_sidebar_set_contents (C2Sidebar *sidebar, C2SidebarSection *list)
 				case C2_SIDEBAR_BUTTON_JUST_ICON:
 					break;
 				case C2_SIDEBAR_BUTTON_TEXT_UNDER_ICON:
-					box = gtk_vbox_new (FALSE, 0);
+				case C2_SIDEBAR_BUTTON_TEXT_NEXT_TO_ICON:
+					if (sidebar->buttons_type == C2_SIDEBAR_BUTTON_TEXT_UNDER_ICON)
+						box = gtk_vbox_new (FALSE, 0);
+					else
+						box = gtk_hbox_new (FALSE, 2);
+
 					gtk_container_add (GTK_CONTAINER (button), box);
 					gtk_widget_show (box);
 
@@ -204,17 +233,22 @@ c2_sidebar_set_contents (C2Sidebar *sidebar, C2SidebarSection *list)
 					}
 
 					break;
-				case C2_SIDEBAR_BUTTON_TEXT_NEXT_TO_ICON:
-					break;
 			}
 		}
 	}
+
+	button = gtk_button_new ();
+	gtk_box_pack_start (GTK_BOX (sidebar), button, FALSE, TRUE, 0);
+	gtk_widget_set_usize (button, -1, 4);
+	gtk_widget_set_sensitive (button, FALSE);
+	gtk_widget_show (button);
 }
 
 static void
 on_section_button_clicked (GtkWidget *button, C2Sidebar *sidebar)
 {
 	C2SidebarSection *l;
+	C2SidebarSection *section = NULL;
 
 	for (l = sidebar->section; l->name; l++)
 	{
@@ -223,6 +257,21 @@ on_section_button_clicked (GtkWidget *button, C2Sidebar *sidebar)
 		if (l->button != button)
 			gtk_widget_hide (vbox);
 		else
+		{
+			section = l;
 			gtk_widget_show (vbox);
+		}
 	}
+
+	if (section)
+		gtk_signal_emit (GTK_OBJECT (sidebar), signals[SECTION_SELECTED], section->name);
+}
+
+static void
+on_subsection_button_clicked (GtkWidget *button, C2Sidebar *sidebar)
+{
+	C2SidebarSection *section = gtk_object_get_data (GTK_OBJECT (button), "section");
+	C2SidebarSubSection *subsection = gtk_object_get_data (GTK_OBJECT (button), "subsection");
+
+	gtk_signal_emit (GTK_OBJECT (sidebar), signals[SUBSECTION_SELECTED], section->name, subsection->name);
 }

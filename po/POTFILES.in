@@ -10,7 +10,9 @@ src/c2-main-window.c
 src/install-wizard.c
 src/main.c
 src/preferences.c
+src/widget-dialog-preferences.c
 src/widget-index.c
+src/widget-mailbox-list.c
 src/widget-message-transfer.c
 src/widget-window-main.c
 src/preferences-trans.h

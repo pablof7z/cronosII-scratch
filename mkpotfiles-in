@@ -1,2 +1,2 @@
 #!/bin/sh
-grep "_(" -l libcronosII/*.c libcronosII/*.h src/*.c src/*.h > po/POTFILES.in
+grep "_(" -ls libcronosII/*.c libcronosII/*.h src/*.c src/*.h src/*/*.h src/*/*.c src/*/*/*.h src/*/*/*.c > po/POTFILES.in
