@@ -1,3 +1,9 @@
+Mon Feb 25 Peter Gossner <petegozz@users.sf.net>
+	* Fixed some spelling and content in html.in files.
+	* Tried some tidy/style formating in some user first load messages.
+	   Unable to test as I can not get any html / gconf to work (yet).
+	* Please move all html markup to html4.1 or xhtml XML is coming !.
+	
 Sat Feb 23 Pablo Fernández López <pablo@pablossite.net>
 	* Fixed a bug in the mail widget: crashed when
 	  no HTML is supported and a mail is displayed with
