@@ -5,8 +5,13 @@
  */
 
 gchar *s = N_("Cronos II");
+gchar *s = N_("The Text Menu Bar");
+gchar *s = N_("The File Menu.");
+gchar *s = N_("Compose a new message");
 gchar *s = N_("_E-Mail");
+gchar *s = N_("Add a new Mailbox");
 gchar *s = N_("M_ailbox");
+gchar *s = N_("Add a new Contact");
 gchar *s = N_("_Contact");
 gchar *s = N_("_Check Mail");
 gchar *s = N_("All Accounts");
@@ -15,6 +20,9 @@ gchar *s = N_("_Connect");
 gchar *s = N_("_Disconnect");
 gchar *s = N_("_Send Unsent Mails");
 gchar *s = N_("_Address Book");
+gchar *s = N_("Print the selected Message");
+gchar *s = N_("The Edit Menu");
+gchar *s = N_("Set your view of Mail Headers");
 gchar *s = N_("_From");
 gchar *s = N_("_Account");
 gchar *s = N_("_To");
@@ -23,14 +31,23 @@ gchar *s = N_("_Blind Carbon Copy");
 gchar *s = N_("_Date");
 gchar *s = N_("_Subject");
 gchar *s = N_("_Priority");
+gchar *s = N_("Work with your Mailboxes");
 gchar *s = N_("_Mailbox");
+gchar *s = N_("Engage the faster sort algorithim. (Scotty)");
 gchar *s = N_("_Speed Up");
+gchar *s = N_("Import a mailbox from another application.");
 gchar *s = N_("_Import");
+gchar *s = N_("Export a CronosII mailbox to another file.");
 gchar *s = N_("_Export");
+gchar *s = N_("Clear the garbage file -now.");
 gchar *s = N_("Empty _Garbage");
+gchar *s = N_("Do things to a selected mail.");
 gchar *s = N_("Mess_age");
+gchar *s = N_("Reply to the initial sender of this message.");
 gchar *s = N_("_Reply");
+gchar *s = N_("Reply to everybody on this messages recievers list.");
 gchar *s = N_("Reply _all");
+gchar *s = N_("Send message on to somebody else.");
 gchar *s = N_("_Forward");
 gchar *s = N_("Copy selected messages");
 gchar *s = N_("_Copy");
@@ -40,12 +57,13 @@ gchar *s = N_("Delete selected messages");
 gchar *s = N_("_Delete");
 gchar *s = N_("Expunge selected messages");
 gchar *s = N_("_Expunge");
+gchar *s = N_("Re-Tag a message");
 gchar *s = N_("Mar_k");
 gchar *s = N_("Mark selected message");
 gchar *s = N_("_Mark");
-gchar *s = N_("Mark selected messages as unreaded");
+gchar *s = N_("Mark selected messages as unread");
 gchar *s = N_("_Unread");
-gchar *s = N_("Mark selected messages as readed");
+gchar *s = N_("Mark selected messages as read");
 gchar *s = N_("_Read");
 gchar *s = N_("Mark selected messages as replied");
 gchar *s = N_("Repl_ied");
@@ -57,14 +75,22 @@ gchar *s = N_("Select next message");
 gchar *s = N_("_Next");
 gchar *s = N_("Try to recover an expunged message");
 gchar *s = N_("Reco_very");
+gchar *s = N_("Configure your User Interface,Accounts and other Prefs");
+gchar *s = N_("Configure your accounts and interface defaults");
+gchar *s = N_("Choose the windows you want opened");
+gchar *s = N_("Click here for help, tips and other info.");
+gchar *s = N_("Opens the Users Help Manual. (When installed)");
 gchar *s = N_("_User Manual");
 gchar *s = N_("_Quick Tips");
+gchar *s = N_("Get in touch with CronosII Users and Developers");
 gchar *s = N_("_Getting in Touch");
-gchar *s = N_("Check all accounts for new mails");
+gchar *s = N_("Version and Copyright Information");
+gchar *s = N_("The Icon Menubar");
+gchar *s = N_("Check all Accounts for new mail.");
 gchar *s = N_("Check");
-gchar *s = N_("Send unset messages");
+gchar *s = N_("Send unset messages from the Queue");
 gchar *s = N_("Send");
-gchar *s = N_("Save current message");
+gchar *s = N_("Save current message to Drafts");
 gchar *s = N_("Save");
 gchar *s = N_("Print current message");
 gchar *s = N_("Print");
@@ -72,7 +98,7 @@ gchar *s = N_("Delete selected messages");
 gchar *s = N_("Delete");
 gchar *s = N_("Compose a new message");
 gchar *s = N_("Compose");
-gchar *s = N_("Reply selected message");
+gchar *s = N_("Reply to selected message");
 gchar *s = N_("Reply");
 gchar *s = N_("Reply to all recipients of the selected message");
 gchar *s = N_("Reply All");
@@ -82,37 +108,47 @@ gchar *s = N_("Select previous message");
 gchar *s = N_("Previous");
 gchar *s = N_("Select next message");
 gchar *s = N_("Next");
+gchar *s = N_("Open the Address Book");
 gchar *s = N_("Contacts");
+gchar *s = N_("Close Cronos II");
 gchar *s = N_("Exit");
 gchar *s = N_("label7");
 gchar *s = N_("Show the Message Transfer dialog");
 gchar *s = N_("That mailbox name\n"
-              "is already taken.");
+              "is already in use.\n"
+              "Please choose another.");
 gchar *s = N_("Error");
 gchar *s = N_("Mailbox properties");
+gchar *s = N_("Finished");
+gchar *s = N_("Abort");
 gchar *s = N_("Warning");
-gchar *s = N_("The edition of mailboxes is really dangerous and might result in the lost of all mails of the mailbox.");
-gchar *s = N_("Type here the name of the new mailbox");
+gchar *s = N_("Editing Mailbox Properties is dangerous. Please Backup your valuable files.");
+gchar *s = N_("Here you type the name of your new Mailbox");
 gchar *s = N_("Type:");
 gchar *s = N_("Name:");
 gchar *s = N_("Select the type of access you want for this mailbox");
+gchar *s = N_("pop3");
+gchar *s = N_("SMTP");
+gchar *s = N_("spool");
 gchar *s = N_("Extra data");
 gchar *s = N_("Port:");
-gchar *s = N_("Type here the port where this mailbox is stored");
-gchar *s = N_("Type here the hostname where this mailbox is stored");
+gchar *s = N_("Enter the server port number");
+gchar *s = N_("Here you type the hostname of the server where this mailbox is kept.");
+gchar *s = N_("Your Password at the server");
 gchar *s = N_("Hostname:");
 gchar *s = N_("Username:");
 gchar *s = N_("Password:");
+gchar *s = N_("Your Username at the server");
 gchar *s = N_("Path:");
 gchar *s = N_("Select file");
 gchar *s = N_("© 2000-2001 Pablo Fernández Navarro");
 gchar *s = N_("Cronos II is a fast, light, user friendly and powerful mail client for the Gnome Desktop.\n"
-              "It has an extended and intuitive interface which will make life for novice easier without taking out the power to the gurus.\n"
+              "It has an extended and intuitive interface which makes life easier for the novice whilst retaining flexibility for the gurus.\n"
               " \n"
               "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
               "See the 'COPYING' file for the complete license or check it at http://www.gnu.org.\n"
               " \n"
-              "You can find the website of Cronos II at:\n"
+              "You can find the CronoII website at:\n"
               "http://cronosII.sourceforge.net");
 gchar *s = N_("Cronos II");
 gchar *s = N_("_New File");
@@ -127,24 +163,35 @@ gchar *s = N_("Groups:");
 gchar *s = N_("Name");
 gchar *s = N_("E-Mail");
 gchar *s = N_("Comments");
+gchar *s = N_("CronosII Address Book Vcard");
 gchar *s = N_("Address Book vCard");
 gchar *s = N_("Create a new mailbox");
 gchar *s = N_("_New Mailbox");
 gchar *s = N_("Delete selected mailbox");
 gchar *s = N_("_Delete Mailbox");
-gchar *s = N_("The deletion of a mailbox will\n"
-              "permanently delete all mails stored\n"
-              "in it and all mailboxes pending from it.\n"
+gchar *s = N_("Are You Sure ?");
+gchar *s = N_("\n"
+              "Removing a Mailbox will eliminate all of it's contents. \n"
+              "This includes any sub-mailboxes.\n"
               "\n"
-              "Are you sure you want to delete it?");
+              "Are you sure you want to delete this Mailbox?");
 gchar *s = N_("Question");
+gchar *s = N_("Yes, I am sure.");
+gchar *s = N_("Hmm. Perhaps Later.");
+gchar *s = N_("Select this to backup your mail.");
 gchar *s = N_("Archive mails (recommended).");
 gchar *s = N_("Cronos II : Composer");
+gchar *s = N_("Composer Text Menu Bar");
+gchar *s = N_("Save");
+gchar *s = N_("Save this message to the Drafts Mailbox");
+gchar *s = N_("Close the Composer Window");
+gchar *s = N_("Select the entire contents of the current message");
 gchar *s = N_("_Insert");
 gchar *s = N_("Insert a file as in-line.");
 gchar *s = N_("_File");
 gchar *s = N_("Insert a file as an attachment");
 gchar *s = N_("_Attachment");
+gchar *s = N_("Not Yet");
 gchar *s = N_("_Spell Checker");
 gchar *s = N_("_Options");
 gchar *s = N_("Priority");
@@ -153,14 +200,18 @@ gchar *s = N_("High");
 gchar *s = N_("Normal");
 gchar *s = N_("Low");
 gchar *s = N_("Lowest");
+gchar *s = N_("Enable Word Wrap");
 gchar *s = N_("Wrap");
 gchar *s = N_("New File");
 gchar *s = N_("New");
 gchar *s = N_("Open File");
 gchar *s = N_("Open");
-gchar *s = N_("Save File");
+gchar *s = N_("Save File ");
 gchar *s = N_("Save");
+gchar *s = N_("The Message Transfer Progress Window");
 gchar *s = N_("Message Tranfer");
+gchar *s = N_("Click here to close this window. The tranfer will continue");
+gchar *s = N_("Cancel or Halt the transfer");
 gchar *s = N_("Tasks's list");
 gchar *s = N_("Account");
 gchar *s = N_("Information");
@@ -168,32 +219,41 @@ gchar *s = N_("Subtasks");
 gchar *s = N_("This bar shows how many subtasks there are for the current task");
 gchar *s = N_("%v of %u [%P%%]");
 gchar *s = N_("Progress of subtask");
+gchar *s = N_("This shows how far through the tasks we are.");
 gchar *s = N_("%u bytes [%P%%]");
+gchar *s = N_("Make this window go away when it's not required.");
 gchar *s = N_("Automatically close when finished.");
+gchar *s = N_("Server access error.  Your Service Provider or your System Administrator should have most of this information.");
 gchar *s = N_("Bad Password");
+gchar *s = N_("Ok. I Think that's correct");
+gchar *s = N_("I'll fix this very soon I promise !");
 gchar *s = N_("Password:");
 gchar *s = N_("Username:");
 gchar *s = N_("Account:");
-gchar *s = N_("The server has rejected the password\n"
-              "you seted for this account.");
+gchar *s = N_("The name You gave this account when you configured it.");
+gchar *s = N_("The server has rejected the password set  for this account.\n"
+              "Please Enter the correct information.");
+gchar *s = N_("Your Account User Name at the mail server");
+gchar *s = N_("Your Password for this mail server. ");
+gchar *s = N_("CronosII Contact Details");
 gchar *s = N_("Getting in Touch");
-gchar *s = N_("You can easily get in touch for help (or just for chating)\n"
-              "with anyone of the Cronos II comunity (users or developers).\n"
+gchar *s = N_("Find some help, submit a Bug Report, add a Feature Request \n"
+              "or drop in for a Chat.\n"
               "\n"
-              "There're several methods for getting in touch with us,\n"
-              "you should select whatever is better for you.\n"
+              "\n"
               "\n"
               "_E_-_M_a_i_l:\n"
               "\n"
-              "To send a mail to de developers you should write to\n"
+              "To send mail to the CronosII Developers you should write to\n"
               "our mailing list: _c_r_o_n_o_s_I_I_-_d_e_v_e_l_o_p_e_r_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n"
               "\n"
-              "To contact other users of Cronos II you better send it\n"
+              "To contact other Users of Cronos II send mail\n"
               "to the user's mailing list: _c_r_o_n_o_s_I_I_-_u_s_e_r_s_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n"
               "\n"
-              "Note that if you want to contact a special developer for\n"
-              "a special bug-report or for whatever reason you should\n"
-              "check the Cronos II homepage for a list of contacts.\n"
+              "To contact a particular developer:\n"
+              "Check the Cronos II homepage for a list of contacts, \n"
+              "or select the About dialog from the same menu (Help)\n"
+              "you launched this dialog from.\n"
               "\n"
               "_I_R_C:\n"
               "\n"

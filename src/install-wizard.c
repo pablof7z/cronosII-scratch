@@ -833,12 +833,12 @@ c2_install_new (void)
 	gnome_druid_page_start_set_text_color (GNOME_DRUID_PAGE_START (druidpage1), &druidpage1_text_color);
 	gnome_druid_page_start_set_title (GNOME_DRUID_PAGE_START (druidpage1), _("Welcome to Cronos II 0.3.0"));
 	gnome_druid_page_start_set_text (GNOME_DRUID_PAGE_START (druidpage1),
-			_("Since this is the first time you ever used Cronos II 0.3.0\n"
-			  "your configuration must be created, in order to be able\n"
-			  "to use all of the new functions Cronos II has.\n"
+			_("This seems to be your first use of this version of CronosII.\n"
+			  "Your new configuration should be created now.\n"
 			  "\n"
-			  "Through this simple wizard you will be able to finish the\n"
-			  "installation of Cronos II in your system.\n"
+			  "\n"
+			  "This Druid (wizard) is here to help you complete\n"
+			  "the installation and configuration  of Cronos II for your system.\n"
 			  "\n"
 			  "To start the process, press the 'Next' button."));
 	gtk_signal_connect (GTK_OBJECT (druidpage1), "next",
@@ -879,9 +879,9 @@ c2_install_new (void)
 	gnome_druid_page_finish_set_text_color (GNOME_DRUID_PAGE_FINISH (druidpage3), &druidpage1_text_color);
 	gnome_druid_page_finish_set_title (GNOME_DRUID_PAGE_FINISH (druidpage3), _("Installation complete"));
 	gnome_druid_page_finish_set_text (GNOME_DRUID_PAGE_FINISH (druidpage3),
-				_("The installation of Cronos II in your system is complete, you can\n"
-				  "now start it by clicking the 'Finish' button or by accessing your\n"
-				  "Gnome menu in the Net menu.\n"
+				_("The installation of Cronos II on your system is now complete, you can\n"
+				  "now start CronosII by clicking the 'Finish' button or by launching your\n"
+				  "Gnome menus and finding CronosII within the Net menu.\n"
 				  "\n"
 				  "Thanks for choosing Cronos II.\n"
 				  "The Cronos II Developers Team."));
@@ -899,7 +899,7 @@ on_close (void)
 	if (!process_done)
 	{
 		GtkWidget *_window = gnome_question_dialog (_(
-					"The configuration wasn't generated.\n"
+					"The configuration was not generated.\n"
 					"Quit anyway?"), NULL, NULL);
 		if (gnome_dialog_run_and_close (GNOME_DIALOG (_window)) == 0)
 		{

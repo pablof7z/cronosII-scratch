@@ -415,3 +415,4 @@ load_mailboxes (void)
 
 	c2_app.mailbox = c2_mailbox_get_head ();
 }
+
