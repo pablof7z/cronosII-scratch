@@ -1,3 +1,19 @@
+Sat Oct 06 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Work in the Toolbar widget.
+
+Fri Oct 05 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Work in the Toolbar widget.
+	* Added new pixmaps.
+
+Thu Oct 04 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Work to make the Toolbar dynamic.
+	* Fixed a new bug (due changes in the net object module) in
+	  Widget Transfer Item.
+
+Wed Oct 03 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* New Toolbar widget.
+	* Work to make the Toolbar dynamic.
+
 Tue Oct 02 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Discussed changes to the net object interface has been done.
 

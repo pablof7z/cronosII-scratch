@@ -876,174 +876,12 @@
       <locked>False</locked>
       <exclusive>True</exclusive>
       <never_floating>False</never_floating>
-      <never_vertical>False</never_vertical>
+      <never_vertical>True</never_vertical>
       <never_horizontal>False</never_horizontal>
       <shadow_type>GTK_SHADOW_OUT</shadow_type>
 
       <widget>
-	<class>GtkToolbar</class>
-	<name>toolbar</name>
-	<border_width>1</border_width>
-	<orientation>GTK_ORIENTATION_HORIZONTAL</orientation>
-	<type>GTK_TOOLBAR_BOTH</type>
-	<space_size>4</space_size>
-	<space_style>GTK_TOOLBAR_SPACE_LINE</space_style>
-	<relief>GTK_RELIEF_NONE</relief>
-	<tooltips>True</tooltips>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>toolbar_check</name>
-	  <tooltip>Check all accounts for new mail.</tooltip>
-	  <label>Check</label>
-	  <icon>receive.xpm</icon>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>toolbar_send</name>
-	  <sensitive>False</sensitive>
-	  <tooltip>Send unsent messages from the mail queue</tooltip>
-	  <label>Send</label>
-	  <icon>send.xpm</icon>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>toolbar_save</name>
-	  <sensitive>False</sensitive>
-	  <tooltip>Save current message to file.</tooltip>
-	  <label>Save</label>
-	  <icon>save.xpm</icon>
-	  <child>
-	    <new_group>True</new_group>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>toolbar_print</name>
-	  <sensitive>False</sensitive>
-	  <tooltip>Print current message</tooltip>
-	  <label>Print</label>
-	  <icon>print.xpm</icon>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>toolbar_delete</name>
-	  <tooltip>Delete selected messages</tooltip>
-	  <label>Delete</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_TRASH</stock_pixmap>
-	  <child>
-	    <new_group>True</new_group>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>toolbar_compose</name>
-	  <tooltip>Compose a new message</tooltip>
-	  <signal>
-	    <name>clicked</name>
-	    <handler>on_compose_clicked</handler>
-	    <last_modification_time>Thu, 09 Aug 2001 19:27:27 GMT</last_modification_time>
-	  </signal>
-	  <label>Compose</label>
-	  <icon>mail-write.xpm</icon>
-	  <child>
-	    <new_group>True</new_group>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>toolbar_reply</name>
-	  <sensitive>False</sensitive>
-	  <tooltip>Reply to the selected message</tooltip>
-	  <label>Reply</label>
-	  <icon>reply-big.xpm</icon>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>toolbar_reply_all</name>
-	  <sensitive>False</sensitive>
-	  <tooltip>Reply to all recipients of the selected message</tooltip>
-	  <label>Reply All</label>
-	  <icon>reply-all-big.xpm</icon>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>toolbar_forward</name>
-	  <sensitive>False</sensitive>
-	  <tooltip>Forward selected message</tooltip>
-	  <label>Forward</label>
-	  <icon>forward-big.xpm</icon>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>toolbar_previous</name>
-	  <sensitive>False</sensitive>
-	  <tooltip>Select previous message</tooltip>
-	  <label>Previous</label>
-	  <icon>prev.xpm</icon>
-	  <child>
-	    <new_group>True</new_group>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>toolbar_next</name>
-	  <sensitive>False</sensitive>
-	  <tooltip>Select next message</tooltip>
-	  <label>Next</label>
-	  <icon>next.xpm</icon>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>toolbar_contacts</name>
-	  <sensitive>False</sensitive>
-	  <tooltip>Open the Address Book</tooltip>
-	  <label>Contacts</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_BOOK_RED</stock_pixmap>
-	  <child>
-	    <new_group>True</new_group>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <child_name>Toolbar:button</child_name>
-	  <name>toolbar_exit</name>
-	  <tooltip>Close Cronos II</tooltip>
-	  <signal>
-	    <name>clicked</name>
-	    <handler>on_quit</handler>
-	    <last_modification_time>Thu, 09 Aug 2001 02:30:16 GMT</last_modification_time>
-	  </signal>
-	  <label>Exit</label>
-	  <stock_pixmap>GNOME_STOCK_PIXMAP_EXIT</stock_pixmap>
-	  <child>
-	    <new_group>True</new_group>
-	  </child>
-	</widget>
+	<class>Placeholder</class>
       </widget>
     </widget>
 
@@ -3159,67 +2997,483 @@ and try again.</message>
 
   <widget>
     <class>GtkRadioMenuItem</class>
-    <name>both</name>
-    <tooltip>Show both icons and text in the buttons</tooltip>
+    <name>text_beside_icons</name>
     <signal>
       <name>activate</name>
-      <handler>on_both_activate</handler>
-      <last_modification_time>Fri, 07 Sep 2001 22:16:57 GMT</last_modification_time>
+      <handler>on_text_beside_icons_activate</handler>
+      <last_modification_time>Thu, 04 Oct 2001 21:26:01 GMT</last_modification_time>
     </signal>
-    <label>_Both</label>
-    <active>False</active>
+    <label>Text _beside icons</label>
+    <active>True</active>
     <always_show_toggle>True</always_show_toggle>
-    <group>toolbar_style</group>
+    <group>type</group>
   </widget>
 
   <widget>
     <class>GtkRadioMenuItem</class>
-    <name>icons</name>
-    <tooltip>Show only the icons in the buttons</tooltip>
+    <name>text_under_icons</name>
     <signal>
       <name>activate</name>
-      <handler>on_icons_activate</handler>
-      <last_modification_time>Fri, 07 Sep 2001 22:16:57 GMT</last_modification_time>
+      <handler>on_text_under_icons_activate</handler>
+      <last_modification_time>Thu, 04 Oct 2001 21:26:01 GMT</last_modification_time>
     </signal>
-    <label>_Icons</label>
+    <label>Text _under icons</label>
     <active>False</active>
     <always_show_toggle>True</always_show_toggle>
-    <group>toolbar_style</group>
+    <group>type</group>
   </widget>
 
   <widget>
     <class>GtkRadioMenuItem</class>
-    <name>text</name>
-    <tooltip>Show just text in the buttons</tooltip>
+    <name>text_only</name>
     <signal>
       <name>activate</name>
-      <handler>on_text_activate</handler>
-      <last_modification_time>Fri, 07 Sep 2001 22:16:57 GMT</last_modification_time>
+      <handler>on_text_only_activate</handler>
+      <last_modification_time>Thu, 04 Oct 2001 21:26:01 GMT</last_modification_time>
     </signal>
-    <label>_Text</label>
+    <label>_Text only</label>
     <active>False</active>
     <always_show_toggle>True</always_show_toggle>
-    <group>toolbar_style</group>
+    <group>type</group>
+  </widget>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>icons_only</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_icons_only_activate</handler>
+      <last_modification_time>Thu, 04 Oct 2001 21:26:01 GMT</last_modification_time>
+    </signal>
+    <label>_Icons only</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>type</group>
   </widget>
 
   <widget>
     <class>GtkMenuItem</class>
-    <name>separador1</name>
+    <name>separator17</name>
     <right_justify>False</right_justify>
   </widget>
 
   <widget>
-    <class>GtkCheckMenuItem</class>
-    <name>tooltips</name>
-    <tooltip>Show tooltips of buttons</tooltip>
+    <class>GtkRadioMenuItem</class>
+    <name>default_theme</name>
     <signal>
       <name>activate</name>
-      <handler>on_tooltips_activate</handler>
-      <last_modification_time>Fri, 07 Sep 2001 22:16:57 GMT</last_modification_time>
+      <handler>on_default_theme_activate</handler>
+      <last_modification_time>Sat, 06 Oct 2001 10:16:05 GMT</last_modification_time>
     </signal>
-    <label>_Tooltips</label>
-    <active>False</active>
+    <label>_Default Theme</label>
+    <active>True</active>
     <always_show_toggle>True</always_show_toggle>
+    <group>themes</group>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separator18</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>download_themes</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_download_themes_activate</handler>
+      <last_modification_time>Sat, 06 Oct 2001 10:16:05 GMT</last_modification_time>
+    </signal>
+    <label>Do_wnload themes</label>
+    <right_justify>False</right_justify>
+    <stock_icon>GNOME_STOCK_MENU_PROP</stock_icon>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separator16</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkPixmapMenuItem</class>
+    <name>edit_toolbar</name>
+    <signal>
+      <name>activate</name>
+      <handler>on_edit_toolbar_activate</handler>
+      <last_modification_time>Thu, 04 Oct 2001 21:06:08 GMT</last_modification_time>
+    </signal>
+    <label>_Edit toolbar...</label>
+    <right_justify>False</right_justify>
+    <stock_icon>GNOME_STOCK_MENU_PREF</stock_icon>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeDialog</class>
+  <name>dlg_toolbar_configuration</name>
+  <width>500</width>
+  <height>385</height>
+  <title>Toolbar configuration</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_CENTER</position>
+  <modal>False</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>False</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <auto_close>False</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox15</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area15</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button82</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_HELP</stock_button>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button84</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button89</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkVBox</class>
+      <name>vbox18</name>
+      <homogeneous>False</homogeneous>
+      <spacing>4</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkHBox</class>
+	<name>dlg_toolbar_configuration_contents</name>
+	<homogeneous>False</homogeneous>
+	<spacing>8</spacing>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GtkFrame</class>
+	  <name>frame1</name>
+	  <label>Available elements</label>
+	  <label_xalign>0</label_xalign>
+	  <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	  <child>
+	    <padding>0</padding>
+	    <expand>True</expand>
+	    <fill>True</fill>
+	  </child>
+
+	  <widget>
+	    <class>GtkScrolledWindow</class>
+	    <name>scrolledwindow13</name>
+	    <border_width>2</border_width>
+	    <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
+	    <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
+	    <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+	    <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+
+	    <widget>
+	      <class>GtkCList</class>
+	      <name>available_clist</name>
+	      <can_focus>True</can_focus>
+	      <columns>2</columns>
+	      <column_widths>80,80</column_widths>
+	      <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
+	      <show_titles>False</show_titles>
+	      <shadow_type>GTK_SHADOW_IN</shadow_type>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<child_name>CList:title</child_name>
+		<name>label73</name>
+		<label>label73</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>0.5</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+	      </widget>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<child_name>CList:title</child_name>
+		<name>label74</name>
+		<label>label74</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>0.5</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+	      </widget>
+	    </widget>
+	  </widget>
+	</widget>
+
+	<widget>
+	  <class>GtkAlignment</class>
+	  <name>alignment1</name>
+	  <xalign>0.5</xalign>
+	  <yalign>0.5</yalign>
+	  <xscale>0</xscale>
+	  <yscale>0</yscale>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>True</fill>
+	  </child>
+
+	  <widget>
+	    <class>GtkTable</class>
+	    <name>table4</name>
+	    <rows>3</rows>
+	    <columns>3</columns>
+	    <homogeneous>False</homogeneous>
+	    <row_spacing>0</row_spacing>
+	    <column_spacing>0</column_spacing>
+
+	    <widget>
+	      <class>GtkButton</class>
+	      <name>up_btn</name>
+	      <sensitive>False</sensitive>
+	      <relief>GTK_RELIEF_NONE</relief>
+	      <child>
+		<left_attach>1</left_attach>
+		<right_attach>2</right_attach>
+		<top_attach>0</top_attach>
+		<bottom_attach>1</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>False</xexpand>
+		<yexpand>False</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>False</yfill>
+	      </child>
+
+	      <widget>
+		<class>GtkArrow</class>
+		<name>arrow1</name>
+		<arrow_type>GTK_ARROW_UP</arrow_type>
+		<shadow_type>GTK_SHADOW_OUT</shadow_type>
+		<xalign>0.5</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+	      </widget>
+	    </widget>
+
+	    <widget>
+	      <class>GtkButton</class>
+	      <name>down_btn</name>
+	      <sensitive>False</sensitive>
+	      <relief>GTK_RELIEF_NONE</relief>
+	      <child>
+		<left_attach>1</left_attach>
+		<right_attach>2</right_attach>
+		<top_attach>2</top_attach>
+		<bottom_attach>3</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>False</xexpand>
+		<yexpand>False</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>False</yfill>
+	      </child>
+
+	      <widget>
+		<class>GtkArrow</class>
+		<name>arrow3</name>
+		<arrow_type>GTK_ARROW_DOWN</arrow_type>
+		<shadow_type>GTK_SHADOW_OUT</shadow_type>
+		<xalign>0.5</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+	      </widget>
+	    </widget>
+
+	    <widget>
+	      <class>GtkButton</class>
+	      <name>right_btn</name>
+	      <sensitive>False</sensitive>
+	      <relief>GTK_RELIEF_NONE</relief>
+	      <child>
+		<left_attach>2</left_attach>
+		<right_attach>3</right_attach>
+		<top_attach>1</top_attach>
+		<bottom_attach>2</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>False</xexpand>
+		<yexpand>False</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>False</yfill>
+	      </child>
+
+	      <widget>
+		<class>GtkArrow</class>
+		<name>arrow2</name>
+		<arrow_type>GTK_ARROW_RIGHT</arrow_type>
+		<shadow_type>GTK_SHADOW_OUT</shadow_type>
+		<xalign>0.5</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+	      </widget>
+	    </widget>
+
+	    <widget>
+	      <class>GtkButton</class>
+	      <name>left_btn</name>
+	      <sensitive>False</sensitive>
+	      <relief>GTK_RELIEF_NONE</relief>
+	      <child>
+		<left_attach>0</left_attach>
+		<right_attach>1</right_attach>
+		<top_attach>1</top_attach>
+		<bottom_attach>2</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>False</xexpand>
+		<yexpand>False</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>False</yfill>
+	      </child>
+
+	      <widget>
+		<class>GtkArrow</class>
+		<name>arrow4</name>
+		<arrow_type>GTK_ARROW_LEFT</arrow_type>
+		<shadow_type>GTK_SHADOW_OUT</shadow_type>
+		<xalign>0.5</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+	      </widget>
+	    </widget>
+	  </widget>
+	</widget>
+
+	<widget>
+	  <class>GtkFrame</class>
+	  <name>frame2</name>
+	  <label>Current Toolbar</label>
+	  <label_xalign>0</label_xalign>
+	  <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	  <child>
+	    <padding>0</padding>
+	    <expand>True</expand>
+	    <fill>True</fill>
+	  </child>
+
+	  <widget>
+	    <class>GtkScrolledWindow</class>
+	    <name>scrolledwindow14</name>
+	    <border_width>2</border_width>
+	    <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
+	    <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
+	    <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+	    <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+
+	    <widget>
+	      <class>GtkCList</class>
+	      <name>current_clist</name>
+	      <can_focus>True</can_focus>
+	      <columns>2</columns>
+	      <column_widths>80,80</column_widths>
+	      <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
+	      <show_titles>False</show_titles>
+	      <shadow_type>GTK_SHADOW_IN</shadow_type>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<child_name>CList:title</child_name>
+		<name>label75</name>
+		<label>label75</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>0.5</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+	      </widget>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<child_name>CList:title</child_name>
+		<name>label76</name>
+		<label>label76</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>0.5</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+	      </widget>
+	    </widget>
+	  </widget>
+	</widget>
+      </widget>
+    </widget>
   </widget>
 </widget>
 

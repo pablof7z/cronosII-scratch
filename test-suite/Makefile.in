@@ -131,7 +131,7 @@ gconfconfig = @gconfconfig@
 gnomedownload = @gnomedownload@
 l = @l@
 
-bin_PROGRAMS = account date db hash mailbox message pop3 request smtp
+bin_PROGRAMS = account date db hash mailbox message pop3 request smtp utils
 
 INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules -I$(top_srcdir)/src $(GNOME_INCLUDEDIR)
 
@@ -174,6 +174,10 @@ request_LDFLAGS = $(LDFLAGS)
 smtp_SOURCES = smtp.c
 smtp_LDADD = $(LDADD)
 smtp_LDFLAGS = $(LDFLAGS)
+
+utils_SOURCES = utils.c
+utils_LDADD = $(LDADD)
+utils_LDFLAGS = $(LDFLAGS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -200,6 +204,8 @@ request_OBJECTS =  request.o
 request_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 smtp_OBJECTS =  smtp.o
 smtp_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+utils_OBJECTS =  utils.o
+utils_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -213,9 +219,9 @@ TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/account.P .deps/date.P .deps/db.P .deps/hash.P \
 .deps/mailbox.P .deps/message.P .deps/pop3.P .deps/request.P \
-.deps/smtp.P
-SOURCES = $(account_SOURCES) $(date_SOURCES) $(db_SOURCES) $(hash_SOURCES) $(mailbox_SOURCES) $(message_SOURCES) $(pop3_SOURCES) $(request_SOURCES) $(smtp_SOURCES)
-OBJECTS = $(account_OBJECTS) $(date_OBJECTS) $(db_OBJECTS) $(hash_OBJECTS) $(mailbox_OBJECTS) $(message_OBJECTS) $(pop3_OBJECTS) $(request_OBJECTS) $(smtp_OBJECTS)
+.deps/smtp.P .deps/utils.P
+SOURCES = $(account_SOURCES) $(date_SOURCES) $(db_SOURCES) $(hash_SOURCES) $(mailbox_SOURCES) $(message_SOURCES) $(pop3_SOURCES) $(request_SOURCES) $(smtp_SOURCES) $(utils_SOURCES)
+OBJECTS = $(account_OBJECTS) $(date_OBJECTS) $(db_OBJECTS) $(hash_OBJECTS) $(mailbox_OBJECTS) $(message_OBJECTS) $(pop3_OBJECTS) $(request_OBJECTS) $(smtp_OBJECTS) $(utils_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -320,6 +326,10 @@ request: $(request_OBJECTS) $(request_DEPENDENCIES)
 smtp: $(smtp_OBJECTS) $(smtp_DEPENDENCIES)
 	@rm -f smtp
 	$(LINK) $(smtp_LDFLAGS) $(smtp_OBJECTS) $(smtp_LDADD) $(LIBS)
+
+utils: $(utils_OBJECTS) $(utils_DEPENDENCIES)
+	@rm -f utils
+	$(LINK) $(utils_LDFLAGS) $(utils_OBJECTS) $(utils_LDADD) $(LIBS)
 
 tags: TAGS
 

@@ -2,7 +2,11 @@ pixmapdir = $(pkgdatadir)/pixmaps
 pixmap_DATA = \
 	advanced_misc.png	\
 	blue_arrow.png		\
+	contacts.png		\
+	copy-message.png	\
+	delete.png			\
 	drafts.png			\
+	find.png			\
 	folder-closed.png	\
 	folder-opened.png	\
 	forward.png			\
@@ -21,20 +25,28 @@ pixmap_DATA = \
 	mailbox.png			\
 	mail-write.png		\
 	mails.png			\
+	mark-forward.png	\
+	mark-reply.png		\
 	mark.png			\
 	mcard-edit.png		\
 	mcard-edit_menu.png	\
 	mcard.png			\
 	mcard-menu.png		\
+	move-message.png	\
+	next.png			\
 	no-image.png		\
+	prev.png			\
+	print.png			\
 	outbox.png			\
 	queue_mbox.png		\
 	read.png			\
 	receive.png			\
 	red_arrow.png		\
+	save.png			\
 	send.png			\
 	send-receive.png	\
 	splash.png			\
+	reply-all.png		\
 	reply.png			\
 	unknown-file.png	\
 	unread.png			\

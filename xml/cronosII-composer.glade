@@ -503,7 +503,7 @@
 		<last_modification_time>Wed, 08 Aug 2001 02:48:12 GMT</last_modification_time>
 	      </signal>
 	      <label>_Normal</label>
-	      <active>False</active>
+	      <active>True</active>
 	      <always_show_toggle>True</always_show_toggle>
 	      <group>priority</group>
 	    </widget>
@@ -531,7 +531,7 @@
 		<last_modification_time>Wed, 08 Aug 2001 02:48:12 GMT</last_modification_time>
 	      </signal>
 	      <label>V_ery Low</label>
-	      <active>True</active>
+	      <active>False</active>
 	      <always_show_toggle>True</always_show_toggle>
 	      <group>priority</group>
 	    </widget>
