@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +14,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández López
+ * Code of this file by:
+ * 		* Pablo Fernández López
  */
 #include <glib.h>
 #include <stdlib.h>
@@ -174,7 +180,7 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 static void
 destroy (GtkObject *object)
 {
-	C2Mailbox *mailbox;
+	C2Mailbox *mailbox, *l, *n;
 
 	mailbox = C2_MAILBOX (object);
 	c2_mailbox_destroy_node (mailbox);
@@ -233,6 +239,9 @@ _c2_mailbox_new (C2Mailbox **head, const gchar *name, const gchar *id, gboolean 
 	switch (type)
 	{
 		case C2_MAILBOX_CRONOSII:
+			mailbox->protocol.cronosII.fd = NULL;
+			mailbox->protocol.cronosII.mid = -1;
+			c2_mutex_init (&mailbox->protocol.cronosII.lock);
 			break;
 		case C2_MAILBOX_IMAP:
 			va_start (edata, sort_type);
@@ -270,7 +279,7 @@ C2Mailbox *
 c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *parent_id, C2MailboxType type,
 							C2MailboxSortBy sort_by, GtkSortType sort_type, ...)
 {
-	C2Mailbox *value = NULL;
+	C2Mailbox *value;
 	gboolean create_db_struct = TRUE;
 	gchar *id;
 	va_list edata;
@@ -462,15 +471,12 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
  * Removes a mailbox and all of its children.
  * 
  * TODO: Ability to delete the mailbox with ID "0".
- * 
- * Return Value:
- * TRUE on success, FALSE otherwise
  **/
 gboolean
 c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 {
 	C2Mailbox *parent = NULL, *previous = NULL, *next;
-	gchar *parent_id, *previous_id;
+	gchar *parent_id, *previous_id, *next_id;
 	gint my_id;
 	
 	c2_return_val_if_fail (mailbox, FALSE, C2EDATA);
@@ -574,13 +580,15 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 static C2Mailbox *
 _c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id, guint level)
 {
+	const gchar *ptr;
 	C2Mailbox *l;
+	gint pos = 0;
 	gint top_id;
 	gint ck_id;
 
 	c2_return_val_if_fail (head, NULL, C2EDATA);
 	if(!id)
-		return NULL; /* hey, shit happens, return quietly... */
+		return NULL; /* hey, shit happens in the macro's-- return quietly */	 
 	/* c2_return_val_if_fail (id, NULL, C2EDATA); */
 
 	top_id = c2_mailbox_get_id (id, level);
@@ -817,7 +825,7 @@ c2_mailbox_get_by_id (C2Mailbox *head, const gchar *id)
 gboolean
 c2_mailbox_load_db (C2Mailbox *mailbox)
 {
-	c2_return_val_if_fail (mailbox, FALSE, C2EDATA);
+	c2_return_if_fail (mailbox, C2EDATA);
 
 	/* Check if it is already loaded */
 	if (mailbox->db)
@@ -827,7 +835,7 @@ c2_mailbox_load_db (C2Mailbox *mailbox)
 	}
 
 	/* We must load the db */
-	if (c2_db_load (mailbox) < 0)
+	if (!c2_db_load (mailbox))
 	{
 		gtk_signal_emit (GTK_OBJECT (mailbox), signals[DB_LOADED], FALSE);
 		return FALSE;
