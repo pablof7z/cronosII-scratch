@@ -311,7 +311,7 @@ c2_account_get_by_name (C2Account *head, const gchar *name)
 		if (c2_streq (l->name, name))
 			break;
 
-	return NULL;
+	return l;
 }
 
 /**
