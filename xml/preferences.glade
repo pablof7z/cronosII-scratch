@@ -3611,7 +3611,7 @@ IMAP
 		<update_policy>GTK_UPDATE_ALWAYS</update_policy>
 		<snap>False</snap>
 		<wrap>False</wrap>
-		<value>1</value>
+		<value>110</value>
 		<lower>1</lower>
 		<upper>99999</upper>
 		<step>1</step>
@@ -4125,6 +4125,7 @@ Sendmail
 		<class>GtkOptionMenu</class>
 		<name>outgoing_auth_type</name>
 		<height>23</height>
+		<sensitive>False</sensitive>
 		<can_focus>True</can_focus>
 		<items>Password
 </items>
@@ -4148,6 +4149,7 @@ Sendmail
 	      <widget>
 		<class>GtkCheckButton</class>
 		<name>outgoing_auth_remember</name>
+		<sensitive>False</sensitive>
 		<can_focus>True</can_focus>
 		<label>Remember password.</label>
 		<active>True</active>
@@ -4467,7 +4469,7 @@ Sendmail
 		<class>GtkCheckButton</class>
 		<name>options_multiple_access_leave</name>
 		<can_focus>True</can_focus>
-		<label>Leave message in the server.</label>
+		<label>Leave messages in the server.</label>
 		<active>False</active>
 		<draw_indicator>True</draw_indicator>
 		<child>
@@ -4491,8 +4493,9 @@ Sendmail
 		<widget>
 		  <class>GtkCheckButton</class>
 		  <name>options_multiple_access_remove</name>
+		  <sensitive>False</sensitive>
 		  <can_focus>True</can_focus>
-		  <label>Remove messages which are</label>
+		  <label>Remove messages older than</label>
 		  <active>False</active>
 		  <draw_indicator>True</draw_indicator>
 		  <child>
@@ -4504,7 +4507,8 @@ Sendmail
 
 		<widget>
 		  <class>GtkSpinButton</class>
-		  <name>options_miltiple_access_remove_value</name>
+		  <name>options_multiple_access_remove_value</name>
+		  <sensitive>False</sensitive>
 		  <can_focus>True</can_focus>
 		  <climb_rate>1</climb_rate>
 		  <digits>0</digits>
@@ -4528,7 +4532,7 @@ Sendmail
 		<widget>
 		  <class>GtkLabel</class>
 		  <name>label176</name>
-		  <label>days all.</label>
+		  <label>days.</label>
 		  <justify>GTK_JUSTIFY_CENTER</justify>
 		  <wrap>False</wrap>
 		  <xalign>0.5</xalign>

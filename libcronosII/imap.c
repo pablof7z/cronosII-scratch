@@ -192,7 +192,7 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	}
 	
 	/* be careful to unlock the mutex before waiting on replies */
-	pthread_mutext_unlock(&imap->lock);
+	pthread_mutex_unlock(&imap->lock);
 	
 	/* here we should block or wait until our local imap
 	 * hash has a reply with the 'tag' tag. */

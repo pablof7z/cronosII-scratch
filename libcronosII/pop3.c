@@ -26,7 +26,7 @@
 #include "utils.h"
 #include "md5.h"
 
-#define DEFAULT_FLAGS C2_POP3_DONT_KEEP_COPY | C2_POP3_DONT_LOSE_PASSWORD
+#define DEFAULT_FLAGS C2_POP3_DO_NOT_KEEP_COPY | C2_POP3_DO_NOT_LOSE_PASSWORD
 
 static void
 class_init										(C2POP3Class *klass);
@@ -68,6 +68,98 @@ enum
 static guint signals[LAST_SIGNAL] = { 0 };
 
 static C2NetObject *parent_class = NULL;
+
+GtkType
+c2_pop3_get_type (void)
+{
+	static GtkType type = 0;
+
+	if (!type)
+	{
+		static const GtkTypeInfo info = {
+			"C2Pop3",
+			sizeof (C2POP3),
+			sizeof (C2POP3Class),
+			(GtkClassInitFunc) class_init,
+			(GtkObjectInitFunc) init,
+			/* reserved_1 */ NULL,
+			/* reserved_2 */ NULL,
+			(GtkClassInitFunc) NULL
+		};
+
+		type = gtk_type_unique (c2_net_object_get_type (), &info);
+	}
+
+	return type;
+}
+
+static void
+class_init (C2POP3Class *klass)
+{
+	GtkObjectClass *object_class;
+	
+	object_class = (GtkObjectClass *) klass;
+	
+	parent_class = gtk_type_class (c2_net_object_get_type ());
+
+	signals[LOGIN_FAILED] =
+		gtk_signal_new ("login_failed",
+					GTK_RUN_LAST,
+					object_class->type,
+					GTK_SIGNAL_OFFSET (C2POP3Class, login_failed),
+					c2_marshal_POINTER__POINTER, GTK_TYPE_STRING, 1,
+					GTK_TYPE_STRING);
+	signals[STATUS] =
+		gtk_signal_new ("status",
+					GTK_RUN_FIRST,
+					object_class->type,
+					GTK_SIGNAL_OFFSET (C2POP3Class, status),
+					gtk_marshal_NONE__INT, GTK_TYPE_NONE, 1,
+					GTK_TYPE_INT);
+
+	signals[RETRIEVE] =
+		gtk_signal_new ("retrieve",
+					GTK_RUN_FIRST,
+					object_class->type,
+					GTK_SIGNAL_OFFSET (C2POP3Class, retrieve),
+					c2_marshal_NONE__INT_INT_INT, GTK_TYPE_NONE, 3,
+					GTK_TYPE_INT, GTK_TYPE_INT, GTK_TYPE_INT);
+	
+	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
+	
+	klass->login_failed = NULL;
+	klass->status = NULL;
+	klass->retrieve = NULL;
+	object_class->destroy = destroy;
+}
+
+static void
+init (C2POP3 *pop3)
+{
+	pop3->user = pop3->pass = NULL;
+	pop3->flags = DEFAULT_FLAGS;
+	pthread_mutex_init (&pop3->run_lock, NULL);
+}
+
+static void
+destroy (GtkObject *object)
+{
+	C2POP3 *pop3 = C2_POP3 (object);
+
+	if (c2_net_object_is_offline (C2_NET_OBJECT (pop3)))
+#ifdef USE_DEBUG
+	{
+		g_print ("A C2Pop3 object is being freed while a connection is "
+				 "being used (%s)!\n", pop3->user);
+#endif
+		c2_net_object_disconnect (C2_NET_OBJECT (pop3));
+#ifdef USE_DEBUG
+	}
+#endif
+	g_free (pop3->user);
+	g_free (pop3->pass);
+	pthread_mutex_destroy (&pop3->run_lock);
+}
 
 /**
  * c2_pop3_new
@@ -116,6 +208,30 @@ c2_pop3_set_flags (C2POP3 *pop3, gint flags)
 	c2_return_if_fail (pop3, C2EDATA);
 
 	pop3->flags = flags;
+}
+
+void
+c2_pop3_set_auth_method (C2POP3 *pop3, C2POP3AuthenticationMethod auth_method)
+{
+	c2_return_if_fail (pop3, C2EDATA);
+
+	pop3->auth_method = auth_method;
+}
+
+void
+c2_pop3_set_leave_copy (C2POP3 *pop3, gboolean leave_copy, gint days)
+{
+	c2_return_if_fail (pop3, C2EDATA);
+
+	if (leave_copy)
+		pop3->flags |= C2_POP3_DO_KEEP_COPY;
+	else
+		pop3->flags |= C2_POP3_DO_NOT_KEEP_COPY;
+
+	if (leave_copy)
+		pop3->copies_in_server_life_time = ((days)*(86000));
+	else
+		pop3->copies_in_server_life_time = 0;
 }
 
 /**
@@ -512,96 +628,4 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 	}
 
 	return 0;
-}
-
-GtkType
-c2_pop3_get_type (void)
-{
-	static GtkType type = 0;
-
-	if (!type)
-	{
-		static const GtkTypeInfo info = {
-			"C2Pop3",
-			sizeof (C2POP3),
-			sizeof (C2POP3Class),
-			(GtkClassInitFunc) class_init,
-			(GtkObjectInitFunc) init,
-			/* reserved_1 */ NULL,
-			/* reserved_2 */ NULL,
-			(GtkClassInitFunc) NULL
-		};
-
-		type = gtk_type_unique (c2_net_object_get_type (), &info);
-	}
-
-	return type;
-}
-
-static void
-class_init (C2POP3Class *klass)
-{
-	GtkObjectClass *object_class;
-	
-	object_class = (GtkObjectClass *) klass;
-	
-	parent_class = gtk_type_class (c2_net_object_get_type ());
-
-	signals[LOGIN_FAILED] =
-		gtk_signal_new ("login_failed",
-					GTK_RUN_LAST,
-					object_class->type,
-					GTK_SIGNAL_OFFSET (C2POP3Class, login_failed),
-					c2_marshal_POINTER__POINTER, GTK_TYPE_STRING, 1,
-					GTK_TYPE_STRING);
-	signals[STATUS] =
-		gtk_signal_new ("status",
-					GTK_RUN_FIRST,
-					object_class->type,
-					GTK_SIGNAL_OFFSET (C2POP3Class, status),
-					gtk_marshal_NONE__INT, GTK_TYPE_NONE, 1,
-					GTK_TYPE_INT);
-
-	signals[RETRIEVE] =
-		gtk_signal_new ("retrieve",
-					GTK_RUN_FIRST,
-					object_class->type,
-					GTK_SIGNAL_OFFSET (C2POP3Class, retrieve),
-					c2_marshal_NONE__INT_INT_INT, GTK_TYPE_NONE, 3,
-					GTK_TYPE_INT, GTK_TYPE_INT, GTK_TYPE_INT);
-	
-	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
-	
-	klass->login_failed = NULL;
-	klass->status = NULL;
-	klass->retrieve = NULL;
-	object_class->destroy = destroy;
-}
-
-static void
-init (C2POP3 *pop3)
-{
-	pop3->user = pop3->pass = NULL;
-	pop3->flags = DEFAULT_FLAGS;
-	pthread_mutex_init (&pop3->run_lock, NULL);
-}
-
-static void
-destroy (GtkObject *object)
-{
-	C2POP3 *pop3 = C2_POP3 (object);
-
-	if (c2_net_object_is_offline (C2_NET_OBJECT (pop3)))
-#ifdef USE_DEBUG
-	{
-		g_print ("A C2Pop3 object is being freed while a connection is "
-				 "being used (%s)!\n", pop3->user);
-#endif
-		c2_net_object_disconnect (C2_NET_OBJECT (pop3));
-#ifdef USE_DEBUG
-	}
-#endif
-	g_free (pop3->user);
-	g_free (pop3->pass);
-	pthread_mutex_destroy (&pop3->run_lock);
 }

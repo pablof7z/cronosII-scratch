@@ -55,9 +55,9 @@ enum _C2POP3AuthenticationMethod
 enum _C2POP3Flags
 {
 	C2_POP3_DO_KEEP_COPY			= 1 << 1,	/* Will get a mail and leave a copy on server */
-	C2_POP3_DONT_KEEP_COPY			= 0 << 1,	/* Will get a mail and delete it on server */
+	C2_POP3_DO_NOT_KEEP_COPY		= 0 << 1,	/* Will get a mail and delete it on server */
 	C2_POP3_DO_LOSE_PASSWORD		= 1 << 2,	/* Will delete the password once it sended it correctly */
-	C2_POP3_DONT_LOSE_PASSWORD		= 0 << 2,	/* Will keep the password unless its wrong */
+	C2_POP3_DO_NOT_LOSE_PASSWORD	= 0 << 2,	/* Will keep the password unless its wrong */
 };
 
 struct _C2POP3
@@ -70,6 +70,9 @@ struct _C2POP3
 	gint port;
 
 	gint flags;
+
+	/* Seconds to wait until marking a message as obsolete. */
+	gint copies_in_server_life_time;
 
 	C2POP3AuthenticationMethod auth_method;
 
@@ -99,6 +102,12 @@ c2_pop3_new									(gchar *host, gint port, gchar *user,
 
 void
 c2_pop3_set_flags							(C2POP3 *pop3, gint flags);
+
+void
+c2_pop3_set_auth_method						(C2POP3 *pop3, C2POP3AuthenticationMethod auth_method);
+
+void
+c2_pop3_set_leave_copy						(C2POP3 *pop3, gboolean leave_copy, gint days);
 
 gint
 c2_pop3_fetchmail							(C2POP3 *pop3, C2Account *account, C2Mailbox *inbox);
