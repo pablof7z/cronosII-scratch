@@ -28,15 +28,20 @@
 
 /* C2 IMAP Module in the process of being engineered by Bosko */
 /* TODO: Get list of messages */
-/* TODO: Get and delete messages */
+/* TODO: Get messages */
+/* TODO: Move + Delete messages */
 /* TODO: (un)Subscribe to folders */
 /* TODO: Function that handles untagged messages that comes unwarranted */
 /* (in progress) TODO: Login (at least plain-text for now) */
 /* (in progress) TODO: Create a test module */
-/* (in progress) TODO: Create, rename, and remove folders */
+/* (in progress) TODO: Create Folders */
 /* (in progress)TODO: Internal folder managment + syncronization */
+/* (done!) TODO: Delete Folders */
+/* (done!) TODO: Rename Folders */
 /* (done!) TODO: Function for reading server replies */
 /* (done!) TODO: Get list of folders */
+
+const gint C2TagLen = 15; /* strlen("CronosII-XXXX "); */
 
 /* Private GtkObject functions */
 static void
@@ -74,9 +79,6 @@ c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name)
 
 static gint
 c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *head);
-
-static gint
-c2_imap_internal_update_folder (C2IMAP *imap, const gchar *old, const gchar *new);
 
 static guint
 c2_imap_get_folder_level (gchar *name);
@@ -526,18 +528,24 @@ c2_imap_populate_folders (C2IMAP *imap)
 {
 	gchar *start, *reply, *ptr, *buf;
 	
+	c2_mutex_lock(&imap->lock);
+	
 	if(imap->mailboxes)
 		c2_mailbox_destroy_tree(imap->mailboxes);
 	
 	if(c2_imap_folder_loop(imap, NULL) < 0)
+	{
+		c2_mutex_unlock(&imap->lock);
 		return -1;
+	}
 	
+	c2_mutex_unlock(&imap->lock);
 	return 0;
 }
 
 /** c2_imap_folder_loop
  * 
- * @imap: C2IMAP Object
+ * @imap: a locked C2IMAP Object
  * @parent: C2Mailbox for which to scan under for children,
  *          can be NULL, if scanning from top level of 
  *          folder heirarchy.
@@ -650,14 +658,6 @@ c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
 	return 0;
 }
 
-static gint
-c2_imap_internal_update_folder (C2IMAP *imap, const gchar *old, const gchar *new)
-{
-	/* TODO */
-	
-	return 0;
-}
-
 static guint
 c2_imap_get_folder_level (gchar *name)
 {
@@ -677,7 +677,7 @@ c2_imap_get_folder_heirarchy (gchar *name, guint level)
 	
 	for(start = name; *start; start++)
 	{
-		if(*start == '/')
+		if(*start == '/' && start != name)
 			level--;
 		
 		if(level <= 1)
@@ -722,14 +722,24 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	return 0;
 }
 
+/** c2_imap_get_folder_list
+ * @imap: a locked C2IMAP object
+ * @reference: folder reference
+ * @name: folder name or wildcard
+ * 
+ * Returns the exact server output of the 
+ * LIST command after checking weather it
+ * was an OK reply
+ * 
+ * Return Value:
+ * A freeable string of the LIST reply.
+ **/
 static gchar*
 c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name)
 {
 	tag_t tag;
 	gchar *reply, *start, *ptr, *ptr2, *buf;
-	guint num = 0;	
-
-	c2_mutex_lock(&imap->lock);
+	guint num = 0;
 	
 	tag = c2_imap_get_tag(imap);
 	
@@ -749,9 +759,7 @@ c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name)
 		g_free(reply);
 		return NULL;
 	}
-	
-	c2_mutex_unlock(&imap->lock);
-	
+
 	return reply;
 }
 
@@ -795,6 +803,7 @@ c2_imap_create_folder(C2IMAP *imap, const gchar *reference, const gchar *name)
 	if(!c2_imap_check_server_reply(reply, tag))
 		return -1;
 	
+	/* FINISH ME! */
 	return 0;
 }
 
@@ -810,32 +819,43 @@ c2_imap_create_folder(C2IMAP *imap, const gchar *reference, const gchar *name)
  * 0 on success, -1 on failure
  **/
 gint
-c2_imap_delete_folder(C2IMAP *imap, const gchar *name)
+c2_imap_delete_folder(C2IMAP *imap, C2Mailbox *mailbox)
 {
-	  gchar *reply;
-	  tag_t tag;
+	gchar *reply;
+	tag_t tag;
 	
-	  c2_mutex_lock(&imap->lock);
+	c2_mutex_lock(&imap->lock);
 	
-	  tag = c2_imap_get_tag(imap);
+	tag = c2_imap_get_tag(imap);
 	
-	  if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d DELETE "
-													"\"%s\"\r\n", tag, name) < 0)
-		{
-			c2_imap_set_error(imap, NET_WRITE_FAILED);
-			gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
-			return -1;
-		}
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d DELETE "
+					"\"%s\"\r\n", tag, mailbox->protocol.IMAP.imap_name) < 0)
+	{
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+		c2_mutex_unlock(&imap->lock);
+		return -1;
+	}
 	
-	  if(!(reply = c2_imap_get_server_reply(imap, tag)))
-		    return -1;
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
+	{
+		c2_mutex_unlock(&imap->lock);
+		return -1;
+	}
 	
-	  c2_mutex_unlock(&imap->lock);
+	if(!c2_imap_check_server_reply(reply, tag))
+	{	
+		c2_imap_set_error(imap, reply + C2TagLen + 3);
+		c2_mutex_unlock(&imap->lock);
+		g_free(reply);
+		return -1;
+	}
+	g_free(reply);
 	
-	  if(!c2_imap_check_server_reply(reply, tag))
-		    return -1;
+	c2_mailbox_remove(&imap->mailboxes, mailbox);
+	c2_mutex_unlock(&imap->lock);
 	
-	  return 0;
+	return 0;
 }
 
 /**
@@ -851,7 +871,45 @@ c2_imap_delete_folder(C2IMAP *imap, const gchar *name)
  * 0 on success, -1 on failure
  **/
 gint
-c2_imap_rename_folder(C2IMAP *imap, const gchar *name, const gchar *newname)
+c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
 {
+	gchar *reply;
+	tag_t tag;
+	gint i;
 	
+	c2_mutex_lock(&imap->lock);
+	
+	tag = c2_imap_get_tag(imap);
+	
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d RENAME "
+				"\"%s\" \"%s\"\r\n", mailbox->protocol.IMAP.imap_name, name) < 0)
+	{
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+		c2_mutex_unlock(&imap->lock);
+		return -1;
+	}
+	
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
+	{
+		c2_mutex_unlock(&imap->lock);
+		return -1;
+	}
+	
+	if(!c2_imap_check_server_reply(reply, tag))
+	{
+		c2_imap_set_error(imap, reply + C2TagLen + 3);
+		c2_mutex_unlock(&imap->lock);
+		g_free(reply);
+		return -1;
+	}
+	g_free(reply);
+	
+	g_free(mailbox->name);
+	mailbox->name = g_strdup(name);
+	
+	c2_mutex_unlock(&imap->lock);
+	c2_imap_populate_folders(imap);
+	
+	return 0;
 }

@@ -128,11 +128,11 @@ gint
 c2_imap_create_folder						(C2IMAP *imap, const gchar *reference, const gchar *name);
 
 gint
-c2_imap_delete_folder						(C2IMAP *imap, const gchar *name);
+c2_imap_delete_folder						(C2IMAP *imap, C2Mailbox *mailbox);
 	
 gint
-c2_imap_rename_folder						(C2IMAP *imap, const gchar *name, const gchar *newname);	
-	
+c2_imap_rename_folder						(C2IMAP *imap, C2Mailbox *mailbox, gchar *name);	
+
 #ifdef __cplusplus
 }
 #endif
