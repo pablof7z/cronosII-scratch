@@ -270,22 +270,22 @@ mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
-all: cronosII/index.html
+all:
 
 distclean: distclean-am
 	-rm -rf cronosII
 	-rm -rf cronosII.junk
 
-cronosII/index.html: $(SGML_FILES)
+cronosII/book1.html: $(SGML_FILES)
 	-db2html cronosII.sgml
 
-dist-hook:
+dist-hook: cronosII/book1.html
 	mkdir -p $(distdir)/cronosII
 	-cp cronosII/*.html cronosII/*.css $(distdir)/cronosII
 	mkdir -p $(distdir)/cronosII/stylesheet-images
 	-cp cronosII/stylesheet-images/* $(distdir)/cronosII/stylesheet-images/
 
-install-data-local: cronosII/index.html
+install-data-local: cronosII/book1.html
 	$(mkinstalldirs) $(cronosII_helpdir)/images
 	-for file in $(srcdir)/cronosII/*.html $(srcdir)/cronosII/*.css $(srcdir)/cronosII/stylesheet-images/*; do \
 	basefile=`basename $$file`; \

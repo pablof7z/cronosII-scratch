@@ -24,24 +24,24 @@ EXTRA_DIST = \
 ## The - before the command means to ignore it if it fails.  that way
 ## people can still build the software without the docbook tools
 
-all: cronosII/index.html
+all:
 
 distclean: distclean-am
 	-rm -rf cronosII
 	-rm -rf cronosII.junk
 
-cronosII/index.html: $(SGML_FILES)
+cronosII/book1.html: $(SGML_FILES)
 	-db2html cronosII.sgml
 
 ## when we make dist, we include the generated HTML so people don't
 ## have to have the docbook tools
-dist-hook:
+dist-hook: cronosII/book1.html
 	mkdir -p $(distdir)/cronosII
 	-cp cronosII/*.html cronosII/*.css $(distdir)/cronosII
 	mkdir -p $(distdir)/cronosII/stylesheet-images
 	-cp cronosII/stylesheet-images/* $(distdir)/cronosII/stylesheet-images/
 
-install-data-local: cronosII/index.html
+install-data-local: cronosII/book1.html
 	$(mkinstalldirs) $(cronosII_helpdir)/images
 	-for file in $(srcdir)/cronosII/*.html $(srcdir)/cronosII/*.css $(srcdir)/cronosII/stylesheet-images/*; do \
 	basefile=`basename $$file`; \

@@ -57,7 +57,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc ABOUT-NLS AUTHORS COPYING ChangeLog FEATURES INSTALL NEWS README doc/C/cronosII/*.sgml TODO
+%doc ABOUT-NLS AUTHORS COPYING ChangeLog FEATURES INSTALL NEWS README doc/C/*.sgml TODO
 %{_bindir}/cronos
 %{_datadir}/gnome/apps/Internet/cronosII.desktop
 %{_datadir}/gnome/apps/Applications/c2addrbook.desktop
