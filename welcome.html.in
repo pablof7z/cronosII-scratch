@@ -1,43 +1,23 @@
 <html>
 <body bgcolor=#ffffff>
-
-<table align=center  bgcolor="#000099" width="80%" border="1">
-
-<tr><td>
-<h1 align=center><FONT FACE="Helvetica" COLOR=#ffffff>Welcome</font></h1>
-</td>
-</tr>
-<tr bgcolor="#ccccff"><td><FONT FACE="Helvetica" COLOR="#000099">
-<p align=center> Cronos II  version  0.0.5</p>
-</font>
-</td></tr>
-</table>
-
 <font face="Helvetica">
-<table border=1 width=80% align=center>
-<tr bgcolor="#eeeeee"><td>
-<p>
-This is a <em>Beta</em> release of CronosII.
-</p>
-<p> It is not for general use:
-This version is missing features, contains many bugs, and is intended for development use,
- <b>only</b>.</p>
-</td>
-</tr>
-<tr bgcolor="#ccccff">
-<td>
-<p>
-If what you are looking for is a working, fully functioned  mail client, then you
-should try 
-<a href="http://www.cronosII.net/">a stable version of Cronos II</a>.</p></li>
-<li><p> http://www.cronosII.net</p></li>
-<li><p>http://cronosii.sourceforge.net</p></li>
-</td>
-</tr>
+<h3 align=center>Welcome</h3>
+
+<p align=center>This is Cronos II @VERSION@</p>
+
+<table border=0 width=80% align=center>
 <tr><td>
-<p align=right><em>Thanks for choosing Cronos II,</em><br><b>The Cronos II Hackers Team</b></p>
+This version of Cronos II is a beta release.
+It contains bugs and misses features, thus
+why it is intended for hackers and for
+testers <b>only</b>, not for real use.</p>
+
+If what you are looking for is a working mail client, then you
+should get
+<a href="http://www.cronosII.net/">an stable version of Cronos II</a>.</p>
+
+<p align=right>Thanks for choosing Cronos II,<br><b>The Cronos II Hackers Team</b></p>
 </td></tr></table>
 </font>
-
 </body>
 </html>
