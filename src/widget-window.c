@@ -211,7 +211,7 @@ on_report_timeout (gpointer data)
 	C2Window *window = C2_WINDOW (data2->v1);
 	gint16 id = GPOINTER_TO_INT (data2->v2);
 
-	if (id == report_timeout_id && !pthread_mutex_trylock (&window->status_lock))
+	if (C2_IS_WINDOW (window) && id == report_timeout_id && !pthread_mutex_trylock (&window->status_lock))
 	{
 		GtkWidget *appbar = glade_xml_get_widget (window->xml, "appbar");
 

@@ -42,7 +42,7 @@ c2_net_set_internal_cache					(C2Cache *cache);
  * an IP address.
  *
  * Return Value:
- * This function returns 0 in success or 1.
+ * This function returns 0 in success or -1.
  **/
 gint
 c2_net_resolve (const gchar *hostname, gchar **ip)
@@ -51,7 +51,7 @@ c2_net_resolve (const gchar *hostname, gchar **ip)
 	struct sockaddr_in sin;
 	C2Cache *cache;
 	
-	c2_return_val_if_fail (hostname, 1, C2EDATA);
+	c2_return_val_if_fail (hostname, -1, C2EDATA);
 
 	/* Check if it has already been cached */
 	if ((cache = c2_net_get_cache (hostname)))
@@ -63,7 +63,7 @@ c2_net_resolve (const gchar *hostname, gchar **ip)
 	if (!(host = gethostbyname (hostname)))
 	{
 		c2_error_set (C2ERSLV);
-		return 1;
+		return -1;
 	}
 
 	memcpy (&sin.sin_addr, host->h_addr, host->h_length);
@@ -122,7 +122,7 @@ c2_net_connect (const gchar *ip, guint port, gint sock)
  * fprintf.
  *
  * Return Value:
- * 0 if success or -1;
+ * send(2);
  **/
 gint
 c2_net_send (guint sock, const gchar *fmt, ...)
@@ -219,16 +219,17 @@ c2_net_get_local_hostname (guint sock)
 {
 	struct sockaddr_in localaddr;
 	struct hostent *host = NULL;
-	char *localhostname = NULL;
-	guint addrlen = sizeof(localaddr);
+	gchar *localhostname = NULL;
+	guint addrlen = sizeof (localaddr);
 	
-	getsockname(sock, (struct sockaddr*)&localaddr, &addrlen);
-	host = gethostbyaddr((char *)&localaddr.sin_addr, sizeof(localaddr.sin_addr), AF_INET);
-	if(host && host->h_name)
+	getsockname (sock, (struct sockaddr*) &localaddr, &addrlen);
+	host = gethostbyaddr((gchar *)&localaddr.sin_addr, sizeof (localaddr.sin_addr), AF_INET);
+	if (host && host->h_name)
 		localhostname = g_strdup(host->h_name);
-	else {
+	else
+	{
 		localhostname = g_new0(gchar, 32);
-		if(gethostname(localhostname, 31) < 0)
+		if (gethostname (localhostname, 31) < 0)
 			localhostname = NULL;
 	}
 	

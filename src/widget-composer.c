@@ -31,6 +31,7 @@
 #include "main.h"
 #include "preferences.h"
 #include "widget-application.h"
+#include "widget-application-utils.h"
 #include "widget-composer.h"
 #include "widget-dialog-preferences.h"
 #include "widget-editor.h"
@@ -87,7 +88,13 @@ static void
 open_file									(C2Composer *composer);
 
 static void
-save_as										(C2Composer *composer);
+save										(C2Composer *composer);
+
+static void
+save_file									(C2Composer *composer, gchar *efile);
+
+static void
+save_draft									(C2Composer *composer);
 
 static void
 send_										(C2Composer *composer, C2ComposerSendType type);
@@ -115,6 +122,15 @@ static void
 on_icon_list_button_press_event				(GtkWidget *widget, GdkEventButton *e, C2Composer *composer);
 
 static void
+on_save_clicked								(GtkWidget *widget, C2Composer *composer);
+
+static void
+on_save_draft_clicked						(GtkWidget *widget, C2Composer *composer);
+
+static void
+on_save_as_clicked							(GtkWidget *widget, C2Composer *composer);
+
+static void
 on_send_now_clicked							(GtkWidget *widget, C2Composer *composer);
 
 static void
@@ -125,9 +141,6 @@ on_undo_clicked								(GtkWidget *widget, C2Composer *composer);
 
 static void
 on_redo_clicked								(GtkWidget *widget, C2Composer *composer);
-
-static void
-on_save_as_clicked							(GtkWidget *widget, C2Composer *composer);
 
 static void
 on_editor_undo_available					(GtkWidget *widget, gboolean available, C2Composer *composer);
@@ -215,13 +228,13 @@ class_init (C2ComposerClass *klass)
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 	
 	klass->changed_title = NULL;
-	klass->send_now = send_now;
-	klass->send_later = send_later;
-/*	klass->send_later = send_later;
-	klass->save_draft = save_draft; */
 	klass->add_attachment = add_attachment;
 	klass->autosave = autosave;
-	klass->save_as = save_as;
+	klass->save = save;
+	klass->save_file = save_file;
+	klass->save_draft = save_draft;
+	klass->send_now = send_now;
+	klass->send_later = send_later;
 }
 
 static void
@@ -307,74 +320,97 @@ autosave (C2Composer *composer)
 }
 
 static void
-on_save_as_ok_clicked (GtkWidget *widget, gint *button)
+save (C2Composer *composer)
 {
-	*button = 1;
-	gtk_main_quit ();
+	if (composer->save_type == C2_COMPOSER_SAVE_DRAFT)
+		C2_COMPOSER_CLASS_FW (composer)->save_draft (composer);
+	else
+		C2_COMPOSER_CLASS_FW (composer)->save_file (composer, composer->file);
 }
 
 static void
-on_save_as_cancel_clicked (GtkWidget *widget, gint *button)
+save_draft_thread (C2Composer *composer)
 {
-	*button = 0;
-	gtk_main_quit ();
+	C2Mailbox *mailbox;
+	C2Message *message;
+
+	composer->save_type = C2_COMPOSER_SAVE_DRAFT;
+
+	mailbox = c2_mailbox_get_by_name (C2_WINDOW (composer)->application->mailbox, C2_MAILBOX_DRAFTS);
+	if (!mailbox)
+	{
+		gdk_threads_enter ();
+		c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING,
+							error_list[C2_FAIL_MESSAGE_SAVE], _("Unable to find the proper mailbox"));
+		gdk_threads_leave ();
+		return;
+	}
+
+	gdk_threads_enter ();
+	message = create_message (composer);
+	gdk_threads_leave ();
+
+	if (composer->draft_id >= 0)
+		c2_db_message_remove_by_mid (mailbox, composer->draft_id);
+	
+	c2_db_message_add (mailbox, message);
+	composer->draft_id = mailbox->db->prev->mid;
+
+	gdk_threads_enter ();
+	c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_MESSAGE, error_list[C2_SUCCESS_MESSAGE_SAVE]);
+	gdk_threads_leave ();
 }
 
 static void
-on_save_as_delete_event (GtkWidget *widget, GdkEvent *e, gint *button)
+save_draft (C2Composer *composer)
 {
-	*button = 0;
-	gtk_main_quit ();
+	pthread_t thread;
+
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (save_draft_thread), composer);
 }
 
 static void
-save_as (C2Composer *composer)
+save_file (C2Composer *composer, gchar *efile)
 {
 	GtkWidget *dialog;
 	gchar *buf, *file;
 	C2Message *message;
-	gint button;
 	FILE *fd;
 
-/*	if (!(fd = c2_application_dialog_get_filename_to_save (C2_WINDOW (composer)->application, &error)))
+	if (!efile)
 	{
-	}*/
-
-	dialog = gtk_file_selection_new (_("Save as"));
-	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
-	gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (composer));
-
-	c2_preferences_get_general_paths_save (buf);
-	gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog), buf);
-	g_free (buf);
-
-	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->ok_button), "clicked",
-						GTK_SIGNAL_FUNC (on_save_as_ok_clicked), &button);
-	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->cancel_button), "clicked",
-						GTK_SIGNAL_FUNC (on_save_as_cancel_clicked), &button);
-	gtk_signal_connect (GTK_OBJECT (dialog), "delete_event",
-						GTK_SIGNAL_FUNC (on_save_as_delete_event), &button);
-
-	c2_application_window_add (C2_WINDOW (composer)->application, GTK_WINDOW (dialog));
-	gtk_widget_show (dialog);
-	gtk_main ();
-
-	if (!button)
+		if (!(fd = c2_application_dialog_select_file_save (C2_WINDOW (composer)->application, &file)))
+		{
+			c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING,
+								error_list[C2_FAIL_FILE_SAVE], c2_error_get ());
+			return;
+		}
+	} else
 	{
-		c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING,
-							error_list[C2_CANCEL_USER]);
-		c2_application_window_remove (C2_WINDOW (composer)->application, GTK_WINDOW (dialog));
-		gtk_widget_destroy (dialog);
+		file = efile;
 
-		return;
+		if (!(fd = fopen (efile, "w")))
+		{
+			c2_error_set (-errno);
+			c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING,
+								error_list[C2_FAIL_FILE_SAVE], c2_error_get ());
+			return;
+		}
 	}
-	
-	file = g_strdup (gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog)));
-	
-	c2_application_window_remove (C2_WINDOW (composer)->application, GTK_WINDOW (dialog));
-	gtk_widget_destroy (dialog);
+
+	composer->file = file;
+	composer->save_type = C2_COMPOSER_SAVE_FILE;
 
 	message = create_message (composer);
+
+	fprintf (fd, "%s\n"
+				 "\n"
+				 "%s", message->header, message->body);
+	fclose (fd);
+
+	gtk_object_destroy (GTK_OBJECT (message));
+
+	c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_MESSAGE, error_list[C2_SUCCESS_FILE_SAVE]);
 }
 
 static void
@@ -646,6 +682,9 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	widget = glade_xml_get_widget (xml, "file_save_as");
 	gtk_signal_connect (GTK_OBJECT (widget), "activate",
 						GTK_SIGNAL_FUNC (on_save_as_clicked), composer);
+	widget = glade_xml_get_widget (xml, "file_save_draft");
+	gtk_signal_connect (GTK_OBJECT (widget), "activate",
+						GTK_SIGNAL_FUNC (on_save_draft_clicked), composer);
 	
 	widget = glade_xml_get_widget (xml, "edit_undo");
 	gtk_signal_connect (GTK_OBJECT (widget), "activate",
@@ -667,9 +706,9 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
 						GTK_SIGNAL_FUNC (on_send_later_clicked), composer);
 
-	widget = glade_xml_get_widget (xml, "save_as_btn");
+	widget = glade_xml_get_widget (xml, "save_btn");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
-						GTK_SIGNAL_FUNC (on_save_as_clicked), composer);
+						GTK_SIGNAL_FUNC (on_save_clicked), composer);
 	
 	widget = glade_xml_get_widget (xml, "undo_btn");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
@@ -854,9 +893,21 @@ on_run_external_editor_clicked (GtkWidget *widget, C2Composer *composer)
 }
 
 static void
+on_save_clicked (GtkWidget *widget, C2Composer *composer)
+{
+	C2_COMPOSER_CLASS_FW (composer)->save (composer);
+}
+
+static void
+on_save_draft_clicked (GtkWidget *widget, C2Composer *composer)
+{
+	C2_COMPOSER_CLASS_FW (composer)->save_draft (composer);
+}
+
+static void
 on_save_as_clicked (GtkWidget *widget, C2Composer *composer)
 {
-	C2_COMPOSER_CLASS_FW (composer)->save_as (composer);
+	C2_COMPOSER_CLASS_FW (composer)->save_file (composer, NULL);
 }
 
 static void

@@ -32,6 +32,9 @@ c2_application_dialog_release_information	(C2Application *application);
 C2Mailbox *
 c2_application_dialog_select_mailbox		(C2Application *application, GtkWindow *parent);
 
+FILE *
+c2_application_dialog_select_file_save		(C2Application *application, gchar **file);
+
 #ifdef __cplusplus
 }
 #endif

@@ -200,3 +200,5 @@ gchar *s = N_("Known Bugs");
 gchar *s = N_("Missing Features");
 gchar *s = N_("Show this dialog at start.");
 gchar *s = N_("Select Mailbox");
+gchar *s = N_("You selected a directory.");
+gchar *s = N_("Error");

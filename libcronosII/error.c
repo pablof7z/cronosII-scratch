@@ -27,6 +27,7 @@ static const gchar *err_list[] =
 	/* C2ENOMSG */		N_("No such message"),
 	/* C2EBUSY */		N_("Process is busy"),
 	/* C2ERSLV */		N_("Unknown hostname"),
+	/* C2USRCNCL */		N_("Action cancelled by user"),
 	/* C2INTERNAL */	N_("Internal error"),
 	/* C2NOBJ */		N_("Internal error: Net Object has reached its maximal allocated buffer")
 };

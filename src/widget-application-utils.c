@@ -15,6 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+#include <libcronosII/error.h>
+
 #include "preferences.h"
 #include "widget-HTML.h"
 #include "widget-application.h"
@@ -207,4 +209,120 @@ c2_application_dialog_select_mailbox (C2Application *application, GtkWindow *par
 	gtk_object_unref (GTK_OBJECT (xml));
 
 	return mailbox;
+}
+
+static void
+on_application_dialog_select_file_save_ok_clicked (GtkWidget *widget, gint *button)
+{
+	*button = 1;
+	gtk_main_quit ();
+}
+
+static void
+on_application_dialog_select_file_save_cancel_clicked (GtkWidget *widget, gint *button)
+{
+	*button = 0;
+	gtk_main_quit ();
+}
+
+static void
+on_application_dialog_select_file_save_delete_event (GtkWidget *widget, GdkEvent *e, gint *button)
+{
+	*button = 0;
+	gtk_main_quit ();
+}
+
+FILE *
+c2_application_dialog_select_file_save (C2Application *application, gchar **file)
+{
+	GtkWidget *filesel;
+	gint button;
+	gchar *buf;
+	FILE *fd;
+
+	if (file)
+		*file = NULL;
+
+	filesel = gtk_file_selection_new (NULL);
+	gtk_window_set_modal (GTK_WINDOW (filesel), TRUE);
+	
+	c2_application_window_add (application, GTK_WINDOW (filesel));
+
+	c2_preferences_get_general_paths_save (buf);
+	gtk_file_selection_set_filename (GTK_FILE_SELECTION (filesel), buf);
+	g_free (buf);
+	
+	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filesel)->ok_button), "clicked",
+						GTK_SIGNAL_FUNC (on_application_dialog_select_file_save_ok_clicked), &button);
+	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filesel)->cancel_button), "clicked",
+						GTK_SIGNAL_FUNC (on_application_dialog_select_file_save_cancel_clicked), &button);
+	gtk_signal_connect (GTK_OBJECT (filesel), "delete_event",
+						GTK_SIGNAL_FUNC (on_application_dialog_select_file_save_delete_event), &button);
+
+	gtk_widget_show (filesel);
+rerun:
+	gtk_main ();
+
+	if (!button)
+	{
+		c2_error_set (C2USRCNCL);
+		c2_application_window_remove (application, GTK_WINDOW (filesel));
+		gtk_widget_destroy (filesel);
+
+		return NULL;
+	}
+
+	buf = gtk_file_selection_get_filename (GTK_FILE_SELECTION (filesel));
+
+	/* Check if a directory was selected */
+	if (c2_file_is_directory (buf))
+	{
+		GladeXML *xml;
+		GtkWidget *dialog;
+		gint ret;
+		
+		xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_directory_selected");
+		
+		dialog = glade_xml_get_widget (xml, "dlg_directory_selected");
+
+		ret = gnome_dialog_run_and_close (GNOME_DIALOG (dialog));
+
+		gtk_object_destroy (GTK_OBJECT (xml));
+
+		if (ret == 1)
+			goto rerun;
+	}
+
+	/* Check that the file doesn't exist yet */
+	if (!c2_file_exists (buf))
+	{
+		GladeXML *xml;
+		GtkWidget *dialog;
+		gint ret;
+		
+		xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_confirm_overwrite");
+		
+		dialog = glade_xml_get_widget (xml, "dlg_confirm_overwrite");
+
+		ret = gnome_dialog_run_and_close (GNOME_DIALOG (dialog));
+
+		gtk_object_destroy (GTK_OBJECT (xml));
+
+		if (ret == 1)
+			goto rerun;
+	}
+
+	gtk_widget_hide (filesel);
+	if (file)
+		*file = g_strdup (buf);
+
+	if (!(fd = fopen (buf, "w")))
+		c2_error_set (-errno);
+
+	c2_preferences_set_general_paths_save (buf);
+	c2_preferences_commit ();
+	c2_application_window_remove (application, GTK_WINDOW (filesel));
+	gtk_widget_destroy (filesel);
+
+	return fd;
 }

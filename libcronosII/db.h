@@ -100,6 +100,9 @@ c2_db_length_type							(C2Mailbox *mailbox, gint state);
 C2Db *
 c2_db_get_node								(C2Mailbox *mailbox, gint n);
 
+C2Db *
+c2_db_get_node_by_mid						(C2Mailbox *mailbox, gint mid);
+
 /************************
  * [Structure Handling] *
  ************************/
@@ -132,6 +135,9 @@ c2_db_message_add_list						(C2Mailbox *mailbox, GList *list);
 
 gint
 c2_db_message_remove						(C2Mailbox *mailbox, gint position);
+
+gint
+c2_db_message_remove_by_mid					(C2Mailbox *mailbox, gint mid);
 
 gint
 c2_db_message_remove_list					(C2Mailbox *mailbox, GList *list);

@@ -102,7 +102,16 @@ extern "C" {
 		g_free (__default__); \
 	}
 #define c2_preferences_set_general_paths_save(val) \
-	gnome_config_set_string ("/"PACKAGE"/"GENERAL"-"PATHS"/save", val)
+	{ \
+		gchar *__ptr__; \
+		gchar __c__; \
+		 \
+		__ptr__ = strrchr (val, G_DIR_SEPARATOR); \
+		__c__ = *(__ptr__+1); \
+		*(__ptr__+1) = 0; \
+		gnome_config_set_string ("/"PACKAGE"/"GENERAL"-"PATHS"/save", val); \
+		*(__ptr__+1) = __c__; \
+	}
 	
 #define c2_preferences_get_general_paths_get(var) \
 	{ \
@@ -115,7 +124,16 @@ extern "C" {
 		g_free (__default__); \
 	}
 #define c2_preferences_set_general_paths_get(val) \
-	gnome_config_set_string ("/"PACKAGE"/"GENERAL"-"PATHS"/get", val)
+	{ \
+		gchar *__ptr__; \
+		gchar __c__; \
+		 \
+		__ptr__ = strrchr (val, G_DIR_SEPARATOR); \
+		__c__ = *(__ptr__+1); \
+		*(__ptr__+1) = 0; \
+		gnome_config_set_string ("/"PACKAGE"/"GENERAL"-"PATHS"/get", val); \
+		*(__ptr__+1) = __c__; \
+	}
 	
 #define c2_preferences_get_general_paths_smart() \
 	gnome_config_get_bool_with_default ("/"PACKAGE"/"GENERAL"-"PATHS"/smart=true", NULL)

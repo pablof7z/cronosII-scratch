@@ -129,7 +129,8 @@ struct _C2ComposerClass
 	void (*open_file) (C2Composer *composer);
 	void (*replace) (C2Composer *composer);
 	void (*save) (C2Composer *composer);
-	void (*save_as) (C2Composer *composer);
+	void (*save_draft) (C2Composer *composer);
+	void (*save_file) (C2Composer *composer, gchar *);
 	void (*send_now) (C2Composer *composer);
 	void (*send_later) (C2Composer *composer);
 	void (*spell_check) (C2Composer *composer);

@@ -124,7 +124,7 @@
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
-	      <name>open_from_file</name>
+	      <name>file_open_from_file</name>
 	      <signal>
 		<name>activate</name>
 		<handler>on_open_from_file_activate</handler>
@@ -143,19 +143,14 @@
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
-	      <name>save</name>
+	      <name>file_save_draft</name>
 	      <tooltip>Save to the «Drafts» mailbox</tooltip>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_S</key>
 		<signal>activate</signal>
 	      </accelerator>
-	      <signal>
-		<name>activate</name>
-		<handler>on_save_activate</handler>
-		<last_modification_time>Thu, 09 Aug 2001 18:05:30 GMT</last_modification_time>
-	      </signal>
-	      <label>_Save</label>
+	      <label>_Save as Draft</label>
 	      <right_justify>False</right_justify>
 	      <icon>save16.xpm</icon>
 	    </widget>
@@ -272,7 +267,7 @@
 
 	    <widget>
 	      <class>GtkMenuItem</class>
-	      <name>select_all</name>
+	      <name>edit_select_all</name>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_A</key>
@@ -289,7 +284,7 @@
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
-	      <name>clear</name>
+	      <name>edit_clear</name>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_K</key>

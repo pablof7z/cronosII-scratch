@@ -36,8 +36,10 @@ gchar *error_list[] =
 	N_("Failed to save message: %s."),
 	N_("Failed to load mailbox «%s»: %s."),
 	N_("Failed to create mailbox «%s»: %s."),
+	N_("Failed to save file: %s."),
 
 	N_("Message saved successfully."),
+	N_("File saved successfully."),
 
 	N_("Action cancelled by user."),
 	N_("There is no selected mailbox."),

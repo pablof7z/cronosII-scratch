@@ -1,3 +1,9 @@
+Fri Nov 23 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* More work on the composer.
+	* Fixed a bug in the window widget that produced a crash when
+	  a window that had a report earlier than 5 seconds ago was
+	  closed.
+
 Thu Nov 22 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed the damn preferences crash.
 

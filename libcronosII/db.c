@@ -312,6 +312,25 @@ c2_db_get_node (C2Mailbox *mailbox, gint n)
 	return l;
 }
 
+C2Db *
+c2_db_get_node_by_mid (C2Mailbox *mailbox, gint mid)
+{
+	C2Db *l = NULL;
+
+	if (mailbox->db)
+	{
+		l = mailbox->db;
+		
+		do
+		{
+			if (l->mid == mid)
+				break;
+		} while (c2_db_lineal_next (l));
+	}
+
+	return l;
+}
+
 /**
  * c2_db_create_structure [VFUCTION]
  * @mailbox: The mailbox that needs to create the structure.
@@ -675,6 +694,26 @@ c2_db_message_remove (C2Mailbox *mailbox, gint position)
 	GList *list;
 
 	list = g_list_append (NULL, (gpointer) position);
+	retval = c2_db_message_remove_list (mailbox, list);
+	g_list_free (list);
+	
+	return retval;
+}
+
+gint
+c2_db_message_remove_by_mid (C2Mailbox *mailbox, gint mid)
+{
+	gint retval = 0;
+	GList *list;
+	C2Db *db;
+
+	if (!(db = c2_db_get_node_by_mid (mailbox, mid)))
+	{
+		c2_error_object_set (GTK_OBJECT (mailbox), C2EDATA);
+		return -1;
+	}
+	
+	list = g_list_append (NULL, (gpointer) db->position);
 	retval = c2_db_message_remove_list (mailbox, list);
 	g_list_free (list);
 	
