@@ -88,7 +88,8 @@ struct _C2IMAP
 
 	tag_t cmnd : 10;
 
-	gint auth_remember :1;		/* %TRUE = Store password */
+	gint auth_remember   :1;	 /* %TRUE = Store password */
+	gint only_subscribed :1;   /* %TRUE = list only subscribed mailboxes */
 
 	gint (*login) (C2IMAP *imap);
 	

@@ -273,8 +273,11 @@ gint
 c2_imap_init (C2IMAP *imap)
 {
 	C2NetObjectByte *byte;
-	c2_mutex_lock(&imap->lock);
 	
+	if(imap->mailboxes && !c2_net_object_is_offline(C2_NET_OBJECT(imap)))
+		return 0;
+	
+	c2_mutex_lock(&imap->lock);
 	if(!(byte = c2_net_object_run(C2_NET_OBJECT(imap))))
 	{
 		imap->state = C2IMAPDisconnected;
