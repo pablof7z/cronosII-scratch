@@ -123,6 +123,12 @@ class_init (C2IMAPClass *klass)
 						object_class->type,
 						GTK_SIGNAL_OFFSET (C2IMAPClass, login),
 						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
+	signals[LOGIN_FAILED] =
+		gtk_signal_new ("login_failed",
+						GTK_RUN_FIRST,
+						object_class->type,
+						GTK_SIGNAL_OFFSET (C2IMAPClass, login_failed),
+						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 	signals[MAILBOX_LIST] =
 		gtk_signal_new ("mailbox_list",
 						GTK_RUN_FIRST,
@@ -223,12 +229,12 @@ c2_imap_init (C2IMAP *imap)
 		c2_mutex_unlock(&imap->lock);
 		return -1;
 	}
-	printf("ready to login\n");
+
 	gdk_input_add(byte->sock, GDK_INPUT_READ, (GdkInputFunction)c2_imap_on_net_traffic, imap);
 	
 	if(imap->login(imap) < 0)
 	{
-		gtk_signal_emit(GTK_OBJECT(imap), LOGIN_FAILED);
+		/*gtk_signal_emit(GTK_OBJECT(imap), LOGIN_FAILED);*/
 		//c2_imap_set_error(imap, _("Failed to login to IMAP server."));
 		c2_mutex_unlock(&imap->lock);
 		return -1;
@@ -256,9 +262,6 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	tag_t tag = 0;
 	
 	c2_mutex_lock(&imap->lock);
-	
-	printf("looks like we got server data!\n");
-	fflush(NULL);
 	
 	for(;;)
 	{
@@ -288,7 +291,7 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	tag = atoi(buf+9);
 	g_free(buf);
 	/* now insert 'final' into the hash...*/
-	printf("Now inserting data: %s in hash table for tag #%i\n", final, tag);
+	/*printf("Now inserting data: %s in hash table for tag #%i\n", final, tag);*/
 	g_hash_table_insert(imap->hash, &tag, final);
 	c2_imap_unlock_pending(imap);
 	
@@ -317,7 +320,7 @@ c2_imap_unlock_pending (C2IMAP *imap)
 	{
 		pending = ptr->data;
 		if(data = g_hash_table_lookup(imap->hash, &pending->tag))
-      {c2_mutex_unlock(&pending->lock);printf("unlocked tag %i\n", pending->tag);}
+      c2_mutex_unlock(&pending->lock);
 	}
 }
 
@@ -401,8 +404,6 @@ c2_imap_get_server_reply (C2IMAP *imap, tag_t tag)
 {
 	C2IMAPPending *pending;
 	gchar *data;
-	
-	printf("we are in the get_server_reply()\n");
 
 	pending = c2_imap_new_pending(imap, tag);
 	
@@ -418,14 +419,11 @@ c2_imap_get_server_reply (C2IMAP *imap, tag_t tag)
 	
 	if(data)
 		g_hash_table_remove(imap->hash, &tag);
-	else
-		printf("shit, we didnt get any hash!\n");
 
 	c2_mutex_unlock(&pending->lock);
 	c2_mutex_destroy(&pending->lock);
 	c2_imap_remove_pending(imap, tag);
 	
-	printf("returning: %s\n", data);
 	return data;
 }
 
@@ -434,11 +432,13 @@ c2_imap_check_server_reply(gchar *reply, tag_t tag)
 {
 	gchar *ptr;
 	
-	printf("CHECKING: %s\n", reply);
+	/* printf("CHECKING: %s\n", reply); */
 	
-	for(ptr = reply; ptr = strstr(ptr, "\n"); )
+	for(ptr = reply; *ptr; ptr++)
 	{
-		if(c2_strneq(ptr+1, "CronosII-", 9))
+		if(*ptr != '\n')
+			continue;
+		else if(c2_strneq(ptr+1, "CronosII-", 9))
 		{
 			ptr += 15; /* skip '\nCronosII-XXXX ' */
 			if(c2_strneq(ptr, "OK ", 3))
@@ -465,9 +465,6 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	gchar *reply;
 	
 	tag = c2_imap_get_tag (imap);
-
-	printf("We are _trying_ to login\n");
-	fflush(NULL);
 	
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d LOGIN %s %s\r\n", 
 												tag, imap->user, imap->pass) < 0)
@@ -481,9 +478,7 @@ c2_imap_plaintext_login (C2IMAP *imap)
 		c2_imap_set_error(imap, "failed to get reply");
 		return -1;
 	}
-	
-	printf("\tWE GOT BACK: %s\n", reply);
-	return 0;
+
 	if(c2_imap_check_server_reply(reply, tag))
 	{
 		printf("logged in ok!\n\n");
@@ -493,4 +488,3 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	
 	return 0;
 }
-
