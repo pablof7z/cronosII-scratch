@@ -419,7 +419,7 @@ c2_db_remove_structure (C2Mailbox *mailbox)
 			func = c2_db_cronosII_remove_structure;
 			break;
 		case C2_MAILBOX_IMAP:
-			//func = c2_db_imap_remove_structure;
+			func = c2_db_imap_remove_structure;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_remove_structure;

@@ -549,17 +549,17 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 			g_free (l->id);
 			l->id = g_strdup_printf ("%d", i);
 			if (l->child)
-				c2_mailbox_recreate_tree_ids (l);
+				c2_mailbox_recreate_tree_ids (l->child);
 		}
 	} else
 	{
 		/* Everything below the TOPLEVEL */
-		for (l = head->child, i = 0; l != NULL; l = l->next, i++)
+		for (l = head, i = 0; l != NULL; l = l->next, i++)
 		{
 			g_free (l->id);
 			l->id = g_strdup_printf ("%s-%d", head->id, i);
 			if (l->child)
-				c2_mailbox_recreate_tree_ids (l);
+				c2_mailbox_recreate_tree_ids (l->child);
 		}
 	}
 }
