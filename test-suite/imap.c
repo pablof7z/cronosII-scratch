@@ -29,12 +29,9 @@
 
 void
 run_imap(C2IMAP *imap)
-{
-	pthread_t thread1;
-	
-	pthread_create(&thread1, NULL, (void*)c2_imap_init, imap);
-	printf("ERROR: %s\n", gtk_object_get_data(GTK_OBJECT(imap), "error"));
-	
+{	
+	if(c2_imap_init(imap) < 0)
+		printf("failed to login\n");
 }
 
 gint
@@ -45,7 +42,10 @@ main (gint argc, gchar **argv)
 
 	gtk_init(&argc, &argv);
 	
-	imap = c2_imap_new("192.168.1.2", 143, "falling", "", C2_IMAP_AUTHENTICATION_PLAINTEXT, FALSE);
+	printf("Welcome to the IMAP module of the C2 Engine Test-Suite\n"
+				 "Hit Crtl+C to exit program once tests are complete\n");
+	
+	imap = c2_imap_new("192.168.1.2", 143, "falling", "password", C2_IMAP_AUTHENTICATION_PLAINTEXT, FALSE);
 	
 	pthread_create(&thread, NULL, (void*)run_imap, imap);
 	
