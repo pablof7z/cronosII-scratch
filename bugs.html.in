@@ -9,8 +9,9 @@ If you find an unlisted bug, please, report it
 using our <a href="http://sourceforge.net/bugs/?group_id=7093">online forms</a>.
 
 <ul>
-<li> When Cronos II (with no HTML support) displays a message
-with no text/plain part it crashes.
+<li> IMAP is not working correctly yet.
+<li> GtkXmHTML is not fully supported.
+<li> Composing HTML messages is not fully supoorted yet.
 </ul>
 </font>
 </body>

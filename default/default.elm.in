@@ -2,27 +2,18 @@ From: The Cronos II Hackers Team <cronosII-hackers@lists.sourceforge.net>
 To: The Cronos II Users <cronosII-users@lists.sourceforge.net>
 Subject: Welcome to Cronos II @VERSION@
 
-[TODO: Write something nice here.]
+Welcome aboard!
 
-Welcome and Thankyou for using the new Cronos II.
-Congratulations, you have succesfully configured and installed the application.
+	We are really pleased to see that you have installed Cronos II in your system. Remember, this is a preview version of what is going to be Cronos II 0.3, so keep checking out our website at http://www.cronosII.org/ for the lastest news and information about Cronos II.
 
- To use Cronos II you now need to configure your Email account(s).
-	Select:  preferences => settings => accounts.
+	We hope you enjoy Cronos II. We really like to hear about your daily experiences with it, remember, we are *really* open to suggestions. Help us build the best mail client for you.
 
-The User Manual is available from the Help Menu, the Cronos II web site;
+	We would like to let you know that you could also help us building Cronos II by making a small donation to one of our hackers who is in a really bad economical situation (thanks Argentina!). You can get more information on this by going to the Donations page, in the Help menu.
 
-	< http://cronosII.sourceforge.net/Active_Site/manuals.php >
+	To start using Cronos II you should configure an account. To do so, direct yourself to the Preferences of Cronos II, in the Settings menu.
 
-or the source package you have just installed.
-
-	//doc/C/cronosII/index.html.
+	If you need further help you can always browse the Cronos II User Manual. If you need to contact us you can find the information you need in the Help menu.
 
 
-We are eager to hear about your install,configure and daily use experiences.
-Let us know how to make a great Email application even better.
-
-[users contact here]
-
-TIP:
-	To launch the composer type: cronosII -c at a terminal prompt.
+				Thanks for choosing us,
+					The Cronos II Hackers Team.

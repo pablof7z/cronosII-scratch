@@ -710,12 +710,14 @@ on_pop3_disconnect (GtkObject *object, gboolean success, C2NetObjectByte *byte, 
 	gdk_threads_enter ();
 	if (success)
 	{
+		/* In mail%s the %s is an s in case of plural (translators can change it). There is
+		 * one more %s in case some language (like Spanish) need it. */
 		if (ti->type_info.receive.mails_r)
 			str = g_strdup_printf (_("Received %d new mail%s"), ti->type_info.receive.mails_r,
-					(ti->type_info.receive.mails_r>1)?"s":"");
+					(ti->type_info.receive.mails_r>1)?_("s"):"", (ti->type_info.receive.mails_r>1)?_("s"):"");
 		else
 			str = g_strdup_printf (_("No new mails available"), ti->type_info.receive.mails_r,
-					(ti->type_info.receive.mails_r>1)?"s":"");
+					(ti->type_info.receive.mails_r>1)?_("s"):"");
 	} else
 	{
 		if (c2_error_object_get_id (object))

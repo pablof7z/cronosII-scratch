@@ -376,8 +376,16 @@ set_headers (C2Mail *mail, C2Message *message)
 	/* From */
 	buf = c2_message_get_header_field (message, "From:");
 	if (buf)
+	{
+		gchar *buf2 = c2_str_get_sender (buf);
+
+		if (buf2)
+		{
+			g_free (buf);
+			buf = buf2;
+		}
 		gtk_label_set_text (GTK_LABEL (mail->from_label[1]), buf);
-	else
+	} else
 		gtk_label_set_text (GTK_LABEL (mail->from_label[1]), _("(nobody)"));
 	C2_PRINTD (MOD, "from = '%s'\n", buf);
 	g_free (buf);
@@ -385,16 +393,34 @@ set_headers (C2Mail *mail, C2Message *message)
 	/* To */
 	buf = c2_message_get_header_field (message, "To:");
 	if (buf)
+	{
+		gchar *buf2 = c2_str_get_sender (buf);
+
+		if (buf2)
+		{
+			g_free (buf);
+			buf = buf2;
+		}
+		
 		gtk_label_set_text (GTK_LABEL (mail->to_label[1]), buf);
-	else
+	} else
 		gtk_label_set_text (GTK_LABEL (mail->to_label[1]), "");
 	g_free (buf);
 
 	/* CC */
 	buf = c2_message_get_header_field (message, "CC:");
 	if (buf)
+	{
+		gchar *buf2 = c2_str_get_sender (buf);
+
+		if (buf2)
+		{
+			g_free (buf);
+			buf = buf2;
+		}
+		
 		gtk_label_set_text (GTK_LABEL (mail->cc_label[1]), buf);
-	else
+	} else
 		gtk_label_set_text (GTK_LABEL (mail->cc_label[1]), "");
 	g_free (buf);
 

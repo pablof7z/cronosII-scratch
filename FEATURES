@@ -9,3 +9,5 @@ o IMAP support.
 o POP3 support.
 o APOP support.
 o Spool support.
+o Multiple accounts support.
+

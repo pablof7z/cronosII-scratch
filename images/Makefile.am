@@ -1,5 +1,6 @@
 pixmapdir = $(pkgdatadir)/pixmaps
 pixmap_DATA = \
+	account16.png		\
 	advanced_misc.png	\
 	attachments24.png	\
 	attachments36.png	\

@@ -137,7 +137,7 @@ gconfconfig = @gconfconfig@
 gnomedownload = @gnomedownload@
 l = @l@
 
-bin_PROGRAMS = account date db db_cronosII hash imap mailbox message pop3 request smtp utils
+bin_PROGRAMS = account date db hash imap mailbox message pop3 request smtp utils
 
 INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules -I$(top_srcdir)/src $(GNOME_INCLUDEDIR)
 
@@ -156,10 +156,6 @@ date_LDFLAGS = $(LDFLAGS)
 db_SOURCES = db.c
 db_LDADD = $(LDADD)
 db_LDFLAGS = $(LDFLAGS)
-
-db_cronosII_SOURCES = db-cronosII.c
-db_cronosII_LDADD = $(LDADD)
-db_cronosII_LDFLAGS = $(LDFLAGS)
 
 hash_SOURCES = hash.c
 hash_LDADD = $(LDADD)
@@ -206,8 +202,6 @@ date_OBJECTS =  date.o
 date_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 db_OBJECTS =  db.o
 db_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
-db_cronosII_OBJECTS =  db-cronosII.o
-db_cronosII_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 hash_OBJECTS =  hash.o
 hash_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 imap_OBJECTS =  imap.o
@@ -235,11 +229,11 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/account.P .deps/date.P .deps/db-cronosII.P .deps/db.P \
-.deps/hash.P .deps/imap.P .deps/mailbox.P .deps/message.P .deps/pop3.P \
+DEP_FILES =  .deps/account.P .deps/date.P .deps/db.P .deps/hash.P \
+.deps/imap.P .deps/mailbox.P .deps/message.P .deps/pop3.P \
 .deps/request.P .deps/smtp.P .deps/utils.P
-SOURCES = $(account_SOURCES) $(date_SOURCES) $(db_SOURCES) $(db_cronosII_SOURCES) $(hash_SOURCES) $(imap_SOURCES) $(mailbox_SOURCES) $(message_SOURCES) $(pop3_SOURCES) $(request_SOURCES) $(smtp_SOURCES) $(utils_SOURCES)
-OBJECTS = $(account_OBJECTS) $(date_OBJECTS) $(db_OBJECTS) $(db_cronosII_OBJECTS) $(hash_OBJECTS) $(imap_OBJECTS) $(mailbox_OBJECTS) $(message_OBJECTS) $(pop3_OBJECTS) $(request_OBJECTS) $(smtp_OBJECTS) $(utils_OBJECTS)
+SOURCES = $(account_SOURCES) $(date_SOURCES) $(db_SOURCES) $(hash_SOURCES) $(imap_SOURCES) $(mailbox_SOURCES) $(message_SOURCES) $(pop3_SOURCES) $(request_SOURCES) $(smtp_SOURCES) $(utils_SOURCES)
+OBJECTS = $(account_OBJECTS) $(date_OBJECTS) $(db_OBJECTS) $(hash_OBJECTS) $(imap_OBJECTS) $(mailbox_OBJECTS) $(message_OBJECTS) $(pop3_OBJECTS) $(request_OBJECTS) $(smtp_OBJECTS) $(utils_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -320,10 +314,6 @@ date: $(date_OBJECTS) $(date_DEPENDENCIES)
 db: $(db_OBJECTS) $(db_DEPENDENCIES)
 	@rm -f db
 	$(LINK) $(db_LDFLAGS) $(db_OBJECTS) $(db_LDADD) $(LIBS)
-
-db_cronosII: $(db_cronosII_OBJECTS) $(db_cronosII_DEPENDENCIES)
-	@rm -f db_cronosII
-	$(LINK) $(db_cronosII_LDFLAGS) $(db_cronosII_OBJECTS) $(db_cronosII_LDADD) $(LIBS)
 
 hash: $(hash_OBJECTS) $(hash_DEPENDENCIES)
 	@rm -f hash

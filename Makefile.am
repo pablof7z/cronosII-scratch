@@ -20,11 +20,14 @@ cronosinclude_HEADERS = config.h
 EXTRA_DIST =				\
 	cronosII.spec			\
 	mkpotfiles-in			\
+	ABOUT-NLS				\
 	AUTHORS					\
 	COPYING					\
 	FEATURES				\
 	NEWS					\
 	README					\
+	README.1st				\
+	THANKS					\
 	TODO					\
 	ChangeLog				\
 	$(about_DATA)

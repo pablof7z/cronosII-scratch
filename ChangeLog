@@ -2,6 +2,8 @@ Thu Apr  4 Pablo Fernández <sandokan@pablossite.net>
 	* Added the function c2_str_get_sender().
 	* Fixed some stuff in the mail widget (GtkHTML implementation).
 	* Fixed some stuff in the request module (HTTP implementation).
+	* Added account16.png
+	* Work on the Spanish translation.
 
 Wed Apr  3 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Added c2_imap_reconnect.

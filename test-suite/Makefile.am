@@ -1,4 +1,4 @@
-bin_PROGRAMS = account date db db_cronosII hash imap mailbox message pop3 request smtp utils
+bin_PROGRAMS = account date db hash imap mailbox message pop3 request smtp utils
 
 INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules -I$(top_srcdir)/src $(GNOME_INCLUDEDIR)
 
@@ -18,10 +18,6 @@ date_LDFLAGS = $(LDFLAGS)
 db_SOURCES = db.c
 db_LDADD = $(LDADD)
 db_LDFLAGS = $(LDFLAGS)
-
-db_cronosII_SOURCES = db-cronosII.c
-db_cronosII_LDADD = $(LDADD)
-db_cronosII_LDFLAGS = $(LDFLAGS)
 
 hash_SOURCES = hash.c
 hash_LDADD = $(LDADD)
