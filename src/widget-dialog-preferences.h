@@ -151,6 +151,10 @@ void
 c2_dialog_preferences_set_subsection		(C2DialogPreferences *preferences,
 											 C2DialogPreferencesSubSection subsection);
 
+GtkWidget *
+c2_dialog_preferences_account_editor_new	(C2Application *application, C2DialogPreferences *preferences,
+											 C2Account *account);
+
 #ifdef __cplusplus
 }
 #endif

@@ -809,6 +809,9 @@ on_subject_changed (GtkWidget *widget, C2Composer *composer)
 		g_free (title);
 	} else
 		gtk_window_set_title (GTK_WINDOW (composer), _("Composer: Untitled"));
+
+	gtk_signal_emit_by_name (GTK_OBJECT (C2_WINDOW (composer)->application), "window_changed",
+					c2_application_open_windows (C2_WINDOW (composer)->application));
 }
 
 static void

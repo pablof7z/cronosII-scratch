@@ -3637,7 +3637,7 @@ Internet Message Access Protocol 4 (IMAP)
 	      <class>GtkTable</class>
 	      <name>table13</name>
 	      <border_width>4</border_width>
-	      <rows>3</rows>
+	      <rows>4</rows>
 	      <columns>4</columns>
 	      <homogeneous>False</homogeneous>
 	      <row_spacing>4</row_spacing>
@@ -3754,29 +3754,6 @@ Internet Message Access Protocol 4 (IMAP)
 	      </widget>
 
 	      <widget>
-		<class>GtkCheckButton</class>
-		<name>incoming_server_ssl</name>
-		<can_focus>True</can_focus>
-		<label>Use Secure Server Layer (SSL).</label>
-		<active>False</active>
-		<draw_indicator>True</draw_indicator>
-		<child>
-		  <left_attach>0</left_attach>
-		  <right_attach>4</right_attach>
-		  <top_attach>2</top_attach>
-		  <bottom_attach>3</bottom_attach>
-		  <xpad>0</xpad>
-		  <ypad>0</ypad>
-		  <xexpand>False</xexpand>
-		  <yexpand>False</yexpand>
-		  <xshrink>False</xshrink>
-		  <yshrink>False</yshrink>
-		  <xfill>True</xfill>
-		  <yfill>False</yfill>
-		</child>
-	      </widget>
-
-	      <widget>
 		<class>GtkLabel</class>
 		<name>label177</name>
 		<label>Username:</label>
@@ -3816,6 +3793,79 @@ Internet Message Access Protocol 4 (IMAP)
 		  <right_attach>4</right_attach>
 		  <top_attach>1</top_attach>
 		  <bottom_attach>2</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkCheckButton</class>
+		<name>incoming_server_ssl</name>
+		<can_focus>True</can_focus>
+		<label>Use Secure Server Layer (SSL).</label>
+		<active>False</active>
+		<draw_indicator>True</draw_indicator>
+		<child>
+		  <left_attach>0</left_attach>
+		  <right_attach>4</right_attach>
+		  <top_attach>3</top_attach>
+		  <bottom_attach>4</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<name>label183</name>
+		<label>Password:</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>1</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<child>
+		  <left_attach>0</left_attach>
+		  <right_attach>1</right_attach>
+		  <top_attach>2</top_attach>
+		  <bottom_attach>3</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkEntry</class>
+		<name>incoming_server_password</name>
+		<can_focus>True</can_focus>
+		<editable>True</editable>
+		<text_visible>False</text_visible>
+		<text_max_length>0</text_max_length>
+		<text></text>
+		<child>
+		  <left_attach>1</left_attach>
+		  <right_attach>4</right_attach>
+		  <top_attach>2</top_attach>
+		  <bottom_attach>3</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -4031,7 +4081,7 @@ Sendmail
 	      <class>GtkTable</class>
 	      <name>table14</name>
 	      <border_width>4</border_width>
-	      <rows>3</rows>
+	      <rows>4</rows>
 	      <columns>4</columns>
 	      <homogeneous>False</homogeneous>
 	      <row_spacing>4</row_spacing>
@@ -4206,8 +4256,8 @@ Sendmail
 		<child>
 		  <left_attach>0</left_attach>
 		  <right_attach>4</right_attach>
-		  <top_attach>2</top_attach>
-		  <bottom_attach>3</bottom_attach>
+		  <top_attach>3</top_attach>
+		  <bottom_attach>4</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -4246,6 +4296,56 @@ Sendmail
 		    <fill>False</fill>
 		  </child>
 		</widget>
+	      </widget>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<name>outgoing_server_password_label</name>
+		<label>Password:</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>1</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<child>
+		  <left_attach>0</left_attach>
+		  <right_attach>1</right_attach>
+		  <top_attach>2</top_attach>
+		  <bottom_attach>3</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkEntry</class>
+		<name>outgoing_server_password</name>
+		<can_focus>True</can_focus>
+		<editable>True</editable>
+		<text_visible>True</text_visible>
+		<text_max_length>0</text_max_length>
+		<text></text>
+		<child>
+		  <left_attach>1</left_attach>
+		  <right_attach>4</right_attach>
+		  <top_attach>2</top_attach>
+		  <bottom_attach>3</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
 	      </widget>
 	    </widget>
 	  </widget>

@@ -1,3 +1,6 @@
+Tue Nov 27 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* A lot of work in the preferences dialog.
+
 Mon Nov 26 Bosko Blagojevic <falling@users.sourceforge.net>
 	* IMAP can now rename and delete folders.
 	* Removed host and port variables from IMAP object, as that's
