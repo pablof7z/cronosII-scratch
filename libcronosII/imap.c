@@ -174,7 +174,7 @@ init (C2IMAP *imap)
 	imap->pending = NULL;
 	imap->login = NULL;
 	
-	pthread_mutex_init(&imap->lock, NULL);
+	c2_mutex_init(&imap->lock);
 }
 
 C2IMAP *
@@ -206,31 +206,36 @@ c2_imap_new (gchar *host, gint port, gchar *user, gchar *pass,
  *
  * This function will start an IMAP object,
  * it will connect the object, make it login, etc.
+ * 
+ * Return Value:
+ * 0 on success, -1 on failure.
  **/
-void
+gint
 c2_imap_init (C2IMAP *imap)
 {
 	C2NetObjectByte *byte;
-	pthread_mutex_lock(&imap->lock);
+	c2_mutex_lock(&imap->lock);
 	
 	if(!(byte = c2_net_object_run(C2_NET_OBJECT(imap))))
 	{
 		gtk_signal_emit(GTK_OBJECT(imap), NET_ERROR);
 		c2_imap_set_error(imap, _("Error connecting to IMAP server."));
-		pthread_mutex_unlock(&imap->lock);
-		return;
+		c2_mutex_unlock(&imap->lock);
+		return -1;
 	}
+	printf("ready to login\n");
 	gdk_input_add(byte->sock, GDK_INPUT_READ, (GdkInputFunction)c2_imap_on_net_traffic, imap);
 	
 	if(imap->login(imap) < 0)
 	{
 		gtk_signal_emit(GTK_OBJECT(imap), LOGIN_FAILED);
-		c2_imap_set_error(imap, _("Failed to login to IMAP server."));
-		pthread_mutex_unlock(&imap->lock);
-		return;
+		//c2_imap_set_error(imap, _("Failed to login to IMAP server."));
+		c2_mutex_unlock(&imap->lock);
+		return -1;
 	}
 	
 	g_print ("%s (%s@%s)\n", __PRETTY_FUNCTION__, imap->user, C2_NET_OBJECT (imap)->host);
+	return 0;
 }
 
 static void
@@ -239,7 +244,7 @@ destroy(GtkObject *object)
 	/*g_free(C2_IMAP(object)->user);
 	g_free(C2_IMAP(object)->pass);
 	g_free(C2_IMAP(object)->host);
-	pthread_mutex_destroy(&C2_IMAP(object)->lock);*/
+	c2_mutex_destroy(&C2_IMAP(object)->lock);*/
 }
 
 static void
@@ -250,7 +255,10 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	gchar *final = NULL;
 	tag_t tag = 0;
 	
-	pthread_mutex_lock(&imap->lock);
+	c2_mutex_lock(&imap->lock);
+	
+	printf("looks like we got server data!\n");
+	fflush(NULL);
 	
 	for(;;)
 	{
@@ -284,9 +292,20 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	g_hash_table_insert(imap->hash, &tag, final);
 	c2_imap_unlock_pending(imap);
 	
-	pthread_mutex_unlock(&imap->lock);
+	c2_mutex_unlock(&imap->lock);
 }
 
+/** c2_imap_unlock_pending
+ * @imap: the imap object to operate on
+ * 
+ * This function will go trough the pending table
+ * of the specified IMAP object and unlock any 
+ * locked mutexes allowing blocking functions
+ * awaiting data to continue.
+ * 
+ * Return Value:
+ * None
+ **/
 static void
 c2_imap_unlock_pending (C2IMAP *imap)
 {
@@ -298,7 +317,7 @@ c2_imap_unlock_pending (C2IMAP *imap)
 	{
 		pending = ptr->data;
 		if(data = g_hash_table_lookup(imap->hash, &pending->tag))
-      pthread_mutex_unlock(&pending->lock);
+      {c2_mutex_unlock(&pending->lock);printf("unlocked tag %i\n", pending->tag);}
 	}
 }
 
@@ -358,8 +377,8 @@ c2_imap_new_pending (C2IMAP *imap, tag_t tag)
 	pending = g_new0(C2IMAPPending, 1);
 	pending->tag = tag;
 	
-	pthread_mutex_init(&pending->lock, NULL);
-	pthread_mutex_lock(&pending->lock);
+	c2_mutex_init(&pending->lock);
+	c2_mutex_lock(&pending->lock);
 	
 	imap->pending = g_slist_prepend(imap->pending, pending);
 	
@@ -383,25 +402,30 @@ c2_imap_get_server_reply (C2IMAP *imap, tag_t tag)
 	C2IMAPPending *pending;
 	gchar *data;
 	
-	/* just in case we got more server data */
-	c2_imap_unlock_pending(imap); 
-	
+	printf("we are in the get_server_reply()\n");
+
 	pending = c2_imap_new_pending(imap, tag);
 	
+	/* just in case we got more server data */
+	c2_imap_unlock_pending(imap);
+	
 	/* be careful to unlock the mutex before waiting on replies */	
-	pthread_mutex_unlock(&imap->lock);
-	pthread_mutex_lock(&pending->lock); /* wait for reply... */
-	pthread_mutex_lock(&imap->lock);
+	c2_mutex_unlock(&imap->lock);
+	c2_mutex_lock(&pending->lock); /* wait for reply... */
+	c2_mutex_lock(&imap->lock);
 
 	data = g_hash_table_lookup(imap->hash, &tag);
 	
 	if(data)
 		g_hash_table_remove(imap->hash, &tag);
+	else
+		printf("shit, we didnt get any hash!\n");
 
-	pthread_mutex_unlock(&pending->lock);
-	pthread_mutex_destroy(&pending->lock);
+	c2_mutex_unlock(&pending->lock);
+	c2_mutex_destroy(&pending->lock);
 	c2_imap_remove_pending(imap, tag);
 	
+	printf("returning: %s\n", data);
 	return data;
 }
 
@@ -409,6 +433,8 @@ static gboolean
 c2_imap_check_server_reply(gchar *reply, tag_t tag)
 {
 	gchar *ptr;
+	
+	printf("CHECKING: %s\n", reply);
 	
 	for(ptr = reply; ptr = strstr(ptr, "\n"); )
 	{
@@ -438,20 +464,21 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	tag_t tag;
 	gchar *reply;
 	
-	pthread_mutex_lock(&imap->lock);
-	
 	tag = c2_imap_get_tag (imap);
 
+	printf("We are _trying_ to login\n");
+	fflush(NULL);
+	
 	if(c2_net_object_send(C2_NET_OBJECT(imap), "CronosII-%04d LOGIN %s %s\r\n", 
 												tag, imap->user, imap->pass) < 0)
 	{
-		pthread_mutex_unlock(&imap->lock);
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
 		return -1;
 	}
 	
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
 	{
-		pthread_mutex_unlock(&imap->lock);
+		c2_imap_set_error(imap, "failed to get reply");
 		return -1;
 	}
 	
@@ -463,7 +490,6 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	else
 		return -1;
 	
-	pthread_mutex_unlock(&imap->lock);
 	return 0;
 }
 

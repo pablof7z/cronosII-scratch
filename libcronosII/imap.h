@@ -108,7 +108,7 @@ C2IMAP *
 c2_imap_new									(gchar *host, gint port, gchar *user, gchar *pass, 
 														C2IMAPAuthenticationType auth, gboolean ssl);
 
-void
+gint
 c2_imap_init								(C2IMAP *imap);
 
 #ifdef __cplusplus
