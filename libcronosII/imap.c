@@ -1834,28 +1834,61 @@ gint
 c2_imap_message_remove_states (C2Db *db)
 {
 	C2IMAP *imap = db->mailbox->protocol.IMAP.imap;
-	C2MessageState state = db->state;
 	gchar *cmd = NULL;
 	tag_t tag;
 
+	tag = c2_imap_get_tag(imap);
+	switch(db->state) {
+	  case C2_MESSAGE_REPLIED:
+		cmd = g_strdup("-FLAGS.SILENT (\\Answered)");
+		break;
+	  case C2_MESSAGE_FORWARDED:
+		cmd = g_strdup("-FLAGS.SILENT (\\Forwarded)");
+		break;
+	  default:
+		break;
+	}
+
+	if(!cmd)
+		return 0;
+
 	if(c2_imap_select_mailbox(imap, db->mailbox) < 0)
 		return -1;
+	
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d "
+	   "STORE %i %s\r\n", tag, db->position + 1, cmd) < 0)
+	{
+		g_free(cmd);
+		c2_imap_close_mailbox(imap);
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+		return NULL;
+	}
+	g_free(cmd);	
 
-	/* TODO: finish me! */
+	if(!(cmd = c2_imap_get_server_reply(imap, tag)))
+		return -1;
+
+	if(!c2_imap_check_server_reply(cmd, tag))
+	{
+		c2_imap_set_error(imap, cmd + C2TagLen + 3);
+		g_free(cmd);
+		return -1;
+	}
+	g_free(cmd);
 
 	return 0;
 }
 
 /** c2_imap_message_set_state
  * 
- * @imap: A locked IMAP object
- * @db: C2Db of message to manipulate
- * @state: the state to put the message in.
+ * @db: C2Db of message to manipulate, with a pointer to
+ *      its new state in its @data field.
  *
  * Manipulates the flags of a message, and 
- * sets the message as "makred" if !@state and
+ * sets the message as "makred" if !state and
  * sets it as unmarked if its already marked
- * and !@state.  
+ * and state.  
  * 
  * Return Value:
  * 0 on success, -1 otherwise.
@@ -1908,7 +1941,6 @@ c2_imap_message_set_state (C2Db *db)
 		return NULL;
 	}
 	g_free(cmd);
-	c2_imap_close_mailbox(imap);
 
 	if(!(cmd = c2_imap_get_server_reply(imap, tag)))
 		return -1;

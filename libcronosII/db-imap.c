@@ -142,6 +142,7 @@ c2_db_imap_message_set_state (C2Db *db, C2MessageState state)
 	state2 = g_new0(C2MessageState, 1);
 	*state2 = state;
 	imap->data = state2;
+	c2_imap_message_remove_states(db);
 	c2_imap_message_set_state(db);
 	/*pthread_create(&thread, NULL, (void*)c2_imap_message_set_state, db);*/
 	c2_mutex_unlock(&imap->lock);
