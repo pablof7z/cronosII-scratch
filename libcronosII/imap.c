@@ -33,10 +33,10 @@
 #include "i18n.h" 
 
 /* C2 IMAP Module in the process of being engineered by Bosko */
-/* TODO: Set marks for emails */
 /* TODO: Re-Implement recursive folder listing (its too slow) */
-/* TODO: Function that handles untagged messages that come unwarranted */
+/* (in progress) TODO: Set marks for emails */
 /* (in progress) TODO: Elegent network problem handling (reconnecting, etc) */
+/* (done!) TODO: Function that handles untagged messages that come unwarranted */
 /* (done!) TODO: Implement subscribtion facility */
 /* (done!) TODO: Get messages */
 /* (done!) TODO: Add messages */
@@ -115,6 +115,9 @@ c2_imap_get_tag								(C2IMAP *imap);
 
 static void
 c2_imap_set_error(C2IMAP *imap, const gchar *error);
+
+static void
+c2_imap_on_disconnect(C2IMAP *imap);
 
 static gint
 c2_imap_reconnect(C2IMAP *imap);
@@ -221,6 +224,7 @@ init (C2IMAP *imap)
 	imap->account = NULL;
 	imap->auth = 0;
 	imap->cmnd = 1;
+	imap->input_tag = -1;
 	imap->mailboxes = NULL;
 	imap->selected_mailbox = NULL;
 	imap->user = NULL;
@@ -287,8 +291,13 @@ c2_imap_init (C2IMAP *imap)
 		return -1;
 	}
 
-	gdk_input_add(byte->sock, GDK_INPUT_READ, (GdkInputFunction)c2_imap_on_net_traffic, imap);
+	imap->input_tag = gdk_input_add(byte->sock, GDK_INPUT_READ, 
+				(GdkInputFunction)c2_imap_on_net_traffic, imap);
 	imap->state = C2IMAPNonAuthenticated;
+	gtk_signal_connect(GTK_OBJECT(imap), "net_error",
+				GTK_SIGNAL_FUNC(c2_imap_on_disconnect), NULL);
+	gtk_signal_connect(GTK_OBJECT(imap), "logout",
+				GTK_SIGNAL_FUNC(c2_imap_on_disconnect), NULL);
 	
 	if(imap->login(imap) < 0)
 	{
@@ -310,6 +319,10 @@ destroy(GtkObject *object)
 	C2IMAP *imap = C2_IMAP(object);
 	GList *ptr;
 	GSList *ptr2;
+  
+	gtk_signal_emit(GTK_OBJECT(imap), signals[LOGOUT]);
+	c2_net_object_disconnect(C2_NET_OBJECT(imap));
+	c2_net_object_destroy_byte (C2_NET_OBJECT (imap));
 	
 	g_free(imap->user);
 	g_free(imap->pass);
@@ -326,6 +339,14 @@ destroy(GtkObject *object)
 	c2_mutex_destroy(&imap->lock);
 }
 
+static void
+c2_imap_on_disconnect(C2IMAP *imap)
+{
+	if(imap->input_tag)
+		gdk_input_remove(imap->input_tag);
+	imap->state = C2IMAPDisconnected;
+}
+
 /** c2_imap_reconnect
  * 
  * @imap: A locked imap object
@@ -339,19 +360,28 @@ destroy(GtkObject *object)
 static gint
 c2_imap_reconnect(C2IMAP *imap)
 {
+	C2NetObjectByte *byte;
+	
 	c2_net_object_disconnect(C2_NET_OBJECT(imap));
-	c2_mutex_unlock(&imap->lock);
-	if(c2_imap_init < 0)
+	gdk_input_remove(imap->input_tag);
+	imap->input_tag = -1;
+	
+	if(!(byte = c2_net_object_run(C2_NET_OBJECT(imap))))
 	{
-		c2_mutex_lock(&imap->lock);
+		imap->state = C2IMAPDisconnected;
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+		c2_imap_set_error(imap, _("Error connecting to IMAP server."));
 		return -1;
 	}
-	c2_mutex_lock(&imap->lock);
+
+	imap->input_tag = gdk_input_add(byte->sock, GDK_INPUT_READ, 
+			(GdkInputFunction)c2_imap_on_net_traffic, imap);
 	
 	if(imap->state == C2IMAPSelected)
 		if(c2_imap_select_mailbox(imap, imap->selected_mailbox) < 0)
 	  {
 			c2_net_object_disconnect(C2_NET_OBJECT(imap));
+			gtk_signal_emit(GTK_OBJECT(imap), signals[LOGOUT]);
 			return -1;
 		}
 
@@ -376,14 +406,15 @@ DIE:
 			g_warning(_("Error reading from socket on IMAP host %s! Reader thread aborting!\n"),
 						C2_NET_OBJECT(imap)->host);
 			c2_imap_set_error(imap, NET_READ_FAILED);
+      gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 			c2_net_object_disconnect(C2_NET_OBJECT(imap));
 			c2_net_object_destroy_byte (C2_NET_OBJECT (imap));
-			imap->state = C2IMAPDisconnected;
-			gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 			if(final) g_free(final);
 			return;
 		}
-		if(!final && strstr(buf, "FETCH (RFC822 {")) /* get FETCH replies right */
+		/* put checks on incoming date below */
+		/* check #1 */
+		if(!final && strstr(buf, "FETCH (RFC822 {")) /* get FETCH replies properly */
 		{
 			gint n, bytes = atoi(strstr(buf, "{") + 1);
 			final = g_strdup(buf);
@@ -401,13 +432,26 @@ DIE:
 			{
 				if(c2_net_object_read(C2_NET_OBJECT(imap), &buf) < 0)
 					goto DIE;
-        if(strstr(buf, "FETCH completed"))
+				if(strstr(buf, "FETCH completed"))
 					break;
 				buf2 = final;
 				final = g_strconcat(final, buf, NULL);
 				g_free(buf2);
 				g_free(buf);
 			}
+		}
+		/* check #2 */
+		if(!final && c2_strneq(buf, "* BYE ", 6)) /* server is closing connection! */
+		{
+			if(c2_imap_reconnect(imap) == 0) /* try to reconnect on the fly... */
+				return; /* works? return & wait for the new gdk_input to catch data! */
+			/* if it doesnt work, bitch a little and give up... */
+			c2_imap_set_error(imap, buf + 6);
+			c2_net_object_disconnect(C2_NET_OBJECT(imap));
+			c2_net_object_destroy_byte (C2_NET_OBJECT (imap));
+			gtk_signal_emit(GTK_OBJECT(imap), signals[LOGOUT]);
+			g_free(buf);
+			return;
 		}
 		if(!final) final = g_strdup(buf);
 		else 
@@ -426,7 +470,7 @@ DIE:
 	
 	tag = atoi(buf+9);
 	g_free(buf);
-  /* now insert 'final' into the hash...*/
+	/* now insert 'final' into the hash...*/
 	{
 		C2IMAPServerReply *data = g_new0(C2IMAPServerReply, 1);
 		data->tag = tag;
@@ -872,11 +916,6 @@ c2_imap_get_full_mailbox_name (C2IMAP *imap, C2Mailbox *mailbox)
 gint
 c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 {
-	/* TODO: 
-	 * 	(done!) (1) Select box
-	 *  (done!) (2) Build C2Db linked list according to messages 
-	 *  (done!) (3) Close box 
-	 **/
 	tag_t tag;
 	gint messages, uid = 0;
 	gchar *reply, *ptr, *ptr2, *str;
@@ -897,7 +936,6 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 			"(FLAGS UID BODY[HEADER.FIELDS (SUBJECT FROM DATE)])\r\n", tag) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
@@ -1014,7 +1052,6 @@ c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 	{
 		g_free(name);
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
@@ -1077,7 +1114,6 @@ c2_imap_close_mailbox (C2IMAP *imap)
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d CLOSE\r\n", tag) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
@@ -1110,7 +1146,6 @@ c2_imap_plaintext_login (C2IMAP *imap)
 												tag, imap->user, imap->pass) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
@@ -1156,7 +1191,6 @@ c2_imap_get_mailbox_list(C2IMAP *imap, const gchar *reference, const gchar *name
   {
 		g_free(cmd);
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return NULL;
 	}
@@ -1198,7 +1232,6 @@ c2_imap_create_mailbox(C2IMAP *imap, C2Mailbox *parent, const gchar *name)
 		"\"%s%s%s\"\r\n", tag, buf ? buf : "", buf ? "/" : "", name) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		g_free(buf);
 		return FALSE;
@@ -1242,7 +1275,6 @@ c2_imap_delete_mailbox(C2IMAP *imap, C2Mailbox *mailbox)
 					"\"%s\"\r\n", tag, name) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		g_free(name);
 		return FALSE;
@@ -1290,7 +1322,6 @@ c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
 				"\"%s\" \"%s\"\r\n", oldname, name) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		c2_mutex_unlock(&imap->lock);
 		g_free(oldname);
@@ -1345,7 +1376,6 @@ c2_imap_subscribe_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 			"\"%s\"\r\n", tag, c2_imap_get_full_mailbox_name(imap, mailbox)) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		c2_mutex_unlock(&imap->lock);
 		return FALSE;
@@ -1393,7 +1423,6 @@ c2_imap_unsubscribe_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 			"\"%s\"\r\n", tag, c2_imap_get_full_mailbox_name(imap, mailbox)) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		c2_mutex_unlock(&imap->lock);
 		return FALSE;
@@ -1430,7 +1459,6 @@ c2_imap_mailbox_is_subscribed (C2IMAP *imap, C2Mailbox *mailbox)
 		 "%s\"\r\n", tag, c2_imap_get_full_mailbox_name(imap, mailbox)) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		c2_mutex_unlock(&imap->lock);
 		return FALSE;
@@ -1494,7 +1522,6 @@ c2_imap_message_remove (C2IMAP *imap, GList *list)
 			 "%i +FLAGS.SILENT (\\Deleted)\r\n", tag, db->position+1) < 0)
 		{
 			c2_imap_set_error(imap, NET_WRITE_FAILED);
-			imap->state = C2IMAPDisconnected;
 			gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 			return -1;
 		}
@@ -1512,16 +1539,15 @@ c2_imap_message_remove (C2IMAP *imap, GList *list)
 	}
 	
 	tag = c2_imap_get_tag(imap);
-  if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d EXPUNGE\r\n",
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d EXPUNGE\r\n",
 		 tag) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
 	
-  if(!(reply = c2_imap_get_server_reply(imap, tag)))
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
 		return -1;
 	
 	if(!c2_imap_check_server_reply(reply, tag)) 
@@ -1529,8 +1555,8 @@ c2_imap_message_remove (C2IMAP *imap, GList *list)
 		c2_imap_set_error(imap, reply + C2TagLen + 3);     
 		g_free(reply);     
 		return -1;
-	}  
-  g_free(reply);
+	}
+	g_free(reply);
 	
 	c2_imap_close_mailbox(imap);
 	
@@ -1564,7 +1590,6 @@ c2_imap_message_add (C2IMAP *imap, C2Mailbox *mailbox, C2Db *db)
 			db->message->header, db->message->body) < 0))
 	{
 		 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		 		imap->state = C2IMAPDisconnected;
 		 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		 		return -1;
 	}
@@ -1588,7 +1613,6 @@ c2_imap_message_add (C2IMAP *imap, C2Mailbox *mailbox, C2Db *db)
 		 "%i (UID)\r\n", tag, messages) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
@@ -1635,7 +1659,6 @@ c2_imap_load_message (C2IMAP *imap, C2Db *db)
 		 "(RFC822)\r\n", tag, db->position+1) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
-		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return NULL;
 	}
@@ -1673,3 +1696,30 @@ c2_imap_load_message (C2IMAP *imap, C2Db *db)
 	g_free(reply);
 	return message;
 }
+
+#if 0
+/* in progress! */
+gint
+c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState *state)
+{
+	gchar *reply;
+	tag_t tag;
+	
+	if(c2_imap_select_mailbox(imap, db->mailbox) < 0)
+		return -1;
+	
+	tag = c2_imap_get_tag(imap);
+	switch (state) {
+	 
+	 case C2_MESSAGE_READED:
+		reply = g_strdup("\Seen");
+		break;
+	 case C2_MESSAGE_UNREADED:
+		reply = g_strdup("");
+	}
+	
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d"));
+
+	return 0;
+}
+#endif

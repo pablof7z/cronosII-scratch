@@ -87,6 +87,7 @@ struct _C2IMAP
 	gchar *path;
 
 	tag_t cmnd : 10;
+	gint input_tag;
 
 	gint auth_remember   :1;	 /* %TRUE = Store password */
 	gint only_subscribed :1;   /* %TRUE = list only subscribed mailboxes */
