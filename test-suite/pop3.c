@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client  /testsuite/db.c
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,17 +26,18 @@
 gint
 main (gint argc, gchar **argv)
 {
-
-	C2Pop3 	*pop3 = NULL;
+	C2Mailbox *inbox;
+	C2POP3 	*pop3 = NULL;
 	gint	flags =	0;
 	C2Account *act = NULL;
 
 	gtk_init (&argc, &argv);
 
-	flags = C2_POP3_DO_KEEP_COPY | C2_POP3_DO_USE_APOP;
+	flags = C2_POP3_DO_KEEP_COPY;
 
-      	pop3 = c2_pop3_new("USERNAME","PASSWOrD","mail.account.org",110);
-	act  = c2_account_new("a","a","a","aa","a",TRUE,C2_ACCOUNT_POP3,C2_SMTP_LOCAL,C2_ACCOUNT_SIGNATURE_STATIC,"a",TRUE);
+	inbox = c2_mailbox_new ("Inbox", "0", C2_MAILBOX_CRONOSII, 0, 0);
+   	pop3 = c2_pop3_new(argv[1], argv[2], "localhost", 110, FALSE);
+	act  = c2_account_new("a","a","a","aa","a",TRUE,NULL, NULL, C2_ACCOUNT_POP3,C2_SMTP_LOCAL,"a",110, argv[1], argv[2], FALSE, 0);
 	act->protocol.pop3 = pop3;
 
 	c2_pop3_set_flags(pop3,flags);
@@ -46,7 +47,7 @@ main (gint argc, gchar **argv)
 //		
 //	}
 
-	c2_pop3_fetchmail(act);
+	c2_pop3_fetchmail(act, inbox);
 
 
 	//c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));

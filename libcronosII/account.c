@@ -33,6 +33,12 @@ init											(C2Account *account);
 static void
 destroy											(GtkObject *object);
 
+static void
+set_data									(C2Account *account, C2AccountKey key, gint type, gpointer data);
+
+static gpointer
+get_data									(C2Account *account, C2AccountKey key, gint *type);
+
 enum
 {
 	LAST_SIGNAL
@@ -80,109 +86,119 @@ static void
 init (C2Account *account)
 {
 	account->name = NULL;
-	account->full_name = NULL;
-	account->organization = NULL;
 	account->email = NULL;
-	account->reply_to = NULL;
-	account->type = 0;
-	account->protocol.pop3 = NULL;
-	account->smtp = NULL;
-	account->signature.plain = NULL;
-	account->signature.html = NULL;
+	account->edata = NULL;
+	account->etype = NULL;
 	account->next = NULL;
 }
 
 C2Account *
-c2_account_new (const gchar *name, const gchar *full_name, const gchar *organization, const gchar *email,
-				const gchar *reply_to, gboolean active, const gchar *signature_plain,
-				const gchar *signature_html, C2AccountType account_type, C2SMTPType smtp_type, ...)
+c2_account_new (C2AccountType type, gchar *name, gchar *email)
 {
 	C2Account *account;
-	const gchar *user, *pass, *host;
-	gboolean ssl;
-	gint flags;
-	gboolean smtp_authentication;
-	gint port;
-	gchar *file;
-	va_list args;
 
-	c2_return_val_if_fail (name || email, NULL, C2EDATA);
+	c2_return_val_if_fail (name, NULL, C2EDATA);
+	c2_return_val_if_fail (email, NULL, C2EDATA);
 
-	va_start (args, smtp_type);
-	
-	account = gtk_type_new (C2_TYPE_ACCOUNT);
-	account->name = g_strdup (name);
-	account->full_name = g_strdup (full_name);
-	account->organization = g_strdup (organization);
-	account->email = g_strdup (email);
-	account->reply_to = g_strdup (reply_to);	
-	account->options.active = active;
+	account = gtk_type_new (c2_account_get_type ());
 
-	account->type = account_type;
-
-	switch (account->type)
-	{
-		case C2_ACCOUNT_POP3:
-			host = va_arg (args, const gchar *);
-			port = va_arg (args, gint);
-			user = va_arg (args, const gchar *);
-			pass = va_arg (args, const gchar *);
-			ssl = va_arg (args, gboolean);
-			flags = va_arg (args, gint);
-			
-			account->protocol.pop3 = c2_pop3_new (user, pass, host, port, ssl);
-			c2_pop3_set_flags (account->protocol.pop3, flags);
-			break;
-		case C2_ACCOUNT_IMAP:
-			host = va_arg (args, const gchar *);
-			port = va_arg (args, gint);
-			user = va_arg (args, const gchar *);
-			pass = va_arg (args, const gchar *);
-			ssl = va_arg (args, gboolean);
-			flags = va_arg (args, gint);
-
-//			account->protocol.imap = c2_imap_new (host, port, user, pass, ssl);
-	}
-	
-	switch (smtp_type)
-	{
-		case C2_SMTP_REMOTE:
-			host = va_arg (args, gchar *);
-			port = va_arg (args, gint);
-			smtp_authentication = va_arg (args, gboolean);
-			user = va_arg (args, gchar *);
-			pass = va_arg (args, gchar *);
-			
-			account->smtp = c2_smtp_new (C2_SMTP_REMOTE, host, port, smtp_authentication, user, pass);
-			break;
-		case C2_SMTP_LOCAL:
-			account->smtp = c2_smtp_new (C2_SMTP_LOCAL);
-			break;
-	}
-	
-	account->signature.plain = g_strdup (signature_plain);
-	account->signature.html = g_strdup (signature_html);
-
-	va_end (args);
+	account->type = type;
+	account->name = name;
+	account->email = email;
 
 	return account;
+}
+
+void
+c2_account_set_extra_data (C2Account *account, C2AccountKey key, gint type, gpointer data)
+{
+	set_data (account, key, type, data);
+}
+
+gpointer
+c2_account_get_extra_data (C2Account *account, C2AccountKey key, gint *type)
+{
+	return get_data (account, key, type);
+}
+
+static void
+set_data (C2Account *account, C2AccountKey key, gint type, gpointer data)
+{
+	GSList *l;
+	gint i;
+
+	for (l = account->edata, i = 0; l; l = g_slist_next (l), i++)
+	{
+		if (GPOINTER_TO_INT (l->data) == key)
+		{
+			GSList *r;
+
+			r = g_slist_nth (account->etype, i);
+			account->etype = g_slist_remove_link (account->etype, r);
+			account->edata = g_slist_remove_link (account->edata, l);
+			break;
+		}
+	}
+	
+	account->edata = g_slist_prepend (account->edata, (gpointer) key);
+	account->etype = g_slist_prepend (account->etype, (gpointer) type);
+
+	gtk_object_set_data (GTK_OBJECT (account), (gpointer) &key, data);
+}
+
+static gpointer
+get_data (C2Account *account, C2AccountKey key, gint *type)
+{
+	GSList *l;
+	gint i;
+	gpointer value;
+
+	value = gtk_object_get_data (GTK_OBJECT (account), (gpointer) &key);
+
+	for (l = account->edata, i = 0; l; l = g_slist_next (l), i++)
+	{
+		if (GPOINTER_TO_INT (l->data) == key)
+		{
+			GSList *r;
+
+			if (type)
+			{
+				r = g_slist_nth (account->etype, i);
+				if (r)
+					*type = GPOINTER_TO_INT (r->data);
+			}
+			break;
+		}
+	}
+
+	return value;
 }
 
 static void
 destroy (GtkObject *object)
 {
+	GSList *l;
 	C2Account *account = C2_ACCOUNT (object);
+	
 	g_free (account->name);
-	g_free (account->full_name);
-	g_free (account->organization);
 	g_free (account->email);
-	g_free (account->reply_to);
-	if (account->type == C2_ACCOUNT_POP3)
-		gtk_object_destroy (GTK_OBJECT (account->protocol.pop3));
-	else if (account->type == C2_ACCOUNT_IMAP);
-	c2_smtp_free (account->smtp);
-	g_free (account->signature.plain);
-	g_free (account->signature.html);
+
+	for (l = account->edata; l; l = g_slist_next (l))
+	{
+		gpointer value;
+		gint type;
+
+		value = get_data (account, GPOINTER_TO_INT (l->data), &type);
+
+		switch (type)
+		{
+			case GTK_TYPE_OBJECT:
+				gtk_object_unref (GTK_OBJECT (value));
+				break;
+			default:
+				g_free (value);
+		}
+	}
 }
 
 void
@@ -196,58 +212,6 @@ c2_account_free_all (C2Account *head)
 		gtk_object_destroy (GTK_OBJECT (l));
 		l = s;
 	}
-}
-
-/**
- * c2_account_copy
- * @account: C2Account object to copy.
- *
- * This function will copy a C2Account object.
- * 
- * Return Value:
- * The copy of the object.
- **/
-C2Account *
-c2_account_copy (C2Account *account)
-{
-	C2Account *copy = NULL;
-	
-	c2_return_val_if_fail (account, NULL, C2EDATA);
-
-	if (account->type == C2_ACCOUNT_POP3)
-	{
-		switch (account->smtp->type)
-		{
-			case C2_SMTP_REMOTE:
-				copy = c2_account_new (account->name, account->full_name, account->organization,
-										account->email, account->reply_to, account->options.active,
-										account->signature.plain, account->signature.html,
-										account->type, account->smtp->type, 
-										C2_NET_OBJECT (account->protocol.pop3)->host,
-										C2_NET_OBJECT (account->protocol.pop3)->port,
-										account->protocol.pop3->user, account->protocol.pop3->pass,
-										account->protocol.pop3->flags,
-										account->smtp->host, account->smtp->port,
-										account->smtp->authentication, account->smtp->user,
-										account->smtp->pass);
-				break;
-			case C2_SMTP_LOCAL:
-				copy = c2_account_new (account->name, account->full_name, account->organization,
-										account->email, account->reply_to, account->options.active,
-										account->signature.plain, account->signature.html,
-										account->type, account->smtp->type,
-										C2_NET_OBJECT (account->protocol.pop3)->host,
-										C2_NET_OBJECT (account->protocol.pop3)->port,
-										account->protocol.pop3->user, account->protocol.pop3->pass,
-										account->protocol.pop3->flags);
-		}
-		
-		c2_smtp_set_flags (copy->smtp, account->smtp->flags);
-	} else
-		printf ("You want to use this function with other than pop3? well, you code it: I'm lazzy"
-				"today! %s:%d\n", __FILE__, __LINE__);
-
-	return copy;
 }
 
 /**

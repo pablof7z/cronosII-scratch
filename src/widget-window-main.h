@@ -46,6 +46,7 @@ struct _C2WindowMain
 	
 	GtkWidget *mlist, *index; /* Statically created widgets need a reference here */
 	GladeXML *ctree_menu;
+	GladeXML *toolbar_menu;
 
 	pthread_mutex_t index_lock;
 	pthread_mutex_t body_lock;

@@ -51,12 +51,19 @@ welcome											(C2POP3 *pop3);
 static gint
 login											(C2POP3 *pop3);
 
-static gint
-status											(C2POP3 *pop3);
+static GSList *
+status											(C2POP3 *pop3, C2Account *account);
+
+static gboolean
+uidl											(C2POP3 *pop3, C2Account *account, gint mails);
+
+static void
+uidl_clean										(C2Account *account);
 
 
 static gint
-retrieve										(C2Account *account, gint mails);
+retrieve										(C2POP3 *pop3, C2Account *account,
+												 C2Mailbox *inbox, GSList *download_list);
 
 enum
 {
@@ -72,10 +79,10 @@ static C2NetObject *parent_class = NULL;
 
 /**
  * c2_pop3_new
- * @user: Username.
- * @pass: Password (might be NULL).
  * @host: Hostame.
  * @port: Port.
+ * @user: Username.
+ * @pass: Password (might be NULL).
  * @ssl: Wheter SSL connection should be used or not.
  *
  * This function will create a new C2POP3 with
@@ -85,7 +92,7 @@ static C2NetObject *parent_class = NULL;
  * The allocated C2POP3 object or %NULL if there was an error.
  **/
 C2POP3 *
-c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port, gboolean ssl)
+c2_pop3_new (gchar *host, gint port, gchar *user, gchar *pass, gboolean ssl)
 {
 	C2POP3 *pop3;
 	
@@ -93,8 +100,8 @@ c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port,
 	
 	pop3 = gtk_type_new (C2_TYPE_POP3);
 
-	pop3->user = g_strdup (user);
-	pop3->pass = g_strdup (pass);
+	pop3->user = user;
+	pop3->pass = pass;
 
 	c2_net_object_construct (C2_NET_OBJECT (pop3), host, port, ssl);
 
@@ -121,7 +128,9 @@ c2_pop3_set_flags (C2POP3 *pop3, gint flags)
 
 /**
  * c2_pop3_fetchmail
- * @account: Loaded C2Account object.
+ * @pop3: POP3 object to check.
+ * @account: Account where the POP3 object belongs.
+ * @inbox: Inbox where to store downloaded mails.
  *
  * This function will download
  * messages from the account @account using
@@ -131,9 +140,9 @@ c2_pop3_set_flags (C2POP3 *pop3, gint flags)
  * 0 on success or -1.
  **/
 gint
-c2_pop3_fetchmail (C2Account *account)
+c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 {
-	C2POP3 *pop3 = account->protocol.pop3;
+	GSList *download_list;
 	gint mails;
 
 	c2_return_val_if_fail (pop3, -1, C2EDATA);
@@ -161,14 +170,14 @@ c2_pop3_fetchmail (C2Account *account)
 		return -1;
 	}
 
-	if ((mails = status (pop3)) < 0)
+	if ((download_list = status (pop3, account)) < 0)
 	{
 		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
 		pthread_mutex_unlock (&pop3->run_lock);
 		return -1;
 	}
 
-	if (retrieve (account, mails) < 0)
+	if (retrieve (pop3, account, inbox, download_list) < 0)
 	{
 		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
 		pthread_mutex_unlock (&pop3->run_lock);
@@ -177,6 +186,7 @@ c2_pop3_fetchmail (C2Account *account)
 	printf("done with fetching\n");
 
 	c2_net_object_disconnect (C2_NET_OBJECT (pop3));
+	g_slist_free (download_list);
 
 	/* Unlock the mutex */
 	pthread_mutex_unlock (&pop3->run_lock);
@@ -361,17 +371,18 @@ L		} else
 	return 0;
 }
 
-static gint
-status (C2POP3 *pop3)
+static GSList *
+status (C2POP3 *pop3, C2Account *account)
 {
 	gchar *string;
 	gint mails;
+	GSList *list = NULL;
 
 	if (c2_net_object_send (C2_NET_OBJECT (pop3), "STAT\r\n") < 0)
-		return -1;
+		return NULL;
 
 	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
-		return -1;
+		return NULL;
 
 	if (c2_strnne (string, "+OK", 3))
 	{
@@ -380,33 +391,68 @@ status (C2POP3 *pop3)
 			string++;
 
 		c2_error_set_custom (string);
-		return -1;
+		return NULL;
 	}
 
 	sscanf (string, "+OK %d ", &mails);
 
-	printf ("mails: %d\n", mails);
+	/* Bosko's suggestion. 08/09/01 --pablo */
+	if (!mails)
+		uidl_clean (account);
+	
+	if (pop3->flags & C2_POP3_DO_KEEP_COPY)
+	{
+		gint i;
+
+		for (i = 1; i <= mails; i++)
+		{
+			if (uidl (pop3, account, i))
+				list = g_slist_append (list, (gpointer) i);
+		}
+	} else
+	{
+		/* Append every message to the download list */
+		gint i;
+
+		for (i = 1; i <= mails; i++)
+			list = g_slist_append (list, (gpointer) i);
+	}
+
 	gtk_signal_emit (GTK_OBJECT (pop3), signals[STATUS], mails);
 
-	return mails;
+	return list;
+}
+
+static gboolean
+uidl (C2POP3 *pop3, C2Account *account, gint mails)
+{
+}
+
+static void
+uidl_clean (C2Account *account)
+{
+	gchar *path;
+
+	path = g_strconcat (g_get_home_dir (), C2_HOME, "uidl" G_DIR_SEPARATOR_S, account->name, NULL);
+	printf ("Cleaning UIDL database for %s in '%s'\n", account->name, path);
+	unlink (path);
 }
 
 static gint
-retrieve (C2Account *account, gint mails)
+retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_list)
 {
-	C2POP3 *pop3 = account->protocol.pop3;
 	C2Message *message;
 	gchar *string;
 	gint i, len;
 	gint32 length, total_length = 0;
 	gchar *tmp;
 	FILE *fd;
+	GSList *l;
 	
-	for (i = 1; i <= mails; i++)
+	for (l = download_list; l; l = g_slist_next (l))
 	{
 		if (pop3->flags & C2_POP3_DO_KEEP_COPY)
 		{
-L			/* TODO */
 		}
 
 		/* Retrieve */
@@ -457,7 +503,6 @@ L			/* TODO */
 
 			length += len;
 
-			printf ("%d: %d\n", __LINE__, total_length);
 			gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], i, length, total_length);
 		}
 
@@ -466,11 +511,11 @@ L			/* TODO */
 		/* Load the mail */
 		if ((message = c2_db_message_get_from_file (tmp)))
 		{
-			
+			c2_db_message_add (inbox, message);
 		} else
 			L
 
-		printf("sure.. lets see if it is here..\n");
+		gtk_object_destroy (GTK_OBJECT (message));
 		g_free (tmp);
 	}
 

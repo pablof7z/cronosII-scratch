@@ -48,6 +48,9 @@ static gint
 on_delete_event								(GtkWidget *widget, GdkEventAny *event, gpointer data);
 
 static void
+on_docktoolbar_button_press_event			(GtkWidget *widget, GdkEventButton *event, C2WindowMain *wmain);
+
+static void
 on_index_select_message						(GtkWidget *index, C2Db *node, C2WindowMain *wmain);
 
 static void
@@ -77,6 +80,9 @@ on_close_clicked							(GtkWidget *widget, C2WindowMain *wmain);
 static void
 on_preferences_changed						(C2DialogPreferences *preferences,
 											 C2DialogPreferencesKey key, gpointer value, C2WindowMain *wmain);
+
+static void
+on_toolbar_menu_toolbar_style_item_toggled	(GtkWidget *object, C2WindowMain *wmain);
 
 /* in widget-application.c */
 extern void
@@ -164,6 +170,7 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	c2_window_set_contents_from_glade (C2_WINDOW (wmain), "wnd_main_contents");
 	
 	wmain->ctree_menu = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "mnu_ctree");
+	wmain->toolbar_menu = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "mnu_toolbar");
 
 	xml = C2_WINDOW (wmain)->xml;
 
@@ -246,6 +253,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gtk_widget_show (pixmap);
 
 	/* Connect all signals: menues, toolbar, buttons, etc. */
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "docktoolbar")), "button_press_event",
+							GTK_SIGNAL_FUNC (on_docktoolbar_button_press_event), wmain);
 /*	glade_xml_signal_connect (xml, "on_new_mail_activate", GTK_SIGNAL_FUNC (on_new_mail_activate));
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (xml, "file_exit")), "activate",
 							GTK_SIGNAL_FUNC (on_quit), NULL);
@@ -279,6 +288,13 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 */	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "toolbar_exit")), "clicked",
 							GTK_SIGNAL_FUNC (on_close_clicked), wmain);
 	
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (wmain->toolbar_menu, "text")), "toggled",
+							GTK_SIGNAL_FUNC (on_toolbar_menu_toolbar_style_item_toggled), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (wmain->toolbar_menu, "icons")), "toggled",
+							GTK_SIGNAL_FUNC (on_toolbar_menu_toolbar_style_item_toggled), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (wmain->toolbar_menu, "both")), "toggled",
+							GTK_SIGNAL_FUNC (on_toolbar_menu_toolbar_style_item_toggled), wmain);
+	
 //	c2_main_window_build_dynamic_menu_accounts ();
 }
 
@@ -305,6 +321,42 @@ on_delete_event (GtkWidget *widget, GdkEventAny *event, gpointer data)
 	 * main window):
 	 * i.e. unref any loaded message.
 	 */
+}
+
+static void
+on_docktoolbar_button_press_event (GtkWidget *widget, GdkEventButton *event, C2WindowMain *wmain)
+{
+	C2Application *application;
+	GtkWidget *toolbar;
+	c2_return_if_fail (event, C2EDATA);
+	
+	switch (event->button)
+	{
+		case 3:
+			application = C2_WINDOW (wmain)->application;
+			switch (application->interface_toolbar)
+			{
+				case GTK_TOOLBAR_BOTH:
+					toolbar = glade_xml_get_widget (wmain->toolbar_menu, "text");
+					gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (toolbar), FALSE);
+					toolbar = glade_xml_get_widget (wmain->toolbar_menu, "both");
+					gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (toolbar), TRUE);
+					toolbar = glade_xml_get_widget (wmain->toolbar_menu, "icons");
+					gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (toolbar), FALSE);
+					break;
+				case GTK_TOOLBAR_ICONS:
+					toolbar = glade_xml_get_widget (wmain->toolbar_menu, "icons");
+					gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (toolbar), TRUE);
+					break;
+				case GTK_TOOLBAR_TEXT:
+					toolbar = glade_xml_get_widget (wmain->toolbar_menu, "text");
+					gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (toolbar), TRUE);
+					break;
+			}
+			gnome_popup_menu_do_popup (glade_xml_get_widget (wmain->toolbar_menu, "mnu_toolbar"),
+								NULL, NULL, event, NULL);
+			break;
+	}
 }
 
 static void
@@ -505,7 +557,33 @@ on_preferences_changed (C2DialogPreferences *preferences, C2DialogPreferencesKey
 								key, value);
 }
 
+static void
+on_toolbar_menu_toolbar_style_item_toggled (GtkWidget *object, C2WindowMain *wmain)
+{
+	GtkWidget *wicons;
+	GtkWidget *wlabel;
+	GtkWidget *wboth;
+	GtkWidget *toolbar;
+	gboolean icons;
+	gboolean label;
+	gboolean both;
 
+	wicons = glade_xml_get_widget (wmain->toolbar_menu, "icons");
+	wlabel = glade_xml_get_widget (wmain->toolbar_menu, "text");
+	wboth = glade_xml_get_widget (wmain->toolbar_menu, "both");
+	toolbar = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "toolbar");
+
+	icons = GTK_TOGGLE_BUTTON (wicons)->active;
+	label = GTK_TOGGLE_BUTTON (wlabel)->active;
+	both = GTK_TOGGLE_BUTTON (wboth)->active;
+
+	if (icons)
+		gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS);
+	else if (label)
+		gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_TEXT);
+	else if (both)
+		gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH);
+}
 
 
 static void

@@ -94,14 +94,14 @@ GtkType
 c2_pop3_get_type							(void);
 
 C2POP3 *
-c2_pop3_new									(const gchar *user, const gchar *pass,
-											 const gchar *host, gint port, gboolean ssl);
+c2_pop3_new									(gchar *host, gint port, gchar *user,
+											 gchar *pass, gboolean ssl);
 
 void
 c2_pop3_set_flags							(C2POP3 *pop3, gint flags);
 
 gint
-c2_pop3_fetchmail							(C2Account *account);
+c2_pop3_fetchmail							(C2POP3 *pop3, C2Account *account, C2Mailbox *inbox);
 
 void
 c2_pop3_cancel								(C2POP3 *pop3);

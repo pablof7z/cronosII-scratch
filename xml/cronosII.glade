@@ -356,7 +356,7 @@
 	      <class>GtkCheckMenuItem</class>
 	      <name>view_from</name>
 	      <label>_From</label>
-	      <active>False</active>
+	      <active>True</active>
 	      <always_show_toggle>True</always_show_toggle>
 	    </widget>
 
@@ -364,7 +364,7 @@
 	      <class>GtkCheckMenuItem</class>
 	      <name>view_account</name>
 	      <label>_Account</label>
-	      <active>False</active>
+	      <active>True</active>
 	      <always_show_toggle>True</always_show_toggle>
 	    </widget>
 
@@ -856,7 +856,7 @@
 
     <widget>
       <class>GnomeDockItem</class>
-      <name>dockitem2</name>
+      <name>docktoolbar</name>
       <border_width>1</border_width>
       <tooltip>Icon Menu Bar</tooltip>
       <placement>GNOME_DOCK_TOP</placement>
@@ -3577,6 +3577,76 @@ and try again.</message>
 	</child>
       </widget>
     </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GtkMenu</class>
+  <name>mnu_toolbar</name>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>both</name>
+    <tooltip>Show both icons and text in the buttons</tooltip>
+    <signal>
+      <name>activate</name>
+      <handler>on_both_activate</handler>
+      <last_modification_time>Fri, 07 Sep 2001 22:16:57 GMT</last_modification_time>
+    </signal>
+    <label>_Both</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>toolbar_style</group>
+  </widget>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>icons</name>
+    <tooltip>Show only the icons in the buttons</tooltip>
+    <signal>
+      <name>activate</name>
+      <handler>on_icons_activate</handler>
+      <last_modification_time>Fri, 07 Sep 2001 22:16:57 GMT</last_modification_time>
+    </signal>
+    <label>_Icons</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>toolbar_style</group>
+  </widget>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>text</name>
+    <tooltip>Show just text in the buttons</tooltip>
+    <signal>
+      <name>activate</name>
+      <handler>on_text_activate</handler>
+      <last_modification_time>Fri, 07 Sep 2001 22:16:57 GMT</last_modification_time>
+    </signal>
+    <label>_Text</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>toolbar_style</group>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separador1</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkCheckMenuItem</class>
+    <name>tooltips</name>
+    <tooltip>Show tooltips of buttons</tooltip>
+    <signal>
+      <name>activate</name>
+      <handler>on_tooltips_activate</handler>
+      <last_modification_time>Fri, 07 Sep 2001 22:16:57 GMT</last_modification_time>
+    </signal>
+    <label>_Tooltips</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
   </widget>
 </widget>
 

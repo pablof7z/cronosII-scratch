@@ -177,6 +177,7 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 void
 c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 {
+	L
 }
 
 void

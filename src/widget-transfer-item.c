@@ -17,6 +17,8 @@
  */
 #include <pthread.h>
 
+#include <libcronosII/pop3.h>
+
 #include "widget-transfer-item.h"
 
 #define MAX_CHARS_IN_LABEL		25
@@ -263,19 +265,21 @@ c2_transfer_item_start (C2TransferItem *ti)
 	{
 		if (ti->account->type == C2_ACCOUNT_POP3)
 		{
-			gtk_signal_connect (GTK_OBJECT (ti->account->protocol.pop3), "resolve",
+			C2POP3 *pop3 = (C2POP3*) c2_account_get_extra_data (ti->account, C2_ACCOUNT_KEY_INCOMING, NULL);
+
+			gtk_signal_connect (GTK_OBJECT (pop3), "resolve",
 								GTK_SIGNAL_FUNC (on_pop3_resolve), ti);
 
-			gtk_signal_connect (GTK_OBJECT (ti->account->protocol.pop3), "login_failed",
+			gtk_signal_connect (GTK_OBJECT (pop3), "login_failed",
 								GTK_SIGNAL_FUNC (on_pop3_resolve), ti);
 
-			gtk_signal_connect (GTK_OBJECT (ti->account->protocol.pop3), "status",
+			gtk_signal_connect (GTK_OBJECT (pop3), "status",
 								GTK_SIGNAL_FUNC (on_pop3_status), ti);
 
-			gtk_signal_connect (GTK_OBJECT (ti->account->protocol.pop3), "retrieve",
+			gtk_signal_connect (GTK_OBJECT (pop3), "retrieve",
 								GTK_SIGNAL_FUNC (on_pop3_retrieve), ti);
 
-			gtk_signal_connect (GTK_OBJECT (ti->account->protocol.pop3), "disconnect",
+			gtk_signal_connect (GTK_OBJECT (pop3), "disconnect",
 								GTK_SIGNAL_FUNC (on_pop3_disconnect), ti);
 
 			gtk_progress_set_show_text (GTK_PROGRESS (ti->progress_mail), TRUE);

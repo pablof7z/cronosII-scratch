@@ -36,14 +36,27 @@ extern "C" {
 typedef struct _C2Account C2Account;
 typedef struct _C2AccountClass C2AccountClass;
 typedef enum _C2AccountType C2AccountType;
+typedef enum _C2AccountKey C2AccountKey;
 
 #ifdef HAVE_CONFIG_H
 #	include "mailbox.h"
-#	include "pop3.h"
-#	include "smtp.h"
 #else
 #	include <cronosII.h>
 #endif
+
+enum _C2AccountKey
+{
+	C2_ACCOUNT_KEY_FULL_NAME,
+	C2_ACCOUNT_KEY_ORGANIZATION,
+	C2_ACCOUNT_KEY_REPLY_TO,
+	C2_ACCOUNT_KEY_INCOMING,
+	C2_ACCOUNT_KEY_OUTGOING,
+	C2_ACCOUNT_KEY_SIGNATURE_PLAIN,
+	C2_ACCOUNT_KEY_SIGNATURE_HTML,
+	C2_ACCOUNT_KEY_ACTIVE,
+
+	C2_ACCOUNT_KEY_LAST
+};
 
 enum _C2AccountType
 {
@@ -56,59 +69,37 @@ struct _C2Account
 	GtkObject object;
 
 	gchar *name;
-	
-	gchar *full_name;
-	gchar *organization;
-	
 	gchar *email;
-	gchar *reply_to;
+	GSList *edata;
+	GSList *etype;
 
 	C2AccountType type;
-	
-	union
-	{
-		C2POP3 *pop3;
-//		C2IMAP *imap;
-	} protocol;
-
-	C2SMTP *smtp;
-
-	struct
-	{
-		gboolean active;
-	} options;
-
-	struct
-	{
-		gchar *plain;
-		gchar *html;
-	} signature;
-
 	struct _C2Account *next;
 };
 
 struct _C2AccountClass
 {
+		
 	GtkObjectClass parent_class;
 };
 
 GtkType
-c2_account_get_type									(void);
+c2_account_get_type							(void);
 
 C2Account *
-c2_account_new										(const gchar *name, const gchar *full_name,
-													 const gchar *organization, const gchar *email,
-													 const gchar *reply_to, gboolean active,
-													 const gchar *signature_plain,
-													 const gchar *signature_html,
-													 C2AccountType account_type, C2SMTPType smtp_type,
-													 ...);
+c2_account_new								(C2AccountType type, gchar *name, gchar *email);
 
 void
-c2_account_free										(C2Account *account);
+c2_account_set_extra_data					(C2Account *account, C2AccountKey key, gint type, gpointer data);
+
+gpointer
+c2_account_get_extra_data					(C2Account *account, C2AccountKey key, gint *type);
 
 void
-c2_account_free_all									(C2Account *head);
+c2_account_free								(C2Account *account);
+
+void
+c2_account_free_all							(C2Account *head);
 
 C2Account *
 c2_account_copy										(C2Account *account);

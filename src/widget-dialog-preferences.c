@@ -666,7 +666,7 @@ on_general_accounts_add_clicked (GtkWidget *pwidget, C2DialogPreferences *prefer
 	/* This function returns the window so it can be used as a construct function */
 	GtkWidget *window, *widget;
 	GladeXML *xml;
-	gchar *buf;
+	gchar *buf, *organization;
 	C2Account *account;
 
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"), "druid");
@@ -683,15 +683,16 @@ on_general_accounts_add_clicked (GtkWidget *pwidget, C2DialogPreferences *prefer
 		g_free (buf);
 	}
 
-	if (account && account->organization)
+	organization = (gchar *) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_ORGANIZATION, NULL);
+	if (account && organization)
 	{
 		widget = glade_xml_get_widget (xml, "identity_organization");
-		gtk_entry_set_text (GTK_ENTRY (widget), account->organization);
+		gtk_entry_set_text (GTK_ENTRY (widget), organization);
 	}
 
 	if (account)
 	{
-		C2SMTP *smtp = account->smtp;
+		C2SMTP *smtp = (C2SMTP *) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, NULL);
 		
 		widget = glade_xml_get_widget (xml, "outgoing_server_protocol");
 		gtk_option_menu_set_history (GTK_OPTION_MENU (widget), smtp->type);

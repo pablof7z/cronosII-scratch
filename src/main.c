@@ -160,16 +160,10 @@ main (gint argc, gchar **argv)
 		main_window = c2_window_main_new (application);
 		gtk_widget_show (main_window);
 	}
-/*	if (flags.check)
+	if (flags.check)
 	{
 		C2Account *account =
-			c2_account_new ("Cronos II", "Pablo Fernández Navarro",
-							"Cronos II", "cronosII@users.sourceforge.net",
-							NULL, TRUE, NULL, NULL,
-							C2_ACCOUNT_POP3, C2_SMTP_REMOTE,
-							"pop3.ciudad.com.ar", 110, "condarco30",
-							getenv ("POP_PASS"), FALSE, 0, "smtp.arnet.com.ar", 25,
-							FALSE, NULL, NULL);
+			c2_account_new (C2_ACCOUNT_POP3, "Cronos II", "cronosII@users.sourceforge.net");
 		
 		transfer_list = c2_transfer_list_new (application);
 		gtk_widget_show (transfer_list);
@@ -178,7 +172,7 @@ main (gint argc, gchar **argv)
 		c2_transfer_list_add_item (C2_TRANSFER_LIST (transfer_list), transfer_item);
 		c2_transfer_item_start (transfer_item);
 	}
-*/	
+
 	gdk_threads_enter ();
 	gtk_main ();
 	gdk_threads_leave ();

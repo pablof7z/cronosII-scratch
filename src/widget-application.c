@@ -21,6 +21,10 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#include <libcronosII/account.h>
+#include <libcronosII/pop3.h>
+// [TODO] #include <libcronosII/imap.h>
+#include <libcronosII/smtp.h>
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
@@ -112,15 +116,10 @@ class_init (C2ApplicationClass *klass)
 static void
 init (C2Application *application)
 {
-	C2Account *account;
-	gchar *account_name, *full_name, *organization, *email, *reply_to, *incoming_host,
-			*incoming_user, *incoming_pass, *outgoing_host, *outgoing_user, *outgoing_pass,
-			*signature_plain, *signature_html;
-	gint incoming_port, incoming_flags, outgoing_port;
 	gboolean active, incoming_ssl, outgoing_authentication, outgoing_ssl, keep_copy;
 	C2AccountType account_type;
 	C2SMTPType outgoing_protocol;
-	gchar *tmp, *buf;	
+	gchar *tmp, *buf;
 	gint quantity = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL);
 	gint i;
 	
@@ -132,73 +131,142 @@ init (C2Application *application)
 	/* Load accounts */
 	for (i = 0;; i++)
 	{
+		C2Account *account;
+		gchar *name, *email, *buf;
+		C2AccountType account_type;
+		gint type, outgoing, i;
+		gpointer value;
+		
 		tmp = g_strdup_printf ("/"PACKAGE"/Account %d/", i);
 		gnome_config_push_prefix (tmp);
 
-		if (!(account_name = gnome_config_get_string ("name")))
+		if (!(name = gnome_config_get_string ("name")) ||
+			!(email = gnome_config_get_string ("email")))
 		{
 			gnome_config_pop_prefix ();
 			g_free (tmp);
 			break;
 		}
 
-		full_name = gnome_config_get_string ("full_name");
-		organization = gnome_config_get_string ("organization");
-		email = gnome_config_get_string ("email");
-		reply_to = gnome_config_get_string ("reply_to");
-		active = gnome_config_get_bool ("options.active");
+		account_type = gnome_config_get_int ("type");
 
-		account_type = gnome_config_get_int ("incoming_protocol");
+		account = c2_account_new (account_type, name, email);
 
-		switch (account_type)
+		for (i = 0; i < C2_ACCOUNT_KEY_LAST; i++)
+		{
+			switch (i)
+			{
+				case C2_ACCOUNT_KEY_FULL_NAME:
+					buf = "full_name";
+					type = GTK_TYPE_STRING;
+					break;
+				case C2_ACCOUNT_KEY_ORGANIZATION:
+					buf = "organization";
+					type = GTK_TYPE_STRING;
+					break;
+				case C2_ACCOUNT_KEY_REPLY_TO:
+					buf = "reply-to";
+					type = GTK_TYPE_STRING;
+					break;
+				case C2_ACCOUNT_KEY_SIGNATURE_PLAIN:
+					buf = "signature plain";
+					type = GTK_TYPE_STRING;
+					break;
+				case C2_ACCOUNT_KEY_SIGNATURE_HTML:
+					buf = "signature HTML";
+					type = GTK_TYPE_STRING;
+					break;
+				case C2_ACCOUNT_KEY_ACTIVE:
+					buf = "active";
+					type = GTK_TYPE_BOOL;
+					break;
+				default:
+					goto ignore;
+			}
+
+			switch (type)
+			{
+				case GTK_TYPE_STRING:
+					value = gnome_config_get_string (buf);
+					break;
+				case GTK_TYPE_BOOL:
+					value = (gpointer) gnome_config_get_bool (buf);
+					break;
+				case GTK_TYPE_INT:
+					value = (gpointer) gnome_config_get_int (buf);
+					break;
+				default:
+#ifdef USE_DEBUG
+					g_warning ("Unable to handle type %d for creating accounts: %s:%d\n",
+									type, __FILE__, __LINE__);
+#endif
+					break;
+			}
+
+			c2_account_set_extra_data (account, i, type, value);
+ignore:
+		}
+
+		switch (type)
 		{
 			case C2_ACCOUNT_POP3:
 			case C2_ACCOUNT_IMAP:
-				incoming_host = gnome_config_get_string ("incoming_hostname");
-				incoming_port = gnome_config_get_int ("incoming_port");
-				incoming_user = gnome_config_get_string ("incoming_username");
-				incoming_pass = gnome_config_get_string ("incoming_password");
-				incoming_flags = gnome_config_get_int ("incoming_flags");
-				incoming_ssl = gnome_config_get_bool ("incoming_ssl");
+				{
+					gchar *host, *user, *pass;
+					gint port, flags;
+					gboolean ssl;
+					
+					host = gnome_config_get_string ("incoming_hostname");
+					port = gnome_config_get_int ("incoming_port");
+					user = gnome_config_get_string ("incoming_username");
+					pass = gnome_config_get_string ("incoming_password");
+					flags = gnome_config_get_int ("incoming_flags");
+					ssl = gnome_config_get_bool ("incoming_ssl");
+
+					if (type == C2_ACCOUNT_POP3)
+					{
+						C2POP3 *pop3;
+						pop3 = c2_pop3_new (host, port, user, pass, ssl);
+						c2_pop3_set_flags (pop3, flags);
+						c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, pop3);
+					} else if (type == C2_ACCOUNT_IMAP)
+						g_warning ("The IMAP protocol has not been coded yet for Cronos II.\n");
+				}
 				break;
 		}
 
-		outgoing_protocol = gnome_config_get_int ("outgoing_protocol");
+		outgoing = gnome_config_get_int ("outgoing_protocol");
 
-		switch (outgoing_protocol)
+		switch (outgoing)
 		{
 			case C2_SMTP_REMOTE:
-				outgoing_host = gnome_config_get_string ("outgoing_hostname");
-				outgoing_port = gnome_config_get_int ("outgoing_port");
-				outgoing_authentication = gnome_config_get_bool ("outgoing_authentication");
-				outgoing_user = gnome_config_get_string ("outgoing_username");
-				outgoing_pass = gnome_config_get_string ("outgoing_password");
-				outgoing_ssl = gnome_config_get_bool ("outgoing_ssl");
-				break;
-		}
+				{
+					C2SMTP *smtp;
+					
+					gchar *host, *user, *pass;
+					gint port;
+					gboolean auth, ssl;
 
-		signature_plain = gnome_config_get_string ("signature.plain");
-		signature_html = gnome_config_get_string ("signature.html");
+					host = gnome_config_get_string ("outgoing_hostname");
+					port = gnome_config_get_int ("outgoing_port");
+					auth = gnome_config_get_bool ("outgoing_authentication");
+					user = gnome_config_get_string ("outgoing_username");
+					pass = gnome_config_get_string ("outgoing_password");
+					ssl = gnome_config_get_bool ("outgoing_ssl");
 
-		switch (outgoing_protocol)
-		{
-			case C2_SMTP_REMOTE:
-				account = c2_account_new (account_name, full_name, organization, email, reply_to,
-											active, signature_plain, signature_html, account_type,
-											outgoing_protocol, incoming_host, incoming_port,
-											incoming_user, incoming_pass, incoming_ssl,
-											incoming_flags,
-											outgoing_host, outgoing_port, outgoing_ssl,
-											outgoing_authentication, outgoing_user, outgoing_pass);
+					smtp = c2_smtp_new (outgoing, host, port, auth, user, pass, ssl);
+					c2_account_set_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, GTK_TYPE_OBJECT, smtp);
+				}
 				break;
 			case C2_SMTP_LOCAL:
-				account = c2_account_new (account_name, full_name, organization, email, reply_to,
-											active, signature_plain, signature_html, account_type,
-											outgoing_protocol, incoming_host, incoming_port, incoming_user,
-											incoming_pass, incoming_flags, incoming_ssl);
-				break;
+				{
+					C2SMTP *smtp;
+					smtp = c2_smtp_new (outgoing);
+					c2_account_set_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, GTK_TYPE_OBJECT, smtp);
+					break;
+				}
 		}
-		
+
 		application->account = c2_account_append (application->account, account);
 
 		gnome_config_pop_prefix ();
