@@ -55,6 +55,7 @@ typedef struct
 	gchar *user, *pass;
 
 	gint flags;
+	gchar *error;
 	
 	gint sock;
 	pthread_mutex_t lock;
