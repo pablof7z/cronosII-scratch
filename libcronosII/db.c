@@ -460,7 +460,8 @@ c2_db_load (C2Mailbox *mailbox)
 			break;
 	}
 
-	retval = func (mailbox);
+	if (!((retval = func (mailbox)) < 0))
+		mailbox->db_is_loaded = 1;
 
 	pthread_mutex_unlock (&mailbox->lock);
 
@@ -561,7 +562,7 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 		thaw = TRUE;
 	}
 
-	if (!mailbox->db)
+	if (!c2_db_is_load (mailbox))
 		c2_mailbox_load_db (mailbox);
 
 	switch (mailbox->type)
@@ -601,6 +602,8 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 		gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
 							C2_MAILBOX_CHANGE_ADD, db->prev);
 	}
+	
+	mailbox->db_is_loaded = 1;
 
 	if (!thaw)
 		pthread_mutex_unlock (&mailbox->lock);

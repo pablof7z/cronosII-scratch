@@ -131,6 +131,7 @@ init (C2Mailbox *mailbox)
 	mailbox->name = NULL;
 	mailbox->id = NULL;
 	mailbox->selection = -1;
+	mailbox->db_is_loaded = 0;
 	mailbox->db = NULL;
 	mailbox->last_mid = -1;
 	mailbox->next = NULL;

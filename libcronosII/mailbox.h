@@ -114,6 +114,7 @@ struct _C2Mailbox
 
 	gint selection;
 
+	gint db_is_loaded : 1;
 	C2Db *db;
 	gint last_mid;
 

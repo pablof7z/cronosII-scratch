@@ -654,6 +654,19 @@ contacts (C2WindowMain *wmain)
 static void
 copy (C2WindowMain *wmain)
 {
+	GtkWidget *widget;
+	C2Mailbox *fmailbox, *tmailbox;
+
+	fmailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
+	if (!(tmailbox = c2_application_dialog_select_mailbox (
+									C2_WINDOW (wmain)->application, GTK_WINDOW (wmain))))
+	{
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE, _("Action cancelled by user."));
+		return;
+	}
+
+	c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE, _("Mailbox selected is «%s»."),
+						tmailbox->name);
 }
 
 static void

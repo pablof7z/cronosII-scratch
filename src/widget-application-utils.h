@@ -15,8 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __CRONOSII_UTILS_APPLICATION_H__
-#define __CRONOSII_UTILS_APPLICATION_H__
+#ifndef __WIDGET_APPLICATION_UTILS_H__
+#define __WIDGET_APPLICATION_UTILS_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,6 +28,9 @@ c2_application_check_account_exists			(C2Application *application);
 /* Dialogs */
 void
 c2_application_dialog_release_information	(C2Application *application);
+
+C2Mailbox *
+c2_application_dialog_select_mailbox		(C2Application *application, GtkWindow *parent);
 
 #ifdef __cplusplus
 }

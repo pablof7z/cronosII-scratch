@@ -198,3 +198,4 @@ gchar *s = N_("Welcome");
 gchar *s = N_("Known Bugs");
 gchar *s = N_("Missing Features");
 gchar *s = N_("Show this dialog at start.");
+gchar *s = N_("Select Mailbox");

@@ -19,6 +19,7 @@
 #include "widget-HTML.h"
 #include "widget-application.h"
 #include "widget-dialog-preferences.h"
+#include "widget-mailbox-list.h"
 
 /**
  * c2_application_check_account_exists
@@ -163,4 +164,45 @@ c2_application_dialog_release_information (C2Application *application)
 	c2_application_window_add (application, GTK_WINDOW (widget));
 
 	gtk_widget_show (widget);
+}
+
+C2Mailbox *
+c2_application_dialog_select_mailbox (C2Application *application, GtkWindow *parent)
+{
+	GladeXML *xml;
+	C2Mailbox *mailbox = NULL;
+	GtkWidget *widget;
+	GtkWidget *scroll;
+	GtkWidget *mlist;
+
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_select_mailbox");
+	
+	scroll = glade_xml_get_widget (xml, "scroll");
+	mlist = c2_mailbox_list_new (application);
+	gtk_container_add (GTK_CONTAINER (scroll), mlist);
+	gtk_widget_show (mlist);
+
+	widget = glade_xml_get_widget (xml, "dlg_select_mailbox");
+
+	c2_application_window_add (application, GTK_WINDOW (widget));
+	gtk_object_ref (GTK_OBJECT (widget));
+
+	if (GTK_IS_WINDOW (parent))
+		gtk_window_set_transient_for (GTK_WINDOW (widget), parent);
+
+	switch (gnome_dialog_run (GNOME_DIALOG (widget)))
+	{
+		case 0:
+			mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (mlist));
+			break;
+		case 1:
+			mailbox = NULL;
+			break;
+	}
+
+	c2_application_window_remove (application, GTK_WINDOW (widget));
+	gtk_object_destroy (GTK_OBJECT (widget));
+	gtk_object_unref (GTK_OBJECT (xml));
+
+	return mailbox;
 }
