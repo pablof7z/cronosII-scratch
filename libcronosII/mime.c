@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -151,11 +151,13 @@ parse_content_type (const gchar *content_type, gchar **type, gchar **subtype, gc
 	c2_return_if_fail (content_type, C2EDATA);
 
 	/* Type */
-	for (ptr1 = ptr2 = content_type; *ptr2 != '\0' && *ptr2 != '/'; ptr2++);
+	for (ptr1 = ptr2 = content_type; *ptr2 != '\0' && *ptr2 != '/'; ptr2++)
+		;
 	*type = g_strndup (ptr1, ptr2-ptr1);
 
 	/* Subtype */
-	for (ptr1 = ++ptr2; *ptr2 != '\0' && *ptr2 != ';'; ptr2++);
+	for (ptr1 = ++ptr2; *ptr2 != '\0' && *ptr2 != ';'; ptr2++)
+		;
 	if (*ptr2 != '\0')
 		*subtype = g_strndup (ptr1, ptr2-ptr1);
 	else
@@ -165,7 +167,8 @@ parse_content_type (const gchar *content_type, gchar **type, gchar **subtype, gc
 	}
 	
 	/* Parameter */
-	for (ptr1 = ++ptr2; *ptr1 == ' '; ptr1++);
+	for (ptr1 = ++ptr2; *ptr1 == ' '; ptr1++)
+		;
 	if (*ptr1 != '\0')
 		*parameter = g_strdup (ptr1);
 }
@@ -196,26 +199,30 @@ get_mime_parts (const gchar *body, const gchar *boundary, const gchar *parent_bo
 	gchar *content_type = NULL, *type = NULL, *subtype = NULL, *parameter = NULL;
 	gchar *local_boundary;
 	gchar *buf;
+	gint blength = strlen (boundary);
 	const gchar *ptr, *end;
 	gboolean end_reached = FALSE;
 
-	for (ptr = body; !end_reached && ptr != NULL && (ptr = strstr (ptr, boundary));)
+	for (ptr = strstr (body, boundary); !end_reached && ptr;)
 	{
-		/* Look for the end of this part */
-		end = strstr (ptr+strlen (boundary), boundary);
+		/* Calculate the end of the part */
+		end = strstr (ptr+blength, boundary);
 
-		/* Check if this end is the end of the mail */
-		if (end && c2_strneq (end+strlen (boundary), "--", 2))
+		/* Check if this end is the end of the multipart (parent) type */
+		if (end && c2_strneq (end+blength, "--", 2))
 			end_reached = TRUE;
 
-		/* Check if the reason there's no end boundary is the parent_boundary */
-		if (!end && parent_boundary)
+		if (!end)
 		{
-			end = strstr (ptr+strlen (boundary), parent_boundary);
-			if (end)
-				end_reached = TRUE;
+			/* Check if the reason there's no end boundary is that
+			 * we are a sub multipart message (recursive).
+			 */
+			if (parent_boundary)
+				if ((end = strstr (ptr+blength, parent_boundary)))
+					end_reached = TRUE;
 		}
 
+		/* Get the content type of this part */
 		if ((content_type = c2_message_str_get_header_field (ptr, "Content-Type:")))
 			parse_content_type (content_type, &type, &subtype, &parameter);
 		g_free (content_type);
@@ -227,13 +234,13 @@ get_mime_parts (const gchar *body, const gchar *boundary, const gchar *parent_bo
 			if (!parameter)
 			{
 				g_warning (_("This message claims to be multipart but it seems to be broken."));
-				goto cancel;
+				break;
 			}
 
 			if (!(local_boundary = get_parameter_value (parameter, "boundary")))
 			{
 				g_warning (_("This message claims to be multipart but it seems to be broken."));
-				goto cancel;
+				break;
 			}
 
 			pos = strstr (ptr, "\n\n") + 2;
@@ -270,11 +277,7 @@ get_mime_parts (const gchar *body, const gchar *boundary, const gchar *parent_bo
 			head = c2_mime_append (head, mime);
 		}
 
-cancel:
-		if (end)
-			ptr = end-1;
-		else
-			ptr += strlen (boundary);
+		ptr = end;
 	}
 
 	return head;
@@ -432,8 +435,8 @@ c2_mime_get_part_by_content_type (C2Mime *mime, const gchar *content_type)
 
 	for (l = mime; l != NULL; l = l->next)
 	{
-		if (c2_streq (mime->type, type) &&
-			c2_streq (mime->subtype, subtype))
+		if (c2_streq (l->type, type) &&
+			c2_streq (l->subtype, subtype))
 			break;
 	}
 

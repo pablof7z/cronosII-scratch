@@ -129,69 +129,108 @@ cronosIIpath = @cronosIIpath@
 gnomedownload = @gnomedownload@
 l = @l@
 
-noinst_LIBRARIES = libcronosII.a
+bin_PROGRAMS = date db hash mailbox request pop3_test
 
-libcronosII_a_SOURCES =  	account.c			account.h						db.c				db.h							db-cronosII.c		db-cronosII.h					db-imap.c			db-imap.h						db-spool.c			db-spool.h						error.c				error.h												i18n.h							hash.c				hash.h												hash-definitions.h				mailbox.c			mailbox.h						md5.c				md5.h							message.c			message.h						mime.c				mime.h							net-object.c		net-object.h					pop3.c				pop3.h							request.c			request.h						smtp.c				smtp.h							utils.c				utils.h							utils-date.c		utils-date.h					utils-net.c			utils-net.h
+INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules $(GNOME_INCLUDEDIR)
+
+LDADD = $(top_builddir)/libcronosII/libcronosII.a
+LDFLAGS = $(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(GTK_LIBS)
 
 
-libcronosII_a_LIBADD = @LIBOBJS@
+date_SOURCES = date.c
+date_LDADD = $(LDADD)
+date_LDFLAGS = $(LDFLAGS)
 
-INCLUDES = -DBUILDING_C2 -I. -I${top_srcdir} $(GNOME_INCLUDEDIR) -DDATADIR=\"${datadir}\" -DPKGDATADIR=\"${pkgdatadir}\"
+db_SOURCES = db.c
+db_LDADD = $(LDADD)
+db_LDFLAGS = $(LDFLAGS)
 
-EXTRA_DIST =  	README					README.api				README.mailbox_id	
+hash_SOURCES = hash.c
+hash_LDADD = $(LDADD)
+hash_LDFLAGS = $(LDFLAGS)
 
+mailbox_SOURCES = mailbox.c
+mailbox_LDADD = $(LDADD)
+mailbox_LDFLAGS = $(LDFLAGS)
+
+request_SOURCES = request.c
+request_LDADD = $(LDADD)
+request_LDFLAGS = $(LDFLAGS)
+
+pop3_test_SOURCES = pop3_test.c
+pop3_test_LDADD = $(LDADD)
+pop3_test_LDFLAGS = $(LDFLAGS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
-LIBRARIES =  $(noinst_LIBRARIES)
+PROGRAMS =  $(bin_PROGRAMS)
 
 
 DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
-LDFLAGS = @LDFLAGS@
-libcronosII_a_DEPENDENCIES =  @LIBOBJS@
-libcronosII_a_OBJECTS =  account.o db.o db-cronosII.o db-imap.o \
-db-spool.o error.o hash.o mailbox.o md5.o message.o mime.o net-object.o \
-pop3.o request.o smtp.o utils.o utils-date.o utils-net.o
-AR = ar
+date_OBJECTS =  date.o
+date_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+db_OBJECTS =  db.o
+db_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+hash_OBJECTS =  hash.o
+hash_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+mailbox_OBJECTS =  mailbox.o
+mailbox_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+request_OBJECTS =  request.o
+request_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+pop3_test_OBJECTS =  pop3_test.o
+pop3_test_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-DIST_COMMON =  README Makefile.am Makefile.in
+DIST_COMMON =  Makefile.am Makefile.in
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/account.P .deps/db-cronosII.P .deps/db-imap.P \
-.deps/db-spool.P .deps/db.P .deps/error.P .deps/hash.P .deps/mailbox.P \
-.deps/md5.P .deps/message.P .deps/mime.P .deps/net-object.P \
-.deps/pop3.P .deps/request.P .deps/smtp.P .deps/utils-date.P \
-.deps/utils-net.P .deps/utils.P
-SOURCES = $(libcronosII_a_SOURCES)
-OBJECTS = $(libcronosII_a_OBJECTS)
+DEP_FILES =  .deps/date.P .deps/db.P .deps/hash.P .deps/mailbox.P \
+.deps/pop3_test.P .deps/request.P
+SOURCES = $(date_SOURCES) $(db_SOURCES) $(hash_SOURCES) $(mailbox_SOURCES) $(request_SOURCES) $(pop3_test_SOURCES)
+OBJECTS = $(date_OBJECTS) $(db_OBJECTS) $(hash_OBJECTS) $(mailbox_OBJECTS) $(request_OBJECTS) $(pop3_test_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .lo .o .s
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu libcronosII/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu test-suite/Makefile
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
 
-mostlyclean-noinstLIBRARIES:
+mostlyclean-binPROGRAMS:
 
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
-distclean-noinstLIBRARIES:
+distclean-binPROGRAMS:
 
-maintainer-clean-noinstLIBRARIES:
+maintainer-clean-binPROGRAMS:
+
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo " $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	done
 
 .s.o:
 	$(COMPILE) -c $<
@@ -225,10 +264,29 @@ distclean-libtool:
 
 maintainer-clean-libtool:
 
-libcronosII.a: $(libcronosII_a_OBJECTS) $(libcronosII_a_DEPENDENCIES)
-	-rm -f libcronosII.a
-	$(AR) cru libcronosII.a $(libcronosII_a_OBJECTS) $(libcronosII_a_LIBADD)
-	$(RANLIB) libcronosII.a
+date: $(date_OBJECTS) $(date_DEPENDENCIES)
+	@rm -f date
+	$(LINK) $(date_LDFLAGS) $(date_OBJECTS) $(date_LDADD) $(LIBS)
+
+db: $(db_OBJECTS) $(db_DEPENDENCIES)
+	@rm -f db
+	$(LINK) $(db_LDFLAGS) $(db_OBJECTS) $(db_LDADD) $(LIBS)
+
+hash: $(hash_OBJECTS) $(hash_DEPENDENCIES)
+	@rm -f hash
+	$(LINK) $(hash_LDFLAGS) $(hash_OBJECTS) $(hash_LDADD) $(LIBS)
+
+mailbox: $(mailbox_OBJECTS) $(mailbox_DEPENDENCIES)
+	@rm -f mailbox
+	$(LINK) $(mailbox_LDFLAGS) $(mailbox_OBJECTS) $(mailbox_LDADD) $(LIBS)
+
+request: $(request_OBJECTS) $(request_DEPENDENCIES)
+	@rm -f request
+	$(LINK) $(request_LDFLAGS) $(request_OBJECTS) $(request_LDADD) $(LIBS)
+
+pop3_test: $(pop3_test_OBJECTS) $(pop3_test_DEPENDENCIES)
+	@rm -f pop3_test
+	$(LINK) $(pop3_test_LDFLAGS) $(pop3_test_OBJECTS) $(pop3_test_LDADD) $(LIBS)
 
 tags: TAGS
 
@@ -261,14 +319,14 @@ maintainer-clean-tags:
 
 distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 
-subdir = libcronosII
+subdir = test-suite
 
 distdir: $(DISTFILES)
 	here=`cd $(top_builddir) && pwd`; \
 	top_distdir=`cd $(top_distdir) && pwd`; \
 	distdir=`cd $(distdir) && pwd`; \
 	cd $(top_srcdir) \
-	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu libcronosII/Makefile
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu test-suite/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
@@ -319,7 +377,7 @@ check-am: all-am
 check: check-am
 installcheck-am:
 installcheck: installcheck-am
-install-exec-am:
+install-exec-am: install-binPROGRAMS
 install-exec: install-exec-am
 
 install-data-am:
@@ -328,13 +386,14 @@ install-data: install-data-am
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am:
+uninstall-am: uninstall-binPROGRAMS
 uninstall: uninstall-am
-all-am: Makefile $(LIBRARIES)
+all-am: Makefile $(PROGRAMS)
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(bindir)
 
 
 mostlyclean-generic:
@@ -346,25 +405,25 @@ distclean-generic:
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 
 maintainer-clean-generic:
-mostlyclean-am:  mostlyclean-noinstLIBRARIES mostlyclean-compile \
+mostlyclean-am:  mostlyclean-binPROGRAMS mostlyclean-compile \
 		mostlyclean-libtool mostlyclean-tags mostlyclean-depend \
 		mostlyclean-generic
 
 mostlyclean: mostlyclean-am
 
-clean-am:  clean-noinstLIBRARIES clean-compile clean-libtool clean-tags \
+clean-am:  clean-binPROGRAMS clean-compile clean-libtool clean-tags \
 		clean-depend clean-generic mostlyclean-am
 
 clean: clean-am
 
-distclean-am:  distclean-noinstLIBRARIES distclean-compile \
-		distclean-libtool distclean-tags distclean-depend \
-		distclean-generic clean-am
+distclean-am:  distclean-binPROGRAMS distclean-compile distclean-libtool \
+		distclean-tags distclean-depend distclean-generic \
+		clean-am
 	-rm -f libtool
 
 distclean: distclean-am
 
-maintainer-clean-am:  maintainer-clean-noinstLIBRARIES \
+maintainer-clean-am:  maintainer-clean-binPROGRAMS \
 		maintainer-clean-compile maintainer-clean-libtool \
 		maintainer-clean-tags maintainer-clean-depend \
 		maintainer-clean-generic distclean-am
@@ -373,8 +432,8 @@ maintainer-clean-am:  maintainer-clean-noinstLIBRARIES \
 
 maintainer-clean: maintainer-clean-am
 
-.PHONY: mostlyclean-noinstLIBRARIES distclean-noinstLIBRARIES \
-clean-noinstLIBRARIES maintainer-clean-noinstLIBRARIES \
+.PHONY: mostlyclean-binPROGRAMS distclean-binPROGRAMS clean-binPROGRAMS \
+maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
 mostlyclean-compile distclean-compile clean-compile \
 maintainer-clean-compile mostlyclean-libtool distclean-libtool \
 clean-libtool maintainer-clean-libtool tags mostlyclean-tags \

@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -44,10 +44,10 @@ typedef enum _C2MessageAction C2MessageAction;
 
 enum _C2MessageState
 {
-	C2_MESSAGE_READED		= 1,
-	C2_MESSAGE_UNREADED		= 2,
-	C2_MESSAGE_REPLIED		= 3,
-	C2_MESSAGE_FORWARDED	= 4
+	C2_MESSAGE_READED		= ' ',
+	C2_MESSAGE_UNREADED		= 'N',
+	C2_MESSAGE_REPLIED		= 'R',
+	C2_MESSAGE_FORWARDED	= 'F'
 };
 
 enum _C2MessageAction

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/pop3.h
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -52,7 +52,7 @@ enum _C2Pop3Flags
 	C2_POP3_DONT_KEEP_COPY			= 0 << 1,	/* Will get a mail and delete it on server */
 	C2_POP3_DO_LOSE_PASSWORD		= 1 << 2,	/* Will delete the password once it sended it correctly */
 	C2_POP3_DONT_LOSE_PASSWORD		= 0 << 2,	/* Will keep the password unless its wrong */
-	C2_POP3_DO_USE_APOP			= 1 << 3,	/* Will use APOP to login to the POP server */
+	C2_POP3_DO_USE_APOP				= 1 << 3,	/* Will use APOP to login to the POP server */
 	C2_POP3_DONT_USE_APOP			= 0 << 3,	/* Will not use APOP to login to the POP server (DEFAULT)*/
 };
 

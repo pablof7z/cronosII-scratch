@@ -29,7 +29,7 @@ dnl #######################################################
 AC_INIT(src)
 AM_CONFIG_HEADER(config.h)
 
-AM_INIT_AUTOMAKE(cronosII-scratch, 0.0.2)
+AM_INIT_AUTOMAKE(cronosII-scratch, 0.0.3)
 
 dnl #######################################################
 dnl   Command, paths and libraries checks

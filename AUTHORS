@@ -9,12 +9,12 @@ Bosko Blagojevic <falling@users.sourceforge.net>
 - FreeBSD porting.
 - Address Book core development.
 
-André Casteliano <digitalcoder@users.sourceforge.net>
-- Queue Mailbox (send later ability).
-
 Peter Gossner <gossner@arcom.com.au>
 - Documentation.
 - Spell corrections.
+
+André Casteliano <digitalcoder@users.sourceforge.net>
+- Queue Mailbox (send later ability).
 
 Marc Zaritsky <mustangg@users.sourceforge.net>
 - Quality Assurance.

@@ -1,1 +1,9 @@
 configure.in: Check for libglade-gnome: it is required to build.
+
+art work:
+			o Build own icons (for all buttons and menu items).
+			o Build IMAP mailbox icons, Cronos II mailbox icons and Spool mailbox icons.
+			o Do a :) and a :D face in 10x10 pixels.
+	
+widget-mail:
+			o Italic is not recognized/translated.

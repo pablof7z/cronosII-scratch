@@ -1,27 +1,150 @@
-<!--From: Cronos II Developers Team
-To: User
-Subject: About Cronos II
--->
 <HTML>
 <HEAD>
 <TITLE>Cronos II @VERSION@</TITLE>
 </HEAD>
 
-<BODY BGCOLOR=#ffffff>
-<FONT FACE="Helvetica" SIZE=-1>
-<H1 ALIGN="CENTER">Cronos II @VERSION@</H1>
-<HR NOSHADE="NOSHADE" ALIGN="CENTER" WIDTH=80%>
-<TABLE BORDER=0 WIDTH=80% ALIGN="CENTER">
-<TR><TD><FONT FACE="Helvetica" SIZE=-1>
-<P>Copyright &copy; 2000-2001 Pablo Fernández Navarro, All rights reserverd.</P>
+<BODY BGCOLOR=#ffffff MARGINWIDTH=0 MARGINHEIGHT=0>
 
-This software is subject to the <A HREF="http://www.gnu.org">GPL</A> license. Please
-read and agree to all terms before using this software.</P>
+<TABLE BORDER=0 WIDTH=100% CELLPADDING=3 CELLSPACING=0>
 
-Cronos II is <I>free software</I> and you are welcome to distribute copies
-of it under certain conditions. There is <I>absolute no warranty</I> for Cronos II;
-see the GPL license, distributed with this software, for more information.
-</FONT></TD></TR></TABLE>
-</FONT>
+<TR><TD BGCOLOR=#000099><H1><FONT FACE="Helvetica" COLOR=#ffffff>
+Cronos II
+</FONT></H1></TD></TR>
+
+<TR><TD BGCOLOR=#ababff><FONT FACE="Helvetica" SIZE=-1>
+&nbsp;&nbsp;Your best e-mail suite.
+</FONT></TD></TR>
+
+<TR><TD>
+
+<TABLE BORDER=0 CELLPADDING=10 CELLSPACING=5 WIDTH=100%>
+
+<TR VALIGN=TOP><TD WIDTH=75%>
+
+<TABLE BORDER=2 CELLSPACING=0 CELLPADDING=3 BORDERCOLOR=#0000ff>
+
+<TR><TD BGCOLOR=#000099><B><FONT FACE="Helvetica" COLOR=#ffffff SIZE=-1>
+<IMG SRC="c2dist://header.png" ALIGN=MIDDLE ALT="Development Team"> <U>Welcome</U>
+</FONT></B></TD></TR>
+
+<TR><TD BGCOLOR=#d0d0ff><FONT FACE="Helvetica" SIZE=-1>
+We want to welcome and thank you for trusting in us and using the e-mail
+suite we designed for you.</P>
+
+<P>Cronos II counts with a number of features that makes it a very good
+choise for your e-mail handling in any plataform, <B>GNU/Linux</B>, <B>GNU/HURD</B>,
+<B>Unix</B>,
+<B>FreeBSD</B>, <B>MacOS</B>,
+<B>Microsoft Windows</B>, etc.</P>
+
+<P>Cronos II @VERSION@ counts with the following features:
+
+<UL>
+<LI>HTML support;
+<LI>attachments support;
+<LI>IMAP support;
+<LI>POP support;
+<LI>APOP support;
+<LI>Spool support;
+<LI>Filters support;
+<LI>Multiples identities and accounts support;
+<LI>Higly GNOME integrated interface;
+<LI>Interface editable through <B>Glade</B>.
+</UL>
+
+<P>You are the best person to tell what your needs are,
+so if you have some other need from Cronos II, be sure
+to contact us, that's <B>other feature of Cronos II</B>: Open
+minded programmers.
+
+<P><DIV ALIGN=RIGHT><B>The Cronos II Development Team</B></DIV>
+</FONT></TD></TR>
+</TABLE>
+
+<P>
+<TABLE BORDER=2 CELLSPACING=0 CELLPADDING=3 BORDERCOLOR=#0000ff>
+
+<TR><TD BGCOLOR=#000099><B><FONT FACE="Helvetica" COLOR=#ffffff SIZE=-1>
+<IMG SRC="c2dist://header.png" ALIGN=MIDDLE ALT="License"> <U>License</U>
+</FONT></B></TD></TR>
+
+<TR><TD BGCOLOR=#d0d0ff><FONT FACE="Helvetica" SIZE=-1>
+Cronos II - The GNOME mail client.<BR>
+Copyright (C) 2000-2001 Pablo Fernández Navarro.</P>
+
+<P>This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.</P>
+
+<P>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</P>
+
+<P>You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</P>
+</FONT></TD></TR>
+</TABLE>
+
+</TD>
+
+<TD>
+
+<TABLE BORDER=2 CELLSPACING=0 CELLPADDING=3 BORDERCOLOR=#0000ff WIDTH=100%>
+
+<TR><TD BGCOLOR=#000099><B><FONT FACE="Helvetica" COLOR=#ffffff SIZE=-1>
+<IMG SRC="c2dist://header.png" ALIGN=MIDDLE ALT="Development Team"> <U>Development</U> <U>Team</U>
+</FONT></B></TD></TR>
+
+<TR><TD BGCOLOR=#d0d0ff><FONT FACE="Helvetica" SIZE=-1>
+<A HREF="mailto:pablo@colegioeccleston.org.ar">Pablo Fernández Navarro</A><BR>
+<A HREF="mailto:falling@users.sourceforge.net">Bosko Blagojevic</A><BR>
+<A HREF="mailto:gossner@arcom.com.au">Peter Gossner</A><BR>
+<A HREF="mailto:mustangg@users.sourceforge.net">Mark Zaritsky</A><BR>
+<A HREF="mailto:ymettier@libertysurf.fr">Yves Mettier</A>
+</FONT></TD></TR>
+</TABLE>
+
+<P>
+<TABLE BORDER=2 CELLSPACING=0 CELLPADDING=3 BORDERCOLOR=#0000ff WIDTH=100%>
+
+<TR><TD BGCOLOR=#000099><B><FONT FACE="Helvetica" COLOR=#ffffff SIZE=-1>
+<IMG SRC="c2dist://header.png" ALIGN=MIDDLE ALT="Oportunity"> <U>Oportunity</U>
+</FONT></B></TD></TR>
+
+<TR><TD BGCOLOR=#d0d0ff><FONT FACE="Helvetica" SIZE=-1>
+Me, Pablo Fernández Navarro, the creator of Cronos II, need an IT
+job in any country with payments enough to maintain my self.
+I'll be greatful if you can help me.</P>
+
+<P><A HREF="http://cronosII.sourceforge.net/people/pablo/opotunity.html">
+<B>Read more...</B></A>
+</FONT></TD></TR>
+</TABLE>
+
+<P>
+<TABLE BORDER=2 CELLSPACING=0 CELLPADDING=3 BORDERCOLOR=#0000ff WIDTH=100%>
+
+<TR><TD BGCOLOR=#000099><B><FONT FACE="Helvetica" COLOR=#ffffff SIZE=-1>
+<IMG SRC="c2dist://header.png" ALIGN=MIDDLE ALT="We need you"> <U>We need YOU</U>
+</FONT></B></TD></TR>
+
+<TR><TD BGCOLOR=#d0d0ff><FONT FACE="Helvetica" SIZE=-1>
+Cronos II is made for users by users, no company interacts
+with it, and that let us, the developers, focus in what is
+important, that's why we want our users to join us.<BR>
+We hope you do...
+
+<P><A HREF="http://cronosII.sourceforge.net/jobs4fun.html">
+<B>Read more...</B></A>
+</FONT></TD></TR>
+</TABLE>
+
+</TD></TR>
+
+</TABLE>
+
 </BODY>
 </HTML>

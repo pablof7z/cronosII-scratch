@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -433,6 +433,43 @@ c2_get_tmp_file (void)
 	close (fd);
 	
 	return temp;
+}
+
+/**
+ * c2_get_file
+ * @path: Path to load.
+ * @string: String where file will be loaded.
+ *
+ * This function will load a file.
+ *
+ * Return Value:
+ * Length of the file loaded.
+ **/
+gint
+c2_get_file (const gchar *path, gchar **string)
+{
+	FILE *fd;
+	struct stat buf;
+	gint length;
+
+	c2_return_val_if_fail (path, -1, C2EDATA);
+
+	if (!(fd = fopen (path, "r")))
+	{
+		c2_error_set (-errno);
+		return -1;
+	}
+
+	stat (path, &buf);
+
+	length = ((gint) buf.st_size * sizeof (gchar));
+
+	*string = g_new0 (gchar, length);
+
+	fread (*string, sizeof (gchar), length, fd);
+	fclose (fd);
+
+	return length;
 }
 
 /**

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/pop3.c
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -52,7 +52,7 @@ status											(C2Pop3 *pop3);
 
 
 static gint
-retrieve										(C2Pop3 *pop3, gint mails);
+retrieve										(C2Account *account, gint mails);
 
 enum
 {
@@ -180,7 +180,7 @@ c2_pop3_fetchmail (C2Account *account)
 		return -1;
 	}
 
-	if (retrieve (pop3, mails) < 0)
+	if (retrieve (account, mails) < 0)
 	{
 		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
 		pthread_mutex_unlock (&pop3->run_lock);
@@ -403,8 +403,9 @@ status (C2Pop3 *pop3)
 }
 
 static gint
-retrieve (C2Pop3 *pop3, gint mails)
+retrieve (C2Account *account, gint mails)
 {
+	C2Pop3 *pop3 = account->protocol.pop3;
 	C2Message *message;
 	gchar *string;
 	gint i, len;
@@ -474,11 +475,12 @@ L			/* TODO */
 		fclose (fd);
 
 		/* Load the mail */
-		if (message = c2_db_message_get_from_file (tmp))
+		if ((message = c2_db_message_get_from_file (tmp)))
 		{
+			
+		} else
+			L
 
-		}
-		
 		printf("sure.. lets see if it is here..\n");
 		g_free (tmp);
 	}

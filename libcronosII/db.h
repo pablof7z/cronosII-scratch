@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,8 @@ extern "C" {
 #define C2_IS_DB(obj)							(GTK_CHECK_TYPE (obj, C2_TYPE_DB))
 #define C2_IS_DB_CLASS(klass)					(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_DB))
 
+typedef struct _C2DbNode C2DbNode;
+typedef struct _C2DbNodeClass C2DbNodeClass;
 typedef struct _C2Db C2Db;
 typedef struct _C2DbClass C2DbClass;
 
@@ -45,89 +47,104 @@ typedef struct _C2DbClass C2DbClass;
 #	include <cronosII.h>
 #endif
 
+#define c2_db_lineal_next(db)				((db) && (db->position < db->next->position) ? (db = db->next) : 0)
+
 struct _C2Db
 {
-	C2Message message;
-	
+	GtkObject object;
+
+	C2Message *message;
 	C2MessageState state;
-	gint marked : 1;
+
 	gchar *subject;
 	gchar *from;
 	gchar *account;
 	time_t date;
-	
-	gint position; /* Within the mailbox list */
+
+	gint mark : 1;
+
+	gint position;
 	gint mid;
 
 	C2Mailbox *mailbox;
-	struct _C2Db *previous;
-	struct _C2Db *next;
+
+	C2Db *prev;
+	C2Db *next;
 };
 
 struct _C2DbClass
 {
-	C2MessageClass parent_class;
+	GtkObjectClass parent_class;
 
-	void (*mark_changed) (C2Db *db, gboolean marked);
-	void (*state_changed) (C2Db *db, C2MessageState state);
+	void (*deleted) (C2Db *db);
+	void (*updated) (C2Db *db);
 };
 
+/*********************
+ * [Object Handling] *
+ *********************/
 GtkType
-c2_db_get_type									(void);
+c2_db_get_type								(void);
 
-/* This function will alloc a C2Db object */
 C2Db *
-c2_db_new										(C2Mailbox *mailbox);
-
-/* Virtual function */
-gint
-c2_db_create_structure							(C2Mailbox *mailbox);
-
-/* Virtual function */
-gint
-c2_db_update_structure							(C2Mailbox *mailbox);
-
-/* Virtual function */
-gint
-c2_db_remove_structure							(C2Mailbox *mailbox);
-
-void
-c2_db_archive									(C2Mailbox *mailbox);
-
-/* This function will load the Db */
-gint
-c2_db_load										(C2Mailbox *mailbox);
+c2_db_new									(C2Mailbox *mailbox, gint mark, gchar *subject,
+											 gchar *from, gchar *account, time_t date,
+											 gint mid, gint position);
 
 gint
-c2_db_messages									(const C2Db *db);
+c2_db_length								(C2Mailbox *mailbox);
 
-/* Virtual function */
 C2Db *
-c2_db_message_add								(C2Db *db, const C2Message *message, gint row);
+c2_db_get_node								(C2Mailbox *mailbox, gint n);
 
-void
-c2_db_message_set_state							(C2Db *db, gint row, C2MessageState state);
+/************************
+ * [Structure Handling] *
+ ************************/
+gboolean
+c2_db_create_structure						(C2Mailbox *mailbox);
 
-void
-c2_db_message_swap_mark							(C2Db *db, gint row);
-
-/* Virtual function */
-gint
-c2_db_message_remove							(C2Db *db, gint row);
-
-/* Virtual function */
-void
-c2_db_message_load								(C2Db *db);
-
-/* Virtual function */
-C2Message *
-c2_db_message_get								(C2Db *db, gint row);
-
-C2Message *
-c2_db_message_get_from_file						(const gchar *path);
+gboolean
+c2_db_update_structure						(C2Mailbox *mailbox);
 
 gint
-c2_db_message_search_by_mid						(const C2Db *db, gint mid);
+c2_db_remove_structure						(C2Mailbox *mailbox);
+
+/************************
+ * [DataBase Iteration] *
+ ************************/
+gint
+c2_db_load									(C2Mailbox *mailbox);
+
+void
+c2_db_message_add							(C2Mailbox *mailbox, C2Message *message);
+
+void
+c2_db_message_remove						(C2Mailbox *mailbox, C2Db *db, gint n);
+
+void
+c2_db_message_set_state						(C2Db *db, C2MessageState state);
+
+void
+c2_db_message_set_mark						(C2Db *db, gboolean marked);
+
+
+/***********************
+ * [DataBase Querying] *
+ ***********************/
+void
+c2_db_load_message							(C2Db *db);
+
+void
+c2_db_unload_message						(C2Db *db);
+
+/***************************
+ * [Miscelaneus Functions] *
+ ***************************/
+void
+c2_db_archive								(C2Mailbox *mailbox);
+
+C2Message *
+c2_db_message_get_from_file					(const gchar *path);
 
 #ifdef __cplusplus
 }

@@ -11,6 +11,7 @@ libcronosII_a_SOURCES = \
 	hash.c				hash.h						\
 						hash-definitions.h			\
 	mailbox.c			mailbox.h					\
+	md5.c				md5.h						\
 	message.c			message.h					\
 	mime.c				mime.h						\
 	net-object.c		net-object.h				\
@@ -19,12 +20,11 @@ libcronosII_a_SOURCES = \
 	smtp.c				smtp.h						\
 	utils.c				utils.h						\
 	utils-date.c		utils-date.h				\
-	utils-net.c			utils-net.h			\
-	md5.c			md5.h
+	utils-net.c			utils-net.h
 
 libcronosII_a_LIBADD = @LIBOBJS@
 
-INCLUDES=-DBUILDING_C2 -I. -I${top_srcdir} $(GNOME_INCLUDEDIR)
+INCLUDES=-DBUILDING_C2 -I. -I${top_srcdir} $(GNOME_INCLUDEDIR) -DDATADIR=\"${datadir}\" -DPKGDATADIR=\"${pkgdatadir}\"
 
 EXTRA_DIST = \
 	README				\

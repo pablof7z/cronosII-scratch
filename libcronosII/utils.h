@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -97,6 +97,9 @@ c2_str_get_word									(guint8 word_n, const gchar *str, gchar ch);
 
 gchar *
 c2_get_tmp_file									(void);
+
+gint
+c2_get_file										(const gchar *path, gchar **string);
 
 gchar *
 c2_fd_get_line									(FILE *fd);

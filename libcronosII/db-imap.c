@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/db-imap.c
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,53 @@
 #include "utils.h"
 #include "utils-net.h"
 
+gboolean
+c2_db_imap_create_structure (C2Mailbox *mailbox)
+{
+}
+
+gboolean
+c2_db_imap_update_structure (C2Mailbox *mailbox)
+{
+}
+
+gboolean
+c2_db_imap_remove_structure (C2Mailbox *mailbox)
+{
+}
+
+gint
+c2_db_imap_load (C2Mailbox *mailbox)
+{
+}
+
+void
+c2_db_imap_message_add (C2Mailbox *mailbox, C2Db *db)
+{
+}
+
+void
+c2_db_imap_message_remove (C2Mailbox *mailbox, C2Db *db, gint n)
+{
+}
+
+void
+c2_db_imap_message_set_state (C2Db *db, C2MessageState state)
+{
+}
+
+void
+c2_db_imap_message_set_mark (C2Db *db, gboolean mark)
+{
+}
+
+C2Message *
+c2_db_imap_load_message (C2Db *db)
+{
+}
+
+
+#if 0
 static gchar *
 imap_resolve (C2Mailbox *mailbox)
 {
@@ -98,9 +145,4 @@ c2_db_imap_load (C2Mailbox *mailbox)
 
 	return 0;
 }
-
-
-
-
-
-
+#endif

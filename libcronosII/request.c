@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronos/request.c
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -226,7 +226,7 @@ c2_request_get_proxy (C2ProxyType type, gchar **addr, gint *port, gchar **ignore
 static void
 c2_request_construct (C2Request *request)
 {
-	gchar *cmnd = g_strconcat (GNOME_DOWNLOAD_PATH " ", request->url, NULL);
+	gchar *cmnd = g_strconcat ("/usr/bin/lynx -source ", request->url, NULL);
 	gchar buffer[1024], *ptr;
 	FILE *fd;
 	gint bytes, total_bytes = 0;
@@ -258,7 +258,7 @@ c2_request_construct (C2Request *request)
 	 */
 	while ((bytes = fread (buffer, sizeof (gchar), sizeof (buffer), fd)))
 	{
-		gtk_signal_emit_by_name (GTK_OBJECT (request), "exchange", bytes);
+		fprintf (stderr, "%d: %d %d\n", __LINE__, bytes, total_bytes);
 		
 		buffer[bytes] = 0;
 		/* If this is the first line and starts with Content-Type, fuck it and the next one too */
@@ -271,10 +271,10 @@ c2_request_construct (C2Request *request)
 				ptr+=2;
 			} else
 				ptr = buffer;
+			bytes -= ptr-buffer;
 		} else
 			ptr = buffer;
-
-		bytes = strlen (ptr);
+		fprintf (stderr, "%d: %d %d\n", __LINE__, bytes, total_bytes);
 
 		/* This f*cking sh*t is still giving problems downloading
 		 * the f*cking images through the motherf*cker http, the only
@@ -287,7 +287,10 @@ c2_request_construct (C2Request *request)
 		request->source = g_realloc (request->source, total_bytes+bytes);
 		memcpy (request->source + total_bytes, ptr, bytes);
 		total_bytes += bytes;
+		request->got_size = total_bytes;
+		gtk_signal_emit_by_name (GTK_OBJECT (request), "exchange", C2_NET_OBJECT_EXCHANGE_READ, bytes);
 	}
+	
 	request->source[total_bytes] = 0;
 	
 	pclose (fd);
@@ -298,7 +301,7 @@ c2_request_construct (C2Request *request)
 void
 c2_request_run (C2Request *request)
 {
-	c2_request_construct (request);
+L	c2_request_construct (request);
 }
 
 const gchar *

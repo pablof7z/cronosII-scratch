@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/mailbox.h
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,11 +26,11 @@ extern "C" {
 #include <gtk/gtk.h>
 #include <string.h>
 
-#define C2_TYPE_MAILBOX				(c2_mailbox_get_type ())
-#define C2_MAILBOX(obj)				(GTK_CHECK_CAST (obj, C2_TYPE_MAILBOX, C2Mailbox))
-#define C2_MAILBOX_CLASS(klass)			(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_MAILBOX, C2MailboxClass))
-#define C2_IS_MAILBOX(obj)			(GTK_CHECK_TYPE (obj, C2_TYPE_MAILBOX))
-#define C2_IS_MAILBOX_CLASS(klass)		(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_MAILBOX))
+#define C2_TYPE_MAILBOX						(c2_mailbox_get_type ())
+#define C2_MAILBOX(obj)						(GTK_CHECK_CAST (obj, C2_TYPE_MAILBOX, C2Mailbox))
+#define C2_MAILBOX_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_MAILBOX, C2MailboxClass))
+#define C2_IS_MAILBOX(obj)					(GTK_CHECK_TYPE (obj, C2_TYPE_MAILBOX))
+#define C2_IS_MAILBOX_CLASS(klass)			(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_MAILBOX))
 
 typedef struct _C2Mailbox C2Mailbox;
 typedef struct _C2MailboxClass C2MailboxClass;
@@ -116,6 +116,11 @@ struct _C2MailboxClass
 	GtkObjectClass parent_class;
 
 	void (*changed_mailboxes) (C2Mailbox *mailbox);
+
+	/* This signal will be emitted when the mailbox has changed the number
+	 * of mails,  db_node is the node where changes start,
+	 * from that node ahead there had been changes.
+	 */
 	void (*changed_mailbox) (C2Mailbox *mailbox, C2Db *db_node);
 	void (*db_loaded) (C2Mailbox *mailbox, gboolean success);
 };
@@ -123,6 +128,7 @@ struct _C2MailboxClass
 GtkType
 c2_mailbox_get_type								(void);
 
+/* Tree handling */
 #define c2_mailbox_new(a, b, c, d, e, args...)	_c2_mailbox_new (a, b, TRUE, c, d, e, ##args)
 
 C2Mailbox *

@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -795,8 +795,11 @@ c2_mailbox_get_by_name (C2Mailbox *head, const gchar *name)
  * with the Db module. It will load the Db
  * of the mailbox and fire the db_loaded
  * signal when done.
+ *
+ * Return Value:
+ * %TRUE if the db is loaded correctly, or %FALSE.
  **/
-void
+gboolean
 c2_mailbox_load_db (C2Mailbox *mailbox)
 {
 	c2_return_if_fail (mailbox, C2EDATA);
@@ -804,16 +807,17 @@ c2_mailbox_load_db (C2Mailbox *mailbox)
 	/* Check if it is already loaded */
 	if (mailbox->db)
 	{
-		gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], 0);
-		return;
+		gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], TRUE);
+		return TRUE;
 	}
 
 	/* We must load the db */
-	if (c2_db_load (mailbox) < 0)
+	if (!c2_db_load (mailbox))
 	{
-		gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], -1);
-		return;
+		gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], FALSE);
+		return FALSE;
 	}
 
-	gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], 0);
+	gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], TRUE);
+	return TRUE;
 }

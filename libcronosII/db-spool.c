@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/db-spool.c
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -36,6 +36,52 @@
 /*Oh, yes, the perfect armony of "the 0 bytes length of the file", just perfect :) -pablo */
 /*Cool! I´m coding from Paris with my new laptop! -pablo */
 
+gboolean
+c2_db_spool_create_structure (C2Mailbox *mailbox)
+{
+}
+
+gboolean
+c2_db_spool_update_structure (C2Mailbox *mailbox)
+{
+}
+
+gboolean
+c2_db_spool_remove_structure (C2Mailbox *mailbox)
+{
+}
+
+gint
+c2_db_spool_load (C2Mailbox *mailbox)
+{
+}
+
+void
+c2_db_spool_message_add (C2Mailbox *mailbox, C2Db *db)
+{
+}
+
+void
+c2_db_spool_message_remove (C2Mailbox *mailbox, C2Db *db, gint n)
+{
+}
+
+void
+c2_db_spool_message_set_state (C2Db *db, C2MessageState state)
+{
+}
+
+void
+c2_db_spool_message_set_mark (C2Db *db, gboolean mark)
+{
+}
+
+C2Message *
+c2_db_spool_load_message (C2Db *db)
+{
+}
+
+#if 0
 static gchar *
 get_field_value							(const gchar *field, gint offset);
 
@@ -464,3 +510,4 @@ get_source_desc (C2Mailbox *mailbox, FILE **source)
 		return;
 	}
 }
+#endif

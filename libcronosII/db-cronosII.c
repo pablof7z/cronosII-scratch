@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -27,19 +27,83 @@
 #include "mailbox.h"
 #include "utils.h"
 
+gboolean
+c2_db_cronosII_create_structure (C2Mailbox *mailbox)
+{
+	gchar *path = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name,
+								".mbx" G_DIR_SEPARATOR_S, NULL);
+	FILE *fd;
+
+	if (mkdir (path, 0700) < 0)
+	{
+		c2_error_set (-errno);
+		g_warning (_("Unable to create structure for Cronos II Db: %s\n"), c2_error_get (c2_errno));
+		return FALSE;
+	}
+
+	path = g_realloc (path, strlen (path)+6);
+	memcpy (path+strlen (path), "index\0", 6);
+	
+	fclose (fopen (path, "w"));
+	g_free (path);
+
+	return TRUE;
+}
+
+gboolean
+c2_db_cronosII_update_structure (C2Mailbox *mailbox)
+{
+}
+
+gboolean
+c2_db_cronosII_remove_structure (C2Mailbox *mailbox)
+{
+	gchar *directory; 
+	gchar *path;
+	DIR *dir;
+	struct dirent *dentry;
+
+	directory = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name, ".mbx"
+								G_DIR_SEPARATOR_S, NULL);
+
+	if (!(dir = opendir (directory)))
+	{
+		c2_error_set (-errno);
+		g_warning ("Unable to open directory for removing: %s\n",
+								c2_error_get (c2_errno));
+		return FALSE;
+	}
+
+	for (; (dentry = readdir (dir)); )
+	{
+		path = g_strconcat (directory, dentry->d_name, NULL);
+		
+		if (!c2_file_is_directory (path))
+			unlink (path);
+		g_free (path);
+	}
+
+	closedir (dir);
+	rmdir (directory);
+	g_free (directory);
+
+	return TRUE;
+}
+
 gint
 c2_db_cronosII_load (C2Mailbox *mailbox)
 {
 	C2Db *head = NULL, *current = NULL, *next;
 	gchar *path, *line, *buf;
+	gboolean mark;
 	FILE *fd;
-	gint i;
+	gint i, mid;
+	time_t date;
 
 	c2_return_val_if_fail (mailbox, -1, C2EDATA);
 
 	/* Calculate the path */
 	path = g_strconcat (g_get_home_dir (), C2_HOME,	mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
-	C2_DEBUG (path);
 	
 	/* Open the file */
 	if (!(fd = fopen (path, "rt")))
@@ -50,7 +114,7 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 		return -1;
 	}
 
-	for (i = 0;(line = c2_fd_get_line (fd)) != NULL;)
+	for (i = 0; (line = c2_fd_get_line (fd)) != NULL; i++)
 	{
 		if (*line == '?')
 		{
@@ -58,40 +122,33 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 			continue;
 		}
 
-		next = c2_db_new (mailbox);
-		/* next->message.message = NULL; What is this for??? */
+		buf = c2_str_get_word (1, line, '\r');
+		if (c2_streq (buf, "MARK"))
+			mark = 1;
+		else
+			mark = 0;
+		g_free (buf);
+
+		buf = c2_str_get_word (5, line, '\r');
+		date = atoi (buf);
+		g_free (buf);
+
+		buf = c2_str_get_word (7, line, '\r');
+		mid = atoi (buf);
+		g_free (buf);
+
+		next = c2_db_new (mailbox, mark, c2_str_get_word (3, line, '\r'),
+							c2_str_get_word (4, line, '\r'),
+							c2_str_get_word (6, line, '\r'),
+							date, mid, i+1);
 		
 		buf = c2_str_get_word (0, line, '\r');
 		if (buf)
+		{
 			next->state = (C2MessageState) *buf;
-		else
+		} else
 			next->state = C2_MESSAGE_READED;
 		g_free (buf);
-
-		buf = c2_str_get_word (1, line, '\r');
-		if (c2_streq (buf, "MARK"))
-			next->marked = 1;
-		else
-			next->marked = 0;
-		g_free (buf);
-
-		next->subject = c2_str_get_word (3, line, '\r');
-		next->from = c2_str_get_word (4, line, '\r');
-		next->account = c2_str_get_word (6, line, '\r');
-		
-		buf = c2_str_get_word (5, line, '\r');
-		next->date = atoi (buf);
-		g_free (buf);
-
-		next->position = i++;
-		
-		buf = c2_str_get_word (7, line, '\r');
-		next->mid = atoi (buf);
-		g_free (buf);
-		printf ("Appending MID %d\n", next->mid);
-
-		next->next = NULL;
-		next->previous = current;
 
 		if (current)
 			current->next = next;
@@ -104,11 +161,31 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 		g_free (line);
 	}
 
-	return 0;
+	return 0;	
+}
+
+void
+c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
+{
+}
+
+void
+c2_db_cronosII_message_remove (C2Mailbox *mailbox, C2Db *db, gint n)
+{
+}
+
+void
+c2_db_cronosII_message_set_state (C2Db *db, C2MessageState state)
+{
+}
+
+void
+c2_db_cronosII_message_set_mark (C2Db *db, gboolean mark)
+{
 }
 
 C2Message *
-c2_db_cronosII_message_get (C2Db *db, gint mid)
+c2_db_cronosII_load_message (C2Db *db)
 {
 	C2Message *message;
 	static gchar *home = NULL;
@@ -116,6 +193,7 @@ c2_db_cronosII_message_get (C2Db *db, gint mid)
 	struct stat stat_buf;
 	FILE *fd;
 	gint length;
+	gint mid = db->mid;
 
 	printf ("Requesting mid %d\n", mid);
 
@@ -157,61 +235,10 @@ c2_db_cronosII_message_get (C2Db *db, gint mid)
 	return message;
 }
 
-gint
-c2_db_cronosII_create_structure (C2Mailbox *mailbox)
+
+
+C2Message *
+c2_db_cronosII_message_get (C2Db *db, gint mid)
 {
-	gchar *path = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name,
-								".mbx" G_DIR_SEPARATOR_S, NULL);
-	FILE *fd;
-
-	if (mkdir (path, 0700) < 0)
-	{
-		c2_error_set (-errno);
-		g_warning (_("Unable to create structure for Cronos II Db: %s\n"), c2_error_get (c2_errno));
-		return -1;
-	}
-
-	path = g_realloc (path, strlen (path)+6);
-	memcpy (path+strlen (path), "index\0", 6);
 	
-	fclose (fopen (path, "w"));
-
-	return 0;
-}
-
-gint
-c2_db_cronosII_update_structure (C2Mailbox *mailbox)
-{
-}
-
-gint
-c2_db_cronosII_remove_structure (C2Mailbox *mailbox)
-{
-	gchar *directory = g_strconcat (g_get_home_dir (), C2_HOME,
-									mailbox->name, ".mbx" G_DIR_SEPARATOR_S, NULL);
-	gchar *path;
-	DIR *dir;
-	struct dirent *dentry;	
-
-	if (!(dir = opendir (directory)))
-	{
-		c2_error_set (-errno);
-		g_warning ("Unable to open directory for removing: %s\n", c2_error_get (c2_errno));
-		return -1;
-	}
-
-	for (; (dentry = readdir (dir)); )
-	{
-		path = g_strconcat (directory, dentry->d_name, NULL);
-		
-		if (!c2_file_is_directory (path))
-			unlink (path);
-		g_free (path);
-	}
-
-	closedir (dir);
-	rmdir (directory);
-	g_free (directory);
-
-	return 0;
 }

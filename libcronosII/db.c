@@ -1,4 +1,4 @@
-/*  Cronos II - A GNOME mail client
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -30,52 +30,51 @@
 #define FIRST_MID			1
 
 static void
-c2_db_init										(C2Db *db);
+init										(C2Db *db);
 
 static void
-c2_db_class_init								(C2DbClass *class);
+class_init									(C2DbClass *class);
 
 static void
-c2_db_destroy									(GtkObject *object);
+destroy										(GtkObject *object);
 
 enum
 {
-	MARK_CHANGED,
-	STATE_CHANGED,
+	DELETED,
+	UPDATED,
 	LAST_SIGNAL
 };
 
-static guint c2_db_signals[LAST_SIGNAL] = { 0 };
+static guint signals[LAST_SIGNAL] = { 0 };
 
-static C2MessageClass *parent_class = NULL;
-
+static GtkObjectClass *parent_class = NULL;
 
 GtkType
 c2_db_get_type (void)
 {
-	static GtkType c2_db_type = 0;
+	static GtkType type = 0;
 
-	if (!c2_db_type)
+	if (!type)
 	{
-		static const GtkTypeInfo c2_db_info = {
+		static const GtkTypeInfo info = {
 			"C2Db",
 			sizeof (C2Db),
 			sizeof (C2DbClass),
-			(GtkClassInitFunc) c2_db_class_init,
-			(GtkObjectInitFunc) c2_db_init,
+			(GtkClassInitFunc) class_init,
+			(GtkObjectInitFunc) init,
 			/* reserved_1 */ NULL,
 			/* reserved_2 */ NULL,
 			(GtkClassInitFunc) NULL
 		};
 
-		c2_db_type = gtk_type_unique (C2_TYPE_MESSAGE, &c2_db_info);
+		type = gtk_type_unique (gtk_object_get_type (), &info);
 	}
 
-	return c2_db_type;
+	return type;
 }
 
 static void
-c2_db_class_init (C2DbClass *klass)
+class_init (C2DbClass *klass)
 {
 	GtkObjectClass *object_class;
 
@@ -83,90 +82,272 @@ c2_db_class_init (C2DbClass *klass)
 
 	parent_class = gtk_type_class (C2_TYPE_MESSAGE);
 
-	c2_db_signals[MARK_CHANGED] =
-		gtk_signal_new ("mark_changed",
+	signals[DELETED] =
+		gtk_signal_new ("deleted",
 					GTK_RUN_FIRST,
 					object_class->type,
-					GTK_SIGNAL_OFFSET (C2DbClass, mark_changed),
-					gtk_marshal_NONE__BOOL, GTK_TYPE_NONE, 1,
-					GTK_TYPE_BOOL);
+					GTK_SIGNAL_OFFSET (C2DbClass, deleted),
+					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 
-	c2_db_signals[STATE_CHANGED] =
-		gtk_signal_new ("state_changed",
+	signals[UPDATED] =
+		gtk_signal_new ("updated",
 					GTK_RUN_FIRST,
 					object_class->type,
-					GTK_SIGNAL_OFFSET (C2DbClass, state_changed),
-					gtk_marshal_NONE__ENUM, GTK_TYPE_NONE, 1,
-					GTK_TYPE_ENUM);
+					GTK_SIGNAL_OFFSET (C2DbClass, updated),
+					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 
-	gtk_object_class_add_signals (object_class, c2_db_signals, LAST_SIGNAL);
+	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 
-	object_class->destroy = c2_db_destroy;
+	object_class->destroy = destroy;
 
-	klass->mark_changed = NULL;
-	klass->state_changed = NULL;
+	klass->deleted = NULL;
+	klass->updated = NULL;
 }
 
 static void
-c2_db_init (C2Db *db)
+init (C2Db *db)
 {
-	db->state = C2_MESSAGE_UNREADED;
-	db->marked = 0;
-	db->subject = NULL;
-	db->from = NULL;
-	db->account = NULL;
-	db->date = (time_t) 0;
-	db->position = -1;
-	db->mid = -1;
-	db->previous = NULL;
+	db->prev = NULL;
 	db->next = NULL;
 }
 
-C2Db *
-c2_db_new (C2Mailbox *mailbox)
-{
-	C2Db *db = NULL;
-	
-	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
-	
-	db = gtk_type_new (C2_TYPE_DB);
-	db->mailbox = mailbox;
-
-	return db;
-}
-
 static void
-c2_db_destroy (GtkObject *object)
+destroy (GtkObject *object)
 {
-	C2Db *db, *l;
+	C2Db *db;
 
 	c2_return_if_fail (C2_IS_DB (object), C2EDATA);
 
 	db = C2_DB (object);
-	
-	if (!db->previous)
-	{
-		for (l = db; l != NULL;)
-		{
-			db = l->next;
-			gtk_object_unref (GTK_OBJECT (l));
-			l = db;
-		}
-	} else
-	{
-		g_free (db->subject);
-		g_free (db->account);
-		g_free (db->from);
-		g_free (db);
-	}
+
+	gtk_object_destroy (GTK_OBJECT (db->message));
+	g_free (db->subject);
+	g_free (db->from);
+	g_free (db->account);
 }
 
+/**
+ * c2_db_new
+ * @mailbox: The C2Mailbox object that needs to get load.
+ * @mark: %TRUE if you want this C2Db object to be marked
+ * 		  as important.
+ * @subject: A pointer which the C2Db object will control
+ * 			 with the "subject" of the message.
+ * @from: A pointer which the C2Db object will control
+ * 		  with the "from" of the message.
+ * @account: A pointer which the C2Db object will
+ * 			 control with the "account" of the message.
+ * @date: Date described in unix time.
+ * @mid: Message-ID of the message.
+ *
+ * This function will create a C2Db object with the proper
+ * information setted up.
+ * A C2Db object represents a message in a database, which
+ * is stored in a mailbox.
+ * Note that the gchar variables that this function needs
+ * will be controled by this function, you should not pass
+ * an string that will be freed later.
+ *
+ * Return Value:
+ * The brand new created C2Db.
+ **/
+C2Db *
+c2_db_new (C2Mailbox *mailbox, gint mark, gchar *subject, gchar *from,
+			gchar *account, time_t date, gint mid, gint position)
+{
+	C2Db *db = NULL;
+	C2Db *prev;
+
+	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
+	
+	db = gtk_type_new (C2_TYPE_DB);
+	db->mailbox = mailbox;
+	db->mark = mark;
+	db->subject = subject;
+	db->from = from;
+	db->account = account;
+	db->date = date;
+	db->mid = mid;
+	db->position = position;
+
+	if (mailbox->db)
+	{
+		prev = mailbox->db->prev;
+		mailbox->db->prev = db;
+	} else
+	{
+		prev = db;
+		mailbox->db = db;
+	}
+
+	db->prev = prev;
+	db->next = mailbox->db;
+
+	return db;
+}
+
+/**
+ * c2_db_length
+ * @mailbox: Mailbox where to act.
+ *
+ * Counts the number of messages in the mailbox.
+ *
+ * Return Value:
+ * Number of mails in the mailbox.
+ **/
+gint
+c2_db_length (C2Mailbox *mailbox)
+{
+	c2_return_val_if_fail (mailbox, 0, C2EDATA);
+
+	if (mailbox->db)
+		return mailbox->db->prev->position;
+	else
+		return 0;
+}
+
+/**
+ * c2_db_get_node
+ * @mailbox: Mailbox where to act.
+ * @n: Number of node to get (starting at 0).
+ *
+ * This function will get the C2Db object from the mailbox
+ * that occupies the position @n.
+ *
+ * Return Value:
+ * The C2Db object.
+ **/
+C2Db *
+c2_db_get_node (C2Mailbox *mailbox, gint n)
+{
+	C2Db *l;
+	gint i;
+	
+	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
+
+	for (l = mailbox->db, i = 0; c2_db_lineal_next (l); i++, l = l->next)
+		;
+
+	return l;
+}
+
+/**
+ * c2_db_create_structure [VFUCTION]
+ * @mailbox: The mailbox that needs to create the structure.
+ *
+ * This function will create a proper structure where to store
+ * the messages.
+ *
+ * Return Value:
+ * %TRUE if the structure was created succesfully.
+ **/
+gboolean
+c2_db_create_structure (C2Mailbox *mailbox)
+{
+	gboolean (*func) (C2Mailbox *mailbox);
+	
+	c2_return_val_if_fail (mailbox, FALSE, C2EDATA);
+
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_create_structure;
+			break;
+		case C2_MAILBOX_IMAP:
+			func = c2_db_imap_create_structure;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_create_structure;
+			break;
+	}
+
+	return func (mailbox);
+}
+
+/**
+ * c2_db_update_structure [VFUNCTION]
+ * @mailbox: The mailbox where to act.
+ *
+ * This function will check if the mailbox's structure
+ * needs to be updated for whatever reason (depends
+ * on the type of mailbox), and if it does, it will
+ * update it.
+ *
+ * Return Value:
+ * %TRUE if the mailbox's structure needed to get updated.
+ **/
+gboolean
+c2_db_update_structure (C2Mailbox *mailbox)
+{
+	gboolean (*func) (C2Mailbox *mailbox);
+
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_update_structure;
+			break;
+		case C2_MAILBOX_IMAP:
+			func = c2_db_imap_update_structure;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_update_structure;
+			break;
+	}
+
+	return func (mailbox);
+}
+
+/**
+ * c2_db_remove_structure [VFUNCTION]
+ * @mailbox: The mailbox where to act.
+ *
+ * This function will remove the structure that mailbox
+ * used when it existed. Using this function means that
+ * the mailbox will be permanently deleted.
+ *
+ * Return Value:
+ * %TRUE if the mailbox's structure was able to remove.
+ **/
+gboolean
+c2_db_remove_structure (C2Mailbox *mailbox)
+{
+	gboolean (*func) (C2Mailbox *mailbox);
+
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_remove_structure;
+			break;
+		case C2_MAILBOX_IMAP:
+			func = c2_db_imap_remove_structure;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_remove_structure;
+			break;
+	}
+
+	return func (mailbox);
+}
+
+/**
+ * c2_db_load [VFUNCTION]
+ * @mailbox: Mailbox to load.
+ *
+ * This function will ensure that the
+ * mailbox is loaded, if its not loaded,
+ * it does it.
+ * 
+ * Return Value:
+ * 0 if everything was OK, 1 if there was some
+ * error, in the last case use c2_error_get
+ * to get the error string.
+ **/
 gint
 c2_db_load (C2Mailbox *mailbox)
 {
 	gint (*func) (C2Mailbox *mailbox);
 	
-	c2_return_val_if_fail (mailbox, -1, C2EDATA);
+	c2_return_val_if_fail (mailbox, 1, C2EDATA);
 
 	switch (mailbox->type)
 	{
@@ -179,113 +360,274 @@ c2_db_load (C2Mailbox *mailbox)
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_load;
 			break;
-#ifdef USE_DEBUG
-		default:
-			g_print ("Request for unsupported mailbox in %s:%s:%d: %d\n",
-							__PRETTY_FUNCTION__, __FILE__, __LINE__, mailbox->type);
-			return -1;
-#endif
 	}
 
 	return func (mailbox);
 }
 
 /**
- * c2_db_messages
- * @db: Database descriptor.
- *
- * This function will return the number of
- * messages in a loaded database.
- *
- * Return Value:
- * Messages in db.
+ * c2_db_message_add [VFUNCTION]
+ * @mailbox: Mailbox where to act.
+ * @message: Message to be added.
+ * 
+ * Appends a message to the mailbox.
  **/
-gint
-c2_db_messages (const C2Db *db)
+void
+c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 {
-	const C2Db *l;
-	gint i;
-	
-	c2_return_val_if_fail (db, 0, C2EDATA);
+	void (*func) (C2Mailbox *mailbox, C2Db *db);
+	C2Db *l, *db;
+	gchar *buf;
+	gboolean marked = FALSE;
+	time_t date;
 
-	for (l = db, i = 0; l != NULL; i++, l = l->next);
-	return i;
+	/* Note for developers of VFUNCTIONS about this function:
+	 *   The VFunction should just append the node to the
+	 *   mailbox, this function will handle itself the
+	 *   appending to the dynamic list.
+	 *
+	 *   The mid of the db passed to the function should be changed
+	 *   by the VFUNCTION to a proper value.
+	 */
+	
+	buf = c2_message_get_header_field (message, "X-Priority:");
+	if (c2_streq (buf, "highest") || c2_streq (buf, "high"))
+		marked = TRUE;
+	g_free (buf);
+
+	buf = c2_message_get_header_field (message, "Date:");
+	date = c2_date_parse (buf);
+	g_free (buf);
+	
+	db = c2_db_new (mailbox, marked, c2_message_get_header_field (message, "Subject:"),
+					c2_message_get_header_field (message, "From:"),
+					c2_message_get_header_field (message, "X-CronosII-Account:"),
+					date, 0, 0);
+	
+	if (mailbox->db)
+	{
+		/* This will load the dynamic data, it shouldn't be
+		 * used if the mailbox hasn't been loaded yet...
+		 */
+		l = mailbox->db->prev;
+
+		l->next = db;
+		db->prev = l;
+		mailbox->db->prev = db; /* This is what makes the list to be circular */
+
+		db->position = l->position+1;
+	}
+
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_message_add;
+			break;
+		case C2_MAILBOX_IMAP:
+			func = c2_db_imap_message_add;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_message_add;
+			break;
+	}
+
+	func (mailbox, db);
+
+	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox", db->prev);
 }
 
 /**
- * c2_db_message_add
- * @db: DB Descriptor (head).
- * @message: Message to be added.
- * @row: Row where to insert the message (-1 for the last one).
- * 
- * Will add a message in the specified database.
+ * c2_db_message_remove [VFUNCTION]
+ * @mailbox: Mailbox where to act.
+ * @db: Node to remove.
+ * @n: Number of mails to delete.
  *
- * Return Value:
- * The node where the message has been stored.
+ * This function will remove a message
+ * from the mailbox.
  **/
-C2Db *
-c2_db_message_add (C2Db *db, const C2Message *message, gint row)
-{
-	return 0;
-}
-
 void
-c2_db_message_set_state (C2Db *db, gint row, C2MessageState state)
+c2_db_message_remove (C2Mailbox *mailbox, C2Db *db, gint n)
 {
-}
-
-void
-c2_db_message_swap_mark (C2Db *db, gint row)
-{
-}
-
-gint
-c2_db_message_remove (C2Db *db, gint row)
-{
-	return 0;
-}
-
-void
-c2_db_message_load (C2Db *db)
-{
+	void (*func) (C2Mailbox *mailbox, C2Db *db, gint n);
+	C2Db *prev, *next, *l;
+	gint i;
+	
+	/* Note for developers of VFUNCTIONS about this function:
+	 *   The VFunction should just remove the node from
+	 *   the mailbox, this function will handle itself
+	 *   the removing from the linked list.
+	 */
+	c2_return_if_fail (mailbox, C2EDATA);
 	c2_return_if_fail (db, C2EDATA);
+	c2_return_if_fail (db->mailbox == mailbox, C2EDATA);
 
-	printf ("%s: %d\n", __PRETTY_FUNCTION__, db->mid);
-	db->message = *c2_db_message_get (db->mailbox->db, db->position);
-	C2_MESSAGE (db)->mime = c2_mime_new (C2_MESSAGE (db));
+	prev = db->prev;
+	next = c2_db_get_node (mailbox, db->position+n);
+
+	if (prev)
+		prev->next = next;
+	if (next)
+		next->prev = prev;
+	if (!prev)
+		mailbox->db = next;
+
+#ifdef USE_DEBUG
+	g_print ("Mail %d has been removed from the list, status: %dx%d (%d-%d)\n",
+					db->mid, prev ? 1 : 0, next ? 1 : 0, prev->position, next->position);
+#endif
+
+	/* Rebuild the positions */
+	for (l = next, i = prev->position+1; c2_db_lineal_next (l); l = l->next, i++)
+		l->position = i;
+
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_message_remove;
+			break;
+		case C2_MAILBOX_IMAP:
+			func = c2_db_imap_message_remove;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_message_remove;
+			break;
+	}
+
+	func (mailbox, db, n);
+
+	for (l = db, i = 0; c2_db_lineal_next (l) && i < n; l = l->next, i++)
+		gtk_object_destroy (GTK_OBJECT (l));
 }
 
-C2Message *
-c2_db_message_get (C2Db *db, gint row)
+/**
+ * c2_db_message_set_state [VFUNCTION]
+ * @db: C2Db node where to act.
+ * @state: State of message.
+ *
+ * This function will change the state
+ * of the message.
+ * State can be readed, unreaded,
+ * replied and forwarded.
+ **/
+void
+c2_db_message_set_state (C2Db *db, C2MessageState state)
 {
-	C2Message *message = NULL;
-	C2Db *l;
-	gint mid, i;
+	void (*func) (C2Db *db, C2MessageState state);
 	
-	/* Get the mid of the message */
-	for (l = db, i = 0; i < row && l != NULL; i++, l = l->next)
-		;
-	c2_return_val_if_fail (l, NULL, C2EDATA);
+	/* Note for developers of VFUNCTIONS about this function:
+	 *   The VFunction should just update the mailbox.
+	 */
+	db->state = state;
 
-	if (C2_MESSAGE (l)->header)
-		return C2_MESSAGE (l);
-
-	mid = l->mid;
-	
 	switch (db->mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
-			message = c2_db_cronosII_message_get (db, mid);
+			func = c2_db_cronosII_message_set_state;
 			break;
 		case C2_MAILBOX_IMAP:
-			/* TODO message = c2_db_message_get_imap (db, mid); TODO */
+			func = c2_db_imap_message_set_state;
 			break;
 		case C2_MAILBOX_SPOOL:
-			message = c2_db_spool_message_get (db, mid);
+			func = c2_db_spool_message_set_state;
 			break;
 	}
+
+	func (db, state);
+	gtk_signal_emit (GTK_OBJECT (db), UPDATED);
+}
+
+/**
+ * c2_db_message_set_mark [VFUNCTION]
+ * @db: C2Db node where to act.
+ * @mark: %TRUE if the mark should be active, %FALSE if not.
+ *
+ * This function will set the state of the mark.
+ **/
+void
+c2_db_message_set_mark (C2Db *db, gboolean mark)
+{
+	void (*func) (C2Db *db, gboolean mark);
 	
-	return message;
+	/* Note for developers of VFUNCTIONS about this function:
+	 *   The VFunction should just update the mailbox.
+	 */
+	
+	db->mark = mark;
+
+	switch (db->mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_message_set_mark;
+			break;
+		case C2_MAILBOX_IMAP:
+			func = c2_db_imap_message_set_mark;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_message_set_mark;
+			break;
+	}
+
+	func (db, mark);
+	gtk_signal_emit (GTK_OBJECT (db), UPDATED);
+}
+
+/**
+ * c2_db_load_message [VFUNCTION]
+ * @db: C2Db node to load.
+ *
+ * This function will load a message from the mailbox.
+ **/
+void
+c2_db_load_message (C2Db *db)
+{
+	C2Message *(*func) (C2Db *db);
+
+	switch (db->mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			func = c2_db_cronosII_load_message;
+			break;
+		case C2_MAILBOX_IMAP:
+			func = c2_db_imap_load_message;
+			break;
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_load_message;
+			break;
+	}
+
+	db->message = func (db);
+	if (db->message)
+		db->message->mime = c2_mime_new (db->message);
+}
+
+/**
+ * c2_db_unload_message
+ * @db: C2Db node to unload.
+ *
+ * This function will unload a C2Db node,
+ * this is useful to free the space
+ * used by the message, but the node
+ * is still usable for listing the
+ * mailbox.
+ **/
+void
+c2_db_unload_message (C2Db *db)
+{
+	gtk_object_destroy (GTK_OBJECT (db->message));
+}
+
+/**
+ * c2_db_archive [TODO]
+ * @mailbox: Mailbox to archive.
+ *
+ * This function is to archive a mailbox into
+ * the permanent-deleted mailbox (a mailbox that
+ * the user can't access too easy, a way to recover
+ * permanent-deleted mails.
+ **/
+void
+c2_db_archive (C2Mailbox *mailbox)
+{
 }
 
 /**
@@ -336,104 +678,4 @@ c2_db_message_get_from_file (const gchar *path)
 	g_free (string);
 
 	return message;
-}
-
-/**
- * c2_db_message_search_by_mid
- * @db_d: DB descriptor.
- * @mid: mid to search.
- *
- * Searches in the database @db_d for the mid @mid.
- *
- * Return Value:
- * The row where @mid was found.
- **/
-gint
-c2_db_message_search_by_mid (const C2Db *db_d, gint mid)
-{
-	return 0;
-}
-
-/**
- * c2_db_archive
- * @mailbox: Mailbox to archive.
- *
- * This function will remove a db and
- * archive all mails in ~/.c2/archive
- **/
-void
-c2_db_archive (C2Mailbox *mailbox)
-{
-	/* 1. Make sure the Db is loaded */
-	/* 2. Go in a loop from the first message to the last one
-	 *    calling c2_db_spool_add_message.
-	 * 3. Call c2_db_remove_structure.
-	 */
-}
-
-gint
-c2_db_create_structure (C2Mailbox *mailbox)
-{
-	gint (*func) (C2Mailbox *mailbox);
-L	
-	switch (mailbox->type)
-	{
-		case C2_MAILBOX_CRONOSII:
-			func = c2_db_cronosII_create_structure;
-			break;
-		case C2_MAILBOX_IMAP:
-			/* TODO */
-			return 0;
-			break;
-		case C2_MAILBOX_SPOOL:
-			func = c2_db_spool_create_structure;
-			break;
-	}
-
-	return func (mailbox);
-}
-
-gint
-c2_db_update_structure (C2Mailbox *mailbox)
-{
-	gint (*func) (C2Mailbox *mailbox);
-
-	switch (mailbox->type)
-	{
-		case C2_MAILBOX_CRONOSII:
-			func = c2_db_cronosII_update_structure;
-			break;
-		case C2_MAILBOX_IMAP:
-			/* TODO */
-			return;
-			break;
-		case C2_MAILBOX_SPOOL:
-			func = c2_db_spool_update_structure;
-			break;
-	}
-
-	return func (mailbox);
-}
-
-
-gint
-c2_db_remove_structure (C2Mailbox *mailbox)
-{
-	gint (*func) (C2Mailbox *mailbox);
-
-	switch (mailbox->type)
-	{
-		case C2_MAILBOX_CRONOSII:
-			func = c2_db_cronosII_remove_structure;
-			break;
-		case C2_MAILBOX_IMAP:
-			/* TODO */
-			return;
-			break;
-		case C2_MAILBOX_SPOOL:
-			func = c2_db_spool_remove_structure;
-			break;
-	}
-
-	return func (mailbox);
 }
