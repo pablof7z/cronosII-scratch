@@ -20,7 +20,7 @@ plugin_DATA =
 aboutdir = $(pkgdatadir)
 about_DATA = about.html bugs.html features.html header.png message_404.html touch.html welcome.html
 
-desktopdir = $(prefix)/gnome/apps/Internet
+desktopdir = $(datadir)/gnome/apps/Internet
 desktop_DATA = cronosII.desktop
 
 cronosincludedir = $(includedir)/cronosII
