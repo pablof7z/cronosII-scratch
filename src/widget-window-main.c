@@ -107,9 +107,6 @@ save										(C2WindowMain *wmain);
 static void
 search										(C2WindowMain *wmain);
 
-static void
-send_										(C2WindowMain *wmain);
-
 static gint
 on_delete_event								(GtkWidget *widget, GdkEventAny *event, gpointer data);
 
@@ -530,7 +527,6 @@ class_init (C2WindowMainClass *klass)
 	klass->reply_all = reply_all;
 	klass->save = save;
 	klass->search = search;
-	klass->send = send_;
 }
 
 static void
@@ -1158,12 +1154,6 @@ search (C2WindowMain *wmain)
 {
 }
 
-static void
-send_ (C2WindowMain *wmain)
-{
-	
-}
-
 static gint
 on_delete_event (GtkWidget *widget, GdkEventAny *event, gpointer data)
 {
@@ -1297,7 +1287,7 @@ on_application_application_preferences_changed (C2Application *application, gint
 				gtk_signal_connect (GTK_OBJECT (item), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_file_check_mail_account_activate), wmain);
 
-				pixmap = gnome_stock_pixmap_widget_at_size (GTK_WINDOW (wmain),
+				pixmap = gnome_stock_pixmap_widget_at_size (GTK_WIDGET (wmain),
 										PKGDATADIR "/ui/mail.xpm", 16, 16);
 				gtk_pixmap_menu_item_set_pixmap (GTK_PIXMAP_MENU_ITEM (item), pixmap);
 				gtk_widget_show (pixmap);
@@ -1457,7 +1447,9 @@ on_menubar_file_new_window_activate (GtkWidget *widget, C2WindowMain *wmain)
 static void
 on_menubar_file_send_unsent_mails_activate (GtkWidget *widget, C2WindowMain *wmain)
 {
-	C2_WINDOW_MAIN_CLASS_FW (wmain)->send (wmain);
+	C2Application *application = C2_WINDOW (wmain)->application;
+
+	C2_APPLICATION_CLASS_FW (application)->send (application);
 }
 
 static void
@@ -1880,7 +1872,9 @@ on_toolbar_search_clicked (GtkWidget *widget, C2WindowMain *wmain)
 static void
 on_toolbar_send_clicked (GtkWidget *widget, C2WindowMain *wmain)
 {
-	C2_WINDOW_MAIN_CLASS_FW (wmain)->send (wmain);
+	C2Application *application = C2_WINDOW (wmain)->application;
+	
+	C2_APPLICATION_CLASS_FW (wmain)->send (application);
 }
 
 static void

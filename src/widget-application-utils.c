@@ -22,6 +22,7 @@
 #include "main.h"
 #include "widget-HTML.h"
 #include "widget-application.h"
+#include "widget-application-utils.h"
 #include "widget-dialog-preferences.h"
 #include "widget-mailbox-list.h"
 #include "widget-network-traffic.h"
@@ -221,7 +222,7 @@ c2_application_dialog_missing_mailbox_inform (C2Application *application, const 
 	gnome_dialog_button_connect (GNOME_DIALOG (dialog), 1,
 								GTK_SIGNAL_FUNC (on_dialog_missing_mailbox_inform_close_clicked), dialog);
 	gtk_object_set_data (GTK_OBJECT (dialog), "application", application);
-	gtk_object_set_data (GTK_OBJECT (dialog), "name", name);
+	gtk_object_set_data (GTK_OBJECT (dialog), "name", (gpointer) name);
 
 	wlabel = gtk_label_new (_("Warning!"));
 	style = gtk_style_copy (gtk_widget_get_style (wlabel));
@@ -629,7 +630,7 @@ dialog_remove_mailbox_thread (C2Dialog *dialog)
 	C2Application *application;
 	C2Mailbox *mailbox;
 	GtkWidget *button;
-	gint toggle;
+	gint toggle = 0;
 
 	application = dialog->application;
 	mailbox = C2_MAILBOX (gtk_object_get_data (GTK_OBJECT (dialog), "mailbox"));
@@ -667,7 +668,7 @@ c2_application_dialog_remove_mailbox (C2Application *application, C2Mailbox *mai
 {
 	GtkWidget *dialog;
 	GtkWidget *label;
-	GtkWidget *button;
+	GtkWidget *button = NULL;
 	pthread_t thread;
 	
 	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
@@ -755,6 +756,8 @@ on_dialog_incoming_mail_warning_darea_expose_event (GtkWidget *widget, GdkEventE
 				darea->style->black_gc,
 				text_pos_x-(gdk_string_width (font, str)/2), text_pos_y, str);
 	g_free (str);
+
+	return TRUE;
 }
 
 static gint
@@ -762,7 +765,6 @@ on_dialog_incoming_mail_warning_darea_configure_event (GtkWidget *widget, GdkEve
 {
 	GtkWidget *gpixmap;
 	GdkPixmap *pixmap;
-	gchar *str;
 	gint mails;
 	gint text_pos_x, text_pos_y;
 	gint width, height;
@@ -838,7 +840,7 @@ on_dialog_incoming_mail_warning_timeout (GtkWidget *window)
 			retval = FALSE;
 	}
 
-	gtk_object_set_data (GTK_OBJECT (window), "y", y);
+	gtk_object_set_data (GTK_OBJECT (window), "y", (gpointer) y);
 
 	if (!showing && y <= 0)
 		gtk_widget_destroy (window);
@@ -864,6 +866,8 @@ on_dialog_incoming_mail_warning_pixmap_button_press_event (GtkWidget *widget, Gd
 			gtk_object_remove_data (GTK_OBJECT (window), "showing");
 			gtk_timeout_add (20, (GtkFunction) on_dialog_incoming_mail_warning_timeout, window);
 	}
+
+	return TRUE;
 }
 
 void
@@ -877,7 +881,6 @@ c2_application_dialog_incoming_mail_warning (C2Application *application)
 	gint text_pos_x = width/2, text_pos_y = height-10;
 	GtkTooltips *tooltips;
 	GdkFont *font;
-	gchar *str;
 
 	if (GTK_IS_WINDOW ((window = (GtkWidget*) gtk_object_get_data (GTK_OBJECT (application), "mail_warn_window"))))
 	{
@@ -921,7 +924,7 @@ c2_application_dialog_incoming_mail_warning (C2Application *application)
 		gtk_object_set_data (GTK_OBJECT (window), "text_pos_y", (gpointer) text_pos_y);
 		gtk_object_set_data (GTK_OBJECT (window), "font", (gpointer) font);
 		gtk_object_set_data (GTK_OBJECT (window), "mails", (gpointer) 1);
-		gtk_object_set_data (GTK_OBJECT (window), "showing", 1);
+		gtk_object_set_data (GTK_OBJECT (window), "showing", (gpointer) 1);
 
 		gtk_signal_connect (GTK_OBJECT (darea), "expose_event",
 				GTK_SIGNAL_FUNC (on_dialog_incoming_mail_warning_darea_expose_event), window);
@@ -949,7 +952,7 @@ c2_application_dialog_incoming_mail_warning (C2Application *application)
 			gtk_widget_popup (window, gdk_screen_width () - width,
 									gdk_screen_height () + height);
 
-		gtk_timeout_add (20, on_dialog_incoming_mail_warning_timeout, window);
+		gtk_timeout_add (20, (GtkFunction) on_dialog_incoming_mail_warning_timeout, window);
 	}
 }
 
@@ -1218,12 +1221,6 @@ on_dialog_about_window_delete_event (GtkWidget *widget, GdkEvent *e)
 	c2_application_window_remove (application, GTK_WINDOW (widget));
 
 	return TRUE;
-}
-
-static void
-on_dialog_about_web_site_clicked (GtkWidget *widget, GladeXML *xml)
-{
-	gnome_url_show (URL);
 }
 
 static void

@@ -1,6 +1,7 @@
 Sat Jun  8 Pablo Fernández <sandokan at pablossite dot net>
 	* Changed the header field that will be shown when displaying
 	  the mailboxes set to be used as OUTBOX and/or SENT ITEMS.
+	* The "Send" button in the main window was not working.
 
 Fri Jun  7 Pablo Fernández <sandokan at pablossite dot net>
 	* Fixed the bug that caused that the vpaned and hpaned

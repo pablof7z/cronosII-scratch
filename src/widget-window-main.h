@@ -98,7 +98,6 @@ struct _C2WindowMainClass
 	void (*reply_all) (C2WindowMain *wmain);
 	void (*save) (C2WindowMain *wmain);
 	void (*search) (C2WindowMain *wmain);
-	void (*send) (C2WindowMain *wmain);
 };
 
 GtkType
