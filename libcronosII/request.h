@@ -55,7 +55,7 @@ struct _C2Request
 
 	gchar *url;
 	C2RequestProtocol protocol;
-	gint request_size, got_size;
+	size_t request_size, got_size;
 
 	gchar *source;
 };

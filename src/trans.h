@@ -125,34 +125,6 @@ gchar *s = N_("Name");
 gchar *s = N_("E-Mail");
 gchar *s = N_("Comments");
 gchar *s = N_("Address Book vCard");
-gchar *s = N_("Preferences");
-gchar *s = N_("Check for mail every");
-gchar *s = N_("minutes.");
-gchar *s = N_("Wait");
-gchar *s = N_("seconds before marking a mail as readed.");
-gchar *s = N_("Prepend");
-gchar *s = N_("> \n"
-              "::> \n"
-              "# \n"
-              "Quote# \n"
-              "");
-gchar *s = N_("> ");
-gchar *s = N_("to each line when replying a message.");
-gchar *s = N_("Empty the Garbage mailbox on exit.");
-gchar *s = N_("Store a copy of outgoing messages in the Outbox mailbox.");
-gchar *s = N_("Check for mail at start up.");
-gchar *s = N_("label18");
-gchar *s = N_("Name");
-gchar *s = N_("Type");
-gchar *s = N_("Name");
-gchar *s = N_("E-Mail");
-gchar *s = N_("_New");
-gchar *s = N_("_Edit");
-gchar *s = N_("_Delete");
-gchar *s = N_("_Up");
-gchar *s = N_("Do_wn");
-gchar *s = N_("label19");
-gchar *s = N_("label20");
 gchar *s = N_("Create a new mailbox");
 gchar *s = N_("_New Mailbox");
 gchar *s = N_("Delete selected mailbox");

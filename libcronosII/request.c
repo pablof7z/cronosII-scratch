@@ -84,11 +84,15 @@ c2_request_construct_http (C2Request *request)
 {
 	gchar *host, *ip;
 	gchar *path;
-	gchar *tmp, *string;
+	gchar *tmp, *tmp2;
 	gint port = 80; /* Default to 80 */
 	guint sock;
 	gint tmplength, length = 0;
-	gboolean getting_information = TRUE;
+	
+	gint bytes, total_bytes;
+	gchar *ptr;
+	gchar *retval = NULL;
+	gchar buffer[BUFSIZ];
 	
 	parse_url (request->url, &host, &port, &path);
 	
@@ -100,6 +104,7 @@ c2_request_construct_http (C2Request *request)
 					c2_error_get (c2_errno));
 #endif
 		g_free (host);
+		gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT], FALSE);
 		return;
 	}
 
@@ -114,6 +119,7 @@ c2_request_construct_http (C2Request *request)
 #endif
 		g_free (host);
 		g_free (ip);
+		gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT], FALSE);
 		return;
 	}
 	g_free (ip);
@@ -121,7 +127,6 @@ c2_request_construct_http (C2Request *request)
 	gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[RETRIEVE], 0);
 	/* Now try to retrieve */
 	if (c2_net_send (sock, "GET %s HTTP/1.0\r\n"
-						   "User-Agent: Cronos II " VERSION "\r\n"
 						   "Host: %s\r\n"
 						   "\r\n", path, host) < 0)
 	{
@@ -130,6 +135,7 @@ c2_request_construct_http (C2Request *request)
 #endif
 		g_free (host);
 		close (sock);
+		gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT], FALSE);
 		return;
 	}
 	g_free (host);
@@ -137,43 +143,27 @@ c2_request_construct_http (C2Request *request)
 
 	/* Initialize request */
 	request->source = NULL;
-	request->request_size = -1;
-	request->got_size = -1;
-
-	/* Get the answer */
-	do
+	request->got_size = 0;
+	total_bytes = 0;
+	while ((bytes = read (sock, buffer, sizeof (buffer))) > 0)
 	{
-		if (c2_net_read (sock, &string) < 0)
-		{
-#ifdef USE_DEBUG
-			g_print ("Unable to read from the socket: %s\n", c2_error_get (c2_errno));
-#endif
-			return;
-		}
-		if (getting_information)
-		{
-			if (c2_streq (string, "\r\n"))
-				getting_information = FALSE;
-			else if (c2_strneq (string, "Content-Length:", 15))
-			{
-				request->request_size = atoi (string+15);
-#ifdef USE_DEBUG
-				g_print ("Requested size is %d\n", request->request_size);
-#endif
-			}
-			g_free (string);
-			continue;
-		}
-		tmplength = strlen (string);
-		length += tmplength;
-		gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[RETRIEVE], length);
-		tmp = g_strdup_printf ("%s%s", request->source, string);
-		g_free (request->source);
-		g_free (string);
-		request->source = tmp;
-	} while (tmplength);
+		request->source = g_realloc (request->source, total_bytes+bytes);
+		memcpy (request->source + total_bytes, buffer, bytes);
+		
+		total_bytes += bytes;
+		
+		gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[RETRIEVE], request->got_size);
+	}
 
-	gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT], TRUE);
+	/* Calculate got_size */
+	ptr = strstr (request->source, "\r\n\r\n")+4;
+	request->got_size = total_bytes - (ptr - request->source);
+	tmp = g_malloc (request->got_size);
+	memcpy (tmp, ptr, request->got_size);
+	g_free (request->source);
+	request->source = tmp;
+	
+	gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT]);
 	c2_net_disconnect (sock);
 }
 

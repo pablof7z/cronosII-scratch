@@ -160,32 +160,38 @@ c2_net_send (guint sock, const gchar *fmt, ...)
  * from the socket.
  *
  * Return Value:
- * 0 if success or -1;
+ * The number of readen bytes or -1;
  **/
 gint
 c2_net_read (guint sock, gchar **string)
 {
 	gchar tmpstring[1024];
-	gint i;
+	gint bytes = 0, i;
 	gchar c[1];
 	
 	for (i = 0; i < 1023; i++)
 	{
-		if (read (sock, c, 1) < 0)
+		if ((bytes += read (sock, c, 1)) < 0)
 		{
+L			c2_error_set (-errno);
 			return -1;
 		}
+		if (!bytes)
+		{
+L			break;
+		}
+
 		tmpstring[i] = *c;
 		if (*c == '\n')
 		{
-			tmpstring[i+1] = '\0';
+L			tmpstring[i+1] = '\0';
 			break;
 		}
 	}
 	tmpstring[1023] = '\0';
 	
 	*string = g_strdup (tmpstring);
-	return 0;
+	return bytes;
 }
 
 /**

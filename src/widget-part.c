@@ -151,8 +151,10 @@ on_gtkxmhtml_image_load_pthread_request_disconnect (C2Request *request, gboolean
 	XmImageInfo *new_image;
 	gchar *tmpfile;
 	const gchar *source;
+	gchar tmpfile2[] = "/tmp/c2-mmm-log.XXXXX";
 	FILE *fd;
-	
+	gint fs;
+L	
 	if (!success)
 	{
 		/* The fetching failed for whatever reason */
@@ -165,7 +167,7 @@ on_gtkxmhtml_image_load_pthread_request_disconnect (C2Request *request, gboolean
 		 * 2. Save the image.
 		 * 3. Load the image. */
 		tmpfile = c2_get_tmp_file ();
-		if (!(fd = fopen (tmpfile, "wt")))
+		if (!(fd = fopen (tmpfile, "w")))
 		{
 #ifdef USE_DEBUG
 			g_print ("Unable to open to %s: %s\n", tmpfile, c2_error_get (-errno));
@@ -176,7 +178,7 @@ on_gtkxmhtml_image_load_pthread_request_disconnect (C2Request *request, gboolean
 		} else
 		{
 			source = c2_request_get_source (request);
-			fwrite (source, sizeof (source), strlen (source), fd);
+			fwrite (source, sizeof (gchar), request->got_size, fd);
 			fclose (fd);
 			gdk_threads_enter ();
 			new_image = XmHTMLImageDefaultProc (widget, tmpfile, NULL, 0);
@@ -184,8 +186,10 @@ on_gtkxmhtml_image_load_pthread_request_disconnect (C2Request *request, gboolean
 		}
 	}
 
+	gtk_xmhtml_freeze (GTK_XMHTML (widget));
 	XmHTMLImageReplace (widget, image, new_image);
 	XmHTMLRedisplay (widget);
+	gtk_xmhtml_thaw (GTK_XMHTML (widget));
 	gdk_threads_leave ();
 
 	gtk_object_unref (GTK_OBJECT (request));

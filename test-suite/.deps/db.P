@@ -121,9 +121,10 @@ db.o: db.c /usr/include/stdio.h /usr/include/features.h \
  /usr/include/gtk-1.2/gtk/gtkvscale.h \
  /usr/include/gtk-1.2/gtk/gtkvseparator.h /usr/include/time.h \
  /usr/include/bits/time.h ../libcronosII/mailbox.h ../config.h \
- ../libcronosII/message.h ../libcronosII/error.h /usr/include/errno.h \
- /usr/include/bits/errno.h /usr/include/linux/errno.h \
- /usr/include/asm/errno.h ../libcronosII/utils.h
+ ../libcronosII/message.h ../libcronosII/mime.h ../libcronosII/error.h \
+ /usr/include/errno.h /usr/include/bits/errno.h \
+ /usr/include/linux/errno.h /usr/include/asm/errno.h \
+ ../libcronosII/utils.h
 db.c :
 /usr/include/stdio.h :
 /usr/include/features.h :
@@ -265,6 +266,7 @@ db.c :
 ../libcronosII/mailbox.h :
 ../config.h :
 ../libcronosII/message.h :
+../libcronosII/mime.h :
 ../libcronosII/error.h :
 /usr/include/errno.h :
 /usr/include/bits/errno.h :
