@@ -125,7 +125,7 @@ class_init (C2IMAPClass *klass)
 						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 	signals[LOGIN_FAILED] =
 		gtk_signal_new ("login_failed",
-						GTK_RUN_LAST,
+						GTK_RUN_FIRST,
 						object_class->type,
 						GTK_SIGNAL_OFFSET (C2IMAPClass, login_failed),
 						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
@@ -290,7 +290,6 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	
 	tag = atoi(buf+9);
 	g_free(buf);
-	sleep(2);
   /* now insert 'final' into the hash...*/
 	//printf("Now inserting data: %s in hash table for tag #%i\n", final, tag);
 	{
