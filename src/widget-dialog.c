@@ -94,16 +94,17 @@ destroy (GtkObject *object)
 }
 
 GtkWidget *
-c2_dialog_new (C2Application *application, const gchar *title, ...)
+c2_dialog_new (C2Application *application, const gchar *title, const gchar *type, ...)
 {
 	C2Dialog *dialog;
 	va_list args;
 
 	dialog = gtk_type_new (c2_dialog_get_type ());
-	va_start (args, title);
+	va_start (args, type);
 	gnome_dialog_construct (GNOME_DIALOG (dialog), title, args);
 	va_end (args);
 	dialog->application = application;
+	gtk_object_set_data (GTK_OBJECT (dialog), "type", g_strdup (type));
 
 	c2_application_window_add (application, GTK_WINDOW (dialog));
 
@@ -111,9 +112,13 @@ c2_dialog_new (C2Application *application, const gchar *title, ...)
 }
 
 void
-c2_dialog_construct (C2Dialog *dialog, C2Application *application, const gchar *title, const gchar **buttons)
+c2_dialog_construct (C2Dialog *dialog, C2Application *application, const gchar *title,
+const gchar *type, const gchar **buttons)
 {
 	dialog->application = application;
 
 	gnome_dialog_constructv (GNOME_DIALOG (dialog), title, buttons);
+	gtk_object_set_data (GTK_OBJECT (dialog), "type", g_strdup (type));
+
+	c2_application_window_add (application, GTK_WINDOW (dialog));
 }

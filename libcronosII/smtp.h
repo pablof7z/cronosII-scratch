@@ -41,8 +41,10 @@ enum _C2SMTPType
 
 enum
 {
-	C2_SMTP_DO_PERSIST			= 1 << 0,	/* Will keep the connection alive for future requests */
-	C2_SMTP_DONT_PERSIST		= 1 << 1	/* Will not keep the connection alive */
+	C2_SMTP_DO_PERSIST			= 1 << 1,	/* Will keep the connection alive for future requests */
+	C2_SMTP_DO_NOT_PERSIST		= 0 << 1,	/* Will not keep the connection alive */
+	C2_SMTP_DO_LOSE_PASSWORD	= 1 << 2,	/* Will delete the password once it sended it correctly */
+	C2_SMTP_DO_NOT_LOSE_PASSWORD= 0 << 2	/* Will keep the password unless its wrong */
 };
 
 typedef struct
@@ -51,6 +53,7 @@ typedef struct
 
 	gchar *host;
 	gint port;
+	gboolean ssl;
 	gboolean authentication;
 	gchar *user, *pass;
 	gchar *smtp_local_cmd;

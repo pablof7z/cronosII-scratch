@@ -21,7 +21,7 @@
 
 #include "widget-transfer-item.h"
 
-#define MAX_CHARS_IN_LABEL		25
+#define MAX_CHARS_IN_LABEL		23
 
 static void
 class_init									(C2TransferItemClass *klass);

@@ -15,8 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __CRONOSII_WIDGET_DIALOG_H__
-#define __CRONOSII_WIDGET_DIALOG_H__
+#ifndef __WIDGET_DIALOG_H__
+#define __WIDGET_DIALOG_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,11 +53,12 @@ struct _C2DialogClass
 };
 
 GtkWidget *
-c2_dialog_new								(C2Application *application, const gchar *title, ...);
+c2_dialog_new								(C2Application *application, const gchar *title,
+											 const gchar *type, ...);
 
 void
 c2_dialog_construct							(C2Dialog *dialog, C2Application *application,
-											const gchar *title, const gchar **buttons);
+											const gchar *title, const gchar *type, const gchar **buttons);
 
 #ifdef __cplusplus
 }

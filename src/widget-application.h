@@ -280,6 +280,9 @@ c2_application_window_add					(C2Application *application, GtkWindow *window);
 void
 c2_application_window_remove				(C2Application *application, GtkWindow *window);
 
+GtkWidget *
+c2_application_window_get					(C2Application *application, const gchar *type);
+
 /***********************
  * [Application Utils] *
  ***********************/

@@ -77,7 +77,7 @@ c2_pop3_get_type (void)
 	if (!type)
 	{
 		static const GtkTypeInfo info = {
-			"C2Pop3",
+			"C2POP3",
 			sizeof (C2POP3),
 			sizeof (C2POP3Class),
 			(GtkClassInitFunc) class_init,

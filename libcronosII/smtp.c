@@ -78,7 +78,7 @@ c2_smtp_local_get_recepients(C2Message *message);
 static gchar *
 c2_smtp_local_divide_recepients(gchar *to);
 
-#define DEFAULT_FLAGS C2_SMTP_DONT_PERSIST
+#define DEFAULT_FLAGS C2_SMTP_DO_NOT_PERSIST | C2_SMTP_DO_NOT_LOSE_PASSWORD
 
 #define SOCK_READ_FAILED  _("Internal socket read operation failed")
 #define SOCK_WRITE_FAILED _("Internal socket write operation failed")
@@ -102,6 +102,7 @@ c2_smtp_new (C2SMTPType type, ...)
 			va_start (args, type);
 			smtp->host = g_strdup (va_arg (args, const gchar *));
 			smtp->port = va_arg (args, gint);
+			smtp->ssl = va_arg (args, gint);
 			smtp->authentication = va_arg (args, gboolean);
 			smtp->user = g_strdup (va_arg (args, const gchar *));
 			smtp->pass = g_strdup (va_arg (args, const gchar *));
@@ -112,6 +113,8 @@ c2_smtp_new (C2SMTPType type, ...)
 			smtp->smtp_local_cmd = g_strdup (va_arg(args, const gchar*));
 			va_end (args);
 			smtp->host = NULL;
+			smtp->port = 0;
+			smtp->ssl = 0;
 			smtp->authentication = FALSE;
 			smtp->user = NULL;
 			smtp->pass = NULL;
@@ -203,7 +206,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message)
 			pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
-		if(smtp->flags == C2_SMTP_DONT_PERSIST)
+		if(smtp->flags == C2_SMTP_DO_NOT_PERSIST)
 			smtp_disconnect(smtp);
 		g_free(buffer);
 	}
@@ -270,7 +273,7 @@ c2_smtp_connect (C2SMTP *smtp)
 	gchar *hostname = NULL;
 	gchar *buffer = NULL;
 	
-	if(smtp->sock && !(smtp->flags==C2_SMTP_DONT_PERSIST)) 
+	if(smtp->sock && !(smtp->flags==C2_SMTP_DO_NOT_PERSIST)) 
 		smtp_disconnect(smtp);
 	else if(smtp->sock && smtp->flags==C2_SMTP_DO_PERSIST)
 		return 0;

@@ -35,6 +35,9 @@ extern "C" {
 #define C2_TYPE_TRANSFER_LIST				(c2_transfer_list_get_type ())
 #define C2_TRANSFER_LIST(obj)				(GTK_CHECK_CAST (obj, C2_TYPE_TRANSFER_LIST, C2TransferList))
 #define C2_TRANSFER_LIST_CLASS(klass)		(GTK_CHECK_CAST (klass, C2_TYPE_TRANSFER_LIST, C2TransferListClass))
+#define C2_IS_TRANSFER_LIST(obj)			(GTK_CHECK_TYPE (obj, C2_TYPE_TRANSFER_LIST))
+
+#define C2_WIDGET_TRANSFER_LIST_TYPE		"transfer_list"
 
 typedef struct _C2TransferList C2TransferList;
 typedef struct _C2TransferListClass C2TransferListClass;

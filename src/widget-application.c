@@ -23,12 +23,14 @@
 
 #include <libcronosII/account.h>
 #include <libcronosII/pop3.h>
-// [TODO] #include <libcronosII/imap.h>
+#include <libcronosII/imap.h>
 #include <libcronosII/smtp.h>
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
 #include "widget-application.h"
+#include "widget-dialog.h"
+#include "widget-window.h"
 
 static void
 class_init									(C2ApplicationClass *klass);
@@ -129,19 +131,19 @@ init (C2Application *application)
 	application->mailbox = NULL;
 
 	/* Load accounts */
-	for (i = 0;; i++)
+	for (i = 1;; i++)
 	{
 		C2Account *account;
 		gchar *name, *email, *buf;
 		C2AccountType account_type;
-		gint type, outgoing, i;
+		gint type, outgoing, l;
 		gpointer value;
 		
 		tmp = g_strdup_printf ("/"PACKAGE"/Account %d/", i);
 		gnome_config_push_prefix (tmp);
 
-		if (!(name = gnome_config_get_string ("name")) ||
-			!(email = gnome_config_get_string ("email")))
+		if (!(name = gnome_config_get_string ("account_name")) ||
+			!(email = gnome_config_get_string ("identity_email")))
 		{
 			gnome_config_pop_prefix ();
 			g_free (tmp);
@@ -152,32 +154,32 @@ init (C2Application *application)
 
 		account = c2_account_new (account_type, name, email);
 
-		for (i = 0; i < C2_ACCOUNT_KEY_LAST; i++)
+		for (l = 0; l < C2_ACCOUNT_KEY_LAST; l++)
 		{
-			switch (i)
+			switch (l)
 			{
 				case C2_ACCOUNT_KEY_FULL_NAME:
-					buf = "full_name";
+					buf = "identity_name";
 					type = GTK_TYPE_STRING;
 					break;
 				case C2_ACCOUNT_KEY_ORGANIZATION:
-					buf = "organization";
+					buf = "identity_organization";
 					type = GTK_TYPE_STRING;
 					break;
 				case C2_ACCOUNT_KEY_REPLY_TO:
-					buf = "reply-to";
+					buf = "identity_reply_to";
 					type = GTK_TYPE_STRING;
 					break;
 				case C2_ACCOUNT_KEY_SIGNATURE_PLAIN:
-					buf = "signature plain";
+					buf = "options_signature plain";
 					type = GTK_TYPE_STRING;
 					break;
 				case C2_ACCOUNT_KEY_SIGNATURE_HTML:
-					buf = "signature HTML";
+					buf = "options_signature_html";
 					type = GTK_TYPE_STRING;
 					break;
 				case C2_ACCOUNT_KEY_ACTIVE:
-					buf = "active";
+					buf = "options_auto_check";
 					type = GTK_TYPE_BOOL;
 					break;
 				default:
@@ -203,7 +205,7 @@ init (C2Application *application)
 					break;
 			}
 
-			c2_account_set_extra_data (account, i, type, value);
+			c2_account_set_extra_data (account, l, type, value);
 ignore:
 		}
 
@@ -547,9 +549,6 @@ c2_application_window_add (C2Application *application, GtkWindow *window)
 {
 	application->open_windows = g_slist_append (application->open_windows, window);
 	gtk_object_ref (GTK_OBJECT (application));
-#ifdef USE_DEBUG
-	g_print ("Adding a window, reffing to %d.\n", GTK_OBJECT (application)->ref_count);
-#endif
 
 	gtk_signal_emit (GTK_OBJECT (application), signals[WINDOW_CHANGED]);
 }
@@ -576,6 +575,36 @@ c2_application_window_remove (C2Application *application, GtkWindow *window)
 #endif
 
 	gtk_signal_emit (GTK_OBJECT (application), signals[WINDOW_CHANGED]);
+}
+
+/**
+ * c2_application_window_get
+ * @application: Application where to work.
+ * @type: Type of window to get.
+ *
+ * This function will search for a GtkWindow
+ * of type @type.
+ *
+ * Return Value:
+ * The widget or %NULL.
+ **/
+GtkWidget *
+c2_application_window_get (C2Application *application, const gchar *type)
+{
+	GtkWidget *widget;
+	gpointer data;
+	GSList *l;
+	
+	c2_return_val_if_fail (application || type, NULL, C2EDATA);
+
+	for (l = application->open_windows; l; l = g_slist_next (l))
+	{
+		widget = GTK_WIDGET (l->data);
+		data = gtk_object_get_data (GTK_OBJECT (widget), "type");
+		C2_DEBUG ((gchar*)data);
+		if (c2_streq ((gchar*)data, type))
+			return widget;
+	}
 }
 
 /**

@@ -25,13 +25,13 @@
 #include "utils.h"
 
 static void
-class_init										(C2AccountClass *klass);
+class_init									(C2AccountClass *klass);
 
 static void
-init											(C2Account *account);
+init										(C2Account *account);
 
 static void
-destroy											(GtkObject *object);
+destroy										(GtkObject *object);
 
 static void
 set_data									(C2Account *account, C2AccountKey key, gint type, gpointer data);
@@ -90,6 +90,37 @@ init (C2Account *account)
 	account->edata = NULL;
 	account->etype = NULL;
 	account->next = NULL;
+}
+
+static void
+destroy (GtkObject *object)
+{
+	GSList *l;
+	C2Account *account = C2_ACCOUNT (object);
+	
+	g_free (account->name);
+	g_free (account->email);
+
+#if 0
+
+	for (l = account->edata; l; l = g_slist_next (l))
+	{
+		gpointer value;
+		gint type;
+
+		value = get_data (account, GPOINTER_TO_INT (l->data), &type);
+
+		switch (type)
+		{
+			case GTK_TYPE_OBJECT:
+				gtk_object_unref (GTK_OBJECT ((GtkObject*)value));
+				break;
+			case GTK_TYPE_STRING:
+				C2_DEBUG (value);
+				g_free (value);
+		}
+	}
+#endif
 }
 
 C2Account *
@@ -156,7 +187,7 @@ get_data (C2Account *account, C2AccountKey key, gint *type)
 	GSList *l;
 	gint i;
 	gpointer value;
-L
+
 	value = gtk_object_get_data (GTK_OBJECT (account), (gpointer) &key);
 
 	for (l = account->edata, i = 0; l; l = g_slist_next (l), i++)
@@ -175,34 +206,7 @@ L
 		}
 	}
 
-L	return value;
-}
-
-static void
-destroy (GtkObject *object)
-{
-	GSList *l;
-	C2Account *account = C2_ACCOUNT (object);
-	
-	g_free (account->name);
-	g_free (account->email);
-
-	for (l = account->edata; l; l = g_slist_next (l))
-	{
-		gpointer value;
-		gint type;
-
-		value = get_data (account, GPOINTER_TO_INT (l->data), &type);
-
-		switch (type)
-		{
-			case GTK_TYPE_OBJECT:
-				gtk_object_unref (GTK_OBJECT (value));
-				break;
-			default:
-				g_free (value);
-		}
-	}
+	return value;
 }
 
 void

@@ -56,8 +56,6 @@ struct _C2Window
 	C2Application *application;
 	GladeXML *xml;
 
-	gchar *type;
-
 	pthread_mutex_t status_lock;
 	pthread_mutex_t progress_lock;
 };

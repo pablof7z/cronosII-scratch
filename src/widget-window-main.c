@@ -30,7 +30,7 @@
 #include "widget-mailbox-list.h"
 #include "widget-mail.h"
 #include "widget-HTML.h"
-#include "widget-message-transfer.h"
+#include "widget-transfer-list.h"
 #include "widget-index.h"
 #include "widget-window-main.h"
 
@@ -49,6 +49,9 @@ on_delete_event								(GtkWidget *widget, GdkEventAny *event, gpointer data);
 
 static void
 on_docktoolbar_button_press_event			(GtkWidget *widget, GdkEventButton *event, C2WindowMain *wmain);
+
+static void
+on_toolbar_check_clicked					(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_index_select_message						(GtkWidget *index, C2Db *node, C2WindowMain *wmain);
@@ -255,6 +258,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	/* Connect all signals: menues, toolbar, buttons, etc. */
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "docktoolbar")), "button_press_event",
 							GTK_SIGNAL_FUNC (on_docktoolbar_button_press_event), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "toolbar_check")), "clicked",
+							GTK_SIGNAL_FUNC (on_toolbar_check_clicked), wmain);
 /*	glade_xml_signal_connect (xml, "on_new_mail_activate", GTK_SIGNAL_FUNC (on_new_mail_activate));
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (xml, "file_exit")), "activate",
 							GTK_SIGNAL_FUNC (on_quit), NULL);
@@ -356,6 +361,36 @@ on_docktoolbar_button_press_event (GtkWidget *widget, GdkEventButton *event, C2W
 			gnome_popup_menu_do_popup (glade_xml_get_widget (wmain->toolbar_menu, "mnu_toolbar"),
 								NULL, NULL, event, NULL);
 			break;
+	}
+}
+
+static void
+on_toolbar_check_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2Application *application;
+	C2Account *account;
+	GtkWidget *wtl;
+	C2TransferItem *wti;
+
+	application = C2_WINDOW (wmain)->application;
+	wtl = c2_application_window_get (application, C2_WIDGET_TRANSFER_LIST_TYPE);
+
+	if (!wtl || !C2_IS_TRANSFER_LIST (wtl))
+		wtl = c2_transfer_list_new (application);
+
+	gtk_widget_show (wtl);
+	gdk_window_raise (wtl->window);
+
+	for (account = application->account; account; account = c2_account_next (account))
+	{
+		gpointer data = c2_account_get_extra_data (account, C2_ACCOUNT_KEY_ACTIVE, NULL);
+
+		if (!GPOINTER_TO_INT (data))
+			continue;
+
+		wti = c2_transfer_item_new (account, C2_TRANSFER_ITEM_RECEIVE);
+		c2_transfer_list_add_item (C2_TRANSFER_LIST (wtl), wti);
+		c2_transfer_item_start (wti);
 	}
 }
 
@@ -544,7 +579,7 @@ static void
 on_close_clicked (GtkWidget *widget, C2WindowMain *wmain)
 {
 #ifdef USE_DEBUG
-	g_print ("on_close_clicked was reached (%s)\n", C2_WINDOW (wmain)->type);
+	g_print ("on_close_clicked was reached (%s)\n", (gchar*) gtk_object_get_data (GTK_OBJECT (wmain), "type"));
 #endif
 	gtk_object_destroy (GTK_OBJECT (wmain));
 }

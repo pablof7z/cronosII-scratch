@@ -95,12 +95,12 @@ destroy (GtkObject *object)
 
 	window = C2_WINDOW (object);
 #ifdef USE_DEBUG
-	g_print ("Destroing window %s\n", window->type);
+	g_print ("Destroing window %s\n", (gchar*) gtk_object_get_data (GTK_OBJECT (window), "type"));
 #endif
 
 	c2_application_window_remove (window->application, GTK_WINDOW (window));
 
-	g_free (window->type);
+	g_free (gtk_object_get_data (GTK_OBJECT (window), "type"));
 
 	pthread_mutex_destroy (&window->status_lock);
 	pthread_mutex_destroy (&window->progress_lock);
@@ -129,7 +129,7 @@ void
 c2_window_construct (C2Window *window, C2Application *application, const gchar *title, const gchar *type)
 {
 	window->application = application;
-	window->type = g_strdup (type);
+	gtk_object_set_data (GTK_OBJECT (window), "type", g_strdup (type));
 
 	gnome_app_construct (GNOME_APP (window), application->name, title ? title : "Cronos II");
 

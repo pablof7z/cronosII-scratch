@@ -79,7 +79,6 @@ struct _C2Account
 
 struct _C2AccountClass
 {
-		
 	GtkObjectClass parent_class;
 };
 

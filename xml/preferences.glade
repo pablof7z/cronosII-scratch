@@ -910,8 +910,8 @@ Are you sure you want this?</message>
 	      <class>GtkCList</class>
 	      <name>general_accounts_clist</name>
 	      <can_focus>True</can_focus>
-	      <columns>3</columns>
-	      <column_widths>151,167,78</column_widths>
+	      <columns>2</columns>
+	      <column_widths>308,60</column_widths>
 	      <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
 	      <show_titles>True</show_titles>
 	      <shadow_type>GTK_SHADOW_IN</shadow_type>
@@ -919,7 +919,7 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GtkLabel</class>
 		<child_name>CList:title</child_name>
-		<name>label116</name>
+		<name>label179</name>
 		<label>Name</label>
 		<justify>GTK_JUSTIFY_CENTER</justify>
 		<wrap>False</wrap>
@@ -932,20 +932,7 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GtkLabel</class>
 		<child_name>CList:title</child_name>
-		<name>label117</name>
-		<label>E-Mail</label>
-		<justify>GTK_JUSTIFY_CENTER</justify>
-		<wrap>False</wrap>
-		<xalign>0.5</xalign>
-		<yalign>0.5</yalign>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-	      </widget>
-
-	      <widget>
-		<class>GtkLabel</class>
-		<child_name>CList:title</child_name>
-		<name>label118</name>
+		<name>label180</name>
 		<label>Type</label>
 		<justify>GTK_JUSTIFY_CENTER</justify>
 		<wrap>False</wrap>
@@ -1042,6 +1029,7 @@ Are you sure you want this?</message>
 	    <widget>
 	      <class>GtkButton</class>
 	      <name>general_accounts_edit</name>
+	      <sensitive>False</sensitive>
 	      <tooltip>Press this button to edit the information of the selected account.</tooltip>
 	      <can_focus>True</can_focus>
 	      <accelerator>
@@ -1123,6 +1111,7 @@ Are you sure you want this?</message>
 	    <widget>
 	      <class>GtkButton</class>
 	      <name>general_accounts_remove</name>
+	      <sensitive>False</sensitive>
 	      <tooltip>Press this button to remove the selected account of the list.</tooltip>
 	      <can_focus>True</can_focus>
 	      <accelerator>
@@ -1204,6 +1193,7 @@ Are you sure you want this?</message>
 	    <widget>
 	      <class>GtkButton</class>
 	      <name>general_accounts_up</name>
+	      <sensitive>False</sensitive>
 	      <tooltip>Press this button to move up the selected account in the priority list</tooltip>
 	      <can_focus>True</can_focus>
 	      <accelerator>
@@ -1275,6 +1265,7 @@ Are you sure you want this?</message>
 	    <widget>
 	      <class>GtkButton</class>
 	      <name>general_accounts_down</name>
+	      <sensitive>False</sensitive>
 	      <tooltip>Press this button to move down the selected account in the priority list</tooltip>
 	      <can_focus>True</can_focus>
 	      <accelerator>
@@ -3934,7 +3925,7 @@ Sendmail
 	      <class>GtkTable</class>
 	      <name>table14</name>
 	      <border_width>4</border_width>
-	      <rows>2</rows>
+	      <rows>3</rows>
 	      <columns>4</columns>
 	      <homogeneous>False</homogeneous>
 	      <row_spacing>4</row_spacing>
@@ -4049,14 +4040,41 @@ Sendmail
 	      </widget>
 
 	      <widget>
-		<class>GtkCheckButton</class>
-		<name>outgoing_server_ssl</name>
-		<can_focus>True</can_focus>
-		<label>Use Secure Server Layer (SSL).</label>
-		<active>False</active>
-		<draw_indicator>True</draw_indicator>
+		<class>GtkLabel</class>
+		<name>outgoing_server_username_label</name>
+		<label>Username:</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>0</xalign>
+		<yalign>0.5</yalign>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
 		<child>
 		  <left_attach>0</left_attach>
+		  <right_attach>1</right_attach>
+		  <top_attach>1</top_attach>
+		  <bottom_attach>2</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>False</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>False</yfill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkEntry</class>
+		<name>outgoing_server_username</name>
+		<can_focus>True</can_focus>
+		<editable>True</editable>
+		<text_visible>True</text_visible>
+		<text_max_length>0</text_max_length>
+		<text></text>
+		<child>
+		  <left_attach>1</left_attach>
 		  <right_attach>4</right_attach>
 		  <top_attach>1</top_attach>
 		  <bottom_attach>2</bottom_attach>
@@ -4070,6 +4088,55 @@ Sendmail
 		  <yfill>False</yfill>
 		</child>
 	      </widget>
+
+	      <widget>
+		<class>GtkVBox</class>
+		<name>vbox45</name>
+		<homogeneous>False</homogeneous>
+		<spacing>0</spacing>
+		<child>
+		  <left_attach>0</left_attach>
+		  <right_attach>4</right_attach>
+		  <top_attach>2</top_attach>
+		  <bottom_attach>3</bottom_attach>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <xexpand>False</xexpand>
+		  <yexpand>True</yexpand>
+		  <xshrink>False</xshrink>
+		  <yshrink>False</yshrink>
+		  <xfill>True</xfill>
+		  <yfill>True</yfill>
+		</child>
+
+		<widget>
+		  <class>GtkCheckButton</class>
+		  <name>outgoing_auth_required</name>
+		  <can_focus>True</can_focus>
+		  <label>This server requires authentication.</label>
+		  <active>False</active>
+		  <draw_indicator>True</draw_indicator>
+		  <child>
+		    <padding>0</padding>
+		    <expand>False</expand>
+		    <fill>False</fill>
+		  </child>
+		</widget>
+
+		<widget>
+		  <class>GtkCheckButton</class>
+		  <name>outgoing_server_ssl</name>
+		  <can_focus>True</can_focus>
+		  <label>Use Secure Server Layer (SSL).</label>
+		  <active>False</active>
+		  <draw_indicator>True</draw_indicator>
+		  <child>
+		    <padding>0</padding>
+		    <expand>False</expand>
+		    <fill>False</fill>
+		  </child>
+		</widget>
+	      </widget>
 	    </widget>
 	  </widget>
 
@@ -4081,7 +4148,7 @@ Sendmail
 	    <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
 	    <child>
 	      <padding>0</padding>
-	      <expand>False</expand>
+	      <expand>True</expand>
 	      <fill>True</fill>
 	    </child>
 
@@ -4089,7 +4156,7 @@ Sendmail
 	      <class>GtkTable</class>
 	      <name>table17</name>
 	      <border_width>4</border_width>
-	      <rows>2</rows>
+	      <rows>1</rows>
 	      <columns>3</columns>
 	      <homogeneous>False</homogeneous>
 	      <row_spacing>0</row_spacing>
@@ -4108,8 +4175,8 @@ Sendmail
 		<child>
 		  <left_attach>0</left_attach>
 		  <right_attach>1</right_attach>
-		  <top_attach>1</top_attach>
-		  <bottom_attach>2</bottom_attach>
+		  <top_attach>0</top_attach>
+		  <bottom_attach>1</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -4133,8 +4200,8 @@ Sendmail
 		<child>
 		  <left_attach>1</left_attach>
 		  <right_attach>2</right_attach>
-		  <top_attach>1</top_attach>
-		  <bottom_attach>2</bottom_attach>
+		  <top_attach>0</top_attach>
+		  <bottom_attach>1</bottom_attach>
 		  <xpad>0</xpad>
 		  <ypad>0</ypad>
 		  <xexpand>False</xexpand>
@@ -4156,29 +4223,6 @@ Sendmail
 		<draw_indicator>True</draw_indicator>
 		<child>
 		  <left_attach>2</left_attach>
-		  <right_attach>3</right_attach>
-		  <top_attach>1</top_attach>
-		  <bottom_attach>2</bottom_attach>
-		  <xpad>0</xpad>
-		  <ypad>0</ypad>
-		  <xexpand>False</xexpand>
-		  <yexpand>False</yexpand>
-		  <xshrink>False</xshrink>
-		  <yshrink>False</yshrink>
-		  <xfill>True</xfill>
-		  <yfill>False</yfill>
-		</child>
-	      </widget>
-
-	      <widget>
-		<class>GtkCheckButton</class>
-		<name>outgoing_auth_required</name>
-		<can_focus>True</can_focus>
-		<label>This server requires authentication.</label>
-		<active>False</active>
-		<draw_indicator>True</draw_indicator>
-		<child>
-		  <left_attach>0</left_attach>
 		  <right_attach>3</right_attach>
 		  <top_attach>0</top_attach>
 		  <bottom_attach>1</bottom_attach>

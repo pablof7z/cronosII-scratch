@@ -81,8 +81,28 @@ on_general_options_outgoing_wrap_activate	(GtkWidget *widget, C2DialogPreference
 static void
 on_general_options_outgoing_outbox_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
 
+static void
+on_general_accounts_clist_select_row		(GtkWidget *widget, gint row, gint column,
+											 GdkEvent *event, C2DialogPreferences *preferences);
+
+static void
+on_general_accounts_clist_unselect_row		(GtkWidget *widget, gint row, gint column,
+											 GdkEvent *event, C2DialogPreferences *preferences);
+
+static void
+general_accounts_update_list				(C2DialogPreferences *preferences);
+
 static GtkWidget *
 on_general_accounts_add_clicked				(GtkWidget *pwidget, C2DialogPreferences *preferences);
+
+static void
+on_general_accounts_remove_clicked			(GtkWidget *pwidget, C2DialogPreferences *preferences);
+
+static void
+on_general_accounts_up_clicked				(GtkWidget *pwidget, C2DialogPreferences *preferences);
+
+static void
+on_general_accounts_down_clicked			(GtkWidget *pwidget, C2DialogPreferences *preferences);
 
 static void
 on_general_paths_save_changed				(GtkWidget *widget, C2DialogPreferences *preferences);
@@ -112,6 +132,9 @@ static void
 on_general_accounts_outgoing_host_changed		(GtkWidget *widget, C2Window *window);
 
 static void
+on_general_accounts_outgoing_user_changed		(GtkWidget *widget, C2Window *window);
+
+static void
 on_general_accounts_outgoing_auth_required_toggled (GtkWidget *button, C2Window *window);
 
 static void
@@ -132,6 +155,9 @@ on_general_accounts_options_multiple_access_remove_toggled	(GtkWidget *button, C
 static gboolean
 on_general_accounts_druid_page0_next		(GnomeDruidPage *druid_page, GtkWidget *druid,
 												C2Window *window);
+
+static gint
+general_accounts_get_next_account_number	(void);
 
 static gboolean
 on_general_accounts_druid_page1_next		(GnomeDruidPage *druid_page, GtkWidget *druid,
@@ -273,9 +299,27 @@ set_signals (C2DialogPreferences *preferences)
 	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
 						GTK_SIGNAL_FUNC (on_general_options_outgoing_outbox_toggled), preferences);
 
+	widget = glade_xml_get_widget (xml, "general_accounts_clist");
+	gtk_signal_connect (GTK_OBJECT (widget), "select_row",
+						GTK_SIGNAL_FUNC (on_general_accounts_clist_select_row), preferences);
+	gtk_signal_connect (GTK_OBJECT (widget), "unselect_row",
+						GTK_SIGNAL_FUNC (on_general_accounts_clist_unselect_row), preferences);
+
 	widget = glade_xml_get_widget (xml, "general_accounts_add");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
 						GTK_SIGNAL_FUNC (on_general_accounts_add_clicked), preferences);
+
+	widget = glade_xml_get_widget (xml, "general_accounts_remove");
+	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
+						GTK_SIGNAL_FUNC (on_general_accounts_remove_clicked), preferences);
+
+	widget = glade_xml_get_widget (xml, "general_accounts_up");
+	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
+						GTK_SIGNAL_FUNC (on_general_accounts_up_clicked), preferences);
+
+	widget = glade_xml_get_widget (xml, "general_accounts_down");
+	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
+						GTK_SIGNAL_FUNC (on_general_accounts_down_clicked), preferences);
 
 	widget = gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (glade_xml_get_widget (xml, "general_paths_save")));
 	gtk_signal_connect (GTK_OBJECT (widget), "changed",
@@ -324,6 +368,40 @@ set_signals (C2DialogPreferences *preferences)
 	
 
 static void
+set_values_accounts (C2DialogPreferences *preferences)
+{
+	C2Account *account;
+	GtkWidget *widgetv;
+	GladeXML *xml;
+	
+	xml = C2_DIALOG (preferences)->xml;
+	widgetv = glade_xml_get_widget (xml, "general_accounts_clist");
+	gtk_clist_freeze (GTK_CLIST (widgetv));
+	gtk_clist_clear (GTK_CLIST (widgetv));
+	for (account = C2_DIALOG (preferences)->application->account; account; account = c2_account_next (account))
+	{
+		gchar *row[] =
+		{
+			NULL, NULL
+		};
+
+		if (account == C2_DIALOG (preferences)->application->account)
+			row[0] = g_strdup_printf (_("%s (default)"), account->name);
+		else
+			row[0] = account->name;
+		
+		if (account->type == C2_ACCOUNT_POP3)
+			row[1] = "POP3";
+		else if (account->type == C2_ACCOUNT_IMAP)
+			row[1] = "IMAP";
+
+		gtk_clist_append (GTK_CLIST (widgetv), row);
+		gtk_clist_set_row_data (GTK_CLIST (widgetv), GTK_CLIST (widgetv)->rows-1, account);
+	}
+	gtk_clist_thaw (GTK_CLIST (widgetv));
+}
+
+static void
 set_values (C2DialogPreferences *preferences)
 {
 	gint intv;
@@ -345,9 +423,11 @@ set_values (C2DialogPreferences *preferences)
 	SET_INT ("General", "Options", "outgoing_wrap", "72", "general_options");
 	SET_BOOLEAN ("General", "Options", "outgoing_outbox", "true", "general_options");
 
-
+	widgetv = glade_xml_get_widget (xml, "general_accounts_clist");
+	gtk_clist_set_column_auto_resize (GTK_CLIST (widgetv), 0, TRUE);
+	set_values_accounts (preferences);
 	
-	buf = g_strdup_printf ("/"PACKAGE"/General-Paths/save=%s", g_get_home_dir ());
+	buf = g_strdup_printf ("/"PACKAGE"/General-Paths/save=%s/", g_get_home_dir ());
 	charv = gnome_config_get_string_with_default (buf, NULL);
 	widgetv = glade_xml_get_widget (xml, "general_paths_save");
 	gtk_entry_set_text (GTK_ENTRY (gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (widgetv))),
@@ -355,7 +435,7 @@ set_values (C2DialogPreferences *preferences)
 	g_free (buf);
 	g_free (charv);
 	
-	buf = g_strdup_printf ("/"PACKAGE"/General-Paths/get=%s", g_get_home_dir ());
+	buf = g_strdup_printf ("/"PACKAGE"/General-Paths/get=%s/", g_get_home_dir ());
 	charv = gnome_config_get_string_with_default (buf, NULL);
 	widgetv = glade_xml_get_widget (xml, "general_paths_get");
 	gtk_entry_set_text (GTK_ENTRY (gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (widgetv))),
@@ -505,7 +585,7 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"), "dlg_preferences_contents");
 	
-	c2_dialog_construct (C2_DIALOG (preferences), application, _("Preferences"), buttons);
+	c2_dialog_construct (C2_DIALOG (preferences), application, _("Preferences"), "preferences", buttons);
 	C2_DIALOG (preferences)->xml = xml;
 	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (preferences)->vbox), glade_xml_get_widget (xml,
 							"dlg_preferences_contents"), TRUE, TRUE, 0);
@@ -711,6 +791,195 @@ on_general_options_outgoing_outbox_toggled (GtkWidget *widget, C2DialogPreferenc
 	gnome_config_set_bool ("/"PACKAGE"/General-Options/outgoing_outbox", bool);
 }
 
+static void
+on_general_accounts_clist_select_row (GtkWidget *widget, gint row, gint column,
+GdkEvent *event, C2DialogPreferences *preferences)
+{
+	GladeXML *xml;
+	GtkWidget *edit, *remove, *up, *down;
+
+	xml = C2_DIALOG (preferences)->xml;
+	edit = glade_xml_get_widget (xml, "general_accounts_edit");
+	remove = glade_xml_get_widget (xml, "general_accounts_remove");
+	up = glade_xml_get_widget (xml, "general_accounts_up");
+	down = glade_xml_get_widget (xml, "general_accounts_down");
+
+	gtk_widget_set_sensitive (edit, TRUE);
+	gtk_widget_set_sensitive (remove, TRUE);
+	if (row == 0)
+		gtk_widget_set_sensitive (up, FALSE);
+	else
+		gtk_widget_set_sensitive (up, TRUE);
+
+	if (row+1 == GTK_CLIST (widget)->rows)
+		gtk_widget_set_sensitive (down, FALSE);
+	else
+		gtk_widget_set_sensitive (down, TRUE);
+}
+
+static void
+on_general_accounts_clist_unselect_row (GtkWidget *widget, gint row, gint column,
+GdkEvent *event, C2DialogPreferences *preferences)
+{
+	GladeXML *xml;
+	GtkWidget *edit, *remove, *up, *down;
+
+	xml = C2_DIALOG (preferences)->xml;
+	edit = glade_xml_get_widget (xml, "general_accounts_edit");
+	remove = glade_xml_get_widget (xml, "general_accounts_remove");
+	up = glade_xml_get_widget (xml, "general_accounts_up");
+	down = glade_xml_get_widget (xml, "general_accounts_down");
+
+	gtk_widget_set_sensitive (edit, FALSE);
+	gtk_widget_set_sensitive (remove, FALSE);
+	gtk_widget_set_sensitive (up, FALSE);
+	gtk_widget_set_sensitive (down, FALSE);
+}
+
+static void
+general_accounts_update_list (C2DialogPreferences *preferences)
+{
+	C2Application *application = C2_DIALOG (preferences)->application;
+	C2Account *account;
+	GtkWidget *clist;
+	gint i;
+
+	clist = glade_xml_get_widget (C2_DIALOG (preferences)->xml, "general_accounts_clist");
+
+	application->account = NULL;
+	for (i = 0; i < GTK_CLIST (clist)->rows; i++)
+	{
+		gpointer data = gtk_clist_get_row_data (GTK_CLIST (clist), i);
+
+		if (!data)
+			continue;
+
+		account = C2_ACCOUNT (data);
+		account->next = NULL;
+		application->account = c2_account_append (application->account, account);
+	}
+
+	set_values_accounts (preferences);
+}
+
+#define general_accounts_update_conf_string(num,str)	\
+	charv = (gchar*) c2_account_get_extra_data (account, num, NULL);	\
+	gnome_config_set_string (str, charv);
+#define general_accounts_update_conf_bool(num,str)	\
+	boolv = (gboolean) c2_account_get_extra_data (account, num, NULL);	\
+	gnome_config_set_bool (str, boolv);
+
+static void
+general_accounts_update_conf (C2DialogPreferences *preferences)
+{
+	C2Application *application;
+	C2Account *account;
+	C2AccountType type;
+	C2SMTP *smtp;
+	gchar *charv, *buf;
+	gboolean boolv;
+	gint i;
+
+	for (i = 1;; i++)
+	{
+		buf = g_strdup_printf ("/"PACKAGE"/Account %d", i);
+		if (!gnome_config_has_section (buf))
+		{
+			g_free (buf);
+			break;
+		}
+		gnome_config_clean_section (buf);
+		g_free (buf);
+	}
+
+	application = C2_DIALOG (preferences)->application;
+	for (account = application->account, i = 1; account; account = c2_account_next (account), i++)
+	{
+		buf = g_strdup_printf ("/"PACKAGE"/Account %d/", i);
+		gnome_config_push_prefix (buf);
+
+		gnome_config_set_int ("type", account->type);
+		gnome_config_set_string ("account_name", account->name);
+		gnome_config_set_string ("identity_email", account->email);
+
+		general_accounts_update_conf_string (C2_ACCOUNT_KEY_FULL_NAME, "identity_name");
+		general_accounts_update_conf_string (C2_ACCOUNT_KEY_ORGANIZATION, "identity_organization");
+		general_accounts_update_conf_string (C2_ACCOUNT_KEY_REPLY_TO, "identity_reply_to");
+		
+		if (account->type == C2_ACCOUNT_POP3)
+		{
+			C2POP3 *pop3;
+			
+			pop3 = C2_POP3 (c2_account_get_extra_data (account, C2_ACCOUNT_KEY_INCOMING, NULL));
+			
+			if (!pop3)
+				goto skip_pop3;
+
+			gnome_config_set_string ("incoming_server_hostname", C2_NET_OBJECT (pop3)->host);
+			gnome_config_set_int ("incoming_server_port", C2_NET_OBJECT (pop3)->port);
+			gnome_config_set_string ("incoming_server_username", pop3->user);
+			gnome_config_set_string ("incoming_server_password", pop3->pass);
+			gnome_config_set_bool ("incoming_server_ssl", C2_NET_OBJECT (pop3)->ssl);
+			gnome_config_set_int ("incoming_auth_method", pop3->auth_method);
+			if (pop3->flags & C2_POP3_DO_NOT_LOSE_PASSWORD)
+				gnome_config_set_bool ("incoming_auth_remember", TRUE);
+			else
+				gnome_config_set_bool ("incoming_auth_remember", FALSE);
+			if (pop3->flags & C2_POP3_DO_NOT_KEEP_COPY)
+				gnome_config_set_bool ("options_multiple_access_leave", TRUE);
+			else
+				gnome_config_set_bool ("options_multiple_access_leave", FALSE);
+			if (pop3->copies_in_server_life_time)
+				gnome_config_set_bool ("options_multiple_access_remove", TRUE);
+			else
+				gnome_config_set_bool ("options_multiple_access_remove", FALSE);
+			gnome_config_set_int ("options_multiple_access_remove", pop3->copies_in_server_life_time);
+skip_pop3:
+		} else if (type == C2_ACCOUNT_IMAP)
+		{
+			C2IMAP *imap;
+			
+			imap = C2_IMAP (c2_account_get_extra_data (account, C2_ACCOUNT_KEY_INCOMING, NULL));
+			
+			if (!imap)
+				goto skip_imap;
+
+			gnome_config_set_string ("incoming_server_hostname", C2_NET_OBJECT (imap)->host);
+			gnome_config_set_int ("incoming_server_port", C2_NET_OBJECT (imap)->port);
+			gnome_config_set_string ("incoming_server_username", imap->user);
+			gnome_config_set_string ("incoming_server_password", imap->pass);
+			gnome_config_set_bool ("incoming_server_ssl", C2_NET_OBJECT (imap)->ssl);
+			gnome_config_set_bool ("incoming_auth_remember", imap->auth_remember);
+skip_imap:
+		}
+		
+		smtp = (C2SMTP*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, NULL);
+		if (!smtp)
+			goto skip_smtp;
+		
+		gnome_config_set_int ("outgoing_server_protocol", smtp->type);
+		gnome_config_set_string ("outgoing_server_hostname", smtp->host);
+		gnome_config_set_int ("outgoing_server_port", smtp->port);
+		gnome_config_set_bool ("outgoing_server_ssl", smtp->ssl);
+		gnome_config_set_bool ("outgoing_auth_required", smtp->authentication);
+		gnome_config_set_string ("outgoing_server_username", smtp->user);
+		gnome_config_set_string ("outgoing_server_password", smtp->pass);
+		if (smtp->flags & C2_SMTP_DO_NOT_LOSE_PASSWORD)
+			gnome_config_set_bool ("outgoing_auth_remember", TRUE);
+		else
+			gnome_config_set_bool ("outgoing_auth_remember", FALSE);
+skip_smtp:
+		general_accounts_update_conf_string (C2_ACCOUNT_KEY_SIGNATURE_PLAIN, "options_signature_plain");
+		general_accounts_update_conf_string (C2_ACCOUNT_KEY_SIGNATURE_HTML, "options_signature_html");
+		general_accounts_update_conf_bool (C2_ACCOUNT_KEY_ACTIVE, "options_auto_check");
+
+		gnome_config_pop_prefix ();
+		g_free (buf);
+	}
+	
+	gnome_config_sync ();
+}
+
 static GtkWidget *
 on_general_accounts_add_clicked (GtkWidget *pwidget, C2DialogPreferences *preferences)
 {
@@ -764,6 +1033,11 @@ on_general_accounts_add_clicked (GtkWidget *pwidget, C2DialogPreferences *prefer
 	gtk_widget_set_sensitive (widget, FALSE);
 #endif
 
+	widget = glade_xml_get_widget (xml, "options_signature_plain");
+	buf = gnome_config_get_string ("/"PACKAGE"/General-Paths/get");
+	gnome_file_entry_set_default_path (GNOME_FILE_ENTRY (widget), buf);
+	g_free (buf);
+
 	widget = glade_xml_get_widget (xml, "identity_name");
 	gtk_signal_connect (GTK_OBJECT (widget), "changed",
 						GTK_SIGNAL_FUNC (on_general_accounts_identity_name_changed), window);
@@ -789,6 +1063,10 @@ on_general_accounts_add_clicked (GtkWidget *pwidget, C2DialogPreferences *prefer
 	gtk_signal_connect (GTK_OBJECT (widget), "changed",
 						GTK_SIGNAL_FUNC (on_general_accounts_outgoing_host_changed), window);
 
+	widget = glade_xml_get_widget (xml, "outgoing_server_username");
+	gtk_signal_connect (GTK_OBJECT (widget), "changed",
+						GTK_SIGNAL_FUNC (on_general_accounts_outgoing_user_changed), window);
+
 	widget = GTK_OPTION_MENU (glade_xml_get_widget (xml, "outgoing_server_protocol"))->menu;
 	gtk_signal_connect (GTK_OBJECT (widget), "selection_done",
 						GTK_SIGNAL_FUNC (on_general_accounts_outgoing_server_protocol_selection_done), window);
@@ -797,6 +1075,7 @@ on_general_accounts_add_clicked (GtkWidget *pwidget, C2DialogPreferences *prefer
 	widget = glade_xml_get_widget (xml, "outgoing_auth_required");
 	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
 						GTK_SIGNAL_FUNC (on_general_accounts_outgoing_auth_required_toggled), window);
+	gtk_signal_emit_by_name (GTK_OBJECT (widget), "toggled");
 
 	widget = glade_xml_get_widget (xml, "options_account_name");
 	gtk_signal_connect (GTK_OBJECT (widget), "changed",
@@ -844,6 +1123,7 @@ on_general_paths_save_changed (GtkWidget *widget, C2DialogPreferences *preferenc
 	gchar *value = gtk_entry_get_text (GTK_ENTRY (widget));
 
 	gnome_config_set_string ("/"PACKAGE"/General-Paths/save", value);
+	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 					C2_DIALOG_PREFERENCES_KEY_GENERAL_PATHS_SAVE, value);
 }
@@ -854,6 +1134,7 @@ on_general_paths_get_changed (GtkWidget *widget, C2DialogPreferences *preference
 	gchar *value = gtk_entry_get_text (GTK_ENTRY (widget));
 
 	gnome_config_set_string ("/"PACKAGE"/General-Paths/get", value);
+	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 					C2_DIALOG_PREFERENCES_KEY_GENERAL_PATHS_GET, value);
 }
@@ -1085,6 +1366,17 @@ process_page_outgoing (GladeXML *xml)
 		}
 	}
 
+	widget = glade_xml_get_widget (xml, "outgoing_auth_required");
+	if (GTK_TOGGLE_BUTTON (widget)->active)
+	{
+		widget = glade_xml_get_widget (xml, "outgoing_server_username");
+		if (!strlen (gtk_entry_get_text (GTK_ENTRY (widget))))
+		{
+			sensitive = FALSE;
+			goto outgoing_set_sensitive;
+		}
+	}
+
 outgoing_set_sensitive:
 	next = GNOME_DRUID (glade_xml_get_widget (xml, "dlg_account_editor_contents"))->next;
 	gtk_widget_set_sensitive (next, sensitive);
@@ -1092,6 +1384,13 @@ outgoing_set_sensitive:
 
 static void
 on_general_accounts_outgoing_host_changed (GtkWidget *widget, C2Window *window)
+{
+	gtk_object_set_data (GTK_OBJECT (widget), "changed", (gpointer) "changed");
+	process_page_outgoing (window->xml);
+}
+
+static void
+on_general_accounts_outgoing_user_changed (GtkWidget *widget, C2Window *window)
 {
 	gtk_object_set_data (GTK_OBJECT (widget), "changed", (gpointer) "changed");
 	process_page_outgoing (window->xml);
@@ -1138,31 +1437,47 @@ on_general_accounts_outgoing_auth_required_toggled (GtkWidget *button, C2Window 
 {
 	GtkWidget *auth_type;
 	GtkWidget *auth_remember;
+	GtkWidget *user_label;
+	GtkWidget *user;
 
 	auth_type = glade_xml_get_widget (window->xml, "outgoing_auth_type");
 	auth_remember = glade_xml_get_widget (window->xml, "outgoing_auth_remember");
+	user_label = glade_xml_get_widget (window->xml, "outgoing_server_username_label");
+	user = glade_xml_get_widget (window->xml, "outgoing_server_username");
 	
 	if (GTK_TOGGLE_BUTTON (button)->active)
 	{
 		gtk_widget_set_sensitive (auth_type, TRUE);
 		gtk_widget_set_sensitive (auth_remember, TRUE);
+		gtk_widget_set_sensitive (user_label, TRUE);
+		gtk_widget_set_sensitive (user, TRUE);
 	} else
 	{
 		gtk_widget_set_sensitive (auth_type, FALSE);
 		gtk_widget_set_sensitive (auth_remember, FALSE);
+		gtk_widget_set_sensitive (user_label, FALSE);
+		gtk_widget_set_sensitive (user, FALSE);
 	}
+
+	process_page_outgoing (window->xml);
 }
 
 static void
-process_page_options (GladeXML *xml)
+process_page_options (C2Window *window)
 {
+	GladeXML *xml = window->xml;
+	C2Account *account;
 	GtkWidget *next, *widget;
+	gchar *buf;
 	gboolean sensitive = TRUE;
 
 	next = GNOME_DRUID (glade_xml_get_widget (xml, "dlg_account_editor_contents"))->next;
 
+	account = window->application->account;
+	
 	widget = glade_xml_get_widget (xml, "options_account_name");
-	if (!strlen (gtk_entry_get_text (GTK_ENTRY (widget))))
+	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	if (!strlen (buf) || c2_account_get_by_name (account, buf))
 	{
 		sensitive = FALSE;
 		goto options_set_sensitive;
@@ -1176,7 +1491,7 @@ static void
 on_general_accounts_options_account_changed (GtkWidget *widget, C2Window *window)
 {
 	gtk_object_set_data (GTK_OBJECT (widget), "changed", (gpointer) "changed");
-	process_page_options (window->xml);
+	process_page_options (window);
 }
 
 static void
@@ -1268,7 +1583,7 @@ on_general_accounts_druid_page3_next (GnomeDruidPage *druid_page, GtkWidget *dru
 	xml = window->xml;
 	page = GNOME_DRUID_PAGE (glade_xml_get_widget (xml, "page4"));
 	gnome_druid_set_page (GNOME_DRUID (druid), page);
-	process_page_options (xml);
+	process_page_options (window);
 	
 	return TRUE;
 }
@@ -1277,16 +1592,22 @@ static void
 on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *druid,
 										C2Window *window)
 {
+	C2DialogPreferences *preferences = C2_DIALOG_PREFERENCES (gtk_object_get_data (GTK_OBJECT (window), "preferences"));
 	GtkWidget *widget;
 	GladeXML *xml;
 	C2Account *account;
 	GtkWidget *menu;
 	gchar *buf, *buf2, *selection;
 	gint integer;
-	gboolean boolean;
+	gboolean boolean, boolean2;
 	C2AccountType type;
+	C2SMTPType outgoing_type;
+	C2SMTP *smtp;
+	gint nth;
 
 	xml = C2_WINDOW (window)->xml;
+
+	nth = general_accounts_get_next_account_number ();
 
 	widget = glade_xml_get_widget (xml, "incoming_protocol");
 	if (GTK_BIN (widget)->child)
@@ -1303,26 +1624,34 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 				type = C2_ACCOUNT_IMAP;
 		}
 	}
+	gnome_config_set_int ("type", type);
 
 	widget = glade_xml_get_widget (xml, "options_account_name");
 	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	gnome_config_set_string ("account_name", buf);
 	
 	widget = glade_xml_get_widget (xml, "identity_email");
 	buf2 = gtk_entry_get_text (GTK_ENTRY (widget));
+	gnome_config_set_string ("identity_email", buf);
 
 	account = c2_account_new (type, buf, buf2);
+	C2_DIALOG (preferences)->application->account =
+			c2_account_append (C2_DIALOG (preferences)->application->account, account);
 
 	widget = glade_xml_get_widget (xml, "identity_name");
 	buf = gtk_entry_get_text (GTK_ENTRY (widget));
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_FULL_NAME, GTK_TYPE_STRING, buf);
+	gnome_config_set_string ("identity_name", buf);
 
 	widget = glade_xml_get_widget (xml, "identity_organization");
 	buf = gtk_entry_get_text (GTK_ENTRY (widget));
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_ORGANIZATION, GTK_TYPE_STRING, buf);
+	gnome_config_set_string ("identity_organization", buf);
 
 	widget = glade_xml_get_widget (xml, "identity_reply_to");
 	buf = gtk_entry_get_text (GTK_ENTRY (widget));
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_REPLY_TO, GTK_TYPE_STRING, buf);
+	gnome_config_set_string ("identity_reply_to", buf);
 
 	if (type == C2_ACCOUNT_POP3)
 	{
@@ -1331,15 +1660,19 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_hostname");
 		buf = gtk_entry_get_text (GTK_ENTRY (widget));
+		gnome_config_set_string ("incoming_server_hostname", buf);
 
 		widget = glade_xml_get_widget (xml, "incoming_server_port");
 		integer = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+		gnome_config_set_int ("incoming_server_port", integer);
 
 		widget = glade_xml_get_widget (xml, "incoming_server_username");
 		buf2 = gtk_entry_get_text (GTK_ENTRY (widget));
+		gnome_config_set_string ("incoming_server_username", buf2);
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_ssl");
 		boolean = GTK_TOGGLE_BUTTON (widget)->active;
+		gnome_config_set_bool ("incoming_server_ssl", boolean);
 
 		pop3 = c2_pop3_new (buf, integer, buf2, NULL, boolean);
 		c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, pop3);
@@ -1354,32 +1687,220 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 				gtk_label_get (GTK_LABEL (child), &selection);
 				
 				if (c2_streq (selection, _("Password")))
+				{
 					c2_pop3_set_auth_method (pop3, C2_POP3_AUTHENTICATION_PASSWORD);
-				else if (c2_streq (selection, _("APOP")))
+					gnome_config_set_int ("incoming_auth_method", C2_POP3_AUTHENTICATION_PASSWORD);
+				} else if (c2_streq (selection, _("APOP")))
+				{
 					c2_pop3_set_auth_method (pop3, C2_POP3_AUTHENTICATION_APOP);
+					gnome_config_set_int ("incoming_auth_method", C2_POP3_AUTHENTICATION_APOP);
+				}
 			}
 		}
+
+		widget = glade_xml_get_widget (xml, "incoming_auth_remember");
+		boolean = GTK_TOGGLE_BUTTON (widget)->active;
+		gnome_config_set_bool ("incoming_auth_remember", boolean);
+
+		if (boolean)
+			c2_pop3_set_flags (pop3, pop3->flags | C2_POP3_DO_NOT_LOSE_PASSWORD);
+		else
+			c2_pop3_set_flags (pop3, pop3->flags | C2_POP3_DO_LOSE_PASSWORD);
+
+		widget = glade_xml_get_widget (xml, "options_multiple_access_leave");
+		boolean = GTK_TOGGLE_BUTTON (widget)->active;
+		gnome_config_set_bool ("options_multiple_access_leave", boolean);
+
+		widget = glade_xml_get_widget (xml, "options_multiple_access_remove");
+		gnome_config_set_bool ("options_multiple_access_remove", GTK_TOGGLE_BUTTON (widget)->active);
+		
+		if (GTK_TOGGLE_BUTTON (widget)->active && boolean)
+		{
+			widget = glade_xml_get_widget (xml, "options_multiple_access_remove_value");
+			integer = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+			gnome_config_set_int ("options_multiple_access_remove_value", integer);
+		} else
+		{
+			integer = 0;
+			gnome_config_set_int ("options_multiple_access_remove_value", 0);
+		}
+		
+		c2_pop3_set_leave_copy (pop3, boolean, integer);
 	} else if (type == C2_ACCOUNT_IMAP)
 	{
 		C2IMAP *imap;
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_hostname");
 		buf = gtk_entry_get_text (GTK_ENTRY (widget));
+		gnome_config_set_string ("incoming_server_hostname", buf);
 
 		widget = glade_xml_get_widget (xml, "incoming_server_port");
 		integer = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+		gnome_config_set_int ("incoming_server_port", integer);
 
 		widget = glade_xml_get_widget (xml, "incoming_server_username");
 		buf2 = gtk_entry_get_text (GTK_ENTRY (widget));
+		gnome_config_set_string ("incoming_server_username", buf2);
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_ssl");
 		boolean = GTK_TOGGLE_BUTTON (widget)->active;
+		gnome_config_set_bool ("incoming_server_ssl", boolean);
 
 		imap = c2_imap_new (buf, integer, buf2, NULL, boolean);
 		c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, imap);
 	}
 
-	printf ("Type: %d\n", account->type);
-	C2_DEBUG (account->name);
-	C2_DEBUG (account->email);
+	widget = glade_xml_get_widget (xml, "outgoing_server_protocol");
+	if (GTK_BIN (widget)->child)
+	{
+		GtkWidget *child = GTK_BIN (widget)->child;
+
+		if (GTK_LABEL (child))
+		{
+			gtk_label_get (GTK_LABEL (child), &selection);
+
+			if (c2_streq (selection, _("SMTP")))
+			{
+				outgoing_type = C2_SMTP_REMOTE;
+				gnome_config_set_int ("outgoing_server_protocol", C2_SMTP_REMOTE);
+			} else if (c2_streq (selection, _("Sendmail")))
+			{
+				outgoing_type = C2_SMTP_LOCAL;
+				gnome_config_set_int ("outgoing_server_protocol", C2_SMTP_LOCAL);
+			}
+		}
+	}
+
+	widget = glade_xml_get_widget (xml, "outgoing_server_hostname");
+	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	gnome_config_set_string ("outgoing_server_hostname", buf);
+
+	widget = glade_xml_get_widget (xml, "outgoing_server_port");
+	integer = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+	gnome_config_set_int ("outgoing_server_port", integer);
+
+	widget = glade_xml_get_widget (xml, "outgoing_server_ssl");
+	boolean = GTK_TOGGLE_BUTTON (widget)->active;
+	gnome_config_set_bool ("outgoing_server_ssl", boolean);
+
+	widget = glade_xml_get_widget (xml, "outgoing_auth_required");
+	boolean2 = GTK_TOGGLE_BUTTON (widget)->active;
+	gnome_config_set_bool ("outgoing_server_required", boolean2);
+
+	widget = glade_xml_get_widget (xml, "outgoing_server_username");
+	buf2 = gtk_entry_get_text (GTK_ENTRY (widget));
+	gnome_config_set_string ("outgoing_server_username", buf2);
+
+	smtp = c2_smtp_new (outgoing_type, buf, integer, boolean, boolean2, buf2, NULL);
+
+	widget = glade_xml_get_widget (xml, "outgoing_auth_remember");
+	boolean = GTK_TOGGLE_BUTTON (widget)->active;
+	gnome_config_set_bool ("outgoing_auth_remember", boolean);
+	if (boolean)
+		c2_smtp_set_flags (smtp, smtp->flags | C2_SMTP_DO_NOT_LOSE_PASSWORD);
+	else
+		c2_smtp_set_flags (smtp, smtp->flags | C2_SMTP_DO_LOSE_PASSWORD);
+	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, GTK_TYPE_OBJECT, smtp);
+
+	widget = gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (
+							glade_xml_get_widget (xml, "options_signature_plain")));
+	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_SIGNATURE_PLAIN, GTK_TYPE_STRING, buf);
+	gnome_config_set_string ("options_signature_plain", buf);
+
+	widget = gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (
+							glade_xml_get_widget (xml, "options_signature_html")));
+	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_SIGNATURE_HTML, GTK_TYPE_STRING, buf);
+	gnome_config_set_string ("options_signature_html", buf);
+
+	widget = glade_xml_get_widget (xml, "options_auto_check");
+	boolean = GTK_TOGGLE_BUTTON (widget)->active;
+	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_ACTIVE, GTK_TYPE_BOOL, &boolean);
+	gnome_config_set_bool ("options_auto_check", boolean);
+
+	gnome_config_sync ();
+
+	set_values_accounts (preferences);
+	gtk_widget_destroy (GTK_WIDGET (window));
+}
+
+static gint
+general_accounts_get_next_account_number (void)
+{
+	gint i;
+	gchar *buf;
+	gchar *name;
+
+	for (i = 1;; i++)
+	{
+		buf = g_strdup_printf ("/"PACKAGE"/Account %d/", i);
+		gnome_config_push_prefix (buf);
+		name = gnome_config_get_string ("account_name");
+		g_free (name);
+		g_free (buf);
+		if (!name)
+			return i;
+		gnome_config_pop_prefix ();
+	}
+}
+
+static void
+on_general_accounts_remove_clicked (GtkWidget *pwidget, C2DialogPreferences *preferences)
+{
+	GladeXML *xml;
+	GtkWidget *confirm_dialog;
+
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"), "dlg_account_remove_confirm");
+	confirm_dialog = glade_xml_get_widget (xml, "dlg_account_remove_confirm");
+	
+	switch (gnome_dialog_run_and_close (GNOME_DIALOG (confirm_dialog)))
+	{
+		case 0:
+			{
+				C2Account *prev, *account, *next;
+				GtkWidget *widget;
+				gint row;
+
+				widget = glade_xml_get_widget (C2_DIALOG (preferences)->xml, "general_accounts_clist");
+
+				row = GPOINTER_TO_INT (GTK_CLIST (widget)->selection->data);
+				account = C2_ACCOUNT (gtk_clist_get_row_data (GTK_CLIST (widget), row));
+
+				gtk_clist_set_row_data (GTK_CLIST (widget), row, NULL);
+				general_accounts_update_list (preferences);
+				gtk_clist_select_row (GTK_CLIST (widget), row, 0);
+				gtk_object_unref (GTK_OBJECT (account));
+				general_accounts_update_conf (preferences);
+			}
+			break;
+	}
+	
+	gtk_object_destroy (GTK_OBJECT (xml));
+}
+
+static void
+on_general_accounts_up_clicked (GtkWidget *pwidget, C2DialogPreferences *preferences)
+{
+	GladeXML *xml = C2_DIALOG (preferences)->xml;
+	GtkWidget *clist = glade_xml_get_widget (xml, "general_accounts_clist");
+	gint row = GPOINTER_TO_INT (GTK_CLIST (clist)->selection->data);
+
+	gtk_clist_swap_rows (GTK_CLIST (clist), row, row-1);
+	general_accounts_update_list (preferences);
+	gtk_clist_select_row (GTK_CLIST (clist), row-1, 0);
+	general_accounts_update_conf (preferences);
+}
+
+static void
+on_general_accounts_down_clicked (GtkWidget *pwidget, C2DialogPreferences *preferences)
+{
+	GladeXML *xml = C2_DIALOG (preferences)->xml;
+	GtkWidget *clist = glade_xml_get_widget (xml, "general_accounts_clist");
+	gint row = GPOINTER_TO_INT (GTK_CLIST (clist)->selection->data);
+
+	gtk_clist_swap_rows (GTK_CLIST (clist), row, row+1);
+	general_accounts_update_list (preferences);
+	gtk_clist_select_row (GTK_CLIST (clist), row+1, 0);
+	general_accounts_update_conf (preferences);
 }

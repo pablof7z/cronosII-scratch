@@ -165,8 +165,6 @@ main (gint argc, gchar **argv)
 	{
 		main_window = c2_window_main_new (application);
 		gtk_widget_show (main_window);
-		main_window = c2_dialog_preferences_new (application);
-		gtk_widget_show (main_window);
 	}
 /*	if (flags.check)
 	{

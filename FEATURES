@@ -1,7 +1,10 @@
 This are some of the features of Cronos II:
 
-o A kick-ass GUI!
+o Editable UI through Glade.
 o HTML support.
+o MIME support.
 o HTTP support.
 o SMTP support.
 o POP3 support.
+o APOP support.
+o Spool supports.

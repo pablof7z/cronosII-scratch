@@ -129,7 +129,8 @@ c2_transfer_list_new (C2Application *application)
 	gtk_widget_show (button);
 	tl->close = button;
 
-	c2_dialog_construct (C2_DIALOG (tl), application, _("Send & Receive"), buttons);
+	c2_dialog_construct (C2_DIALOG (tl), application, _("Send & Receive"),
+						C2_WIDGET_TRANSFER_LIST_TYPE, buttons);
 
 	gnome_dialog_button_connect (GNOME_DIALOG (tl), 0, on_button0_clicked, tl);
 	gnome_dialog_button_connect (GNOME_DIALOG (tl), 1, on_button1_clicked, tl);
