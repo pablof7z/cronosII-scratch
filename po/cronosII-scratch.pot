@@ -6,15 +6,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-16 16:02-0300\n"
+"POT-Creation-Date: 2001-09-21 13:20+0930\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
-"Content-Transfer-Encoding: ENCODING\n"
+"Content-Transfer-Encoding: 8bit\n"
 
-#: libcronosII/db-cronosII.c:40
+#: libcronosII/db-cronosII.c:44
 #, c-format
 msgid "Unable to create structure for Cronos II Db: %s\n"
 msgstr ""
@@ -70,65 +70,77 @@ msgstr ""
 msgid "This message claims to be multipart but it seems to be broken."
 msgstr ""
 
-#: libcronosII/smtp.c:203
+#: libcronosII/smtp.c:100
+msgid "Internal socket read operation failed"
+msgstr ""
+
+#: libcronosII/smtp.c:101
+msgid "Internal socket write operation failed"
+msgstr ""
+
+#: libcronosII/smtp.c:297
 msgid "SMTP server did not respond to our sent messaage in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:221
+#: libcronosII/smtp.c:315
 msgid "System Error: Unable to write message to disk for local SMTP command"
 msgstr ""
 
-#: libcronosII/smtp.c:230
+#: libcronosII/smtp.c:324
 msgid "Internal C2 Error: Unable to fetch headers in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:254
+#: libcronosII/smtp.c:348
 msgid ""
 "Problem running local SMTP command to send messages -- Check SMTP settings"
 msgstr ""
 
-#: libcronosII/smtp.c:283
+#: libcronosII/smtp.c:377
 msgid "Unable to resolve SMTP server hostname"
 msgstr ""
 
-#: libcronosII/smtp.c:289
+#: libcronosII/smtp.c:383
 msgid "Unable to connect to SMTP server"
 msgstr ""
 
-#: libcronosII/smtp.c:304
+#: libcronosII/smtp.c:398
 msgid "SMTP server was not friendly on our connect! May not be RFC compliant"
 msgstr ""
 
-#: libcronosII/smtp.c:366
+#: libcronosII/smtp.c:460
 msgid "SMTP server did not respond to 'EHLO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:395
+#: libcronosII/smtp.c:489
 msgid "SMTP server did not respond to HELO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:418
+#: libcronosII/smtp.c:512
 msgid "Internal C2 Error: Unable to fetch \"From:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:434
+#: libcronosII/smtp.c:528
 msgid "Internal C2 Error: Unable to fetch \"To:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:447
+#: libcronosII/smtp.c:541
 msgid "SMTP server did not reply to 'MAIL FROM:' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:489
+#: libcronosII/smtp.c:583
 msgid "SMTP server did not reply to 'DATA' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:884
+#: libcronosII/smtp.c:1033
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
 msgstr ""
 
 #: libcronosII/utils.c:569
 msgid "Bad syntaxes, quotes aren't closed.\n"
+msgstr ""
+
+#: src/c2-main-window.c:33 src/widget-window-main.c:39
+msgid "Spool (local)"
 msgstr ""
 
 #: src/c2-main-window.c:352 src/widget-window-main.c:955
@@ -456,6 +468,54 @@ msgstr ""
 
 #: src/main.c:126
 msgid "Open the main window (default)"
+msgstr ""
+
+#: src/preferences.c:26
+msgid "Plain text"
+msgstr ""
+
+#: src/preferences.c:27
+msgid "HTML formatted"
+msgstr ""
+
+#: src/preferences.c:28
+msgid "Multithread"
+msgstr ""
+
+#: src/preferences.c:29
+msgid "Monothread"
+msgstr ""
+
+#: src/preferences.c:30
+msgid "Icons only"
+msgstr ""
+
+#: src/preferences.c:31
+msgid "Text only"
+msgstr ""
+
+#: src/preferences.c:32
+msgid "Icons & Text"
+msgstr ""
+
+#: src/preferences.c:33
+msgid "Use document specified fonts"
+msgstr ""
+
+#: src/preferences.c:34
+msgid "Always use my fonts"
+msgstr ""
+
+#: src/preferences.c:35
+msgid "Post Office Protocol 3 (POP3)"
+msgstr ""
+
+#: src/preferences.c:36
+msgid "Static Signature"
+msgstr ""
+
+#: src/preferences.c:37
+msgid "Dynamic Signature (output of commands)"
 msgstr ""
 
 #: src/preferences.c:205 src/widget-dialog-preferences.c:578
@@ -1860,13 +1920,12 @@ msgid ""
 "_E_-_M_a_i_l:\n"
 "\n"
 "To send a mail to the developers you should write to\n"
-"our mailing list: "
-"_c_r_o_n_o_s_I_I_-_d_e_v_e_l_o_p_e_r_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_"
-"e_t.\n"
+"our mailing list: _c_r_o_n_o_s_I_I_-_d_e_v_e_l_o_p_e_r_@_l_i_s_t_s_."
+"_s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n"
 "\n"
 "To contact other users of Cronos II send mail\n"
-"to the user's mailing list: "
-"_c_r_o_n_o_s_I_I_-_u_s_e_r_s_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n"
+"to the user's mailing list: _c_r_o_n_o_s_I_I_-_u_s_e_r_s_@_l_i_s_t_s_."
+"_s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n"
 "\n"
 "_I_R_C:\n"
 "\n"
@@ -1923,4 +1982,24 @@ msgstr ""
 
 #: src/trans.h:222
 msgid "_Tooltips"
+msgstr ""
+
+#: src/widget-application.h:40
+msgid "Inbox"
+msgstr ""
+
+#: src/widget-application.h:41
+msgid "Outbox"
+msgstr ""
+
+#: src/widget-application.h:42
+msgid "Queue"
+msgstr ""
+
+#: src/widget-application.h:43
+msgid "Garbage"
+msgstr ""
+
+#: src/widget-application.h:44
+msgid "Drafts"
 msgstr ""

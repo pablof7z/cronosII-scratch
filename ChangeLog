@@ -1,3 +1,7 @@
+Fri Sep 21 Peter Gossner <gossner@arcom.com.au>
+	* Framework for new manual in place
+	* All current files in doc/C will be used.
+
 Sun Sep 16 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Sending MIME attachments via SMTP seems to be stable now
 	* Began work to make C2SMTP object a GtkObject w/ signals, etc.
