@@ -1,0 +1,36 @@
+Cronos II was brought to you by the Cronos II Development Team:
+
+Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+- Main development.
+- Address book core and UI.
+- Spanish translation.
+	
+Bosko Blagojevic <falling@users.sourceforge.net>
+- FreeBSD porting.
+- Address Book core development.
+
+André Casteliano <digitalcoder@users.sourceforge.net>
+- Queue Mailbox (send later ability).
+
+Yves Mettier <ymettier@libertysurf.fr>
+- Documentation.
+- All kind patches.
+- French translation.
+
+Peter Gossner <gossner@arcom.com.au>
+- Documentation.
+- Spell corrections.
+
+Special thanks to:
+
+Arne Caspari <arnem@informatik.uni-bremen.de>
+- German translation.
+
+Pier Carteri <m3tr0@dei.unipd.it>
+- Italian translation.
+
+Jeremy Witt <witti@onramp.net>
+- Patch to give default focus in the Composer window to the To field or to the Body according to some flags.
+
+spaghetty <spaghetty@libero.it>
+- Patch for fixing a bug in the smtp.c file that was already fixed in the CVS, but, the intention is what counts... :)
