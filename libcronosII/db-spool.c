@@ -49,6 +49,7 @@
 #define DMOD	TRUE
 
 #define QUEUE_TIMEOUT	10
+#define CHANGE_TIMEOUT	15
 #define QUEUE_STRING	"queue"
 #define UNKNOWN_ACCOUNT	"External Account"
 
@@ -210,6 +211,26 @@ queue_timeout (gpointer data)
 {
 	gtk_idle_add (queue_idle, data);
 
+	return TRUE;
+}
+
+static gint
+change_timeout (gpointer data)
+{
+	C2Mailbox *mailbox = C2_MAILBOX (data);
+
+	c2_mutex_lock (&mailbox->lock);
+
+	if (!index_is_sync (mailbox))
+	{
+		gtk_object_destroy (GTK_OBJECT (mailbox->db));
+		mailbox->db = NULL;
+
+		c2_db_spool_load (mailbox);
+	}
+	
+	c2_mutex_unlock (&mailbox->lock);
+	
 	return TRUE;
 }
 
@@ -777,6 +798,9 @@ c2_db_spool_load (C2Mailbox *mailbox)
 
 	/* Add the Queue Committing timeout */
 	gtk_timeout_add (C2_SECONDS_IN_MS (QUEUE_TIMEOUT), queue_timeout, (gpointer) mailbox);
+
+	/* Add a timeout that checks that the spool wasn't changed by a third party */
+	gtk_timeout_add (C2_SECONDS_IN_MS (CHANGE_TIMEOUT), change_timeout, (gpointer) mailbox);
 
 	return iPosition;
 }

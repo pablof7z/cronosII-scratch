@@ -1604,6 +1604,9 @@ c2_dialog_preferences_account_editor_new (C2Application *application, C2DialogPr
 	window = c2_window_new (application, _("Account Editor"), "account_editor", NULL);
 	C2_WINDOW (window)->xml = xml;
 	c2_window_set_contents_from_glade (C2_WINDOW (window), "dlg_account_editor_contents");
+
+	if (!C2_IS_DIALOG (preferences))
+		gtk_object_set_data (GTK_OBJECT (window), "application", application);
 	
 	if (account)
 		gtk_object_set_data (GTK_OBJECT (window), "account", account);
@@ -2334,10 +2337,11 @@ static void
 on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *druid, C2Window *window)
 {
 	C2DialogPreferences *preferences = (C2DialogPreferences*) gtk_object_get_data (GTK_OBJECT (window), "preferences");
+	C2Application *application;
 	GtkWidget *widget;
 	GladeXML *xml;
 	C2Account *account;
-	gchar *buf = NULL, *buf2 = NULL, *selection;
+	gchar *buf = NULL, *buf2 = NULL, *selection, *name, *email;
 	gint integer;
 	gboolean boolean, boolean2;
 	C2AccountType type = 0;
@@ -2357,23 +2361,8 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 	}
 	else
 		nth = general_accounts_get_next_account_number ();
-	
-	if (!C2_IS_ACCOUNT (account))
-	{
-		account = c2_account_new (type, buf, buf2);
-		window->application->account =
-				c2_account_append (window->application->account, account);
-	} else
-	{
-		/* Free all the values that we have */
-		g_free (account->name);
-		g_free (account->email);
-	}
-	
-	buf = g_strdup_printf ("/"PACKAGE"/Account %d/", nth);
-	gnome_config_push_prefix (buf);
-	g_free (buf);
 
+	/* Load the type of account */
 	widget = glade_xml_get_widget (xml, "incoming_protocol");
 	if (GTK_BIN (widget)->child)
 	{
@@ -2389,18 +2378,38 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 				type = C2_ACCOUNT_IMAP;
 		}
 	}
-	gnome_config_set_int ("type", type);
-	printf ("Type = %d\n", type);
 
+	/* Load the name */
 	widget = glade_xml_get_widget (xml, "options_account_name");
-	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-	gnome_config_set_string ("account_name", buf);
-	account->name = buf;
+	name = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	
+	/* Load the email address */
 	widget = glade_xml_get_widget (xml, "identity_email");
-	buf2 = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-	gnome_config_set_string ("identity_email", buf2);
-	account->email = buf2;
+	email = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
+	
+	if (!C2_IS_ACCOUNT (account))
+	{
+		account = c2_account_new (type, name, email);
+		window->application->account =
+				c2_account_append (window->application->account, account);
+	} else
+	{
+		/* Free all the values that we have */
+		g_free (account->name);
+		g_free (account->email);
+
+		account->name = name;
+		account->email = email;
+	}
+	
+	buf = g_strdup_printf ("/"PACKAGE"/Account %d/", nth);
+	gnome_config_push_prefix (buf);
+	g_free (buf);
+
+	gnome_config_set_int ("type", type);
+	
+	gnome_config_set_string ("account_name", name);
+	gnome_config_set_string ("identity_email", email);
 
 	widget = glade_xml_get_widget (xml, "identity_name");
 	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
@@ -2618,6 +2627,12 @@ on_account_editor_druid_page5_finish(GnomeDruidPage *druid_page, GtkWidget *drui
 		gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 							C2_DIALOG_PREFERENCES_KEY_GENERAL_ACCOUNTS,
 							C2_DIALOG (preferences)->application->account);
+	else
+	{
+		application = C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (window), "application"));
+		gtk_signal_emit_by_name (GTK_OBJECT (application), "application_preferences_changed",
+								 application, C2_DIALOG_PREFERENCES_KEY_GENERAL_ACCOUNTS, account);
+	}
 }
 
 static gint

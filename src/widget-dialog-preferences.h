@@ -24,6 +24,7 @@ extern "C" {
 
 #define C2_DIALOG_PREFERENCES(obj)			(GTK_CHECK_CAST (obj, c2_dialog_preferences_get_type (), C2DialogPreferences))
 #define C2_DIALOG_PREFERENCES_CLASS(klass)	(GTK_CHECK_CLASS_CAST (klass, c2_dialog_preferences_get_type (), C2DialogPreferencesClass))
+#define C2_IS_DIALOG_PREFENCES(obj)			(GTK_CHECK_TYPE (obj, c2_dialog_preferences_get_type ()))
 
 typedef struct _C2DialogPreferences C2DialogPreferences;
 typedef struct _C2DialogPreferencesClass C2DialogPreferencesClass;
