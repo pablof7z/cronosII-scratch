@@ -1,7 +1,13 @@
-Thu Feb 15 Pablo Fernández López <pablo@pablossite.net>
+Thu Feb 14 Pablo Fernández López <pablo@pablossite.net>
 	* Work in the spool module.
 
-Wed Feb 14 Pablo Fernández López <pablo@pablossite.net>
+Thu Feb 14 Bosko Blagojevic <falling@users.sourceforge.net>
+	* More IMAP Work: Deleting messages and adding messages
+  * Small (and yet big) bug fixes in libcronosII/mailbox.c
+	* A little fix-up in libcronosII/db.c
+	* Added more to IMAP test module
+
+Wed Feb 13 Pablo Fernández López <pablo@pablossite.net>
 	* Started the analisys of the Spool module.
 
 Wed Jan 30 Bosko Blagojevic <falling@users.sourceforge.net>
