@@ -601,7 +601,10 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte,
 				 			  C2Message *message, const gint id)
 {
 	/* This function sends the message body so that there is no
-	 * bare 'LF' and that all '\n' are sent as '\r\n' */
+	 * bare 'LF' and that all '\n' are sent as '\r\n' as well
+	 * as insuring that BCC fields and X-CronosII fields are
+	 * hidden as well */
+	
 	gchar *ptr, *start, *buf, *contents = message->header;
 	guint len, sent = 0;	
 	
@@ -627,8 +630,6 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte,
 			}
 			if(*ptr == '\n' || *(ptr+1) == '\0')
 			{
-				if (*(ptr+1) == '\0')
-					ptr++;
 				buf = g_strndup (start, ptr - start);
 				if (c2_net_object_send (C2_NET_OBJECT(smtp), byte, "%s\r\n", buf) < 0)
 				{
@@ -636,6 +637,11 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2NetObjectByte *byte,
 					g_free (buf);
 					smtp_disconnect (smtp, byte);
 					return -1;
+				}
+				if(*(ptr+1) == '\0')
+				{	
+					sent++;
+					ptr++;
 				}
 				sent += strlen (buf) + 1;
 				gtk_signal_emit (GTK_OBJECT (smtp), signals[SMTP_UPDATE], id, len, sent);
