@@ -51,7 +51,9 @@ enum _C2Pop3Flags
 	C2_POP3_DO_KEEP_COPY			= 1 << 1,	/* Will get a mail and leave a copy on server */
 	C2_POP3_DONT_KEEP_COPY			= 0 << 1,	/* Will get a mail and delete it on server */
 	C2_POP3_DO_LOSE_PASSWORD		= 1 << 2,	/* Will delete the password once it sended it correctly */
-	C2_POP3_DONT_LOSE_PASSWORD		= 0 << 2	/* Will keep the password unless its wrong */
+	C2_POP3_DONT_LOSE_PASSWORD		= 0 << 2,	/* Will keep the password unless its wrong */
+	C2_POP3_DO_USE_APOP			= 1 << 3,	/* Will use APOP to login to the POP server */
+	C2_POP3_DONT_USE_APOP			= 0 << 3,	/* Will not use APOP to login to the POP server (DEFAULT)*/
 };
 
 struct _C2Pop3
@@ -60,6 +62,7 @@ struct _C2Pop3
 	
 	gchar *user;
 	gchar *pass;
+	gchar *logintoken;
 	gint port;
 
 	gint flags;
@@ -92,6 +95,7 @@ c2_pop3_set_wrong_pass_cb						(C2Pop3 *pop3, C2Pop3GetPass func);
 
 gint
 c2_pop3_fetchmail								(C2Account *account);
+
 
 #ifdef __cplusplus
 }

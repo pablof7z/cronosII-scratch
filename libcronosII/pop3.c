@@ -24,6 +24,7 @@
 #include "net-object.h"
 #include "pop3.h"
 #include "utils.h"
+#include "md5.h"
 
 #define DEFAULT_FLAGS C2_POP3_DONT_KEEP_COPY | C2_POP3_DONT_LOSE_PASSWORD
 
@@ -49,8 +50,9 @@ login											(C2Pop3 *pop3);
 static gint
 status											(C2Pop3 *pop3);
 
+
 static gint
-retrieve										(C2Account *account, gint mails);
+retrieve										(C2Pop3 *pop3, gint mails);
 
 enum
 {
@@ -178,12 +180,13 @@ c2_pop3_fetchmail (C2Account *account)
 		return -1;
 	}
 
-	if (retrieve (account, mails) < 0)
+	if (retrieve (pop3, mails) < 0)
 	{
 		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
 		pthread_mutex_unlock (&pop3->run_lock);
 		return -1;
 	}
+	printf("done with fetching\n");
 
 	c2_net_object_disconnect (C2_NET_OBJECT (pop3));
 
@@ -196,13 +199,46 @@ c2_pop3_fetchmail (C2Account *account)
 static gint
 welcome (C2Pop3 *pop3)
 {
-	gchar *string;
+	gchar *string 		= NULL;
+	gchar *logintokenpos	= NULL;
+	gchar *logintoken	= NULL;
+	gint  loginsize 	= 0;
 
 	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
 		return -1;
 
+	if(pop3->flags & C2_POP3_DO_USE_APOP)
+	{
+		// They want to use APOP so we need to get the timestamp and
+		// domain name from the welcome message
+
+		logintokenpos 	= strstr(string,"<"); 			/* login token start with the first <  */
+		if (logintokenpos == NULL) 				/* no < means they don't support APOP */
+		{
+			c2_error_set_custom ("Server does not support APOP");
+			return -1;
+		}
+
+		loginsize 	= strlen(logintokenpos)-1;		/* don't want the trailing \n  */
+		logintoken 	= (gchar*)g_malloc(sizeof(gchar) * loginsize);
+	
+		strncpy(logintoken,logintokenpos,strlen(logintokenpos)); /* copy everything from the "<" to the \0 */
+		logintoken[loginsize-1] = 0;				 /* overwrite the \n with the NULL terminator */
+	
+	
+		// printf("Welcome token  is \"%s\"\n",logintoken);
+		pop3->logintoken = (gchar*)g_malloc(sizeof(gchar) * loginsize);
+		strncpy(pop3->logintoken,logintoken,loginsize); 	/* set the login token so we can use it later in the login call */
+		//printf("pop3->logintoken in login is \"%s\"\n",pop3->logintoken);
+	}
+	else
+	{
+		pop3->logintoken = NULL;
+	}
+
 	if (c2_strnne (string, "+OK", 3))
 	{
+
 		string = strstr (string, " ");
 		if (string)
 			string++;
@@ -218,8 +254,72 @@ static gint
 login (C2Pop3 *pop3)
 {
 	gchar *string;
-	gint i = 0;
-	gboolean logged_in = FALSE;
+	gchar *apopstring;
+
+	unsigned char md5apop[16];
+	gchar md5apopstring[33];
+	int x;
+
+	gint 	 i 		= 0;
+	gboolean logged_in 	= FALSE;
+
+	if (pop3->flags & C2_POP3_DO_USE_APOP)
+	{
+		if (pop3->logintoken == NULL)
+		{
+			/* how the hell did this happen? */
+			c2_error_set_custom("Using APOP but didn't get a logintoken in welcome");
+			return -1;
+		}
+
+		// allocate a string for the pass+logintoken so we can get the md5 hash of it
+		apopstring = (gchar*)g_malloc(sizeof(gchar) * (strlen(pop3->pass) + strlen(pop3->logintoken) ) + 1);
+
+		strncpy(apopstring,pop3->logintoken,strlen(pop3->logintoken)+1);
+		//printf("apopstring is \"%s\" before strcat\n",apopstring);
+
+		strcat(apopstring,pop3->pass);
+
+		md5_buffer(apopstring,strlen(apopstring),md5apop);
+		//printf("apopstring is \"%s\" after strcat\n",apopstring);
+
+		// print out the md5 hash
+		for( x = 0; x < 16; x++)
+		{
+			sprintf(&md5apopstring[x*2],"%02x",md5apop[x]);
+		}
+		md5apopstring[32] = 0;
+
+		//printf("%s\n",md5apopstring);
+
+		if (c2_net_object_send (C2_NET_OBJECT (pop3), "APOP %s %s\r\n", pop3->user,md5apopstring) < 0)
+		{
+			c2_error_set_custom("Sending APOP login failed");
+
+			return -1;
+		}
+
+		if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+		{
+			c2_error_set_custom("Failed to recv APOP login reply");
+			return -1;
+		}
+
+		if (c2_strnne (string, "+OK", 3))
+		{
+			string = strstr (string, " ");
+			if (string)
+				string++;
+	
+			c2_error_set_custom (string);
+			return -1;
+		}
+		else
+		{
+			return 0;
+		}
+
+	}
 
 	/* Username */
 	if (c2_net_object_send (C2_NET_OBJECT (pop3), "USER %s\r\n", pop3->user) < 0)
@@ -242,7 +342,7 @@ login (C2Pop3 *pop3)
 	do
 	{
 		/* FIXME This crashes when the password is wrong and
-		 * is executed for 2 time (probably for >1 time) */
+		 * is executed for 2 time (probably for >1 time) see NULL setting below. */
 		g_free (string);
 		if (c2_net_object_send (C2_NET_OBJECT (pop3), "PASS %s\r\n", pop3->pass) < 0)
 			return -1;
@@ -257,6 +357,9 @@ login (C2Pop3 *pop3)
 				string++;
 			
 			g_free (pop3->pass);
+
+			/* set pop3->pass equal to NULL just in case there is no callback function */
+			pop3->pass = NULL;
 
 			if (pop3->wrong_pass_cb)
 				pop3->pass = pop3->wrong_pass_cb (pop3, string);
@@ -300,9 +403,8 @@ status (C2Pop3 *pop3)
 }
 
 static gint
-retrieve (C2Account *account, gint mails)
+retrieve (C2Pop3 *pop3, gint mails)
 {
-	C2Pop3 *pop3 = account->protocol.pop3;
 	C2Message *message;
 	gchar *string;
 	gint i, len;
@@ -376,7 +478,8 @@ L			/* TODO */
 		{
 
 		}
-
+		
+		printf("sure.. lets see if it is here..\n");
 		g_free (tmp);
 	}
 
