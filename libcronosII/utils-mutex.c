@@ -17,9 +17,9 @@
  */
 
 /* C2Mutex -- implemented by Bosko <falling@users.sourceforge.net> so we have
- * one set of easy-to-use and not-so-POSIXy mutexs for CronosII :-) 
+ * one set of easy-to-use and not-so-POSIX mutexs for CronosII :-) 
  * 
- * Inspired by FreeBSD's less-than-kind mutex's ;-)
+ * Inspired by FreeBSD's less-than-kind mutexs ;-)
  */
 
 #include <glib.h>
@@ -33,7 +33,7 @@
  * @mutex: A pointer to the mutex
  * 
  * Initializes a mutex to be a useful, yet not-so-POSIX
- * mutex, break some rules, and still play nicely. 
+ * mutex, break some rules, but still play nicely. 
  * The purpose of this function is mostly to 
  * overcome differences between the default 
  * mutex behaivor on different systems (i.e.
@@ -56,14 +56,15 @@ c2_mutex_init (C2Mutex *mutex)
  * @mutex: A pointer to the mutex
  * 
  * Locks a mutex. If the mutex is already locked,
- * it will the lock request will be queued and the
+ * the lock request will be queued and the
  * c2_mutex_lock() will block until the mutex is 
- * unlocked once for each member in the queue.
- * Works pretty much like a POSIX mutex lock.
+ * unlocked once for each lock request in the queue
+ * before this latest one. Works pretty much like a 
+ * normal POSIX mutex lock.
  * 
  * Return Value:
  * 0 on success
- * -1 on _strange_ errors (system probably on fire)
+ * -1 on *wierd* errors (your system is probably on fire)
  **/
 gint
 c2_mutex_lock (C2Mutex *mutex)
@@ -116,7 +117,7 @@ c2_mutex_lock (C2Mutex *mutex)
  * 
  * Return Value:
  * 0 on success, 
- * -1 on _strange_ errors (system probably on fire)
+ * -1 on *wierd* errors (your system is probably on fire)
  **/
 gint
 c2_mutex_unlock (C2Mutex *mutex)
@@ -180,8 +181,8 @@ c2_mutex_trylock (C2Mutex *mutex)
  * 
  * Return Value:
  * 0 on success on lock,
- * -1 if mutex has lock requests queud behind the 
- *    final *_destroy() lock request.
+ * -1 if mutex has lock requests queued behind the 
+ *    final c2_mutex_destroy() lock request.
  **/
 gint
 c2_mutex_destroy (C2Mutex *mutex)

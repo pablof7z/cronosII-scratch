@@ -16,6 +16,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+/* C2Mutex -- implemented by Bosko <falling@users.sourceforge.net> so we have
+ *  one set of easy-to-use and not-so-POSIX mutexs for CronosII :-) 
+ * 
+ * Inspired by FreeBSD's less-than-kind mutexs ;-)
+ */
+
+
 #ifndef __LIBCRONOSII_UTILS_MUTEX_H__
 #define __LIBCRONOSII_UTILS_MUTEX_H__
 
