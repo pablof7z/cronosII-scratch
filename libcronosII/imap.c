@@ -27,7 +27,7 @@
 /* C2 IMAP Module in the process of being engineered by Pablo and Bosko =) */
 /* TODO: Implement a hash table in IMAP object for handing server replies */
 /* (in progress) TODO: Function for reading server replies */
-/* TODO: Login (at least plain-text for now) */
+/* (in progress) TODO: Login (at least plain-text for now) */
 /* TODO: Get list of folders */
 /* TODO: Get list of messages */
 /* TODO: Get and delete messages */
@@ -47,6 +47,18 @@ destroy										(GtkObject *object);
 /* Private IMAP functions */
 static void
 c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition);
+
+static C2IMAPPending *
+c2_imap_new_pending (C2IMAP *imap, tag_t tag);
+
+static void
+c2_imap_remove_pending (C2IMAP *imap, tag_t tag);
+
+static void
+c2_imap_unlock_pending (C2IMAP *imap);
+
+static gchar *
+c2_imap_get_server_reply (C2IMAP *imap, tag_t tag);
 
 static gint
 c2_imap_plaintext_login (C2IMAP *imap);
@@ -154,6 +166,7 @@ init (C2IMAP *imap)
 	imap->user = NULL;
 	imap->pass = NULL;
 	imap->hash = NULL;
+	imap->pending = NULL;
 	imap->login = NULL;
 	
 	pthread_mutex_init(&imap->lock, NULL);
@@ -224,7 +237,6 @@ destroy(GtkObject *object)
 	pthread_mutex_destroy(&C2_IMAP(object)->lock);
 }
 
-/* function that gets fired off every time there is incoming net data */
 static void
 c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition)
 {
@@ -269,6 +281,42 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	pthread_mutex_unlock(&imap->lock);
 }
 
+static void
+c2_imap_unlock_pending (C2IMAP *imap)
+{
+	GSList *ptr;
+	C2IMAPPending *pending;
+	gchar *data;
+	
+	for(ptr = imap->pending; ptr; ptr = ptr->next)
+	{
+		pending = ptr->data;
+		if(data = g_hash_table_lookup(imap->hash, &pending->tag))
+      pthread_mutex_unlock(&pending->lock);
+	}
+}
+
+static void
+c2_imap_remove_pending (C2IMAP *imap, tag_t tag)
+{
+  GSList *ptr;
+	C2IMAPPending *pending;
+	gchar *data;
+	
+	for(ptr = imap->pending; ptr; ptr = ptr->next)
+	{
+		pending = ptr->data;
+		if(pending->tag == tag)
+		{
+			imap->pending = g_slist_remove_link(imap->pending, ptr);
+			g_free(ptr->data);
+			g_slist_free_1(ptr);
+			return;
+		}
+	}
+	
+}
+
 static tag_t
 c2_imap_get_tag (C2IMAP *imap)
 {
@@ -296,27 +344,83 @@ c2_imap_set_error(C2IMAP *imap, const gchar *error)
 	gtk_object_set_data(object, "error", buf);
 }
 
+static C2IMAPPending *
+c2_imap_new_pending (C2IMAP *imap, tag_t tag)
+{
+	C2IMAPPending *pending;
+	
+	pending = g_new0(C2IMAPPending, 1);
+	pending->tag = tag;
+	
+	pthread_mutex_init(&pending->lock, NULL);
+	pthread_mutex_lock(&pending->lock);
+	
+	imap->pending = g_slist_prepend(imap->pending, pending);
+	
+	return pending;
+}
+
+/**
+ * c2_imap_get_server_reply
+ * @imap: A locked IMAP object.
+ * @tag: tag we are looking for
+ *
+ * This function will block and return the server
+ * reply that is tagged with 'tag'.
+ * 
+ * Return Value:
+ * A freeable string containing the server reply.
+ **/
+static gchar *
+c2_imap_get_server_reply (C2IMAP *imap, tag_t tag)
+{
+	C2IMAPPending *pending;
+	gchar *data;
+	
+	pending = c2_imap_new_pending(imap, tag);
+	
+	/* be careful to unlock the mutex before waiting on replies */	
+	pthread_mutex_unlock(&imap->lock);
+	pthread_mutex_lock(&pending->lock); /* wait for reply... */
+	pthread_mutex_lock(&imap->lock);
+
+	data = g_hash_table_lookup(imap->hash, &tag);
+	
+	if(data)
+		g_hash_table_remove(imap->hash, &tag);
+
+	pthread_mutex_unlock(&pending->lock);
+	pthread_mutex_destroy(&pending->lock);
+	c2_imap_remove_pending(imap, tag);
+	
+	return data;
+}
+
 static gint
 c2_imap_plaintext_login (C2IMAP *imap)
-{	
+{
 	tag_t tag;
+	gchar *reply;
+	
+	pthread_mutex_lock(&imap->lock);
 	
 	tag = c2_imap_get_tag (imap);
 
 	if(c2_net_object_send(C2_NET_OBJECT(imap), "CronosII-%04d LOGIN %s %s\r\n", 
 												tag, imap->user, imap->pass) < 0)
 	{
-		/* Bosko, are you sure you want to increment the tag again here? -pablo */
-		c2_imap_get_tag (imap);
+		pthread_mutex_unlock(&imap->lock);
+		return -1;
+	}
+		
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
+	{
 		pthread_mutex_unlock(&imap->lock);
 		return -1;
 	}
 	
-	/* be careful to unlock the mutex before waiting on replies */
+	/* TODO: finish me! */
+	
 	pthread_mutex_unlock(&imap->lock);
-	
-	/* here we should block or wait until our local imap
-	 * hash has a reply with the 'tag' tag. */
-	
 	return 0;
 }
