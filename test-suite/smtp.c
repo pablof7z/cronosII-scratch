@@ -42,11 +42,27 @@ main (gint argc, gchar **argv)
 	
 	/* sending the message... please work!! */
 	if(c2_smtp_send_message(smtp, msg) == 0)
-		printf("it worked! message was sent! check your mail!\n");
+		printf("Sending mail via SMTP worked! Check your email\n");
 	else {
-		printf("didn't work... back to the drawing board\n");
+		printf("Sending message via SMTP failed... back to the drawing board\n");
 		printf("the error was: %s\n", smtp->error);
 	}
+	
+	c2_smtp_free(smtp);
+	
+	smtp = c2_smtp_new(C2_SMTP_LOCAL, "sendmail -t < %m");
+	
+	if(c2_smtp_send_message(smtp, msg) == 0)
+		printf("Sending mail via local SMTP program worked! Check your email\n");
+	else {
+		printf("Sending message via local SMTP failed... back to the drawing board\n");
+		printf("the error was: %s\n", smtp->error);
+	}
+	
+	c2_smtp_free(smtp);
+	g_free(msg->header);
+	g_free(msg->body);
+	g_free(msg);
 	
 	return 0;
 }
