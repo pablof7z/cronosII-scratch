@@ -46,6 +46,7 @@
 #include "widget-index.h"
 #include "widget-window-main.h"
 
+
 static void
 class_init									(C2WindowMainClass *klass);
 
@@ -2315,11 +2316,9 @@ on_mlist_object_selected (C2MailboxList *mlist, GtkObject *object, C2WindowMain 
 "<html>
 <body bgcolor=#ffffff>
 <h1>%s</h1>
-
 <table cellspacing=4>
   <tr>
-    <td>
-	
+    <td>	
 	  <table bgcolor=#ff9000 cellspacing=0 cellpadding=1 border=0 width=150>
 	    <tr>
 		  <td align=\"center\">
@@ -2331,25 +2330,22 @@ on_mlist_object_selected (C2MailboxList *mlist, GtkObject *object, C2WindowMain 
 	        <table bgcolor=#ffd050 cellspacing=0 height=\"100%%\" valign=\"top\">
 			  <tr>
 			    <td>
-				  <font face=\"Verdana, Helvetica\" size=\"-1\" color=#000000>%s</font>
-				</td>
+				  <font face=\"Verdana, Helvetica\" size=\"-1\" color=#000000>%s</font>		</td>
 			  </tr>
 			</table>
 		  </td>
 		</tr>
 	  </table>
-
 	</td>
     <td>
 	  <font face=\"Verdana, Helvetica\">%s</font>
 	</td>
   </tr>
 </table>
-
 </body>
 </html>
 ", text, _("Tip of the day"), _("There are no available tips yet."),
-_("This folder parents all the local mailboxes that <b>Cronos II</b> handles for you."));
+_("This folder is the parent of all the local mailboxes that <b>Cronos II</b> handles for you."));
 #else
 		
 #endif
@@ -2378,7 +2374,7 @@ static gint
 eastern_egg_timeout (C2Pthread3 *data)
 {
 	/* Que onda si uso GdkPixbuf (como lo de su ejemplo)
-	 * para hacer alguna precentación onda copada?
+	 * para hacer alguna precentación onda copada? OK allready !
 	 */
 	return FALSE;
 }
@@ -2391,7 +2387,7 @@ on_eastern_egg_separator_activate (GtkWidget *widget, C2WindowMain *wmain)
 	GladeXML *xml;
 	C2Pthread3 *data;
 
-	dialog = c2_dialog_new (window->application, _("You found the Eastern Egg!"), NULL,
+	dialog = c2_dialog_new (window->application, _("You found the Easter Egg!"), NULL,
 							_("Neat, baby!"), NULL);
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_eastern_egg_contents");
 	C2_DIALOG (dialog)->xml = xml;
