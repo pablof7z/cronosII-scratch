@@ -77,6 +77,8 @@ static guint signals[LAST_SIGNAL] = { 0 };
 
 static GtkObjectClass *parent_class = NULL;
 
+GList *c2_db_protocol_list = NULL;
+
 GtkType
 c2_db_get_type (void)
 {
@@ -1086,3 +1088,73 @@ c2_db_message_get_from_file (const gchar *path)
 
 	return message;
 }
+
+/**
+ * c2_db_get_protocol
+ * @name: Name of the protocol to get.
+ *
+ * This function will return a C2Protocol*
+ * called @name to be used to get that 
+ * protocol callback functions.
+ *
+ * Return Value:
+ * The C2Protocol pointer on success,
+ * or NULL otherwise.
+ **/
+C2DbProtocol *
+c2_db_get_protocol (const gchar *name)
+{
+	GList *ptr;
+	C2DbProtocol *proto;
+
+	for(ptr = c2_db_protocol_list; ptr != NULL; ptr = ptr->next)
+	{
+		proto = ptr->data;
+		if(c2_streq(name, proto->name))
+			return proto;
+	}
+
+	return NULL;
+}
+
+gint
+c2_db_add_protocol (const gchar *name, gboolean (create_struct) (C2Mailbox*),
+		gboolean (update_struct) (C2Mailbox*), gboolean (remove_struct)(C2Mailbox*),
+		void (compact) (C2Mailbox*, size_t*, size_t*), void (freeze) (C2Mailbox*),
+		void (thaw) (C2Mailbox*), gint (load) (C2Mailbox*), gboolean (add_list) (C2Mailbox*,C2Db*),
+		gboolean (rem_list) (C2Mailbox*, GList*), void (set_state) (C2Db*, C2MessageState),
+		void set_mark (C2Db*, gboolean), C2Message* (load_message) (C2Db*))
+{
+	C2DbProtocol *proto;
+
+	if(c2_db_get_protocol)
+		return -1; /* protocol by that name already exists! */
+	
+	proto = g_new0 (C2DbProtocol, 1);
+	proto->name = g_strdup(name);
+	
+	proto->create_struct = create_struct;
+	proto->update_struct = update_struct;
+	proto->remove_struct = remove_struct;
+	proto->compact = compact;
+	proto->freeze = freeze;
+	proto->thaw = thaw;
+	proto->load = load;
+	proto->add_list = add_list;
+	proto->rem_list = rem_list;
+	proto->set_state = set_state;
+	proto->set_mark = set_mark;
+	proto->load_message = load_message;
+
+	c2_db_protocol_list = g_list_append(c2_db_protocol_list, proto);
+	return 0;
+}
+
+gint
+c2_db_remove_protocol (const gchar *name)
+{	
+	/* TODO */
+	return 0;
+}
+
+

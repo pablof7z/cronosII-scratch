@@ -20,6 +20,7 @@
  * 		* Pablo Fernández
  * Code of this file by:
  * 		* Pablo Fernández
+ *		* Bosko Blagojevic
  */
 #ifndef __LIBCRONOSII_DB_H__
 #define __LIBCRONOSII_DB_H__
@@ -52,6 +53,7 @@ extern "C" {
 
 typedef struct _C2Db C2Db;
 typedef struct _C2DbClass C2DbClass;
+typedef struct _C2DbProtocol C2DbProtocol;
 
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include "db-cronosII.h"
@@ -96,6 +98,28 @@ struct _C2DbClass
 	GtkObjectClass parent_class;
 };
 
+struct _C2DbProtocol
+{
+	gchar *name;
+	
+	gboolean (*create_struct) (C2Mailbox *mailbox);
+	gboolean (*update_struct) (C2Mailbox *mailbox);
+	gboolean (*remove_struct) (C2Mailbox *mailbox);
+	
+	void (*compact) (C2Mailbox *mailbox, size_t *cbytes, size_t *tbytes);
+	
+	void (*freeze) (C2Mailbox *mailbox);
+	void (*thaw) (C2Mailbox *mailbox);
+
+	gint     (*load)      (C2Mailbox *mailbox);
+	gboolean (*add_list)  (C2Mailbox *mailbox, C2Db *db);
+	gboolean (*rem_list)  (C2Mailbox *mailbox, GList *list);
+	void     (*set_state) (C2Db *db, C2MessageState state);
+	void     (*set_mark)  (C2Db *db, gboolean mark);
+
+	C2Message* (*load_message) (C2Db *db);
+};
+
 /*********************
  * [Object Handling] *
  *********************/
@@ -118,6 +142,22 @@ c2_db_get_node								(C2Mailbox *mailbox, gint n);
 
 C2Db *
 c2_db_get_node_by_mid						(C2Mailbox *mailbox, gint mid);
+
+/*************************
+ * [DB Protocl Handling] *
+ ************************/
+gint
+c2_db_add_protocol	 					(const gchar *name, gboolean (create_struct) (C2Mailbox*),
+						                gboolean (update_struct) (C2Mailbox*), gboolean (remove_struct)(C2Mailbox*),
+						                void (compact) (C2Mailbox*, size_t*, size_t*), void (freeze) (C2Mailbox*),
+						                void (thaw) (C2Mailbox*), gint (load) (C2Mailbox*), gboolean (add_list) (C2Mailbox*,C2Db*),
+						                gboolean (rem_list) (C2Mailbox*, GList*), void (set_state) (C2Db*, C2MessageState),
+						                void set_mark (C2Db*, gboolean), C2Message* (load_message) (C2Db*));
+gint
+c2_db_remove_protocol						(const gchar *name);
+
+C2DbProtocol *
+c2_db_get_protocol						(const gchar *name);
 
 /************************
  * [Structure Handling] *
