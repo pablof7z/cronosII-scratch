@@ -1,0 +1,41 @@
+<!-- Accounts.sgml  Restrict to preferences -->
+<sect3 id="account-dialog">
+<title>The Account Setup Dialog</title>
+<para>
+&app; supports the use of multiple accounts using separate identities and various mail transfer protocols. These include POP, APOP, SMTP and your local mail spool (e.g. Sendmail).
+</para>
+<example>
+<title>Setting up an Initial Account</title>
+<para>
+Open the Account Editor :
+</para>
+<para>
+Settings => Preferences => General => Accounts => Add
+</para>
+<orderedlist>
+<listitem>
+<para>
+A Druid with some introductory text appears. Choose "Next".
+</para>
+</listitem>
+<listitem><para> Identity</para>
+<para>Here you will find two areas where you will need to enter some required and optional informaation. The first area is the Unique Name (or Identity) you want to be called on this account and the email address for this account. The second area is Optional Information where you can choose to enter an Organisation Name and separate Reply To address if this needs be different to the above address.</para>
+<para>Once you have entered an email address you may select "Next" to move on.</para>
+</listitem>
+<listitem<para> Incoming Mail</para>
+<para>This page of the Dialog asks for Mail Server Protocol Information. This relates to the INCOMING  mail server &app; will be connecting to. You need this information to have a working account. If you don't know the information you should ask your Internet Service Provider (ISP) and/or the System Adminstrator on networked systems. </para> <para>First Select a Mail Server Protocol from the fold out list.
+The most common are POP3 and IMAP.</para>
+<para>Next you need to enter the Hostname of the Mail Server. A common format is " pop.yourisp.com". Change the Server listening Port number if you know that it is not 110.</para>
+<para>
+Now you need to enter your Username at the Mail Server. (try the account name)</para>
+<para>The following Toggle Button enables Secure Server Layer (SSL) modes. (You should know about this if you need it.)</para>
+<para>Finally choose an Authentification method. This is so the Server knows it is you calling. The password is entered later and is the password given to you by your ISP or Systems Administrator. Currently there is Password and APOP. </para>
+<para>Do you want &app; to remember your password for you ? If so check the  last button and then select 'Next" from the navigation buttons at the bottom of the dialog. </para>
+</listitem>
+<listitem><para>SMTP</para></listitem>
+<listitem><para></para></listitem>
+</orderedlist>
+</example>
+
+
+</sect3>
