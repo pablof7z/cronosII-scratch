@@ -1,3 +1,6 @@
+Mon Oct 29 Bosko Blagojevic <falling@users.sourceforge.net>
+	* IMAP can now list, create, and delete folders.
+
 Sun Oct 28 Bosko Blagojevic <falling@users.sourceforge.net>
 	* More IMAP work...
 	* Update the POP3 Module to use C2Mutex's for portability.
