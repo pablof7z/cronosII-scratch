@@ -148,7 +148,7 @@ gboolean
 c2_imap_load_mailbox						(C2IMAP *imap, C2Mailbox *mailbox);
 
 gint
-c2_imap_message_remove (C2IMAP *imap, C2Db *db);
+c2_imap_message_remove (C2IMAP *imap, GList *list);
 	
 #ifdef __cplusplus
 }
