@@ -376,7 +376,7 @@ c2_net_object_read (C2NetObject *nobj, gchar **string, ...)
 	C2NetObjectByte *byte;
 
 	/* Get the byte */
-	if (nobj->max = 1)
+	if (nobj->max == 1)
 	{
 		GList *l;
 		l = g_list_nth (nobj->bytes, 0);
@@ -432,7 +432,7 @@ c2_net_object_disconnect (C2NetObject *nobj, ...)
 	C2NetObjectByte *byte;
 
 	/* Get the byte */
-	if (nobj->max = 1)
+	if (nobj->max == 1)
 	{
 		GList *l;
 		l = g_list_nth (nobj->bytes, 0);
@@ -459,7 +459,7 @@ c2_net_object_disconnect_with_error (C2NetObject *nobj, ...)
 	C2NetObjectByte *byte;
 
 	/* Get the byte */
-	if (nobj->max = 1)
+	if (nobj->max == 1)
 	{
 		GList *l;
 		l = g_list_nth (nobj->bytes, 0);
@@ -486,7 +486,7 @@ c2_net_object_cancel (C2NetObject *nobj, ...)
 	C2NetObjectByte *byte;
 
 	/* Get the byte */
-	if (nobj->max = 1)
+	if (nobj->max == 1)
 	{
 		GList *l;
 		l = g_list_nth (nobj->bytes, 0);
@@ -513,7 +513,7 @@ c2_net_object_set_state (C2NetObject *nobj, gint8 state, ...)
 	C2NetObjectByte *byte;
 
 	/* Get the byte */
-	if (nobj->max = 1)
+	if (nobj->max == 1)
 	{
 		GList *l;
 		l = g_list_nth (nobj->bytes, 0);
@@ -535,7 +535,7 @@ c2_net_object_append_state (C2NetObject *nobj, gint8 state, ...)
 	C2NetObjectByte *byte;
 
 	/* Get the byte */
-	if (nobj->max = 1)
+	if (nobj->max == 1)
 	{
 		GList *l;
 		l = g_list_nth (nobj->bytes, 0);
@@ -575,7 +575,7 @@ c2_net_object_is_offline (C2NetObject *nobj, ...)
 	C2NetObjectByte *byte;
 
 	/* Get the byte */
-	if (nobj->max = 1)
+	if (nobj->max == 1)
 	{
 		GList *l;
 		l = g_list_nth (nobj->bytes, 0);
