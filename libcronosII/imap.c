@@ -32,14 +32,11 @@
 #include "imap.h"
 #include "i18n.h" 
 
-#define NET_READ_FAILED  _("Internal socket read operation failed, connection is most likely broken")
-#define NET_WRITE_FAILED _("Internal socket write operation failed, connection is most likely broken")
-
 /* C2 IMAP Module in the process of being engineered by Bosko */
 /* TODO: Re-Implement recursive folder listing (its too slow) */
 /* TODO: Function that handles untagged messages that come unwarranted */
-/* (in progress) TODO: Get messages */
 /* (in progress) TODO: Elegent network problem handling (reconnecting, etc) */
+/* (done!) TODO: Get messages */
 /* (done!) TODO: Add messages */
 /* (done!) TODO: Delete messages */
 /* (done!) TODO: Get list of messages */
@@ -52,6 +49,9 @@
 /* (done!) TODO: Rename Folders */
 /* (done!) TODO: Function for reading server replies */
 /* (done!) TODO: Get list of folders */
+
+#define NET_READ_FAILED  _("Internal socket read operation failed, connection is most likely broken")
+#define NET_WRITE_FAILED _("Internal socket write operation failed, connection is most likely broken")
 
 const gint C2TagLen = 14; /* strlen("CronosII-XXXX "); */
 
@@ -113,6 +113,9 @@ c2_imap_get_tag								(C2IMAP *imap);
 
 static void
 c2_imap_set_error(C2IMAP *imap, const gchar *error);
+
+static gint
+c2_imap_reconnect(C2IMAP *imap);
 
 enum 
 {
@@ -319,29 +322,34 @@ destroy(GtkObject *object)
 /** c2_imap_reconnect
  * 
  * @imap: A locked imap object
- * @state: The state to set the imap object to
- * @mailbox: If @state == C2IMAPSelected, the
- *           mailbox to select, otherwise NULL
- * 
+ *
  * This function attempts to reconnect and restore 
  * proper state of an imap object.
  * 
  * Return Value:
  * 0 on success, -1 otherwise
  **/
-#if 0
 static gint
-c2_imap_reconnect(C2IMAP *imap, C2IMAPState state, C2Mailbox *mailbox)
+c2_imap_reconnect(C2IMAP *imap)
 {
-	gchar *reply;
-	tag_t tag;
+	c2_net_object_disconnect(C2_NET_OBJECT(imap));
+	c2_mutex_unlock(&imap->lock);
+	if(c2_imap_init < 0)
+	{
+		c2_mutex_lock(&imap->lock);
+		return -1;
+	}
+	c2_mutex_lock(&imap->lock);
 	
-	tag = c2_imap_get_tag(imap);
-	
-	/* TODO: finish me! */
+	if(imap->state == C2IMAPSelected)
+		if(c2_imap_select_mailbox(imap, imap->selected_mailbox) < 0)
+	  {
+			c2_net_object_disconnect(C2_NET_OBJECT(imap));
+			return -1;
+		}
+
 	return 0;
 }
-#endif
 
 static void
 c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition)
@@ -1096,7 +1104,7 @@ c2_imap_plaintext_login (C2IMAP *imap)
  * @name: folder name or wildcard
  * 
  * Returns the exact server output of the 
- * LIST command after checking weather it
+ * LSUB command after checking weather it
  * was an OK reply
  * 
  * Return Value:
@@ -1110,7 +1118,7 @@ c2_imap_get_mailbox_list(C2IMAP *imap, const gchar *reference, const gchar *name
 	
 	tag = c2_imap_get_tag(imap);
 	
-	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d LIST \"%s\""
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d LSUB \"%s\""
 				" \"%s\"\r\n", tag, (reference) ? reference : "" , (name) ? name : "") < 0)
   {
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
@@ -1284,7 +1292,7 @@ c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
  * @imap: A locked IMAP object
  * @db: Message to remove
  * 
- * Will expunging a message.
+ * Will expunge a message.
  * 
  * Return Value:
  * 0 on success, -1 otherwise
