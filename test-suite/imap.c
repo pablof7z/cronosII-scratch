@@ -35,38 +35,18 @@ run_imap(C2IMAP *imap)
 	if(c2_imap_init(imap) < 0)
 	{	
 		printf("failed to login\n");
-		return;
+		exit(-1);
 	}
 	
-	if(c2_imap_create_folder(imap, NULL, "CronosII") < 0)
+	printf("listing folders: \n");
+	if(c2_imap_populate_folders(imap) < 0)
 	{
-		printf("failed to create folder \"CronosII\"\n");
-		return;
-	}
-	printf("created folder \"CronosII\"\n");
-	printf("listing folders...\n");
-	
-	if(c2_imap_get_folder_list(imap, &list, "", "*") < 0)
-	{
-		printf("failed to get folder list\n");
-		return;
+		printf("failed to populate the IMAP Folders tree");
+		exit(-1);
 	}
 	
-	if(c2_imap_delete_folder(imap, "CronosII") < 0)
-	{
-		printf("failed to delete folder \"CronosII\"\n");
-		return;
-	}
-	printf("deleted folder \"CronosII\"\n");
-	printf("listing folders...\n");
-	
-	if(c2_imap_get_folder_list(imap, &list, "", "*") < 0)
-	{
-		printf("failed to get folder list\n");
-		return;
-	}
-		
-	printf("\nCronosII IMAP capability testing Completed successfully!\n");
+	printf("\nCronosII IMAP capability testing completed successfully!\n");
+	exit(0);
 }
 
 gint
@@ -79,8 +59,7 @@ main (gint argc, gchar **argv)
 
 	gtk_init(&argc, &argv);
 	
-	printf("Welcome to the IMAP module of the C2 Engine Test-Suite\n"
-				 "Hit Crtl+C to exit program once tests are complete\n");
+	printf("Welcome to the IMAP module of the C2 Engine Test-Suite\n");
 	
 	if (argc > 4)
 	{
@@ -95,7 +74,7 @@ main (gint argc, gchar **argv)
 		user = g_strdup ("falling");
 		pass = g_strdup ("password");
 	}
-	imap = c2_imap_new (host, port, user, pass, C2_IMAP_AUTHENTICATION_PLAINTEXT, FALSE);
+	imap = c2_imap_new (host, port, user, pass, NULL, C2_IMAP_AUTHENTICATION_PLAINTEXT, FALSE);
 	
 	pthread_create(&thread, NULL, (void*)run_imap, imap);
 	
