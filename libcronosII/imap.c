@@ -196,8 +196,6 @@ init (C2IMAP *imap)
 	imap->cmnd = 1;
 	imap->mailboxes = NULL;
 	imap->selected_mailbox = NULL;
-	imap->host = NULL;
-	imap->port = 143;
 	imap->user = NULL;
 	imap->pass = NULL;
 	imap->path = NULL;
@@ -217,8 +215,6 @@ c2_imap_new (const gchar *host, const guint port, const gchar *user, const gchar
 	imap = gtk_type_new (C2_TYPE_IMAP);
 	imap->user = g_strdup(user);
 	imap->pass = g_strdup(pass);
-	imap->host = g_strdup(host);
-	imap->port = port;
 	imap->path = g_strdup(path);
 	
 	switch(auth)
@@ -228,7 +224,7 @@ c2_imap_new (const gchar *host, const guint port, const gchar *user, const gchar
 			break;
 	}
 
-	c2_net_object_construct (C2_NET_OBJECT (imap), imap->host, port, ssl);	
+	c2_net_object_construct (C2_NET_OBJECT (imap), host, port, ssl);	
 	return imap;
 }
 
@@ -277,7 +273,6 @@ destroy(GtkObject *object)
 {
 	g_free(C2_IMAP(object)->user);
 	g_free(C2_IMAP(object)->pass);
-	g_free(C2_IMAP(object)->host);
 	g_free(C2_IMAP(object)->path);
 	c2_mutex_destroy(&C2_IMAP(object)->lock);
 }
@@ -297,7 +292,7 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 		if(c2_net_object_read(C2_NET_OBJECT(imap), &buf) < 0)
 		{
 			printf(_("Error reading from socket on IMAP host %s! Reader thread aborting!\n"),
-						imap->host);
+						C2_NET_OBJECT(imap)->host);
 			c2_imap_set_error(imap, NET_READ_FAILED);
 			c2_net_object_disconnect(C2_NET_OBJECT(imap));
 			c2_net_object_destroy_byte (C2_NET_OBJECT (imap));

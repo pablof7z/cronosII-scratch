@@ -63,11 +63,9 @@ struct _C2IMAP
 	/* [TODO] */
 	C2IMAPAuthenticationType auth;
 
-	gchar *host;
 	gchar *user;
 	gchar *pass;
 	gchar *path;
-	guint port;
 
 	tag_t cmnd : 10;
 
