@@ -386,7 +386,7 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 		mlist->mailbox_list = g_list_prepend (mlist->mailbox_list, l);
 		
 		if (l->child)
-			tree_fill (mlist, l, account, cnode);
+			tree_fill (mlist, l->child, account, cnode);
 	}
 
 	if (!node)
