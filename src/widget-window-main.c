@@ -2014,7 +2014,8 @@ on_index_select_message_thread (C2Pthread3 *data)
 
 	gdk_threads_enter ();
 	
-	c2_mail_set_message (C2_MAIL (wmain->mail), node->message);
+	if (c2_preferences_get_window_main_mail_preview_visible ())
+		c2_mail_set_message (C2_MAIL (wmain->mail), node->message);
 
 	/* Set some widgets sensivity */
 	xml = C2_WINDOW (wmain)->xml;

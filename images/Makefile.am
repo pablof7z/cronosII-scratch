@@ -31,6 +31,10 @@ pixmap_DATA = \
 	loading-image.png	\
 	mailbox.png			\
 	mails.png			\
+	mail_warn_screen_bottom_left.png \
+	mail_warn_screen_bottom_right.png \
+	mail_warn_screen_top_left.png \
+	mail_warn_screen_top_right.png \
 	mail-write.png		\
 	mark-i-forwarded.png\
 	mark-i-replied.png	\

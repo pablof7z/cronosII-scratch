@@ -5,20 +5,19 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Cronos II 0.3-pre1\n"
-"POT-Creation-Date: 2002-05-02 23:24+0200\n"
-"PO-Revision-Date: 2001-11-09 22:35-0300\n"
-"Last-Translator: Pablo Fernández <sandokan@pablossite.net>\n"
-"Language-Team: Cronos II Hackers Team "
-"<cronosII-hackers@lists.sourceforge.net>\n"
+"Project-Id-Version: Cronos II 0.0.3\n"
+"POT-Creation-Date: 2002-05-05 20:46+0200\n"
+"PO-Revision-Date: 2001-08-07 00:25-0300\n"
+"Last-Translator: Pablo Fernández <sandokan@cronosII.org>\n"
+"Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
-"Content-Transfer-Encoding: 8byte\n"
+"Content-Transfer-Encoding: 8bit\n"
 
 #: libcronosII/db-cronosII.c:377
 #, c-format
 msgid "Unable to create structure for Cronos II Db: %s\n"
-msgstr "Imposible crear la estructura de base de datos de Cronos II: %s\n"
+msgstr ""
 
 #. C2SUCCESS
 #: libcronosII/error.c:31 src/install.c:417 src/install.c:444
@@ -34,49 +33,47 @@ msgstr "Excepción de datos"
 #. C2ENOMSG
 #: libcronosII/error.c:33
 msgid "No such message"
-msgstr "No existe tal mensaje"
+msgstr "Ese mensaje no existe"
 
 #. C2EBUSY
 #: libcronosII/error.c:34
 msgid "Process is busy"
-msgstr "Proceso ocupado"
+msgstr "El proceso está ocupado"
 
 #. C2ERSLV
 #: libcronosII/error.c:35
 msgid "Unknown hostname"
-msgstr "Nombre de servidor desconocido"
+msgstr "Hostname desconocido"
 
 #. C2USRCNCL
 #: libcronosII/error.c:36
 msgid "Action cancelled by user"
-msgstr "Acción cancelada por el usuario"
+msgstr ""
 
 #. C2INTERNAL
 #: libcronosII/error.c:37
 #, fuzzy
 msgid "Internal error"
-msgstr "Error interno"
+msgstr "Utilizar el editor internal."
 
 #. C2NOBJ
 #: libcronosII/error.c:38
 msgid "Internal error: Net Object has reached its maximal allocated buffer"
 msgstr ""
-"Error interno: Objeto de red a alcanzado su alocación máxima de buffers"
 
 #: libcronosII/imap.c:287 libcronosII/imap.c:408
 msgid "Error connecting to IMAP server."
-msgstr "Error conectandose al servidor IMAP"
+msgstr ""
 
 #: libcronosII/imap.c:442
 #, c-format
 msgid "Error reading from socket on IMAP host %s! Reader thread aborting!\n"
 msgstr ""
-"Error leyendo del socket en el servidor IMAP %s! Proceso lector abortado!\n"
 
 #: libcronosII/imap.c:696
 #, c-format
 msgid "IMAP Server responded with 'BAD': %s\n"
-msgstr "El servidor IMAP respondión 'MAL': %s\n"
+msgstr ""
 
 #: libcronosII/imap.c:702
 #, c-format
@@ -109,11 +106,11 @@ msgstr ""
 
 #: libcronosII/pop3.c:417
 msgid "Server does not support APOP"
-msgstr "El servidor no soporta APOP"
+msgstr ""
 
 #: libcronosII/pop3.c:444
 msgid "No password was entered"
-msgstr "No se introdujo ninguna contraseña"
+msgstr ""
 
 #: libcronosII/smtp.c:323
 msgid "SMTP server did not respond to our sent messaage in a friendly way"
@@ -164,7 +161,7 @@ msgstr ""
 msgid "SMTP server did not reply to 'DATA' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:855
+#: libcronosII/smtp.c:854
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
 msgstr ""
 
@@ -196,7 +193,7 @@ msgstr ""
 #.
 #: src/install.c:142
 msgid "~/.c2/Inbox.mbx/1"
-msgstr "~/.c2/Bandeja de Entrada.mbx/1"
+msgstr ""
 
 #. Translators: Same here, just change the
 #. * Inbox name to whatever name you used
@@ -204,179 +201,198 @@ msgstr "~/.c2/Bandeja de Entrada.mbx/1"
 #.
 #: src/install.c:152
 msgid "~/.c2/Inbox.mbx/index"
-msgstr "~/.c2/Bandeja de Entrada.mbx/1"
+msgstr ""
 
 #: src/install.c:395
 #, c-format
 msgid "Remove directory %s"
-msgstr "Remover directorio %s"
+msgstr ""
 
 #: src/install.c:404 src/install.c:431 src/install.c:460 src/install.c:488
 #: src/install.c:516
-#, c-format
+#, fuzzy, c-format
 msgid "Failed: %s\n"
-msgstr "Falló: %s\n"
+msgstr "Fallo."
 
 #: src/install.c:406 src/install.c:433 src/install.c:462 src/install.c:490
-#: src/install.c:518 src/widget-transfer-item.c:823
+#: src/install.c:518 src/widget-transfer-item.c:828
+#, fuzzy
 msgid "Failed"
-msgstr "Falló"
+msgstr "Fallo."
 
 #: src/install.c:422
 #, c-format
 msgid "Create directory %s"
-msgstr "Crear directorio %s"
+msgstr ""
 
 #: src/install.c:450
 #, fuzzy, c-format
 msgid "Create mailbox «%s»"
-msgstr "Crear buzón «%s»"
+msgstr "Cargar buzones"
 
 #: src/install.c:479
-#, fuzzy, c-format
+#, c-format
 msgid "Remove file %s"
-msgstr "Remover archivo %s"
+msgstr ""
 
 #: src/install.c:507
 #, c-format
 msgid "Copy %s to %s"
-msgstr "Copiar %s a %s"
+msgstr ""
 
 #: src/install.c:535
-#, fuzzy
 msgid "Done."
-msgstr "Terminado."
+msgstr ""
 
 #: src/main.c:41
 #, c-format
 msgid "Failed to load message: %s."
-msgstr "Fallo al cargar el mensaje: %s."
+msgstr ""
 
 #: src/main.c:42
 #, c-format
 msgid "Failed to save message: %s."
-msgstr "Fallo al guardar el mensaje: %s."
+msgstr ""
 
 #: src/main.c:43
 #, c-format
 msgid "Failed to load mailbox «%s»: %s."
-msgstr "Fallo al cargar el buzón «%s»: %s."
+msgstr ""
 
 #: src/main.c:44
 #, fuzzy, c-format
 msgid "Failed to create mailbox «%s»: %s."
-msgstr "Fallo al crear el buzón «%s»: %s."
+msgstr "No se pudo crear el buzón"
 
 #: src/main.c:45
-#, c-format
+#, fuzzy, c-format
 msgid "Failed to save file: %s."
-msgstr ""
+msgstr "No se pudo crear el buzón"
 
 #: src/main.c:47
 msgid "Message saved successfully."
-msgstr "Mensaje salvado con éxito."
+msgstr ""
 
 #: src/main.c:48
 msgid "File saved successfully."
-msgstr "Archivo guardado con éxito."
+msgstr ""
 
 #: src/main.c:50
 msgid "Action cancelled by user."
-msgstr "Acción cancelada por el usuario."
+msgstr ""
 
 #: src/main.c:51
 msgid "There is no selected mailbox."
 msgstr ""
 
 #: src/main.c:52
+#, fuzzy
 msgid "Unknown reason"
-msgstr ""
+msgstr "Hostname desconocido"
 
-#: src/main.c:99
+#: src/main.c:107
 msgid "Compose a new email."
-msgstr "Componer un nuevo correo."
+msgstr "Escribir un nuevo correo."
 
-#: src/main.c:104
+#: src/main.c:112
 msgid "Set the Account field."
 msgstr ""
 
-#: src/main.c:105 src/trans.h:82 src/widget-index.c:560
+#: src/main.c:113 src/trans.h:82 src/widget-index.c:560
 msgid "Account"
-msgstr "Cuenta"
+msgstr "Cuentas"
 
-#: src/main.c:110
+#: src/main.c:118
 msgid "Set the To field."
 msgstr ""
 
-#: src/main.c:111 src/main.c:117 src/main.c:123
+#: src/main.c:119 src/main.c:125 src/main.c:131
 msgid "Address"
-msgstr "Dirección"
+msgstr ""
 
-#: src/main.c:116
+#: src/main.c:124
 msgid "Set the CC field."
 msgstr ""
 
-#: src/main.c:122
+#: src/main.c:130
 msgid "Set the BCC field."
 msgstr ""
 
-#: src/main.c:128
+#: src/main.c:136
 msgid "Set the Subject field."
 msgstr ""
 
-#: src/main.c:129 src/trans.h:83 src/widget-index.c:554
+#: src/main.c:137 src/trans.h:83 src/widget-index.c:554
 msgid "Subject"
-msgstr "Asunto"
+msgstr ""
 
-#: src/main.c:134
+#: src/main.c:142
 msgid "Set the Body."
 msgstr ""
 
-#: src/main.c:135
+#: src/main.c:143
 msgid "Text"
-msgstr "Texto"
+msgstr ""
 
-#: src/main.c:140
+#: src/main.c:148
 msgid "Compose a new email decoding the argument as a mailto: link"
-msgstr "Componer un nuevo correo decodificando un argumento de link mailto:"
+msgstr ""
 
-#: src/main.c:146
+#: src/main.c:149
+msgid "mailto:email@somewhere."
+msgstr ""
+
+#: src/main.c:154
 msgid "Set the active mailbox at start (default=Inbox)"
 msgstr ""
 
-#: src/main.c:147
+#: src/main.c:155
 msgid "Inbox"
-msgstr "Bandeja de Entrada"
+msgstr ""
 
-#: src/main.c:152
+#: src/main.c:160
 msgid "Check account for mail."
 msgstr ""
 
-#: src/main.c:157
+#: src/main.c:165
 msgid "Open the main window (default)"
 msgstr ""
 
-#: src/main.c:162
+#: src/main.c:170
 msgid ""
 "Don't open any windows; instead act as a server for quick startup of new "
 "Cronos II instances"
 msgstr ""
 
+#: src/main.c:176
+#, fuzzy
+msgid "Hides the main window."
+msgstr "Abrir una nueva ventana"
+
+#: src/main.c:181
+#, fuzzy
+msgid "Shows the main window."
+msgstr "Abrir una nueva ventana"
+
+#: src/main.c:186
+msgid "Finishes Cronos II and its multisession server"
+msgstr ""
+
 #: src/widget-composer.c:442
 #, fuzzy
 msgid "Select a message"
-msgstr "Seleccione un mensaje"
+msgstr "Seleccionar mensaje siguiente"
 
 #: src/widget-composer.c:516
-msgid "Unable to find the proper mailbox"
-msgstr "Imposible encontrar el buzón correcto"
-
-#: src/widget-composer.c:689 src/widget-composer.c:998
 #, fuzzy
-msgid "Composer: Untitled"
-msgstr "Compositor: Sin Título"
+msgid "Unable to find the proper mailbox"
+msgstr "Seleccionar mensaje siguiente"
 
-#: src/widget-composer.c:794
+#: src/widget-composer.c:703 src/widget-composer.c:1012
+msgid "Composer: Untitled"
+msgstr ""
+
+#: src/widget-composer.c:808
 msgid ""
 "You have choosen to use an external editor instead of the built-in with "
 "Cronos II.\n"
@@ -390,62 +406,60 @@ msgid ""
 "window.\n"
 msgstr ""
 
-#: src/widget-composer.c:994
-#, fuzzy, c-format
+#: src/widget-composer.c:1008
+#, c-format
 msgid "Composer: %s"
-msgstr "Compositor: %s"
+msgstr ""
 
-#: src/widget-composer.c:1074
+#: src/widget-composer.c:1088
 #, fuzzy, c-format
 msgid "Run external editor: %s"
-msgstr "Ejecutar editor externo: %s"
+msgstr "Utilizar el editor externo:"
 
 #. Set more info about the mime object
-#: src/widget-composer.c:1169 src/widget-composer.c:2122
+#: src/widget-composer.c:1183 src/widget-composer.c:2136
 msgid "unknown"
-msgstr "desconocido"
+msgstr ""
 
-#: src/widget-composer.c:1360
+#: src/widget-composer.c:1374
 #, c-format
 msgid "The account specified does not longer exist: %s"
-msgstr "La cuenta especificada ya no existe: %s"
+msgstr ""
 
-#: src/widget-composer.c:1365
+#: src/widget-composer.c:1379
 msgid ""
 "The message is not asociated to an account, default account will be used."
 msgstr ""
-"El mensaje no esta asociado a ninguna cuenta, la cuenta predeterminada será "
-"utilizada."
 
-#: src/widget-composer.c:1579
+#: src/widget-composer.c:1593
 #, c-format
 msgid "Unable to open temporal file for writing to external editor: %s"
 msgstr ""
 
-#: src/widget-composer.c:1673
+#: src/widget-composer.c:1687
 #, c-format
 msgid "On %s, %s wrote:\n"
-msgstr "El %s, %s escribió:\n"
+msgstr ""
 
-#: src/widget-composer.c:2100
+#: src/widget-composer.c:2114
 #, c-format
 msgid "Failed to open %s: %s"
 msgstr ""
 
-#: src/widget-composer.c:2110
+#: src/widget-composer.c:2124
 #, c-format
 msgid "Failed to stat %s: %s"
 msgstr ""
 
-#: src/widget-composer.c:2200
+#: src/widget-composer.c:2214
 #, c-format
 msgid "The account specified does not exist: %s"
 msgstr ""
 
 #: src/widget-dialog-preferences.c:435
-#, c-format
+#, fuzzy, c-format
 msgid "%s (default)"
-msgstr "%s (predeterminado)"
+msgstr "por defecto."
 
 #: src/widget-dialog-preferences.c:657 src/widget-dialog-preferences.c:766
 msgid "General"
@@ -471,26 +485,27 @@ msgstr "Editor de cuenta"
 #: src/preferences-trans.h:171 src/widget-dialog-preferences.c:1868
 #: src/widget-dialog-preferences.c:1879 src/widget-dialog-preferences.c:2225
 msgid "Post Office Protocol 3 (POP3)"
-msgstr "Protocolo de Oficina Postal 3 (POP3)"
+msgstr ""
 
 #: src/preferences-trans.h:172 src/widget-dialog-preferences.c:1868
 #: src/widget-dialog-preferences.c:1888 src/widget-dialog-preferences.c:2227
 msgid "Internet Message Access Protocol 4 (IMAP)"
-msgstr "Protocolo de Acceso de Mensajes en Internet 4 (IMAP)"
+msgstr ""
 
 #: src/preferences-trans.h:192 src/widget-dialog-preferences.c:1925
-#: src/widget-dialog-preferences.c:1983 src/widget-dialog-preferences.c:2390
+#: src/widget-dialog-preferences.c:1983 src/widget-dialog-preferences.c:2389
 msgid "SMTP"
 msgstr "SMTP"
 
 #: src/preferences-trans.h:193 src/widget-dialog-preferences.c:1989
-#: src/widget-dialog-preferences.c:2394
+#: src/widget-dialog-preferences.c:2393
 msgid "Sendmail"
 msgstr "Sendmail"
 
 #: src/preferences-trans.h:184 src/widget-dialog-preferences.c:2304
+#, fuzzy
 msgid "Plain"
-msgstr "Plano"
+msgstr "Im_primir"
 
 #: src/preferences-trans.h:185 src/widget-dialog-preferences.c:2308
 msgid "APOP"
@@ -507,132 +522,135 @@ msgstr "Fecha"
 #: src/widget-mailbox-list.c:227
 #, fuzzy
 msgid "Mailboxes"
-msgstr "Buzones"
+msgstr "Buzón"
 
 #: src/widget-mailbox-list.c:836
 #, fuzzy
 msgid "Local Mailboxes"
 msgstr "Cargar buzones"
 
-#: src/widget-mailbox-list.c:1136 src/widget-transfer-item.c:587
+#: src/widget-mailbox-list.c:1136 src/widget-transfer-item.c:591
 msgid "Login failed"
-msgstr "Autentificación fallida"
+msgstr ""
 
 #: src/widget-transfer-item.c:250
 #, c-format
 msgid "Receive «%s»"
-msgstr "Recibir «%s»"
+msgstr ""
 
 #: src/widget-transfer-item.c:259
 #, c-format
 msgid "Send «%s»"
-msgstr "Enviar «%s»"
+msgstr ""
 
 #: src/widget-transfer-item.c:297
 msgid "Cancel the transfer"
-msgstr "Cancelar la transferencia"
+msgstr ""
 
-#: src/widget-transfer-item.c:443
+#: src/widget-transfer-item.c:447
+#, fuzzy
 msgid "No Inbox mailbox"
-msgstr "No existe el Buzón de Entrada"
+msgstr "Nuevo buzón"
 
-#: src/widget-transfer-item.c:475 src/widget-transfer-item.c:506
+#: src/widget-transfer-item.c:479 src/widget-transfer-item.c:510
 msgid "Resolving"
-msgstr "Resolviendo"
+msgstr ""
 
-#: src/widget-transfer-item.c:517
+#: src/widget-transfer-item.c:521
 msgid "Connecting"
-msgstr "Conectando"
+msgstr ""
 
 #. [FIXME]
 #. * Action to login? Loggining?
 #.
-#: src/widget-transfer-item.c:528
+#: src/widget-transfer-item.c:532
 msgid "Loggining"
-msgstr "Entrando"
+msgstr ""
 
-#: src/widget-transfer-item.c:655
+#: src/widget-transfer-item.c:659
+#, fuzzy
 msgid "Getting mail list"
-msgstr "Obteniendo lista de mensajes"
+msgstr "Correo saliente"
 
-#: src/widget-transfer-item.c:675
-#, c-format
+#: src/widget-transfer-item.c:679
+#, fuzzy, c-format
 msgid "%u message."
-msgstr "%u mensaje."
+msgstr "Ese mensaje no existe"
 
-#: src/widget-transfer-item.c:677
-#, c-format
+#: src/widget-transfer-item.c:681
+#, fuzzy, c-format
 msgid "%u messages."
-msgstr "%u mensajes."
+msgstr "Ese mensaje no existe"
 
-#: src/widget-transfer-item.c:692
+#: src/widget-transfer-item.c:696
 msgid "Receiving %v of %u"
-msgstr "Recibiendo %v de %u"
+msgstr ""
 
-#: src/widget-transfer-item.c:711
+#: src/widget-transfer-item.c:715
 msgid "Synchronizing"
-msgstr "Sincronizando"
+msgstr ""
 
-#: src/widget-transfer-item.c:731
+#: src/widget-transfer-item.c:735
 #, c-format
 msgid "Received %d new mail%s"
-msgstr "%d correo%s nuevo%s"
+msgstr ""
 
-#: src/widget-transfer-item.c:732 src/widget-transfer-item.c:735
+#: src/widget-transfer-item.c:736 src/widget-transfer-item.c:739
 msgid "s"
 msgstr ""
 
-#: src/widget-transfer-item.c:734
+#: src/widget-transfer-item.c:738
 msgid "No new mails available"
-msgstr "No hay correo"
-
-#: src/widget-transfer-item.c:739
-#, c-format
-msgid "Failure: %s"
-msgstr "Fallo: %s"
-
-#: src/widget-transfer-item.c:741
-msgid "Failure"
 msgstr ""
 
-#: src/widget-transfer-item.c:795
+#: src/widget-transfer-item.c:743
+#, fuzzy, c-format
+msgid "Failure: %s"
+msgstr "Fallo."
+
+#: src/widget-transfer-item.c:745
+#, fuzzy
+msgid "Failure"
+msgstr "Fallo."
+
+#: src/widget-transfer-item.c:800
 #, fuzzy
 msgid "Sending"
 msgstr "Sendmail"
 
-#: src/widget-transfer-item.c:823
+#: src/widget-transfer-item.c:828
 msgid "Message Sent"
-msgstr "Correo enviado"
+msgstr ""
 
-#: src/widget-transfer-item.c:845
+#: src/widget-transfer-item.c:838 src/widget-transfer-item.c:849
 #, c-format
 msgid "There's no mailbox marked as %s!\n"
 msgstr ""
 
 #: src/widget-transfer-list.c:146
 msgid "Stop all"
-msgstr "Detener todo"
+msgstr ""
 
 #: src/widget-transfer-list.c:160
 msgid "Close when finished."
-msgstr "Cerrar al finalizar."
+msgstr ""
 
 #: src/widget-transfer-list.c:169
 msgid "Send & Receive"
-msgstr "Envio & Recepción"
+msgstr ""
 
 #: src/widget-window-main.c:347
 msgid "Check"
-msgstr "Chequear"
+msgstr ""
 
 #: src/widget-window-main.c:348
 #, fuzzy
 msgid "Check for incoming mails"
-msgstr "Chequear cuentas activas por correo entrante cada"
+msgstr "Correo entrante"
 
 #: src/widget-window-main.c:355
 msgid "Send"
-msgstr "Enviar"
+msgstr ""
 
 #: src/widget-window-main.c:356
 #, fuzzy
@@ -641,7 +659,7 @@ msgstr "Correo saliente"
 
 #: src/widget-window-main.c:363
 msgid "Search"
-msgstr "Buscar"
+msgstr ""
 
 #: src/widget-window-main.c:364
 msgid "Search a message in existent mailboxes"
@@ -649,16 +667,16 @@ msgstr ""
 
 #: src/trans.h:117 src/widget-window-main.c:371
 msgid "Save"
-msgstr "Guardar"
+msgstr ""
 
 #: src/widget-window-main.c:372
 #, fuzzy
 msgid "Save selected message"
-msgstr "No éxiste tal mensaje"
+msgstr "Ese mensaje no existe"
 
 #: src/widget-window-main.c:379
 msgid "Print"
-msgstr "Imprimir"
+msgstr "Im_primir"
 
 #: src/widget-window-main.c:380
 msgid "Print selected message"
@@ -666,23 +684,23 @@ msgstr ""
 
 #: src/widget-window-main.c:387
 msgid "Delete"
-msgstr "Eliminar"
+msgstr ""
 
 #: src/widget-window-main.c:388
 msgid "Delete selected mails"
-msgstr "Eliminar los mensajes seleccionados"
+msgstr ""
 
 #: src/widget-window-main.c:395
 msgid "Copy"
-msgstr "Copiar"
+msgstr ""
 
 #: src/widget-window-main.c:396
 msgid "Copy selected mails"
-msgstr "Copiar los mensajes seleccionados"
+msgstr ""
 
 #: src/widget-window-main.c:403
 msgid "Move"
-msgstr "Mover"
+msgstr ""
 
 #: src/widget-window-main.c:404
 msgid "Move selected mails"
@@ -690,23 +708,23 @@ msgstr ""
 
 #: src/widget-window-main.c:411
 msgid "Compose"
-msgstr "Componer"
+msgstr ""
 
 #: src/widget-window-main.c:412
 msgid "Compose a new message"
-msgstr "Componer un nuevo correo"
+msgstr ""
 
 #: src/widget-window-main.c:419
 msgid "Reply"
-msgstr "Contestar"
+msgstr ""
 
 #: src/widget-window-main.c:420
 msgid "Reply selected message"
-msgstr "Contestar el mensaje seleccionado"
+msgstr ""
 
 #: src/widget-window-main.c:427
 msgid "Reply All"
-msgstr "Contestar todos"
+msgstr ""
 
 #: src/widget-window-main.c:428
 msgid "Reply selected message to all recipients"
@@ -714,7 +732,7 @@ msgstr ""
 
 #: src/widget-window-main.c:435
 msgid "Forward"
-msgstr "Reenviar"
+msgstr ""
 
 #: src/widget-window-main.c:436
 msgid "Forward selected message"
@@ -726,7 +744,7 @@ msgstr "Anterior"
 
 #: src/trans.h:61 src/widget-window-main.c:444
 msgid "Select previous message"
-msgstr ""
+msgstr "Seleccionar mensaje anterior"
 
 #: src/widget-window-main.c:451
 msgid "Next"
@@ -734,7 +752,7 @@ msgstr "Siguiente"
 
 #: src/trans.h:63 src/widget-window-main.c:452
 msgid "Select next message"
-msgstr ""
+msgstr "Seleccionar mensaje siguiente"
 
 #: src/widget-window-main.c:459
 msgid "Contacts"
@@ -746,7 +764,7 @@ msgstr ""
 
 #: src/trans.h:156 src/widget-window-main.c:467
 msgid "Close"
-msgstr "Cerrar"
+msgstr ""
 
 #: src/widget-window-main.c:469
 msgid "Close the main window of Cronos II"
@@ -765,35 +783,35 @@ msgid ""
 "Cronos II was not able to load the UI, you should check your installation.\n"
 "Aborting.\n"
 msgstr ""
-"Cronos II no pudo cargar la interface de usuario, debería chequear su "
+"Cronos II no pudo cargar la interface de usuario, deberías chequear tu "
 "instalación.\n"
 "Abortando.\n"
 
-#: src/widget-window-main.c:2204
-#, c-format
+#: src/widget-window-main.c:2239
+#, fuzzy, c-format
 msgid "%d messages, %d new."
-msgstr "%d mensajes, %d nuevos."
+msgstr "%a v.%v - %m (%m mensajes, %n nuevos)"
 
-#: src/widget-window-main.c:2316
+#: src/widget-window-main.c:2351
 msgid ""
 "This folder parents all the local mailboxes that <b>Cronos II</b> handles "
 "for you."
 msgstr ""
 
-#: src/trans.h:172 src/widget-window-main.c:2358
+#: src/trans.h:172 src/widget-window-main.c:2393
 msgid "You found the Eastern Egg!"
-msgstr "Has encontrado el Huevo de Pascua!"
+msgstr "¡Encontraste el Huevo de Pascua!"
 
-#: src/trans.h:173 src/widget-window-main.c:2359
+#: src/trans.h:173 src/widget-window-main.c:2394
 msgid "Neat, baby!"
-msgstr "Buenísimo!"
+msgstr "Copado!"
 
-#: src/widget-window-main.c:2618
+#: src/widget-window-main.c:2653
 #, fuzzy
 msgid "Toolbar Configuration"
-msgstr "Configuración de la Barra de Herramientas"
+msgstr "Configuración de la barra de herramientas"
 
-#: src/widget-window-main.c:2721
+#: src/widget-window-main.c:2756
 msgid "Separator"
 msgstr "Separador"
 
@@ -821,15 +839,13 @@ msgstr "Error"
 #: src/preferences-trans.h:13 src/preferences-trans.h:17
 #: src/preferences-trans.h:21
 msgid "Close Dialog"
-msgstr "Cerrar díalogo"
+msgstr "Cerrar el dialogo"
 
 #: src/preferences-trans.h:14
 msgid ""
 "The E-Mail address you\n"
 "entered is not valid."
 msgstr ""
-"La dirección de correo\n"
-"ingresada no es valida."
 
 #: src/preferences-trans.h:18
 msgid ""
@@ -839,7 +855,7 @@ msgstr ""
 
 #: src/preferences-trans.h:22
 msgid "You have not entered a valid hostname."
-msgstr "No ha ingreado un nombre de servidor válido."
+msgstr ""
 
 #: src/preferences-trans.h:24
 msgid ""
@@ -848,10 +864,6 @@ msgid ""
 "\n"
 "Are you sure you want this?"
 msgstr ""
-"Esto eliminará permanentemente\n"
-"la cuenta de su configuración.\n"
-"\n"
-"¿Estás seguro que querés esto?"
 
 #: src/preferences-trans.h:28 src/preferences-trans.h:146 src/trans.h:149
 #: src/trans.h:194 src/trans.h:195 src/trans.h:201
@@ -864,7 +876,7 @@ msgstr "Información"
 
 #: src/preferences-trans.h:31
 msgid "Actions at start"
-msgstr "Acciones al comienzo"
+msgstr "Acciones al comenzar"
 
 #: src/preferences-trans.h:32
 msgid "Check for mail in active accounts."
@@ -876,20 +888,20 @@ msgstr "Cargar buzones"
 
 #: src/preferences-trans.h:34
 msgid "Actions at exit"
-msgstr "Acciones al terminar"
+msgstr "Acciones al salir"
 
 #: src/preferences-trans.h:35
 #, fuzzy
 msgid "Expunge mails in «Trash» mailbox."
-msgstr "Expungar correos en el buzón Basura."
+msgstr "Expungar correos en el buzón 'Basura'"
 
 #: src/preferences-trans.h:36
 msgid "Timeouts"
-msgstr "Tiempos de espera"
+msgstr ""
 
 #: src/preferences-trans.h:37
 msgid "Mark messages as readed after"
-msgstr "Marcar mensajes como leídos despues de"
+msgstr "Marcar mensajes como leídos después de"
 
 #: src/preferences-trans.h:38
 msgid "seconds."
@@ -897,7 +909,7 @@ msgstr "segundos."
 
 #: src/preferences-trans.h:39
 msgid "Check active accounts for incoming mail every"
-msgstr "Chequear cuentas activas por correo entrante cada"
+msgstr ""
 
 #: src/preferences-trans.h:40
 msgid "minutes."
@@ -918,21 +930,21 @@ msgstr "Correo saliente"
 #: src/preferences-trans.h:44
 #, fuzzy
 msgid "Save copy in «Sent Items» mailbox."
-msgstr "Guardar copia en Buzón de Salida"
+msgstr "Guardar copia en buzón 'Saliente'"
 
 #: src/preferences-trans.h:45
 #, fuzzy
 msgid "Deleting mails"
-msgstr "Obteniendo lista de mensajes"
+msgstr "Correo saliente"
 
 #: src/preferences-trans.h:46
 msgid "Store deleted mails in «Trash»."
-msgstr "Guardar mensajes eliminados en «Mensajes Eliminados»"
+msgstr "Guardar mensajes eliminados en «Basura»"
 
 #: src/preferences-trans.h:47
 #, fuzzy
 msgid "Ask for confirmation when deleting."
-msgstr "Pedir confirmación antes de actuar."
+msgstr "Pedir por confirmación antes de actuar."
 
 #: src/preferences-trans.h:48
 msgid "Archive expunged mails."
@@ -940,7 +952,7 @@ msgstr ""
 
 #: src/preferences-trans.h:49
 msgid "General/Options"
-msgstr "General/Opciones"
+msgstr ""
 
 #: src/preferences-trans.h:50 src/trans.h:120
 msgid "Name"
@@ -952,11 +964,11 @@ msgstr "Tipo"
 
 #: src/preferences-trans.h:52
 msgid "Press this button to add a new account to the list."
-msgstr ""
+msgstr "Apretá este botón para adherir una nueva cuenta a la lista."
 
 #: src/preferences-trans.h:53
 msgid "_Add"
-msgstr "_Añadir"
+msgstr "_Adherir"
 
 #: src/preferences-trans.h:54
 msgid "Press this button to edit the information of the selected account."
@@ -964,7 +976,7 @@ msgstr ""
 
 #: src/preferences-trans.h:55
 msgid "_Edit"
-msgstr "_Editar"
+msgstr ""
 
 #: src/preferences-trans.h:56
 msgid "Press this button to remove the selected account of the list."
@@ -972,7 +984,7 @@ msgstr ""
 
 #: src/preferences-trans.h:57
 msgid "_Remove"
-msgstr "_Remover"
+msgstr ""
 
 #: src/preferences-trans.h:58
 msgid "Press this button to move up the selected account in the priority list"
@@ -980,7 +992,7 @@ msgstr ""
 
 #: src/preferences-trans.h:59
 msgid "_Up"
-msgstr "Arriba"
+msgstr "_Arriba"
 
 #: src/preferences-trans.h:60
 msgid ""
@@ -989,11 +1001,11 @@ msgstr ""
 
 #: src/preferences-trans.h:61
 msgid "_Down"
-msgstr "Abajo"
+msgstr ""
 
 #: src/preferences-trans.h:62
 msgid "General/Accounts"
-msgstr "General/Cuentas"
+msgstr ""
 
 #: src/preferences-trans.h:63
 msgid "Paths to prompt to by action"
@@ -1025,7 +1037,7 @@ msgstr ""
 
 #: src/preferences-trans.h:70
 msgid "Add"
-msgstr "Añadir"
+msgstr ""
 
 #: src/preferences-trans.h:71
 msgid "Press this button to remove the selected plugin from Cronos II."
@@ -1033,7 +1045,7 @@ msgstr ""
 
 #: src/preferences-trans.h:72
 msgid "Remove"
-msgstr "Eliminar"
+msgstr ""
 
 #: src/preferences-trans.h:73
 msgid "Press this button to configure the selected plugin"
@@ -1045,7 +1057,7 @@ msgstr ""
 
 #: src/preferences-trans.h:75
 msgid "Description"
-msgstr ""
+msgstr "Descripción"
 
 #: src/preferences-trans.h:76
 msgid "General/Plugins"
@@ -1092,9 +1104,8 @@ msgid "Message body:"
 msgstr ""
 
 #: src/preferences-trans.h:87
-#, fuzzy
 msgid "Composer body:"
-msgstr "Interface/Compositor"
+msgstr ""
 
 #: src/preferences-trans.h:88
 #, fuzzy
@@ -1135,19 +1146,19 @@ msgstr ""
 
 #: src/preferences-trans.h:96
 msgid "Images from net"
-msgstr ""
+msgstr "Imágenes de la red"
 
 #: src/preferences-trans.h:97
 msgid "Download."
-msgstr "Descargar."
+msgstr "Bajarlas."
 
 #: src/preferences-trans.h:98
 msgid "Do not download."
-msgstr "No descargar."
+msgstr "No bajarlas."
 
 #: src/preferences-trans.h:99
 msgid "Ask for confirmation before downloading."
-msgstr "Pedir confirmación antes de descargar."
+msgstr "Pedir confirmación antes de bajarlas."
 
 #: src/preferences-trans.h:100
 msgid "Links"
@@ -1155,23 +1166,24 @@ msgstr "Vínculos"
 
 #: src/preferences-trans.h:101
 msgid "Open using default Gnome browser."
-msgstr "Abrir utilizando navegador de Gnome predeterminado."
+msgstr "Abrir utilizando el navegador de Gnome por defecto."
 
 #: src/preferences-trans.h:102
 msgid "Do not open unless is a \"mailto:\" link."
-msgstr "No abrir a menos que sea un vínculo de correo."
+msgstr "No abrir a menos que el vínculo sea \"mailto:\""
 
 #: src/preferences-trans.h:103
 msgid "Ask for confirmation before acting."
-msgstr "Pedir confirmación antes de actuar."
+msgstr "Pedir por confirmación antes de actuar."
 
 #: src/preferences-trans.h:104
+#, fuzzy
 msgid "Interpret text/plain symbols."
-msgstr "Interpretar símbolos de texto plano."
+msgstr "Interpretar símbolos de text/plain"
 
 #: src/preferences-trans.h:105
 msgid "Interface/HTML"
-msgstr "Interface/HTML"
+msgstr ""
 
 #: src/preferences-trans.h:106
 msgid "Quotes"
@@ -1179,7 +1191,7 @@ msgstr "Citas"
 
 #: src/preferences-trans.h:107
 msgid "Prepend with character"
-msgstr ""
+msgstr "Prefijar con caracter"
 
 #: src/preferences-trans.h:108
 msgid "Highlight with color\t"
@@ -1187,7 +1199,7 @@ msgstr ""
 
 #: src/preferences-trans.h:109
 msgid "Pick a color"
-msgstr "Elija un color"
+msgstr "Elegí un color"
 
 #: src/preferences-trans.h:110
 msgid "Editor"
@@ -1195,11 +1207,11 @@ msgstr "Editor"
 
 #: src/preferences-trans.h:111
 msgid "Use internal editor."
-msgstr "Utilizar editor interno."
+msgstr "Utilizar el editor internal."
 
 #: src/preferences-trans.h:112
 msgid "Use external editor:"
-msgstr "Utilizar editor externo."
+msgstr "Utilizar el editor externo:"
 
 #: src/preferences-trans.h:113 src/preferences-trans.h:117
 msgid "gnome-edit"
@@ -1219,7 +1231,7 @@ msgstr ""
 
 #: src/preferences-trans.h:118
 msgid "Inteface/Composer"
-msgstr "Interface/Compositor"
+msgstr ""
 
 #: src/preferences-trans.h:119
 msgid "Title format"
@@ -1227,7 +1239,7 @@ msgstr "Formato del título"
 
 #: src/preferences-trans.h:120 src/preferences-trans.h:124
 msgid "%a v.%v - %M (%m messages, %n new)"
-msgstr "%a v.%v - %M (%m mensajes, %n nuevos)"
+msgstr "%a v.%v - %m (%m mensajes, %n nuevos)"
 
 #: src/preferences-trans.h:121
 msgid "%a v.%v - %M"
@@ -1267,15 +1279,15 @@ msgstr "Mostrar"
 
 #: src/preferences-trans.h:132
 msgid "text/plain"
-msgstr "text plano"
+msgstr ""
 
 #: src/preferences-trans.h:133
 msgid "text/html"
-msgstr "texto con formato HTML"
+msgstr ""
 
 #: src/preferences-trans.h:134
 msgid "by default."
-msgstr "primero."
+msgstr "por defecto."
 
 #: src/preferences-trans.h:135
 msgid "Interface/Misc"
@@ -1287,11 +1299,11 @@ msgstr ""
 
 #: src/preferences-trans.h:137
 msgid "FTP Proxy"
-msgstr "Proxy FTP"
+msgstr ""
 
 #: src/preferences-trans.h:138
 msgid "HTTP Proxy"
-msgstr "Proxy HTTP"
+msgstr ""
 
 #: src/preferences-trans.h:139 src/preferences-trans.h:140
 msgid "Port"
@@ -1340,7 +1352,7 @@ msgstr "Nombre completo:"
 
 #: src/preferences-trans.h:158
 msgid "E-Mail Address:"
-msgstr "Dirección de correo:"
+msgstr ""
 
 #: src/preferences-trans.h:159
 msgid ""
@@ -1358,7 +1370,7 @@ msgstr "Organización:"
 
 #: src/preferences-trans.h:162
 msgid "Reply-To Address:"
-msgstr "Responder a dirección:"
+msgstr ""
 
 #: src/preferences-trans.h:163
 msgid ""
@@ -1367,7 +1379,7 @@ msgstr ""
 
 #: src/preferences-trans.h:164
 msgid "Submit Personal Card:"
-msgstr "Enviar tarjeta personal:"
+msgstr ""
 
 #: src/preferences-trans.h:165
 msgid "[TODO]"
@@ -1390,7 +1402,7 @@ msgstr "Información del servidor"
 
 #: src/preferences-trans.h:174 src/preferences-trans.h:195
 msgid "Hostname:"
-msgstr "Servidor:"
+msgstr "Dirección:"
 
 #: src/preferences-trans.h:175 src/preferences-trans.h:196
 msgid "Port:"
@@ -1406,7 +1418,7 @@ msgstr ""
 
 #: src/preferences-trans.h:178 src/preferences-trans.h:199 src/trans.h:158
 msgid "Username:"
-msgstr "Usuario:"
+msgstr ""
 
 #: src/preferences-trans.h:179
 msgid "Username Cronos II will use to identifies it self at the server"
@@ -1414,7 +1426,7 @@ msgstr ""
 
 #: src/preferences-trans.h:180 src/preferences-trans.h:203
 msgid "Use Secure Server Layer (SSL)."
-msgstr "Utilizar capa segura del servidor (SSL)."
+msgstr "Usar Capa de Servidor Segura (SSL)."
 
 #: src/preferences-trans.h:181 src/preferences-trans.h:204 src/trans.h:157
 msgid "Password:"
@@ -1460,12 +1472,13 @@ msgid "Username Cronos II will use to authenticate it self to the MTA"
 msgstr ""
 
 #: src/preferences-trans.h:201
+#, fuzzy
 msgid "Enable this option if your server requires authentication"
-msgstr ""
+msgstr "Este servidor requiere autentificación"
 
 #: src/preferences-trans.h:202
 msgid "This server requires authentication."
-msgstr "Este servidor requiere autentificación."
+msgstr "Este servidor requiere autentificación"
 
 #: src/preferences-trans.h:207
 msgid "Password"
@@ -1489,15 +1502,15 @@ msgstr ""
 
 #: src/preferences-trans.h:213
 msgid "Signature"
-msgstr "Firma"
+msgstr ""
 
 #: src/preferences-trans.h:214
 msgid "Signature file (plain):"
-msgstr "Archivo de firma (texto plano):"
+msgstr ""
 
 #: src/preferences-trans.h:215
 msgid "Signature file (HTML):"
-msgstr "Archivo de firma (text en formato HTML):"
+msgstr ""
 
 #: src/preferences-trans.h:216
 msgid "Signature file that will be used when signing messages with no format"
@@ -1509,7 +1522,7 @@ msgstr ""
 
 #: src/preferences-trans.h:218
 msgid "Multiple server access options"
-msgstr "Opciones de acceso multiple al servidor"
+msgstr ""
 
 #: src/preferences-trans.h:219
 msgid ""
@@ -1519,7 +1532,7 @@ msgstr ""
 
 #: src/preferences-trans.h:220
 msgid "Leave messages in the server."
-msgstr "Dejar mensajes en el servidor."
+msgstr ""
 
 #: src/preferences-trans.h:221
 msgid ""
@@ -1529,7 +1542,7 @@ msgstr ""
 
 #: src/preferences-trans.h:222
 msgid "Remove messages older than"
-msgstr "Remover mensajes después de"
+msgstr ""
 
 #: src/preferences-trans.h:223
 msgid ""
@@ -1539,7 +1552,7 @@ msgstr ""
 
 #: src/preferences-trans.h:224
 msgid "days."
-msgstr "días de obtenido."
+msgstr ""
 
 #: src/preferences-trans.h:225
 msgid ""
@@ -1549,11 +1562,11 @@ msgstr ""
 
 #: src/preferences-trans.h:226
 msgid "Automatically check this account."
-msgstr "Automaticamente chequear esta cuenta."
+msgstr ""
 
 #: src/preferences-trans.h:227
 msgid "Finished"
-msgstr "Terminado"
+msgstr ""
 
 #: src/preferences-trans.h:228
 msgid ""
@@ -1576,15 +1589,15 @@ msgstr ""
 #.
 #: src/trans.h:7
 msgid "Cronos II"
-msgstr ""
+msgstr "Cronos II"
 
 #: src/trans.h:8
 msgid "Compose a new E-Mail"
-msgstr ""
+msgstr "Componer un nuevo correo"
 
 #: src/trans.h:9
 msgid "_E-Mail"
-msgstr ""
+msgstr "_Correo"
 
 #: src/trans.h:10 src/trans.h:125
 msgid "Create a new mailbox"
@@ -1597,36 +1610,37 @@ msgstr "Buzón"
 
 #: src/trans.h:12
 msgid "Add a new contact to your address book"
-msgstr ""
+msgstr "Añadir un nuevo contacto a la Libreta de Direcciones"
 
 #: src/trans.h:13
+#, fuzzy
 msgid "_Contact..."
-msgstr ""
+msgstr "_Contactos..."
 
 #: src/trans.h:14
 msgid "Open a new main window"
-msgstr ""
+msgstr "Abrir una nueva ventana"
 
 #: src/trans.h:15
 msgid "_Window"
-msgstr ""
+msgstr "_Ventana"
 
 #: src/trans.h:16
 msgid "_Check Mail"
-msgstr ""
+msgstr "_Chequear Correo"
 
 #: src/trans.h:17
 msgid "Check all accounts for new mail"
-msgstr ""
+msgstr "Chequear todas las cuentas por nuevo correo"
 
 #: src/trans.h:18
 msgid "All Accounts"
-msgstr ""
+msgstr "Todas las cuentas"
 
 #: src/trans.h:19
 #, fuzzy
 msgid "_Send unsent mails"
-msgstr "Correo saliente"
+msgstr "_Enviar correo no envíado"
 
 #: src/trans.h:20
 msgid "Open the Address Book"
@@ -1638,11 +1652,12 @@ msgstr ""
 
 #: src/trans.h:22 src/trans.h:243
 msgid "_Save..."
-msgstr ""
+msgstr "Guardar..."
 
 #: src/trans.h:23 src/trans.h:244
+#, fuzzy
 msgid "_Print..."
-msgstr ""
+msgstr "Im_primir"
 
 #: src/trans.h:24
 msgid "mmmm, I smell a nice egg coming from the east..."
@@ -1655,7 +1670,7 @@ msgstr ""
 #: src/trans.h:26
 #, fuzzy
 msgid "_Mailboxes List"
-msgstr "Buzón"
+msgstr "_Buzón"
 
 #: src/trans.h:27
 msgid "Mail _Preview"
@@ -1663,24 +1678,23 @@ msgstr ""
 
 #: src/trans.h:28
 msgid "_Headers"
-msgstr "Ca_beceras"
+msgstr "Cabeceras"
 
 #: src/trans.h:29
 msgid "_Network Traffic"
-msgstr "_Tráfico de red"
+msgstr ""
 
 #: src/trans.h:30
 msgid "Mail _Source"
-msgstr ""
+msgstr "Código fuente del correo"
 
 #: src/trans.h:31
 msgid "Network _Traffic"
-msgstr "Tráfico de _red"
+msgstr "_Tráfico de Red"
 
 #: src/trans.h:32
-#, fuzzy
 msgid "Send & Re_ceive"
-msgstr "Envio & Recepción"
+msgstr "Enviar y Recibir"
 
 #: src/trans.h:33
 msgid "_Mailbox"
@@ -1691,16 +1705,18 @@ msgid "_Compact/Speed Up..."
 msgstr ""
 
 #: src/trans.h:35
+#, fuzzy
 msgid "_Import..."
-msgstr "_Importar..."
+msgstr "_Importar"
 
 #: src/trans.h:36
+#, fuzzy
 msgid "_Export..."
-msgstr "_Expotar..."
+msgstr "_Exportar"
 
 #: src/trans.h:37
 msgid "Empty _Garbage"
-msgstr ""
+msgstr "Vaciar Elementos Eliminados"
 
 #: src/trans.h:38
 msgid "Mess_age"
@@ -1708,15 +1724,15 @@ msgstr "Mens_aje"
 
 #: src/trans.h:39 src/trans.h:228
 msgid "_Reply"
-msgstr "_Contestar"
+msgstr "Contesta_r"
 
 #: src/trans.h:40 src/trans.h:229
 msgid "Reply to _all"
-msgstr "Contestar a _todos"
+msgstr "Contestar _a todos"
 
 #: src/trans.h:41 src/trans.h:230
 msgid "_Forward"
-msgstr "Reen_viar"
+msgstr "_Reenviar"
 
 #: src/trans.h:42
 msgid "Copy selected messages"
@@ -1740,7 +1756,7 @@ msgstr ""
 
 #: src/trans.h:47 src/trans.h:231
 msgid "_Delete"
-msgstr ""
+msgstr "_Eliminar"
 
 #: src/trans.h:48
 msgid "Expunge selected messages"
@@ -1748,20 +1764,21 @@ msgstr ""
 
 #: src/trans.h:49
 msgid "_Expunge"
-msgstr ""
+msgstr "E_xpungar"
 
 #: src/trans.h:50
 msgid "Mar_k"
-msgstr ""
+msgstr "Mar_ca"
 
 #: src/trans.h:51
 #, fuzzy
 msgid "Mark selected message as important"
-msgstr "Marcar mensajes como leídos despues de"
+msgstr "Marcar mensajes como leídos después de"
 
 #: src/trans.h:52 src/trans.h:234
+#, fuzzy
 msgid "_Important"
-msgstr ""
+msgstr "_Importar"
 
 #: src/trans.h:53
 msgid "Mark selected messages as unreaded"
@@ -1777,31 +1794,31 @@ msgstr ""
 
 #: src/trans.h:56 src/trans.h:236
 msgid "_Readed"
-msgstr ""
+msgstr "_Leído"
 
 #: src/trans.h:57
 msgid "Mark selected messages as replied"
-msgstr ""
+msgstr "Marcar mensajes seleccionados como contestados"
 
 #: src/trans.h:58 src/trans.h:237
 msgid "Repl_ied"
-msgstr ""
+msgstr "Contestado"
 
 #: src/trans.h:59
 msgid "Mark selected messages as forwarded"
-msgstr ""
+msgstr "Marcar mensajes seleccionados como reenviado"
 
 #: src/trans.h:60 src/trans.h:238
 msgid "_Forwarded"
-msgstr ""
+msgstr "_Reenviado"
 
 #: src/trans.h:62 src/trans.h:241
 msgid "_Previous"
-msgstr ""
+msgstr "_Anterior"
 
 #: src/trans.h:64 src/trans.h:242
 msgid "_Next"
-msgstr ""
+msgstr "_Siguiente"
 
 #: src/trans.h:65
 msgid "Try to recover an expunged message"
@@ -1810,11 +1827,11 @@ msgstr ""
 #: src/trans.h:66
 #, fuzzy
 msgid "Reco_ver"
-msgstr "_Remover"
+msgstr "Reco_brar"
 
 #: src/trans.h:67
 msgid "F_ilters"
-msgstr ""
+msgstr "F_iltros"
 
 #: src/trans.h:68
 msgid "_Rule Manager..."
@@ -1830,11 +1847,11 @@ msgstr ""
 
 #: src/trans.h:71
 msgid "_Download new features from Internet..."
-msgstr ""
+msgstr "_Descargar nuevas funcionalidades de Internet..."
 
 #: src/trans.h:72
 msgid "_User Manual"
-msgstr ""
+msgstr "Manual de _usuario"
 
 #: src/trans.h:73
 msgid "_Quick Tips..."
@@ -1842,7 +1859,7 @@ msgstr ""
 
 #: src/trans.h:74
 msgid "_Getting in Touch..."
-msgstr ""
+msgstr "Poniendose en contacto..."
 
 #: src/trans.h:75
 #, fuzzy
@@ -1851,12 +1868,12 @@ msgstr "Información"
 
 #: src/trans.h:76
 msgid "About _Plugins..."
-msgstr ""
+msgstr "Sobre funcionalidades dinámicas..."
 
 #: src/trans.h:77
 #, fuzzy
 msgid "_Donations"
-msgstr "Cuentas"
+msgstr "_Donaciones"
 
 #: src/trans.h:78
 msgid "_Filters:"
@@ -1873,7 +1890,7 @@ msgstr ""
 #: src/trans.h:85
 #, fuzzy
 msgid "contains"
-msgstr "Cuentas"
+msgstr "Contactos"
 
 #: src/trans.h:86
 msgid "is equal to"
@@ -1941,7 +1958,7 @@ msgstr ""
 #: src/trans.h:103
 #, fuzzy
 msgid "Parent"
-msgstr "Puerto"
+msgstr "Im_primir"
 
 #: src/trans.h:104
 #, fuzzy
@@ -2007,7 +2024,7 @@ msgstr ""
 
 #: src/trans.h:121
 msgid "E-Mail"
-msgstr ""
+msgstr "Correo"
 
 #: src/trans.h:122
 msgid "Comments"
@@ -2036,19 +2053,19 @@ msgstr ""
 
 #: src/trans.h:129
 msgid "_Subscribe"
-msgstr ""
+msgstr "_Suscribir"
 
 #: src/trans.h:130
 msgid "_Unsubscribe"
-msgstr ""
+msgstr "Des_uscribir"
 
 #: src/trans.h:131
 msgid "Download new mails to this mailbox"
-msgstr ""
+msgstr "Descargar nuevos correos a este buzón"
 
 #: src/trans.h:132
 msgid "Use as _Inbox"
-msgstr ""
+msgstr "Utilizar como Elementos Entrantes"
 
 #: src/trans.h:133
 msgid "Store unsent outgoing mails in this mailbox"
@@ -2056,24 +2073,25 @@ msgstr ""
 
 #: src/trans.h:134
 msgid "Use as _Outbox"
-msgstr ""
+msgstr "Utilizar como Bandeja de Salida"
 
 #: src/trans.h:135
 #, fuzzy
 msgid "Store sent mails in this mailbox"
-msgstr "Expungar correos en el buzón Basura."
+msgstr "Expungar correos en el buzón 'Basura'"
 
 #: src/trans.h:136
 msgid "Use as _Sent Items"
-msgstr ""
+msgstr "Utilizar como Elementos Enviados"
 
 #: src/trans.h:137
+#, fuzzy
 msgid "Store deleted mails in this mailbox"
-msgstr ""
+msgstr "Guardar mensajes eliminados en este buzón"
 
 #: src/trans.h:138
 msgid "Use as _Trash"
-msgstr ""
+msgstr "Utilizar como Elementos eliminados"
 
 #: src/trans.h:139
 msgid "Store unfinished outgoing mails in this mailbox"
@@ -2087,7 +2105,7 @@ msgstr "Fecha"
 #: src/trans.h:141
 #, fuzzy
 msgid "_Mailboxes list..."
-msgstr "Buzón"
+msgstr "Lista de _buzones..."
 
 #: src/trans.h:142
 msgid "_Display only subscribed mailboxes"
@@ -2105,23 +2123,23 @@ msgstr ""
 
 #: src/trans.h:150
 msgid "Remove this Mailbox"
-msgstr ""
+msgstr "Remover este buzón"
 
 #: src/trans.h:151
 msgid "Don't do anything. Close this dialog."
-msgstr ""
+msgstr "No hacer nada. Cerrar este dialogo."
 
 #: src/trans.h:152
 msgid "Make a backup copy"
-msgstr ""
+msgstr "Hacer una copia de seguridad"
 
 #: src/trans.h:153
 msgid "Archive mails (recommended)."
-msgstr ""
+msgstr "Archivar correos (recomendado)."
 
 #: src/trans.h:154
 msgid "Incorrect Password"
-msgstr ""
+msgstr "Contraseña Incorrecta"
 
 #: src/trans.h:155
 msgid "Try this new information"
@@ -2129,7 +2147,7 @@ msgstr ""
 
 #: src/trans.h:159
 msgid "Account:"
-msgstr ""
+msgstr "Cuenta:"
 
 #: src/trans.h:160
 msgid ""
@@ -2168,19 +2186,19 @@ msgstr ""
 
 #: src/trans.h:178
 msgid "Text _beside icons"
-msgstr ""
+msgstr "Texto al lado de íconos"
 
 #: src/trans.h:179
 msgid "Text _under icons"
-msgstr ""
+msgstr "Texto bajo íconos"
 
 #: src/trans.h:180
 msgid "_Text only"
-msgstr ""
+msgstr "_Texto unicamente"
 
 #: src/trans.h:181
 msgid "_Icons only"
-msgstr ""
+msgstr "_Iconos unicamente"
 
 #: src/trans.h:182
 msgid "_Tooltips"
@@ -2188,7 +2206,7 @@ msgstr ""
 
 #: src/trans.h:183
 msgid "_Edit toolbar..."
-msgstr ""
+msgstr "_Editar la barra de herramientas..."
 
 #: src/trans.h:184
 #, fuzzy
@@ -2197,7 +2215,7 @@ msgstr "Confirmación"
 
 #: src/trans.h:185
 msgid "Available elements"
-msgstr ""
+msgstr "Elementos disponibles"
 
 #: src/trans.h:186
 msgid "label73"
@@ -2225,6 +2243,9 @@ msgid ""
 "\n"
 "Do you want to overwrite it?"
 msgstr ""
+"Ya existe un archivo con ese nombre.\n"
+"\n"
+"¿Desea sobreescribirlo?"
 
 #: src/trans.h:196
 msgid ""
@@ -2234,7 +2255,7 @@ msgstr ""
 
 #: src/trans.h:198
 msgid "Do not ask again."
-msgstr ""
+msgstr "No volver a preguntar."
 
 #: src/trans.h:199
 msgid ""
@@ -2249,19 +2270,19 @@ msgstr "Información"
 
 #: src/trans.h:203
 msgid "Welcome"
-msgstr ""
+msgstr "Bienvenido"
 
 #: src/trans.h:204
 msgid "Known Bugs"
-msgstr ""
+msgstr "Errores conocidos"
 
 #: src/trans.h:205
 msgid "Missing Features"
-msgstr ""
+msgstr "Funcionalidades faltantes"
 
 #: src/trans.h:206
 msgid "Show this dialog at start."
-msgstr ""
+msgstr "Mostrar este dialogo al comienzo."
 
 #: src/trans.h:207
 #, fuzzy
@@ -2270,38 +2291,38 @@ msgstr "Buzón"
 
 #: src/trans.h:208
 msgid "You selected a directory."
-msgstr ""
+msgstr "Has seleccionado un directorio."
 
 #: src/trans.h:210
 #, fuzzy
 msgid "About"
-msgstr "Cuenta"
+msgstr "Cuentas"
 
 #: src/trans.h:211
 msgid "Web Site"
-msgstr ""
+msgstr "Sitio Web"
 
 #: src/trans.h:212
 #, fuzzy
 msgid "Attachments Tool"
-msgstr "Adjuntos"
+msgstr "Herramienta de adjuntos"
 
 #: src/trans.h:213
 #, fuzzy
 msgid "Save selected attachments to disk"
-msgstr "No éxiste tal mensaje"
+msgstr "Ese mensaje no existe"
 
 #: src/trans.h:214
 msgid "Mail Source"
-msgstr ""
+msgstr "Código fuente del correo"
 
 #: src/trans.h:215
 msgid "Add features"
-msgstr ""
+msgstr "Añadir funcionalidades"
 
 #: src/trans.h:216
 msgid "Add Features"
-msgstr ""
+msgstr "Añadir funcionalidades"
 
 #: src/trans.h:217
 msgid ""
@@ -2318,7 +2339,7 @@ msgstr ""
 #: src/trans.h:221
 #, fuzzy
 msgid "Downloading..."
-msgstr "Descargar."
+msgstr "Descargando..."
 
 #: src/trans.h:222
 msgid "Rule Manager"
@@ -2332,12 +2353,11 @@ msgstr "_Adherir"
 #: src/trans.h:224
 #, fuzzy
 msgid "_Edit rule"
-msgstr "_Editar"
+msgstr "Editor"
 
 #: src/trans.h:225
-#, fuzzy
 msgid "_Remove rule"
-msgstr "_Remover"
+msgstr ""
 
 #: src/trans.h:226
 #, fuzzy
@@ -2349,89 +2369,112 @@ msgid "_Open Message"
 msgstr ""
 
 #: src/trans.h:232
+#, fuzzy
 msgid "_Expunge..."
-msgstr ""
+msgstr "E_xpungar"
 
 #: src/trans.h:233
+#, fuzzy
 msgid "_Mark"
-msgstr ""
+msgstr "Mar_ca"
 
 #: src/trans.h:245
 msgid "Compact/Speed up"
-msgstr ""
+msgstr "Compactar/Agilizar"
 
 #: src/trans.h:246
 msgid "Start"
-msgstr ""
+msgstr "Comenzar"
 
 #: src/trans.h:247
 msgid "Compact / Speed up"
-msgstr ""
+msgstr "Compactar / Agilizar"
 
 #: src/trans.h:248
 msgid "Working on:"
-msgstr ""
+msgstr "Trabajando en:"
 
 #: src/trans.h:249
 msgid "«MAILBOX»"
-msgstr ""
+msgstr "«BUZÓN»"
 
 #: src/trans.h:250
 msgid "%P %%"
-msgstr ""
+msgstr "%P %%"
 
 #: src/trans.h:251
 msgid "Compact/Speed up inform"
-msgstr ""
+msgstr "Informe"
 
 #: src/trans.h:252
-#, fuzzy
 msgid "Your mailboxes have been compacted successfully."
-msgstr "Archivo guardado con éxito."
+msgstr "Sus buzones han sido compactados correctamente."
 
 #: src/trans.h:253
 #, fuzzy
 msgid "Mailboxes compacted:"
-msgstr "Buzón"
+msgstr "Buzones compactados:"
 
 #: src/trans.h:254
 msgid "Compacted space:"
-msgstr ""
+msgstr "Espacio compactado:"
 
 #: src/trans.h:255
 msgid "Total space:"
-msgstr ""
+msgstr "Espacio total:"
 
 #: src/trans.h:256
 msgid "%MAILBOXES%"
-msgstr ""
+msgstr "%BUZONES%"
 
 #: src/trans.h:257
 msgid "%CSPACE%"
-msgstr ""
+msgstr "%CESPACIO%"
 
 #: src/trans.h:258
 msgid "%TSPACE%"
-msgstr ""
+msgstr "%TESPACIO%"
 
 #, fuzzy
 #~ msgid "Deleting..."
-#~ msgstr "Borrando..."
+#~ msgstr "Correo saliente"
 
 #~ msgid "Let know the user."
 #~ msgstr "Avisar al usuario."
 
-#~ msgid "Completed"
-#~ msgstr "Completo"
+#, fuzzy
+#~ msgid "Unable to find message."
+#~ msgstr "Seleccionar mensaje siguiente"
 
 #~ msgid "Unable to open about file"
-#~ msgstr "Imposible abrir archivo 'Acerca de'"
+#~ msgstr "Imposible abrir el archivo de \"Acerca de...\""
+
+#~ msgid "_Date"
+#~ msgstr "_Fecha"
+
+#~ msgid "_Subject"
+#~ msgstr "_Asunto"
+
+#~ msgid "_Priority"
+#~ msgstr "_Prioridad"
+
+#~ msgid "Success."
+#~ msgstr "Éxito."
+
+#~ msgid "Failed."
+#~ msgstr "Fallo."
 
 #~ msgid "The mailbox '%s' couldn't be loaded"
-#~ msgstr "El buzón '%s' no ha sido cargado"
+#~ msgstr "El buzón '%s' no pudo ser cargado"
+
+#~ msgid "Download if remitent is in address book."
+#~ msgstr "Bajarlas si el remitente esta en el Libro de Direcciones."
 
 #~ msgid "Open using internal browser."
-#~ msgstr "Abrir utilizando navegador interno."
+#~ msgstr "Abrir utilizando el navegador interno."
+
+#~ msgid "Accounts"
+#~ msgstr "Cuentas"
 
 #~ msgid "Fonts"
 #~ msgstr "Fuentes"
@@ -2445,11 +2488,5 @@ msgstr ""
 #~ msgid "IMAP"
 #~ msgstr "IMAP"
 
-#~ msgid "Cancelled."
-#~ msgstr "Cancelado."
-
 #~ msgid "Wrap text at"
-#~ msgstr "Cortar texto cada"
-
-#~ msgid "characers."
-#~ msgstr "characters."
+#~ msgstr "Cortar texto en posición"

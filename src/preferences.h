@@ -266,6 +266,11 @@ extern "C" {
 #endif
 #define c2_preferences_set_interface_misc_attachments_default(val) \
 	gnome_config_set_string ("/"PACKAGE"/"INTERFACE"-"MISC"/attachments_default", val)
+#define c2_preferences_get_interface_misc_mail_warning() \
+	gnome_config_get_string_with_default ("/"PACKAGE"/"INTERFACE"-"MISC"/" \
+										  "mail_warning=TOP LEFT", NULL)
+#define c2_preferences_set_interface_misc_mail_warning(val) \
+	gnome_config_set_string ("/"PACKAGE"/"INTERFACE"-"MISC"/mail_warning", val)
 	
 
 

@@ -153,6 +153,21 @@ ENTRY_FUNCTION_DEFINITION (interface_misc, date);
 static void
 on_interface_misc_date_help_clicked			(GtkWidget *widget, C2DialogPreferences *preferences);
 
+static void
+on_interface_misc_mail_warn_selection_done	(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_interface_misc_mail_warn_screen_button_press_event (GtkWidget *widget, GdkEventButton *e,
+												C2DialogPreferences *preferences);
+
+static void
+on_interface_misc_mail_warn_screen_button_release_event (GtkWidget *widget, GdkEventButton *e,
+												C2DialogPreferences *preferences);
+
+static void
+on_interface_misc_mail_warn_screen_motion_notify_event (GtkWidget *widget, GdkEventMotion *e,
+												C2DialogPreferences *preferences);
+
 /* Widget Stuff */
 enum
 {
@@ -388,6 +403,18 @@ set_signals (C2DialogPreferences *preferences)
 	widget = glade_xml_get_widget (xml, "interface_misc_date_help");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
 						GTK_SIGNAL_FUNC (on_interface_misc_date_help_clicked), preferences);
+
+	widget = GTK_OPTION_MENU (glade_xml_get_widget (xml, "interface_misc_mail_warn"))->menu;
+	gtk_signal_connect (GTK_OBJECT (widget), "selection_done",
+						GTK_SIGNAL_FUNC (on_interface_misc_mail_warn_selection_done), preferences);
+
+	widget = glade_xml_get_widget (xml, "interface_misc_mail_warn_screen_event");
+	gtk_signal_connect (GTK_OBJECT (widget), "button_press_event",
+						GTK_SIGNAL_FUNC (on_interface_misc_mail_warn_screen_button_press_event), preferences);
+	gtk_signal_connect (GTK_OBJECT (widget), "button_release_event",
+						GTK_SIGNAL_FUNC (on_interface_misc_mail_warn_screen_button_release_event), preferences);
+	gtk_signal_connect (GTK_OBJECT (widget), "motion_notify_event",
+						GTK_SIGNAL_FUNC (on_interface_misc_mail_warn_screen_motion_notify_event), preferences);
 }
 
 #define SET_BOOLEAN(func, wkey)	\
@@ -578,6 +605,21 @@ set_values (C2DialogPreferences *preferences)
 		gtk_option_menu_set_history (GTK_OPTION_MENU (widgetv), 0);
 	else if (c2_streq (charv, "text/html"))
 		gtk_option_menu_set_history (GTK_OPTION_MENU (widgetv), 1);
+
+	charv = c2_preferences_get_interface_misc_mail_warning ();
+	widgetv = glade_xml_get_widget (xml, "interface_misc_mail_warn");
+	if (c2_streq (charv, "TOP LEFT"))
+		gtk_option_menu_set_history (GTK_OPTION_MENU (widgetv), 0);
+	else if (c2_streq (charv, "TOP RIGHT"))
+		gtk_option_menu_set_history (GTK_OPTION_MENU (widgetv), 1);
+	else if (c2_streq (charv, "BOTTOM LEFT"))
+		gtk_option_menu_set_history (GTK_OPTION_MENU (widgetv), 2);
+	else if (c2_streq (charv, "BOTTOM RIGHT"))
+		gtk_option_menu_set_history (GTK_OPTION_MENU (widgetv), 3);
+	else
+		gtk_option_menu_set_history (GTK_OPTION_MENU (widgetv), 0);
+	gtk_signal_emit_by_name (GTK_OBJECT (GTK_OPTION_MENU (widgetv)->menu), "selection_done");
+
 
 
 	SET_BOOLEAN (c2_preferences_get_advanced_misc_proxy_http, "advanced_misc_proxy_http");
@@ -1309,6 +1351,128 @@ static void
 on_interface_misc_date_help_clicked (GtkWidget *widget, C2DialogPreferences *preferences)
 {
 	gnome_help_goto (NULL, "man:strftime");
+}
+
+static void
+on_interface_misc_mail_warn_selection_done (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	GtkWidget *wimage = glade_xml_get_widget (C2_DIALOG (preferences)->xml, "interface_misc_mail_warn_screen");
+	GtkWidget *menu = glade_xml_get_widget (C2_DIALOG (preferences)->xml, "interface_misc_mail_warn");
+	gchar *selection;
+
+	if (GTK_BIN (menu)->child)
+	{
+		GtkWidget *child = GTK_BIN (menu)->child;
+
+		if (GTK_LABEL (child))
+		{
+			gtk_label_get (GTK_LABEL (child), &selection);
+
+			if (c2_streq (selection, _("Top left of the screen")))
+			{
+				GtkWidget *pixmap = gnome_pixmap_new_from_file_at_size (PKGDATADIR "/pixmaps/mail_warn_screen_top_left.png", 166, 148);
+				
+				c2_preferences_set_interface_misc_mail_warning ("TOP LEFT");
+				gtk_pixmap_set (GTK_PIXMAP (wimage), GNOME_PIXMAP (pixmap)->pixmap, GNOME_PIXMAP (pixmap)->mask);
+				
+			} else if (c2_streq (selection, _("Top right of the screen")))
+			{
+				GtkWidget *pixmap = gnome_pixmap_new_from_file_at_size (PKGDATADIR "/pixmaps/mail_warn_screen_top_right.png", 166, 148);
+				
+				c2_preferences_set_interface_misc_mail_warning ("TOP RIGHT");
+				gtk_pixmap_set (GTK_PIXMAP (wimage), GNOME_PIXMAP (pixmap)->pixmap, GNOME_PIXMAP (pixmap)->mask);
+			} else if (c2_streq (selection, _("Bottom left of the screen")))
+			{
+				GtkWidget *pixmap = gnome_pixmap_new_from_file_at_size (PKGDATADIR "/pixmaps/mail_warn_screen_bottom_left.png", 166, 148);
+				
+				c2_preferences_set_interface_misc_mail_warning ("BOTTOM LEFT");
+				gtk_pixmap_set (GTK_PIXMAP (wimage), GNOME_PIXMAP (pixmap)->pixmap, GNOME_PIXMAP (pixmap)->mask);
+			} else if (c2_streq (selection, _("Bottom right of the screen")))
+			{
+				GtkWidget *pixmap = gnome_pixmap_new_from_file_at_size (PKGDATADIR "/pixmaps/mail_warn_screen_bottom_right.png", 166, 148);
+				
+				c2_preferences_set_interface_misc_mail_warning ("BOTTOM RIGHT");
+				gtk_pixmap_set (GTK_PIXMAP (wimage), GNOME_PIXMAP (pixmap)->pixmap, GNOME_PIXMAP (pixmap)->mask);
+			}
+		}
+	}
+
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_MISC_MAIL_WARNING);
+}
+
+static void
+on_interface_misc_mail_warn_screen_button_press_event (GtkWidget *widget, GdkEventButton *e,
+												C2DialogPreferences *preferences)
+{
+	if (e->button == 1)
+	{
+		gtk_object_set_data (GTK_OBJECT (widget), "dragging", widget);
+	}
+}
+
+static void
+on_interface_misc_mail_warn_screen_button_release_event (GtkWidget *widget, GdkEventButton *e,
+												C2DialogPreferences *preferences)
+{
+	if (e->button == 1 && gtk_object_get_data (GTK_OBJECT (widget), "dragging"))
+	{
+		gtk_object_remove_data (GTK_OBJECT (widget), "dragging");
+	}
+}
+
+static void
+on_interface_misc_mail_warn_screen_motion_notify_event (GtkWidget *widget, GdkEventMotion *e,
+												C2DialogPreferences *preferences)
+{
+	static int stop = -1, sleft = -1;
+	
+	if (gtk_object_get_data (GTK_OBJECT (widget), "dragging"))
+	{
+		int iwidth;
+		int iheight;
+		double mx, my;
+		int top, left;
+		GtkWidget *menu = glade_xml_get_widget (C2_DIALOG (preferences)->xml, "interface_misc_mail_warn");
+
+		iwidth = widget->allocation.width;
+		iheight = widget->allocation.height;
+
+		mx = e->x;
+		my = e->y;
+
+		if (mx < iwidth/2)
+			left = TRUE;
+		else
+			left = FALSE;
+
+		if (my < iheight/2)
+			top = TRUE;
+		else
+			top = FALSE;
+
+		if (stop == top && sleft == left)
+			return;
+
+		if (top && left)
+		{
+			gtk_option_menu_set_history (GTK_OPTION_MENU (menu), 0);
+		} else if (top && !left)
+		{
+			gtk_option_menu_set_history (GTK_OPTION_MENU (menu), 1);
+		} else if (!top && left)
+		{
+			gtk_option_menu_set_history (GTK_OPTION_MENU (menu), 2);
+		} else if (!top && !left)
+		{
+			gtk_option_menu_set_history (GTK_OPTION_MENU (menu), 3);
+		}
+
+		gtk_signal_emit_by_name (GTK_OBJECT (GTK_OPTION_MENU (menu)->menu), "selection_done");
+
+		stop = top;
+		sleft = left;
+	}
 }
 
 #endif

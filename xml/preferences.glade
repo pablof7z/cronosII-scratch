@@ -418,8 +418,7 @@ Are you sure you want this?</message>
 	<class>GtkNotebook</class>
 	<name>notebook</name>
 	<width>451</width>
-	<can_focus>True</can_focus>
-	<show_tabs>True</show_tabs>
+	<show_tabs>False</show_tabs>
 	<show_border>False</show_border>
 	<tab_pos>GTK_POS_TOP</tab_pos>
 	<scrollable>True</scrollable>
@@ -2814,6 +2813,96 @@ text/html
 		  <expand>False</expand>
 		  <fill>False</fill>
 		</child>
+	      </widget>
+	    </widget>
+	  </widget>
+
+	  <widget>
+	    <class>GtkFrame</class>
+	    <name>frame48</name>
+	    <label>Incoming mail warning</label>
+	    <label_xalign>0</label_xalign>
+	    <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	    <child>
+	      <padding>0</padding>
+	      <expand>True</expand>
+	      <fill>True</fill>
+	    </child>
+
+	    <widget>
+	      <class>GtkHBox</class>
+	      <name>hbox100</name>
+	      <border_width>2</border_width>
+	      <homogeneous>False</homogeneous>
+	      <spacing>4</spacing>
+
+	      <widget>
+		<class>GtkVBox</class>
+		<name>vbox47</name>
+		<homogeneous>False</homogeneous>
+		<spacing>4</spacing>
+		<child>
+		  <padding>0</padding>
+		  <expand>False</expand>
+		  <fill>True</fill>
+		</child>
+
+		<widget>
+		  <class>GtkLabel</class>
+		  <name>label185</name>
+		  <label>Choose the position where you would like to see
+the Incoming mail warning. This dialog is the one that
+will inform you when new mail arrives.</label>
+		  <justify>GTK_JUSTIFY_FILL</justify>
+		  <wrap>False</wrap>
+		  <xalign>0.5</xalign>
+		  <yalign>0.5</yalign>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <child>
+		    <padding>0</padding>
+		    <expand>False</expand>
+		    <fill>False</fill>
+		  </child>
+		</widget>
+
+		<widget>
+		  <class>GtkOptionMenu</class>
+		  <name>interface_misc_mail_warn</name>
+		  <border_width>10</border_width>
+		  <can_focus>True</can_focus>
+		  <items>Top left of the screen
+Top right of the screen
+Bottom left of the screen
+Bottom right of the screen
+</items>
+		  <initial_choice>1</initial_choice>
+		  <child>
+		    <padding>0</padding>
+		    <expand>False</expand>
+		    <fill>False</fill>
+		  </child>
+		</widget>
+	      </widget>
+
+	      <widget>
+		<class>GtkEventBox</class>
+		<name>interface_misc_mail_warn_screen_event</name>
+		<child>
+		  <padding>0</padding>
+		  <expand>False</expand>
+		  <fill>True</fill>
+		</child>
+
+		<widget>
+		  <class>GtkPixmap</class>
+		  <name>interface_misc_mail_warn_screen</name>
+		  <xalign>0.5</xalign>
+		  <yalign>0.5</yalign>
+		  <xpad>0</xpad>
+		  <ypad>0</ypad>
+		  <build_insensitive>True</build_insensitive>
+		</widget>
 	      </widget>
 	    </widget>
 	  </widget>

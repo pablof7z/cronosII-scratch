@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Cronos II 0.0.3\n"
-"POT-Creation-Date: 2002-05-02 23:24+0200\n"
+"POT-Creation-Date: 2002-05-05 20:46+0200\n"
 "PO-Revision-Date: 2001-08-07 00:25-0300\n"
 "Last-Translator: Pablo Fernández Navarro <cronosII@users.sourceforge.net>\n"
 "Language-Team: Spanish (Argentina) <es_AR@li.org>\n"
@@ -161,7 +161,7 @@ msgstr ""
 msgid "SMTP server did not reply to 'DATA' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:855
+#: libcronosII/smtp.c:854
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
 msgstr ""
 
@@ -215,7 +215,7 @@ msgid "Failed: %s\n"
 msgstr "Fallo."
 
 #: src/install.c:406 src/install.c:433 src/install.c:462 src/install.c:490
-#: src/install.c:518 src/widget-transfer-item.c:823
+#: src/install.c:518 src/widget-transfer-item.c:828
 #, fuzzy
 msgid "Failed"
 msgstr "Fallo."
@@ -290,74 +290,90 @@ msgstr ""
 msgid "Unknown reason"
 msgstr "Hostname desconocido"
 
-#: src/main.c:99
+#: src/main.c:107
 msgid "Compose a new email."
 msgstr "Escribir un nuevo correo."
 
-#: src/main.c:104
+#: src/main.c:112
 msgid "Set the Account field."
 msgstr ""
 
-#: src/main.c:105 src/trans.h:82 src/widget-index.c:560
+#: src/main.c:113 src/trans.h:82 src/widget-index.c:560
 msgid "Account"
 msgstr "Cuentas"
 
-#: src/main.c:110
+#: src/main.c:118
 msgid "Set the To field."
 msgstr ""
 
-#: src/main.c:111 src/main.c:117 src/main.c:123
+#: src/main.c:119 src/main.c:125 src/main.c:131
 msgid "Address"
 msgstr ""
 
-#: src/main.c:116
+#: src/main.c:124
 msgid "Set the CC field."
 msgstr ""
 
-#: src/main.c:122
+#: src/main.c:130
 msgid "Set the BCC field."
 msgstr ""
 
-#: src/main.c:128
+#: src/main.c:136
 msgid "Set the Subject field."
 msgstr ""
 
-#: src/main.c:129 src/trans.h:83 src/widget-index.c:554
+#: src/main.c:137 src/trans.h:83 src/widget-index.c:554
 msgid "Subject"
 msgstr ""
 
-#: src/main.c:134
+#: src/main.c:142
 msgid "Set the Body."
 msgstr ""
 
-#: src/main.c:135
+#: src/main.c:143
 msgid "Text"
 msgstr ""
 
-#: src/main.c:140
+#: src/main.c:148
 msgid "Compose a new email decoding the argument as a mailto: link"
 msgstr ""
 
-#: src/main.c:146
+#: src/main.c:149
+msgid "mailto:email@somewhere."
+msgstr ""
+
+#: src/main.c:154
 msgid "Set the active mailbox at start (default=Inbox)"
 msgstr ""
 
-#: src/main.c:147
+#: src/main.c:155
 msgid "Inbox"
 msgstr ""
 
-#: src/main.c:152
+#: src/main.c:160
 msgid "Check account for mail."
 msgstr ""
 
-#: src/main.c:157
+#: src/main.c:165
 msgid "Open the main window (default)"
 msgstr ""
 
-#: src/main.c:162
+#: src/main.c:170
 msgid ""
 "Don't open any windows; instead act as a server for quick startup of new "
 "Cronos II instances"
+msgstr ""
+
+#: src/main.c:176
+msgid "Hides the main window."
+msgstr ""
+
+#: src/main.c:181
+msgid "Shows the main window."
+msgstr ""
+
+#: src/main.c:186
+msgid "Finishes Cronos II and its multisession server"
 msgstr ""
 
 #: src/widget-composer.c:442
@@ -370,11 +386,11 @@ msgstr "Seleccionar mensaje siguiente"
 msgid "Unable to find the proper mailbox"
 msgstr "Seleccionar mensaje siguiente"
 
-#: src/widget-composer.c:689 src/widget-composer.c:998
+#: src/widget-composer.c:703 src/widget-composer.c:1012
 msgid "Composer: Untitled"
 msgstr ""
 
-#: src/widget-composer.c:794
+#: src/widget-composer.c:808
 msgid ""
 "You have choosen to use an external editor instead of the built-in with "
 "Cronos II.\n"
@@ -388,52 +404,52 @@ msgid ""
 "window.\n"
 msgstr ""
 
-#: src/widget-composer.c:994
+#: src/widget-composer.c:1008
 #, c-format
 msgid "Composer: %s"
 msgstr ""
 
-#: src/widget-composer.c:1074
+#: src/widget-composer.c:1088
 #, fuzzy, c-format
 msgid "Run external editor: %s"
 msgstr "Utilizar el editor externo:"
 
 #. Set more info about the mime object
-#: src/widget-composer.c:1169 src/widget-composer.c:2122
+#: src/widget-composer.c:1183 src/widget-composer.c:2136
 msgid "unknown"
 msgstr ""
 
-#: src/widget-composer.c:1360
+#: src/widget-composer.c:1374
 #, c-format
 msgid "The account specified does not longer exist: %s"
 msgstr ""
 
-#: src/widget-composer.c:1365
+#: src/widget-composer.c:1379
 msgid ""
 "The message is not asociated to an account, default account will be used."
 msgstr ""
 
-#: src/widget-composer.c:1579
+#: src/widget-composer.c:1593
 #, c-format
 msgid "Unable to open temporal file for writing to external editor: %s"
 msgstr ""
 
-#: src/widget-composer.c:1673
+#: src/widget-composer.c:1687
 #, c-format
 msgid "On %s, %s wrote:\n"
 msgstr ""
 
-#: src/widget-composer.c:2100
+#: src/widget-composer.c:2114
 #, c-format
 msgid "Failed to open %s: %s"
 msgstr ""
 
-#: src/widget-composer.c:2110
+#: src/widget-composer.c:2124
 #, c-format
 msgid "Failed to stat %s: %s"
 msgstr ""
 
-#: src/widget-composer.c:2200
+#: src/widget-composer.c:2214
 #, c-format
 msgid "The account specified does not exist: %s"
 msgstr ""
@@ -475,12 +491,12 @@ msgid "Internet Message Access Protocol 4 (IMAP)"
 msgstr ""
 
 #: src/preferences-trans.h:192 src/widget-dialog-preferences.c:1925
-#: src/widget-dialog-preferences.c:1983 src/widget-dialog-preferences.c:2390
+#: src/widget-dialog-preferences.c:1983 src/widget-dialog-preferences.c:2389
 msgid "SMTP"
 msgstr "SMTP"
 
 #: src/preferences-trans.h:193 src/widget-dialog-preferences.c:1989
-#: src/widget-dialog-preferences.c:2394
+#: src/widget-dialog-preferences.c:2393
 msgid "Sendmail"
 msgstr "Sendmail"
 
@@ -511,7 +527,7 @@ msgstr "Buzón"
 msgid "Local Mailboxes"
 msgstr "Cargar buzones"
 
-#: src/widget-mailbox-list.c:1136 src/widget-transfer-item.c:587
+#: src/widget-mailbox-list.c:1136 src/widget-transfer-item.c:591
 msgid "Login failed"
 msgstr ""
 
@@ -529,82 +545,82 @@ msgstr ""
 msgid "Cancel the transfer"
 msgstr ""
 
-#: src/widget-transfer-item.c:443
+#: src/widget-transfer-item.c:447
 #, fuzzy
 msgid "No Inbox mailbox"
 msgstr "Nuevo buzón"
 
-#: src/widget-transfer-item.c:475 src/widget-transfer-item.c:506
+#: src/widget-transfer-item.c:479 src/widget-transfer-item.c:510
 msgid "Resolving"
 msgstr ""
 
-#: src/widget-transfer-item.c:517
+#: src/widget-transfer-item.c:521
 msgid "Connecting"
 msgstr ""
 
 #. [FIXME]
 #. * Action to login? Loggining?
 #.
-#: src/widget-transfer-item.c:528
+#: src/widget-transfer-item.c:532
 msgid "Loggining"
 msgstr ""
 
-#: src/widget-transfer-item.c:655
+#: src/widget-transfer-item.c:659
 #, fuzzy
 msgid "Getting mail list"
 msgstr "Correo saliente"
 
-#: src/widget-transfer-item.c:675
+#: src/widget-transfer-item.c:679
 #, fuzzy, c-format
 msgid "%u message."
 msgstr "Ese mensaje no existe"
 
-#: src/widget-transfer-item.c:677
+#: src/widget-transfer-item.c:681
 #, fuzzy, c-format
 msgid "%u messages."
 msgstr "Ese mensaje no existe"
 
-#: src/widget-transfer-item.c:692
+#: src/widget-transfer-item.c:696
 msgid "Receiving %v of %u"
 msgstr ""
 
-#: src/widget-transfer-item.c:711
+#: src/widget-transfer-item.c:715
 msgid "Synchronizing"
 msgstr ""
 
-#: src/widget-transfer-item.c:731
+#: src/widget-transfer-item.c:735
 #, c-format
 msgid "Received %d new mail%s"
 msgstr ""
 
-#: src/widget-transfer-item.c:732 src/widget-transfer-item.c:735
+#: src/widget-transfer-item.c:736 src/widget-transfer-item.c:739
 msgid "s"
 msgstr ""
 
-#: src/widget-transfer-item.c:734
+#: src/widget-transfer-item.c:738
 msgid "No new mails available"
 msgstr ""
 
-#: src/widget-transfer-item.c:739
+#: src/widget-transfer-item.c:743
 #, fuzzy, c-format
 msgid "Failure: %s"
 msgstr "Fallo."
 
-#: src/widget-transfer-item.c:741
+#: src/widget-transfer-item.c:745
 #, fuzzy
 msgid "Failure"
 msgstr "Fallo."
 
-#: src/widget-transfer-item.c:795
+#: src/widget-transfer-item.c:800
 #, fuzzy
 msgid "Sending"
 msgstr "Sendmail"
 
-#: src/widget-transfer-item.c:823
+#: src/widget-transfer-item.c:828
 msgid "Message Sent"
 msgstr ""
 
-#: src/widget-transfer-item.c:845
+#: src/widget-transfer-item.c:838 src/widget-transfer-item.c:849
 #, c-format
 msgid "There's no mailbox marked as %s!\n"
 msgstr ""
@@ -769,31 +785,31 @@ msgstr ""
 "instalación.\n"
 "Abortando.\n"
 
-#: src/widget-window-main.c:2204
+#: src/widget-window-main.c:2239
 #, fuzzy, c-format
 msgid "%d messages, %d new."
 msgstr "%a v.%v - %m (%m mensajes, %n nuevos)"
 
-#: src/widget-window-main.c:2316
+#: src/widget-window-main.c:2351
 msgid ""
 "This folder parents all the local mailboxes that <b>Cronos II</b> handles "
 "for you."
 msgstr ""
 
-#: src/trans.h:172 src/widget-window-main.c:2358
+#: src/trans.h:172 src/widget-window-main.c:2393
 msgid "You found the Eastern Egg!"
 msgstr "¡Encontraste el Huevo de Pascua!"
 
-#: src/trans.h:173 src/widget-window-main.c:2359
+#: src/trans.h:173 src/widget-window-main.c:2394
 msgid "Neat, baby!"
 msgstr "Copado!"
 
-#: src/widget-window-main.c:2618
+#: src/widget-window-main.c:2653
 #, fuzzy
 msgid "Toolbar Configuration"
 msgstr "Configuración de la barra de herramientas"
 
-#: src/widget-window-main.c:2721
+#: src/widget-window-main.c:2756
 msgid "Separator"
 msgstr "Separador"
 

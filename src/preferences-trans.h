@@ -132,6 +132,14 @@ gchar *s = N_("Display");
 gchar *s = N_("text/plain");
 gchar *s = N_("text/html");
 gchar *s = N_("by default.");
+gchar *s = N_("Incoming mail warning");
+gchar *s = N_("Choose the position where you would like to see\n"
+              "the Incoming mail warning. This dialog is the one that\n"
+              "will inform you when new mail arrives.");
+gchar *s = N_("Top left of the screen");
+gchar *s = N_("Top right of the screen");
+gchar *s = N_("Bottom left of the screen");
+gchar *s = N_("Bottom right of the screen");
 gchar *s = N_("Interface/Misc");
 gchar *s = N_("Proxy");
 gchar *s = N_("FTP Proxy");
