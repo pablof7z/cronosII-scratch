@@ -495,7 +495,7 @@ c2_db_load (C2Mailbox *mailbox)
 			func = c2_db_cronosII_load;
 			break;
 		case C2_MAILBOX_IMAP:
-			//func = c2_db_imap_load;
+			func = c2_db_imap_load;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_load;
