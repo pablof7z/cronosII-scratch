@@ -1,0 +1,65 @@
+This is the API reference for Cronos II.
+
+This document will help you understand how the internals
+of Cronos II works and which API is exported by every
+module and how to use it.
+
+Note that the mantainence of a document as this one is
+very hard, so you might see obsolete information, we'll
+give our best shot to keep it up to date.
+
+Pablo Fernández Navarro, 22nd May 2001 23:39 -0300
+
+Table of Contents
+ 1. Db module
+ 2. Mailbox module
+ 3. Request module
+ 4. Utils module
+ 	 I. Utils-Net module
+	II. Utils-Date module
+ 5. Mime module
+ 6. SMTP module
+ 7. Pop3 module
+ 8. IMAP module
+ 9. Spool module
+10. Message module
+
+1. Db module
+
+2. Mailbox module
+  Description: This module takes care of all mailboxing interaction. Is responsable for
+               mantaining an ordered tree of mailboxes and interacting with them in operations
+			   such as adding, inserting, deleting, updating.
+  Files: mailbox.c and mailbox.h
+
+  +-------------------------------------------------------------+
+  | Object Index                                                |
+  +-------------------------------------------------------------+
+  | mailbox.h defines an object named C2Mailbox with it class   |
+  | C2MailboxClass which is based (and has the particularities) |
+  | of a GtkObject.                                             |
+  |                                                             |
+  | The object stores information about the mailbox to be       |
+  | be able to acceed for a listing of messages, to retrieve    |
+  | mails and other operations.                                 |
+  | The information it store is the name, the identification    |
+  | the type of mailbox (by now, Cronos II or IMAP), protocol   |
+  | specific information to acceed the mailbox (such as         |
+  | username and password for IMAP mailboxes), the sorting      |
+  | type the listing of that mailbox should use and the header  |
+  | it should sort by, the message that was last selected,      |
+  | a link to a C2Db object which will be a listing of messages |
+  | of that mailboxes once the mailbox is loaded and the        |
+  | last MID (Message ID) of the mailbox.                       |
+  |                                                             |
+  | This object fires two signals:                              |
+  |  a. changed_mailboxes                                       |
+  |  b. changed_mailbox                                         |
+  |                                                             |
+  | The 'changed_mailboxes' signal is emitted every time        |
+  | the mailboxes TREE changes, i.e. when a mailbox is removed. |
+  |                                                             |
+  | The 'changed_mailbox' signal is emitted one the mailbox     |
+  | it self changes, i.e. a message is appended.                |
+  |                                                             |
+  +-------------------------------------------------------------+

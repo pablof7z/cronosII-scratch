@@ -1,0 +1,9 @@
+					Cronos II FAQ
+
+Q: What's the difference between main-window.{ch} and c2-main-window.{ch}?
+A: main-window.{ch} stores the functions that handles nearly all callbacks for
+   the main window and the function that creates the main window.
+   c2-main-window.{ch} stores the callbacks for the main window that will
+   create a dialog or some kind of UI interaction (except for minimal changes
+   like a c2_app_report) and also stores the function that should also get called
+   outside of {c2-}main-window.c.
