@@ -1,3 +1,6 @@
+Wed Mar 20 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Added c2_imap_mailbox_is_subscribed()
+
 Mon Mar 18 Pablo Fernández López <pablo@pablossite.net>
 	* Added the Subscribe/Unsubscribe to the popup menu of the mlist.
 	* Fixed a bug in the composer (it didn't add a date header).
