@@ -17,9 +17,13 @@
  */
 #include <config.h>
 
+#include <gnome.h>
+#include <glade/glade.h>
+
 #include <libcronosII/smtp.h>
 #include <libcronosII/utils.h>
 
+#include "widget-application.h"
 #include "widget-dialog-preferences.h"
 #include "widget-sidebar.h"
 
@@ -77,6 +81,15 @@ on_general_options_outgoing_outbox_toggled	(GtkWidget *widget, C2DialogPreferenc
 
 static GtkWidget *
 on_general_accounts_add_clicked				(GtkWidget *pwidget, C2DialogPreferences *preferences);
+
+static void
+on_general_paths_save_changed				(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_general_paths_get_changed				(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_identity_name_changed					(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
 on_interface_composer_editor_internal_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
@@ -233,6 +246,14 @@ set_signals (C2DialogPreferences *preferences)
 	widget = glade_xml_get_widget (xml, "general_accounts_add");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
 						GTK_SIGNAL_FUNC (on_general_accounts_add_clicked), preferences);
+
+	widget = gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (glade_xml_get_widget (xml, "general_paths_save")));
+	gtk_signal_connect (GTK_OBJECT (widget), "changed",
+						GTK_SIGNAL_FUNC (on_general_paths_save_changed), preferences);
+
+	widget = gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (glade_xml_get_widget (xml, "general_paths_get")));
+	gtk_signal_connect (GTK_OBJECT (widget), "changed",
+						GTK_SIGNAL_FUNC (on_general_paths_get_changed), preferences);
 
 	widget = glade_xml_get_widget (xml, "interface_composer_editor_internal");
 	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
@@ -669,20 +690,20 @@ on_general_accounts_add_clicked (GtkWidget *pwidget, C2DialogPreferences *prefer
 	gchar *buf, *organization;
 	C2Account *account;
 
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"), "druid");
+	C2_DEBUG (C2_APPLICATION_GLADE_FILE ("preferences"));
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("preferences"), "dlg_account_editor_contents");
 	account = C2_DIALOG (preferences)->application->account;
 	window = c2_window_new (C2_DIALOG (preferences)->application, _("Account Editor"), "account_editor");
 	C2_WINDOW (window)->xml = xml;
-	c2_window_set_contents_from_glade (C2_WINDOW (window), "druid");
+	c2_window_set_contents_from_glade (C2_WINDOW (window), "dlg_account_editor_contents");
 	gtk_object_set_data (GTK_OBJECT (window), "preferences", preferences);
 
+/*L	widget = glade_xml_get_widget (xml, "identity_name");
+L	gtk_signal_connect (GTK_OBJECT (widget), "changed",
+						GTK_SIGNAL_FUNC (on_identity_name_changed), window);
 	if ((buf = g_get_real_name ()))
-	{
-		widget = glade_xml_get_widget (xml, "identity_name");
 		gtk_entry_set_text (GTK_ENTRY (widget), buf);
-		g_free (buf);
-	}
-
+L*/
 	organization = (gchar *) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_ORGANIZATION, NULL);
 	if (account && organization)
 	{
@@ -738,6 +759,41 @@ on_general_accounts_add_clicked (GtkWidget *pwidget, C2DialogPreferences *prefer
 	
 	return window;
 }
+
+static void
+on_general_paths_save_changed (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gchar *value = gtk_entry_get_text (GTK_ENTRY (widget));
+
+	gnome_config_set_string ("/"PACKAGE"/General-Paths/save", value);
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_GENERAL_PATHS_SAVE, value);
+}
+
+static void
+on_general_paths_get_changed (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gchar *value = gtk_entry_get_text (GTK_ENTRY (widget));
+
+	gnome_config_set_string ("/"PACKAGE"/General-Paths/get", value);
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_GENERAL_PATHS_GET, value);
+}
+
+/*
+static void
+on_identity_name_changed (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	GtkWidget *next;
+L
+	next = GNOME_DRUID (glade_xml_get_widget (C2_DIALOG (preferences)->xml, "druid"))->next;
+	
+	if (!strlen (gtk_entry_get_text (GTK_ENTRY (widget))))
+		gtk_widget_set_sensitive (next, FALSE);
+	else
+		gtk_widget_set_sensitive (next, TRUE);
+}*/
+
 
 static void
 on_interface_composer_editor_internal_toggled (GtkWidget *widget, C2DialogPreferences *preferences)

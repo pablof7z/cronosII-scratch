@@ -159,8 +159,10 @@ main (gint argc, gchar **argv)
 	{
 		main_window = c2_window_main_new (application);
 		gtk_widget_show (main_window);
+		main_window = c2_dialog_preferences_new (application);
+		gtk_widget_show (main_window);
 	}
-	if (flags.check)
+/*	if (flags.check)
 	{
 		C2Account *account =
 			c2_account_new (C2_ACCOUNT_POP3, "Cronos II", "cronosII@users.sourceforge.net");
@@ -171,7 +173,7 @@ main (gint argc, gchar **argv)
 		transfer_item = c2_transfer_item_new (account, C2_TRANSFER_ITEM_RECEIVE);
 		c2_transfer_list_add_item (C2_TRANSFER_LIST (transfer_list), transfer_item);
 		c2_transfer_item_start (transfer_item);
-	}
+	}*/
 
 	gdk_threads_enter ();
 	gtk_main ();
