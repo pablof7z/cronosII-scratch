@@ -17,6 +17,7 @@
  */
 #include <stdio.h>
 #include <glib.h>
+#include "mailbox.h"
 #include "net-object.h"
 #include "utils.h"
 #include "imap.h"
@@ -26,7 +27,6 @@
 #define NET_WRITE_FAILED _("Internal socket write operation failed, connection is most likely broken")
 
 /* C2 IMAP Module in the process of being engineered by Bosko (mainly) and Pablo =) */
-/* TODO: Implement a hash table in IMAP object for handing server replies */
 /* TODO: Get list of messages */
 /* TODO: Get and delete messages */
 /* TODO: (un)Subscribe to folders */
@@ -36,7 +36,7 @@
 /* (in progress) TODO: Create, rename, and remove folders */
 /* (in progress)TODO: Internal folder managment + syncronization */
 /* (done!) TODO: Function for reading server replies */
-/* (done!) TODO: Get list of folders */
+/* (in progress -- fuckin' bugs!) TODO: Get list of folders */
 
 /* Private GtkObject functions */
 static void
@@ -67,13 +67,13 @@ c2_imap_get_server_reply (C2IMAP *imap, tag_t tag);
 static gint
 c2_imap_plaintext_login (C2IMAP *imap);
 
-static C2Mailbox*
+static gchar*
 c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name);
 
 /* Internal Folder Managment */
 
 static gint
-c2_imap_repopulate_folders (C2IMAP *imap);
+c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *head);
 
 static gint
 c2_imap_internal_update_folder (C2IMAP *imap, const gchar *old, const gchar *new);
@@ -195,8 +195,10 @@ init (C2IMAP *imap)
 	imap->mailboxes = NULL;
 	imap->selected_mailbox = NULL;
 	imap->host = NULL;
+	imap->port = 143;
 	imap->user = NULL;
 	imap->pass = NULL;
+	imap->path = NULL;
 	imap->hash = NULL;
 	imap->pending = NULL;
 	imap->login = NULL;
@@ -205,8 +207,8 @@ init (C2IMAP *imap)
 }
 
 C2IMAP *
-c2_imap_new (const gchar *host, const gint port, const gchar *user, const gchar *pass, 
-		const C2IMAPAuthenticationType auth, const gboolean ssl)
+c2_imap_new (const gchar *host, const guint port, const gchar *user, const gchar *pass, 
+		const gchar *path, const C2IMAPAuthenticationType auth, const gboolean ssl)
 {
 	C2IMAP *imap;
 
@@ -214,6 +216,8 @@ c2_imap_new (const gchar *host, const gint port, const gchar *user, const gchar 
 	imap->user = g_strdup(user);
 	imap->pass = g_strdup(pass);
 	imap->host = g_strdup(host);
+	imap->port = port;
+	imap->path = g_strdup(path);
 	
 	switch(auth)
 	{
@@ -272,6 +276,7 @@ destroy(GtkObject *object)
 	g_free(C2_IMAP(object)->user);
 	g_free(C2_IMAP(object)->pass);
 	g_free(C2_IMAP(object)->host);
+	g_free(C2_IMAP(object)->path);
 	c2_mutex_destroy(&C2_IMAP(object)->lock);
 }
 
@@ -509,29 +514,88 @@ check:
 gint
 c2_imap_populate_folders (C2IMAP *imap)
 {
-	/*C2Mailbox *list, *ptr;
+	gchar *start, *reply, *ptr, *buf;
 	
-	if(!(list = c2_imap_get_folder_list(imap, "", "*")))
+	if(imap->mailboxes)
+		c2_mailbox_destroy_tree(imap->mailboxes);
+	
+	if(c2_imap_folder_loop(imap, NULL) < 0)
 		return -1;
 	
-	c2_mailbox_destroy_tree(imap->mailboxes);
-	imap->mailboxes = NULL;
-	
-	for(ptr = list; ptr != NULL; ptr = ptr->next)
+	return 0;
+}
+
+static gint
+c2_imap_folder_loop(C2IMAP *imap, C2Mailbox *parent)
+{
+	gchar *buf, *ptr, *start, *name;
+	C2Mailbox *box;
+
+	if(parent) name = g_strconcat(parent->name, "/%", NULL);
+	else name = g_strdup("%");
+
+	if(!(buf = c2_imap_get_folder_list(imap, NULL, name)))
+		return -1;
+
+	for(ptr = start = buf; *ptr; ptr++)
 	{
-		if(c2_imap_get_folder_level(ptr->name) == 1)
+		if(*start != '*')
+			break;
+		
+		if(*ptr == '\n')
 		{
-			C2Mailbox *box = g_new0(C2Mailbox, 1);
-			printf("box %s has 1 level and is being appended");
-			box->name = ptr->name;
-			box->type = C2_MAILBOX_IMAP;
-			box->protocol.IMAP.imap = imap;
-			box->protocol.IMAP.noinferirors = ptr->protocol.IMAP.noinferirors;
-			box->protocol.IMAP.noselect = ptr->protocol.IMAP.noselect;
-			box->protocol.IMAP.marked = ptr->protocol.IMAP.marked;
+			C2Mailbox *folder;
+			gchar *buf2, *ptr2;
+			guint num = 0;
+			gchar *id = NULL;
+			
+			if(parent) id = parent->id;
+			
+			folder = c2_mailbox_new_with_parent(&imap->mailboxes, "*", id, C2_MAILBOX_IMAP,
+						C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap->host, imap->port, imap->user, 
+						imap->pass, imap->path);
+			printf("yoooo!\n");
+			buf2 = g_strndup(start, ptr - start);
+			
+			folder->protocol.IMAP.noinferiors = FALSE;
+			folder->protocol.IMAP.noselect = FALSE;
+			folder->protocol.IMAP.marked = FALSE;
+			folder->next = NULL;
+			
+			for(ptr2 = buf2; *ptr2; ptr2++)
+			{
+				if(num == 0 && *ptr2 == '(')
+				{
+					gchar *flags = g_strndup(ptr2, (strstr(ptr2, ")")-ptr2));
+					
+					if(c2_strstr_case_insensitive(flags, "\\NoInferiors"))
+						folder->protocol.IMAP.noinferiors = TRUE;
+					if(c2_strstr_case_insensitive(flags, "\\NoSelect"))
+						folder->protocol.IMAP.noselect = TRUE;
+					if(c2_strstr_case_insensitive(flags, "\\Marked"))
+						folder->protocol.IMAP.marked = TRUE;
+					
+					g_free(flags);
+					num++;
+				}
+				else if(num > 0 && num < 3 && *ptr2 == ' ')
+					num++;
+				else if(num == 3)
+				{
+					printf("then name of the mailbox is: %s\n", ptr2);
+					g_free(folder->name);
+					folder->name = g_strdup(ptr2);
+					if(!folder->protocol.IMAP.noinferiors)
+						if(c2_imap_folder_loop(imap, folder) < 0)
+							return -1;
+					num = 0;
+					start = ptr+1;
+					break;
+				}
+			}
 		}
-	}*/
-	
+	}
+
 	return 0;
 }
 
@@ -607,14 +671,13 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	return 0;
 }
 
-static C2Mailbox*
+static gchar*
 c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name)
 {
 	tag_t tag;
 	gchar *reply, *start, *ptr, *ptr2, *buf;
 	guint num = 0;	
-	C2Mailbox *first = NULL, *last = NULL;
-	
+
 	c2_mutex_lock(&imap->lock);
 	
 	tag = c2_imap_get_tag(imap);
@@ -638,69 +701,7 @@ c2_imap_get_folder_list(C2IMAP *imap, const gchar *reference, const gchar *name)
 	
 	c2_mutex_unlock(&imap->lock);
 	
-	for(ptr = start = reply; *ptr; ptr++)
-	{
-		if(*start != '*')
-			break;
-		
-		if(*ptr == '\n')
-		{
-			C2Mailbox *folder = g_new0(C2Mailbox, 1);
-			gchar *ptr2;
-			
-			if(!first) first = folder;
-			
-			buf = g_strndup(start, ptr - start);
-			
-			folder->protocol.IMAP.noinferiors = FALSE;
-			folder->protocol.IMAP.noselect = FALSE;
-			folder->protocol.IMAP.marked = FALSE;
-			folder->next = NULL;
-			
-			/* now get the mailbox name */			
-			for(ptr2 = buf; *ptr2; ptr2++)
-			{
-				if(num == 0 && *ptr2 == '(')
-				{
-					gchar *flags = g_strndup(ptr2, (strstr(ptr2, ")")-ptr2));
-					
-					if(c2_strstr_case_insensitive(flags, "\\NoInferiors"))
-						folder->protocol.IMAP.noinferiors = TRUE;
-					if(c2_strstr_case_insensitive(flags, "\\NoSelect"))
-						folder->protocol.IMAP.noselect = TRUE;
-					if(c2_strstr_case_insensitive(flags, "\\Marked"))
-						folder->protocol.IMAP.marked = TRUE;
-					
-					g_free(flags);
-					num++;
-				}
-				
-				else if(num > 0 && num < 3 && *ptr2 == ' ')
-					num++;
-				else if(num == 3)
-				{
-					printf("the name for the mailbox is: %s\n", ptr2);
-					folder->name = g_strdup(ptr2);
-					num = 0;
-					start = ptr+1;
-					break;
-				}
-			}
-			
-			if(last)
-			{
-				last->next = folder;
-				last = folder;
-			}
-			else
-				last = folder;
-			//*list = g_list_prepend(*list, folder);
-			g_free(buf);
-		}
-	}
-
-	gtk_signal_emit(GTK_OBJECT(imap), signals[MAILBOX_LIST]);
-	return first;
+	return reply;
 }
 
 /**
@@ -787,18 +788,19 @@ c2_imap_delete_folder(C2IMAP *imap, const gchar *name)
 }
 
 /**
- * c2_imap_delete_folder
+ * c2_imap_rename_folder
  * @imap: The IMAP object.
- * @name: Name of folder we want to delete
+ * @name: Name of folder we want to rename
+ * @newname: New name of the folder
  *
- * This function will delete the specified IMAP
+ * This function will rename the specified IMAP
  * folder in the full path of @name
  * 
  * Return Value:
  * 0 on success, -1 on failure
  **/
 gint
-c2_imap_rename_folder(C2IMAP *imap, const gchar *name)
+c2_imap_rename_folder(C2IMAP *imap, const gchar *name, const gchar *newname)
 {
 	
 }
