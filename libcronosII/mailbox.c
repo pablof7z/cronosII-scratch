@@ -323,7 +323,8 @@ c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *pa
 		return NULL;
 	}
 
-	c2_db_load (value);
+	if(create_db_struct)
+		c2_db_load (value);
 
 	gtk_signal_emit (GTK_OBJECT (*head),
 							signals[CHANGED_MAILBOXES]);
