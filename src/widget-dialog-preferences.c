@@ -1950,7 +1950,7 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 		boolean = GTK_TOGGLE_BUTTON (widget)->active;
 		gnome_config_set_bool ("incoming_server_ssl", boolean);
 
-		pop3 = c2_pop3_new (buf, integer, buf2, NULL, boolean);
+		pop3 = c2_pop3_new (g_strdup (buf), integer, g_strdup (buf2), NULL, boolean);
 		c2_account_set_extra_data (account, C2_ACCOUNT_KEY_INCOMING, GTK_TYPE_OBJECT, pop3);
 
 		widget = glade_xml_get_widget (xml, "incoming_auth_method");

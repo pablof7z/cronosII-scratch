@@ -236,7 +236,7 @@ ignore:
 					pass = gnome_config_get_string ("incoming_server_password");
 					ssl = gnome_config_get_bool ("incoming_server_ssl");
 					auth_method = gnome_config_get_int ("incoming_auth_method");
-					if (gnome_config_get_bool ("incoming_auth_remember"))
+					if (!gnome_config_get_bool ("incoming_auth_remember"))
 						flags |= C2_POP3_DO_NOT_LOSE_PASSWORD;
 					else
 						flags |= C2_POP3_DO_LOSE_PASSWORD;
@@ -571,10 +571,6 @@ c2_application_window_remove (C2Application *application, GtkWindow *window)
 
 	if (GTK_OBJECT (application)->ref_count <= 1)
 		gtk_object_unref (GTK_OBJECT (application));
-
-#ifdef USE_DEBUG
-	g_print ("Removing a window, unreffing to %d.\n", GTK_OBJECT (application)->ref_count);
-#endif
 
 	gtk_signal_emit (GTK_OBJECT (application), signals[WINDOW_CHANGED]);
 }

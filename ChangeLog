@@ -1,5 +1,9 @@
+Mon Nov 05 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Undo & Redo are working.
+
 Sun Nov 04 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Little changes to the mailbox module requested by Bosko.
+	* Fixed the ask for password bug (POP3).
 
 Sat Nov 03 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed a bug that caused a crash when displaying mails longer

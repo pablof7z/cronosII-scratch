@@ -68,8 +68,11 @@ struct _C2Editor
 	GtkWidget *text;
 
 	/* Undo and Redo */
-	GList *operations; /* History of operations */
-	GList *operations_ptr;
+#ifndef USE_ADVANCED_EDITOR
+	guint insert_signal, delete_signal;
+#endif
+	GSList *undo;
+	GSList *redo;
 };
 
 struct _C2EditorClass
@@ -79,6 +82,8 @@ struct _C2EditorClass
 	void (*editor_changed) (C2Editor *editor);
 	void (*undo) (C2Editor *editor);
 	void (*redo) (C2Editor *editor);
+	void (*undo_available) (C2Editor *editor, gboolean available);
+	void (*redo_available) (C2Editor *editor, gboolean available);
 };
 
 GtkType

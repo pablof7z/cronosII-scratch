@@ -111,6 +111,12 @@ static void
 on_toolbar_redo_clicked						(GtkWidget *widget, C2Composer *composer);
 
 static void
+on_editor_undo_available					(GtkWidget *widget, gboolean available, C2Composer *composer);
+
+static void
+on_editor_redo_available					(GtkWidget *widget, gboolean available, C2Composer *composer);
+
+static void
 on_application_preferences_changed_account	(C2Application *application, gint key, gpointer value,
 											 GtkCombo *combo);
 
@@ -338,9 +344,9 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	widget = glade_xml_get_widget (xml, "send_later_btn");
 	gtk_widget_set_sensitive (widget, FALSE);
 	widget = glade_xml_get_widget (xml, "undo_btn");
-	gtk_widget_set_sensitive (widget, TRUE);
+	gtk_widget_set_sensitive (widget, FALSE);
 	widget = glade_xml_get_widget (xml, "redo_btn");
-	gtk_widget_set_sensitive (widget, TRUE);
+	gtk_widget_set_sensitive (widget, FALSE);
 
 	buf = gnome_config_get_string ("/"PACKAGE"/Interface-Composer/editor");
 
@@ -454,6 +460,11 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 		composer->editor = c2_editor_new ();
 		gtk_box_pack_start (GTK_BOX (editor_container), composer->editor, TRUE, TRUE, 0);
 		gtk_widget_show (composer->editor);
+
+		gtk_signal_connect (GTK_OBJECT (composer->editor), "undo_available",
+							GTK_SIGNAL_FUNC (on_editor_undo_available), composer);
+		gtk_signal_connect (GTK_OBJECT (composer->editor), "redo_available",
+							GTK_SIGNAL_FUNC (on_editor_redo_available), composer);
 	}
 
 	g_free (buf);
@@ -611,6 +622,20 @@ on_subject_changed (GtkWidget *widget, C2Composer *composer)
 		g_free (title);
 	} else
 		gtk_window_set_title (GTK_WINDOW (composer), _("Composer: Untitled"));
+}
+
+static void
+on_editor_undo_available (GtkWidget *widget, gboolean available, C2Composer *composer)
+{
+	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "undo_btn");
+	gtk_widget_set_sensitive (widget, available);
+}
+
+static void
+on_editor_redo_available (GtkWidget *widget, gboolean available, C2Composer *composer)
+{
+	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "redo_btn");
+	gtk_widget_set_sensitive (widget, available);
 }
 
 static void

@@ -30,7 +30,6 @@
 
 /*
  * [TODO] Add support for CRAM-MD5 authentication.
- * [DONE] Add APOP support.
  */
 
 #define DEFAULT_FLAGS C2_POP3_DO_NOT_KEEP_COPY | C2_POP3_DO_NOT_LOSE_PASSWORD
@@ -351,8 +350,6 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 	quit (pop3);
 	
 after_quit:
-	printf("done with fetching\n");
-
 	if (!retval)
 		c2_net_object_disconnect (C2_NET_OBJECT (pop3));
 	else
@@ -459,6 +456,8 @@ login (C2POP3 *pop3)
 				c2_mutex_destroy (&lock);
 				if (cont)
 				{
+					g_free (pop3->user);
+					g_free (pop3->pass);
 					pop3->user = newuser;
 					pop3->pass = newpass;
 				} else
@@ -476,6 +475,62 @@ login (C2POP3 *pop3)
 	
 	if (!logged_in)
 		return -1;
+
+	return 0;
+}
+
+/**
+ * login_plain
+ * @pop3: C2POP3 to login.
+ *
+ * This function login using the plain type of login.
+ *
+ * Return Value:
+ * Indicates which is the status of the login:
+ * -1: Socket error, connection should be aborted
+ *     immediatly.
+ *  0: Login failed, connection might keep alive.
+ * +1: Login successfull.
+ **/
+static gint
+login_plain (C2POP3 *pop3)
+{
+	gchar *string;
+	
+	/* Username */
+	if (c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "USER %s\r\n", pop3->user) <= 0)
+		return -1;
+
+	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) <= 0)
+		return -1;
+
+	if (c2_strnne (string, "+OK", 3))
+	{
+		C2_DEBUG (string);
+		string = strstr (string, " ");
+		if (string)
+			string++;
+		c2_error_object_set_custom (GTK_OBJECT (pop3), string);
+		return 0;
+	}
+
+	/* Password */
+	g_free (string);
+	if (c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "PASS %s\r\n", pop3->pass) <= 0)
+		return -1;
+	
+	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) <= 0)
+		return -1;
+	
+	if (c2_strnne (string, "+OK", 3))
+	{
+		string = strstr (string, " ");
+		if (string)
+			string++;
+		c2_error_object_set_custom (GTK_OBJECT (pop3), string);
+		return 0;
+	} else
+		return 1;
 
 	return 0;
 }
@@ -519,61 +574,6 @@ login_apop (C2POP3 *pop3)
 		return 0;
 	} else
 		return 1;
-}
-
-/**
- * login_plain
- * @pop3: C2POP3 to login.
- *
- * This function login using the plain type of login.
- *
- * Return Value:
- * Indicates which is the status of the login:
- * -1: Socket error, connection should be aborted
- *     immediatly.
- *  0: Login failed, connection might keep alive.
- * +1: Login successfull.
- **/
-static gint
-login_plain (C2POP3 *pop3)
-{
-	gchar *string;
-	
-	/* Username */
-	if (c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "USER %s\r\n", pop3->user) < 0)
-		return -1;
-
-	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
-		return -1;
-
-	if (c2_strnne (string, "+OK", 3))
-	{
-		string = strstr (string, " ");
-		if (string)
-			string++;
-		c2_error_object_set_custom (GTK_OBJECT (pop3), string);
-		return 0;
-	}
-
-	/* Password */
-	g_free (string);
-	if (c2_net_object_send (C2_NET_OBJECT (pop3), NULL, "PASS %s\r\n", pop3->pass) < 0)
-		return -1;
-	
-	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
-		return -1;
-	
-	if (c2_strnne (string, "+OK", 3))
-	{
-		string = strstr (string, " ");
-		if (string)
-			string++;
-		c2_error_object_set_custom (GTK_OBJECT (pop3), string);
-		return 0;
-	} else
-		return 1;
-
-	return 0;
 }
 
 /* [TODO]

@@ -56,9 +56,9 @@ enum _C2POP3AuthenticationMethod
 enum _C2POP3Flags
 {
 	C2_POP3_DO_KEEP_COPY			= 1 << 1,	/* Will get a mail and leave a copy on server */
-	C2_POP3_DO_NOT_KEEP_COPY		= 0 << 1,	/* Will get a mail and delete it on server */
+	C2_POP3_DO_NOT_KEEP_COPY		= 1-1 << 1,	/* Will get a mail and delete it on server */
 	C2_POP3_DO_LOSE_PASSWORD		= 1 << 2,	/* Will delete the password once it sended it correctly */
-	C2_POP3_DO_NOT_LOSE_PASSWORD	= 0 << 2,	/* Will keep the password unless its wrong */
+	C2_POP3_DO_NOT_LOSE_PASSWORD	= 1-1 << 2,	/* Will keep the password unless its wrong */
 };
 
 struct _C2POP3
