@@ -36,7 +36,9 @@ extern "C" {
 #define C2_IS_IMAP_CLASS(klass)				(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_IMAP))
 
 typedef struct _C2IMAP C2IMAP;
+typedef struct _C2IMAPServerReply C2IMAPServerReply;
 typedef struct _C2IMAPClass C2IMAPClass;
+typedef struct _C2IMAPFolder C2IMAPFolder;
 typedef enum _C2IMAPAuthenticationType C2IMAPAuthenticationType;
 typedef unsigned int tag_t;
 typedef struct _C2IMAPPending C2IMAPPending;
@@ -71,8 +73,7 @@ struct _C2IMAP
 
 	gint (*login) (C2IMAP *imap);
 	
-	GHashTable *hash; /* TEMP hash to store server replies...*/
-	                  /* will be replaced with our own native C2Hash */
+	GList *hash;      /* hash to store server replies...*/
 	
 	GSList *pending;   /* linked list to store process mutex locks	for processes
 										 * that are expecting a tagged response from the server */
@@ -88,18 +89,32 @@ struct _C2IMAPClass
 	C2NetObjectClass parent_class;
 
 	void (*login) (C2IMAP *imap);
-	gboolean (*login_failed) (C2IMAP *imap, const gchar *error, gchar **user, gchar **pass,
-								C2Mutex *lock);
+	void (*login_failed) (C2IMAP *imap);
 	void (*mailbox_list) (C2IMAP *imap, C2Mailbox *head);
 	void (*incoming_mail) (C2IMAP *imap);
 	void (*logout) (C2IMAP *imap);
 	void (*net_error)  (C2IMAP *imap);
 };
 	
+struct _C2IMAPServerReply
+{
+	tag_t tag;
+	gchar *value;
+};
+	
 struct _C2IMAPPending
 {
 	tag_t tag;
 	C2Mutex lock;
+};
+	
+struct _C2IMAPFolder
+{
+	gchar *name;
+	
+	gboolean noinferiors;
+	gboolean noselect;
+	gboolean marked;
 };
 
 GtkType
@@ -111,6 +126,11 @@ c2_imap_new									(gchar *host, gint port, gchar *user, gchar *pass,
 
 gint
 c2_imap_init								(C2IMAP *imap);
+	
+gint
+c2_imap_get_folder_list(C2IMAP *imap, GList **list,
+											const gchar *reference, const gchar *name);
+			
 
 #ifdef __cplusplus
 }

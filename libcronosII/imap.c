@@ -27,10 +27,10 @@
 
 /* C2 IMAP Module in the process of being engineered by Bosko (mainly) and Pablo =) */
 /* TODO: Implement a hash table in IMAP object for handing server replies */
-/* (in progress) TODO: Function for reading server replies */
+/* (done!) TODO: Function for reading server replies */
 /* (in progress) TODO: Login (at least plain-text for now) */
 /* (in progress) TODO: Create a test module */
-/* TODO: Get list of folders */
+/* (in progress) TODO: Get list of folders */
 /* TODO: Get list of messages */
 /* TODO: Get and delete messages */
 /* TODO: Create, rename, and remove folders */
@@ -71,7 +71,7 @@ c2_imap_get_tag								(C2IMAP *imap);
 static void
 c2_imap_set_error(C2IMAP *imap, const gchar *error);
 
-enum
+enum 
 {
 	LOGIN,
 	LOGIN_FAILED,
@@ -125,7 +125,7 @@ class_init (C2IMAPClass *klass)
 						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 	signals[LOGIN_FAILED] =
 		gtk_signal_new ("login_failed",
-						GTK_RUN_FIRST,
+						GTK_RUN_LAST,
 						object_class->type,
 						GTK_SIGNAL_OFFSET (C2IMAPClass, login_failed),
 						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
@@ -162,6 +162,7 @@ class_init (C2IMAPClass *klass)
 	klass->mailbox_list = NULL;
 	klass->incoming_mail = NULL;
 	klass->logout = NULL;
+	klass->net_error = NULL;
 	
 	object_class->destroy = destroy;
 }
@@ -170,7 +171,7 @@ static void
 init (C2IMAP *imap)
 {
 	imap->auth = 0;
-	imap->cmnd = 0;
+	imap->cmnd = 1;
 	imap->mailboxes = NULL;
 	imap->selected_mailbox = NULL;
 	imap->host = NULL;
@@ -193,7 +194,6 @@ c2_imap_new (gchar *host, gint port, gchar *user, gchar *pass,
 	imap->user = g_strdup(user);
 	imap->pass = g_strdup(pass);
 	imap->host = g_strdup(host);
-	imap->hash = g_hash_table_new(g_str_hash, g_int_equal);
 	
 	switch(auth)
 	{
@@ -224,7 +224,7 @@ c2_imap_init (C2IMAP *imap)
 	
 	if(!(byte = c2_net_object_run(C2_NET_OBJECT(imap))))
 	{
-		gtk_signal_emit(GTK_OBJECT(imap), NET_ERROR);
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		c2_imap_set_error(imap, _("Error connecting to IMAP server."));
 		c2_mutex_unlock(&imap->lock);
 		return -1;
@@ -234,7 +234,7 @@ c2_imap_init (C2IMAP *imap)
 	
 	if(imap->login(imap) < 0)
 	{
-		/*gtk_signal_emit(GTK_OBJECT(imap), LOGIN_FAILED);*/
+		gtk_signal_emit(GTK_OBJECT(imap), signals[LOGIN_FAILED]);
 		//c2_imap_set_error(imap, _("Failed to login to IMAP server."));
 		c2_mutex_unlock(&imap->lock);
 		return -1;
@@ -271,7 +271,7 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 						imap->host);
 			c2_imap_set_error(imap, NET_READ_FAILED);
 			c2_net_object_disconnect(C2_NET_OBJECT(imap));
-			gtk_signal_emit(GTK_OBJECT(imap), NET_ERROR);
+			gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 			return; 
 		}
 		if(!final) final = g_strdup(buf);
@@ -290,9 +290,16 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	
 	tag = atoi(buf+9);
 	g_free(buf);
-	/* now insert 'final' into the hash...*/
-	/*printf("Now inserting data: %s in hash table for tag #%i\n", final, tag);*/
-	g_hash_table_insert(imap->hash, &tag, final);
+	sleep(2);
+  /* now insert 'final' into the hash...*/
+	//printf("Now inserting data: %s in hash table for tag #%i\n", final, tag);
+	{
+		C2IMAPServerReply *data = g_new0(C2IMAPServerReply, 1);
+		data->tag = tag;
+		data->value = final;
+		imap->hash = g_list_append(imap->hash, data);
+	}
+	
 	c2_imap_unlock_pending(imap);
 	
 	c2_mutex_unlock(&imap->lock);
@@ -313,14 +320,19 @@ static void
 c2_imap_unlock_pending (C2IMAP *imap)
 {
 	GSList *ptr;
+	GList *tmp;
 	C2IMAPPending *pending;
-	gchar *data;
 	
 	for(ptr = imap->pending; ptr; ptr = ptr->next)
 	{
+		C2IMAPServerReply *r;
 		pending = ptr->data;
-		if(data = g_hash_table_lookup(imap->hash, &pending->tag))
-      c2_mutex_unlock(&pending->lock);
+		for(tmp = imap->hash; tmp; tmp = tmp->next)
+		{
+			r = tmp->data;
+			if(r->tag == pending->tag)
+				c2_mutex_unlock(&pending->lock);
+		}
 	}
 }
 
@@ -403,7 +415,8 @@ static gchar *
 c2_imap_get_server_reply (C2IMAP *imap, tag_t tag)
 {
 	C2IMAPPending *pending;
-	gchar *data;
+	GList *tmp;
+	gchar *data = NULL;
 
 	pending = c2_imap_new_pending(imap, tag);
 	
@@ -414,11 +427,18 @@ c2_imap_get_server_reply (C2IMAP *imap, tag_t tag)
 	c2_mutex_unlock(&imap->lock);
 	c2_mutex_lock(&pending->lock); /* wait for reply... */
 	c2_mutex_lock(&imap->lock);
-
-	data = g_hash_table_lookup(imap->hash, &tag);
 	
-	if(data)
-		g_hash_table_remove(imap->hash, &tag);
+	for(tmp = imap->hash; tmp; tmp = tmp->next)
+	{
+		C2IMAPServerReply *r = tmp->data;
+		if(r->tag == tag)
+		{
+			data = r->value;
+			imap->hash = g_list_remove_link(imap->hash, tmp);
+			g_list_free_1(tmp);
+			break;
+		}
+	}
 
 	c2_mutex_unlock(&pending->lock);
 	c2_mutex_destroy(&pending->lock);
@@ -474,10 +494,7 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	}
 	
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
-	{
-		c2_imap_set_error(imap, "failed to get reply");
 		return -1;
-	}
 
 	if(c2_imap_check_server_reply(reply, tag))
 	{
@@ -486,5 +503,62 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	else
 		return -1;
 	
+	return 0;
+}
+
+gint 
+c2_imap_get_folder_list(C2IMAP *imap, GList **list, 
+											const gchar *reference, const gchar *name)
+{
+	tag_t tag;
+	gchar *reply, *start, *ptr, *ptr2, *buf;
+	guint num = 0;	
+	
+	tag = c2_imap_get_tag(imap);
+	
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d LIST \"%s\""
+				" \"%s\"\r\n", tag, (reference) ? reference : "" , (name) ? name : "") < 0)
+  {
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		return -1;
+	}
+	
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
+		return -1;
+	
+	if(!c2_imap_check_server_reply(reply, tag))
+	{
+		g_free(reply);
+		return -1;
+	}
+	
+	for(ptr = start = reply; *ptr; ptr++)
+	{
+		if(*ptr == '\n')
+		{
+			gchar *ptr2;
+			
+			buf = g_strndup(start, ptr - start);
+			
+			/* now get the mailbox name */			
+			for(ptr2 = buf; *ptr2; ptr2++)
+			{
+				if(num == 0 && *ptr2 == ')')
+					num++;
+				else if(num > 0 && num < 3 && *ptr2 == ' ')
+					num++;
+				else if(num == 3)
+				{
+					printf("the name for the mailbox is: %s\n", ptr2);
+					num = 0;
+					start = ptr+1;
+					break;
+				}
+			}
+			
+			g_free(buf);
+		}
+	}
+
 	return 0;
 }
