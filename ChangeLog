@@ -1,5 +1,9 @@
 2001-06-21 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
+	* Preferences: Included support for the "Wrap outgoing text" thing.
+
+2001-06-21 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
 	* POP3 module: Initial retrieve.
 			New theory: while messages are being downloaded they
 			will be stored in a file in the Hard Drive, not in the RAM.

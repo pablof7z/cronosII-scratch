@@ -119,6 +119,7 @@ c2_preferences_new (void)
 	gchar *ctree_string[] = { NULL, NULL };
 
 	GtkWidget *options_check_timeout;
+	GtkWidget *options_wrap_outgoing_text;
 	GtkWidget *options_mark_timeout;
 	GtkWidget *options_prepend_character;
 	GtkWidget *options_empty_garbage;
@@ -232,6 +233,11 @@ c2_preferences_new (void)
 	options_check_timeout = glade_xml_get_widget (preferences_xml, "options_check_timeout");
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (options_check_timeout),
 								(gfloat) c2_app.options_check_timeout);
+
+	/* options_wrap_outgoing_text */
+	options_wrap_outgoing_text = glade_xml_get_widget (preferences_xml, "options_wrap_outgoing_text");
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (options_wrap_outgoing_text),
+								(gfloat) c2_app.options_wrap_outgoing_text);
 
 	/* options_mark_timeout */
 	options_mark_timeout = glade_xml_get_widget (preferences_xml, "options_mark_timeout");
@@ -537,6 +543,7 @@ on_apply_btn_clicked (void)
 	}
 	{ /* Options page */
 		GtkWidget *check_timeout = glade_xml_get_widget (preferences_xml, "options_check_timeout");
+		GtkWidget *wrap_outgoing_text = glade_xml_get_widget (preferences_xml, "options_wrap_outgoing_text");
 		GtkWidget *mark_timeout = glade_xml_get_widget (preferences_xml, "options_mark_timeout");
 		GtkWidget *prepend_character = glade_xml_get_widget (preferences_xml, "options_prepend_character");
 		GtkWidget *empty_garbage = glade_xml_get_widget (preferences_xml, "options_empty_garbage");
@@ -548,6 +555,8 @@ on_apply_btn_clicked (void)
 
 		c2_app.options_check_timeout = gtk_spin_button_get_value_as_int (
 										GTK_SPIN_BUTTON (check_timeout));
+		c2_app.options_wrap_outgoing_text = gtk_spin_button_get_value_as_int (
+										GTK_SPIN_BUTTON (wrap_outgoing_text));
 		c2_app.options_mark_timeout = gtk_spin_button_get_value_as_int (
 										GTK_SPIN_BUTTON (mark_timeout));
 
@@ -588,6 +597,7 @@ on_apply_btn_clicked (void)
 		}
 
 		gnome_config_set_int ("/cronosII/Options/check_timeout", c2_app.options_check_timeout);
+		gnome_config_set_int ("/cronosII/Options/wrap_outgoing_text", c2_app.options_wrap_outgoing_text);
 		gnome_config_set_int ("/cronosII/Options/mark_timeout", c2_app.options_mark_timeout);
 		gnome_config_set_string ("/cronosII/Options/prepend_character", c2_app.options_prepend_character);
 		gnome_config_set_int ("/cronosII/Options/empty_garbage", c2_app.options_empty_garbage);
