@@ -709,13 +709,15 @@ c2_imap_get_full_folder_name (C2IMAP *imap, C2Mailbox *mailbox)
 	gint level = c2_mailbox_get_level(mailbox->id);
 	gchar *id, *str, *name = NULL;
 	
+	return NULL; /* TEMP FIX ME */
+	
 	if(level == 1)
 		return g_strdup(mailbox->name);
 	
 	for( ; level > 1; level--)
 	{
 		id = c2_mailbox_get_parent_id(mailbox->id);
-		temp = c2_mailbox_get_by_id(imap->mailboxes, id);
+		/*temp = c2_mailbox_get_by_id(imap->mailboxes, id); TEMP */
 	 	g_free(id);
  		if(!name)
 			name = g_strconcat(temp->name, "/", mailbox->name, NULL);
@@ -872,7 +874,7 @@ c2_imap_delete_folder(C2IMAP *imap, C2Mailbox *mailbox)
 	gchar *reply, *name;
 	tag_t tag;
 	
-	printf("folder name is: %s\n", mailbox->name);
+	printf("folder name is: %s, %s, %s\n", mailbox->name, mailbox->id, mailbox->child ? "not-null" : "null");
 	
 	c2_mutex_lock(&imap->lock);
 	
