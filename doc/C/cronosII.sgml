@@ -117,7 +117,7 @@ aim for reliability, simplicity, speed and flexibility while gradually increasin
 </note>
 <sect2 id="about">
 <title>About this Manual</title>
-      <para>This Manual was written by Peter Gossner <email> &pete;</email> Please send comments, criticism, ideas and suggestions to the &app; Developers List &developers; 
+      <para>This Manual was written by Peter Gossner <email> &pete;</email> Please send comments, criticism, ideas and suggestions to the &app; Developers List <email>&developers; </email>
   </para>
 <para>User Interface Navigation is represented as follows:</para>
 <example>

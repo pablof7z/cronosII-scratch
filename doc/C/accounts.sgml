@@ -6,8 +6,10 @@
 </para>
 <example>
 <title>Setting up an Initial Account</title>
+<para>Read <xref linkend="needed-info">  For a list of configuration information  required by &app; and your Servers.</para>
 <para>
-Open the Account Editor :
+From the Main Window, 
+open the Account Editor :
 </para>
 <para>
 Settings => Preferences => General => Accounts => Add
