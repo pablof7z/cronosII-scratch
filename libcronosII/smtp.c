@@ -29,9 +29,9 @@
 /* feel free to mess around -- help me get this module up to spec faster! */
 /* TODO: implement authentication (posted by pablo) */
 /* TODO: update this module to use C2 Net-Object */
-/* (needs testing) TODO: implement sending of MIME attachments */
 /* (in progress) TODO: implement local sendmail capability */
 /* (in progress) TODO: create a test-module */
+/* (done!) TODO: implement sending of MIME attachments */
 /* (done!) TODO: implement BCC */
 /* (done!) TODO: implement EHLO */
 /* (done!) TODO: implement keep-alive smtp connection */
@@ -52,13 +52,13 @@ static gint
 c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message);
 
 static gint
-c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2Message *message, gchar **boundry);
+c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2Message *message, gchar **boundary);
 
 static gchar *
-c2_smtp_mime_make_message_boundry (void);
+c2_smtp_mime_make_message_boundary (void);
 
 static gint
-c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundry);
+c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundary);
 
 static gboolean
 smtp_test_connection(C2SMTP *smtp);
@@ -503,7 +503,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 	/* This function sends the message body so that there is no
 	 * bare 'LF' and that all '\n' are sent as '\r\n' */
 	gchar *ptr, *start, *buf, *contents = message->header;
-	gchar *mimeboundry = NULL;
+	gchar *mimeboundary = NULL;
 	
 	while(1) 
 	{
@@ -523,12 +523,11 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 			{
 				if(*(ptr+1) == '\0') ptr++;
 				buf = g_strndup(start, ptr - start);
-				printf("About to send: %s\n", buf);
 				if(c2_net_send(smtp->sock, "%s\r\n", buf) < 0)
 				{
 					c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 					g_free(buf);
-					if(mimeboundry) g_free(mimeboundry);
+					if(mimeboundary) g_free(mimeboundary);
 					smtp_disconnect(smtp);
 					pthread_mutex_unlock(&smtp->lock);
 					return -1;
@@ -540,25 +539,25 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 		}
 		if(contents == message->header)
 		{
-			if(c2_smtp_send_message_mime_headers(smtp, message, &mimeboundry) < 0)
+			if(c2_smtp_send_message_mime_headers(smtp, message, &mimeboundary) < 0)
 				return -1;
 			contents = message->body;
 		}
 		else if(contents == message->body)
 		{
-			if(c2_smtp_send_message_mime(smtp, message, mimeboundry) < 0)
+			if(c2_smtp_send_message_mime(smtp, message, mimeboundary) < 0)
 			{	
-				g_free(mimeboundry);
+				g_free(mimeboundary);
 				return -1;
 			}
-			if(mimeboundry) g_free(mimeboundry);
+			if(mimeboundary) g_free(mimeboundary);
 			break;
 		}
 		if(c2_net_send(smtp->sock, "\r\n") < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp);
-			if(mimeboundry) g_free(mimeboundry);
+			if(mimeboundary) g_free(mimeboundary);
 			pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
@@ -571,7 +570,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 /* send_message_mime_headers
  * @smtp: the C2SMTP Object to use as network connection
  * @message: the actual message we are in the process of sending
- * @boundry: a string that will get allocated and set to be the boundry
+ * @boundary: a string that will get allocated and set to be the boundary
  *           of the MIME message 
  * 
  * Function sends the MIME headers such as Mime-Version: and the text/plain
@@ -581,7 +580,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
  * 0 on success, -1 on failure.
  **/
 static gint
-c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2Message *message, gchar **boundry)
+c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2Message *message, gchar **boundary)
 {
 	gchar *mimeinfo, *errmsg, *msgheader;
 	
@@ -589,9 +588,9 @@ c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2Message *message, gchar **boun
 		return 0;
 	
 	mimeinfo = g_strdup("MIME-Version: 1.0\r\n"
-								 "Content-Type: multipart/mixed; boundary=");
+								 "Content-Type: multipart/mixed; boundary=\"");
 	
-	*boundry = c2_smtp_mime_make_message_boundry();
+	*boundary = c2_smtp_mime_make_message_boundary();
 	
 	errmsg = g_strdup("This is a multipart message in MIME format.\r\n"
 										"The fact that you can read this text means that your\r\n"
@@ -605,12 +604,12 @@ c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2Message *message, gchar **boun
 											 "Content-Transfer-Encoding: 8bit\r\n"
 											 "Content-Disposition: inline");
 	
-	if(c2_net_send(smtp->sock, "%s%s\r\n%s\r\n%s\r\n%s\r\n", mimeinfo, *boundry, errmsg, 
-		*boundry, msgheader) < 0)
+	if(c2_net_send(smtp->sock, "%s%s\"\r\n%s\r\n--%s\r\n%s\r\n", mimeinfo, *boundary, errmsg, 
+		*boundary, msgheader) < 0)
 	{
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 		g_free(mimeinfo);
-		g_free(*boundry);
+		g_free(*boundary);
 		g_free(errmsg);
 		g_free(msgheader);
 		smtp_disconnect(smtp);
@@ -625,7 +624,7 @@ c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2Message *message, gchar **boun
 	return 0;
 }
 
-/* c2_smtp_mime_make_message_boundry
+/* c2_smtp_mime_make_message_boundary
  *
  * Creates a random string of chars for use as a MIME boundary
  * 
@@ -633,27 +632,27 @@ c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2Message *message, gchar **boun
  * The freeable string containing the boundary
  **/
 static gchar *
-c2_smtp_mime_make_message_boundry (void) 
+c2_smtp_mime_make_message_boundary (void) 
 {
-	gchar *boundry = NULL;
+	gchar *boundary = NULL;
 	gchar *ptr;
 	gint i;
 	
 	srand (time (NULL));
-	boundry = g_new0 (char, 50);
-	sprintf (boundry, "Cronos-II=");
-	ptr = boundry+10;
+	boundary = g_new0 (char, 50);
+	sprintf (boundary, "Cronos-II=");
+	ptr = boundary+10;
 	for (i = 0; i < 39; i++) 
 		*(ptr+i) = (rand () % 26)+97; /* From a to z */
 	if (*(ptr+i-1) == '-') *(ptr+i-1) = '.';
 	*(ptr+i) = '\0';
 	
-	return boundry;
+	return boundary;
 }
 
 
 static gint
-c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundry)
+c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundary)
 {
 	gint i, x;
 	gchar *buf;
@@ -662,7 +661,7 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundry)
 	if(!message->mime)
 		return 0;
 	
-	if(c2_net_send(smtp->sock, "%s\r\n", boundry) < 0)
+	if(c2_net_send(smtp->sock, "--%s\r\n", boundary) < 0)
 	{
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 		smtp_disconnect(smtp);
@@ -705,25 +704,12 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundry)
 			}
 			g_free(buf);
 		}
-		if(!mime->next)
+		if(c2_net_send(smtp->sock, "--%s%s\r\n", boundary, (mime->next) ? "" : "--") < 0)
 		{
-			if(c2_net_send(smtp->sock, "%s--\r\n", boundry) < 0)
-		  {
-				c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
-				smtp_disconnect(smtp);
-				pthread_mutex_unlock(&smtp->lock);
-				return -1;
-			}
-		}
-		else
-		{
-			if(c2_net_send(smtp->sock, "%s\r\n", boundry) < 0)
-		  {
-				c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
-				smtp_disconnect(smtp);
-				pthread_mutex_unlock(&smtp->lock);
-				return -1;
-			}
+			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+			smtp_disconnect(smtp);
+			pthread_mutex_unlock(&smtp->lock);
+			return -1;
 		}
 	}
 	
