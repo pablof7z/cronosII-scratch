@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /src/main.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -243,6 +243,8 @@ c2_config_init (void)
 									("/cronosII/Options/use_outbox=" DEFAULT_OPTIONS_USE_OUTBOX, NULL);
 	c2_app.options_check_at_start = gnome_config_get_int_with_default
 									("/cronosII/Options/check_at_start=" DEFAULT_OPTIONS_CHECK_AT_START, NULL);
+	c2_app.options_mt_mode = gnome_config_get_int_with_default
+									("/cronosII/Options/mt_mode=" DEFAULT_OPTIONS_MT_MODE, NULL);
 	c2_app.options_default_mime = gnome_config_get_int_with_default
 									("/cronosII/Options/default_mime=" DEFAULT_OPTIONS_DEFAULT_MIME, NULL);	
 	

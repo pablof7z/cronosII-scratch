@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /src/c2-app.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,8 @@ extern "C" {
 #	include <libcronosII/account.h>
 #	include <libcronosII/mailbox.h>
 #	include <libcronosII/utils.h>
+
+#	include "widget-message-transfer.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -48,6 +50,7 @@ extern "C" {
 #define DEFAULT_OPTIONS_EMPTY_GARBAGE			"0"
 #define DEFAULT_OPTIONS_USE_OUTBOX				"1"
 #define DEFAULT_OPTIONS_CHECK_AT_START			"0"
+#define DEFAULT_OPTIONS_MT_MODE					"1"
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 #	define DEFAULT_OPTIONS_DEFAULT_MIME			"1"
 #else
@@ -186,6 +189,7 @@ struct C2Application
 	gint options_empty_garbage	: 1;
 	gint options_use_outbox		: 1;
 	gint options_check_at_start	: 1;
+	C2MessageTransferMode options_mt_mode;
 	C2DefaultMimeType options_default_mime;
 		
 	C2Account *account;

@@ -19,6 +19,7 @@
 #include <glade/glade.h>
 
 #include <libcronosII/error.h>
+#include <libcronosII/utils.h>
 
 #include "c2-app.h"
 #include "widget-message-transfer.h"
@@ -42,11 +43,22 @@ queue_append									(C2MessageTransferQueue *head, C2MessageTransferQueue *obj)
 static void
 queue_free										(C2MessageTransferQueue *head);
 
-static void
+static gint
 run												(C2MessageTransfer *mt);
 
 static void
 reset											(C2MessageTransfer *mt);
+
+static gint
+check											(C2Pthread2 *data);
+
+static void
+clist_select_row								(GtkCList *clist, gint row, gint column,
+												 GdkEvent *event, C2MessageTransfer *mt);
+
+static void
+clist_unselect_row								(GtkCList *clist, gint row, gint column,
+												 GdkEvent *event, C2MessageTransfer *mt);
 
 enum
 {
@@ -70,12 +82,23 @@ c2_message_transfer_new (void)
 
 	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (mt)->vbox), box, TRUE, TRUE, 0);
 
+	gtk_widget_set_usize (GTK_WIDGET (mt), -1, 420);
+
+	box = glade_xml_get_widget (mt->xml, "task_clist");
+	gtk_signal_connect (GTK_OBJECT (box), "select_row",
+							GTK_SIGNAL_FUNC (clist_select_row), mt);
+	gtk_signal_connect (GTK_OBJECT (box), "unselect_row",
+							GTK_SIGNAL_FUNC (clist_unselect_row), mt);
+	
+
 	return GTK_WIDGET (mt);
 }
 
 void
 c2_message_transfer_freeze (C2MessageTransfer *mt)
 {
+	mt->queue = NULL;
+	reset (mt);
 	/* XXX If we get some problems, like gtk+ freezing when
 	 * XXX some checking stuff is executed, there's a good
 	 * XXX chance the problem is here (we are using a blocking
@@ -94,7 +117,11 @@ c2_message_transfer_thaw (C2MessageTransfer *mt)
 	
 	/* If it is not already running, make it run */
 	if (!mt->active)
-		run (mt);
+	{
+		pthread_t thread;
+
+		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (run), mt);
+	}
 }
 
 void
@@ -116,6 +143,7 @@ queue_new (const C2Account *account, C2MessageTransferType type, C2MessageTransf
 {
 	C2MessageTransferQueue *queue = g_new0 (C2MessageTransferQueue, 1);
 
+	queue->subtasks[DONE] = queue->subtasks[TOTAL] = queue->subtask[DONE], queue->subtask[TOTAL] = 0;
 	queue->action = action;
 	queue->type = type;
 	queue->account = account;
@@ -150,58 +178,154 @@ queue_free (C2MessageTransferQueue *head)
 {
 }
 
-static void
+static gint
 run (C2MessageTransfer *mt)
 {
 	C2MessageTransferQueue *s;
+	GtkCList *clist = GTK_CLIST (glade_xml_get_widget (mt->xml, "task_clist"));
+	GnomePixmap *pixmap = NULL;
 	gchar *info = NULL;
 	gboolean success = TRUE;
+	gint row;
+	const gchar *line[] = { NULL, NULL, NULL };
+	C2Pthread2 *data;
+	pthread_t thread;
 
 	/* We need to block here because we don't want
-	 * two run running at the same time.
+	 * two run() running at the same time.
 	 */
 	c2_return_if_fail (!mt->active, C2EDATA);
 
 	mt->active = TRUE;
 	reset (mt);
 
-	for (s = mt->queue; s; s = s->next)
+	gdk_threads_enter ();
+	pixmap = GNOME_PIXMAP (gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/blue_arrow.png"));
+	gtk_clist_freeze (clist);
+	for (s = mt->queue, row = 0; s; s = s->next, row++)
+	{
+		line[1] = s->account->name;
+		
+		if (s->action == C2_MESSAGE_TRANSFER_CHECK)
+			line[2] = _("Waiting to get messages.");
+		else
+			line[2] = _("Waiting to deliver a message.");
+		
+		gtk_clist_append (clist, line);
+		gtk_clist_set_pixmap (clist, row, 0, pixmap->pixmap, pixmap->mask);
+		gtk_clist_set_row_data (clist, row, s);
+	}
+	gtk_clist_thaw (clist);
+	gdk_threads_leave ();
+
+	for (s = mt->queue, row = 0; s; s = s->next)
 	{
 		if (s->action == C2_MESSAGE_TRANSFER_CHECK)
 		{
-			/* Check an account */
-			g_print ("The checking of accounts is not coded yet: %s:%d\n", __FILE__, __LINE__);
+			/* We need to fire the function in other thread,
+			 * the data we'll need is:
+			 * o C2MessageTransfer,
+			 * o C2MessageTransferQueue (or row)
+			 */
+			data = g_new0 (C2Pthread2, 1);
+			data->v1 = (gpointer) mt;
+			data->v2 = (gpointer) s;
+			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (check), data);
+			
+			if (c2_app.options_mt_mode == C2_MESSAGE_TRANSFER_MONOTHREAD)
+				pthread_join (thread, NULL);
 		} else
 		{
-			/* Send a mail */
-			g_print ("The sending of messages is not coded yet: %s:%d\n", __FILE__, __LINE__);
+			g_print (PACKAGE " v." VERSION " doesn't supports sending of messages, "
+					 "if you are a developer you can code it yourself:\n"
+					 "file: " __FILE__"\n"
+					 "line: %d\n"
+					 "function: " __PRETTY_FUNCTION__ "\n"
+					 "\n",
+					 __LINE__);
 		}
 	}
+	pthread_attr_destroy (&attr);
 
 	if (pthread_mutex_trylock (&mt->queue_lock))
 	{
 		mt->active = FALSE;
-		return;
+		return 0;
 	}
 
-	queue_free (mt->queue);
 	mt->active = FALSE;
-	reset (mt);
 
 	if (GTK_TOGGLE_BUTTON (glade_xml_get_widget (mt->xml, "auto_close_btn"))->active)
+	{
+		gdk_threads_enter ();
 		gtk_widget_hide (GTK_WIDGET (mt));
+		gdk_threads_leave ();
+	}
 	
 	pthread_mutex_unlock (&mt->queue_lock);
+
+	return 0;
 }
 
 static void
 reset (C2MessageTransfer *mt)
 {
+	static C2MessageTransferQueue *queue = NULL;
+
 	gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "task_progress")), 0, 0, 0);
 	gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "subtasks_progress")), 0, 0, 0);
 	gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "subtask_progress")), 0, 0, 0);
 	gtk_widget_hide (glade_xml_get_widget (mt->xml, "subtask_progress"));
 	gtk_clist_clear (GTK_CLIST (glade_xml_get_widget (mt->xml, "task_clist")));
+
+	if (queue)
+		queue_free (queue);
+
+	queue = mt->queue;
+}
+
+static gint
+check (C2Pthread2 *data)
+{
+	C2MessageTransfer *mt = data->v1;
+	C2MessageTransferQueue *queue = data->v2;
+
+	sleep (5);
+	printf ("Checking %d\n", (gint) queue);
+}
+
+static void
+clist_select_row (GtkCList *clist, gint row, gint column, GdkEvent *event, C2MessageTransfer *mt)
+{
+	GtkWidget *info_box = glade_xml_get_widget (mt->xml, "info_box");
+	GtkWidget *tasks_frame = glade_xml_get_widget (mt->xml, "tasks_frame");
+	GtkWidget *subtasks_frame = glade_xml_get_widget (mt->xml, "subtasks_frame");
+	GtkWidget *subtasks_progress = glade_xml_get_widget (mt->xml, "subtasks_progress");
+	GtkWidget *subtask_frame = glade_xml_get_widget (mt->xml, "subtask_frame");
+	GtkWidget *subtask_progress = glade_xml_get_widget (mt->xml, "subtask_progress");
+	C2MessageTransferQueue *queue = (C2MessageTransferQueue *) gtk_clist_get_row_data (
+									GTK_CLIST (glade_xml_get_widget (mt->xml, "task_clist")), row);
+
+
+	gtk_progress_configure (GTK_PROGRESS (subtasks_progress), queue->subtasks[DONE], 0,
+							queue->subtasks[TOTAL]);
+	gtk_progress_configure (GTK_PROGRESS (subtask_progress), queue->subtask[DONE], 0,
+							queue->subtask[TOTAL]);
+
+	gtk_widget_show (info_box);
+	gtk_widget_hide (tasks_frame);
+	gtk_widget_show (subtasks_frame);
+	gtk_widget_show (subtasks_progress);
+	gtk_widget_show (subtask_frame);
+	gtk_widget_show (subtask_progress);
+}
+
+static void
+clist_unselect_row (GtkCList *clist, gint row, gint column, GdkEvent *event, C2MessageTransfer *mt)
+{
+	GtkWidget *info_box = glade_xml_get_widget (mt->xml, "info_box");
+
+	gtk_widget_hide (info_box);
 }
 
 GtkType
@@ -270,9 +394,7 @@ init (C2MessageTransfer *obj)
 		NULL
 	};
 	
-	obj->tasks[DONE] = obj->tasks[TOTAL] =
-	obj->subtasks[DONE] = obj->subtasks[TOTAL] =
-	obj->subtask[DONE], obj->subtask[TOTAL] = 0;
+	obj->tasks[DONE] = obj->tasks[TOTAL] = 0;
 
 	obj->queue = NULL;
 	obj->xml = NULL;

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /src/preferences.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,12 +28,14 @@
 
 #define OPTIONS_DEFAULT_MIME_STRING_PLAIN_TEXT _("Plain text")
 #define OPTIONS_DEFAULT_MIME_STRING_HTML_TEXT _("HTML formatted")
+#define OPTIONS_MT_MODE_MULTITHREAD _("Multithread")
+#define OPTIONS_MT_MODE_MONOTHREAD _("Monothread")
 #define INTERFACE_TOOLBAR_STRING_ICONS_ONLY _("Icons only")
 #define INTERFACE_TOOLBAR_STRING_TEXT_ONLY _("Text only")
 #define INTERFACE_TOOLBAR_STRING_BOTH _("Icons & Text")
 #define FONTS_SOURCE_STRING_USE_DOCUMENT _("Use document specified fonts")
 #define FONTS_SOURCE_STRING_USE_MY _("Always use my fonts")
-#define ACCOUNTS_NEW_PROTOCOL_TYPE_STRING_POP3 _("Post Office Protocol (POP3)")
+#define ACCOUNTS_NEW_PROTOCOL_TYPE_STRING_POP3 _("Post Office Protocol 3 (POP3)")
 #define ACCOUNTS_NEW_SIGNATURE_TYPE_STRING_STATIC _("Static Signature")
 #define ACCOUNTS_NEW_SIGNATURE_TYPE_STRING_DYNAMIC _("Dynamic Signature (output of commands)")
 
@@ -122,6 +124,7 @@ c2_preferences_new (void)
 	GtkWidget *options_empty_garbage;
 	GtkWidget *options_use_outbox;
 	GtkWidget *options_check_at_start;
+	GtkWidget *options_mt_mode;
 	GtkWidget *options_default_mime;
 	GtkWidget *menu;
 
@@ -255,6 +258,17 @@ c2_preferences_new (void)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (options_check_at_start),
 									c2_app.options_check_at_start);
 
+	/* options_mt_mode */
+	options_mt_mode = glade_xml_get_widget (preferences_xml, "options_mt_mode");
+	menu = gtk_menu_item_new_with_label (OPTIONS_MT_MODE_MULTITHREAD);
+	gtk_widget_show (menu);
+	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (options_mt_mode)->menu), menu);
+	
+	menu = gtk_menu_item_new_with_label (OPTIONS_MT_MODE_MONOTHREAD);
+	gtk_widget_show (menu);
+	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (options_mt_mode)->menu), menu);
+	gtk_option_menu_set_history (GTK_OPTION_MENU (options_mt_mode), c2_app.options_mt_mode);
+
 	/* options_default_mime */
 	options_default_mime = glade_xml_get_widget (preferences_xml, "options_default_mime");
 	menu = gtk_menu_item_new_with_label (OPTIONS_DEFAULT_MIME_STRING_PLAIN_TEXT);
@@ -281,7 +295,6 @@ c2_preferences_new (void)
 			account->email,
 			NULL
 		};
-		C2_DEBUG (account->name);
 		gtk_clist_append (accounts_clist, row);
 		gtk_clist_set_row_data (accounts_clist, accounts_clist->rows-1, c2_account_copy (account));
 	}
@@ -529,6 +542,7 @@ on_apply_btn_clicked (void)
 		GtkWidget *empty_garbage = glade_xml_get_widget (preferences_xml, "options_empty_garbage");
 		GtkWidget *use_outbox = glade_xml_get_widget (preferences_xml, "options_use_outbox");
 		GtkWidget *check_at_start = glade_xml_get_widget (preferences_xml, "options_check_at_start");
+		GtkWidget *mt_mode = glade_xml_get_widget (preferences_xml, "options_mt_mode");
 		GtkWidget *default_mime = glade_xml_get_widget (preferences_xml, "options_default_mime");
 		gchar *selection;
 
@@ -544,6 +558,20 @@ on_apply_btn_clicked (void)
 		c2_app.options_empty_garbage = GTK_TOGGLE_BUTTON (empty_garbage)->active;
 		c2_app.options_use_outbox = GTK_TOGGLE_BUTTON (use_outbox)->active;
 		c2_app.options_check_at_start = GTK_TOGGLE_BUTTON (check_at_start)->active;
+
+		if (GTK_BIN (mt_mode)->child)
+		{
+			GtkWidget *child = GTK_BIN (mt_mode)->child;
+			
+			if (GTK_LABEL (child))
+			{
+				gtk_label_get (GTK_LABEL (child), &selection);
+				if (c2_streq (selection, OPTIONS_MT_MODE_MULTITHREAD))
+					c2_app.options_mt_mode = C2_MESSAGE_TRANSFER_MULTITHREAD;
+				else
+					c2_app.options_mt_mode = C2_MESSAGE_TRANSFER_MONOTHREAD;
+			}
+		}
 
 		if (GTK_BIN (default_mime)->child)
 		{
@@ -565,6 +593,7 @@ on_apply_btn_clicked (void)
 		gnome_config_set_int ("/cronosII/Options/empty_garbage", c2_app.options_empty_garbage);
 		gnome_config_set_int ("/cronosII/Options/use_outbox", c2_app.options_use_outbox);
 		gnome_config_set_int ("/cronosII/Options/check_at_start", c2_app.options_check_at_start);
+		gnome_config_set_int ("/cronosII/Options/mt_mode", c2_app.options_mt_mode);
 		gnome_config_set_int ("/cronosII/Options/default_mime", c2_app.options_default_mime);
 	}
 	{ /* Accounts */

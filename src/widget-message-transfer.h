@@ -43,6 +43,7 @@ typedef struct _C2MessageTransferClass C2MessageTransferClass;
 typedef struct _C2MessageTransferQueue C2MessageTransferQueue;
 typedef enum _C2MessageTransferAction C2MessageTransferAction;
 typedef enum _C2MessageTransferType C2MessageTransferType;
+typedef enum _C2MessageTransferMode C2MessageTransferMode;
 
 enum _C2MessageTransferAction
 {
@@ -56,6 +57,12 @@ enum _C2MessageTransferType
 	C2_MESSAGE_TRANSFER_MANUAL
 };
 
+enum _C2MessageTransferMode
+{
+	C2_MESSAGE_TRANSFER_MULTITHREAD,
+	C2_MESSAGE_TRANSFER_MONOTHREAD
+};
+
 enum
 {
 	DONE,
@@ -65,6 +72,9 @@ enum
 
 struct _C2MessageTransferQueue
 {
+	guint32 subtasks[LAST_CATEGORY];
+	guint32 subtask[LAST_CATEGORY];
+	
 	C2MessageTransferAction action;
 	C2MessageTransferType type;
 	const C2Account *account;
@@ -78,8 +88,6 @@ struct _C2MessageTransfer
 	GnomeDialog dialog;
 
 	guint16 tasks[LAST_CATEGORY];
-	guint32 subtasks[LAST_CATEGORY];
-	guint32 subtask[LAST_CATEGORY];
 
 	C2MessageTransferQueue *queue;
 	pthread_mutex_t queue_lock;
