@@ -12,17 +12,19 @@ cronos_SOURCES = \
 	install-wizard.c										\
 	main-window.c				main-window.h				\
 	main.c													\
-	widget-index.c				widget-index.h				
+	preferences.c											\
+	widget-index.c				widget-index.h				\
+	widget-mail.c				widget-mail.h
 	
 
 cronos_LDADD = \
 	$(top_builddir)/libcronosII/libcronosII.a \
-	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) 
+	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
 
 cronos_LDFLAGS = \
 	$(top_builddir)/libcronosII/libcronosII.a \
 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) \
-	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS)
+	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
 
 EXTRA_DIST = \
 	forward.xpm		\

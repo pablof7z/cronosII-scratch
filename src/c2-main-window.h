@@ -36,6 +36,9 @@ c2_main_window_set_sensitivity					(void);
 	
 void
 on_new_mailbox_dlg								(void);
+
+void
+on_properties_mailbox_dlg						(void);
 	
 #ifdef __cplusplus
 }

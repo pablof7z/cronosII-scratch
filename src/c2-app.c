@@ -130,6 +130,58 @@ c2_app_report (const gchar *msg, C2ReportSeverity severity)
 	}
 }
 
+static gboolean
+on_activity_update (void)
+{
+	if (!pthread_mutex_trylock (&WMain.appbar_lock))
+	{
+		pthread_mutex_unlock (&WMain.appbar_lock);
+	} else
+	{
+		GtkWidget *appbar = glade_xml_get_widget (WMain.xml, "appbar");
+		static gboolean adding = TRUE;
+		gfloat value = gtk_progress_get_value (gnome_appbar_get_progress (GNOME_APPBAR (appbar)));
+	
+		if (adding)
+			value += 0.05;
+		else
+			value -= 0.05;
+		
+		if (adding && value > 1)
+		{
+			value -= 0.05;
+			adding = !adding;
+		} else if (!adding && value < 0)
+		{
+			value += 0.05;
+			adding = !adding;
+		}
+		gtk_progress_set_value (gnome_appbar_get_progress (GNOME_APPBAR (appbar)), value);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void
+c2_app_start_activity (GtkWidget *progress)
+{
+	if (!pthread_mutex_trylock (&WMain.appbar_lock))
+	{
+		GtkWidget *appbar = glade_xml_get_widget (WMain.xml, "appbar");
+		gtk_progress_set_activity_mode (gnome_appbar_get_progress (GNOME_APPBAR (appbar)), TRUE);
+		gtk_timeout_add (10, on_activity_update, NULL);
+	}
+}
+
+void
+c2_app_stop_activity (void)
+{
+	GtkWidget *appbar = glade_xml_get_widget (WMain.xml, "appbar");
+	gtk_progress_set_activity_mode (gnome_appbar_get_progress (GNOME_APPBAR (appbar)), FALSE);
+	gtk_progress_set_value (gnome_appbar_get_progress (GNOME_APPBAR (appbar)), 0);
+	pthread_mutex_unlock (&WMain.appbar_lock);
+}
+
 void
 c2_mailbox_tree_fill (C2Mailbox *head, GtkCTreeNode *node, GtkWidget *ctree, GtkWidget *window)
 {

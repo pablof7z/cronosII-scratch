@@ -46,6 +46,9 @@ static void
 on_ctree_button_press_event							(GtkWidget *widget, GdkEvent *event);
 
 static void
+on_preferences_activated							(GtkWidget *widget);
+
+static void
 on_about_activated									(GtkWidget *widget);
 
 static void
@@ -126,10 +129,14 @@ c2_window_new (void)
 	/* Connect all signals, menues, toolbar, buttons, etc. */
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.xml, "file_exit")), "activate",
 							GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+	gtk_signal_connect_object (GTK_OBJECT(glade_xml_get_widget(WMain.xml,"settings_preferences")), "activate",
+							GTK_SIGNAL_FUNC (on_preferences_activated), NULL);
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.xml, "help_about")), "activate",
 							GTK_SIGNAL_FUNC (on_about_activated), NULL);
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.ctree_menu, "new_mailbox")), "activate",
 							GTK_SIGNAL_FUNC (on_new_mailbox_dlg), NULL);
+	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.ctree_menu, "properties")), "activate",
+							GTK_SIGNAL_FUNC (on_properties_mailbox_dlg), NULL);
 
 	gtk_widget_show (window);
 }
@@ -145,6 +152,10 @@ pthread_ctree_tree_select_row (C2Mailbox *mbox)
 
 	if (!mbox->db)
 	{
+		gdk_threads_enter ();
+		c2_app_start_activity (GTK_WIDGET (gnome_appbar_get_progress (GNOME_APPBAR (
+										glade_xml_get_widget (WMain.xml, "appbar")))));
+		gdk_threads_leave ();
 		/* Load the database */
 		if (!(mbox->db = c2_db_new (mbox)))
 		{
@@ -152,6 +163,7 @@ pthread_ctree_tree_select_row (C2Mailbox *mbox)
 
 			string = g_strdup_printf (_("Unable to load db: %s"), c2_error_get (c2_errno));
 			gdk_threads_enter ();
+			c2_app_stop_activity ();
 			c2_app_report (string, C2_REPORT_ERROR);
 			gdk_threads_leave ();
 			g_free (string);
@@ -165,6 +177,7 @@ pthread_ctree_tree_select_row (C2Mailbox *mbox)
 
 	gdk_threads_enter ();
 	c2_index_remove_mailbox (C2_INDEX (index));
+	c2_app_stop_activity ();
 	c2_index_add_mailbox (C2_INDEX (index), mbox);
 	gtk_widget_queue_draw (index);
 	gdk_threads_leave ();
@@ -230,6 +243,12 @@ on_ctree_changed_mailboxes (C2Mailbox *mailbox)
 
 	c2_app.mailboxes = c2_mailbox_get_head ();
 	c2_mailbox_tree_fill (c2_app.mailboxes, NULL, ctree, window);
+}
+
+static void
+on_preferences_activated (GtkWidget *widget)
+{
+	c2_preferences_new ();
 }
 
 static void

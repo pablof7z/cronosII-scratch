@@ -1,7 +1,7 @@
 #include <gnome.h>
 #include <time.h>
 
-#include <libmodules/error.h>
+#include <libcronosII/error.h>
 
 #include "c2-app.h"
 #include "widget-index.h"
@@ -28,9 +28,7 @@ enum
 	LAST_SIGNAL
 };
 
-static gint c2_index_signals[LAST_SIGNAL] = {
-	0
-};
+static gint c2_index_signals[LAST_SIGNAL] = { 0 };
 
 static GtkCListClass *parent_class = NULL;
 
@@ -38,9 +36,7 @@ void
 c2_index_add_mailbox (C2Index *index, C2Mailbox *mbox)
 {
 	C2Mailbox *tmp;
-	C2DB *db;
-	C2DBNode *node;
-	GList *l;
+	C2Db *db;
 	GtkStyle *style = NULL, *style2;
 	
 	c2_return_if_fail (index, C2EDATA);
@@ -53,33 +49,36 @@ c2_index_add_mailbox (C2Index *index, C2Mailbox *mbox)
 		if (tmp)
 		{
 			if (GTK_CLIST (index)->selection)
-				tmp->last_row = GPOINTER_TO_INT (GTK_CLIST (index)->selection->data);
+				tmp->selection = GPOINTER_TO_INT (GTK_CLIST (index)->selection->data);
 		}
 	}
 
 	gtk_clist_freeze (GTK_CLIST (index));
-	for (l = mbox->db->head; l != NULL; l = g_list_next (l))
+	for (db = mbox->db; db != NULL; db = db->next)
 	{
-		C2DBNode *node = l->data;
 		struct tm *tm;
-		gchar *tmp = g_strdup_printf ("%d", node->mid);
+		gchar *tmp = g_strdup_printf ("%d", db->mid);
 		gchar *info[] = {
-			NULL, NULL, NULL, node->headers[0], node->headers[1], NULL,
-			node->headers[2], tmp
+			NULL, NULL, NULL, db->subject, db->from, NULL,
+			db->account, tmp
 		};
-		tm = localtime (&node->date);
+		tm = localtime (&db->date);
 		info[5] = g_new0 (gchar, 128);
-		strftime (info[5], 128, DATE_FORMAT, tm);
+		strftime (info[5], 128, DATE_FORMAT, tm);/* TODO date format should be editable */
 		gtk_clist_append (GTK_CLIST (index), info);
 		if (!style)
 			style = gtk_widget_get_style (GTK_WIDGET (index));
 		style2 = gtk_style_copy (style);
-		if (node->status == C2_DB_NODE_UNREADED)
+		if (db->state == C2_MESSAGE_UNREADED)
 		{
 			style2->font = c2_app.gdk_font_unread;
-			mbox->new_messages++;
+			index->unreaded_messages++;
+			index->total_messages++;
 		} else
+		{
 			style2->font = c2_app.gdk_font_read;
+			index->total_messages++;
+		}
 		gtk_clist_set_row_style (GTK_CLIST (index), GTK_CLIST (index)->rows-1, style2);
 	}
 	gtk_clist_thaw (GTK_CLIST (index));
@@ -93,6 +92,9 @@ c2_index_remove_mailbox (C2Index *index)
 	gtk_clist_freeze (GTK_CLIST (index));
 	gtk_clist_clear (GTK_CLIST (index));
 	gtk_clist_thaw (GTK_CLIST (index));
+
+	index->unreaded_messages = 0;
+	index->total_messages = 0;
 }
 
 static void
@@ -257,6 +259,9 @@ c2_index_init (C2Index *index)
 */
     gtk_widget_show (GTK_WIDGET (clist));
     gtk_widget_ref (GTK_WIDGET (clist));
+
+	index->unreaded_messages = 0;
+	index->total_messages = 0;
 }
 
 guint

@@ -359,7 +359,7 @@ c2_db_message_get (C2Db *db, gint row)
 			/* TODO message = c2_db_message_get_imap (db, mid); TODO */
 			break;
 #ifdef USE_MYSQL
-		case C2_MAILOBOX_MYSQL:
+		case C2_MAILBOX_MYSQL:
 			/* TODO return c2_db_message_get_mysql (db, row); TODO */
 			break;
 #endif

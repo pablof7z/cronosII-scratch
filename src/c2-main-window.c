@@ -183,3 +183,93 @@ on_new_mailbox_dlg (void)
 			gnome_dialog_close (GNOME_DIALOG (dialog));
 	}
 }
+
+static void
+on_properties_mailbox_dlg_type_menu_selection_done (GtkWidget *widget, GladeXML *xml)
+{
+	GtkWidget *type = glade_xml_get_widget (xml, "type");
+	GtkWidget *extra_data = glade_xml_get_widget (xml, "extra_data");
+	GtkWidget *db_label = glade_xml_get_widget (xml, "db_label");
+	GtkWidget *db = glade_xml_get_widget (xml, "db");
+	gchar *selection;
+
+	/* Get the selected type */
+	if (GTK_BIN (type)->child)
+	{
+		GtkWidget *child = GTK_BIN (type)->child;
+
+		if (GTK_LABEL (child))
+		{
+			gtk_label_get (GTK_LABEL (child), &selection);
+
+			if (c2_streq (selection, CRONOSII_TYPE_STRING))
+				gtk_widget_hide (extra_data);
+			else if (c2_streq (selection, IMAP_TYPE_STRING))
+			{
+				gtk_widget_show (extra_data);
+				gtk_widget_hide (db);
+				gtk_widget_hide (db_label);
+#ifdef USE_MYSQL
+			} else if (c2_streq (selection, MYSQL_TYPE_STRING))
+			{
+				gtk_widget_show (extra_data);
+				gtk_widget_show (db);
+				gtk_widget_show (db_label);
+#endif
+			}
+		}
+	}
+}
+
+void
+on_properties_mailbox_dlg (void)
+{
+	GladeXML *xml = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "mailbox_properties");
+	GtkWidget *dialog = glade_xml_get_widget (xml, "mailbox_properties");
+	GnomePixmap *pixmap = GNOME_PIXMAP (glade_xml_get_widget (xml, "pixmap"));
+	GtkEntry *name = GTK_ENTRY (glade_xml_get_widget (xml, "name"));
+	GtkWidget *type = glade_xml_get_widget (xml, "type");
+	GtkFrame *extra_data = GTK_FRAME (glade_xml_get_widget (xml, "extra_data"));
+	GtkEntry *host = GTK_ENTRY (glade_xml_get_widget (xml, "host"));
+	GtkWidget *port = glade_xml_get_widget (xml, "port");
+	GtkEntry *user = GTK_ENTRY (glade_xml_get_widget (xml, "user"));
+	GtkEntry *pass = GTK_ENTRY (glade_xml_get_widget (xml, "pass"));
+	GtkWidget *db_label = glade_xml_get_widget (xml, "db_label");
+	GtkEntry *db = GTK_ENTRY (glade_xml_get_widget (xml, "db"));
+
+	C2Mailbox *parent;
+
+	GtkWidget *menu;
+
+	/* Create the pixmap */
+	gnome_pixmap_load_file (pixmap, DATADIR "/pixmaps/gnome-warning.png");
+	
+	/* Create the drop down list */
+	gtk_signal_connect (GTK_OBJECT (GTK_OPTION_MENU (type)->menu), "selection_done",
+						GTK_SIGNAL_FUNC (on_properties_mailbox_dlg_type_menu_selection_done), xml);
+	menu = gtk_menu_item_new_with_label (CRONOSII_TYPE_STRING);
+	gtk_widget_show (menu);
+	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (type)->menu), menu);
+
+	menu = gtk_menu_item_new_with_label (IMAP_TYPE_STRING);
+	gtk_widget_show (menu);
+	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (type)->menu), menu);
+	
+#ifdef USE_MYSQL
+	menu = gtk_menu_item_new_with_label (MYSQL_TYPE_STRING);
+	gtk_widget_show (menu);
+	gtk_menu_append (GTK_MENU (GTK_OPTION_MENU (type)->menu), menu);
+#endif
+
+	/* Get the parent */
+	if (GTK_CLIST (glade_xml_get_widget (WMain.xml, "ctree"))->selection)
+		parent = WMain.selected_mbox;
+	else
+		parent = NULL;
+
+	gtk_entry_set_text (name, parent->name);
+	gtk_option_menu_set_history (GTK_OPTION_MENU (type), parent->type);
+	
+
+	gnome_dialog_run (GNOME_DIALOG (dialog));
+}

@@ -185,6 +185,53 @@ else
 fi
 
 dnl #######################################################
+dnl   GtkXmHtml
+dnl #######################################################
+
+AC_ARG_ENABLE([gtkxmhtml],
+[  --enable-gtkxmhtml        Use the GtkXmHTML widget for showing messages [default=no]],
+[ gtkxmhtml=$enableval ], [ gtkxmhtml=no ])
+
+AC_MSG_CHECKING(for GtkXmHTML)
+if test "$gtkxmhtml" = "yes"; then
+	AC_CHECK_HEADER([gtk-xmhtml/gtk-xmhtml.h], [
+		html="with GtkXmHTML"
+		FEATURES="$FEATURES 'HTML (GtkXmHTML)'"
+		AC_DEFINE(USE_GTKXMHTML)
+		HTMLLIBS="-lgtkxmhtml"
+	], [
+		html="no"
+	])
+else
+	AC_MSG_RESULT(no)
+fi
+
+dnl #######################################################
+dnl   GtkHtml
+dnl #######################################################
+
+AC_ARG_ENABLE([gtkhtml],
+[  --enable-gtkhtml          Use the GtkHtml widget for showing messages [default=no]],
+[ gtkhtml=$enableval ], [ gtkhtml=no ])
+
+AC_MSG_CHECKING(for GtkHTML)
+if test "$gtkhtml" = "yes"; then
+	if gnome-config --libs gtkhtml > /dev/null 2>&1; then
+		vers=`gnome-config --modversion gtkhtml | sed 's/^gtkhtml-//'`
+		html="with GtkHTML $vers"
+		FEATURES="$FEATURES 'HTML (GtkHTML)'"
+		AC_DEFINE(USE_GTKHTML)
+		AC_MSG_RESULT(yes)
+		HTMLLIBS="-lgtkhtml"
+	else
+		html="no"
+		AC_MSG_RESULT(no)
+	fi
+else
+	AC_MSG_RESULT(no)
+fi
+
+dnl #######################################################
 dnl   MySQL
 dnl #######################################################
 
@@ -210,6 +257,7 @@ AM_CONDITIONAL(USE_TEST_SUITE, test "x$test_suite" = "xyes")
 AC_DEFINE_UNQUOTED(C2_PLUGIN_VERSION_MAJOR, $C2_PLUGIN_VERSION_MAJOR)
 AC_DEFINE_UNQUOTED(C2_PLUGIN_VERSION_MINOR, $C2_PLUGIN_VERSION_MINOR)
 AC_DEFINE_UNQUOTED(C2_PLUGIN_VERSION_MICRO, $C2_PLUGIN_VERSION_MICRO)
+AC_SUBST(HTMLLIBS)
 AC_SUBST(LIBS)
 AC_SUBST(CFLAGS)
 AC_SUBST(FEATURES)
@@ -241,5 +289,6 @@ echo  Building test suite..............: $test_suite
 echo  Building with debugging routines.: $debug
 echo
 echo  Building with MySQL support......: $mysql
+echo  Building with HTML support.......: $html
 echo
 echo  Run \'make\' to start compiling this software.

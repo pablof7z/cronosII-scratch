@@ -34,9 +34,9 @@ extern "C" {
 #define MAILBOX_OUTBOX		_("Outbox"	)
 #define MAILBOX_QUEUE		_("Queue"	)
 #define MAILBOX_GARBAGE		_("Garbage"	)
-#define MAILBOX_DRAFTS		("Drafts"	)
+#define MAILBOX_DRAFTS		_("Drafts"	)
 
-#define DATE_FORMAT									"%Y.%m.%d %H:%M:%S %z"
+#define DATE_FORMAT								"%d.%m.%Y %H:%M:%S %z"
 
 #ifdef USE_DEBUG
 #	define L				g_print ("%s:%d:%s\n", __FILE__, __LINE__, __PRETTY_FUNCTION__);
@@ -92,6 +92,15 @@ typedef enum
 	C2_REPORT_CRITICAL	/* Will finish the application */
 } C2ReportSeverity;
 
+typedef struct
+{
+	gchar *font;
+	gboolean use_my_fonts;
+	
+	GdkColor bg_color;
+	GdkColor fg_color;
+} C2HTMLOptions;
+
 struct C2Application
 {
 	GtkTooltips *tooltips;
@@ -130,8 +139,6 @@ struct C2Application
 	GdkColor color_reply_original_message;
 	GdkColor color_misc_body;
 
-
-
 	C2MimeWindowMode mime_window;
 	GtkToolbarStyle toolbar;
 
@@ -150,23 +157,33 @@ struct C2Application
 } c2_app;
 
 gint
-c2_app_init											(void);
+c2_app_init										(void);
 
 void
-c2_app_register_window								(GtkWindow *window);
+c2_app_register_window							(GtkWindow *window);
 
 void
-c2_app_unregister_window							(GtkWindow *window);
+c2_app_unregister_window						(GtkWindow *window);
 
 void
-c2_app_report										(const gchar *msg, C2ReportSeverity severity);
+c2_app_report									(const gchar *msg, C2ReportSeverity severity);
 
 void
-c2_install_new										(void);
+c2_app_start_activity							(GtkWidget *progress);
 
 void
-c2_mailbox_tree_fill								(C2Mailbox *head, GtkCTreeNode *node,
-													 GtkWidget *ctree, GtkWidget *window);
+c2_app_stop_activity							(void);
+
+void
+c2_install_new									(void);
+
+void
+c2_mailbox_tree_fill							(C2Mailbox *head, GtkCTreeNode *node,
+												 GtkWidget *ctree, GtkWidget *window);
+
+/* defined in preferences.c */
+void
+c2_preferences_new								(void);
 
 #ifdef __cplusplus
 }
