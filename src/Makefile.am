@@ -10,9 +10,9 @@ else
 UI_TEXT_EDITOR=
 endif
 
-bin_PROGRAMS = cronosII-scratch $(UI_TEXT_EDITOR)
+bin_PROGRAMS = cronosII $(UI_TEXT_EDITOR)
 
-cronosII_scratch_SOURCES = \
+cronosII_SOURCES = \
 	install-wizard.c										\
 	main.c						main.h						\
 	object-ui-data.c			object-ui-data.h			\
@@ -37,11 +37,11 @@ cronosII_scratch_SOURCES = \
 	widget-window-main.c		widget-window-main.h		\
 	widget-window.c				widget-window.h
 
-cronosII_scratch_LDADD = \
+cronosII_LDADD = \
 	./$(top_builddir)/libcronosII/libcronosII.a \
 	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
 
-cronosII_scratch_LDFLAGS = \
+cronosII_LDFLAGS = \
 	./././$(top_builddir)/libcronosII/libcronosII.a \
 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) \
 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)

@@ -1,6 +1,7 @@
 Sat Oct 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* New function to wrap strings.
 	* Wrapping in mail rendering is working.
+	* Changed the name of the binary (cronosII-scratch to cronosII)
 
 Sat Oct 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Some work in the cronosII man.

@@ -138,15 +138,15 @@ INCLUDES = -DBUILDING_C2 -I$(top_srcdir) -I$(includedir) 	`gnome-config --cflags
 @USE_UI_TEXT_EDITOR_TRUE@UI_TEXT_EDITOR = ui-text-editor
 @USE_UI_TEXT_EDITOR_FALSE@UI_TEXT_EDITOR = 
 
-bin_PROGRAMS = cronosII-scratch $(UI_TEXT_EDITOR)
+bin_PROGRAMS = cronosII $(UI_TEXT_EDITOR)
 
-cronosII_scratch_SOURCES =  	install-wizard.c											main.c						main.h							object-ui-data.c			object-ui-data.h				widget-HTML-gtkhtml.c		widget-HTML-gtkhtml.h			widget-HTML-gtkxmhtml.c		widget-HTML-gtkxmhtml.h			widget-HTML-text.c			widget-HTML-text.h				widget-HTML.c				widget-HTML.h					widget-application-utils.c	widget-application-utils.h		widget-application.c		widget-application.h			widget-composer.c			widget-composer.h				widget-dialog-preferences.c	widget-dialog-preferences.h		widget-dialog.c				widget-dialog.h					widget-editor.c				widget-editor.h					widget-index.c				widget-index.h					widget-mail.c				widget-mail.h					widget-mailbox-list.c		widget-mailbox-list.h			widget-part.c				widget-part.h					widget-sidebar.c			widget-sidebar.h				widget-toolbar.c			widget-toolbar.h				widget-transfer-item.c		widget-transfer-item.h			widget-transfer-list.c		widget-transfer-list.h			widget-window-main.c		widget-window-main.h			widget-window.c				widget-window.h
-
-
-cronosII_scratch_LDADD =  	./$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
+cronosII_SOURCES =  	install-wizard.c											main.c						main.h							object-ui-data.c			object-ui-data.h				widget-HTML-gtkhtml.c		widget-HTML-gtkhtml.h			widget-HTML-gtkxmhtml.c		widget-HTML-gtkxmhtml.h			widget-HTML-text.c			widget-HTML-text.h				widget-HTML.c				widget-HTML.h					widget-application-utils.c	widget-application-utils.h		widget-application.c		widget-application.h			widget-composer.c			widget-composer.h				widget-dialog-preferences.c	widget-dialog-preferences.h		widget-dialog.c				widget-dialog.h					widget-editor.c				widget-editor.h					widget-index.c				widget-index.h					widget-mail.c				widget-mail.h					widget-mailbox-list.c		widget-mailbox-list.h			widget-part.c				widget-part.h					widget-sidebar.c			widget-sidebar.h				widget-toolbar.c			widget-toolbar.h				widget-transfer-item.c		widget-transfer-item.h			widget-transfer-list.c		widget-transfer-list.h			widget-window-main.c		widget-window-main.h			widget-window.c				widget-window.h
 
 
-cronosII_scratch_LDFLAGS =  	./././$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
+cronosII_LDADD =  	./$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
+
+
+cronosII_LDFLAGS =  	./././$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
 
 
 ui_text_editor_SOURCES =  	object-ui-data.c			object-ui-data.h				ui-text-editor.c
@@ -167,15 +167,14 @@ PROGRAMS =  $(bin_PROGRAMS)
 
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
-cronosII_scratch_OBJECTS =  install-wizard.o main.o object-ui-data.o \
+cronosII_OBJECTS =  install-wizard.o main.o object-ui-data.o \
 widget-HTML-gtkhtml.o widget-HTML-gtkxmhtml.o widget-HTML-text.o \
 widget-HTML.o widget-application-utils.o widget-application.o \
 widget-composer.o widget-dialog-preferences.o widget-dialog.o \
 widget-editor.o widget-index.o widget-mail.o widget-mailbox-list.o \
 widget-part.o widget-sidebar.o widget-toolbar.o widget-transfer-item.o \
 widget-transfer-list.o widget-window-main.o widget-window.o
-cronosII_scratch_DEPENDENCIES =  \
-./$(top_builddir)/libcronosII/libcronosII.a
+cronosII_DEPENDENCIES =  ./$(top_builddir)/libcronosII/libcronosII.a
 ui_text_editor_OBJECTS =  object-ui-data.o ui-text-editor.o
 ui_text_editor_DEPENDENCIES =  \
 ./$(top_builddir)/libcronosII/libcronosII.a
@@ -201,8 +200,8 @@ DEP_FILES =  .deps/install-wizard.P .deps/main.P .deps/object-ui-data.P \
 .deps/widget-toolbar.P .deps/widget-transfer-item.P \
 .deps/widget-transfer-list.P .deps/widget-window-main.P \
 .deps/widget-window.P
-SOURCES = $(cronosII_scratch_SOURCES) $(ui_text_editor_SOURCES)
-OBJECTS = $(cronosII_scratch_OBJECTS) $(ui_text_editor_OBJECTS)
+SOURCES = $(cronosII_SOURCES) $(ui_text_editor_SOURCES)
+OBJECTS = $(cronosII_OBJECTS) $(ui_text_editor_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -272,9 +271,9 @@ distclean-libtool:
 
 maintainer-clean-libtool:
 
-cronosII-scratch: $(cronosII_scratch_OBJECTS) $(cronosII_scratch_DEPENDENCIES)
-	@rm -f cronosII-scratch
-	$(LINK) $(cronosII_scratch_LDFLAGS) $(cronosII_scratch_OBJECTS) $(cronosII_scratch_LDADD) $(LIBS)
+cronosII: $(cronosII_OBJECTS) $(cronosII_DEPENDENCIES)
+	@rm -f cronosII
+	$(LINK) $(cronosII_LDFLAGS) $(cronosII_OBJECTS) $(cronosII_LDADD) $(LIBS)
 
 ui-text-editor: $(ui_text_editor_OBJECTS) $(ui_text_editor_DEPENDENCIES)
 	@rm -f ui-text-editor
