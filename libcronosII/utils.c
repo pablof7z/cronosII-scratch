@@ -42,7 +42,7 @@ gint
 c2_mutex_init (pthread_mutex_t *mutex)
 {
 	gint return_val;
-	
+#ifdef PTHREAD_MUTEX_NORMAL	
 	pthread_mutexattr_t attr;
 	
 	pthread_mutexattr_init (&attr);
@@ -51,6 +51,10 @@ c2_mutex_init (pthread_mutex_t *mutex)
 	return_val = pthread_mutex_init(mutex, &attr);
 	
 	pthread_mutexattr_destroy(&attr);
+#else
+	return_val = pthread_mutex_init(mutex, NULL);
+#endif
+	
 	return return_val;
 }
 
