@@ -129,6 +129,10 @@ c2_init (gint argc, gchar **argv)
 	gnome_init_with_popt_table ("Cronos II", VERSION, argc, argv, options, 0, NULL);
 	glade_gnome_init ();
 	c2_hash_init ();
+
+#ifdef USE_GTKHTML
+	gconf_init (argc, argv, NULL);
+#endif
 }
 
 gint

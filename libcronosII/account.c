@@ -112,12 +112,16 @@ c2_account_new (C2AccountType type, gchar *name, gchar *email)
 void
 c2_account_set_extra_data (C2Account *account, C2AccountKey key, gint type, gpointer data)
 {
+	c2_return_if_fail (account, C2EDATA);
+	
 	set_data (account, key, type, data);
 }
 
 gpointer
 c2_account_get_extra_data (C2Account *account, C2AccountKey key, gint *type)
 {
+	c2_return_val_if_fail (account, NULL, C2EDATA);
+
 	return get_data (account, key, type);
 }
 
@@ -152,7 +156,7 @@ get_data (C2Account *account, C2AccountKey key, gint *type)
 	GSList *l;
 	gint i;
 	gpointer value;
-
+L
 	value = gtk_object_get_data (GTK_OBJECT (account), (gpointer) &key);
 
 	for (l = account->edata, i = 0; l; l = g_slist_next (l), i++)
@@ -171,7 +175,7 @@ get_data (C2Account *account, C2AccountKey key, gint *type)
 		}
 	}
 
-	return value;
+L	return value;
 }
 
 static void
