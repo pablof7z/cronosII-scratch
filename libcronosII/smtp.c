@@ -30,7 +30,7 @@
 /* TODO: implement a better error handling according to RFC821 4.2.1 (posted by pablo) */
 /* TODO: implement authentication (posted by pablo) */
 /* TODO: implement encoding of headers according to ISO's */
-/* (in progress) TODO: create a test-module */
+/* (done!) TODO: create a test-module */
 /* (done!) TODO: implement multiple connections via Net-Object */
 /* (done!) TODO: update C2 SMTP to be a real GtkObject w/ signals etc */
 /* (done!) TODO: implement sending of MIME attachments */
@@ -299,7 +299,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 		if(smtp->flags & C2_SMTP_DO_NOT_PERSIST) c2_mutex_unlock(&smtp->lock);
 		if(c2_smtp_send_headers(smtp, byte, message) < 0)
 		{	
-			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, 1);
+			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
 		if(c2_smtp_send_message_contents(smtp, byte, message, id) < 0)
