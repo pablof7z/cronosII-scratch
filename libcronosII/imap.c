@@ -24,7 +24,42 @@
 #define NET_READ_FAILED  _("Internal socket read operation failed, connection is most likely broken")
 #define NET_WRITE_FAILED _("Internal socket write operation failed, connection is most likely broken")
 
-/* C2 IMAP Module in the process of being engineered by Pablo and Bosko =) */
+C2IMAP *
+c2_imap_new									(gchar *host, gint port, gchar *user, gchar *pass, 
+														C2IMAPAuthenticationType auth, gboolean ssl)
+{ return NULL; }
+
+GtkType
+c2_imap_get_type (void)
+{
+	static GtkType type = 0;
+
+	if (!type)
+	{
+		static GtkTypeInfo info =
+		{
+			"C2IMAP",
+			sizeof (C2IMAP),
+			sizeof (C2IMAPClass),
+			(GtkClassInitFunc) NULL,
+			(GtkObjectInitFunc) NULL,
+			(GtkArgSetFunc) NULL,
+			(GtkArgGetFunc) NULL
+		};
+
+		type = gtk_type_unique (c2_net_object_get_type (), &info);
+	}
+
+	return type;
+}
+
+void
+c2_imap_init								(C2IMAP *imap)
+{}
+
+
+#if 0
+/* C2 IMAP Module in the process of being engineered by Bosko (mainly) and Pablo =) */
 /* TODO: Implement a hash table in IMAP object for handing server replies */
 /* (in progress) TODO: Function for reading server replies */
 /* (in progress) TODO: Login (at least plain-text for now) */
@@ -424,3 +459,4 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	pthread_mutex_unlock(&imap->lock);
 	return 0;
 }
+#endif

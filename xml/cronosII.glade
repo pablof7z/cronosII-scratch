@@ -596,15 +596,15 @@
 
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
-		  <name>message_mark_mark</name>
+		  <name>message_mark_important</name>
 		  <sensitive>False</sensitive>
-		  <tooltip>Mark selected message</tooltip>
+		  <tooltip>Mark selected message as important</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_MOD1_MASK</modifiers>
 		    <key>GDK_I</key>
 		    <signal>activate</signal>
 		  </accelerator>
-		  <label>_Mark</label>
+		  <label>_Important</label>
 		  <right_justify>False</right_justify>
 		  <icon>mark.xpm</icon>
 		</widget>

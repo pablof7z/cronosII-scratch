@@ -1,7 +1,9 @@
-Mon Oct  1 PeterGozz <gossner@arcom.com.au>
+Tue Oct 02 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Discussed changes to the net object interface has been done.
+
+Mon Oct 01 Peter Gossner <gossner@arcom.com.au>
 	* Added emoticons to images directory.
 	* Added ChangeLog and Readme-emoticons
-
 
 Sat Sep 29 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* A lot of work in the composer: attachments adding, editing and

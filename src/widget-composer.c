@@ -19,6 +19,7 @@
 #include <unistd.h>
 
 #include <libcronosII/account.h>
+#include <libcronosII/error.h>
 
 #include "widget-application.h"
 #include "widget-composer.h"
@@ -41,6 +42,9 @@ on_to_changed								(GtkWidget *widget, C2Composer *composer);
 
 static void
 on_icon_list_button_press_event				(GtkWidget *widget, GdkEventButton *e, C2Composer *composer);
+
+static void
+on_send_now_clicked							(GtkWidget *widget, C2Composer *composer);
 
 static void
 add_attachment								(C2Composer *composer, gchar *file, gchar *description, gint nth);
@@ -329,10 +333,16 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	g_free (buf);
 
 	/* Connect signals */
+	widget = glade_xml_get_widget (xml, "file_send_now");
+	gtk_signal_connect (GTK_OBJECT (widget), "activate",
+						GTK_SIGNAL_FUNC (on_send_now_clicked), composer);
 	widget = glade_xml_get_widget (xml, "insert_attachment");
 	gtk_signal_connect (GTK_OBJECT (widget), "activate",
 						GTK_SIGNAL_FUNC (on_attachments_clicked), composer);
 	
+	widget = glade_xml_get_widget (xml, "send_now_btn");
+	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
+						GTK_SIGNAL_FUNC (on_send_now_clicked), composer);
 	widget = glade_xml_get_widget (xml, "attach_btn");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
 						GTK_SIGNAL_FUNC (on_attachments_clicked), composer);
@@ -494,6 +504,44 @@ on_run_external_editor_clicked (GtkWidget *widget, C2Composer *composer)
 	{
 		fprintf (stderr, "Parent: forked a child with pid = %d\n", (int)pid);
 	}
+}
+
+static void
+on_send_now_clicked (GtkWidget *widget, C2Composer *composer)
+{
+	C2Message *message = create_message (composer);
+	C2Account *account = get_account (composer);
+	C2SMTP *smtp = C2_SMTP (c2_account_get_extra_data (account, C2_ACCOUNT_KEY_OUTGOING));
+	GladeXML *xml;
+	GtkWidget *tl, *widget;
+
+#ifdef USE_DEBUG
+	if (!smtp)
+	{
+		g_assert_not_reached ();
+		return;
+	}
+#else
+	c2_return_if_fail_obj (smtp, C2INTERNAL, GTK_OBJECT (composer));
+#endif
+
+	xml = C2_WINDOW (composer)->xml;
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "file_send_now"), FALSE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "file_send_later"), FALSE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "send_now_btn"), FALSE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "send_later_btn"), FALSE);
+
+	/* Get the transfer list */
+	tl = c2_application_window_get (C2_WINDOW (composer)->application,
+										C2_WIDGET_TRANSFER_LIST_TYPE);
+	if (!C2_IS_TRANSFER_LIST (tl));
+	{
+		tl = c2_transfer_list_new (C2_WINDOW (composer)->application);
+	}
+	
+	ti = c2_transfer_item_new (C2_WINDOW (composer)->application, account,
+								C2_TRANSFER_ITEM_SEND, smtp, message);
+
 }
 
 static void
@@ -666,4 +714,27 @@ on_mnu_attachments_edit_activate (GtkWidget *widget, C2Composer *composer)
 		gnome_icon_list_thaw (GNOME_ICON_LIST (il));
 	}
 	g_list_free (s);
+}
+
+void
+c2_composer_set_message_as_quote (C2Composer *composer, C2Message *message)
+{
+	c2_return_if_fail_obj (message, C2EDATA, GTK_OBJECT (composer));
+	
+	if (composer->type == C2_COMPOSER_TYPE_INTERNAL)
+	{
+	} else
+	{
+		FILE *fd;
+		gchar *file;
+
+		file = (gchar*) gtk_object_get_data (GTK_OBJECT (composer), "external editor::file");
+
+		if (!(fd = fopen (file, "a")))
+		{
+			c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING, "%s: %s",
+								g_strerror (errno), file);
+			return;
+		}
+	}
 }

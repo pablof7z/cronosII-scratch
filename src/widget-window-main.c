@@ -60,6 +60,9 @@ static void
 on_toolbar_compose_clicked					(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
+on_toolbar_reply_clicked					(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_index_select_message						(GtkWidget *index, C2Db *node, C2WindowMain *wmain);
 
 static void
@@ -263,6 +266,9 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_toolbar_delete_clicked), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "toolbar_compose")), "clicked",
 							GTK_SIGNAL_FUNC (on_toolbar_compose_clicked), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "toolbar_reply")), "clicked",
+							GTK_SIGNAL_FUNC (on_toolbar_reply_clicked), wmain);
+	
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_new_mailbox")), "activate",
 							GTK_SIGNAL_FUNC (on_file_new_mailbox_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_egg_separator")), "activate",
@@ -412,11 +418,51 @@ on_toolbar_compose_clicked (GtkWidget *widget, C2WindowMain *wmain)
 }
 
 static void
+on_toolbar_reply_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	GtkWidget *composer;
+	GtkWidget *mail;
+	C2Message *message;
+	
+	mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
+	message = c2_mail_get_message (C2_MAIL (mail));
+	composer = c2_composer_new (C2_WINDOW (wmain)->application);
+	c2_composer_set_message_as_quote (C2_COMPOSER (composer), message);
+	gtk_widget_show (composer);
+}
+
+static void
 on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 {
-	c2_db_load_message (node);
+	GladeXML *xml;
+	GtkWidget *widget;
+	
+	if (!node->message)
+		c2_db_load_message (node);
 	c2_mail_set_message (C2_MAIL (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail")), node->message);
-	c2_db_unload_message (node);
+
+	/* Set some widgets sensivity */
+	xml = C2_WINDOW (wmain)->xml;
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "toolbar_save"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "toolbar_print"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "toolbar_delete"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "toolbar_reply"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "toolbar_reply_all"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "toolbar_forward"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "file_save"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "file_print"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_reply"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_reply_all"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_forward"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_copy"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_move"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_delete"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_expunge"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_mark_important"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_mark_unread"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_mark_read"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_mark_replied"), TRUE);
+	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "message_mark_forward"), TRUE);
 }
 
 static gint
@@ -642,35 +688,6 @@ on_getting_in_touch_activated (GtkWidget *widget)
 
 	gtk_object_unref (GTK_OBJECT (xml));
 }
-
-#if 0
-static void
-on_quit (void)
-{
-	GtkWidget *widget;
-	GtkWidget *window = glade_xml_get_widget (WMain.xml, "wnd_main");
-	GList *l;
-	
-	for (l = c2_app.open_windows; l != NULL; l = l->next)
-	{
-		if (!GTK_IS_WINDOW (l->data) || (GtkWindow*)l->data == GTK_WINDOW (window))
-			continue;
-		gtk_signal_emit_by_name (GTK_OBJECT ((GtkWindow*)l->data), "delete_event");
-	}
-
-	if ((widget = glade_xml_get_widget (WMain.xml, "hpaned")))
-		gnome_config_set_int ("/Cronos II/Rc/hpan", GTK_PANED (widget)->child1_size);
-
-	if ((widget = glade_xml_get_widget (WMain.xml, "vpaned")))
-		gnome_config_set_int ("/Cronos II/Rc/vpan", GTK_PANED (widget)->child1_size);
-	
-
-	
-	gtk_widget_destroy (window);
-	gnome_config_sync ();
-	gtk_main_quit ();
-}
-#endif
 
 static void
 add_mailbox_dialog_type_selection_done (GtkWidget *widget, C2WindowMain *wmain)

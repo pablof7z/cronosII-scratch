@@ -76,6 +76,11 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 
 	c2_return_if_fail (message, C2EDATA);
 
+	if (mail->message)
+		gtk_object_unref (GTK_OBJECT (mail->message));
+	mail->message = message;
+	gtk_object_ref (GTK_OBJECT (message));
+
 	/* Get the part that should be displayed */
 	mail->application->options_default_mime = 1;
 	string = message->body;
@@ -114,6 +119,12 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 
 	if (text_plain)
 		g_free (string);
+}
+
+C2Message *
+c2_mail_get_message (C2Mail *mail)
+{
+	return mail->message;
 }
 
 void

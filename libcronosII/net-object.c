@@ -22,14 +22,19 @@
 
 #include "net-object.h"
 
-static void
-class_init										(C2NetObjectClass *klass);
+#define AVAILABLE_BUFFER	-1
 
 static void
-init											(C2NetObject *obj);
+class_init									(C2NetObjectClass *klass);
 
 static void
-destroy											(GtkObject *object);
+init										(C2NetObject *obj);
+
+static void
+destroy										(GtkObject *object);
+
+static void
+nobj_disconnect								(C2NetObject *nobj, C2NetObjectByte *byte);
 
 enum
 {
@@ -44,228 +49,6 @@ enum
 static guint signals[LAST_SIGNAL] = { 0 };
 
 static GtkObjectClass *parent_class = NULL;
-
-/**
- * c2_net_object_run
- * @nobj: A C2NetObject with valid information in OFF state.
- *
- * This function will resolve and connect (emitting the proper
- * signals and setting the correct state of the object) a C2NetObject.
- *
- * Return Value:
- * 0 if success or -1.
- **/
-gint
-c2_net_object_run (C2NetObject *nobj)
-{
-	gchar *ip;
-
-	/* Check that we are not already connect */
-	if (nobj->state & C2_NET_OBJECT_OFF)
-	{
-		g_warning ("Running a C2NetObject which is not off (%d).\n", nobj->state);
-		return -1;
-	}
-	
-	/* Fire "resolve" signal */
-	nobj->state = C2_NET_OBJECT_RESOLVE;
-	gtk_signal_emit (GTK_OBJECT (nobj), signals[RESOLVE]);
-
-	if (c2_net_resolve (nobj->host, &ip) < 0)
-	{
-#ifdef USE_DEBUG
-		g_warning ("Unable to resolve hostname: %s\n", c2_error_get ());
-#endif
-		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE);
-		return -1;
-	}
-
-	/* Fire "connect" signal */
-	nobj->state = C2_NET_OBJECT_CONNECT;
-	gtk_signal_emit (GTK_OBJECT (nobj), signals[CONNECT]);
-
-	if (c2_net_connect (ip, nobj->port, &nobj->sock) < 0)
-	{
-#ifdef USE_DEBUG
-		g_warning ("Unable to connect: %s\n", c2_error_get ());
-#endif
-		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE);
-		return -1;
-	}
-	g_free (ip);
-
-	/* Ok, the state is now connected, we are ready
-	 * to send and receive data through this object! :)
-	 * 			Pablo Fernández Navarro.
-	 */
-	return 0;
-}
-
-/**
- * c2_net_object_send
- * @nobj: The C2NetObject where we need to work.
- * @fmt: Printf compliant string format to send.
- * ...: Printf arguments.
- *
- * This function will write an string to the
- * C2NetObject.
- * You can use this function pretty much like
- * fprintf.
- *
- * Return Value:
- * bytes sent or -1;
- **/
-gint
-c2_net_object_send (C2NetObject *nobj, const gchar *fmt, ...)
-{
-	va_list args;
-	gchar *string;
-	gint value;
-	
-	c2_return_val_if_fail (fmt, -1, C2EDATA);
-
-	/* Check if the object has been canceled */
-	if (nobj->state & C2_NET_OBJECT_OFF || nobj->state & C2_NET_OBJECT_CANCEL)
-	{
-		if (!(nobj->state & C2_NET_OBJECT_OFF))
-		{
-			/* This is the first c2_net_object_* call since
-			 * the object was marked as canceled,
-			 * close the socket, mark it as off
-			 * and fire the disconnect signal.
-			 */
-			close (nobj->sock);
-			nobj->state |= C2_NET_OBJECT_OFF;
-			gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE);
-		}
-		return -1;
-	}
-
-	va_start (args, fmt);
-	string = g_strdup_vprintf (fmt, args);
-	va_end (args);
-	
-	if ((value = send (nobj->sock, string, strlen (string), 0)) < 0)
-	{
-		/* There was a problem in the sending,
-		 * the socket is closed, the state will be set off | error
-		 * and fire the disconnect signal.
-		 */
-		close (nobj->sock);
-		c2_net_object_set_state (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR);
-		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE);
-		c2_error_object_set (GTK_OBJECT (nobj), -errno);
-		g_free (string);
-		return -1;
-	}
-
-	nobj->state = C2_NET_OBJECT_EXCHANGE;
-	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE], C2_NET_OBJECT_EXCHANGE_SEND, strlen (string));
-
-	g_free (string);
-
-	return value;
-}
-
-/**
- * c2_net_object_read
- * @nobj: The C2NetObject where we need to work.
- * @string: A null pointer where result is going to
- *          be stored.
- *
- * This function reads the first 1024 bytes
- * or until it reaches a '\n' (whatever happens first)
- * from the socket.
- *
- * Return Value:
- * The number of read bytes or -1;
- **/
-gint
-c2_net_object_read (C2NetObject *nobj, gchar **string)
-{
-	gint ret;
-
-	/* Check if the object has been canceled */
-	if (nobj->state & C2_NET_OBJECT_OFF || nobj->state & C2_NET_OBJECT_CANCEL)
-	{
-		if (!(nobj->state & C2_NET_OBJECT_OFF))
-		{
-			/* This is the first c2_net_object_* call since
-			 * the object was marked as canceled,
-			 * close the socket, mark it as off
-			 * and fire the disconnect signal.
-			 */
-			close (nobj->sock);
-			nobj->state |= C2_NET_OBJECT_OFF;
-			gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE);
-		}
-		return -1;
-	}
-
-	if ((ret = c2_net_read (nobj->sock, string)) < 0)
-	{
-		/* There was a problem in the sending,
-		 * the socket is closed, the state will be set off | error
-		 * and fire the disconnect signal.
-		 */
-		close (nobj->sock);
-		c2_net_object_set_state (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR);
-		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE);
-		c2_error_object_set (GTK_OBJECT (nobj), -errno);
-		return -1;
-	}
-	nobj->state = C2_NET_OBJECT_EXCHANGE;
-//	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE], C2_NET_OBJECT_EXCHANGE_READ, strlen (*string));
-	return ret;
-}
-
-/**
- * c2_net_object_disconnect
- **/
-void
-c2_net_object_disconnect (C2NetObject *nobj)
-{
-	if (nobj->state & C2_NET_OBJECT_OFF)
-		return;
-
-	close (nobj->sock);
-	nobj->state |= C2_NET_OBJECT_OFF;
-	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE);
-}
-
-void
-c2_net_object_disconnect_with_error (C2NetObject *nobj)
-{
-	if (nobj->state & C2_NET_OBJECT_OFF)
-		return;
-
-	close (nobj->sock);
-	nobj->state |= C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR;
-	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE);
-}
-
-void
-c2_net_object_cancel (C2NetObject *nobj)
-{
-	if (nobj->state & C2_NET_OBJECT_OFF)
-		return;
-
-	close (nobj->sock);
-	nobj->state |= C2_NET_OBJECT_OFF | C2_NET_OBJECT_CANCEL;
-	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE);
-}
-
-void
-c2_net_object_set_state (C2NetObject *nobj, gint8 state)
-{
-	nobj->state = state;
-}
-
-void
-c2_net_object_append_state (C2NetObject *nobj, gint8 state)
-{
-	nobj->state |= state;
-}
 
 GtkType
 c2_net_object_get_type (void)
@@ -306,38 +89,36 @@ class_init (C2NetObjectClass *klass)
 					GTK_RUN_FIRST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2NetObjectClass, resolve),
-					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-
+					gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+					GTK_TYPE_POINTER);
 	signals[CONNECT] =
 		gtk_signal_new ("connect",
 					GTK_RUN_FIRST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2NetObjectClass, connect),
-					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-
+					gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+					GTK_TYPE_POINTER);
 	signals[EXCHANGE] =
 		gtk_signal_new ("exchange",
 					GTK_RUN_FIRST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2NetObjectClass, exchange),
-					gtk_marshal_NONE__ENUM, GTK_TYPE_NONE, 2,
-					GTK_TYPE_ENUM, GTK_TYPE_INT);
-
+					gtk_marshal_NONE__INT_INT_POINTER, GTK_TYPE_NONE, 3,
+					GTK_TYPE_ENUM, GTK_TYPE_INT, GTK_TYPE_POINTER);
 	signals[DISCONNECT] =
 		gtk_signal_new ("disconnect",
 					GTK_RUN_FIRST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2NetObjectClass, disconnect),
-					gtk_marshal_NONE__BOOL, GTK_TYPE_NONE, 1,
-					GTK_TYPE_BOOL);
-
+					gtk_marshal_NONE__INT_POINTER, GTK_TYPE_NONE, 2,
+					GTK_TYPE_BOOL, GTK_TYPE_POINTER);
 	signals[CANCEL] =
 		gtk_signal_new ("cancel",
 					GTK_RUN_FIRST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2NetObjectClass, cancel),
-					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
-
+					gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+					GTK_TYPE_POINTER);
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 
 	object_class->destroy = destroy;
@@ -352,10 +133,36 @@ class_init (C2NetObjectClass *klass)
 static void
 init (C2NetObject *nobj)
 {
-	nobj->sock = 0;
+	nobj->bytes = NULL;
 	nobj->host = NULL;
 	nobj->port = 0;
-	nobj->state = C2_NET_OBJECT_OFF;
+	nobj->max = 1;
+}
+
+static void
+destroy (GtkObject *object)
+{
+	C2NetObject *nobj = C2_NET_OBJECT (object);
+	C2NetObjectByte *byte;
+	GList *l;
+	
+	for (l = nobj->bytes; l; l = l->next)
+	{
+		byte = (C2NetObjectByte*) l->data;
+		
+		/* Check if the object being destroyed is connected */
+		if (!(byte->state & C2_NET_OBJECT_OFF))
+		{
+#ifdef USE_DEBUG
+			g_print ("A C2NetObject object is being destroyed and it hasn't being shutdown.\n");
+#endif
+			close (byte->sock);
+		}
+		g_free (byte);
+	}
+
+	g_list_free (nobj->bytes);
+	g_free (nobj->host);
 }
 
 C2NetObject *
@@ -389,19 +196,400 @@ c2_net_object_construct (C2NetObject *nobj, const gchar *host, guint port, gbool
 #endif
 }
 
-static void
-destroy (GtkObject *object)
+/**
+ * c2_net_object_run
+ * @nobj: A C2NetObject with valid information in OFF state.
+ *
+ * This function will resolve and connect (emitting the proper
+ * signals and setting the correct state of the object) a C2NetObject.
+ *
+ * Return Value:
+ * C2NetObjectBytes or %NULL.
+ **/
+C2NetObjectByte *
+c2_net_object_run (C2NetObject *nobj)
 {
-	C2NetObject *nobj = C2_NET_OBJECT (object);
-	
-	/* Check if the object being destroyed is connected */
-	if (!(nobj->state & C2_NET_OBJECT_OFF))
+	GList *l;
+	C2NetObjectByte *byte;
+	gchar *ip;
+	gint i;
+
+	/* Check that the Net Object supports another connection */
+	if (nobj->max)
 	{
-#ifdef USE_DEBUG
-		g_print ("A C2NetObject object is being destroyed and it hasn't being shutdown.\n");
-#endif
-		close (nobj->sock);
+		if (g_list_length (nobj->bytes) >= nobj->max)
+		{
+			c2_error_obj_set (GTK_OBJECT (nobj), C2NOBJMAX);
+			return NULL;
+		}
 	}
 
-	g_free (nobj->host);
+	/* Create the byte */
+	byte = g_new0 (C2NetObjectByte, 1);
+
+	/* Create the socket */
+	if ((byte->sock = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+	{
+		c2_error_obj_set (GTK_OBJECT (nobj), -errno);
+		g_free (byte);
+		return NULL;
+	}
+	
+	nobj->bytes = g_list_append (nobj->bytes, (gpointer) byte);
+	
+	/* Fire "resolve" signal */
+	byte->state = C2_NET_OBJECT_RESOLVE;
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[RESOLVE], byte);
+
+	if (c2_net_resolve (nobj->host, &ip) < 0)
+	{
+#ifdef USE_DEBUG
+		g_warning ("Unable to resolve hostname: %s\n", c2_error_get ());
+#endif
+		c2_error_obj_set (GTK_OBJECT (nobj), -errno);
+		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
+		return NULL;
+	}
+
+	/* Fire "connect" signal */
+	byte->state = C2_NET_OBJECT_CONNECT;
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[CONNECT], byte);
+
+	if (c2_net_connect (ip, nobj->port, byte->sock) < 0)
+	{
+#ifdef USE_DEBUG
+		g_warning ("Unable to connect: %s\n", c2_error_get ());
+#endif
+		c2_error_obj_set (GTK_OBJECT (nobj), -errno);
+		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
+		return NULL;
+	}
+	g_free (ip);
+
+	/* Ok, the state is now connected, we are ready
+	 * to send and receive data through this object! :)
+	 * 			Pablo Fernández Navarro.
+	 */
+	return byte;
+}
+
+static void
+nobj_disconnect (C2NetObject *nobj, C2NetObjectByte *byte)
+{
+	close (byte->sock);
+}
+
+/**
+ * c2_net_object_send
+ * @nobj: The C2NetObject where we need to work.
+ * @ident: Ident of the connection
+ *         (return value of c2_net_object_run).
+ * @fmt: Printf compliant string format to send.
+ * ...: Printf arguments and an optional C2NetObjectByte
+ *      (optional only if nobj->max == 1).
+ *
+ * This function will write an string to the
+ * C2NetObject.
+ * You can use this function pretty much like
+ * fprintf.
+ *
+ * Return Value:
+ * bytes sent or -1;
+ **/
+gint
+c2_net_object_send (C2NetObject *nobj, const gchar *fmt, ...)
+{
+	va_list args;
+	gchar *string;
+	gint value;
+	C2NetObjectByte *byte;
+
+	va_start (args, fmt);
+	string = g_strdup_vprintf (fmt, args);
+	
+	if (nobj->max == 1)
+	{
+		GList *l;
+		l = g_list_nth (nobj->bytes, 0);
+		byte = (C2NetObjectByte*) l->data;
+	} else
+		byte = va_arg (args, C2NetObjectByte*);
+	va_end (args);
+	
+	/* Check if the object has been canceled */
+	if (byte->state & C2_NET_OBJECT_OFF || byte->state & C2_NET_OBJECT_CANCEL)
+	{
+		if (!(byte->state & C2_NET_OBJECT_OFF))
+		{
+			/* This is the first c2_net_object_* call since
+			 * the object was marked as canceled,
+			 * close the socket, mark it as off
+			 * and fire the disconnect signal.
+			 */
+			byte->state |= C2_NET_OBJECT_OFF;
+			gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE, byte);
+		}
+		return -1;
+	}
+
+	if ((value = send (byte->sock, string, strlen (string), 0)) < 0)
+	{
+		/* There was a problem in the sending,
+		 * the socket is closed, the state will be set off | error
+		 * and fire the disconnect signal.
+		 */
+		close (byte->sock);
+		c2_net_object_set_state (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR, byte);
+		c2_error_object_set (GTK_OBJECT (nobj), -errno);
+		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
+		g_free (string);
+		return -1;
+	}
+
+	byte->state = C2_NET_OBJECT_EXCHANGE;
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE], C2_NET_OBJECT_EXCHANGE_SEND, strlen (string), byte);
+
+	g_free (string);
+
+	return value;
+}
+
+/**
+ * c2_net_object_read
+ * @nobj: The C2NetObject where we need to work.
+ * @string: A null pointer where result is going to
+ *          be stored.
+ * @...: C2NetObjectByte, might be omitted if the net object
+ * 		 does not allow more than one connection at the same time.
+ *
+ * This function reads the first 1024 bytes
+ * or until it reaches a '\n' (whatever happens first)
+ * from the socket.
+ *
+ * Return Value:
+ * The number of read bytes or -1;
+ **/
+gint
+c2_net_object_read (C2NetObject *nobj, gchar **string, ...)
+{
+	gint ret;
+	C2NetObjectByte *byte;
+
+	/* Get the byte */
+	if (nobj->max = 1)
+	{
+		GList *l;
+		l = g_list_nth (nobj->bytes, 0);
+		byte = (C2NetObjectByte*) l->data;
+	} else
+	{
+		va_list args;
+		va_start (args, string);
+		byte = va_arg (args, C2NetObjectByte*);
+		va_end (args);
+	}
+
+	/* Check if the object has been canceled */
+	if (byte->state & C2_NET_OBJECT_OFF || byte->state & C2_NET_OBJECT_CANCEL)
+	{
+		if (!(byte->state & C2_NET_OBJECT_OFF))
+		{
+			/* This is the first c2_net_object_* call since
+			 * the object was marked as canceled,
+			 * close the socket, mark it as off
+			 * and fire the disconnect signal.
+			 */
+			byte->state |= C2_NET_OBJECT_OFF;
+			gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE, byte);
+		}
+		return -1;
+	}
+
+	if ((ret = c2_net_read (byte->sock, string)) < 0)
+	{
+		/* There was a problem in the sending,
+		 * the socket is closed, the state will be set off | error
+		 * and fire the disconnect signal.
+		 */
+		close (byte->sock);
+		c2_net_object_set_state (nobj, C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR, byte);
+		gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
+		c2_error_object_set (GTK_OBJECT (nobj), -errno);
+		return -1;
+	}
+	byte->state = C2_NET_OBJECT_EXCHANGE;
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE],
+					 C2_NET_OBJECT_EXCHANGE_READ, strlen (*string), byte);
+	return ret;
+}
+
+/**
+ * c2_net_object_disconnect
+ **/
+void
+c2_net_object_disconnect (C2NetObject *nobj, ...)
+{
+	C2NetObjectByte *byte;
+
+	/* Get the byte */
+	if (nobj->max = 1)
+	{
+		GList *l;
+		l = g_list_nth (nobj->bytes, 0);
+		byte = (C2NetObjectByte*) l->data;
+	} else
+	{
+		va_list args;
+		va_start (args, nobj);
+		byte = va_arg (args, C2NetObjectByte*);
+		va_end (args);
+	}
+	
+	if (byte->state & C2_NET_OBJECT_OFF)
+		return;
+
+	close (byte->sock);
+	byte->state |= C2_NET_OBJECT_OFF;
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE, byte);
+}
+
+void
+c2_net_object_disconnect_with_error (C2NetObject *nobj, ...)
+{
+	C2NetObjectByte *byte;
+
+	/* Get the byte */
+	if (nobj->max = 1)
+	{
+		GList *l;
+		l = g_list_nth (nobj->bytes, 0);
+		byte = (C2NetObjectByte*) l->data;
+	} else
+	{
+		va_list args;
+		va_start (args, nobj);
+		byte = va_arg (args, C2NetObjectByte*);
+		va_end (args);
+	}
+	
+	if (byte->state & C2_NET_OBJECT_OFF)
+		return;
+
+	close (byte->sock);
+	byte->state |= C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR;
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], FALSE, byte);
+}
+
+void
+c2_net_object_cancel (C2NetObject *nobj, ...)
+{
+	C2NetObjectByte *byte;
+
+	/* Get the byte */
+	if (nobj->max = 1)
+	{
+		GList *l;
+		l = g_list_nth (nobj->bytes, 0);
+		byte = (C2NetObjectByte*) l->data;
+	} else
+	{
+		va_list args;
+		va_start (args, nobj);
+		byte = va_arg (args, C2NetObjectByte*);
+		va_end (args);
+	}
+	
+	if (byte->state & C2_NET_OBJECT_OFF)
+		return;
+
+	close (byte->sock);
+	byte->state |= C2_NET_OBJECT_OFF | C2_NET_OBJECT_CANCEL;
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE, byte);
+}
+
+void
+c2_net_object_set_state (C2NetObject *nobj, gint8 state, ...)
+{
+	C2NetObjectByte *byte;
+
+	/* Get the byte */
+	if (nobj->max = 1)
+	{
+		GList *l;
+		l = g_list_nth (nobj->bytes, 0);
+		byte = (C2NetObjectByte*) l->data;
+	} else
+	{
+		va_list args;
+		va_start (args, state);
+		byte = va_arg (args, C2NetObjectByte*);
+		va_end (args);
+	}
+	
+	byte->state = state;
+}
+
+void
+c2_net_object_append_state (C2NetObject *nobj, gint8 state, ...)
+{
+	C2NetObjectByte *byte;
+
+	/* Get the byte */
+	if (nobj->max = 1)
+	{
+		GList *l;
+		l = g_list_nth (nobj->bytes, 0);
+		byte = (C2NetObjectByte*) l->data;
+	} else
+	{
+		va_list args;
+		va_start (args, state);
+		byte = va_arg (args, C2NetObjectByte*);
+		va_end (args);
+	}
+	
+	byte->state |= state;
+}
+
+/**
+ * c2_net_object_set_maximum
+ * @nobj: C2NetObject where to work.
+ * @max: Maximum number of connections to provide.
+ *       (0 = unlimited)
+ * 
+ * C2NetObject provides just one connection at a time,
+ * you can not lunch a connect order before the existent
+ * connection is shutted down.
+ * This function will prepare the C2NetOjbect to allow
+ * several connections at the same time.
+ **/
+void
+c2_net_object_set_maximum (C2NetObject *nobj, guint max)
+{
+	nobj->max = max;
+}
+
+gboolean
+c2_net_object_is_offline (C2NetObject *nobj, ...)
+{
+	C2NetObjectByte *byte;
+
+	/* Get the byte */
+	if (nobj->max = 1)
+	{
+		GList *l;
+		l = g_list_nth (nobj->bytes, 0);
+		byte = (C2NetObjectByte*) l->data;
+	} else
+	{
+		va_list args;
+		va_start (args, nobj);
+		byte = va_arg (args, C2NetObjectByte*);
+		va_end (args);
+	}
+
+	if (byte->state & C2_NET_OBJECT_OFF)
+		return TRUE;
+
+	return FALSE;
 }

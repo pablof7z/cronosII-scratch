@@ -46,22 +46,22 @@ struct _C2Cache
 };
 
 gint
-c2_net_resolve									(const gchar *hostname, gchar **ip);
+c2_net_resolve								(const gchar *hostname, gchar **ip);
 
 gint
-c2_net_connect									(const gchar *ip, guint port, guint *sock);
+c2_net_connect								(const gchar *ip, guint port, gint sock);
 
 gint
-c2_net_printf									(guint sock, const gchar *fmt, ...);
+c2_net_printf								(guint sock, const gchar *fmt, ...);
 
 gint
-c2_net_read										(guint sock, gchar **string);
+c2_net_read									(guint sock, gchar **string);
 
 void
-c2_net_disconnect								(guint sock);
+c2_net_disconnect							(guint sock);
 
 gchar *
-c2_net_get_local_hostname (guint sock);
+c2_net_get_local_hostname					(guint sock);
 	
 #ifdef __cplusplus
 }

@@ -81,8 +81,7 @@ c2_net_resolve (const gchar *hostname, gchar **ip)
  * c2_net_connect
  * @ip: IP number where to connect.
  * @port: Port where to connect.
- * @sock: Pointer to a gint variable where the socket descriptor
- *        will be returned.
+ * @sock: A created socket.
  *
  * This function will create a connection to the host
  * with IP @ip.
@@ -91,7 +90,7 @@ c2_net_resolve (const gchar *hostname, gchar **ip)
  * 0 if success or -1.
  **/
 gint
-c2_net_connect (const gchar *ip, guint port, guint *sock)
+c2_net_connect (const gchar *ip, guint port, guint sock)
 {
 	struct sockaddr_in server;
 	
