@@ -242,7 +242,7 @@ login (C2Pop3 *pop3)
 	do
 	{
 		/* FIXME This crashes when the password is wrong and
-		 * is executed for 2 time (probably for >1 time) */
+		 * is executed for 2 time (probably for >1 time) see NULL setting below. */
 		g_free (string);
 		if (c2_net_object_send (C2_NET_OBJECT (pop3), "PASS %s\r\n", pop3->pass) < 0)
 			return -1;
@@ -257,7 +257,8 @@ login (C2Pop3 *pop3)
 				string++;
 			
 			g_free (pop3->pass);
-
+/* set pop3->pass equal to NULL just in case there is no callback function */
+			pop3->pass = NULL;
 			if (pop3->wrong_pass_cb)
 				pop3->pass = pop3->wrong_pass_cb (pop3, string);
 		} else
