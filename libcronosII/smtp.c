@@ -29,6 +29,7 @@
 /* feel free to mess around -- help me get this module up to spec faster! */
 /* TODO: implement a better error handling according to RFC821 4.2.1 (posted by pablo) */
 /* TODO: implement authentication (posted by pablo) */
+/* TODO: implement encoding of headers according to ISO's */
 /* (in progress) TODO: create a test-module */
 /* (done!) TODO: implement multiple connections via Net-Object */
 /* (done!) TODO: update C2 SMTP to be a real GtkObject w/ signals etc */
