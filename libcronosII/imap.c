@@ -32,7 +32,8 @@
 /* TODO: Get messages */
 /* TODO: Move + Delete messages */
 /* TODO: Function that handles untagged messages that come unwarranted */
-/* (in progress) TODO: Load a mailbox */
+/* TODO: Elegent disconnection handling (i.e. reconnecting, etc) */
+/* (done!) TODO: Load a mailbox */
 /* (done!) TODO: Login (at least plain-text for now) */
 /* (done!) TODO: Create a test module */
 /* (done!) TODO: Internal folder managment + syncronization */
@@ -256,6 +257,7 @@ c2_imap_init (C2IMAP *imap)
 	
 	if(!(byte = c2_net_object_run(C2_NET_OBJECT(imap))))
 	{
+		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		c2_imap_set_error(imap, _("Error connecting to IMAP server."));
 		c2_mutex_unlock(&imap->lock);
@@ -302,13 +304,14 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	{
 		if(c2_net_object_read(C2_NET_OBJECT(imap), &buf) < 0)
 		{
-			printf(_("Error reading from socket on IMAP host %s! Reader thread aborting!\n"),
+			g_warning(_("Error reading from socket on IMAP host %s! Reader thread aborting!\n"),
 						C2_NET_OBJECT(imap)->host);
 			c2_imap_set_error(imap, NET_READ_FAILED);
 			c2_net_object_disconnect(C2_NET_OBJECT(imap));
 			c2_net_object_destroy_byte (C2_NET_OBJECT (imap));
+			imap->state = C2IMAPDisconnected;
 			gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
-			return; 
+			return;
 		}
 		if(!final) final = g_strdup(buf);
 		else 
@@ -758,8 +761,11 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 	 *  (done!) (3) Close box 
 	 **/
 	tag_t tag;
-	gint messages;
-	gchar *reply, *ptr;
+	gint messages, uid = 0;
+	gchar *reply, *ptr, *ptr2, *str;
+	gchar *from = NULL, *subject = NULL, *date = NULL;
+	gboolean seen = FALSE, answered = FALSE;
+	C2Db *db;
 	
 	if((messages = c2_imap_select_mailbox(imap, mailbox)) < 0)
 		return -1;
@@ -770,9 +776,10 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 	tag = c2_imap_get_tag(imap);
 	
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d FETCH 1:* "
-			"(FLAGS BODY[HEADER.FIELDS (SUBJECT FROM DATE)])\r\n", tag) < 0)
+			"(FLAGS UID BODY[HEADER.FIELDS (SUBJECT FROM DATE)])\r\n", tag) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
@@ -780,7 +787,60 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
 		return -1;
 	
-	printf("received %s\n", reply);
+	for(ptr = reply, messages = 0; *ptr; ptr++)
+	{
+		if(*ptr == '*')
+		{
+			gint i = 0;
+			ptr2 = ptr;
+			while(*ptr2 != '\n' || !(*ptr2))
+				ptr2++;
+			str = g_strndup(ptr, ptr2 - ptr);
+			if(c2_strstr_case_insensitive(str, "\\Seen"))
+				seen = TRUE;
+			if(c2_strstr_case_insensitive(str, "\\Answered"))
+				answered = TRUE;
+			if((ptr = strstr(str, "UID")))
+				uid = atoi(ptr + 4);
+			g_free(str);
+			ptr = ptr2 + 1;
+			for(i = 0; i < 3; i++)
+			{
+				gchar *ending;
+				if(c2_strneq(ptr, "F", 1))
+				{
+					ptr += 6; /* strlen("From: ") + 1; */
+					ending = strstr(ptr, "\n");
+					from = g_strndup(ptr, ending - ptr);
+					ptr += strlen(from) + 1;
+					i++;
+				}
+				if(c2_strneq(ptr, "S", 1))
+				{
+					ptr += 9; /* strlen("Subject: ") + 1; */
+          ending = strstr(ptr, "\n");
+					subject = g_strndup(ptr, ending - ptr);
+					ptr += strlen(subject) + 1;
+					i++;
+				}
+				if(c2_strneq(ptr, "D", 1))
+				{
+					ptr += 6; /* strlen("Date: ") + 1; */
+          ending = strstr(ptr, "\n");
+          date = g_strndup(ptr, ending - ptr);
+					ptr += strlen(date) + 1;
+					i++;
+				}
+			}
+			/* FIX ME: the @account below should not be NULL */
+			/* FIX ME: the @date below should not be 0 */
+			db = c2_db_new(mailbox, !seen, subject, from, NULL, 0, uid, messages);
+			messages++;
+			g_free(date);
+			g_free(subject);
+			g_free(from);
+		}
+	}
 	
 	g_free(reply);
 	
@@ -827,6 +887,7 @@ c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 	{
 		g_free(name);
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
@@ -890,6 +951,7 @@ c2_imap_close_mailbox (C2IMAP *imap)
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d CLOSE\r\n", tag) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
@@ -922,6 +984,7 @@ c2_imap_plaintext_login (C2IMAP *imap)
 												tag, imap->user, imap->pass) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
@@ -963,6 +1026,7 @@ c2_imap_get_mailbox_list(C2IMAP *imap, const gchar *reference, const gchar *name
 				" \"%s\"\r\n", tag, (reference) ? reference : "" , (name) ? name : "") < 0)
   {
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return NULL;
 	}
@@ -1003,6 +1067,7 @@ c2_imap_create_mailbox(C2IMAP *imap, C2Mailbox *parent, const gchar *name)
 		"\"%s%s%s\"\r\n", tag, buf ? buf : "", buf ? "/" : "", name) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		g_free(buf);
 		return FALSE;
@@ -1046,6 +1111,7 @@ c2_imap_delete_mailbox(C2IMAP *imap, C2Mailbox *mailbox)
 					"\"%s\"\r\n", tag, name) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		g_free(name);
 		return FALSE;
@@ -1093,6 +1159,7 @@ c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
 				"\"%s\" \"%s\"\r\n", oldname, name) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		c2_mutex_unlock(&imap->lock);
 		g_free(oldname);
