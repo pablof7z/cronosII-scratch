@@ -463,7 +463,7 @@ c2_transfer_item_start (C2TransferItem *ti)
 			C2Pthread3 *data;
 			C2Mailbox *inbox;
 
-			if (!(inbox = c2_mailbox_get_by_name (ti->application->mailbox, C2_MAILBOX_INBOX)))
+			if (!(inbox = c2_mailbox_get_by_usage (ti->application->mailbox, C2_MAILBOX_USE_AS_INBOX)))
 			{
 				/* There's no Inbox mailbox, create it */
 				ti->application->mailbox = c2_mailbox_new_with_parent (
@@ -830,20 +830,20 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 
 	gdk_threads_leave ();
 
-	if (!(outbox = c2_mailbox_get_by_name (ti->application->mailbox,
-											C2_MAILBOX_OUTBOX)))
+	if (!(outbox = c2_mailbox_get_by_usage (ti->application->mailbox,
+											C2_MAILBOX_USE_AS_OUTBOX)))
 	{
-		g_warning ("There's no «%s» mailbox\n", C2_MAILBOX_OUTBOX);
+		g_warning (("There's no mailbox marked as %s!\n"), C2_MAILBOX_OUTBOX);
 		return;
 	}
 
 	if (c2_preferences_get_general_options_outgoing_sent_items ())
 	{
 		/* Move the message from «Outbox» to «Sent Items» */
-		if (!(sent_items = c2_mailbox_get_by_name (ti->application->mailbox,
-													C2_MAILBOX_SENT_ITEMS)))
+		if (!(sent_items = c2_mailbox_get_by_usage (ti->application->mailbox,
+													C2_MAILBOX_USE_AS_SENT_ITEMS)))
 		{
-			g_warning ("There's no «%s» mailbox\n", C2_MAILBOX_SENT_ITEMS);
+			g_warning (_("There's no mailbox marked as %s!\n"), C2_MAILBOX_SENT_ITEMS);
 			return;
 		}
 

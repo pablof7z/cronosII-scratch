@@ -392,7 +392,7 @@ set_headers (C2Mail *mail, C2Message *message)
 	buf = c2_message_get_header_field (message, "From:");
 	if (buf)
 	{
-		gchar *buf2 = c2_str_get_sender (buf);
+		gchar *buf2 = c2_str_get_senders (buf);
 
 		if (buf2)
 		{
@@ -407,9 +407,10 @@ set_headers (C2Mail *mail, C2Message *message)
 
 	/* To */
 	buf = c2_message_get_header_field (message, "To:");
+	printf ("To: '%s'\n", buf);
 	if (buf)
 	{
-		gchar *buf2 = c2_str_get_sender (buf);
+		gchar *buf2 = c2_str_get_senders (buf);
 
 		if (buf2)
 		{
@@ -426,7 +427,7 @@ set_headers (C2Mail *mail, C2Message *message)
 	buf = c2_message_get_header_field (message, "CC:");
 	if (buf && strlen (buf))
 	{
-		gchar *buf2 = c2_str_get_sender (buf);
+		gchar *buf2 = c2_str_get_senders (buf);
 
 		if (buf2)
 		{

@@ -1,3 +1,6 @@
+Tue Apr 30 Pablo Fernández <sandokan at pablossite dot net>
+	* Fixed an important bug in c2_message_str_get_header_field.
+
 Mon Apr 29 Pablo Fernández <sandokan at pablossite dot net>
 	* Work in the "Use as" mailbox stuff.
 	* New check on c2_application_init to check we have an

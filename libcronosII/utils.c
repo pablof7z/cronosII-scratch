@@ -1064,6 +1064,52 @@ finish:
 	return email;
 }
 
+gchar *
+c2_str_get_senders (const gchar *string)
+{
+	c2_return_val_if_fail (string, NULL, C2EDATA);
+
+	{
+		const gchar *ptr, *sptr;
+		gint length = strlen (string), bufpos = 0;
+		gchar buffer[length];
+		gchar *sender;
+
+		memset (buffer, 0, length*sizeof (char));
+
+		for (ptr = string; ptr != NULL;)
+		{
+			if (ptr != string)
+				ptr++;
+
+			if ((sender = c2_str_get_sender (ptr)) && ptr != string)
+			{
+				strcat (buffer, ", ");
+				strcat (buffer, sender);
+			} else
+			{
+				strcpy (buffer, sender);
+			}
+			g_free (sender);
+
+			sptr = ptr;
+			if (!(ptr = strstr (ptr, ",")))
+			{
+				ptr = sptr;
+				if (!(ptr = strstr (ptr, ";")))
+				{
+					ptr = sptr;
+					break;
+				}
+			}
+		}
+
+		return g_strdup (buffer);
+	}
+
+	return NULL;
+}
+
 /**
  * c2_str_get_sender
  * @string: String to process

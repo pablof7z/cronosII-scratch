@@ -436,7 +436,7 @@ open_draft (C2Composer *composer)
 	C2Mailbox *drafts;
 	C2Db *db;
 
-	drafts = c2_mailbox_get_by_name (application->mailbox, C2_MAILBOX_DRAFTS);
+	drafts = c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_DRAFTS);
 	c2_return_if_fail (C2_IS_MAILBOX (drafts), C2EDATA);
 
 	dialog = c2_dialog_new (C2_WINDOW (composer)->application, _("Select a message"),
@@ -508,7 +508,7 @@ save_draft_thread (C2Composer *composer)
 
 	composer->save_type = C2_COMPOSER_SAVE_DRAFT;
 
-	mailbox = c2_mailbox_get_by_name (C2_WINDOW (composer)->application->mailbox, C2_MAILBOX_DRAFTS);
+	mailbox = c2_mailbox_get_by_usage (C2_WINDOW (composer)->application->mailbox, C2_MAILBOX_USE_AS_DRAFTS);
 	if (!mailbox)
 	{
 		gdk_threads_enter ();
@@ -601,7 +601,7 @@ send_ (C2Composer *composer, C2ComposerSendType type)
 									   "X-CronosII-Send-Type: %d\n",
 									   message->header, type);
 
-	mailbox = c2_mailbox_get_by_name (C2_WINDOW (composer)->application->mailbox, C2_MAILBOX_OUTBOX);
+	mailbox = c2_mailbox_get_by_usage (C2_WINDOW (composer)->application->mailbox, C2_MAILBOX_USE_AS_OUTBOX);
 	if (!mailbox)
 		g_assert_not_reached ();
 

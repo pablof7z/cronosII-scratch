@@ -138,6 +138,9 @@ gchar *
 c2_str_get_email							(const gchar *email);
 
 gchar *
+c2_str_get_senders							(const gchar *string);
+
+gchar *
 c2_str_get_sender							(const gchar *string);
 
 gboolean

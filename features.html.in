@@ -7,12 +7,9 @@ This is a list of features that are missing from this release of Cronos II but a
 implemented in a short time.
 
 <ul>
-<li>IMAP support.</li>
-<li>Spool support.</li>
 <li>Search support.</li>
 <li>Print support.</li>
 <li>Drafts support.</li>
-<li>Message mark support.</li>
 <li>Importing & Exporting support.</li>
 <li>Downloading images in HTML messages from an external location.</li>
 </ul>

@@ -947,122 +947,15 @@ copy (C2WindowMain *wmain)
 }
 
 static void
-delete_thread (C2Pthread3 *data)
-{
-	C2WindowMain *wmain = C2_WINDOW_MAIN (data->v1);
-	C2Mailbox *fmailbox = C2_MAILBOX (data->v2);
-	C2Mailbox *tmailbox = c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox,
-													C2_MAILBOX_TRASH);
-	GList *list = (GList*) data->v3;
-	GList *l;
-	GtkWidget *widget;
-	GtkProgress *progress;
-	gint length, off;
-	gboolean progress_ownership;
-	gboolean status_ownership;
-L	
-	g_free (data);
-
-	/* Get the length of our list */
-	length = g_list_length (list);
-
-	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "appbar");
-
-	/* Try to reserve ownership over the progress bar */
-	if (!c2_mutex_trylock (&C2_WINDOW (wmain)->progress_lock))
-		progress_ownership = TRUE;
-	else
-		progress_ownership = FALSE;
-
-	/* Try to reserve ownership over the status bar */
-	if (!c2_mutex_trylock (&C2_WINDOW (wmain)->status_lock))
-		status_ownership = TRUE;
-	else
-		status_ownership = FALSE;
-
-	gdk_threads_enter ();
-	
-	if (progress_ownership)
-	{
-		/* Configure the progress bar */
-		progress = GTK_PROGRESS (GNOME_APPBAR (widget)->progress);
-		gtk_progress_configure (progress, 0, 0, length);
-	} else
-		progress = NULL;
-
-	if (status_ownership)
-	{
-		/* Configure the status bar */
-		gnome_appbar_push (GNOME_APPBAR (widget), _("Deleting..."));
-	}
-
-	gdk_threads_leave ();
-	
-	c2_db_freeze (fmailbox);
-	c2_db_freeze (tmailbox);
-L	for (l = list, off = 0; l; l = g_list_next (l))
-	{
-		C2Db *db;
-		
-		/* Now do the actual copy */
-L		db = (C2Db*) l->data;
-
-		if (!db->message)
-		{
-			if (!c2_db_load_message (db))
-			{
-				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-									error_list[C2_FAIL_MESSAGE_LOAD], c2_error_get ());
-				continue;
-			}
-		}
-		
-		gtk_object_ref (GTK_OBJECT (db->message));
-		if (c2_db_message_add (tmailbox, db->message))
-		{
-			c2_db_message_remove (fmailbox, GPOINTER_TO_INT (l->data)-(off++));
-		}
-		gtk_object_unref (GTK_OBJECT (db->message));
-
-		if (progress_ownership)
-		{
-			gdk_threads_enter ();
-			gtk_progress_set_value (progress, off);
-			gdk_threads_leave ();
-		}
-L	}
-	c2_db_thaw (tmailbox);
-	c2_db_thaw (fmailbox);
-L
-	g_list_free (list);
-L
-	gdk_threads_enter ();
-
-	if (status_ownership)
-	{
-		gnome_appbar_pop (GNOME_APPBAR (widget));
-		c2_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
-	}
-
-	if (progress_ownership)
-	{
-		gtk_progress_set_percentage (progress, 1.0);
-		c2_mutex_unlock (&C2_WINDOW (wmain)->progress_lock);
-	}
-
-	gdk_threads_leave ();
-L}
-
-static void
 delete (C2WindowMain *wmain)
 {
 	C2Application *application = C2_WINDOW (wmain)->application;
 	GList *list;
-L
-L	list = c2_index_selection (C2_INDEX (wmain->index));
-L	C2_APPLICATION_CLASS_FW (application)->delete (application, list, C2_WINDOW (wmain));
-L	g_list_free (list);
-L}
+
+	list = c2_index_selection (C2_INDEX (wmain->index));
+	C2_APPLICATION_CLASS_FW (application)->delete (application, list, C2_WINDOW (wmain));
+	g_list_free (list);
+}
 
 static void
 exit_ (C2WindowMain *wmain)
@@ -1259,8 +1152,7 @@ send_ (C2WindowMain *wmain)
 	C2Mailbox *outbox;
 	C2Db *db;
 
-	outbox = c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox,
-										C2_MAILBOX_OUTBOX);
+	outbox = c2_mailbox_get_by_usage (C2_WINDOW (wmain)->application->mailbox, C2_MAILBOX_USE_AS_OUTBOX);
 	if (!C2_IS_MAILBOX (outbox))
 		return;
 

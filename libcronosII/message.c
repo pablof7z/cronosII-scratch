@@ -210,7 +210,7 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 
 	/* Search for the field */
 	for (msg_ptr = message; *msg_ptr != '\0'; msg_ptr++)
-		if (((msg_ptr == message) || (msg_ptr > message)) && (*(msg_ptr-1) == '\n'))
+		if ((msg_ptr == message) || (*(msg_ptr-1) == '\n'))
 		{
 			if (c2_strneq (msg_ptr, field, field_length))
 				break;
@@ -235,14 +235,18 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 	start_ptr = msg_ptr+field_length;
 	if (*start_ptr == ':')
 		ptr++;
-	for (; *start_ptr != '\0' && *start_ptr == ' '; start_ptr++);
+
+	/* Go through the empty spaces */
+	for (; *start_ptr != '\0' && *start_ptr == ' '; start_ptr++)
+		;
 
 	/* Calculate the size of the chunk */
 	for (end_ptr = start_ptr, size = 0; *end_ptr != '\0'; end_ptr++)
 	{
 		if (*end_ptr != '\n')
+		{
 			size++;
-		else
+		} else
 		{
 			if (*(++end_ptr) == '\t' || *end_ptr == ' ')
 			{
@@ -250,13 +254,7 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 				/* Go through the '\t''s and the white spaces */
 				/* Duplicated on porpouse: So if there's a "\t \t " it will successfully
 				 * parse */
-				while (*end_ptr == '\t')
-					end_ptr++;
-				while (*end_ptr == ' ')
-					end_ptr++;
-				while (*end_ptr == '\t')
-					end_ptr++;
-				while (*end_ptr == ' ')
+				while ((*end_ptr == '\t') || (*end_ptr == ' '))
 					end_ptr++;
 				end_ptr--;
 			}
@@ -270,7 +268,7 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 
 	for (ptr = chunk, wbytes = 0; wbytes < size && *start_ptr != '\0'; start_ptr++)
 	{
-		if (*start_ptr != '\0')
+		if (*start_ptr != '\n')
 		{
 			*(ptr++) = *start_ptr;
 			wbytes++;

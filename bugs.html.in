@@ -10,6 +10,7 @@ using our <a href="http://sourceforge.net/bugs/?group_id=7093">online forms</a>.
 
 <ul>
 <li> IMAP is not working correctly yet.
+<li> Spool mailboxes are not working correctly either.
 <li> GtkXmHTML is not fully supported.
 <li> Composing HTML messages is not fully supoorted yet.
 </ul>

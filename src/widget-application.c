@@ -1330,7 +1330,7 @@ L
 		/* Ok, we are ready to move everything to «Trash» */
 		/* Fire the thread */
 		data = g_new0 (C2Pthread3, 1);
-		data->v1 = c2_mailbox_get_by_name (application->mailbox, C2_MAILBOX_TRASH);
+		data->v1 = c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_TRASH);
 		data->v2 = g_list_copy (list);
 		data->v3 = window;
 
@@ -1596,7 +1596,7 @@ _send (C2Application *application)
 
 	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
 	
-	outbox = c2_mailbox_get_by_name (application->mailbox, C2_MAILBOX_OUTBOX);
+	outbox = c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_OUTBOX);
 	if (!C2_IS_MAILBOX (outbox))
 		return;
 
@@ -1816,7 +1816,7 @@ c2_application_window_remove (C2Application *application, GtkWindow *window)
 	{
 		C2Mailbox *mailbox;
 
-		mailbox = c2_mailbox_get_by_name (application->mailbox, C2_MAILBOX_OUTBOX);
+		mailbox = c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_OUTBOX);
 		
 		asked_send_unsent_mails++;
 		if (asked_send_unsent_mails == 1 &&
@@ -1913,7 +1913,7 @@ on_command_wmain_new_window_main_show (GtkWidget *widget, C2WindowMain *wmain)
 	{
 		mailbox = c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_INBOX);
 		if (!mailbox)
-			if (!(mailbox = c2_mailbox_get_by_name (application->mailbox, C2_MAILBOX_INBOX)))
+			if (!(mailbox = c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_INBOX)))
 				sel_mailbox = C2_MAILBOX_INBOX;
 	}
 	

@@ -983,7 +983,7 @@ c2_application_dialog_send_unsent_mails (C2Application *application)
 	gchar *label;
 	gint reply;
 
-	outbox = c2_mailbox_get_by_name (application->mailbox, C2_MAILBOX_OUTBOX);
+	outbox = c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_OUTBOX);
 	mails = c2_db_length (outbox);
 	if (!mails)
 		return FALSE;

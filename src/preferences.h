@@ -251,7 +251,7 @@ extern "C" {
 	
 #define c2_preferences_get_interface_misc_date() \
 	gnome_config_get_string_with_default ("/"PACKAGE"/"INTERFACE"-"MISC"/" \
-										  "date=%d.%m.%Y %H:%M %z", NULL)
+										  "date=%A %d, %b %Y %H:%M %Z", NULL)
 #define c2_preferences_set_interface_misc_date(val) \
 	gnome_config_set_string ("/"PACKAGE"/"INTERFACE"-"MISC"/date", val)
 	
