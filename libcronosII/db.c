@@ -503,8 +503,10 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
  * from the mailbox.
  **/
 void
-c2_db_message_remove (C2Mailbox *mailbox, C2Db *db, gint n)
+c2_db_message_remove (C2Mailbox *mailbox, GList *list)
 {
+}
+#if 0
 	void (*func) (C2Mailbox *mailbox, C2Db *db, gint n);
 	C2Db *prev, *next, *l;
 	gint i;
@@ -555,6 +557,7 @@ c2_db_message_remove (C2Mailbox *mailbox, C2Db *db, gint n)
 	for (l = db, i = 0; c2_db_lineal_next (l) && i < n; l = l->next, i++)
 		gtk_object_destroy (GTK_OBJECT (l));
 }
+#endif
 
 /**
  * c2_db_message_set_state [VFUNCTION]

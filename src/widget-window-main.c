@@ -402,7 +402,12 @@ on_toolbar_check_clicked (GtkWidget *widget, C2WindowMain *wmain)
 static void
 on_toolbar_delete_clicked (GtkWidget *widget, C2WindowMain *wmain)
 {
-	L
+	C2Mailbox *mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
+	GList *list;
+
+	list = GTK_CLIST (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "index"))->selection;
+
+	c2_db_message_remove (mailbox, list);
 }
 
 static void

@@ -122,7 +122,7 @@ void
 c2_db_message_add							(C2Mailbox *mailbox, C2Message *message);
 
 void
-c2_db_message_remove						(C2Mailbox *mailbox, C2Db *db, gint n);
+c2_db_message_remove						(C2Mailbox *mailbox, GList *list);
 
 void
 c2_db_message_set_state						(C2Db *db, C2MessageState state);

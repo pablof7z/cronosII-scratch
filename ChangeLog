@@ -1,3 +1,7 @@
+Mon Sep 24 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Added the rfc directory to the CVS.
+	* Removed obsoletes directories from CVS, /module-test and /libmodules.
+
 Sat Sep 22 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed a bug in the copy and moving functions
 	  in the utils.

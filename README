@@ -1,55 +1,17 @@
-                   Cronos II 0.2.3
-                    - New light -
+Cronos II (Scratch) 0.0.4
 
-===============
-= What is it? =
-===============
-Cronos II is a powerful GNOME mail client very fast, light and friendly.
+Cronos II is the open source mail client for the Gnome Desktop.
 
-===================
-= Where to get it =
-===================
-Check out http://cronosII.sourceforge.net/ for the latest version.
+It features many advanced characteristics that will help
+you in your day to day work with your communications and
+mailing necesities.
 
-================
-= Requirements =
-================
-o Gnome-libs (http://www.gnome.org)
-o LinuxThreads (Pthreads)
+Even though Cronos II is being actively developed and is being
+worked by the Cronos II Development Team permanently this is
+still BETA software.
+Currently is able to handle everything without any problem,
+but this does not mean you might find some problem with it.
 
-o Gnome-Print (Optional)
-
-================
-= Installation =
-================
-The standard GNOME Installation method:
-./configure
-make
-make install
-
-You might want to check out the INSTALL file for further information.
-
-======================
-= About this version =
-======================
-Cronos II 0.2.3 (aka "New light") is a reborn of the project,
-since Cronos II is growing and is getting bigger, and when I started
-this project I didn't have any experience at all, it bases weren't
-as strong as they are required  for such a big project as this is.
-Basically, this version is more than just a *recode*, is a restructuring
-of Cronos II, now the main source of Cronos II is separated from
-the modules which interact with certain tasks.
-Also, with this version, the manual I wrote (actually just
-in CVS under the directory /documentation) titled "Cronos II Development manual"
-is to start being used, so everyone of us code with the same things
-in mind: modularity and speed.
-
-The users will also see many changes in Cronos II:
-o Ability to change the interface without getting mess with the code (through Glade);
-o IMAP support;
-o Spool (local mbox) support is totally different now;
-o HTML support;
-o and more.
-
-In the same directory you will find Instructions on using CVS for CronosII Developers,
-a quick manual that Peter Gossner wrote.
+If you do, please, mail the Cronos II Development Team with
+the problems you encountered and every piece of information
+you can give so the Team can work to fix your problems.
