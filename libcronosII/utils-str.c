@@ -867,11 +867,12 @@ c2_str_text_to_html (const gchar *str, gboolean proc_email)
  *                              found within the string.
  *
  * Return Value:
- * The stripped string.
+ * A newly allocated string without the HTML symbols.
  **/
 
 gchar *
-c2_str_html_to_text (gchar *str, unsigned int flags) {
+c2_str_html_to_text (gchar *str, unsigned int flags)
+{
 	gchar *retval;
 	gboolean in_tag = FALSE;
 	gboolean in_sym = FALSE;
@@ -881,7 +882,10 @@ c2_str_html_to_text (gchar *str, unsigned int flags) {
 	gboolean require_html = FALSE;
 	gboolean will_parse = FALSE;
 	GString *tag=g_string_new (NULL);
-	int j=0;
+	gint j=0;
+
+	if (!str || !strlen (str))
+		return NULL;
 	
 	retval = g_new0 (gchar, strlen(str));
 	if ((flags & C2_STRIP_HTML_REQUIRE_HTML) == C2_STRIP_HTML_REQUIRE_HTML)
@@ -905,41 +909,50 @@ c2_str_html_to_text (gchar *str, unsigned int flags) {
 	dst = retval;
 	
 	
-	for (current_char = str; *current_char; current_char++){
-		if (will_parse){
+	for (current_char = str; *current_char; current_char++)
+	{
+		if (will_parse)
+		{
 #if 0
 			*dst++ = 'a';
 #else
-			if (*current_char == '<'){
+			if (*current_char == '<')
+			{
 				in_tag = TRUE;
 				g_string_assign(tag,"");
 			}
-			// open symbol tag
-			if ((*current_char == '&')&&(symbol_replace)){
+			/* open symbol tag */
+			if ((*current_char == '&')&&(symbol_replace))
+			{
 				in_sym = TRUE;
 				g_string_assign(tag,"");
 			}
-			// normal tag. print it.
-			if ((in_tag == FALSE)&&(in_sym == FALSE)){
+			/* normal tag. print it. */
+			if ((in_tag == FALSE)&&(in_sym == FALSE))
+			{
 				g_string_assign(tag,"");
 				*dst++ = *current_char;
 			}
-			// is within a tag.
-			if ((in_tag == TRUE)||(in_sym == TRUE)){
+			/* is within a tag. */
+			if ((in_tag == TRUE)||(in_sym == TRUE))
+			{
 				j = strlen(tag->str);
 				g_string_append (tag, current_char);
 				g_string_truncate(tag, j+1);
 			}
-			// close tag.
-			if (*current_char == '>'){
+			/* close tag. */
+			if (*current_char == '>')
+			{
 				in_tag = FALSE;
 				g_string_down(tag);
-				if (c2_strstr_case_insensitive(tag->str,"<br>")){
+				if (c2_strstr_case_insensitive(tag->str,"<br>"))
+				{
 					*dst++ = '\n';
 				}
 				g_string_assign(tag,"");
 			}
-			if ((*current_char == ';')&&(symbol_replace)){
+			if ((*current_char == ';')&&(symbol_replace))
+			{
 				in_sym = FALSE;
 				if (c2_strstr_case_insensitive(tag->str,"&amp;")) *dst++ = '&';
 				if (c2_strstr_case_insensitive(tag->str,"&nbsp;")) *dst++ = ' ';
@@ -950,10 +963,12 @@ c2_str_html_to_text (gchar *str, unsigned int flags) {
 				g_string_assign(tag,"");
 			}
 #endif			
-		} else {
+		} else
+		{
 			*dst++ = *current_char;
 		}
 	}
+
 	*dst = '\0';
 	return retval;
 } 
