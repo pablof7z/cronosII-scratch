@@ -37,12 +37,41 @@ run_imap(C2IMAP *imap)
 		printf("failed to login\n");
 		return;
 	}
+	
 	if(c2_imap_get_folder_list(imap, &list, "", "*") < 0)
 	{
 		printf("failed to get folder list\n");
 		return;
 	}
 	
+	if(c2_imap_create_folder(imap, NULL, "CronosII") < 0)
+	{
+		printf("failed to create folder \"CronosII\"\n");
+		return;
+	}
+	printf("created folder \"CronosII\"\n");
+	printf("listing folders...\n");
+	
+	if(c2_imap_get_folder_list(imap, &list, "", "*") < 0)
+	{
+		printf("failed to get folder list\n");
+		return;
+	}
+	
+	if(c2_imap_delete_folder(imap, "CronosII") < 0)
+	{
+		printf("failed to delete folder \"CronosII\"\n");
+		return;
+	}
+	printf("deleted folder \"CronosII\"\n");
+	printf("listing folders...\n");
+	
+	if(c2_imap_get_folder_list(imap, &list, "", "*") < 0)
+	{
+		printf("failed to get folder list\n");
+		return;
+	}
+		
 	printf("\nCronosII IMAP capability testing Completed successfully!\n");
 }
 

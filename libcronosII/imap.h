@@ -129,9 +129,15 @@ c2_imap_init								(C2IMAP *imap);
 	
 gint
 c2_imap_get_folder_list(C2IMAP *imap, GList **list,
-											const gchar *reference, const gchar *name);
+												const gchar *reference, const gchar *name);
 			
+gint
+c2_imap_create_folder(C2IMAP *imap, const gchar *reference, const gchar *name);
 
+gint
+c2_imap_delete_folder(C2IMAP *imap, const gchar *name);
+	
+	
 #ifdef __cplusplus
 }
 #endif

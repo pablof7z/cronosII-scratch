@@ -30,10 +30,11 @@
 /* (done!) TODO: Function for reading server replies */
 /* (in progress) TODO: Login (at least plain-text for now) */
 /* (in progress) TODO: Create a test module */
-/* (in progress) TODO: Get list of folders */
+/* (done!) TODO: Get list of folders */
 /* TODO: Get list of messages */
 /* TODO: Get and delete messages */
-/* TODO: Create, rename, and remove folders */
+/* (in progress) TODO: Create, rename, and remove folders */
+/* TODO: Function that handles untagged messages that comes unwarranted */
 
 /* Private GtkObject functions */
 static void
@@ -241,6 +242,8 @@ c2_imap_init (C2IMAP *imap)
 	}
 	
 	g_print ("%s (%s@%s)\n", __PRETTY_FUNCTION__, imap->user, C2_NET_OBJECT (imap)->host);
+	
+	c2_mutex_unlock(&imap->lock);
 	return 0;
 }
 
@@ -451,7 +454,13 @@ c2_imap_check_server_reply(gchar *reply, tag_t tag)
 {
 	gchar *ptr;
 	
-	/* printf("CHECKING: %s\n", reply); */
+	/* quickie fix for single line reply checks */
+	if(*reply != '*')
+	{
+		ptr = reply;
+		ptr += 14;
+		goto check;
+	}
 	
 	for(ptr = reply; *ptr; ptr++)
 	{
@@ -460,6 +469,7 @@ c2_imap_check_server_reply(gchar *reply, tag_t tag)
 		else if(c2_strneq(ptr+1, "CronosII-", 9))
 		{
 			ptr += 15; /* skip '\nCronosII-XXXX ' */
+check:			
 			if(c2_strneq(ptr, "OK ", 3))
 				return TRUE;
 			else if(c2_strneq(ptr, "NO ", 3))
@@ -513,11 +523,14 @@ c2_imap_get_folder_list(C2IMAP *imap, GList **list,
 	gchar *reply, *start, *ptr, *ptr2, *buf;
 	guint num = 0;	
 	
+	c2_mutex_lock(&imap->lock);
+	
 	tag = c2_imap_get_tag(imap);
 	
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d LIST \"%s\""
 				" \"%s\"\r\n", tag, (reference) ? reference : "" , (name) ? name : "") < 0)
   {
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
 		return -1;
 	}
@@ -531,33 +544,142 @@ c2_imap_get_folder_list(C2IMAP *imap, GList **list,
 		return -1;
 	}
 	
+	c2_mutex_unlock(&imap->lock);
+	
 	for(ptr = start = reply; *ptr; ptr++)
 	{
+		if(*start != '*')
+			break;
+		
 		if(*ptr == '\n')
 		{
+			C2IMAPFolder *folder = g_new0(C2IMAPFolder, 1);
 			gchar *ptr2;
 			
 			buf = g_strndup(start, ptr - start);
 			
+			folder->noinferiors = FALSE;
+			folder->noselect = FALSE;
+			folder->marked = FALSE;
+			
 			/* now get the mailbox name */			
 			for(ptr2 = buf; *ptr2; ptr2++)
 			{
-				if(num == 0 && *ptr2 == ')')
+				if(num == 0 && *ptr2 == '(')
+				{
+					gchar *flags = g_strndup(ptr2, (strstr(ptr2, ")")-ptr2));
+					
+					if(c2_strstr_case_insensitive(flags, "\\NoInferiors"))
+						folder->noinferiors = TRUE;
+					if(c2_strstr_case_insensitive(flags, "\\NoSelect"))
+						folder->noselect = TRUE;
+					if(c2_strstr_case_insensitive(flags, "\\Marked"))
+						folder->marked = TRUE;
+					
+					g_free(flags);
 					num++;
+				}
+				
 				else if(num > 0 && num < 3 && *ptr2 == ' ')
 					num++;
 				else if(num == 3)
 				{
 					printf("the name for the mailbox is: %s\n", ptr2);
+					folder->name = g_strdup(ptr2);
 					num = 0;
 					start = ptr+1;
 					break;
 				}
 			}
 			
+			*list = g_list_prepend(*list, folder);
 			g_free(buf);
 		}
 	}
 
+	gtk_signal_emit(GTK_OBJECT(imap), signals[MAILBOX_LIST]);
 	return 0;
+}
+
+/**
+ * c2_imap_create_folder
+ * @imap: The IMAP object.
+ * @reference: Any parent folders we want above our
+ *             new folder
+ * @name: Name of folder we want to delete
+ *
+ * This function will create the folder
+ * @reference/@name
+ * 
+ * Return Value:
+ * 0 on success, -1 on failure
+ **/
+gint
+c2_imap_create_folder(C2IMAP *imap, const gchar *reference, const gchar *name)
+{
+	gchar *reply;
+	tag_t tag;
+	
+	c2_mutex_lock(&imap->lock);
+	
+	tag = c2_imap_get_tag(imap);
+	
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d CREATE " 
+		"\"%s%s%s\"\r\n", tag, reference ? reference : "", reference ? "/" : "",
+		name) < 0)
+	{
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+		return -1;
+	}
+	
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
+		return -1;
+	
+	c2_mutex_unlock(&imap->lock);
+	
+	if(!c2_imap_check_server_reply(reply, tag))
+		return -1;
+	
+	return 0;
+}
+
+/**
+ * c2_imap_delete_folder
+ * @imap: The IMAP object.
+ * @name: Name of folder we want to delete
+ *
+ * This function will delete the specified IMAP
+ * folder in the full path of @name
+ * 
+ * Return Value:
+ * 0 on success, -1 on failure
+ **/
+gint
+c2_imap_delete_folder(C2IMAP *imap, const gchar *name)
+{
+	  gchar *reply;
+	  tag_t tag;
+	
+	  c2_mutex_lock(&imap->lock);
+	
+	  tag = c2_imap_get_tag(imap);
+	
+	  if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d DELETE "
+													"\"%s\"\r\n", tag, name) < 0)
+	 {
+		     c2_imap_set_error(imap, NET_WRITE_FAILED);
+		     gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+		     return -1;
+	 }
+	
+	  if(!(reply = c2_imap_get_server_reply(imap, tag)))
+		    return -1;
+	
+	  c2_mutex_unlock(&imap->lock);
+	
+	  if(!c2_imap_check_server_reply(reply, tag))
+		    return -1;
+	
+	  return 0;
 }
