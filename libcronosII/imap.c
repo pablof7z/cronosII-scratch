@@ -398,6 +398,7 @@ c2_imap_reconnect(C2IMAP *imap)
 	C2NetObjectByte *byte;
 	
 	c2_net_object_disconnect(C2_NET_OBJECT(imap));
+	c2_net_object_destroy_byte(C2_NET_OBJECT(imap));
 	gdk_input_remove(imap->input_tag);
 	imap->input_tag = -1;
 	
@@ -409,8 +410,14 @@ c2_imap_reconnect(C2IMAP *imap)
 		return -1;
 	}
 
+        imap->input_tag = gdk_input_add(byte->sock, GDK_INPUT_READ,
+                                (GdkInputFunction)c2_imap_on_net_traffic, imap);
+
+
 	imap->input_tag = gdk_input_add(byte->sock, GDK_INPUT_READ, 
 			(GdkInputFunction)c2_imap_on_net_traffic, imap);
+
+	imap->login(imap);
 	
 	if(imap->state == C2IMAPSelected)
 		if(c2_imap_select_mailbox(imap, imap->selected_mailbox) < 0)
@@ -431,7 +438,7 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	gchar *final = NULL;
 	tag_t tag = 0;
 	
-	gdk_threads_enter();
+	//gdk_threads_enter();
 	c2_mutex_lock(&imap->lock);
 	
 	for(;;)
@@ -446,7 +453,7 @@ DIE:
 			c2_net_object_disconnect(C2_NET_OBJECT(imap));
 			c2_net_object_destroy_byte (C2_NET_OBJECT (imap));
 			if(final) g_free(final);
-			gdk_threads_leave();
+			//gdk_threads_leave();
 			return;
 		}
 		/* put checks on incoming date below */
@@ -480,18 +487,25 @@ DIE:
 		/* check #2 */
 		else if(!final && c2_strneq(buf, "* BYE ", 6)) /* server is closing connection! */
 		{
+			/* temporarily BROKEN! */
+			/* c2_mutex_lock(&imap->lock);
+			printf("Trying to reconnect!\n");
 			if(c2_imap_reconnect(imap) == 0) /* try to reconnect on the fly... */
-			{	
+			/*{	
+				printf("cool, it worked\n");
 				gdk_threads_leave();
+				c2_mutex_unlock(&imap->lock);
 				return; /* works? return & wait for the new gdk_input to catch data! */
-			}
+			/*}
+			printf("it didn't work\n");*/
 			/* if it doesnt work, bitch a little and give up... */
 			c2_imap_set_error(imap, buf + 6);
 			c2_net_object_disconnect(C2_NET_OBJECT(imap));
 			c2_net_object_destroy_byte (C2_NET_OBJECT (imap));
 			gtk_signal_emit(GTK_OBJECT(imap), signals[LOGOUT]);
 			g_free(buf);
-			gdk_threads_leave();
+			//gdk_threads_leave();
+			c2_mutex_unlock(&imap->lock);
 			return;
 		}
 		if(!final) final = g_strdup(buf);
@@ -522,7 +536,7 @@ DIE:
 	c2_imap_unlock_pending(imap);
 	
 	c2_mutex_unlock(&imap->lock);
-	gdk_threads_leave();
+	//gdk_threads_leave();
 }
 
 /** c2_imap_unlock_pending
@@ -1707,7 +1721,7 @@ c2_imap_load_message (C2IMAP *imap, C2Db *db)
 	
 	tag = c2_imap_get_tag(imap);
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d FETCH %i "
-		 "(RFC822)\r\n", tag, db->position+1) < 0)
+		 "(RFC822)\r\n", tag, db->position + 1) < 0)
 	{
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
@@ -1725,7 +1739,7 @@ c2_imap_load_message (C2IMAP *imap, C2Db *db)
 		g_free(reply);
 	L	return NULL;
 	}
-	c2_imap_close_mailbox(imap);
+	//c2_imap_close_mailbox(imap);
 
 	if(!(start = strstr(reply, "\r\n")))
 	{
@@ -1786,7 +1800,7 @@ GET_BODY:
  * 0 on success, -1 otherwise.
  **/
 gint
-c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState *state)
+c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState state)
 {
 	gchar *cmd = NULL;
 	tag_t tag;
@@ -1795,7 +1809,7 @@ c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState *state)
 		return -1;
 	
 	tag = c2_imap_get_tag(imap);
-	switch (*state) {
+	switch (state) {
 	 
 	 case C2_MESSAGE_READED:
 		cmd = g_strdup("+FLAGS.SILENT (\\Seen)");
@@ -1822,7 +1836,7 @@ c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState *state)
 	}	
 	
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d "
-	   "STORE %i %s\r\n", tag, db->position, cmd) < 0)
+	   "STORE %i %s\r\n", tag, db->position + 1, cmd) < 0)
 	{
 		g_free(cmd);
 		c2_imap_close_mailbox(imap);
