@@ -16,6 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <glib.h>
+#include <stdarg.h>
 
 #include "error.h"
 #include "smtp.h"
@@ -37,29 +38,44 @@ L
 }
 
 C2Smtp *
-c2_smtp_new (const gchar *address, gint port)
+c2_smtp_new (C2SMTPType type, ...)
 {
 	C2Smtp *smtp;
-
-	c2_return_val_if_fail (address, NULL, C2EDATA);
+	va_list args;
 
 	smtp = g_new0 (C2Smtp, 1);
-
-	smtp->address = g_strdup (address);
-	smtp->port = port;
+	smtp->type = type;
+	switch (type)
+	{
+		case C2_SMTP_REMOTE:
+			va_start (args, type);
+			smtp->host = g_strdup (va_arg (args, const gchar *));
+			smtp->port = va_arg (args, gint);
+			smtp->authentication = va_arg (args, gboolean);
+			smtp->user = g_strdup (va_arg (args, const gchar *));
+			smtp->pass = g_strdup (va_arg (args, const gchar *));
+			va_end (args);
+			
+			if (smtp->flags & C2_SMTP_DO_PERSIST)
+			{
+				/* Cache the object if it has been marked as persistent
+				 * and connect it
+				 */
+				c2_smtp_connect (smtp);
+				cached_smtp = smtp;
+			}
+			break;
+		case C2_SMTP_LOCAL:
+			smtp->host = NULL;
+			smtp->authentication = FALSE;
+			smtp->user = NULL;
+			smtp->pass = NULL;
+			break;
+	}
 
 	/* Initialize the Mutex */
 	pthread_mutex_init (&smtp->lock, NULL);
 	smtp->flags = DEFAULT_FLAGS;
-
-	if (smtp->flags & C2_SMTP_DO_PERSIST)
-	{
-		/* Cache the object if it has been marked as persistent
-		 * and connect it
-		 */
-		c2_smtp_connect (smtp);
-		cached_smtp = smtp;
-	}
 
 	return smtp;
 }
@@ -80,7 +96,6 @@ c2_smtp_free (C2Smtp *smtp)
 	
 	c2_return_if_fail (smtp, C2EDATA);
 
-	g_free (smtp->address);
 	pthread_mutex_destroy (&smtp->lock);
 	
 	if (smtp->sock > 0)

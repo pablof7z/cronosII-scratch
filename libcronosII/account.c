@@ -22,6 +22,16 @@
 #include "error.h"
 #include "pop3.h"
 #include "smtp.h"
+#include "utils.h"
+
+static void
+c2_account_class_init							(C2AccountClass *klass);
+
+static void
+c2_account_init									(C2Account *account);
+
+static void
+c2_account_destroy								(GtkObject *object);
 
 enum
 {
@@ -98,60 +108,83 @@ c2_account_init (C2Account *account)
 
 C2Account *
 c2_account_new (const gchar *name, const gchar *per_name, const gchar *organization, const gchar *email,
-				const gchar *reply_to, gboolean active, C2AccountType account_type, ...,
-				C2SMTPType smtp_type, ..., C2AccountSignatureType type, const gchar *signature,
-				gboolean signature_automatic)
+				const gchar *reply_to, gboolean active, C2AccountType account_type,
+				C2SMTPType smtp_type, C2AccountSignatureType signature_type, const gchar *signature,
+				gboolean signature_automatic, ...)
 {
 	C2Account *account;
-	gchar *user, *pass, *host;
+	const gchar *user, *pass, *host;
+	gint flags;
+	gboolean smtp_authentication;
 	gint port;
 	gchar *file;
 	va_list args;
-	
+
 	c2_return_val_if_fail (name || email, NULL, C2EDATA);
 
+	va_start (args, signature_automatic);
+	
 	account = gtk_type_new (C2_TYPE_ACCOUNT);
 	account->name = g_strdup (name);
 	account->per_name = g_strdup (per_name);
 	account->organization = g_strdup (organization);
 	account->email = g_strdup (email);
-	account->smtp = c2_smtp_new (smtp_addr, smtp_port);
-	
+	account->reply_to = g_strdup (reply_to);	
 	account->options.active = active;
 
-	account->signature.string = g_strdup (signature);
-	account->signature.automatically = autosign;
-
-	account->type = type;
-
-	va_start (args, type);
+	account->type = account_type;
 
 	switch (account->type)
 	{
 		case C2_ACCOUNT_POP3:
-			user = va_arg (args, gchar *);
-			pass = va_arg (args, gchar *);
-			host = va_arg (args, gchar *);
+			host = va_arg (args, const gchar *);
 			port = va_arg (args, gint);
+			user = va_arg (args, const gchar *);
+			pass = va_arg (args, const gchar *);
+			flags = va_arg (args, gint);
 			
 			account->protocol.pop3 = c2_pop3_new (user, pass, host, port);
+			c2_pop3_set_flags (account->protocol.pop3, flags);
+			break;
 	}
+	
+	switch (smtp_type)
+	{
+		case C2_SMTP_REMOTE:
+			host = va_arg (args, gchar *);
+			port = va_arg (args, gint);
+			smtp_authentication = va_arg (args, gboolean);
+			user = va_arg (args, gchar *);
+			pass = va_arg (args, gchar *);
+			
+			account->smtp = c2_smtp_new (C2_SMTP_REMOTE, host, port, smtp_authentication, user, pass);
+			break;
+		case C2_SMTP_LOCAL:
+			account->smtp = c2_smtp_new (C2_SMTP_LOCAL);
+			break;
+	}
+	
+	account->signature.type = signature_type;
+	account->signature.string = g_strdup (signature);
+	account->signature.automatic = signature_automatic;
 
 	va_end (args);
 
 	return account;
 }
 
-void
-c2_account_free (C2Account *account)
+static void
+c2_account_destroy (GtkObject *object)
 {
-	c2_return_if_fail (account, C2EDATA);
-
+	C2Account *account = C2_ACCOUNT (object);
 	g_free (account->name);
 	g_free (account->per_name);
+	g_free (account->organization);
 	g_free (account->email);
+	g_free (account->reply_to);
 	if (account->type == C2_ACCOUNT_POP3)
 		c2_pop3_free (account->protocol.pop3);
+	c2_smtp_free (account->smtp);
 	g_free (account->signature.string);
 	g_free (account);
 }
@@ -164,7 +197,7 @@ c2_account_free_all (C2Account *head)
 	for (l = head; l != NULL;)
 	{
 		s = l->next;
-		c2_account_free (l);
+		gtk_object_destroy (GTK_OBJECT (l));
 		l = s;
 	}
 }
@@ -187,12 +220,22 @@ c2_account_copy (C2Account *account)
 
 	if (account->type == C2_ACCOUNT_POP3)
 	{
-		copy = c2_account_new (account->name, account->per_name, account->email,
-								account->smtp->address, account->smtp->port,
-								account->options.active, account->signature.string,
-								account->signature.automatically, account->type,
-								account->protocol.pop3->user, account->protocol.pop3->pass,
-								account->protocol.pop3->host, account->protocol.pop3->port);
+		switch (account->smtp->type)
+		{
+			case C2_SMTP_REMOTE:
+				copy = c2_account_new (account->name, account->per_name, account->organization,
+										account->email, account->reply_to, account->options.active,
+										account->type, account->smtp->type, 
+										account->signature.type,
+										account->signature.string,
+										account->signature.automatic,
+										account->protocol.pop3->host, account->protocol.pop3->port,
+										account->protocol.pop3->user, account->protocol.pop3->pass,
+										account->smtp->host, account->smtp->port,
+										account->smtp->authentication, account->smtp->user,
+										account->smtp->pass);
+		}
+		
 		c2_pop3_set_flags (copy->protocol.pop3, account->protocol.pop3->flags);
 		c2_smtp_set_flags (copy->smtp, account->smtp->flags);
 	}

@@ -175,3 +175,8 @@ gchar *s = N_("You didn't entered a valid hostname.");
 gchar *s = N_("Error");
 gchar *s = N_("You didn't entered a valid username.");
 gchar *s = N_("Error");
+gchar *s = N_("This will permanently remove\n"
+              "the account from your configuration.\n"
+              "\n"
+              "Are you sure you want this?");
+gchar *s = N_("Confirmation");

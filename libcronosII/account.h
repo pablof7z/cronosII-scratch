@@ -106,10 +106,11 @@ C2Account *
 c2_account_new										(const gchar *name, const gchar *per_name,
 													 const gchar *organization, const gchar *email,
 													 const gchar *reply_to, gboolean active,
-													 C2AccountType account_type, ...,
-													 C2SMTPType smtp_type, ...,
-													 C2AccountSignatureType type,
-													 const gchar *signature, gboolean signature_automatic);
+													 C2AccountType account_type,
+													 C2SMTPType smtp_type,
+													 C2AccountSignatureType signature_type,
+													 const gchar *signature,
+													 gboolean signature_automatic, ...);
 
 void
 c2_account_free										(C2Account *account);

@@ -47,18 +47,21 @@ enum
 
 typedef struct
 {
-	gchar *address;
+	C2SMTPType type;
+
+	gchar *host;
 	gint port;
+	gboolean authentication;
+	gchar *user, *pass;
 
 	gint flags;
-
+	
+	gint sock;
 	pthread_mutex_t lock;
-
-	guint sock;
 } C2Smtp;
 
 C2Smtp *
-c2_smtp_new (const gchar *address, gint port);
+c2_smtp_new (C2SMTPType type, ...);
 
 void
 c2_smtp_set_flags (C2Smtp *smtp, gint flags);
