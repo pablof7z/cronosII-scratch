@@ -18,7 +18,7 @@ BuildRoot: %{_tmppath}/%{name}-root
 
 %description
 Cronos II is a powerful GNOME mail client that uses its own database storage
-format to ensure the high performance it reachs.
+format to ensure a high level of performance.
 If you would like to help with the development,
 contact Cronos II (Pablo Fernández Navarro) <cronosII@users.sourceforge.net>
 

@@ -12,7 +12,7 @@ Cronos II is a powerful GNOME mail client very fast, light and friendly.
 Check out http://cronosII.sourceforge.net/ for the latest version.
 
 ================
-= Requeriments =
+= Requirements =
 ================
 o Gnome-libs (http://www.gnome.org)
 o LinuxThreads (Pthreads)
@@ -38,10 +38,12 @@ this project I didn't have any experience at all, it basics weren't
 as strong as they are required to be for such a big project as this
 is, thus why this version introduces nothing really new for the
 end user, but introduces a LOT of changes for us, developers.
-Basically, this version is more than just a *recode*, is a restructuration
+Basically, this version is more than just a *recode*, is a restructuring
 of Cronos II, now the main source of Cronos II is separated from
 the modules which interact with certain tasks.
 Also, with this version, the manual I wrote (actually just
 in CVS under the directory /documentation) titled "Cronos II Development manual"
 is to start being used, so everyone of us code with the same things
 in mind: modularity and speed.
+
+ In the same directory you will find Instructions on using CVS for CronosII Developers.

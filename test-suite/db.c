@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client  /testsuite/db.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -162,7 +162,7 @@ on_cmnd_load (const gchar *w1, const gchar *w2)
 	}
 	if (mailbox->db)
 	{
-		g_print ("The mailbox has the db already loaded!\n");
+		g_print ("The mailbox has the db loaded already!\n");
 		return;
 	}
 	if (!(mailbox->db = c2_db_new (mailbox)))
