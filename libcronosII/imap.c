@@ -683,19 +683,20 @@ c2_imap_mailbox_loop(C2IMAP *imap, C2Mailbox *parent)
 	
 	start = buf;
 	
-	/* if this is a recursive call and a LIST command... */
-	if(parent && !imap->only_subscribed) 
+	/* if this is a recursive call... */
+	if(parent)
 	{
 		/* check to make sure there are child folders under this one
 		 * and not that the server is just repeating itself w/ the 
 		 * parent folder name */
-		if(c2_str_count_lines(buf) < 3)
+		if((!imap->only_subscribed && c2_str_count_lines(buf) < 3) ||
+			 (imap->only_subscribed && c2_str_count_lines(buf) < 2))
 		{
 				g_free(buf);
 				return 0;
 		}
-		/* skip the first folder, which repeates itself */
-		else
+		/* skip the first folder, which repeates itself on LIST commands */
+		else if (!imap->only_subscribed)
 		{
 			while(start[0] != '\n') 
 				start++;
