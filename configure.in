@@ -185,6 +185,17 @@ else
 fi
 
 dnl #######################################################
+dnl   Gnome-Download
+dnl #######################################################
+
+AC_PATH_PROG(gnomedownload, gnome-download)
+if test "_$gnomedownload" = _; then
+	AC_MSG_CHECKING(gnome-download path)
+	AC_MSG_ERROR([the gnome-download script couldn't be found.])
+fi
+AC_DEFINE_UNQUOTED(GNOME_DOWNLOAD_PATH, "$gnomedownload")
+
+dnl #######################################################
 dnl   GtkXmHtml
 dnl #######################################################
 

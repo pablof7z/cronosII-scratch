@@ -24,6 +24,12 @@ extern "C" {
 
 #include <gtk/gtk.h>
 
+#ifdef BUILDING_C2
+#	include "net-object.h"
+#else
+#	include <cronosII.h>
+#endif
+
 #define C2_TYPE_REQUEST							(c2_request_get_type ())
 #define C2_REQUEST(obj)							(GTK_CHECK_CAST (obj, C2_TYPE_REQUEST, C2Request))
 #define C2_REQUEST_CLASS(klass)					(GTK_CHECK_CLASS (klass, C2_TYPE_REQUEST, C2Request))
@@ -33,13 +39,20 @@ extern "C" {
 typedef struct _C2Request C2Request;
 typedef struct _C2RequestClass C2RequestClass;
 typedef struct _C2Proxy C2Proxy;
+typedef enum _C2ProxyType C2ProxyType;
 typedef enum _C2RequestProtocol C2RequestProtocol;
+
+enum _C2ProxyType
+{
+	C2_PROXY_HTTP,
+	C2_PROXY_FTP
+};
 
 struct _C2Proxy
 {
-	const gchar *host;
+	gchar *host;
 	gint port;
-	const gchar *ignore;
+	gchar *ignore;
 };
 
 enum _C2RequestProtocol
@@ -75,10 +88,11 @@ void
 c2_request_run									(C2Request *request);
 
 void
-c2_request_set_proxy							(const gchar *addr, guint port, const gchar *ignore);
+c2_request_set_proxy							(C2ProxyType type, const gchar *addr, guint port,
+												 const gchar *ignore);
 
 void
-c2_request_get_proxy							(const gchar **addr, const gint *port, const gchar **ignore);
+c2_request_get_proxy							(C2ProxyType type, gchar **addr, gint *port, gchar **ignore);
 
 const gchar *
 c2_request_get_source							(C2Request *request);

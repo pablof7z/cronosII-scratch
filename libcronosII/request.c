@@ -54,6 +54,17 @@ static guint signals[LAST_SIGNAL] = { 0 };
 
 static C2NetObjectClass *parent_class = NULL;
 
+#if FALSE
+/*
+ * The request module will use, by now, the gnome-download
+ * program, distributed with gnome-core (>= 1.2, < 1.2?)
+ * since Http is giving me to much problems and I don't have so much
+ * time to waste with it.
+ * 
+ * Future versions (probably before Cronos II Scratch becomes Cronos II)
+ * should recode it to use the internal functions and take care of
+ * everything on its own.
+ */
 static C2Proxy *http_proxy = NULL;
 static C2Proxy *ftp_proxy = NULL;
 
@@ -77,65 +88,65 @@ c2_request_construct (C2Request *request)
 }
 
 static gint
-http_retrieve (C2Request *request, gint *sock)
+http_retrieve (C2Request *request)
 {
 	gchar *tmp;
 	gint bytes, total_bytes;
 	gchar *ptr;
 	gchar *retval = NULL;
-	gchar buffer[BUFSIZ];
+	gchar *buffer;
+	FILE *fd;
 
 	/* Retrieve */
-	gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[RETRIEVE], 0);
-	if (c2_net_object_send (C2_NET_OBJECT (request), "GET %s HTTP/1.0\r\n"
-						   "Host: %s\r\n"
-						   "\r\n", gtk_object_get_data (GTK_OBJECT (request), "path"),
-						   C2_NET_OBJECT (request)->host) < 0)
+	if (c2_net_object_send (C2_NET_OBJECT (request),
+							"GET %s HTTP/1.0\r\n"
+							"Host: %s\r\n"
+							"\r\n",
+							gtk_object_get_data (GTK_OBJECT (request), "path"),
+							C2_NET_OBJECT (request)->host) < 0)
 	{
 #ifdef USE_DEBUG
 		g_print ("Unable to query the socket: %s\n", c2_error_get (c2_errno));
 #endif
-		g_free (host);
-		close (*sock);
-		gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT], FALSE);
 		return -1;
 	}
-	g_free (host);
-	g_free (path);
 
 	/* Initialize request */
 	request->source = NULL;
 	request->got_size = 0;
 	total_bytes = 0;
-	while ((bytes = read (*sock, buffer, sizeof (buffer))) > 0)
+
+	/* Read */
+	while ((bytes = c2_net_object_read (C2_NET_OBJECT (request), &buffer)) > 0)
 	{
+		fprintf (fd, "%s", buffer);
 		request->source = g_realloc (request->source, total_bytes+bytes);
 		memcpy (request->source + total_bytes, buffer, bytes);
 		
 		total_bytes += bytes;
-		
-		gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[RETRIEVE], request->got_size);
 	}
+	fclose (fd);
 
 	/* Calculate got_size */
 	ptr = strstr (request->source, "\r\n\r\n")+4;
 	request->got_size = total_bytes - (ptr - request->source);
-	tmp = g_malloc (request->got_size);
-	memcpy (tmp, ptr, request->got_size);
+
+	/* Set the information of the source properly */
+	tmp = g_strdup (ptr);
 	g_free (request->source);
 	request->source = tmp;
 
-	/* Check the answer:
-	 */ 
-	
-	gtk_signal_emit (GTK_OBJECT (request), c2_request_signals[DISCONNECT], TRUE);
-	c2_net_disconnect (*sock);
+	/* TODO Check the answer:
+	 * TODO Someone that knows a little of HTTP/1.0 and HTTP/1.1 error
+	 * TODO codes, please, develop this.
+	 */
 }
 
 static void
 c2_request_construct_http (C2Request *request)
 {
-	gchar *tmp, *tmp2;
+	gchar *host, *path, *tmp, *tmp2;
+	gint port;
 	gint sock;
 	gint tmplength, length = 0;
 
@@ -146,13 +157,23 @@ c2_request_construct_http (C2Request *request)
 	C2_NET_OBJECT (request)->port = port;
 
 	gtk_object_set_data (GTK_OBJECT (request), "path", path);
-	
+
+	/* Connect */
 	if (c2_net_object_run (C2_NET_OBJECT (request)) < 0)
 	{
 		gtk_object_unref (GTK_OBJECT (request));
 		return;
 	}
-	if (http_connect (request, &sock) && http_retrieve (request, &sock));
+
+	/* Retrieve */
+	if (http_retrieve (request) < 0)
+	{
+		gtk_object_unref (GTK_OBJECT (request));
+		return;
+	}
+
+	/* Disconnect */
+	c2_net_object_disconnect (C2_NET_OBJECT (request));
 }
 
 static void
@@ -166,22 +187,28 @@ c2_request_construct_file (C2Request *request)
 }
 
 void
-c2_request_set_proxy (const gchar *addr, guint port, const gchar *ignore)
+c2_request_set_proxy (C2ProxyType type, const gchar *addr, guint port, const gchar *ignore)
 {
-	c2_return_if_fail (addr, C2EDATA);
-
+	C2Proxy *proxy = (type == C2_PROXY_HTTP) ? http_proxy : ftp_proxy;
+	
 	if (proxy)
+	{
+		g_free (proxy->host);
+		g_free (proxy->ignore);
 		g_free (proxy);
+	}
 	
 	proxy = g_new0 (C2Proxy, 1);
-	proxy->addr = addr;
+	proxy->host = g_strdup (addr);
 	proxy->port = port;
-	proxy->ignore = ignore;
+	proxy->ignore = g_strdup (ignore);
 }
 
 void
-c2_request_get_proxy (const gchar **addr, const gint *port, const gchar **ignore)
+c2_request_get_proxy (C2ProxyType type, gchar **addr, gint *port, gchar **ignore)
 {
+	C2Proxy *proxy = (type == C2_PROXY_HTTP) ? http_proxy : ftp_proxy;
+	
 	if (!proxy)
 	{
 		addr = NULL;
@@ -189,10 +216,72 @@ c2_request_get_proxy (const gchar **addr, const gint *port, const gchar **ignore
 		ignore = NULL;
 	} else
 	{
-		addr = &proxy->addr;
+		addr = &proxy->host;
 		port = &proxy->port;
 		ignore = &proxy->ignore;
 	}
+}
+#endif
+
+static void
+c2_request_construct (C2Request *request)
+{
+	gchar *cmnd = g_strconcat (GNOME_DOWNLOAD_PATH " ", request->url, NULL);
+	gchar *buffer;
+	FILE *fd;
+	gint bytes, total_bytes = 0;
+
+	C2_DEBUG (cmnd);
+	
+	/* We will emit a fake signal (connect), is fake because
+	 * we don't even know if it will be able to connect and
+	 * even if it does connect, an exchange signal won't
+	 * be emitted caus we don't know when to emit it.
+	 * This should change when gnome-download stops being
+	 * used.
+	 */
+	gtk_signal_emit_by_name (GTK_OBJECT (request), "connect");
+	
+	/* Connect through a pipe to gnome-download */
+	/* TODO This implementation should change to use
+	 * c2 specific functions and not a third party
+	 * like gnome-download.
+	 */
+	if (!(fd = popen (cmnd, "r")))
+	{
+		gtk_signal_emit_by_name (GTK_OBJECT (request), "disconnect", FALSE);
+		g_free (cmnd);
+		return;
+	}
+	g_free (cmnd);
+
+	/* We probably shouldn't load everything in memory,
+	 * but save to a file, so we use don't eat all the memory
+	 * when downloading linux 2.4.
+	 */
+	while ((buffer = c2_fd_get_line (fd)))
+	{
+		/* If this is the first line and starts with Content-Type, fuck it and the next one too */
+		if (!total_bytes)
+		{
+			if (c2_strneq (buffer, "Content-Type:", 13))
+			{
+				g_free (buffer);
+				g_free (c2_fd_get_line (fd));
+				continue;
+			}
+		}
+
+		bytes = strlen (buffer);
+		
+		request->source = g_realloc (request->source, total_bytes+bytes);
+		memcpy (request->source + total_bytes, buffer, bytes);
+		total_bytes += bytes;
+	}
+	
+	pclose (fd);
+
+	gtk_signal_emit_by_name (GTK_OBJECT (request), "disconnect", TRUE);
 }
 
 void
@@ -296,7 +385,7 @@ c2_request_get_type (void)
 			(GtkClassInitFunc) NULL
 		};
 
-		c2_request_type = gtk_type_unique (gtk_object_get_type (), &c2_request_info);
+		c2_request_type = gtk_type_unique (c2_net_object_get_type (), &c2_request_info);
 	}
 
 	return c2_request_type;

@@ -28,7 +28,7 @@ static void
 on_request_connect								(C2Request *request);
 
 static void
-on_request_retrieve								(C2Request *request, gint length);
+on_request_retrieve								(C2Request *request, C2NetObjectExchangeType type, gint length);
 
 static void
 on_request_disconnect							(C2Request *request, gboolean success);
@@ -50,7 +50,7 @@ main (gint argc, gchar **argv)
 								GTK_SIGNAL_FUNC (on_request_resolve), NULL);
 	gtk_signal_connect (GTK_OBJECT (request), "connect",
 								GTK_SIGNAL_FUNC (on_request_connect), NULL);
-	gtk_signal_connect (GTK_OBJECT (request), "retrieve",
+	gtk_signal_connect (GTK_OBJECT (request), "exchange",
 								GTK_SIGNAL_FUNC (on_request_retrieve), NULL);
 	gtk_signal_connect (GTK_OBJECT (request), "disconnect",
 								GTK_SIGNAL_FUNC (on_request_disconnect), NULL);
@@ -79,8 +79,12 @@ on_request_connect (C2Request *request)
 }
 
 static void
-on_request_retrieve (C2Request *request, gint length)
+on_request_retrieve (C2Request *request, C2NetObjectExchangeType type, gint length)
 {
+	if (type == C2_NET_OBJECT_EXCHANGE_SEND)
+		g_print ("< ");
+	else
+		g_print ("> ");
 	g_print ("%d ", length);
 	fflush (stdout);
 }

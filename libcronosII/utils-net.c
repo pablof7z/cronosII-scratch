@@ -173,18 +173,18 @@ c2_net_read (guint sock, gchar **string)
 	{
 		if ((bytes += read (sock, c, 1)) < 0)
 		{
-L			c2_error_set (-errno);
+			c2_error_set (-errno);
 			return -1;
 		}
 		if (!bytes)
 		{
-L			break;
+			break;
 		}
 
 		tmpstring[i] = *c;
 		if (*c == '\n')
 		{
-L			tmpstring[i+1] = '\0';
+			tmpstring[i+1] = '\0';
 			break;
 		}
 	}

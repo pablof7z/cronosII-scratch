@@ -1,3 +1,8 @@
+2001-06-14 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* Request module: Using gnome-download due to problems with http images downloading
+			  that took me off!
+
 2001-06-13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
 	* Net-Object.

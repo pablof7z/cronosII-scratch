@@ -5786,6 +5786,52 @@ else
 fi
 
 
+# Extract the first word of "gnome-download", so it can be a program name with args.
+set dummy gnome-download; ac_word=$2
+echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+echo "configure:5793: checking for $ac_word" >&5
+if eval "test \"`echo '$''{'ac_cv_path_gnomedownload'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  case "$gnomedownload" in
+  /*)
+  ac_cv_path_gnomedownload="$gnomedownload" # Let the user override the test with a path.
+  ;;
+  ?:/*)			 
+  ac_cv_path_gnomedownload="$gnomedownload" # Let the user override the test with a dos path.
+  ;;
+  *)
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
+  ac_dummy="$PATH"
+  for ac_dir in $ac_dummy; do 
+    test -z "$ac_dir" && ac_dir=.
+    if test -f $ac_dir/$ac_word; then
+      ac_cv_path_gnomedownload="$ac_dir/$ac_word"
+      break
+    fi
+  done
+  IFS="$ac_save_ifs"
+  ;;
+esac
+fi
+gnomedownload="$ac_cv_path_gnomedownload"
+if test -n "$gnomedownload"; then
+  echo "$ac_t""$gnomedownload" 1>&6
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+if test "_$gnomedownload" = _; then
+	echo $ac_n "checking gnome-download path""... $ac_c" 1>&6
+echo "configure:5827: checking gnome-download path" >&5
+	{ echo "configure: error: the gnome-download script couldn't be found." 1>&2; exit 1; }
+fi
+cat >> confdefs.h <<EOF
+#define GNOME_DOWNLOAD_PATH "$gnomedownload"
+EOF
+
+
+
 # Check whether --enable-gtkxmhtml or --disable-gtkxmhtml was given.
 if test "${enable_gtkxmhtml+set}" = set; then
   enableval="$enable_gtkxmhtml"
@@ -5796,21 +5842,21 @@ fi
 
 
 echo $ac_n "checking for GtkXmHTML""... $ac_c" 1>&6
-echo "configure:5800: checking for GtkXmHTML" >&5
+echo "configure:5846: checking for GtkXmHTML" >&5
 if test "$gtkxmhtml" = "yes"; then
 	ac_safe=`echo "gtk-xmhtml/gtk-xmhtml.h" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for gtk-xmhtml/gtk-xmhtml.h""... $ac_c" 1>&6
-echo "configure:5804: checking for gtk-xmhtml/gtk-xmhtml.h" >&5
+echo "configure:5850: checking for gtk-xmhtml/gtk-xmhtml.h" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 5809 "configure"
+#line 5855 "configure"
 #include "confdefs.h"
 #include <gtk-xmhtml/gtk-xmhtml.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:5814: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:5860: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -5857,7 +5903,7 @@ fi
 
 
 echo $ac_n "checking for GtkHTML""... $ac_c" 1>&6
-echo "configure:5861: checking for GtkHTML" >&5
+echo "configure:5907: checking for GtkHTML" >&5
 if test "$gtkhtml" = "yes"; then
 	if gnome-config --libs gtkhtml > /dev/null 2>&1; then
 		vers=`gnome-config --modversion gtkhtml | sed 's/^gtkhtml-//'`
@@ -6154,6 +6200,7 @@ s%@GT_YES@%$GT_YES%g
 s%@MKINSTALLDIRS@%$MKINSTALLDIRS%g
 s%@l@%$l%g
 s%@cronosIIpath@%$cronosIIpath%g
+s%@gnomedownload@%$gnomedownload%g
 s%@USE_TEST_SUITE_TRUE@%$USE_TEST_SUITE_TRUE%g
 s%@USE_TEST_SUITE_FALSE@%$USE_TEST_SUITE_FALSE%g
 s%@HTMLLIBS@%$HTMLLIBS%g

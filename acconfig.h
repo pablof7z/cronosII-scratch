@@ -9,6 +9,7 @@
 #undef PREFIX
 #undef USE_SPOOL_DIR
 #undef USE_XMAILER
+#undef GNOME_DOWNLOAD_PATH
 #undef USE_GNOME_PRINT
 #undef USE_GTKXMHTML
 #undef USE_GTKHTML

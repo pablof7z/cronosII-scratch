@@ -1987,6 +1987,7 @@ Always use my colors.
 	    <widget>
 	      <class>GtkFrame</class>
 	      <name>frame5</name>
+	      <visible>False</visible>
 	      <label>Proxy</label>
 	      <label_xalign>0</label_xalign>
 	      <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
