@@ -28,6 +28,7 @@ extern "C" {
 #	include <config.h>
 #	include "utils-net.h"
 # include "utils.h"
+# include "utils-mutex.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -92,7 +93,7 @@ struct _C2NetObject
 	guint elements;
 	guint max;
 	
-	pthread_mutex_t lock;
+	C2Mutex lock;
 };
 
 struct _C2NetObjectClass
