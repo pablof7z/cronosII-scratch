@@ -173,6 +173,12 @@ c2_str_are_emails							(GList *list);
 gchar *
 c2_str_decode_iso_8859_1					(const gchar *string);
 
+#define C2_STRIP_HTML_REQUIRE_HTML 0x00000001
+#define C2_STRIP_HTML_DO_SYMBOLS   0x00000010
+
+gchar *
+c2_str_strip_html 								(char *oldmessage, unsigned int flags);
+
 gchar *
 c2_get_tmp_file								(const gchar *template);
 
@@ -209,11 +215,6 @@ void
 c2_marshal_INT__POINTER_POINTER_POINTER		(GtkObject *object, GtkSignalFunc func,
 											 gpointer func_data, GtkArg * args);
 
-#define C2_STRIP_HTML_REQUIRE_HTML 0x00000001
-#define C2_STRIP_HTML_DO_SYMBOLS   0x00000010
-
-gchar *
-c2_strip_html 								(char *oldmessage, unsigned int flags);
 
 
 #ifdef __cplusplus

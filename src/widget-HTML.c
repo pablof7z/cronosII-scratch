@@ -298,7 +298,7 @@ c2_html_set_content_from_string (C2HTML *html, const gchar *string)
 #elif defined (USE_GTKXMHTML)
 #else
 	/* DAN */
-	newstring = c2_strip_html(string,C2_STRIP_HTML_DO_SYMBOLS);
+	newstring = c2_str_strip_html(string,C2_STRIP_HTML_DO_SYMBOLS);
 	gtk_text_insert (GTK_TEXT (html), html->font, html->fore, NULL, newstring, -1);
 #endif
 	c2_html_thaw (html);

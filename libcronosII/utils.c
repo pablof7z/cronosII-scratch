@@ -1338,6 +1338,114 @@ c2_str_decode_iso_8859_1 (const gchar *string)
 }
 
 /**
+ * c2_str_strip_html
+ * @oldmessage: String to process
+ * @flags: Options to the parser.
+ *
+ * This function will strip the HTML from a string,
+ * and can also translate some &sym; type symbols.
+ *
+ * Flag Options:
+ * 
+ * C2_STRIP_HTML_DO_SYMBOLS   - Translate symbols.
+ * C2_STRIP_HTML_REQUIRE_HTML - don't strip if <html> is not 
+ *                              found within the string.
+ *
+ * Return Value:
+ * The stripped string.
+ **/
+
+gchar *
+c2_str_strip_html (gchar *oldmessage, unsigned int flags) {
+	gchar *message[strlen(oldmessage)] ;
+	gboolean in_tag = FALSE;
+	gboolean in_sym = FALSE;
+	gchar *current_char;
+	gchar *dst;
+	gboolean symbol_replace = FALSE;
+	gboolean require_html = FALSE;
+	gboolean will_parse = FALSE;
+	GString *tag=g_string_new (NULL);
+	int j=0;
+	
+	printf ("in function\n");
+	
+	if ((flags & C2_STRIP_HTML_REQUIRE_HTML) == C2_STRIP_HTML_REQUIRE_HTML)
+	{
+		require_html = TRUE;
+	}
+	if ((flags & C2_STRIP_HTML_DO_SYMBOLS) == C2_STRIP_HTML_DO_SYMBOLS)
+	{
+		symbol_replace = TRUE;
+	}
+	
+	if (c2_strstr_case_insensitive(oldmessage,"<html>"))
+	{
+		will_parse = TRUE;
+	}
+	if ((!will_parse)&&(!require_html))
+	{
+		will_parse = TRUE;
+	}
+	
+	dst = message;
+	
+	
+	for (current_char = oldmessage; *current_char; current_char++){
+		if (will_parse){
+#if 0
+			*dst++ = 'a';
+#else
+			if (*current_char == '<'){
+				in_tag = TRUE;
+				g_string_assign(tag,"");
+			}
+			// open symbol tag
+			if ((*current_char == '&')&&(symbol_replace)){
+				in_sym = TRUE;
+				g_string_assign(tag,"");
+			}
+			// normal tag. print it.
+			if ((in_tag == FALSE)&&(in_sym == FALSE)){
+				g_string_assign(tag,"");
+				*dst++ = *current_char;
+			}
+			// is within a tag.
+			if ((in_tag == TRUE)||(in_sym == TRUE)){
+				j = strlen(tag->str);
+				g_string_append (tag, current_char);
+				g_string_truncate(tag, j+1);
+			}
+			// close tag.
+			if (*current_char == '>'){
+				in_tag = FALSE;
+				g_string_down(tag);
+				if (c2_strstr_case_insensitive(tag->str,"<br>")){
+					*dst++ = '\n';
+				}
+				g_string_assign(tag,"");
+			}
+			if ((*current_char == ';')&&(symbol_replace)){
+				in_sym = FALSE;
+				if (c2_strstr_case_insensitive(tag->str,"&amp;")) *dst++ = '&';
+				if (c2_strstr_case_insensitive(tag->str,"&nbsp;")) *dst++ = ' ';
+				if (c2_strstr_case_insensitive(tag->str,"&lt;")) *dst++ = '<';
+				if (c2_strstr_case_insensitive(tag->str,"&gt;")) *dst++ = '>';
+				if (c2_strstr_case_insensitive(tag->str,"&quot;")) *dst++ = '"';
+
+				g_string_assign(tag,"");
+			}
+#endif			
+		} else {
+			*dst++ = *current_char;
+		}
+	}
+	*dst = '\0';
+	return message;
+} // function
+
+
+/**
  * c2_get_tmp_file
  * @template: Template to use for the file name, %NULL if
  *            the name does not require any special name.
@@ -1785,94 +1893,4 @@ c2_marshal_INT__POINTER_POINTER_POINTER (GtkObject *object, GtkSignalFunc func, 
 							GTK_VALUE_POINTER (args[2]), func_data);
 }
 
-//#define C2_STRIP_HTML_REQUIRE_HTML 0x000000001
-//#define C2_STRIP_HTML_DO_SYMBOLS   0x000000010
 
-gchar *
-c2_strip_html (gchar *oldmessage, unsigned int flags) {
-	gchar *message[strlen(oldmessage)] ;
-	gboolean in_tag = FALSE;
-	gboolean in_sym = FALSE;
-	gchar *current_char;
-	gchar *dst;
-	gboolean symbol_replace = FALSE;
-	gboolean require_html = FALSE;
-	gboolean will_parse = FALSE;
-	GString *tag=g_string_new (NULL);
-	int j=0;
-	
-	printf ("in function\n");
-	
-	if ((flags & C2_STRIP_HTML_REQUIRE_HTML) == C2_STRIP_HTML_REQUIRE_HTML)
-	{
-		require_html = TRUE;
-	}
-	if ((flags & C2_STRIP_HTML_DO_SYMBOLS) == C2_STRIP_HTML_DO_SYMBOLS)
-	{
-		symbol_replace = TRUE;
-	}
-	
-	if (c2_strstr_case_insensitive(oldmessage,"<html>"))
-	{
-		will_parse = TRUE;
-	}
-	if ((!will_parse)&&(!require_html))
-	{
-		will_parse = TRUE;
-	}
-	
-	dst = message;
-	
-	
-	for (current_char = oldmessage; *current_char; current_char++){
-		if (will_parse){
-#if 0
-			*dst++ = 'a';
-#else
-			if (*current_char == '<'){
-				in_tag = TRUE;
-				g_string_assign(tag,"");
-			}
-			// open symbol tag
-			if ((*current_char == '&')&&(symbol_replace)){
-				in_sym = TRUE;
-				g_string_assign(tag,"");
-			}
-			// normal tag. print it.
-			if ((in_tag == FALSE)&&(in_sym == FALSE)){
-				g_string_assign(tag,"");
-				*dst++ = *current_char;
-			}
-			// is within a tag.
-			if ((in_tag == TRUE)||(in_sym == TRUE)){
-				j = strlen(tag->str);
-				g_string_append (tag, current_char);
-				g_string_truncate(tag, j+1);
-			}
-			// close tag.
-			if (*current_char == '>'){
-				in_tag = FALSE;
-				g_string_down(tag);
-				if (c2_strstr_case_insensitive(tag->str,"<br>")){
-					*dst++ = '\n';
-				}
-				g_string_assign(tag,"");
-			}
-			if ((*current_char == ';')&&(symbol_replace)){
-				in_sym = FALSE;
-				if (c2_strstr_case_insensitive(tag->str,"&amp;")) *dst++ = '&';
-				if (c2_strstr_case_insensitive(tag->str,"&nbsp;")) *dst++ = ' ';
-				if (c2_strstr_case_insensitive(tag->str,"&lt;")) *dst++ = '<';
-				if (c2_strstr_case_insensitive(tag->str,"&gt;")) *dst++ = '>';
-				if (c2_strstr_case_insensitive(tag->str,"&quot;")) *dst++ = '"';
-
-				g_string_assign(tag,"");
-			}
-#endif			
-		} else {
-			*dst++ = *current_char;
-		}
-	}
-	*dst = '\0';
-	return message;
-} // function

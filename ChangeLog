@@ -1,4 +1,9 @@
 Sun Jul 21 Daniel Fairhead
+	* Fixed *stupid* error. PEBCAK, of course, my fault.
+	* Re-Named c2_strip_html to c2_str_strip_html
+	* Changed (1) reference to c2_strip_html to c2_str_strip_html
+
+Sun Jul 21 Daniel Fairhead
 	* Added "c2_strip_html" function to libcronosII/utils.h
 	* Added html-cleaning for when text widget is used (non-html capable).
 
