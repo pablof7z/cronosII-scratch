@@ -24,9 +24,9 @@ extern "C" {
 
 #include <gtk/gtkclist.h>
 
-#ifdef HAVE_CONFIG_H
-#	include <libmodules/mailbox.h>
-#	include <libmodules/db.h>
+#if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
+#	include <libcronosII/mailbox.h>
+#	include <libcronosII/db.h>
 #else
 #	include <cronosII.h>
 #endif
@@ -38,7 +38,9 @@ extern "C" {
 typedef struct
 {
 	GtkCList clist;
-	GtkWidget *clist_titles_arrow[C2_SORT_LAST];
+	GtkWidget *clist_titles_arrow[C2_MAILBOX_SORT_LAST];
+	gint unreaded_messages;
+	gint total_messages;
 
 	C2Mailbox *mbox;
 } C2Index;
@@ -47,53 +49,53 @@ typedef struct
 {
 	GtkCListClass parent_class;
 
-	void (*select_message) (C2Index *index, C2Method access_method, C2Message *message);
-	void (*open_message) (C2Index *index, C2Method access_method, C2Message *message);
+	void (*select_message) (C2Index *index, C2MailboxType *type, C2Db *node);
+	void (*open_message) (C2Index *index, C2MailboxType *type, C2Db *node);
 
-	void (*delete_message) (C2Index *index, C2Method access_method, C2Message *message);
-	void (*expunge_message) (C2Index *index, C2Method access_method, C2Message *message);
-	void (*move_message) (C2Index *index, C2Method access_method, C2Message *message);
-	void (*copy_message) (C2Index *index, C2Method access_method, C2Message *message);
+	void (*delete_message) (C2Index *index, C2MailboxType *type, C2Db *node);
+	void (*expunge_message) (C2Index *index, C2MailboxType *type, C2Db *node);
+	void (*move_message) (C2Index *index, C2MailboxType *type, C2Db *node);
+	void (*copy_message) (C2Index *index, C2MailboxType *type, C2Db *node);
 
-	void (*reply_message) (C2Index *index, C2Method access_method, C2Message *message);
-	void (*reply_all_message) (C2Index *index, C2Method access_method, C2Message *message);
-	void (*forward_message) (C2Index *index, C2Method access_method, C2Message *message);
+	void (*reply_message) (C2Index *index, C2MailboxType *type, C2Db *node);
+	void (*reply_all_message) (C2Index *index, C2MailboxType *type, C2Db *node);
+	void (*forward_message) (C2Index *index, C2MailboxType *type, C2Db *node);
 
-	void (*print_message) (C2Index *index, C2Method access_method, C2Message *message);
-	void (*save_message) (C2Index *index, C2Method access_method, C2Message *message);
+	void (*print_message) (C2Index *index, C2MailboxType *type, C2Db *node);
+	void (*save_message) (C2Index *index, C2MailboxType *type, C2Db *node);
 
-	void (*add_contact) (C2Index *index, C2Method access_method, C2Message *message);
+	void (*add_contact) (C2Index *index, gchar *sender);
 } C2IndexClass;
 
 guint
-c2_index_get_type									(void);
+c2_index_get_type								(void);
 
 GtkWidget *
-c2_index_new										(void);
+c2_index_new									(void);
 
 void
-c2_index_add_mailbox								(C2Index *index, C2Mailbox *mbox);
+c2_index_add_mailbox							(C2Index *index, C2Mailbox *mbox);
 
 void
-c2_index_remove_mailbox								(C2Index *index);
+c2_index_remove_mailbox							(C2Index *index);
 
 void
-c2_index_add_message								(C2Index *index, const C2Message *message);
+c2_index_add_message							(C2Index *index, const C2Message *message);
 
 void
-c2_index_remove_message								(C2Index *index, const C2Message *message);
+c2_index_remove_message							(C2Index *index, const C2Message *message);
 
 void
-c2_index_select_previous_message					(C2Index *index);
+c2_index_select_previous_message				(C2Index *index);
 
 void
-c2_index_select_next_message						(C2Index *index);
+c2_index_select_next_message					(C2Index *index);
 
 gboolean
-c2_index_exists_previous_message					(C2Index *index);
+c2_index_exists_previous_message				(C2Index *index);
 
 gboolean
-c2_index_exists_next_message						(C2Index *index);
+c2_index_exists_next_message					(C2Index *index);
 
 #ifdef __cplusplus
 }

@@ -75,6 +75,9 @@ c2_db_get_type									(void);
 C2Db *
 c2_db_new										(C2Mailbox *mailbox);
 
+gint
+c2_db_messages									(const C2Db *db);
+
 C2Db *
 c2_db_message_add								(C2Db *db, const C2Message *message, gint row);
 

@@ -42,6 +42,9 @@ c2_db_load										(C2Mailbox *mailbox);
 static C2Db *
 c2_db_load_cronosII								(C2Mailbox *mailbox);
 
+C2Message *
+c2_db_message_get_cronosII						(C2Db *db, gint mid);
+
 enum
 {
 	MARK_CHANGED,
@@ -72,7 +75,7 @@ c2_db_get_type (void)
 			(GtkClassInitFunc) NULL
 		};
 
-		c2_db_type = gtk_type_unique (gtk_object_get_type (), &c2_db_info);
+		c2_db_type = gtk_type_unique (C2_TYPE_MESSAGE, &c2_db_info);
 	}
 
 	return c2_db_type;
@@ -141,29 +144,28 @@ c2_db_new (C2Mailbox *mailbox)
 static void
 c2_db_destroy (GtkObject *object)
 {
-	static gboolean loop_lock = FALSE;
 	C2Db *db, *l;
 
 	c2_return_if_fail (C2_IS_DB (object), C2EDATA);
 
 	db = C2_DB (object);
 	
-	if (!loop_lock)
+	if (!db->previous)
 	{
-		loop_lock = TRUE;
-		
 		for (l = db; l != NULL;)
 		{
 			db = l->next;
+			printf (">> %d (%d)\n", l->position, GTK_OBJECT (l)->ref_count);
 			gtk_object_unref (GTK_OBJECT (l));
+			printf ("<< %d (%d)\n", l->position, GTK_OBJECT (l)->ref_count);
 			l = db;
 		}
-		loop_lock = FALSE;
 	} else
 	{
 		g_free (db->subject);
 		g_free (db->account);
 		g_free (db->from);
+		g_free (db);
 	}
 }
 
@@ -171,6 +173,9 @@ static C2Db *
 c2_db_load (C2Mailbox *mailbox)
 {
 	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
+
+	if (mailbox->db)
+		return mailbox->db;
 
 	switch (mailbox->type)
 	{
@@ -203,16 +208,16 @@ c2_db_load_cronosII (C2Mailbox *mailbox)
 	path = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S ".CronosII" G_DIR_SEPARATOR_S,
 						mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
 	
-	
 	/* Open the file */
 	if (!(fd = fopen (path, "rt")))
 	{
+		C2_DEBUG (path);
 		c2_error_set (-errno);
 		g_free (path);
 		return NULL;
 	}
 
-	for (i = 0;(line = c2_fd_get_line (fd));)
+	for (i = 0;(line = c2_fd_get_line (fd)) != NULL;)
 	{
 		if (*line == '?')
 		{
@@ -271,6 +276,28 @@ c2_db_load_cronosII (C2Mailbox *mailbox)
 }
 
 /**
+ * c2_db_messages
+ * @db: Database descriptor.
+ *
+ * This function will return the number of
+ * messages in a loaded database.
+ *
+ * Return Value:
+ * Messages in db.
+ **/
+gint
+c2_db_messages (const C2Db *db)
+{
+	const C2Db *l;
+	gint i;
+	
+	c2_return_val_if_fail (db, 0, C2EDATA);
+
+	for (l = db, i = 0; l != NULL; i++, l = l->next);
+	return i;
+}
+
+/**
  * c2_db_message_add
  * @db: DB Descriptor (head).
  * @message: Message to be added.
@@ -304,15 +331,84 @@ c2_db_message_remove (C2Db *db, gint row)
 }
 
 C2Message *
-c2_db_message_get (C2Db *db, int row)
+c2_db_message_get (C2Db *db, gint row)
 {
-	return NULL;
+	C2Message *message = NULL;
+	C2Db *l;
+	gint mid, i;
+	
+	/* Get the mid of the message */
+	for (l = db, i = 1; i < row && l != NULL; i++, l = l->next);
+	c2_return_val_if_fail (l, NULL, C2EDATA);
+
+	if (l->message.message)
+	{
+		message = &l->message;
+		return message;
+	}
+
+	mid = l->mid;
+	
+	switch (db->mailbox->type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			if ((message = c2_db_message_get_cronosII (db, mid)))
+				l->message = *message;
+			break;
+		case C2_MAILBOX_IMAP:
+			/* TODO message = c2_db_message_get_imap (db, mid); TODO */
+			break;
+#ifdef USE_MYSQL
+		case C2_MAILOBOX_MYSQL:
+			/* TODO return c2_db_message_get_mysql (db, row); TODO */
+			break;
+#endif
+	}
+	
+	return message;
 }
 
 C2Message *
-c2_db_message_get_from_file (const gchar *filename)
+c2_db_message_get_cronosII (C2Db *db, gint mid)
 {
-	return NULL;
+	C2Message *message;
+	static gchar *home = NULL;
+	gchar *path;
+	struct stat stat_buf;
+	FILE *fd;
+	gint length;
+
+	message = c2_message_new ();
+
+	if (!home)
+		home = g_get_home_dir ();
+
+	path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S ".CronosII/%s.mbx/%d",
+							home, db->mailbox->name, mid);
+	
+	if (stat (path, &stat_buf) < 0)
+	{
+		c2_error_set (-errno);
+		C2_DEBUG_ (g_print ("Stating the file failed: %s\n", path););
+		return NULL;
+	}
+
+	length = ((gint) stat_buf.st_size * sizeof (gchar));
+
+	message->message = g_new0 (gchar, length+1);
+
+	if (!(fd = fopen (path, "r")))
+	{
+		c2_error_set (-errno);
+		return NULL;
+	}
+
+	fread (message->message, sizeof (gchar), length, fd);
+	fclose (fd);
+
+	g_free (path);
+	
+	return message;
 }
 
 /**

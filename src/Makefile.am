@@ -1,5 +1,5 @@
 DEFS=@DEFS@ -DLOCALEDIR=\"${localedir}\"
-INCLUDES = -I$(top_srcdir) -I$(includedir) \
+INCLUDES = -DBUILDING_C2 -I$(top_srcdir) -I$(includedir) \
 	`gnome-config --cflags gnome` \
 	 -DG_LOG_DOMAIN=\"CronosII\" -DGNOMELOCALEDIR=\""$(datadir)/locale"\" \
 	 -I../intl -I$(top_srcdir)/intl $(GNOME_INCLUDEDIR) -DDATADIR=\"${datadir}\"
@@ -16,9 +16,20 @@ cronos_SOURCES = \
 	
 
 cronos_LDADD = \
-	$(top_builddir)/libmodules/libmodules.a \
-	$(LIBS) $(INTLLIBS)
+	$(top_builddir)/libcronosII/libcronosII.a \
+	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) 
 
 cronos_LDFLAGS = \
-	$(top_builddir)/libmodules/libmodules.a \
-	$(LIBS) $(INTLLIBS)
+	$(top_builddir)/libcronosII/libcronosII.a \
+	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) \
+	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS)
+
+EXTRA_DIST = \
+	forward.xpm		\
+	mark.xpm		\
+	mini_about.xpm	\
+	mini_error.xpm	\
+	new.xpm			\
+	read.xpm		\
+	reply.xpm		\
+	unread.xpm

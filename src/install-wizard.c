@@ -23,11 +23,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <libmodules/mailbox.h>
-#include <libmodules/utils.h>
-#include <libmodules/error.h>
-#include <libmodules/db.h>
-#include <libmodules/date-utils.h>
+#include <libcronosII/mailbox.h>
+#include <libcronosII/utils.h>
+#include <libcronosII/error.h>
+#include <libcronosII/db.h>
+#include <libcronosII/date-utils.h>
 
 #include "c2-app.h"
 
@@ -144,10 +144,10 @@ enum
 static gchar *
 upgrade_database (const gchar *mbox)
 {
+	C2Mailbox *mailbox;
 	gchar *path[2];
 	FILE *fd;
-	GList *l;
-	C2DB *db;
+	C2Db *db, *l;
 	gint i;
 
 	c2_return_val_if_fail (mbox, _("Wrong upgrade_database parameters"), C2EDATA);
@@ -166,30 +166,34 @@ upgrade_database (const gchar *mbox)
 		return g_strdup_printf (_("Unable to open index file: %s"), c2_error_get (c2_errno));
 	}
 
+	mailbox = c2_mailbox_new (mbox, "1", C2_MAILBOX_CRONOSII, C2_MAILBOX_SORT_UNUSED1,
+								GTK_SORT_ASCENDING);
+	
 	/* Load db */
-	if (!(db = c2_db_load (mbox, C2_METHOD_CRONOSII)))
+	if (!(db = c2_db_new (mailbox)))
 	{
 		g_free (path[SOURCE]);
 		g_free (path[TEMP]);
 		return g_strdup_printf (_("Unable to load db: %s"), c2_error_get (c2_errno));
 	}
+	gtk_object_ref (GTK_OBJECT (db));
 
 	/* Process */
-	for (l = db->head, i = 0; l != NULL; l = g_list_next (l))
+	for (l = db, i = 0; l != NULL; l = l->next)
 	{
 		/* Get the message */
 		C2Message *message = c2_db_message_get (db, i++);
-		gchar *from, *strdate, *account;
+		gchar *from, *strdate, *account, *subject;
 		time_t date;
-		C2DBNode *node = l->data;
-		
+
 		if (!message)
 			continue;
 		
 		/* Get fields and write them */
-		from = c2_message_get_header_field (message, NULL, "From:");
-		account = c2_message_get_header_field (message, NULL, "X-CronosII-Account:");
-		strdate = c2_message_get_header_field (message, NULL, "Date:");
+		from = c2_message_get_header_field (message, "From:");
+		account = c2_message_get_header_field (message, "X-CronosII-Account:");
+		strdate = c2_message_get_header_field (message, "Date:");
+		subject = c2_message_get_header_field (message, "Subject:");
 
 		/* Get the date */
 		if (strdate)
@@ -201,20 +205,22 @@ upgrade_database (const gchar *mbox)
 			date = time (NULL);
 		
 		fprintf (fd, "%c\r%s\r%s\r%s\r%s\r%d\r%s\r%d\n",
-					node->status, (node->marked) ? "MARK" : "", "", node->headers[0],
-					node->headers[1], (gint) date, account, node->mid);
+					l->state, (l->marked) ? "MARK" : "", "", subject,
+					from, (gint) date, account, l->mid);
 
 		g_free (from);
 		g_free (account);
 		g_free (strdate);
+		g_free (subject);
 	}
 	fclose (fd);
 
-	/* Unload the database */
-	c2_db_unload (db);
+	/* Unload the database and the mailbox */
+	gtk_object_unref (GTK_OBJECT (db));
+	gtk_object_unref (GTK_OBJECT (mailbox));
 
 	/* Move the file to the right location */
-	if (c2_file_binary_move (path[TEMP], path[SOURCE]))
+	if (c2_file_binary_copy (path[TEMP], path[SOURCE]))
 	{
 		gchar *err = g_strdup_printf (_("Unable to move the temporary file to the correct location: %s"),
 										c2_error_get (c2_errno));
@@ -225,128 +231,6 @@ upgrade_database (const gchar *mbox)
 	g_free (path[SOURCE]);
 
 	return NULL;
-}
-
-static gboolean
-create_new_configuration (void)
-{
-	gchar *home = g_get_home_dir ();
-	gchar *directory_paths[] = {
-		g_strdup_printf (".CronosII"),
-		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx", MAILBOX_INBOX),
-		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx", MAILBOX_OUTBOX),
-		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx", MAILBOX_QUEUE),
-		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx", MAILBOX_GARBAGE),
-		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx", MAILBOX_DRAFTS),
-		NULL
-	};
-	gchar *file_paths[] = {
-		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "index",  MAILBOX_INBOX),
-		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "index",  MAILBOX_OUTBOX),
-		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "index",  MAILBOX_QUEUE),
-		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "index",  MAILBOX_GARBAGE),
-		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "index",  MAILBOX_DRAFTS),
-		NULL
-	};
-	gchar *path;
-	gint i;
-
-
-	REPORT (N_("Creating internal directory structure"));
-	for (i = 0; (path = directory_paths[i]) != NULL; i++)
-	{
-		path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s", home, path);
-		if (mkdir (path, 0700) < 0)
-		{
-			c2_error_set (-errno);
-			REPORT_RESULT (c2_error_get (c2_errno), FALSE);
-			g_free (path);
-			return -1;
-		}
-		g_free (path);
-		g_free (directory_paths[i]);
-	}
-	REPORT_RESULT (N_("Success."), TRUE);
-
-	REPORT (N_("Creating internal file structure"));
-	for (i = 0; (path = file_paths[i]) != NULL; i++)
-	{
-		FILE *fd;
-		path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s", home, path);
-		if (!(fd = fopen (path, "wt")))
-		{
-			c2_error_set (-errno);
-			REPORT_RESULT (c2_error_get (c2_errno), FALSE);
-			g_free (path);
-			return -1;
-		}
-		fclose (fd);
-		g_free (path);
-		g_free (file_paths[i]);
-	}
-	REPORT_RESULT (N_("Success."), TRUE);
-
-	REPORT (N_("Configuring Cronos II"));
-	gnome_config_set_string ("/cronosII/CronosII/Version", VERSION);
-	gnome_config_set_string ("/cronosII/Mailboxes/0", "");
-	gnome_config_set_string ("/cronosII/Mailboxes/0::Name", MAILBOX_INBOX);
-	gnome_config_set_int ("/cronosII/Mailboxes/0::Id", 0);
-	gnome_config_set_int ("/cronosII/Mailboxes/0::Parent Id", 0);
-	gnome_config_set_string ("/cronosII/Mailboxes/1", "");
-	gnome_config_set_string ("/cronosII/Mailboxes/1::Name", MAILBOX_OUTBOX);
-	gnome_config_set_int ("/cronosII/Mailboxes/1::Id", 1);
-	gnome_config_set_int ("/cronosII/Mailboxes/1::Parent Id", 1);
-	gnome_config_set_string ("/cronosII/Mailboxes/2", "");
-	gnome_config_set_string ("/cronosII/Mailboxes/2::Name", MAILBOX_QUEUE);
-	gnome_config_set_int ("/cronosII/Mailboxes/2::Id", 2);
-	gnome_config_set_int ("/cronosII/Mailboxes/2::Parent Id", 2);
-	gnome_config_set_string ("/cronosII/Mailboxes/3", "");
-	gnome_config_set_string ("/cronosII/Mailboxes/3::Name", MAILBOX_GARBAGE);
-	gnome_config_set_int ("/cronosII/Mailboxes/3::Id", 3);
-	gnome_config_set_int ("/cronosII/Mailboxes/3::Parent Id", 3);
-	gnome_config_set_string ("/cronosII/Mailboxes/4", "");
-	gnome_config_set_string ("/cronosII/Mailboxes/4::Name", MAILBOX_DRAFTS);
-	gnome_config_set_int ("/cronosII/Mailboxes/4::Id", 4);
-	gnome_config_set_int ("/cronosII/Mailboxes/4::Parent Id", 4);
-	gnome_config_set_int ("/cronosII/Address Book/init", C2_INIT_ADDRBOOK_AT_START);
-	gnome_config_set_bool ("/cronosII/Options/empty_garbage", FALSE);
-	gnome_config_set_bool ("/cronosII/Options/check_at_start", FALSE);
-	gnome_config_set_bool ("/cronosII/Options/use_outbox", TRUE);
-	gnome_config_set_bool ("/cronosII/Persistent SMTP/use", FALSE);
-	gnome_config_set_int ("/cronosII/Options/check_timeout", 10);
-	gnome_config_set_int ("/cronosII/Options/message_size_limit", 0);
-	gnome_config_set_int ("/cronosII/Timeout/net", 20);
-	gnome_config_set_int ("/cronosII/Timeout/mark_as_read", 2);
-	gnome_config_set_string ("/cronosII/Options/prepend_character", "> ");
-	gnome_config_set_string ("/cronosII/Colors/reply_original_message", "0x0x65535");
-	gnome_config_set_string ("/cronosII/Colors/misc_body", "0x0x0");
-	gnome_config_set_int ("/cronosII/Appareance/mime_window", C2_MIME_WINDOW_AUTOMATIC);
-	gnome_config_set_int ("/cronosII/Appareance/toolbar", GTK_TOOLBAR_BOTH);
-	gnome_config_set_int ("/cronosII/Appareance/wm_hpan", 120);
-	gnome_config_set_int ("/cronosII/Appareance/wm_vpan", 120);
-	gnome_config_push_prefix ("/cronosII/Appareance/wm_clist::");
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::0", 20);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::1", 10);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::2", 10);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::3", 150);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::4", 150);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::5", 100);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::6", 65);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::7", 15);
-	gnome_config_set_int ("/cronosII/Appareance/wm_width", gdk_screen_width ()-40);
-	gnome_config_set_int ("/cronosII/Appareance/wm_height", gdk_screen_height ()-40);
-	gnome_config_set_int ("/cronosII/Appareance/showable_headers:preview", 12);
-	gnome_config_set_int ("/cronosII/Appareance/showable_headers:message", 63);
-	gnome_config_set_int ("/cronosII/Appareance/showable_headers:compose", 61);
-	gnome_config_set_int ("/cronosII/Appareance/showable_headers:save", 0);
-	gnome_config_set_int ("/cronosII/Appareance/showable_headers:print", 0);
-	gnome_config_set_string ("/cronosII/Fonts/font_read", "-b&h-lucida-medium-r-normal-*-*-100-*-*-p-*-iso8859-1");
-	gnome_config_set_string ("/cronosII/Fonts/font_unread", "-b&h-lucida-bold-r-normal-*-*-100-*-*-p-*-iso8859-1");
-	gnome_config_set_string ("/cronosII/Fonts/font_body", "-adobe-times-medium-r-normal-*-*-140-*-*-p-*-iso8859-1");
-	gnome_config_set_string ("/cronosII/Appareance/app_title", "%a v.%v - %M");
-	gnome_config_sync ();
-	REPORT_RESULT (N_("Success."), TRUE);
-	return TRUE;
 }
 
 typedef struct _OldMailbox
@@ -443,13 +327,14 @@ old_mailbox_upgrade_node (OldMailbox *old_node, C2Mailbox *new_head, C2Mailbox *
 	C2Mailbox *new_node;
 	
 	c2_return_val_if_fail (old_node, NULL, C2EDATA);
-	
-	new_node = g_new0 (C2Mailbox, 1);
-	new_node->name = g_strdup (old_node->name);
-	new_node->id = c2_mailbox_next_id (new_head, new_parent);
-	new_node->child = NULL;
-	new_node->next = NULL;
-	
+
+	if (!(new_node = c2_mailbox_new_with_parent (old_node->name,
+											new_parent ? new_parent->id : NULL, C2_MAILBOX_CRONOSII,
+											C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING)))
+	{
+		C2_DEBUG_ (g_print ("Unable to create new_node in %s:%d\n", __FILE__, __LINE__););
+		return NULL;
+	}
 	return new_node;
 }
 
@@ -458,13 +343,15 @@ old_mailbox_upgrade (OldMailbox *old_head, C2Mailbox *new_head, C2Mailbox *new_p
 {
 	C2Mailbox *new_l;
 	OldMailbox *old_l;
-	
+
 	c2_return_val_if_fail (old_head, NULL, C2EDATA);
 
 	for (old_l = old_head; old_l != NULL; old_l = old_l->next)
 	{
+		printf ("Reading %s (son of %s)\n",
+				old_l->name, new_parent ? new_parent->name : "noone");
 		new_l = old_mailbox_upgrade_node (old_l, new_head, new_parent);
-		new_head = c2_mailbox_append (new_head, new_l);
+
 		if (old_l->child)
 			old_mailbox_upgrade (old_l->child, new_head, new_l);
 	}
@@ -482,11 +369,15 @@ new_mailbox_write (C2Mailbox *head)
 
 	for (l = head; l != NULL; l = l->next)
 	{
-		gchar *prefix = g_strdup_printf ("/cronosII/Mailboxes/%d", i++);
+		gchar *prefix = g_strdup_printf ("/cronosII/Mailbox-%d/", i++);
 		
 		gnome_config_push_prefix (prefix);
-		gnome_config_set_string ("::Name", l->name);
-		gnome_config_set_string ("::Id", l->id);
+		gnome_config_set_string ("Name", l->name);
+		gnome_config_set_string ("Id", l->id);
+		gnome_config_set_int ("Type", C2_MAILBOX_CRONOSII);
+		gnome_config_set_int ("Sort By", l->sort_by);
+		gnome_config_set_int ("Sort Type", l->sort_type);
+
 		gnome_config_pop_prefix ();
 		g_free (prefix);
 		if (l->child)
@@ -639,8 +530,9 @@ import_old_configuration (void)
 	
 	REPORT (N_("Upgrading mailboxes tree."));
 	new_mailbox_head = old_mailbox_upgrade (mailboxes_head, NULL, NULL);
-	new_mailbox_write (new_mailbox_head);
-	REPORT_RESULT (N_("Success."));
+	new_mailbox_write (c2_mailbox_get_head ());
+	c2_mailbox_destroy_tree ();
+	REPORT_RESULT (N_("Success."), TRUE);
 	
 
 	/* Load the RC file */
@@ -770,6 +662,128 @@ import_old_configuration (void)
 	gnome_config_sync ();
 	REPORT_RESULT (N_("Success."), TRUE);
 
+	return TRUE;
+}
+
+static gboolean
+create_new_configuration (void)
+{
+	gchar *home = g_get_home_dir ();
+	gchar *directory_paths[] = {
+		g_strdup_printf (".CronosII"),
+		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx", MAILBOX_INBOX),
+		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx", MAILBOX_OUTBOX),
+		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx", MAILBOX_QUEUE),
+		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx", MAILBOX_GARBAGE),
+		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx", MAILBOX_DRAFTS),
+		NULL
+	};
+	gchar *file_paths[] = {
+		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "index",  MAILBOX_INBOX),
+		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "index",  MAILBOX_OUTBOX),
+		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "index",  MAILBOX_QUEUE),
+		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "index",  MAILBOX_GARBAGE),
+		g_strdup_printf (".CronosII" G_DIR_SEPARATOR_S "%s.mbx" G_DIR_SEPARATOR_S "index",  MAILBOX_DRAFTS),
+		NULL
+	};
+	gchar *path;
+	gint i;
+
+
+	REPORT (N_("Creating internal directory structure"));
+	for (i = 0; (path = directory_paths[i]) != NULL; i++)
+	{
+		path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s", home, path);
+		if (mkdir (path, 0700) < 0)
+		{
+			c2_error_set (-errno);
+			REPORT_RESULT (c2_error_get (c2_errno), FALSE);
+			g_free (path);
+			return -1;
+		}
+		g_free (path);
+		g_free (directory_paths[i]);
+	}
+	REPORT_RESULT (N_("Success."), TRUE);
+
+	REPORT (N_("Creating internal file structure"));
+	for (i = 0; (path = file_paths[i]) != NULL; i++)
+	{
+		FILE *fd;
+		path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s", home, path);
+		if (!(fd = fopen (path, "wt")))
+		{
+			c2_error_set (-errno);
+			REPORT_RESULT (c2_error_get (c2_errno), FALSE);
+			g_free (path);
+			return -1;
+		}
+		fclose (fd);
+		g_free (path);
+		g_free (file_paths[i]);
+	}
+	REPORT_RESULT (N_("Success."), TRUE);
+
+	REPORT (N_("Configuring Cronos II"));
+	gnome_config_set_string ("/cronosII/CronosII/Version", VERSION);
+	gnome_config_set_string ("/cronosII/Mailboxes/0", "");
+	gnome_config_set_string ("/cronosII/Mailboxes/0::Name", MAILBOX_INBOX);
+	gnome_config_set_int ("/cronosII/Mailboxes/0::Id", 0);
+	gnome_config_set_int ("/cronosII/Mailboxes/0::Parent Id", 0);
+	gnome_config_set_string ("/cronosII/Mailboxes/1", "");
+	gnome_config_set_string ("/cronosII/Mailboxes/1::Name", MAILBOX_OUTBOX);
+	gnome_config_set_int ("/cronosII/Mailboxes/1::Id", 1);
+	gnome_config_set_int ("/cronosII/Mailboxes/1::Parent Id", 1);
+	gnome_config_set_string ("/cronosII/Mailboxes/2", "");
+	gnome_config_set_string ("/cronosII/Mailboxes/2::Name", MAILBOX_QUEUE);
+	gnome_config_set_int ("/cronosII/Mailboxes/2::Id", 2);
+	gnome_config_set_int ("/cronosII/Mailboxes/2::Parent Id", 2);
+	gnome_config_set_string ("/cronosII/Mailboxes/3", "");
+	gnome_config_set_string ("/cronosII/Mailboxes/3::Name", MAILBOX_GARBAGE);
+	gnome_config_set_int ("/cronosII/Mailboxes/3::Id", 3);
+	gnome_config_set_int ("/cronosII/Mailboxes/3::Parent Id", 3);
+	gnome_config_set_string ("/cronosII/Mailboxes/4", "");
+	gnome_config_set_string ("/cronosII/Mailboxes/4::Name", MAILBOX_DRAFTS);
+	gnome_config_set_int ("/cronosII/Mailboxes/4::Id", 4);
+	gnome_config_set_int ("/cronosII/Mailboxes/4::Parent Id", 4);
+	gnome_config_set_int ("/cronosII/Address Book/init", C2_INIT_ADDRBOOK_AT_START);
+	gnome_config_set_bool ("/cronosII/Options/empty_garbage", FALSE);
+	gnome_config_set_bool ("/cronosII/Options/check_at_start", FALSE);
+	gnome_config_set_bool ("/cronosII/Options/use_outbox", TRUE);
+	gnome_config_set_bool ("/cronosII/Persistent SMTP/use", FALSE);
+	gnome_config_set_int ("/cronosII/Options/check_timeout", 10);
+	gnome_config_set_int ("/cronosII/Options/message_size_limit", 0);
+	gnome_config_set_int ("/cronosII/Timeout/net", 20);
+	gnome_config_set_int ("/cronosII/Timeout/mark_as_read", 2);
+	gnome_config_set_string ("/cronosII/Options/prepend_character", "> ");
+	gnome_config_set_string ("/cronosII/Colors/reply_original_message", "0x0x65535");
+	gnome_config_set_string ("/cronosII/Colors/misc_body", "0x0x0");
+	gnome_config_set_int ("/cronosII/Appareance/mime_window", C2_MIME_WINDOW_AUTOMATIC);
+	gnome_config_set_int ("/cronosII/Appareance/toolbar", GTK_TOOLBAR_BOTH);
+	gnome_config_set_int ("/cronosII/Appareance/wm_hpan", 120);
+	gnome_config_set_int ("/cronosII/Appareance/wm_vpan", 120);
+	gnome_config_push_prefix ("/cronosII/Appareance/wm_clist::");
+	gnome_config_set_int ("/cronosII/Appareance/wm_clist::0", 20);
+	gnome_config_set_int ("/cronosII/Appareance/wm_clist::1", 10);
+	gnome_config_set_int ("/cronosII/Appareance/wm_clist::2", 10);
+	gnome_config_set_int ("/cronosII/Appareance/wm_clist::3", 150);
+	gnome_config_set_int ("/cronosII/Appareance/wm_clist::4", 150);
+	gnome_config_set_int ("/cronosII/Appareance/wm_clist::5", 100);
+	gnome_config_set_int ("/cronosII/Appareance/wm_clist::6", 65);
+	gnome_config_set_int ("/cronosII/Appareance/wm_clist::7", 15);
+	gnome_config_set_int ("/cronosII/Appareance/wm_width", gdk_screen_width ()-40);
+	gnome_config_set_int ("/cronosII/Appareance/wm_height", gdk_screen_height ()-40);
+	gnome_config_set_int ("/cronosII/Appareance/showable_headers:preview", 12);
+	gnome_config_set_int ("/cronosII/Appareance/showable_headers:message", 63);
+	gnome_config_set_int ("/cronosII/Appareance/showable_headers:compose", 61);
+	gnome_config_set_int ("/cronosII/Appareance/showable_headers:save", 0);
+	gnome_config_set_int ("/cronosII/Appareance/showable_headers:print", 0);
+	gnome_config_set_string ("/cronosII/Fonts/font_read", "-b&h-lucida-medium-r-normal-*-*-100-*-*-p-*-iso8859-1");
+	gnome_config_set_string ("/cronosII/Fonts/font_unread", "-b&h-lucida-bold-r-normal-*-*-100-*-*-p-*-iso8859-1");
+	gnome_config_set_string ("/cronosII/Fonts/font_body", "-adobe-times-medium-r-normal-*-*-140-*-*-p-*-iso8859-1");
+	gnome_config_set_string ("/cronosII/Appareance/app_title", "%a v.%v - %M");
+	gnome_config_sync ();
+	REPORT_RESULT (N_("Success."), TRUE);
 	return TRUE;
 }
 

@@ -22,19 +22,19 @@
 extern "C" {
 #endif
 
-#ifdef HAVE_CONFIG_H
+#if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <config.h>
-#	include <libmodules/mailbox.h>
+#	include <libcronosII/mailbox.h>
 #else
 #	include <cronosII.h>
 #endif
 #include <gnome.h>
 
-#define MAILBOX_INBOX		N_("Inbox"	)
-#define MAILBOX_OUTBOX		N_("Outbox"	)
-#define MAILBOX_QUEUE		N_("Queue"	)
-#define MAILBOX_GARBAGE		N_("Garbage")
-#define MAILBOX_DRAFTS		N_("Drafts"	)
+#define MAILBOX_INBOX		_("Inbox"	)
+#define MAILBOX_OUTBOX		_("Outbox"	)
+#define MAILBOX_QUEUE		_("Queue"	)
+#define MAILBOX_GARBAGE		_("Garbage"	)
+#define MAILBOX_DRAFTS		("Drafts"	)
 
 #define DATE_FORMAT									"%Y.%m.%d %H:%M:%S %z"
 

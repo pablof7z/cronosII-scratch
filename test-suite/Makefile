@@ -99,6 +99,9 @@ INTLDEPS =
 INTLLIBS = 
 INTLOBJS = 
 LEX = @LEX@
+LIBGLADE_CFLAGS = -I/usr/include/gnome-xml -I/usr/local/include -DNEED_GNOMESUPPORT_H -I/usr/local/lib/gnome-libs/include -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/include/gtk-1.2 -I/usr/X11R6/include
+LIBGLADE_CONFIG = /usr/bin/libglade-config
+LIBGLADE_LIBS = -L/usr/lib -lglade-gnome -lglade -L/usr/lib -lxml -lz -rdynamic -L/usr/local/lib -L/usr/lib -L/usr/X11R6/lib -rdynamic -lgnomeui -lart_lgpl -lgdk_imlib -lSM -lICE -lgtk -lgdk -lgmodule -lXi -lXext -lX11 -lgnome -lgnomesupport -lesd -lasound -laudiofile -lm -ldb -lglib -ldl
 LIBOBJS = 
 LIBS = -lpthread 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
@@ -133,16 +136,20 @@ db_SOURCES =  	db.c
 
 
 db_LDADD = $(top_builddir)/libcronosII/libcronosII.a
+db_LDFLAGS = $(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS)
+
 
 mailbox_SOURCES =  	mailbox.c
 
 
 mailbox_LDADD = $(db_LDADD)
+mailbox_LDFLAGS = $(db_LDFLAGS)
 
 date_SOURCES =  	date.c
 
 
 date_LDADD = $(db_LDADD)
+date_LDFLAGS = $(db_LDFLAGS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -154,13 +161,10 @@ CPPFLAGS =  -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/inclu
 LDFLAGS = 
 db_OBJECTS =  db.o
 db_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
-db_LDFLAGS = 
 mailbox_OBJECTS =  mailbox.o
 mailbox_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
-mailbox_LDFLAGS = 
 date_OBJECTS =  date.o
 date_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
-date_LDFLAGS = 
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)

@@ -249,7 +249,7 @@ c2_str_replace_all (const gchar *or_string, const gchar *se_string, const gchar 
 	g_return_val_if_fail (se_string, NULL);
 	g_return_val_if_fail (re_string, NULL);
 	
-	for (ptr = CHAR (or_string);;)
+	for (ptr = C2_CHAR (or_string);;)
 	{
 		if (*ptr == '\0') break;
 		if (c2_strneq (ptr, se_string, strlen (se_string)))
@@ -266,7 +266,7 @@ c2_str_replace_all (const gchar *or_string, const gchar *se_string, const gchar 
 	str = g_new0 (gchar, length+1);
 	str[length] = '\0';
 	
-	for (ptr = CHAR (or_string), strptr = str;;)
+	for (ptr = C2_CHAR (or_string), strptr = str;;)
 	{
 		if (*ptr == '\0') break;
 		if (c2_strneq (ptr, se_string, strlen (se_string)))
@@ -307,7 +307,7 @@ c2_str_get_line (const gchar *str)
 	
 	c2_return_val_if_fail (str, NULL, C2EDATA);
 	
-	for (strptr = CHAR (str);; strptr++)
+	for (strptr = C2_CHAR (str);; strptr++)
 	{
 		if (*strptr == '\0')
 		{
@@ -320,7 +320,7 @@ c2_str_get_line (const gchar *str)
 	
 	string = g_new0 (gchar, len+1);
 	
-	for (i=0, ptr = string, strptr = CHAR (str); i <= len; i++, strptr++)
+	for (i=0, ptr = string, strptr = C2_CHAR (str); i <= len; i++, strptr++)
 	{
 		if (*strptr == '\0')
 		{
@@ -359,7 +359,7 @@ c2_str_get_word (guint8 word_n, const gchar *str, gchar ch)
   if (word_n == 0) record = TRUE;
   rtn = g_string_new (NULL);
   
-  for (c = CHAR (str); *c != '\0'; c++)
+  for (c = C2_CHAR (str); *c != '\0'; c++)
   {
     if (*c == '"')
 	 {
@@ -557,7 +557,8 @@ c2_file_binary_copy (const gchar *from_path, const gchar *target_path)
 	
 	for (;;)
 	{
-		if (fread (buf, sizeof (gchar), sizeof (buf), frm) < sizeof (buf)-1) break;
+		if (fread (buf, sizeof (gchar), sizeof (buf), frm) < sizeof (buf)-1)
+			break;
 		fwrite (buf, sizeof (gchar), sizeof (buf), dst);
 	}
 	

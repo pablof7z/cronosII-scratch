@@ -21,18 +21,11 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <libmodules/error.h>
-#include <libmodules/utils.h>
+#include <libcronosII/error.h>
+#include <libcronosII/utils.h>
 
 #include "c2-app.h"
 #include "main-window.h"
-
-#include "xpm/drafts.xpm"
-#include "xpm/inbox.xpm"
-#include "xpm/outbox.xpm"
-#include "xpm/trash.xpm"
-#include "xpm/queue_mbox.xpm"
-#include "xpm/folder.xpm"
 
 /**
  * c2_app_init
@@ -99,7 +92,8 @@ on_report_expirate (gpointer data)
 {
 	if (!pthread_mutex_trylock (&WMain.appbar_lock))
 	{
-		gnome_appbar_pop (GNOME_APPBAR (WMain.appbar));
+		GtkWidget *appbar = glade_xml_get_widget (WMain.xml, "appbar");
+		gnome_appbar_pop (GNOME_APPBAR (appbar));
 		pthread_mutex_unlock (&WMain.appbar_lock);
 	}
 
@@ -124,11 +118,12 @@ c2_app_report (const gchar *msg, C2ReportSeverity severity)
 	 * We assume statusbar */
 	if (!pthread_mutex_trylock (&WMain.appbar_lock))
 	{
+		GtkWidget *appbar = glade_xml_get_widget (WMain.xml, "appbar");
 		if (severity == C2_REPORT_WARNING || severity == C2_REPORT_ERROR)
 			realmsg = g_strdup_printf ("%s: %s", msg, c2_error_get (c2_errno));
 		else
 			realmsg = g_strdup (msg);
-		gnome_appbar_push (GNOME_APPBAR (WMain.appbar), msg);
+		gnome_appbar_push (GNOME_APPBAR (appbar), msg);
 		gtk_timeout_add (5000, on_report_expirate, NULL);
 		g_free (realmsg);
 		pthread_mutex_unlock (&WMain.appbar_lock);
@@ -139,53 +134,64 @@ void
 c2_mailbox_tree_fill (C2Mailbox *head, GtkCTreeNode *node, GtkWidget *ctree, GtkWidget *window)
 {
 	C2Mailbox *current;
-	GdkPixmap *xpm;
-	GdkBitmap *msk;
+	GtkWidget *pixmap_closed;
+	GtkWidget *pixmap_opened;
 	GtkCTreeNode *_node;
 	gchar *buf;
   
 	c2_return_if_fail (head || ctree, C2EDATA);
 
-	current = head;
-	
-	for (; current; current = current->next)
-	{  
+	if (!node)
+	{
+		gtk_clist_freeze (GTK_CLIST (ctree));
+		gtk_clist_clear (GTK_CLIST (ctree));
+	}
+
+	for (current = head; current; current = current->next)
+	{
 		if (c2_streq (current->name, MAILBOX_INBOX))
 		{
-			xpm = gdk_pixmap_create_from_xpm_d (window->window, &msk,
-					&window->style->bg[GTK_STATE_NORMAL],
-					inbox_xpm);
-		} else if (!strcmp ((char *) current->name, MAILBOX_OUTBOX))
+			pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/inbox.png");
+			pixmap_opened = pixmap_closed;
+		} else if (c2_streq (current->name, MAILBOX_OUTBOX))
 		{
-			xpm = gdk_pixmap_create_from_xpm_d (window->window, &msk,
-					&window->style->bg[GTK_STATE_NORMAL],
-					outbox_xpm);
-		} else if (!strcmp ((char *) current->name, MAILBOX_QUEUE))
+			pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/outbox.png");
+			pixmap_opened = pixmap_closed;
+		} else if (c2_streq (current->name, MAILBOX_QUEUE))
 		{
-			xpm = gdk_pixmap_create_from_xpm_d (window->window, &msk,
-					&window->style->bg[GTK_STATE_NORMAL],
-					queue_mbox_xpm);
-		} else if (!strcmp ((char *) current->name, MAILBOX_GARBAGE))
+			pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/queue_mbox.png");
+			pixmap_opened = pixmap_closed;
+		} else if (c2_streq (current->name, MAILBOX_GARBAGE))
 		{
-			xpm = gdk_pixmap_create_from_xpm_d (window->window, &msk,
-					&window->style->bg[GTK_STATE_NORMAL],
-					trash_xpm);
-		} else if (!strcmp ((char *) current->name, MAILBOX_DRAFTS))
+			pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/garbage.png");
+			pixmap_opened = pixmap_closed;
+		} else if (c2_streq (current->name, MAILBOX_DRAFTS))
 		{
-			xpm = gdk_pixmap_create_from_xpm_d (window->window, &msk,
-					&window->style->bg[GTK_STATE_NORMAL],
-					drafts_xpm);
+			pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/drafts.png");
+			pixmap_opened = pixmap_closed;
 		} else
 		{
-			xpm = gdk_pixmap_create_from_xpm_d (window->window, &msk,
-					&window->style->bg[GTK_STATE_NORMAL],
-					folder_xpm);
+			if (current->child)
+			{
+				pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/folder-closed.png");
+				pixmap_opened = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/folder-opened.png");
+			} else
+			{
+				pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/mailbox.png");
+				pixmap_opened = pixmap_closed;
+			}
 		}
 		
 		buf = g_strdup (current->name);
-		_node = gtk_ctree_insert_node (GTK_CTREE (ctree), node, NULL, (gchar **) &buf, 4, xpm, msk,
-				xpm, msk, FALSE, TRUE);
+		_node = gtk_ctree_insert_node (GTK_CTREE (ctree), node, NULL, (gchar **) &buf, 4,
+									GNOME_PIXMAP (pixmap_closed)->pixmap, GNOME_PIXMAP (pixmap_closed)->mask,
+									GNOME_PIXMAP (pixmap_opened)->pixmap, GNOME_PIXMAP (pixmap_opened)->mask,
+									FALSE, TRUE);
 		gtk_ctree_node_set_row_data(GTK_CTREE(ctree), _node, (gpointer) current);
-		if (current->child) c2_mailbox_tree_fill (current->child, _node, ctree, window);
+		if (current->child)
+			c2_mailbox_tree_fill (current->child, _node, ctree, window);
 	}
+
+	if (!node)
+		gtk_clist_thaw (GTK_CLIST (ctree));
 }

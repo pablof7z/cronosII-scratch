@@ -1,4 +1,10 @@
-SUBDIRS = intl po libcronosII module-test src images pixmaps doc man plugins
+if USE_TEST_SUITE
+test_suite = test-suite
+else
+test_suite = 
+endif
+
+SUBDIRS = intl po libcronosII $(test_suite) src macros images pixmaps doc man plugins xml
 
 bin_SCRIPTS = cronosII-config
 

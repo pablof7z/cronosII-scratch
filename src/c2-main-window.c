@@ -17,9 +17,169 @@
  */
 #include <gnome.h>
 #include <time.h>
+#include <config.h>
 
-#include <libmodules/db.h>
-#include <libmodules/error.h>
+#include <glade/glade.h>
+
+#include <libcronosII/db.h>
+#include <libcronosII/error.h>
+#include <libcronosII/utils.h>
 
 #include "c2-main-window.h"
 #include "c2-app.h"
+
+#define CRONOSII_TYPE_STRING		"Cronos II"
+#define IMAP_TYPE_STRING			"IMAP"
+#ifdef USE_MYSQL
+#	define MYSQL_TYPE_STRING		"MySQL"
+#endif
+
+void
+c2_main_window_set_sensitivity (void)
+{
+	if (GTK_CLIST (glade_xml_get_widget (WMain.xml, "ctree"))->selection)
+	{
+		/* There's a mailbox opened */
+		gtk_widget_show (glade_xml_get_widget (WMain.ctree_menu, "delete_mailbox"));
+		gtk_widget_show (glade_xml_get_widget (WMain.ctree_menu, "properties"));
+		gtk_widget_show (glade_xml_get_widget (WMain.ctree_menu, "separator"));
+	} else
+	{
+		/* There's no mailbox opened */
+		gtk_widget_hide (glade_xml_get_widget (WMain.ctree_menu, "separator"));
+		gtk_widget_hide (glade_xml_get_widget (WMain.ctree_menu, "delete_mailbox"));
+		gtk_widget_hide (glade_xml_get_widget (WMain.ctree_menu, "properties"));
+	}
+}
+
+/* Defined in main-window.c */
+extern void
+on_ctree_changed_mailboxes						(C2Mailbox *mailbox);
+
+static void
+on_new_mailbox_dlg_type_changed (GtkWidget *widget, GladeXML *gxml)
+{
+	gchar *type = gtk_entry_get_text (GTK_ENTRY (widget));
+	GtkWidget *extra_data_frame = glade_xml_get_widget (gxml, "extra_data_frame");
+	GtkWidget *extra_data_db_label = glade_xml_get_widget (gxml, "extra_data_db_label");
+	GtkWidget *extra_data_db = glade_xml_get_widget (gxml, "extra_data_db");
+	
+	if (c2_streq (type, CRONOSII_TYPE_STRING))
+		gtk_widget_hide (extra_data_frame);
+	else if (c2_streq (type, IMAP_TYPE_STRING))
+	{
+		gtk_widget_show (extra_data_frame);
+		gtk_widget_hide (extra_data_db);
+		gtk_widget_hide (extra_data_db_label);
+#ifdef USE_MYSQL
+	} else if (c2_streq (type, MYSQL_TYPE_STRING))
+	{
+		gtk_widget_show (extra_data_frame);
+		gtk_widget_show (extra_data_db);
+		gtk_widget_show (extra_data_db_label);
+#endif
+	}
+}
+
+static void
+on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
+{
+	gchar *name = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (gxml, "name")));
+	gchar *tmp;
+	GtkWidget *ctree = glade_xml_get_widget (WMain.xml, "ctree");
+	C2Mailbox *parent;
+	C2MailboxType type;
+	C2Mailbox *retval;
+	
+	c2_return_if_fail (gxml, C2EDATA);
+
+	/* Consistency of the name */
+	if (!name || !strlen (name))
+		return;
+	
+	if (c2_mailbox_get_by_name (c2_mailbox_get_head (), name))
+	{
+		GladeXML *err_xml =
+			glade_xml_new (DATADIR "/cronosII/cronosII.glade", "mailbox_err_msg");
+		GtkWidget *err_dialog = glade_xml_get_widget (err_xml, "mailbox_err_msg");
+		gnome_dialog_run_and_close (GNOME_DIALOG (err_dialog));
+		return;
+	}
+	
+	/* Get the parent */
+	if (GTK_CLIST (ctree)->selection)
+		parent = WMain.selected_mbox;
+	else
+		parent = NULL;
+
+	C2_DEBUG (parent ? parent->name : "no parent");
+	
+	/* Get the type */
+	tmp = gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (gxml, "type-entry")));
+	if (c2_streq (tmp, CRONOSII_TYPE_STRING))
+		type = C2_MAILBOX_CRONOSII;
+	else if (c2_streq (tmp, IMAP_TYPE_STRING))
+		type = C2_MAILBOX_IMAP;
+#ifdef USE_MYSQL
+	else if (c2_streq (tmp, MYSQL_TYPE_STRING))
+		type = C2_MAILBOX_MYSQL;
+#endif
+	
+	retval = c2_mailbox_new_with_parent (name, parent ? parent->id : NULL, type,
+			C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING);
+	
+	/* Since this is the first mailbox we will connect to the signal
+	 * and emit it again.
+	 */
+	if (first_mailbox)
+	{
+		gtk_signal_connect (GTK_OBJECT (retval), "changed_mailboxes",
+				GTK_SIGNAL_FUNC (on_ctree_changed_mailboxes), NULL);
+		gtk_signal_emit_by_name (GTK_OBJECT (retval), "changed_mailboxes");
+	}
+}
+
+static void
+on_new_mailbox_dlg_name_activate (GtkWidget *widget, GladeXML *gxml)
+{
+	on_new_mailbox_dlg_ok_clicked (gxml, c2_mailbox_get_head () ? FALSE : TRUE);
+	gnome_dialog_close (GNOME_DIALOG (glade_xml_get_widget (gxml, "new_mailbox_dlg")));
+}
+
+void
+on_new_mailbox_dlg (void)
+{
+	GladeXML *gxml;
+	GtkWidget *dialog;
+	GtkWidget *entry;
+	GList *types = NULL;
+
+	gxml = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "new_mailbox_dlg");
+	
+	dialog = glade_xml_get_widget (gxml, "new_mailbox_dlg");
+	gnome_dialog_set_default (GNOME_DIALOG (dialog), 0);
+
+	entry = glade_xml_get_widget (gxml, "name");
+	gtk_widget_grab_focus (entry);
+	gtk_signal_connect (GTK_OBJECT (entry),	"activate",
+						GTK_SIGNAL_FUNC (on_new_mailbox_dlg_name_activate), gxml);
+	
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (gxml, "type-entry")),
+						"changed", GTK_SIGNAL_FUNC (on_new_mailbox_dlg_type_changed), gxml);
+	
+	types = g_list_append (types, CRONOSII_TYPE_STRING);
+	types = g_list_append (types, IMAP_TYPE_STRING);
+#ifdef USE_MYSQL
+	types = g_list_append (types, MYSQL_TYPE_STRING);
+#endif
+	gtk_combo_set_popdown_strings (GTK_COMBO (glade_xml_get_widget (gxml, "type")), types);
+	g_list_free (types);
+	
+	switch (gnome_dialog_run (GNOME_DIALOG (dialog)))
+	{
+		case 0:
+			on_new_mailbox_dlg_ok_clicked (gxml, c2_mailbox_get_head () ? FALSE : TRUE);
+		case 1:
+			gnome_dialog_close (GNOME_DIALOG (dialog));
+	}
+}

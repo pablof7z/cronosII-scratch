@@ -23,16 +23,20 @@ extern "C" {
 #endif
 
 #include <glib.h>
-#ifdef HAVE_CONFIG_H
-#	include <libmodules/mailbox.h>
+	
+#if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
+#	include <libcronosII/mailbox.h>
 #	include "main-window.h"
 #else
 #	include <cronosII.h>
 #endif
 
 void
-c2_main_window_list_mails							(C2Mailbox *mbox);
-
+c2_main_window_set_sensitivity					(void);
+	
+void
+on_new_mailbox_dlg								(void);
+	
 #ifdef __cplusplus
 }
 #endif

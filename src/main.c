@@ -18,7 +18,8 @@
 #include <config.h>
 #include <gnome.h>
 
-#include <libmodules/error.h>
+#include <libcronosII/mailbox.h>
+#include <libcronosII/error.h>
 
 #include "c2-app.h"
 #include "main-window.h"
@@ -37,7 +38,8 @@ c2_init (gint argc, gchar **argv)
 			NULL, 0,
 			N_("Compose a new email to EMAIL@ADDRESS"), "EMAIL@ADDRESS"}
 	};
-	gnome_init_with_popt_table (PACKAGE, VERSION, argc, argv, options, 0, NULL);
+	gnome_init_with_popt_table ("Cronos II", VERSION, argc, argv, options, 0, NULL);
+	glade_gnome_init ();
 }
 
 gint
@@ -55,7 +57,7 @@ main (gint argc, gchar **argv)
 	textdomain (PACKAGE);
 #endif
 
-	/* Initialization of GNOME */
+	/* Initialization of GNOME and Glade */
 	c2_init (argc, argv);
 
 	if (!c2_config_init ())
@@ -128,22 +130,64 @@ load_mailboxes (void)
 
 	for (c2_app.mailboxes = NULL, i = 0;; i++)
 	{
-		C2Mailbox *mbox = g_new0 (C2Mailbox, 1);
+		gchar *name;
+		gchar *id;
+		C2MailboxType type;
+		C2MailboxSortBy sort_by;
+		GtkSortType sort_type;
+		gchar *host, *user, *pass;
+		gint port;
+		gchar *db;
+		
 		gchar *query = g_strdup_printf ("/cronosII/Mailboxes/%d", i);
 		
 		gnome_config_push_prefix (query);
-		mbox->name = gnome_config_get_string ("::Name");
-		if (!mbox->name)
+		if (!(name = gnome_config_get_string ("::Name")))
 		{
+			gnome_config_pop_prefix ();
+			c2_app.mailboxes = c2_mailbox_get_head ();
 			g_free (query);
-			g_free (mbox);
 			break;
 		}
 
-		mbox->id = gnome_config_get_string ("::Id");
+		id = gnome_config_get_string ("::Id");
+		type = gnome_config_get_int ("::Type");
+		sort_by = gnome_config_get_int ("::Sort By");
+		sort_type = gnome_config_get_int ("::Sort Type");
+
+		switch (type)
+		{
+			case C2_MAILBOX_CRONOSII:
+				c2_mailbox_new (name, id, type, sort_by, sort_type);
+				break;
+			case C2_MAILBOX_IMAP:
+				host = gnome_config_get_string ("::Host");
+				port = gnome_config_get_int ("::Port");
+				user = gnome_config_get_string ("::User");
+				pass = gnome_config_get_string ("::Pass");	
+				c2_mailbox_new (name, id, type, sort_by, sort_type, host, port, user, pass);
+				g_free (host);
+				g_free (user);
+				g_free (pass);
+				break;
+#ifdef USE_MYSQL
+			case C2_MAILBOX_MYSQL:
+				host = gnome_config_get_string ("::Host");
+				port = gnome_config_get_int ("::Port");
+				db = gnome_config_get_string ("::Db");
+				user = gnome_config_get_string ("::User");
+				pass = gnome_config_get_string ("::Pass");	
+				c2_mailbox_new (name, id, type, sort_by, sort_type, host, port, db, user, pass);
+				g_free (host);
+				g_free (db);
+				g_free (user);
+				g_free (pass);
+				break;
+#endif
+		}
+		g_free (name);
+		g_free (id);
 		gnome_config_pop_prefix ();
 		g_free (query);
-
-		c2_app.mailboxes = c2_mailbox_append (c2_app.mailboxes, mbox);
 	}
 }

@@ -23,15 +23,106 @@
 #include "error.h"
 #include "utils.h"
 
+static void
+c2_message_class_init							(C2MessageClass *klass);
+
+static void
+c2_message_init									(C2Message *message);
+
+static void
+c2_message_destroy								(GtkObject *object);
+
 enum
 {
-	STATUS_CHANGE,
-	MESSAGE_ACTION,
+	MESSAGE_DIE,
 	LAST_SIGNAL
 };
 
-static GtkObjectClass *parent_class = NULL;
 static guint c2_message_signals[LAST_SIGNAL] = { 0 };
+
+static GtkObjectClass *parent_class = NULL;
+
+GtkType
+c2_message_get_type (void)
+{
+	static GtkType c2_message_type = 0;
+
+	if (!c2_message_type)
+	{
+		static const GtkTypeInfo c2_message_info =
+		{
+			"C2Message",
+			sizeof (C2Message),
+			sizeof (C2MessageClass),
+			(GtkClassInitFunc) c2_message_class_init,
+			(GtkObjectInitFunc) c2_message_init,
+			/* reserved_1 */ NULL,
+			/* reserved_2 */ NULL,
+			(GtkClassInitFunc) NULL
+		};
+
+		c2_message_type = gtk_type_unique (gtk_object_get_type (), &c2_message_info);
+	}
+
+	return c2_message_type;
+}
+
+static void
+c2_message_class_init (C2MessageClass *klass)
+{
+	GtkObjectClass *object_class;
+
+	object_class = (GtkObjectClass *) klass;
+
+	parent_class = gtk_type_class (gtk_object_get_type ());
+
+	c2_message_signals[MESSAGE_DIE] =
+		gtk_signal_new ("message_die",
+					GTK_RUN_FIRST,
+					object_class->type,
+					GTK_SIGNAL_OFFSET (C2MessageClass, message_die),
+					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
+	
+	gtk_object_class_add_signals (object_class, c2_message_signals, LAST_SIGNAL);
+
+	object_class->destroy = c2_message_destroy;
+
+	klass->message_die = NULL;
+}
+
+static void
+c2_message_init (C2Message *message)
+{
+	message->message = NULL;
+	message->body = NULL;
+	message->header = NULL;
+	message->mime = NULL;
+}
+
+C2Message *
+c2_message_new (void)
+{
+	return gtk_type_new (C2_TYPE_MESSAGE);
+}
+
+static void
+c2_message_destroy (GtkObject *object)
+{
+	C2Message *message;
+	
+	c2_return_if_fail (C2_IS_MESSAGE (object), C2EDATA);
+	
+	message = C2_MESSAGE (object);
+
+	if (message->message)
+		g_free (message->message);
+
+	if (message->header)
+		g_free (message->header);
+
+	if (message->mime)
+		g_list_free (message->mime);
+}
 
 gchar *
 c2_message_get_header_field (C2Message *message, const gchar *field)
@@ -48,7 +139,7 @@ c2_message_get_header_field (C2Message *message, const gchar *field)
 			return NULL;
 
 	/* Search for the field */
-	if (!(msg_ptr = c2_strstr_case_insensitive (msg_ptr, field)))
+	if (!(msg_ptr = c2_strstr_case_insensitive (message->header, field)))
 		return NULL;
 
 	/* Set a pointer to the start of the value */
@@ -125,7 +216,6 @@ gchar *
 c2_message_get_message_header (C2Message *message)
 {
 	const gchar *ptr;
-	const gchar *msg_ptr;
 	gchar *chunk;
 	
 	c2_return_val_if_fail (message->message, NULL, C2EDATA);
@@ -136,10 +226,10 @@ c2_message_get_message_header (C2Message *message)
 	if (message && message->header)
 		return message->header;
 	
-	if (!(ptr = strstr (msg_ptr, "\n\n")))
+	if (!(ptr = strstr (message->message, "\n\n")))
 		return NULL;
 
-	chunk = g_strndup (msg_ptr, ptr - msg_ptr);
+	chunk = g_strndup (message->message, ptr - message->message);
 
 	if (message)
 		message->header = chunk;
@@ -159,7 +249,6 @@ c2_message_get_message_header (C2Message *message)
 const gchar *
 c2_message_get_message_body (C2Message *message)
 {
-	const gchar *msg_ptr;
 	const gchar *ptr;
 	
 	c2_return_val_if_fail (message->message, NULL, C2EDATA);
@@ -167,96 +256,11 @@ c2_message_get_message_body (C2Message *message)
 	if (message->body)
 		return message->body;
 	
-	if (!(ptr = strstr (msg_ptr, "\n\n")))
+	if (!(ptr = strstr (message->message, "\n\n")))
 		return NULL;
 
 	if (message)
 		message->body = ptr;
 
 	return ptr;
-}
-
-void
-c2_message_destroy (C2Message *message)
-{
-	c2_return_if_fail (message, C2EDATA);
-
-	g_free (message->mbox);
-	g_free (message->message);
-	g_free (message->header);
-	g_list_free (message->mime);
-	g_free (message);
-}
-
-static void
-c2_message_init (C2Message *message)
-{
-	message->message = NULL;
-	message->header = NULL;
-	message->body = NULL;
-	message->mime = NULL;
-	message->node = NULL;
-}
-
-static void
-c2_message_class_init (C2MessageClass *klass)
-{
-	GtkObjectClass *object_class;
-	
-	object_class = (GtkObjectClass *) klass;
-	
-	parent_class = gtk_type_class (gtk_object_get_type ());
-	
-	c2_message_signals[STATUS_CHANGE] =
-	gtk_signal_new ("status-change",
-			GTK_RUN_FIRST,
-			object_class->type,
-			GTK_SIGNAL_OFFSET (C2MessageClass, status_change),
-			gtk_marshal_NONE__ENUM, GTK_TYPE_NONE, 1,
-			GTK_TYPE_ENUM);
-	
-	c2_message_signals[MESSAGE_ACTION] =
-	gtk_signal_new ("message-action",
-			GTK_RUN_FIRST,
-			object_class->type,
-			GTK_SIGNAL_OFFSET (C2MessageClass, message_action),
-			gtk_marshal_NONE__ENUM, GTK_TYPE_NONE, 2,
-			GTK_TYPE_ENUM, GTK_TYPE_POINTER);
-	
-	gtk_object_class_add_signals (object_class, c2_message_signals, LAST_SIGNAL);
-	
-	object_class->destroy = c2_message_destroy;
-	
-	klass->status_change = c2_message_status_change;
-	klass->message_action = c2_message_message_action;
-}
-
-C2Message *
-c2_message_new (void)
-{
-	return gtk_type_new (C2_TYPE_MESSAGE);
-}
-
-GtkType
-c2_message_get_type (void)
-{
-	static GtkType c2_message_type = 0;
-	
-	if (!c2_message_type) {
-		static const GtkTypeInfo c2_message_info = {
-			"C2Message",
-			sizeof (C2Message),
-			sizeof (C2MessageClass),
-			(GtkClassInitFunc) c2_message_class_init,
-			(GtkObjectInitFunc) c2_message_init,
-			/* reserved_1 */ NULL,
-			/* reserved_2 */ NULL,
-			(GtkClassInitFunc) NULL
-		};
-		
-		c2_message_type =
-			gtk_type_unique (gtk_object_get_type (), &c2_message_info);
-	}
-	
-	return c2_message_type;
 }

@@ -24,9 +24,10 @@ extern "C" {
 
 #include <gnome.h>
 #include <pthread.h>
+#include <glade/glade.h>
 
-#ifdef HAVE_CONFIG_H
-#	include <libmodules/mailbox.h>
+#if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
+#	include <libcronosII/mailbox.h>
 #else
 #	include <cronosII.h>
 #endif
@@ -46,87 +47,17 @@ enum
 
 typedef struct
 {
-	GtkWidget *get_new_mail;
-	GtkWidget *sendqueue;
-	GtkWidget *compose;
-	GtkWidget *save;
-	GtkWidget *print;
-	GtkWidget *search;
-	GtkWidget *_delete;
-	GtkWidget *reply;
-	GtkWidget *reply_all;
-	GtkWidget *forward;
-	GtkWidget *previous;
-	GtkWidget *next;
-#if DEBUG
-	GtkWidget *debug;
-#endif
-	GtkWidget *quit;
-} WindowMainToolbar;
-
-typedef struct
-{
-	GtkWidget *file_menu;
-	GtkWidget *get_new_mail;
-	GtkWidget *get_new_mail_sep;
-	GtkWidget *menu_sendqueue;
-	GtkWidget *persistent_smtp_options;
-	GtkWidget *persistent_smtp_options_connect;
-	GtkWidget *persistent_smtp_options_disconnect;
-	GtkWidget *quit;
-	GtkWidget *edit_menu;
-	GtkWidget *search;
-	GtkWidget *message_menu;
-	GtkWidget *compose;
-	GtkWidget *save;
-	GtkWidget *print;
-	GtkWidget *reply;
-	GtkWidget *reply_all;
-	GtkWidget *forward;
-	GtkWidget *copy;
-	GtkWidget *move;
-	GtkWidget *_delete;
-	GtkWidget *expunge;
-	GtkWidget *previous;
-	GtkWidget *next;
-	GtkWidget *mark;
-	GtkWidget *settings;
-	GtkWidget *preferences;
-	GtkWidget *help;
-	GtkWidget *about;
-	GtkWidget *attach_menu;
-	GtkWidget *attach_menu_sep;
-} WindowMainMenubar;
-
-typedef struct
-{
-	GtkWidget *window;
-	GtkWidget *hpaned;
-	GtkWidget *toolbar;
-	GtkWidget *vpaned;
-	GtkWidget *ctree;
-	GtkWidget *index;
-	pthread_mutex_t index_lock;
-	GtkWidget *mime_left, *mime_right;
-	GtkWidget *menu_clist;
-	GtkWidget *header_table;
-	GtkWidget *header_titles[C2_HEADER_TITLES_LAST][2];
-	GtkWidget *text;
-	pthread_mutex_t text_lock;
-	GtkWidget *mime_scroll;
-	GtkWidget *icon_list;
-	GtkWidget *appbar;
+	GladeXML *xml;
+	GladeXML *ctree_menu;
 
 	pthread_mutex_t appbar_lock;
-	
-	WindowMainToolbar tb_w;
-	WindowMainMenubar mb_w;
+	pthread_mutex_t index_lock;
+	pthread_mutex_t text_lock;
 
 	C2Mailbox *selected_mbox;
-	gint selected_row;
-} C2WindowMain;
+} C2MainWindow;
 
-C2WindowMain WMain;
+C2MainWindow WMain;
 
 void
 c2_window_new									(void);
