@@ -32,7 +32,7 @@ extern "C" {
 
 #ifdef USE_GTKHTML
 #	include <gtkhtml/gtkhtml.h>
-#	include <bonobo.h>
+
 #endif
 
 #define C2_EDITOR(obj)						(GTK_CHECK_CAST (obj, c2_editor_get_type (), C2Editor))

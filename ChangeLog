@@ -1,3 +1,7 @@
+Thurs Oct 18 Peter "Bill" Gossner <gossner@arcom.com.au>
+	* Removed line 35 of src/widget-editor.h which was asking for some 
+	Bonobo Gnome stuff. Now C2 compiles andinstalls I think.
+
 Wed Oct 17 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed a little error in /xml/Makefile.am, thanks gresco.
 	* Renamed README.cvs to CVS-IMPORTANT-READ-FIRST.
