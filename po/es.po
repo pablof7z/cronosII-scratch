@@ -587,8 +587,7 @@ msgstr "No hay correo"
 #: src/widget-transfer-item.c:722
 #, c-format
 msgid "Failure: %s"
-msgstr "
-"
+msgstr "Fallo: %s"
 
 #: src/widget-transfer-item.c:724
 msgid "Failure"
