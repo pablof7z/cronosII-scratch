@@ -151,6 +151,12 @@ c2_imap_delete_mailbox						(C2IMAP *imap, C2Mailbox *mailbox);
 	
 gint
 c2_imap_rename_mailbox					(C2IMAP *imap, C2Mailbox *mailbox, gchar *name);
+
+gboolean
+c2_imap_subscribe_mailbox				(C2IMAP *imap, C2Mailbox *mailbox);
+	
+gboolean
+c2_imap_unsubscribe_mailbox			(C2IMAP *imap, C2Mailbox *mailbox);
 	
 gboolean
 c2_imap_load_mailbox						(C2IMAP *imap, C2Mailbox *mailbox);

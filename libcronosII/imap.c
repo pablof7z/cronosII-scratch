@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-/**
+/*
  * Maintainer(s) of this file:
  * 		* Bosko Blagojevic
  * Code of this file by:
@@ -36,8 +36,8 @@
 /* TODO: Set marks for emails */
 /* TODO: Re-Implement recursive folder listing (its too slow) */
 /* TODO: Function that handles untagged messages that come unwarranted */
-/* (in progress) TODO: Implement subscribtion facility */
 /* (in progress) TODO: Elegent network problem handling (reconnecting, etc) */
+/* (done!) TODO: Implement subscribtion facility */
 /* (done!) TODO: Get messages */
 /* (done!) TODO: Add messages */
 /* (done!) TODO: Delete messages */
@@ -953,11 +953,11 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 			if(date)
 			{
 				if ((unixdate = c2_date_parse(date)) == -1)
-					if ((unixdate = c2_date_parse2 (date)) == -1)
-						if ((unixdate = c2_date_parse3 (date)))
-							unixdate = time ();
+					if ((unixdate = c2_date_parse_fmt2 (date)) == -1)
+						if ((unixdate = c2_date_parse_fmt3 (date)))
+							unixdate = time (&unixdate);
 			} else
-				unixdate = time ();
+				unixdate = time (&unixdate);
 			/* FIX ME: the @account below should not be NULL */
 			db = c2_db_new(mailbox, !seen, subject, from, NULL, unixdate, uid, messages);
 			messages++;
@@ -1052,7 +1052,6 @@ c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 }
 
 /**
- * 
  * c2_imap_close_mailbox
  * 
  * @imap: A locked IMAP object
@@ -1128,7 +1127,8 @@ c2_imap_plaintext_login (C2IMAP *imap)
 	return 0;
 }
 
-/** c2_imap_get_mailbox_list
+/** 
+ * c2_imap_get_mailbox_list
  * @imap: A locked IMAP object
  * @reference: folder reference
  * @name: folder name or wildcard
@@ -1320,6 +1320,102 @@ c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
 	return 0;
 }
 #endif
+
+/* c2_imap_subscribe_mailbox
+ * 
+ * @imap: An IMAP object
+ * @mailbox: Mailbox to subscribe to
+ * 
+ * Will do an IMAP 'subscribe' to the mailbox.
+ * 
+ * Return Value:
+ * TRUE on success, FALSE otherwise.
+ **/
+gboolean
+c2_imap_subscribe_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
+{
+	gchar *reply;
+	tag_t tag;
+	
+	c2_mutex_lock(&imap->lock);
+	tag = c2_imap_get_tag(imap);
+	
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d SUBSCRIBE "
+			"\"%s\"\r\n", tag, c2_imap_get_full_mailbox_name(imap, mailbox)) < 0)
+	{
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		imap->state = C2IMAPDisconnected;
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+		c2_mutex_unlock(&imap->lock);
+		return FALSE;
+	}
+	
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
+	{
+		c2_mutex_unlock(&imap->lock);
+		return FALSE;
+	}
+	
+	if(!c2_imap_check_server_reply(reply, tag))
+	{
+		c2_imap_set_error(imap, reply+C2TagLen + 3);
+		g_free(reply);
+		c2_mutex_unlock(&imap->lock);
+		return FALSE;
+	}
+	g_free(reply);
+	c2_mutex_unlock(&imap->lock);
+
+	return TRUE;
+}
+
+/* c2_imap_subscribe_mailbox
+ * 
+ * @imap: An IMAP object
+ * @mailbox: Mailbox to unsubscribe to
+ * 
+ * Will do an IMAP 'unsubscribe' to the mailbox.
+ * 
+ * Return Value:
+ * TRUE on success, FALSE otherwise.
+ **/
+gboolean
+c2_imap_unsubscribe_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
+{
+	gchar *reply;
+	tag_t tag;
+	
+	c2_mutex_lock(&imap->lock);
+	tag = c2_imap_get_tag(imap);
+	
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d UNSUBSCRIBE "
+			"\"%s\"\r\n", tag, c2_imap_get_full_mailbox_name(imap, mailbox)) < 0)
+	{
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		imap->state = C2IMAPDisconnected;
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+		c2_mutex_unlock(&imap->lock);
+		return FALSE;
+	}
+	
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
+	{
+		c2_mutex_unlock(&imap->lock);
+		return FALSE;
+	}
+	
+	if(!c2_imap_check_server_reply(reply, tag))
+	{
+		c2_imap_set_error(imap, reply+C2TagLen + 3);
+		g_free(reply);
+		c2_mutex_unlock(&imap->lock);
+		return FALSE;
+	}
+	g_free(reply);
+	c2_mutex_unlock(&imap->lock);
+
+	return TRUE;
+}
 
 /** c2_imap_message_remove
  * 
