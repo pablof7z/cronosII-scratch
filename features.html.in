@@ -16,6 +16,7 @@ implemented in a short time.<br>
 <tr bgcolor="#ababff">
 <td>
 <ul>
+<<<<<<< features.html.in
 <li>IMAP support.</li>
 <li>Spool support.</li>
 <li>Search support.</li>
