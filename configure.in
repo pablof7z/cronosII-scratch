@@ -274,6 +274,16 @@ if test "$gtkxmhtml" = "yes"; then
 fi
 
 dnl #######################################################
+dnl   Gnome Window Icon
+dnl #######################################################
+
+AC_CHECK_HEADERS(libgnomeui/gnome-window-icon.h, [ window_icon="yes" ])
+
+if test "x$window_icon" = "xyes"; then
+	AC_DEFINE(USE_GNOME_WINDOW_ICON)
+fi
+
+dnl #######################################################
 dnl   Test Suite
 dnl #######################################################
 

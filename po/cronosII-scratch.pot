@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-27 14:04-0300\n"
+"POT-Creation-Date: 2001-09-27 19:29-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -491,31 +491,30 @@ msgid "Account Editor"
 msgstr ""
 
 #: src/preferences-trans.h:166 src/widget-dialog-preferences.c:1333
-#: src/widget-dialog-preferences.c:1344 src/widget-dialog-preferences.c:1648
-msgid "POP3"
+#: src/widget-dialog-preferences.c:1344 src/widget-dialog-preferences.c:1654
+msgid "Post Office Protocol 3 (POP3)"
 msgstr ""
 
 #: src/preferences-trans.h:167 src/widget-dialog-preferences.c:1333
-#: src/widget-dialog-preferences.c:1350 src/widget-dialog-preferences.c:1650
-msgid "IMAP"
+#: src/widget-dialog-preferences.c:1353 src/widget-dialog-preferences.c:1656
+msgid "Internet Message Access Protocol 4 (IMAP)"
 msgstr ""
 
-#: src/preferences-trans.h:186 src/widget-dialog-preferences.c:1384
-#: src/widget-dialog-preferences.c:1443 src/widget-dialog-preferences.c:1789
+#: src/preferences-trans.h:186 src/widget-dialog-preferences.c:1390
+#: src/widget-dialog-preferences.c:1449 src/widget-dialog-preferences.c:1795
 msgid "SMTP"
 msgstr ""
 
-#: src/preferences-trans.h:187 src/widget-dialog-preferences.c:1449
-#: src/widget-dialog-preferences.c:1793
+#: src/preferences-trans.h:187 src/widget-dialog-preferences.c:1455
+#: src/widget-dialog-preferences.c:1799
 msgid "Sendmail"
 msgstr ""
 
-#: src/preferences-trans.h:178 src/preferences-trans.h:200
-#: src/widget-dialog-preferences.c:1716
-msgid "Password"
+#: src/preferences-trans.h:178 src/widget-dialog-preferences.c:1722
+msgid "Plain"
 msgstr ""
 
-#: src/preferences-trans.h:179 src/widget-dialog-preferences.c:1720
+#: src/preferences-trans.h:179 src/widget-dialog-preferences.c:1726
 msgid "APOP"
 msgstr ""
 
@@ -553,60 +552,60 @@ msgstr ""
 msgid "Resolving"
 msgstr ""
 
-#: src/widget-transfer-item.c:360
+#: src/widget-transfer-item.c:363
 msgid "Connecting"
 msgstr ""
 
 #. [FIXME]
 #. * Action to login? Loggining?
 #.
-#: src/widget-transfer-item.c:371
+#: src/widget-transfer-item.c:374
 msgid "Loggining"
 msgstr ""
 
-#: src/widget-transfer-item.c:430
+#: src/widget-transfer-item.c:433
 msgid "Login failed"
 msgstr ""
 
-#: src/widget-transfer-item.c:497
+#: src/widget-transfer-item.c:505
 msgid "Getting mail list"
 msgstr ""
 
-#: src/widget-transfer-item.c:515
+#: src/widget-transfer-item.c:523
 #, c-format
 msgid "%u message."
 msgstr ""
 
-#: src/widget-transfer-item.c:517
+#: src/widget-transfer-item.c:525
 #, c-format
 msgid "%u messages."
 msgstr ""
 
-#: src/widget-transfer-item.c:532
+#: src/widget-transfer-item.c:540
 msgid "Receiving %v of %u"
 msgstr ""
 
-#: src/widget-transfer-item.c:551
+#: src/widget-transfer-item.c:559
 msgid "Synchronizing"
 msgstr ""
 
-#: src/widget-transfer-item.c:562
+#: src/widget-transfer-item.c:570
 msgid "Completed"
 msgstr ""
 
-#: src/widget-transfer-list.c:113
+#: src/widget-transfer-list.c:115
 msgid "Stop all"
 msgstr ""
 
-#: src/widget-transfer-list.c:127
+#: src/widget-transfer-list.c:129
 msgid "Close when finished."
 msgstr ""
 
-#: src/widget-transfer-list.c:132
+#: src/widget-transfer-list.c:134
 msgid "Send & Receive"
 msgstr ""
 
-#: src/widget-transfer-list.c:222
+#: src/widget-transfer-list.c:227
 msgid "Cancelled."
 msgstr ""
 
@@ -1273,6 +1272,10 @@ msgstr ""
 
 #: src/preferences-trans.h:196
 msgid "This server requires authentication."
+msgstr ""
+
+#: src/preferences-trans.h:200
+msgid "Password"
 msgstr ""
 
 #: src/preferences-trans.h:203

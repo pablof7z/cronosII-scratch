@@ -3510,8 +3510,8 @@ system administrator or your ISP.</label>
 	      <name>incoming_protocol</name>
 	      <height>23</height>
 	      <can_focus>True</can_focus>
-	      <items>POP3
-IMAP
+	      <items>Post Office Protocol 3 (POP3)
+Internet Message Access Protocol 4 (IMAP)
 </items>
 	      <initial_choice>0</initial_choice>
 	      <child>
@@ -3782,10 +3782,10 @@ IMAP
 		  <name>incoming_auth_method</name>
 		  <height>23</height>
 		  <can_focus>True</can_focus>
-		  <items>Password
+		  <items>Plain
 APOP
 </items>
-		  <initial_choice>1</initial_choice>
+		  <initial_choice>0</initial_choice>
 		  <child>
 		    <padding>0</padding>
 		    <expand>False</expand>

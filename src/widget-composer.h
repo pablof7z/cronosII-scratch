@@ -64,9 +64,6 @@ struct _C2Composer
 	/* Undo and Redo */
 	GList *operations; /* History of operations */
 	GList *operations_ptr;
-
-	/* Misc */
-	C2Application *application;
 };
 
 struct _C2ComposerClass

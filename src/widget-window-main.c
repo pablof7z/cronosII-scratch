@@ -216,10 +216,6 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	application->pixmap_forward = GNOME_PIXMAP (pixmap)->pixmap;
 	application->mask_forward = GNOME_PIXMAP (pixmap)->mask;
 
-	/* Toolbar */
-	toolbar = glade_xml_get_widget (xml, "toolbar");
-	gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), application->interface_toolbar);
-
 	/* Hpaned */
 	hpaned = glade_xml_get_widget (xml, "hpaned");
 	gtk_paned_set_position (GTK_PANED (hpaned), application->rc_hpan);
@@ -416,6 +412,7 @@ on_toolbar_compose_clicked (GtkWidget *widget, C2WindowMain *wmain)
 	GtkWidget *composer;
 	
 	composer = c2_composer_new (C2_WINDOW (wmain)->application);
+	gtk_widget_show (composer);
 }
 
 static void

@@ -433,7 +433,7 @@ login (C2POP3 *pop3)
 		if (retval == 0)
 			logged_in = FALSE;
 		else
-			logged_in = FALSE;
+			logged_in = TRUE;
 
 		if (!logged_in)
 		{
@@ -493,7 +493,7 @@ login_apop (C2POP3 *pop3)
 
 	md5_buffer (apopstring, strlen(apopstring), md5apop);
 
-	// print out the md5 hash
+	/* print out the md5 hash */
 	for( x = 0; x < 16; x++)
 		sprintf (&md5apopstring[x*2],"%02x",md5apop[x]);
 	md5apopstring[32] = 0;
@@ -695,6 +695,7 @@ uidl_in_db (C2Account *account, const gchar *uidl)
 		c2_error_set (-errno);
 #ifdef USE_DEBUG
 		g_warning ("Unable to search for a UIDL: %s\n", c2_error_get ());
+		C2_DEBUG (path);
 #endif
 		g_free (path);
 		return;

@@ -16,11 +16,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <glade/glade.h>
+#include <unistd.h>
 
 #include <libcronosII/account.h>
 
 #include "widget-application.h"
 #include "widget-composer.h"
+#include "widget-window.h"
 
 #define XML_FILE "cronosII-composer"
 
@@ -32,6 +34,9 @@ init										(C2Composer *composer);
 
 static void
 destroy										(GtkObject *object);
+
+static void
+on_run_external_editor_clicked				(GtkWidget *widget, C2Composer *composer);
 
 enum
 {
@@ -65,7 +70,7 @@ c2_composer_get_type (void)
 			(GtkClassInitFunc) NULL
 		};
 
-		type = gtk_type_unique (gtk_widget_get_type (), &info);
+		type = gtk_type_unique (c2_window_get_type (), &info);
 	}
 
 	return type;
@@ -126,7 +131,6 @@ init (C2Composer *composer)
 	composer->draft_id = -1;
 	composer->operations = NULL;
 	composer->operations_ptr = NULL;
-	composer->application = NULL;
 }
 
 static void
@@ -148,18 +152,24 @@ c2_composer_new (C2Application *application)
 void
 c2_composer_construct (C2Composer *composer, C2Application *application)
 {
-	GtkWidget *menu;
+	GtkWidget *scroll;
 	GtkWidget *widget;
-	gchar *str;
+	gchar *str, *buf;
 	GList *popdown = NULL;
 	gint i;
 	C2Account *account;
 	GladeXML *xml;
 	
+	c2_window_construct (C2_WINDOW (composer), application, _("Composer"), "composer");
 	C2_WINDOW (composer)->xml = glade_xml_new (C2_APPLICATION_GLADE_FILE (XML_FILE),
 								"wnd_composer_contents");
 	xml = C2_WINDOW (composer)->xml;
-	
+#ifdef USE_GNOME_WINDOW_ICON
+	gnome_window_icon_set_from_file (GTK_WINDOW (composer), PKGDATADIR "/pixmaps/mail-write.png");
+#endif
+
+	c2_window_set_contents_from_glade (C2_WINDOW (composer), "wnd_composer_contents");
+
 	for (i = 0; i <= 9; i++)
 	{
 		switch (i)
@@ -200,7 +210,8 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 			gtk_widget_set_sensitive (widget, FALSE);
 	}
 
-	menu = glade_xml_get_widget (xml, "account");
+	/* Set accounts */
+	widget = glade_xml_get_widget (xml, "account");
 	for (account = application->account; account; account = account->next)
 	{
 		const gchar *name;
@@ -213,8 +224,109 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 
 		popdown = g_list_append (popdown, str);
 	}
+	gtk_combo_set_popdown_strings (GTK_COMBO (widget), popdown);
 
-/*	gtk_toolbar_set_style (GTK_TOOLBAR (glade_xml_get_widget (xml, "toolbar")),
-						gnome_config_get_int ());*/
-	gtk_widget_queue_resize (GTK_WIDGET (composer));
+	/* Create the actual editor widget */
+	scroll = glade_xml_get_widget (xml, "scroll");
+
+	buf = gnome_config_get_string ("/"PACKAGE"/Interface-Composer/editor");
+	
+	if (c2_streq (buf, "external"))
+	{
+		GtkWidget *viewport;
+		GtkWidget *alignment;
+		GtkWidget *frame;
+		GtkWidget *vbox, *label, *button, *hbox, *pixmap;
+		gchar *cmnd, *buf2;
+		
+		viewport = gtk_viewport_new (NULL, NULL);
+		gtk_container_add (GTK_CONTAINER (scroll), viewport);
+		gtk_widget_show (viewport);
+
+		alignment = gtk_alignment_new (0.5, 0.5, 0.220001, 0.0100004);
+		gtk_widget_show (alignment);
+		gtk_container_add (GTK_CONTAINER (viewport), alignment);
+
+		frame = gtk_frame_new (NULL);
+		gtk_container_add (GTK_CONTAINER (alignment), frame);
+		gtk_widget_show (frame);
+		
+		vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
+		gtk_container_add (GTK_CONTAINER (frame), vbox);
+		gtk_widget_show (vbox);
+		gtk_container_set_border_width (GTK_CONTAINER (vbox), GNOME_PAD_SMALL);
+		gtk_widget_set_usize (vbox, 70, -1);
+
+		label = gtk_label_new (_("You selected to use an external editor "
+								 "instead of the built-in with Cronos II.\n"
+								 "\n"
+								 "Click the button below to run the editor "
+								 "you selected in the Preferences dialog.\n"
+								 "\n"
+								 "Once you finish writting the message in "
+								 "the editor save the file and close it.\n"
+								 "After that you can manipulate the message "
+								 "using the tools provided in this window.\n"));
+		gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, TRUE, 0);
+		gtk_widget_show (label);
+		gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_LEFT);
+		gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
+		gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+
+		alignment = gtk_alignment_new (0.5, 0.5, 0.01, 0.0100004);
+		gtk_box_pack_start (GTK_BOX (vbox), alignment, FALSE, FALSE, 0);
+		gtk_widget_show (alignment);
+		
+		button = gtk_button_new ();
+		gtk_container_add (GTK_CONTAINER (alignment), button);
+		gtk_widget_show (button);
+
+		hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
+		gtk_container_add (GTK_CONTAINER (button), hbox);
+		gtk_widget_show (hbox);
+
+		pixmap = gnome_stock_pixmap_widget (GTK_WIDGET (composer), GNOME_STOCK_PIXMAP_EXEC);
+		gtk_box_pack_start (GTK_BOX (hbox), pixmap, FALSE, FALSE, 0);
+		gtk_widget_show (pixmap);
+
+		cmnd = gnome_config_get_string ("/"PACKAGE"/Interface-Composer/editor_external_cmnd");
+		buf2 = g_strdup_printf (_("Run external editor: %s"), cmnd);
+		g_free (cmnd);
+
+		label = gtk_label_new (buf2);
+		gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
+		gtk_widget_show (label);
+		gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+		g_free (buf2);
+
+		gtk_signal_connect (GTK_OBJECT (button), "clicked",
+							GTK_SIGNAL_FUNC (on_run_external_editor_clicked), composer);
+	}
+
+	g_free (buf);
+}
+
+static void
+on_run_external_editor_clicked (GtkWidget *widget, C2Composer *composer)
+{
+	gchar *cmnd;
+	pid_t pid;
+
+	cmnd = gnome_config_get_string ("/"PACKAGE"/Interface-Composer/editor_external_cmnd");
+
+	pid = fork ();
+
+	if (pid == -1)
+	{
+		g_assert_not_reached ();
+	}
+	if (!pid)
+	{
+        execlp(cmnd, "cronosII-external-editor", NULL);
+		g_assert_not_reached ();
+        _exit(-1);
+	} else
+	{
+		fprintf(stderr, "Parent: forked a child with pid = %d\n", (int)pid);
+	}
 }

@@ -347,7 +347,10 @@ c2_transfer_item_start (C2TransferItem *ti)
 			 * checked like accounts but as mailboxes. */
 		} else
 		{
+#ifdef USE_DEBUG
+			printf ("%d\n", ti->account->type);
 			g_assert_not_reached ();
+#endif
 			return;
 		}
 	}
@@ -473,10 +476,15 @@ on_pop3_login_failed (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pa
 		nth = c2_account_get_position (ti->application->account, account);
 		buffer = g_strdup_printf ("/"PACKAGE"/Account %d/", nth);
 		gnome_config_push_prefix (buffer);
-		gnome_config_set_string ("incoming_username", pop3->user);
+		gnome_config_set_string ("incoming_server_username", pop3->user);
+		printf ("Set '%s'\n", pop3->user);
 		if (pop3->flags & C2_POP3_DO_NOT_LOSE_PASSWORD)
-			gnome_config_set_string ("incoming_password", pop3->pass);
+		{
+			gnome_config_set_string ("incoming_server_password", pop3->pass);
+			printf ("Set '%s'\n", pop3->pass);
+		}
 		gnome_config_pop_prefix ();
+		gnome_config_sync ();
 		g_free (buffer);
 	}
 	

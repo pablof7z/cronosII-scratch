@@ -1330,7 +1330,7 @@ on_general_accounts_incoming_protocol_selection_done (GtkWidget *pwidget, C2Wind
 		{
 			gtk_label_get (GTK_LABEL (child), &selection);
 
-			if (c2_streq (selection, _("POP3")) || c2_streq (selection, _("IMAP")))
+			if (c2_streq (selection, _("Post Office Protocol 3 (POP3)")) || c2_streq (selection, _("Internet Message Access Protocol 4 (IMAP)")))
 			{
 				widget = glade_xml_get_widget (xml, "incoming_server_host_label");
 				gtk_widget_show (widget);
@@ -1341,13 +1341,16 @@ on_general_accounts_incoming_protocol_selection_done (GtkWidget *pwidget, C2Wind
 				widget = glade_xml_get_widget (xml, "incoming_server_port");
 				gtk_widget_show (widget);
 
-				if (c2_streq (selection, _("POP3")))
+				if (c2_streq (selection, _("Post Office Protocol 3 (POP3)")))
 				{
 					gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), 110);
 
 					widget = glade_xml_get_widget (xml, "options_multiple_access_leave");
 					gtk_widget_set_sensitive (widget, TRUE);
-				} else if (c2_streq (selection, _("IMAP")))
+
+					widget = glade_xml_get_widget (xml, "options_auto_check");
+					gtk_widget_set_sensitive (widget, TRUE);
+				} else if (c2_streq (selection, _("Internet Message Access Protocol 4 (IMAP)")))
 				{
 					gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), 143);
 
@@ -1358,6 +1361,9 @@ on_general_accounts_incoming_protocol_selection_done (GtkWidget *pwidget, C2Wind
 					gtk_widget_set_sensitive (widget, FALSE);
 
 					widget = glade_xml_get_widget (xml, "options_multiple_access_remove_value");
+					gtk_widget_set_sensitive (widget, FALSE);
+
+					widget = glade_xml_get_widget (xml, "options_auto_check");
 					gtk_widget_set_sensitive (widget, FALSE);
 				}
 			}
@@ -1645,9 +1651,9 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 		{
 			gtk_label_get (GTK_LABEL (child), &selection);
 
-			if (c2_streq (selection, _("POP3")))
+			if (c2_streq (selection, _("Post Office Protocol 3 (POP3)")))
 				type = C2_ACCOUNT_POP3;
-			else if (c2_streq (selection, _("IMAP")))
+			else if (c2_streq (selection, _("Internet Message Access Protocol 4 (IMAP)")))
 				type = C2_ACCOUNT_IMAP;
 		}
 	}
@@ -1713,7 +1719,7 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 			{
 				gtk_label_get (GTK_LABEL (child), &selection);
 				
-				if (c2_streq (selection, _("Password")))
+				if (c2_streq (selection, _("Plain")))
 				{
 					c2_pop3_set_auth_method (pop3, C2_POP3_AUTHENTICATION_PASSWORD);
 					gnome_config_set_int ("incoming_auth_method", C2_POP3_AUTHENTICATION_PASSWORD);

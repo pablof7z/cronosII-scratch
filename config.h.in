@@ -61,6 +61,7 @@
 #undef USE_SPOOL_DIR
 #undef USE_XMAILER
 #undef GNOME_DOWNLOAD_PATH
+#undef USE_GNOME_WINDOW_ICON
 #undef USE_GNOME_PRINT
 #undef USE_GTKXMHTML
 #undef USE_GTKHTML
@@ -135,6 +136,9 @@
 
 /* Define if you have the <argz.h> header file.  */
 #undef HAVE_ARGZ_H
+
+/* Define if you have the <libgnomeui/gnome-window-icon.h> header file.  */
+#undef HAVE_LIBGNOMEUI_GNOME_WINDOW_ICON_H
 
 /* Define if you have the <limits.h> header file.  */
 #undef HAVE_LIMITS_H

@@ -15,6 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+#include <config.h>
+
 #include "widget-transfer-list.h"
 
 #include <libcronosII/error.h>
@@ -131,6 +133,9 @@ c2_transfer_list_new (C2Application *application)
 
 	c2_dialog_construct (C2_DIALOG (tl), application, _("Send & Receive"),
 						C2_WIDGET_TRANSFER_LIST_TYPE, buttons);
+#if USE_GNOME_WINDOW_ICON
+	gnome_window_icon_set_from_file (GTK_WINDOW (tl), PKGDATADIR "/pixmaps/send-receive.png");
+#endif
 
 	gnome_dialog_button_connect (GNOME_DIALOG (tl), 0, on_button0_clicked, tl);
 	gnome_dialog_button_connect (GNOME_DIALOG (tl), 1, on_button1_clicked, tl);

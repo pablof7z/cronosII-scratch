@@ -163,8 +163,8 @@ gchar *s = N_("Please, fill in the information regarding the incoming mail.\n"
               "If you don't know the protocol the server uses you should ask your\n"
               "system administrator or your ISP.");
 gchar *s = N_("Protocol:");
-gchar *s = N_("POP3");
-gchar *s = N_("IMAP");
+gchar *s = N_("Post Office Protocol 3 (POP3)");
+gchar *s = N_("Internet Message Access Protocol 4 (IMAP)");
 gchar *s = N_("Server information");
 gchar *s = N_("Hostname:");
 gchar *s = N_("Port:");
@@ -175,7 +175,7 @@ gchar *s = N_("Username:");
 gchar *s = N_("Username Cronos II will use to identifies it self at the server");
 gchar *s = N_("Authentication");
 gchar *s = N_("Authentication method:");
-gchar *s = N_("Password");
+gchar *s = N_("Plain");
 gchar *s = N_("APOP");
 gchar *s = N_("Remember password.");
 gchar *s = N_("Outgoing mail");

@@ -19,6 +19,7 @@ pixmap_DATA = \
 	interface_misc.png	\
 	loading-image.png	\
 	mailbox.png			\
+	mail-write.png		\
 	mails.png			\
 	mark.png			\
 	mcard-edit.png		\
@@ -32,6 +33,7 @@ pixmap_DATA = \
 	receive.png			\
 	red_arrow.png		\
 	send.png			\
+	send-receive.png	\
 	splash.png			\
 	reply.png			\
 	unknown-file.png	\
