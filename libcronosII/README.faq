@@ -1,0 +1,12 @@
+Q: What's the 'Virtual function' label all about?
+A: When you see a function in a module that is composed by
+A: several submodules (e.i. db: db-cronosII, db-imap, db-spool)
+A: you might see a label in the header file of the module (e.i. db.h)
+A: on top of a function that says that that function is a 'Virtual function'.
+A: This means that the submodules should export a function with that
+A: name (e.i. c2_db_load: c2_db_cronosII_load) with the same return type
+A: and the same parameters, which will be called when the virtual function
+A: is called and the type of object is of type of the submodule
+A: (e.i. a C2Db object which is of type C2_MAILBOX_CRONOSII, when calling
+A: c2_db_archive the function c2_db_cronosII_archive will be called).
+
