@@ -53,6 +53,7 @@ typedef struct
 	gint port;
 	gboolean authentication;
 	gchar *user, *pass;
+	gchar *smtp_local_cmd;
 
 	gint flags;
 	gchar *error;
