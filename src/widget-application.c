@@ -412,7 +412,7 @@ init (C2Application *application)
 
 		application->server_lock = g_new0 (C2Mutex, 1);
 		c2_mutex_init (application->server_lock);
-		gdk_input_add (application->server_socket, GDK_INPUT_READ, on_server_read, application);
+		gdk_input_add (application->server_socket, GDK_INPUT_READ, (GdkInputFunction)on_server_read, application);
 		application->acting_as_server = 1;
 		printf ("Acting as server\n");
 	} else
@@ -1121,7 +1121,7 @@ compact_mailboxes_thread (GladeXML *xml)
 		gtk_progress_set_percentage (GTK_PROGRESS (progress), 0);
 		gdk_threads_leave ();
 
-		timeout = gtk_timeout_add (10, compact_mailboxes_on_timeout, progress);
+		timeout = gtk_timeout_add (10, (GtkFunction)compact_mailboxes_on_timeout, progress);
 
 		c2_db_compact (mailbox);
 
@@ -1547,9 +1547,9 @@ _empty_trash_thread (C2Pthread2 *data)
 	C2Window *window = (C2Window *) data->v1;
 	C2Mailbox *mailbox = C2_MAILBOX (data->v2);
 	C2Db *db;
-	GtkWidget *widget;
+	GtkWidget *widget = NULL;
 	GtkProgress *progress = NULL;
-	gint length, off;
+	gint length, off = 0;
 	gboolean progress_ownership = FALSE,
 			 status_ownership = FALSE;
 
@@ -1778,7 +1778,7 @@ _expunge (C2Application *application, GList *list, C2Window *window)
 
 	/* Ok, we are ready to move everything to «Trash» */
 	/* Fire the thread */
-	data = g_new0 (C2Pthread3, 1);
+	data = (C2Pthread2*)g_new0 (C2Pthread3, 1);
 	data->v1 = g_list_copy (list);
 	data->v2 = window;
 
@@ -1933,7 +1933,7 @@ _move (C2Application *application, GList *list, C2Window *window)
 static void
 _open_message (C2Application *application, C2Db *db, C2Message *message, const gchar *file)
 {
-	GtkWidget *wmail;
+	GtkWidget *wmail = NULL;
 	
 	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
 	c2_return_if_fail (!(!C2_IS_DB (db) && !C2_IS_MESSAGE (message) && !file), C2EDATA);
@@ -1941,11 +1941,11 @@ _open_message (C2Application *application, C2Db *db, C2Message *message, const g
 	if (C2_IS_DB (db))
 	{
 		wmail = c2_window_mail_new (application);
-		c2_window_mail_set_db (wmail, db);
+		c2_window_mail_set_db (C2_WINDOW_MAIL(wmail), db);
 	} else if (C2_IS_MESSAGE (message))
 	{
 		wmail = c2_window_mail_new (application);
-		c2_window_mail_set_message (wmail, message);
+		c2_window_mail_set_message (C2_WINDOW_MAIL(wmail), message);
 	} else if (file)
 	{
 		C2Message *message;
@@ -1969,7 +1969,7 @@ _open_message (C2Application *application, C2Db *db, C2Message *message, const g
 			g_free (str);
 		} else
 		{
-			c2_window_mail_set_message (wmail, message);
+			c2_window_mail_set_message (C2_WINDOW_MAIL(wmail), message);
 		}
 	}
 
@@ -2125,7 +2125,7 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 		return;
 
 	/* I think c2 won't notice when a composer adds a message
-	 * to the outbox mailbox when the mailbox is freezed
+	 * to the outbox mailbox when the mailbox is frozen
 	 */
 	if (change != C2_MAILBOX_CHANGE_ANY)
 		return;
@@ -2135,9 +2135,10 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 	c2_db_load_message (db);
 
 	buf = c2_message_get_header_field (db->message, "X-CronosII-Send-Type:");
-	if (((C2ComposerSendType) atoi (buf)) != C2_COMPOSER_SEND_NOW)
+	if (!buf || (((C2ComposerSendType) atoi (buf)) != C2_COMPOSER_SEND_NOW))
 	{
-		g_free (buf);
+		if(buf)
+			g_free (buf);
 		gtk_object_unref (GTK_OBJECT (db->message));
 		return;
 	}
