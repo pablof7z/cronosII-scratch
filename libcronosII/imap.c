@@ -217,7 +217,7 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 		}
 		
 		/* The IMAP server returned our tag, end of response */
-		if(strneq(buf, "CronosII-", 9)) 
+		if(c2_strneq(buf, "CronosII-", 9)) 
 			break;
 	}
 	
