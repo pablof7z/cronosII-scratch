@@ -19,6 +19,16 @@
 #include "utils.h"
 #include "imap.h"
 
+/* C2 IMAP Module in the process of being engineered by Pablo and Bosko =) */
+/* TODO: Implement a hash table in IMAP object for handing server replies */
+/* TODO: Function for reading server replies and placing it in hash */
+/* TODO: Login (at least plain-text for now) */
+/* TODO: Get list of folders */
+/* TODO: Get list of messages */
+/* TODO: Get and delete messages */
+/* TODO: Create, rename, and remove folders */
+/* TODO: Create a test module */
+
 static void
 class_init									(C2IMAPClass *klass);
 
@@ -27,6 +37,9 @@ init										(C2IMAP *imap);
 
 static void
 destroy										(GtkObject *object);
+
+static void
+c2_imap_tag(C2IMAP *imap);
 
 enum
 {
@@ -119,10 +132,71 @@ c2_imap_new (gchar *host, gint port, gchar *user, gchar *pass, gboolean ssl)
 	C2IMAP *imap;
 
 	imap = gtk_type_new (c2_imap_get_type ());
-	imap->user = user;
-	imap->pass = pass;
+	imap->user = g_strdup(user);
+	imap->pass = g_strdup(pass);
+	pthread_mutex_init(&imap->lock, NULL);
 
 	c2_net_object_construct (C2_NET_OBJECT (imap), host, port, ssl);
 
 	return imap;
 }
+
+static void
+destroy(GtkObject *object)
+{
+	g_free(C2_IMAP(object)->user);
+	g_free(C2_IMAP(object)->pass);
+	pthread_mutex_destroy(&C2_IMAP(object)->lock);
+}
+
+/* function that gets fired off every time there is incoming net data */
+static void
+c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition)
+{
+	C2IMAP *imap = C2_IMAP(data);
+
+	pthread_mutex_lock(&imap->lock);
+	
+	/* TODO */
+	/* Suggestion: keep reading and do not put the info in the hash until we hit
+	 * the last 'tagged' response. This might mean the necessity for a global
+	 * buffer to be used in the object, or a static variable. Ideas? */
+	
+	pthread_mutex_unlock(&imap->lock);
+}
+
+static void
+c2_imap_tag(C2IMAP *imap)
+{
+	if(imap->cmnd >= 1000)
+		imap->cmnd = 0;
+	else
+		imap->cmnd++;
+}
+
+gint
+c2_imap_plaintext_login (C2IMAP *imap)
+{	
+	gint tag;
+	
+	pthread_mutex_lock(&imap->lock);
+	
+	tag = imap->cmnd;
+	c2_imap_tag(imap);
+	if(c2_net_object_send(C2_NET_OBJECT(imap), "%03d LOGIN %s %s\r\n", 
+												tag, imap->user, imap->pass) < 0)
+	{
+		c2_imap_tag(imap);
+		pthread_mutex_unlock(&imap->lock);
+		return -1;
+	}
+	
+	/* be careful to unlock the mutex before waiting on replies */
+	pthread_mutext_unlock(&imap->lock);
+	
+	/* here we should block or wait until our local imap
+	 * hash has a reply with the 'tag' tag. */
+	
+	return 0;
+}
+

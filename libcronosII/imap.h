@@ -63,6 +63,8 @@ struct _C2IMAP
 
 	gint cmnd;
 
+	pthread_mutex_t lock;
+	
 	C2Mailbox *mailboxes;
 	C2Mailbox *selected_mailbox;
 };
