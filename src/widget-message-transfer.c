@@ -136,10 +136,10 @@ c2_message_transfer_new (void)
 
 	/* mt is a window widget, so we should use other non-windowed widget */
 	gnome_widget_add_help (GTK_WIDGET (mt),
-				_("This window shows the transfering of messages "
-				  "(both incoming and outcoming).\n"
-				  "Clicking a row of the list you will get more information "
-				  "in the progress of the transfering"));
+				_("This window shows transfer of messages "
+				  "( incoming and outcoming).\n"
+				  "Clicking a row on the list you will get more information "
+				  " the progress of the transfer"));
 
 	gnome_dialog_close_hides(GNOME_DIALOG(mt), TRUE);
 	
@@ -283,8 +283,8 @@ run (C2MessageTransfer *mt)
 				pthread_join (thread, NULL);
 		} else
 		{
-			g_print (PACKAGE " v." VERSION " doesn't supports sending of messages, "
-					 "if you are a developer you can code it yourself:\n"
+			g_print (PACKAGE " v." VERSION " doesn't support sending of messages, "
+					 "if you are a developer you might code it yourself:\n"
 					 "file: " __FILE__"\n"
 					 "line: %d\n"
 					 "function: " __PRETTY_FUNCTION__ "\n"
@@ -472,7 +472,7 @@ check_status (C2Pop3 *pop3, gint mails, C2Pthread3 *data)
 	if (mails)
 		change_state_of_queue (mt, queue, row, STATE_PROC, _("Retrieving messages..."));
 	else
-		change_state_of_queue (mt, queue, row, STATE_PROC, _("No messages in server."));
+		change_state_of_queue (mt, queue, row, STATE_PROC, _("No messages at server."));
 }
 
 static void
@@ -505,7 +505,7 @@ check_disconnect (C2NetObject *object, gboolean success, C2Pthread2 *data)
 		if (queue->subtasks[DONE])
 			string = g_strdup_printf (_("%d messages downloaded."), queue->subtasks[DONE]);
 		else
-			string = _("No messages in server.");
+			string = _("No messages at server.");
 		change_state_of_queue (mt, queue, row, STATE_OK, string);
 	} else
 		change_state_of_queue (mt, queue, row, STATE_ERR, c2_error_get (c2_errno));

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /src/install-wizard.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -15,6 +15,9 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+*/appearance is spelt incorrectly throughout this app generally but here we seem
+* to be constucting a subdirectory that the user may have to access !!
+*Can this be fixed, or is it too late. -pete. */
 #include <gnome.h>
 #include <glib.h>
 #include <config.h>
@@ -408,7 +411,7 @@ import_old_configuration (void)
 	RESULT (TRUE);
 	g_free (path);
 
-	REPORT (N_("Registering in the new configuration 'Version'"));
+	REPORT (N_("Registering  the new configuration 'Version'"));
 	gnome_config_set_string ("/cronosII/CronosII/Version", VERSION);
 	REPORT_RESULT (N_("Success."), TRUE);
 

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /src/widget-html.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -309,7 +309,7 @@ on_gtkxmhtml_image_load_pthread_request_disconnect (C2Request *request, gboolean
 		new_image = XmHTMLImageDefaultProc (widget, DATADIR "/cronosII/pixmaps/no-image.png", NULL, 0);
 	} else
 	{
-		/* The fetching was successfull:
+		/* The fetching was successful:
 		 * 1. Get a tmpfile path.
 		 * 2. Save the image.
 		 * 3. Load the image. */
