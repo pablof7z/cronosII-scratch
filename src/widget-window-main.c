@@ -569,7 +569,7 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 
 	/* Index */
 	index_scroll = glade_xml_get_widget (xml, "index_scroll");
-	wmain->index = c2_index_new (application);
+	wmain->index = c2_index_new (application, C2_INDEX_READ_WRITE);
 	gtk_container_add (GTK_CONTAINER (index_scroll), wmain->index);
 	gtk_widget_show (wmain->index);
 	gtk_signal_connect (GTK_OBJECT (wmain->index), "select_message",
@@ -1249,6 +1249,49 @@ search (C2WindowMain *wmain)
 static void
 send_ (C2WindowMain *wmain)
 {
+	C2Mailbox *outbox;
+	C2Db *db;
+
+	outbox = c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox,
+										C2_MAILBOX_OUTBOX);
+	if (!C2_IS_MAILBOX (outbox))
+		return;
+
+	db = outbox->db;
+	if (db)
+	{
+		GtkWidget *tl;
+		
+		tl = c2_application_window_get (application, C2_WIDGET_TRANSFER_LIST_TYPE);
+		if (!tl || !C2_IS_TRANSFER_LIST (tl))
+			tl = c2_transfer_list_new (application);
+
+		gtk_widget_show (tl);
+		gdk_window_raise (tl->window);
+		
+		do
+		{
+			C2Message *message;
+			C2Account *account;
+			C2SMTP *smtp;
+			C2TransferItem *ti;
+			gchar *buf;
+
+			c2_db_load_message (db);
+			
+			buf = c2_message_get_header_field (db->message, "\nX-CronosII-Account:");
+			account = c2_account_get_by_name (application->account, buf);
+			g_free (buf);
+			if (!account)
+				continue;
+
+			smtp = (C2SMTP*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, NULL);
+
+			ti = c2_transfer_item_new (application, account, C2_TRANSFER_ITEM_SEND, smtp, db);
+			c2_transfer_list_add_item (C2_TRANSFER_LIST (tl), ti);
+			c2_transfer_item_start (ti);
+		} while (c2_db_lineal_next (db));
+	}
 }
 
 static gint

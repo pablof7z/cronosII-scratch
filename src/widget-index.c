@@ -75,7 +75,7 @@ enum
 	LAST_SIGNAL
 };
 
-static gint signals[LAST_SIGNAL] = { 0 };
+static guint signals[LAST_SIGNAL] = { 0 };
 
 static GtkCListClass *parent_class = NULL;
 
@@ -139,18 +139,20 @@ class_init (C2IndexClass *klass)
 static void
 init (C2Index *index)
 {
+	index->application = NULL;
+	index->mode = 0;
 	index->unreaded_messages = 0;
 	index->total_messages = 0;
 	index->mailbox = NULL;
 }
 
 GtkWidget *
-c2_index_new (C2Application *application)
+c2_index_new (C2Application *application, C2IndexMode mode)
 {
     C2Index *index;
 	
     index = gtk_type_new (c2_index_get_type());
-	c2_index_construct (index, application);
+	c2_index_construct (index, application, mode);
 
 	gtk_signal_connect (GTK_OBJECT (application), "application_preferences_changed",
 							GTK_SIGNAL_FUNC (on_application_preferences_changed), index);
@@ -159,7 +161,7 @@ c2_index_new (C2Application *application)
 }
 
 void
-c2_index_construct (C2Index *index, C2Application *application)
+c2_index_construct (C2Index *index, C2Application *application, C2IndexMode mode)
 {
 	GtkWidget *pixmap;
 	GtkCList *clist;
@@ -176,6 +178,7 @@ c2_index_construct (C2Index *index, C2Application *application)
 	};
 
 	index->application = application;
+	index->mode = mode;
 
 	/* create the clist */
     gtk_clist_construct (GTK_CLIST (index), 7, titles);
@@ -294,10 +297,10 @@ add_message (C2Application *application, GtkCList *clist, C2Db *db, const gchar 
 			style->font = application->fonts_gdk_readed_mails;
 	}
 
-	/* [TODO] Get the BG color for this row */
-	
 	gtk_clist_set_row_style (clist, clist->rows-1, style);
 	gtk_clist_set_row_data (clist, clist->rows-1, db);
+
+	/* [TODO] Get the BG color for this row */
 	g_free (tmp);
 	g_free (row[5]);
 	g_free (row[7]);
@@ -370,6 +373,22 @@ c2_index_sort (C2Index *index)
 }
 
 static void
+on_db_unreaded_timeout_thread (C2Db *db)
+{
+	c2_db_message_set_state (db, C2_MESSAGE_READED);
+}
+
+static gboolean
+on_db_unreaded_timeout (C2Db *db)
+{
+	pthread_t thread;
+
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_db_unreaded_timeout_thread), db);
+	
+	return FALSE;
+}
+
+static void
 select_row (C2Index *index, gint row, gint column, GdkEvent *event)
 {
 	GtkVisibility visibility;
@@ -382,21 +401,34 @@ select_row (C2Index *index, gint row, gint column, GdkEvent *event)
 		gtk_signal_emit (GTK_OBJECT (index), signals[SELECT_MESSAGE], node);
 	set_selected_mail (index, row);
 
-	/* Now scroll */
-	visibility = gtk_clist_row_is_visible (clist, row);
-
-	switch (visibility)
+	if (g_list_length (clist->selection) == 1)
 	{
-		case GTK_VISIBILITY_NONE:
-			gtk_clist_moveto (clist, row, -1, 0.5, 0);
-			break;
-		case GTK_VISIBILITY_PARTIAL:
-			top = ((clist->row_height * row) + ((row + 1) * 1) + clist->voffset);
-			
-			if ((top < 0))
-				gtk_clist_moveto (clist, row, -1, 0.2, 0);
-			else
-				gtk_clist_moveto (clist, row, -1, 0.8, 0);
+		/* Now scroll */
+		visibility = gtk_clist_row_is_visible (clist, row);
+
+		switch (visibility)
+		{
+			case GTK_VISIBILITY_NONE:
+				gtk_clist_moveto (clist, row, -1, 0.5, 0);
+				break;
+			case GTK_VISIBILITY_PARTIAL:
+				top = ((clist->row_height * row) + ((row + 1) * 1) + clist->voffset);
+				
+				if ((top < 0))
+					gtk_clist_moveto (clist, row, -1, 0.2, 0);
+				else
+					gtk_clist_moveto (clist, row, -1, 0.8, 0);
+		}
+
+#if 0
+		/* Connect a timeout for the marking of messages as readed */
+		if (index->mode == C2_INDEX_READ_WRITE)
+		{
+			if (C2_IS_DB (node) && node->state == C2_MESSAGE_UNREADED)
+				gtk_timeout_add (c2_preferences_get_general_options_timeout_mark ()*1000,
+									on_db_unreaded_timeout, node);
+		}
+#endif
 	}
 }
 

@@ -39,6 +39,13 @@ extern "C" {
 
 typedef struct _C2Index C2Index;
 typedef struct _C2IndexClass C2IndexClass;
+typedef enum _C2IndexMode C2IndexMode;
+
+enum _C2IndexMode
+{
+	C2_INDEX_READ_WRITE,
+	C2_INDEX_READ_ONLY
+};
 
 struct _C2Index
 {
@@ -48,6 +55,7 @@ struct _C2Index
 	gint total_messages;
 
 	C2Application *application;
+	C2IndexMode mode;
 
 	C2Mailbox *mailbox;
 };
@@ -68,10 +76,10 @@ GtkType
 c2_index_get_type							(void);
 
 GtkWidget *
-c2_index_new								(C2Application *application);
+c2_index_new								(C2Application *application, C2IndexMode mode);
 
 void
-c2_index_construct							(C2Index *index, C2Application *application);
+c2_index_construct							(C2Index *index, C2Application *application, C2IndexMode mode);
 
 /* Content handling */
 void

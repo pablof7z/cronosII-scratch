@@ -95,6 +95,9 @@ struct _C2Composer
 	/* Action */
 	C2ComposerAction action;
 
+	/* Autosave ID */
+	gint autosave_id;
+
 	/* Save */
 	gchar *file;
 
@@ -112,6 +115,7 @@ struct _C2ComposerClass
 	void (*changed_title) (C2Composer *composer, const gchar *title);
 
 	void (*add_attachment) (C2Composer *composer, gchar *file, gchar *description, gint nth);
+	void (*autosave) (C2Composer *composer);
 	void (*find) (C2Composer *composer);
 	void (*open_draft) (C2Composer *composer);
 	void (*open_file) (C2Composer *composer);
@@ -149,6 +153,10 @@ c2_composer_set_message_as_quote			(C2Composer *composer, C2Message *message);
 /* Action handling */
 void
 c2_composer_save							(C2Composer *composer);
+
+/* Autosave functions */
+void
+c2_composer_autosave						(C2Composer *composer);
 
 /* Data handling */
 void

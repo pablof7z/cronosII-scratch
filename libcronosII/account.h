@@ -110,7 +110,7 @@ C2Account *
 c2_account_last										(C2Account *head);
 
 C2Account *
-c2_account_get_by_name								(C2Account *head, const gchar *name);
+c2_account_get_by_name						(C2Account *head, const gchar *name);
 
 gint
 c2_account_get_position						(C2Account *head, C2Account *account);

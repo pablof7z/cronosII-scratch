@@ -188,7 +188,7 @@ C2TransferItemType type, va_list args)
 	} else if (type == C2_TRANSFER_ITEM_SEND)
 	{
 		ti->type_info.send.smtp = va_arg (args, C2SMTP *);
-		ti->type_info.send.message = va_arg (args, C2Message *);
+		ti->type_info.send.db = va_arg (args, C2Db *);
 	} else
 		g_assert_not_reached ();
 
@@ -206,8 +206,8 @@ C2TransferItemType type, va_list args)
 	{
 		pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/send.png");
 
-		if (ti->type_info.send.message)
-			subject = c2_message_get_header_field (ti->type_info.send.message, "Subject:");
+		if (ti->type_info.send.db->message)
+			subject = c2_message_get_header_field (ti->type_info.send.db->message, "Subject:");
 		else
 			subject = NULL;
 		buffer = g_strdup_printf (_("Send «%s»"), subject);
@@ -340,7 +340,7 @@ c2_transfer_item_start_smtp_thread (C2TransferItem *ti)
 
 	id = smtp_get_id_from_ti (ti);
 	ti->type_info.send.id = id;
-	c2_smtp_send_message (ti->type_info.send.smtp, ti->type_info.send.message, id);
+	c2_smtp_send_message (ti->type_info.send.smtp, ti->type_info.send.db->message, id);
 }
 
 void
@@ -679,6 +679,8 @@ static void
 on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 {
 	C2TransferItem *_ti;
+	C2Mailbox *outbox;
+	C2Mailbox *sent_items;
 	
 	gdk_threads_enter ();
 	if (!(_ti = smtp_get_ti_from_id (ti, id)))
@@ -694,6 +696,26 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 
 	gtk_signal_emit (GTK_OBJECT (ti), signals[FINISH]);
 
-	/* Move the message from «Outbox» to «Sent Items» */
 	gdk_threads_leave ();
+
+	/* Move the message from «Outbox» to «Sent Items» */
+	if (!(outbox = c2_mailbox_get_by_name (ti->application->mailbox,
+											C2_MAILBOX_OUTBOX)))
+	{
+		g_warning ("There's no «%s» mailbox\n", C2_MAILBOX_OUTBOX);
+		return;
+	}
+
+	if (!(sent_items = c2_mailbox_get_by_name (ti->application->mailbox,
+												C2_MAILBOX_SENT_ITEMS)))
+	{
+		g_warning ("There's no «%s» mailbox\n", C2_MAILBOX_SENT_ITEMS);
+		return;
+	}
+
+	gtk_object_set_data (GTK_OBJECT (ti->type_info.send.db->message), "state",
+										C2_MESSAGE_READED);
+	c2_db_message_add (sent_items, ti->type_info.send.db->message);
+	c2_db_message_remove (outbox, ti->type_info.send.db->position);
+	gtk_object_unref (GTK_OBJECT (ti->type_info.send.db->message));
 }

@@ -526,16 +526,16 @@ add_message (C2Mailbox *mailbox, C2Message *message)
 					account ? account : "",
 					date, 0, mailbox->db ? mailbox->db->prev->position+1 : 1);
 	c2_db_set_message (db, message);
-	buf = c2_message_get_header_field (message, "X-CronosII-State:");
+	buf = gtk_object_get_data (GTK_OBJECT (message), "state");
 	if (!buf)
 	{
-		buf = gtk_object_get_data (GTK_OBJECT (message), "state");
+		buf = c2_message_get_header_field (message, "X-CronosII-State:");
 		if (!buf)
 			db->state = C2_MESSAGE_UNREADED;
 		else
-			db->state = (C2MessageState) buf;
+			db->state = atoi (buf);
 	} else
-		db->state = atoi (buf);
+		db->state = (C2MessageState) buf;
 
 	return db;
 }
@@ -811,6 +811,9 @@ c2_db_message_set_state (C2Db *db, C2MessageState state)
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_message_set_state;
+			break;
+		default:
+			g_assert_not_reached ();
 			break;
 	}
 

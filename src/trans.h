@@ -63,6 +63,7 @@ gchar *s = N_("Reco_very");
 gchar *s = N_("_User Manual");
 gchar *s = N_("_Quick Tips");
 gchar *s = N_("_Getting in Touch");
+gchar *s = N_("_Release Information");
 gchar *s = N_("About _Plugins");
 gchar *s = N_("Icon Menu Bar");
 gchar *s = N_("View Message Pane");

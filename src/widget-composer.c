@@ -67,6 +67,9 @@ static void
 add_attachment								(C2Composer *composer, gchar *file, gchar *description, gint nth);
 
 static void
+autosave									(C2Composer *composer);
+
+static void
 find										(C2Composer *composer);
 
 static void
@@ -92,6 +95,9 @@ send_later									(C2Composer *composer);
 static void
 on_composer_size_allocate					(C2Composer *composer, GtkAllocation *alloc);
 
+static const gchar *
+get_pixmap									(const gchar *filename);
+
 static void
 on_to_changed								(GtkWidget *widget, C2Composer *composer);
 
@@ -103,6 +109,9 @@ on_icon_list_button_press_event				(GtkWidget *widget, GdkEventButton *e, C2Comp
 
 static void
 on_send_now_clicked							(GtkWidget *widget, C2Composer *composer);
+
+static void
+on_send_later_clicked						(GtkWidget *widget, C2Composer *composer);
 
 static void
 on_toolbar_undo_clicked						(GtkWidget *widget, C2Composer *composer);
@@ -197,9 +206,11 @@ class_init (C2ComposerClass *klass)
 	
 	klass->changed_title = NULL;
 	klass->send_now = send_now;
+	klass->send_later = send_later;
 /*	klass->send_later = send_later;
 	klass->save_draft = save_draft; */
 	klass->add_attachment = add_attachment;
+	klass->autosave = autosave;
 }
 
 static void
@@ -208,6 +219,7 @@ init (C2Composer *composer)
 	composer->type = 0;
 	composer->cmnd = NULL;
 	composer->action = 0;
+	composer->autosave_id = -1;
 	composer->file = NULL;
 	composer->draft_id = -1;
 	composer->eheaders = NULL;
@@ -249,6 +261,70 @@ send_ (C2Composer *composer, C2ComposerSendType type)
 	{
 		/* Make the send buttons sensitive again */
 	}
+}
+
+static void
+add_attachment (C2Composer *composer, gchar *file, gchar *description, gint nth)
+{
+	GtkWidget *widget;
+	
+	if (c2_file_is_directory (file))
+	{
+	} else
+	{
+		/* Add attachment as file */
+		C2ComposerAttachment *attach;
+		gchar *filename;
+		const gchar *pixmapfile;
+		gchar *dynpixmap;
+		
+		attach = g_new0 (C2ComposerAttachment, 1);
+		attach->file = file;
+		attach->type = gnome_mime_type_or_default (file, "application/octet-stream");
+		attach->description = description;
+
+		filename = g_basename (file);
+		pixmapfile = get_pixmap (filename);
+		
+		if (!pixmapfile || !c2_file_exists (pixmapfile))
+			dynpixmap = g_strdup (PKGDATADIR "/pixmaps/unknown-file.png");
+
+		widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_list");
+
+		if (nth < 0)
+		{
+			gnome_icon_list_append (GNOME_ICON_LIST (widget),
+									pixmapfile ? pixmapfile : dynpixmap, filename);
+			gnome_icon_list_set_icon_data (GNOME_ICON_LIST (widget), GNOME_ICON_LIST (widget)->icons-1,
+									attach);
+		} else
+		{
+			gnome_icon_list_insert (GNOME_ICON_LIST (widget), nth,
+									pixmapfile ? pixmapfile : dynpixmap, filename);
+			gnome_icon_list_set_icon_data (GNOME_ICON_LIST (widget), nth, attach);
+		}
+
+		if (!pixmapfile)
+			g_free (dynpixmap);
+	}
+
+	gtk_object_set_data (GTK_OBJECT (composer), MESSAGE_CONTENT_TYPE, "multipart/mixed");
+
+	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_label");
+	gtk_widget_show (widget);
+	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_container");
+	gtk_widget_show (widget);
+}
+
+static void
+autosave (C2Composer *composer)
+{
+	gint id;
+	
+	/* This is how it will work
+	 * is storing its mails in a spool mailbox in
+	 * ~/.c2/autosave
+	 */
 }
 
 static void
@@ -480,6 +556,9 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	widget = glade_xml_get_widget (xml, "send_now_btn");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
 						GTK_SIGNAL_FUNC (on_send_now_clicked), composer);
+	widget = glade_xml_get_widget (xml, "send_later_btn");
+	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
+						GTK_SIGNAL_FUNC (on_send_later_clicked), composer);
 	widget = glade_xml_get_widget (xml, "undo_btn");
 	gtk_signal_connect (GTK_OBJECT (widget), "clicked",
 						GTK_SIGNAL_FUNC (on_toolbar_undo_clicked), composer);
@@ -493,6 +572,10 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	widget = glade_xml_get_widget (xml, "to");
 	gtk_signal_connect (GTK_OBJECT (widget), "changed",
 						GTK_SIGNAL_FUNC (on_to_changed), composer);
+	
+	/* Grab the focus */
+	gtk_widget_grab_focus (widget);
+
 	widget = GTK_COMBO (glade_xml_get_widget (xml, "subject"))->entry;
 	gtk_signal_connect (GTK_OBJECT (widget), "changed",
 						GTK_SIGNAL_FUNC (on_subject_changed), composer);
@@ -524,59 +607,6 @@ get_pixmap (const gchar *filename)
 	const gchar *pixmap = type || !strlen (type) ? gnome_mime_get_value (type, "icon-filename") : NULL;
 
 	return pixmap;
-}
-
-static void
-add_attachment (C2Composer *composer, gchar *file, gchar *description, gint nth)
-{
-	GtkWidget *widget;
-	
-	if (c2_file_is_directory (file))
-	{
-	} else
-	{
-		/* Add attachment as file */
-		C2ComposerAttachment *attach;
-		gchar *filename;
-		const gchar *pixmapfile;
-		gchar *dynpixmap;
-		
-		attach = g_new0 (C2ComposerAttachment, 1);
-		attach->file = file;
-		attach->type = gnome_mime_type_or_default (file, "application/octet-stream");
-		attach->description = description;
-
-		filename = g_basename (file);
-		pixmapfile = get_pixmap (filename);
-		
-		if (!pixmapfile || !c2_file_exists (pixmapfile))
-			dynpixmap = g_strdup (PKGDATADIR "/pixmaps/unknown-file.png");
-
-		widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_list");
-
-		if (nth < 0)
-		{
-			gnome_icon_list_append (GNOME_ICON_LIST (widget),
-									pixmapfile ? pixmapfile : dynpixmap, filename);
-			gnome_icon_list_set_icon_data (GNOME_ICON_LIST (widget), GNOME_ICON_LIST (widget)->icons-1,
-									attach);
-		} else
-		{
-			gnome_icon_list_insert (GNOME_ICON_LIST (widget), nth,
-									pixmapfile ? pixmapfile : dynpixmap, filename);
-			gnome_icon_list_set_icon_data (GNOME_ICON_LIST (widget), nth, attach);
-		}
-
-		if (!pixmapfile)
-			g_free (dynpixmap);
-	}
-
-	gtk_object_set_data (GTK_OBJECT (composer), MESSAGE_CONTENT_TYPE, "multipart/mixed");
-
-	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_label");
-	gtk_widget_show (widget);
-	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "attachments_container");
-	gtk_widget_show (widget);
 }
 
 static void
@@ -710,6 +740,12 @@ static void
 on_send_now_clicked (GtkWidget *widget, C2Composer *composer)
 {
 	C2_COMPOSER_CLASS_FW (composer)->send_now (composer);
+}
+
+static void
+on_send_later_clicked (GtkWidget *widget, C2Composer *composer)
+{
+	C2_COMPOSER_CLASS_FW (composer)->send_later (composer);
 }
 
 static void
@@ -1162,7 +1198,7 @@ create_message (C2Composer *composer)
 	g_free (buf1);
 
 	/* X-CronosII-State */
-	buf1 = g_strdup_printf ("X-CronosII-State: %d\n", C2_MESSAGE_READED);
+	buf1 = g_strdup_printf ("X-CronosII-State: %d\n", C2_MESSAGE_UNREADED);
 	g_string_append (header, buf1);
 	g_free (buf1);
 

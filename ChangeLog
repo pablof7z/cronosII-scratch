@@ -1,3 +1,9 @@
+Thu Nov 06 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* The Send button for Queued messages is now working.
+	* The Send Later capability of the composer is now functional.
+	* Moving of messages to the «Sent Items» mailbox after they have
+	  been sent now works.
+
 Mon Nov 05 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Undo & Redo are working.
 	* Changes in order to use the new finished signal of the SMTP module.

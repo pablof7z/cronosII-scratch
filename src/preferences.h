@@ -318,6 +318,11 @@ extern "C" {
 	gnome_config_set_int ("/"PACKAGE"/Window-Main/height", val)
 
 
+/* Window Composer */
+
+
+
+
 
 #define c2_preferences_commit() gnome_config_sync ()
 

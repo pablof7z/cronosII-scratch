@@ -836,6 +836,13 @@
 	    </widget>
 
 	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>help_release_information</name>
+	      <label>_Release Information</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>help_about</name>
 	      <signal>

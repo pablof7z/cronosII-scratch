@@ -6,35 +6,25 @@ Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 - Spanish translation.
 	
 Bosko Blagojevic <falling@users.sourceforge.net>
-- CronosII SMTP Object
+- Cronos II IMAP Object.
+- Cronos II SMTP Object
+- Cronos II Mutexes implementation.
 - FreeBSD porting.
-- Address Book core development.
 
 Peter Gossner <gossner@arcom.com.au>
 - Documentation.
 - Spelling corrections.
 
-André Casteliano <digitalcoder@users.sourceforge.net>
-- Queue Mailbox (send later ability).
-
 Marc Zaritsky <mustangg@users.sourceforge.net>
 - Quality Assurance.
 
-Yves Mettier <ymettier@libertysurf.fr>
-- Documentation.
-- All kinds of patches.
-- French translation.
-
 Special thanks to:
+
+Yves Mettier <ymettier@libertysurf.fr>
+- French translation.
 
 Arne Caspari <arnem@informatik.uni-bremen.de>
 - German translation.
 
 Pier Carteri <m3tr0@dei.unipd.it>
 - Italian translation.
-
-Jeremy Witt <witti@onramp.net>
-- Patch to give default focus in the Composer window to the To field or to the Body according to some flags.
-
-spaghetty <spaghetty@libero.it>
-- Patch for fixing a bug in the smtp.c file that was already fixed in the CVS, but, the intention is what counts... :)
