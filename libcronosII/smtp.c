@@ -675,7 +675,7 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundary)
 									"Encoding: %s\r\nContent-Disposition: %s; filename=\"%s\"\r\n\r\n",
 									mime->type, mime->encoding, mime->disposition, mime->id) < 0)
 		{
-			c2_smtp_set_error(smtp, /*SOCK_WRITE_FAILED*/"Ass Failure");
+			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp);
 			pthread_mutex_unlock(&smtp->lock);
 			return -1;
