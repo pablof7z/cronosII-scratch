@@ -48,6 +48,7 @@ typedef unsigned int C2IMAPState;
 #	include "net-object.h"
 #	include "mailbox.h"
 # include "utils-mutex.h"
+# include "account.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -69,6 +70,8 @@ struct _C2IMAP
 {
 	C2NetObject object;
 
+	C2Account *account;
+	
 	/* [TODO] */
 	C2IMAPAuthenticationType auth;
 
@@ -122,8 +125,8 @@ GtkType
 c2_imap_get_type							(void);
 
 C2IMAP *
-c2_imap_new									(const gchar *host, guint port, const gchar *user,
-											 const gchar *pass, const gchar *path,
+c2_imap_new						(C2Account *account, const gchar *host, guint port, 
+											 const gchar *user, const gchar *pass, const gchar *path,
 											 C2IMAPAuthenticationType auth, gboolean ssl);
 
 gint
@@ -143,6 +146,9 @@ c2_imap_rename_mailbox					(C2IMAP *imap, C2Mailbox *mailbox, gchar *name);
 	
 gboolean
 c2_imap_load_mailbox						(C2IMAP *imap, C2Mailbox *mailbox);
+
+gint
+c2_imap_message_remove (C2IMAP *imap, C2Db *db);
 	
 #ifdef __cplusplus
 }

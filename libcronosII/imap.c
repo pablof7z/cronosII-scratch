@@ -21,6 +21,8 @@
 #include "mailbox.h"
 #include "net-object.h"
 #include "utils.h"
+#include "utils-date.h"
+#include "account.h"
 #include "imap.h"
 #include "i18n.h" 
 
@@ -28,11 +30,12 @@
 #define NET_WRITE_FAILED _("Internal socket write operation failed, connection is most likely broken")
 
 /* C2 IMAP Module in the process of being engineered by Bosko */
-/* TODO: Get list of messages */
 /* TODO: Get messages */
-/* TODO: Move + Delete messages */
+/* (in progress) TODO: Move + Delete messages */
+/* TODO: Add + Copy messages */
 /* TODO: Function that handles untagged messages that come unwarranted */
-/* TODO: Elegent disconnection handling (i.e. reconnecting, etc) */
+/* TODO: Elegent network problem handling (i.e. reconnecting, etc) */
+/* (done!) TODO: Get list of messages */
 /* (done!) TODO: Load a mailbox */
 /* (done!) TODO: Login (at least plain-text for now) */
 /* (done!) TODO: Create a test module */
@@ -203,6 +206,7 @@ class_init (C2IMAPClass *klass)
 static void
 init (C2IMAP *imap)
 {
+	imap->account = NULL;
 	imap->auth = 0;
 	imap->cmnd = 1;
 	imap->mailboxes = NULL;
@@ -218,12 +222,14 @@ init (C2IMAP *imap)
 }
 
 C2IMAP *
-c2_imap_new (const gchar *host, const guint port, const gchar *user, const gchar *pass, 
-		const gchar *path, const C2IMAPAuthenticationType auth, const gboolean ssl)
+c2_imap_new (C2Account *account, const gchar *host, const guint port, const gchar *user, 
+		const gchar *pass, const gchar *path, const C2IMAPAuthenticationType auth, const gboolean ssl)
 {
 	C2IMAP *imap;
 
 	imap = gtk_type_new (C2_TYPE_IMAP);
+	imap->account = account;
+	
 	imap->user = g_strdup(user);
 	imap->pass = g_strdup(pass);
 	imap->path = g_strdup(path);
@@ -284,10 +290,23 @@ c2_imap_init (C2IMAP *imap)
 static void
 destroy(GtkObject *object)
 {
-	g_free(C2_IMAP(object)->user);
-	g_free(C2_IMAP(object)->pass);
-	g_free(C2_IMAP(object)->path);
-	c2_mutex_destroy(&C2_IMAP(object)->lock);
+	C2IMAP *imap = C2_IMAP(object);
+	GList *ptr;
+	GSList *ptr2;
+	
+	g_free(imap->user);
+	g_free(imap->pass);
+	g_free(imap->path);
+	
+	for(ptr = imap->hash; ptr; ptr = ptr->next)
+		g_free(ptr->data);
+	g_list_free(imap->hash);
+	
+	for(ptr2 = imap->pending; ptr2; ptr2 = ptr2->next)
+		g_free(ptr2->data);
+	g_slist_free(imap->pending);
+	
+	c2_mutex_destroy(&imap->lock);
 }
 
 static void
@@ -343,7 +362,7 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 }
 
 /** c2_imap_unlock_pending
- * @imap: the imap object to operate on
+ * @imap: The IMAP object to operate on
  * 
  * This function will go trough the pending table
  * of the specified IMAP object and unlock any 
@@ -522,7 +541,7 @@ CHECK:
 }
 
 /** c2_imap_populate_folders
- * @imap: imap object in which to populate folders tree
+ * @imap: IMAP object in which to populate folders tree
  * 
  * Destroy's the old IMAP folder tree (if any) and creates
  * a new one.
@@ -551,7 +570,7 @@ c2_imap_populate_folders (C2IMAP *imap)
 
 /** c2_imap_mailbox_loop
  * 
- * @imap: a locked C2IMAP Object
+ * @imap: A locked IMAP Object
  * @parent: C2Mailbox for which to scan under for children,
  *          can be NULL, if scanning from top level of 
  *          folder hierarchy.
@@ -757,13 +776,14 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 {
 	/* TODO: 
 	 * 	(done!) (1) Select box
-	 *  (2) Build C2Db linked list according to messages 
+	 *  (done!) (2) Build C2Db linked list according to messages 
 	 *  (done!) (3) Close box 
 	 **/
 	tag_t tag;
 	gint messages, uid = 0;
 	gchar *reply, *ptr, *ptr2, *str;
 	gchar *from = NULL, *subject = NULL, *date = NULL;
+	time_t unixdate;
 	gboolean seen = FALSE, answered = FALSE;
 	C2Db *db;
 	
@@ -832,13 +852,20 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 					i++;
 				}
 			}
+
+			if(date)
+				unixdate = c2_date_parse(date);
+			else
+				unixdate = 0;
 			/* FIX ME: the @account below should not be NULL */
-			/* FIX ME: the @date below should not be 0 */
-			db = c2_db_new(mailbox, !seen, subject, from, NULL, 0, uid, messages);
+			db = c2_db_new(mailbox, !seen, subject, from, NULL, unixdate, uid, messages);
 			messages++;
-			g_free(date);
-			g_free(subject);
-			g_free(from);
+			if(date) g_free(date);
+			if(subject) g_free(subject);
+			if(from) g_free(from);
+			date = NULL;
+			subject = NULL;
+			from = NULL;
 		}
 	}
 	
@@ -929,7 +956,7 @@ c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
  * 
  * c2_imap_close_mailbox
  * 
- * @imap: a locked IMAP object
+ * @imap: A locked IMAP object
  * 
  * Closes any currently opened (selected) mailbox
  * on IMAP session @imap.
@@ -1003,7 +1030,7 @@ c2_imap_plaintext_login (C2IMAP *imap)
 }
 
 /** c2_imap_get_mailbox_list
- * @imap: a locked C2IMAP object
+ * @imap: A locked IMAP object
  * @reference: folder reference
  * @name: folder name or wildcard
  * 
@@ -1188,4 +1215,21 @@ c2_imap_rename_folder(C2IMAP *imap, C2Mailbox *mailbox, gchar *name)
 	c2_mutex_unlock(&imap->lock);
 	
 	return 0;
+}
+
+/** c2_imap_message_remove
+ * 
+ * @imap: A locked IMAP object
+ * @db: Message to remove
+ * 
+ * Will delete message, either moving
+ * it to "Garbage" folder, or expunging it.
+ * 
+ * Return Value:
+ * 0 on success, -1 otherwise
+ **/
+gint
+c2_imap_message_remove (C2IMAP *imap, C2Db *db)
+{
+	return -1;
 }

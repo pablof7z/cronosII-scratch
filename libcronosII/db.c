@@ -416,7 +416,7 @@ c2_db_update_structure (C2Mailbox *mailbox)
 			func = c2_db_cronosII_update_structure;
 			break;
 		case C2_MAILBOX_IMAP:
-			//func = c2_db_imap_update_structure;
+			func = c2_db_imap_update_structure;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_update_structure;
