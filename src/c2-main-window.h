@@ -39,6 +39,9 @@ on_new_mailbox_dlg								(void);
 
 void
 on_properties_mailbox_dlg						(void);
+
+void
+on_delete_mailbox_dlg							(void);
 	
 #ifdef __cplusplus
 }

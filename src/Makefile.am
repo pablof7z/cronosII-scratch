@@ -2,7 +2,7 @@ DEFS=@DEFS@ -DLOCALEDIR=\"${localedir}\"
 INCLUDES = -DBUILDING_C2 -I$(top_srcdir) -I$(includedir) \
 	`gnome-config --cflags gnome` \
 	 -DG_LOG_DOMAIN=\"CronosII\" -DGNOMELOCALEDIR=\""$(datadir)/locale"\" \
-	 -I../intl -I$(top_srcdir)/intl $(GNOME_INCLUDEDIR) -DDATADIR=\"${datadir}\"
+	 -I../intl -I$(top_srcdir)/intl $(GNOME_INCLUDEDIR) -DDATADIR=\"${datadir}\" -DPKGDATADIR=\"${pkgdatadir}\"
 
 bin_PROGRAMS = cronos
 

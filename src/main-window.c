@@ -79,8 +79,8 @@ c2_window_new (void)
 	pthread_mutex_init (&WMain.body_lock, NULL);
 	pthread_mutex_init (&WMain.appbar_lock, NULL);
 	
-	WMain.xml = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "wnd_main");
-	WMain.ctree_menu = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "mnu_ctree");
+	WMain.xml = glade_xml_new (C2_APP_GLADE_FILE ("cronosII"), "wnd_main");
+	WMain.ctree_menu = glade_xml_new (C2_APP_GLADE_FILE ("cronosII"), "mnu_ctree");
 
 	window = glade_xml_get_widget (WMain.xml, "wnd_main");
 	gtk_widget_realize (window);
@@ -161,6 +161,8 @@ c2_window_new (void)
 							GTK_SIGNAL_FUNC (on_new_mailbox_dlg), NULL);
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.ctree_menu, "properties")), "activate",
 							GTK_SIGNAL_FUNC (on_properties_mailbox_dlg), NULL);
+	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.ctree_menu, "delete_mailbox")),
+							"activate",	GTK_SIGNAL_FUNC (on_delete_mailbox_dlg), NULL);
 
 	gtk_widget_show (window);
 }
@@ -191,14 +193,11 @@ pthread_ctree_tree_select_row (C2Mailbox *mbox)
 			c2_app_report (string, C2_REPORT_ERROR);
 			gdk_threads_leave ();
 			g_free (string);
-			WMain.selected_mbox = mbox;
 			pthread_mutex_unlock (&WMain.index_lock);
 			return;
 		}
 	}
 	
-	WMain.selected_mbox = mbox;
-
 	gdk_threads_enter ();
 	c2_index_remove_mailbox (C2_INDEX (index));
 	c2_app_stop_activity ();
@@ -213,12 +212,15 @@ on_ctree_tree_select_row (GtkCTree *ctree, GtkCTreeNode *row, gint column)
 {
 	C2Mailbox *mbox;
 	pthread_t thread;
-	
+
 	mbox = gtk_ctree_node_get_row_data (ctree, row);
 	if (!mbox)
 		c2_app_report (_("Internal error in CTree listing."), C2_REPORT_ERROR);
 	else
+	{
+		WMain.selected_mbox = mbox;
 		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (pthread_ctree_tree_select_row), mbox);
+	}
 }
 
 static void
@@ -249,13 +251,17 @@ on_ctree_button_press_event (GtkWidget *widget, GdkEvent *event)
 		if (mbox_n)
 		{
 			node = gtk_ctree_node_nth (GTK_CTREE (widget), row);
+			WMain.selected_mbox = gtk_ctree_node_get_row_data (GTK_CTREE (widget), node);
 			gtk_ctree_select (GTK_CTREE (widget), node);
 		} else
+		{
+			WMain.selected_mbox = NULL;
 			gtk_clist_unselect_all (GTK_CLIST (widget));
+		}
 
 		c2_main_window_set_sensitivity ();
 		gnome_popup_menu_do_popup (glade_xml_get_widget (WMain.ctree_menu, "mnu_ctree"),
-									NULL, NULL, e, NULL);
+										NULL, NULL, e, NULL);
 	}
 }
 
@@ -285,7 +291,7 @@ on_preferences_activated (GtkWidget *widget)
 static void
 on_about_activated (GtkWidget *widget)
 {
-	GladeXML *xml = glade_xml_new (DATADIR "/cronosII/cronosII.glade", "dlg_about");
+	GladeXML *xml = glade_xml_new (C2_APP_GLADE_FILE ("cronosII"), "dlg_about");
 	GtkWidget *about = glade_xml_get_widget (xml, "dlg_about");
 }
 

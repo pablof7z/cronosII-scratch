@@ -34,9 +34,9 @@ oldincludedir = /usr/include
 
 DESTDIR =
 
-pkgdatadir = $(datadir)/cronosII
-pkglibdir = $(libdir)/cronosII
-pkgincludedir = $(includedir)/cronosII
+pkgdatadir = $(datadir)/cronosII-scratch
+pkglibdir = $(libdir)/cronosII-scratch
+pkgincludedir = $(includedir)/cronosII-scratch
 
 top_builddir = ..
 
@@ -67,7 +67,7 @@ CC = gcc
 CFLAGS = -g -O2
 DATADIRNAME = share
 DLLTOOL = @DLLTOOL@
-FEATURES = 
+FEATURES =  'HTML (GtkXmHTML)'
 GENCAT = 
 GLIB_CFLAGS = -I/usr/include/glib-1.2 -I/usr/lib/glib/include -D_REENTRANT
 GLIB_CONFIG = /usr/bin/glib-config
@@ -93,7 +93,7 @@ GTK_CONFIG = /usr/bin/gtk-config
 GTK_LIBS = -lSM -lICE -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXext -lX11 -lm
 GT_NO = 
 GT_YES = #YES#
-HTMLLIBS = 
+HTMLLIBS = -lgtkxmhtml
 INCLUDE_LOCALE_H = #include <locale.h>
 INSTOBJEXT = .mo
 INTLDEPS = 
@@ -116,14 +116,14 @@ ORBIT_CFLAGS = -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/local/incl
 ORBIT_CONFIG = /usr/local/bin/orbit-config
 ORBIT_IDL = /usr/local/bin/orbit-idl
 ORBIT_LIBS = -L/usr/local/lib -L/usr/lib -lORBitCosNaming -lORBit -lIIOP -lORBitutil -lglib -lnsl -lm
-PACKAGE = cronosII
+PACKAGE = cronosII-scratch
 POFILES =  br.po de.po es.po fr.po it.po
 POSUB = po
 PTHREAD_LIB = -lpthread
 RANLIB = ranlib
 USE_INCLUDED_LIBINTL = no
 USE_NLS = yes
-VERSION = 0.2.3
+VERSION = 0.0.1
 XPM_LIBS = -lXpm
 ZVT_LIBS = -rdynamic -lzvt -lutil -lSM -lICE -lgtk -lgdk -lgmodule -lglib -ldl -lXext -lX11 -lm
 cronosIIpath = /usr/bin/cronosII-config

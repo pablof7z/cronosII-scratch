@@ -14,19 +14,19 @@ plugin_DATA =
 cronosincludedir = $(includedir)/cronosII
 cronosinclude_HEADERS = config.h
 
-EXTRA_DIST =			\
-	cronosII.spec		\
-	cronosII.desktop	\
-	c2addrbook.desktop	\
+EXTRA_DIST =				\
+	cronosII.spec			\
+	cronosII.desktop		\
+	c2addrbook.desktop		\
 	cronosII-gmc.desktop	\
 	c2addrbook-gmc.desktop	\
-	cronosII.spec		\
-	AUTHORS			\
-	COPYING			\
-	FEATURES		\
-	NEWS			\
-	README			\
-	TODO			\
+	mkpotfiles-in			\
+	AUTHORS					\
+	COPYING					\
+	FEATURES				\
+	NEWS					\
+	README					\
+	TODO					\
 	ChangeLog
 
 Internetdir = $(datadir)/gnome/apps/Internet

@@ -140,6 +140,16 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 {
 	c2_return_if_fail (mailbox, C2EDATA);
 
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_IMAP:
+			g_free (mailbox->protocol.imap.host);
+			g_free (mailbox->protocol.imap.user);
+			g_free (mailbox->protocol.imap.pass);
+			g_free (mailbox->protocol.imap.path);
+			break;
+	}
+
 	g_free (mailbox->name);
 	g_free (mailbox->id);
 	if (mailbox->db)
@@ -178,8 +188,7 @@ c2_mailbox_destroy (GtkObject *object)
  * ...: Specific information about the mailbox according to the type
  * 		of mailbox.
  * 		Cronos II Mailbox's type: Null.
- * 		IMAP Mailbox's type: gchar *server, gint port, gchar *user, gchar *pass.
- * 		MySQL Mailbox's type: gchar *server, gint port, gchar *db, gchar *user, gchar *pass.
+ * 		IMAP Mailbox's type: gchar *server, gint port, gchar *user, gchar *pass, gchar *path.
  *
  * This function will allocate a new C2Mailbox object
  * and fill it with required information.
@@ -202,6 +211,7 @@ c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
 	va_list edata;
 
 	c2_return_val_if_fail (name, NULL, C2EDATA);
+	c2_return_val_if_fail (id, NULL, C2EDATA);
 	
 	mailbox = gtk_type_new (C2_TYPE_MAILBOX);
 	mailbox->name = g_strdup (name);
@@ -221,32 +231,27 @@ c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
 			break;
 		case C2_MAILBOX_IMAP:
 			va_start (edata, sort_type);
-			mailbox->protocol.imap.server = va_arg (edata, gchar *);
+			mailbox->protocol.imap.host = g_strdup (va_arg (edata, gchar *));
 			mailbox->protocol.imap.port = va_arg (edata, gint);
-			mailbox->protocol.imap.user = va_arg (edata, gchar *);
-			mailbox->protocol.imap.pass = va_arg (edata, gchar *);
+			mailbox->protocol.imap.user = g_strdup (va_arg (edata, gchar *));
+			mailbox->protocol.imap.pass = g_strdup (va_arg (edata, gchar *));
+			mailbox->protocol.imap.path = g_strdup (va_arg (edata, gchar *));
 			va_end (edata);
 			break;
-#ifdef USE_MYSQL
-		case C2_MAILBOX_MYSQL:
-			va_start (edata, sort_type);
-			mailbox->protocol.mysql.server = va_arg (edata, gchar *);
-			mailbox->protocol.mysql.port = va_arg (edata, gint);
-			mailbox->protocol.mysql.db = va_arg (edata, gchar *);
-			mailbox->protocol.mysql.user = va_arg (edata, gchar *);
-			mailbox->protocol.mysql.pass = va_arg (edata, gchar *);
-			va_end (edata);
-			break;
-#endif
+#ifdef USE_DEBUG
 		default:
 			g_print ("Unknown mailbox type in %s (%s:%d): %d\n",
 					__PRETTY_FUNCTION__, __FILE__, __LINE__, type);
+#endif
 	}
 
 	if (!mailbox_head)
-		c2_mailbox_set_head (mailbox);
-	else
-		c2_mailbox_insert (mailbox_head, mailbox);
+	{
+L		c2_mailbox_set_head (mailbox);
+	} else
+	{
+L		c2_mailbox_insert (mailbox_head, mailbox);
+	}
 
 	gtk_signal_emit (GTK_OBJECT (mailbox_head),
 						c2_mailbox_signals[CHANGED_MAILBOXES]);
@@ -256,11 +261,14 @@ c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
 
 C2Mailbox *
 c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2MailboxType type,
-							C2MailboxSortBy sort_by, GtkSortType sort_type)
+							C2MailboxSortBy sort_by, GtkSortType sort_type, ...)
 {
 	C2Mailbox *parent;
 	C2Mailbox *value;
 	gchar *id;
+	gchar *host, *user, *pass, *path;
+	gint port;
+	va_list edata;
 	
 	c2_return_val_if_fail (name, NULL, C2EDATA);
 
@@ -278,11 +286,31 @@ c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2Mailbox
 		if ((parent = c2_mailbox_get_head ()))
 		{
 			for (; parent->next; parent = parent->next);
-			id = g_strdup_printf ("%d", atoi (parent->id)+1);
+L			id = g_strdup_printf ("%d", atoi (parent->id)+1);
+			C2_DEBUG (id);
 		} else
-			id = g_strdup ("0");
+		{
+L			id = g_strdup ("0");
+		}
 	}
-	value = c2_mailbox_new (name, id, type, sort_by, sort_type);
+
+	switch (type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			value = c2_mailbox_new (name, id, type, sort_by, sort_type);
+			break;
+		case C2_MAILBOX_IMAP:
+			va_start (edata, sort_type);
+			host = va_arg (edata, gchar *);
+			port = va_arg (edata, gint);
+			user = va_arg (edata, gchar *);
+			pass = va_arg (edata, gchar *);
+			path = va_arg (edata, gchar *);
+			
+			value = c2_mailbox_new (name, id, type, sort_by, sort_type, host, port, user, pass, path);
+			va_end (edata);
+			break;
+	}
 	g_free (id);
 	
 	return value;
@@ -318,6 +346,8 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
 	{
 		/* Get the ID of the parent */
 		id = c2_mailbox_get_parent_id (mailbox->id);
+		C2_DEBUG (id);
+		C2_DEBUG (mailbox->id);
 		l = c2_mailbox_search_by_id (head, id);
 		g_free (id);
 		
@@ -340,6 +370,63 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
 	}
 	gtk_signal_emit (GTK_OBJECT (mailbox_head),
 						c2_mailbox_signals[CHANGED_MAILBOXES]);
+}
+
+/**
+ * c2_mailbox_update
+ * @mailbox: Mailbox to work on.
+ * @name: New mailbox name.
+ * @id: New mailbox id.
+ * @type: Type of mailbox.
+ * ...: Specific information about the mailbox according to the type
+ * 		of mailbox.
+ * 		Cronos II Mailbox's type: Null.
+ * 		IMAP Mailbox's type: gchar *server, gint port, gchar *user, gchar *pass.
+ * 		MySQL Mailbox's type: gchar *server, gint port, gchar *db, gchar *user, gchar *pass.
+ * 
+ * This function will update a C2Mailbox object.
+ **/
+void
+c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2MailboxType type, ...)
+{
+	va_list edata;
+	
+	c2_return_if_fail (mailbox, C2EDATA);
+
+	g_free (mailbox->name);
+	mailbox->name = g_strdup (name);
+
+	switch (mailbox->type)
+	{
+		case C2_MAILBOX_IMAP:
+			g_free (mailbox->protocol.imap.host);
+			mailbox->protocol.imap.host = NULL;
+			g_free (mailbox->protocol.imap.user);
+			mailbox->protocol.imap.user = NULL;
+			g_free (mailbox->protocol.imap.pass);
+			mailbox->protocol.imap.pass = NULL;
+			g_free (mailbox->protocol.imap.path);
+			mailbox->protocol.imap.path = NULL;
+			break;
+	}
+
+	switch (type)
+	{
+		case C2_MAILBOX_CRONOSII:
+			mailbox->type = C2_MAILBOX_CRONOSII;
+			break;
+		case C2_MAILBOX_IMAP:
+			va_start (edata, type);
+			mailbox->type = C2_MAILBOX_IMAP;
+			mailbox->protocol.imap.host = g_strdup (va_arg (edata, gchar *));
+			mailbox->protocol.imap.port = va_arg (edata, gint);
+			mailbox->protocol.imap.user = g_strdup (va_arg (edata, gchar *));
+			mailbox->protocol.imap.pass = g_strdup (va_arg (edata, gchar *));
+			mailbox->protocol.imap.path = g_strdup (va_arg (edata, gchar *));
+			break;
+	}
+
+	gtk_signal_emit (GTK_OBJECT (c2_mailbox_get_head ()), c2_mailbox_signals[CHANGED_MAILBOXES]);
 }
 
 /**
@@ -549,10 +636,23 @@ c2_mailbox_get_complete_id (const gchar *id, guint number)
 	c2_return_val_if_fail (id, NULL, C2EDATA);
 
 	for (ptr = id, i = 0; i < number; i++, ptr++)
+	{
 		if (!(ptr = strstr (ptr, "-")))
-			return NULL;
+		{
+			if (!number)
+				g_strdup (id);
+			else
+				return NULL;
+		}
+	}
 
-	return g_strndup (id, ptr-id-1);
+	/* This is to avoid the use of return g_strndup (id, ptr-id-1) which
+	 * will be a bug when ptr is == to id
+	 */
+	if (ptr != id)
+		ptr--;
+
+	return g_strndup (id, ptr-id);
 }
 
 /**
@@ -585,7 +685,6 @@ c2_mailbox_get_id (const gchar *id, gint number)
 		if (!ptr)
 			return -1;
 	
-		printf ("Returning %d for %s, %d\n", atoi (ptr+1), id, number);
 		return atoi (++ptr);
 	}
 		
@@ -628,10 +727,10 @@ c2_mailbox_set_head (C2Mailbox *mailbox)
  * Return Value:
  * The requested mailbox or NULL.
  **/
-const C2Mailbox *
-c2_mailbox_get_by_name (const C2Mailbox *head, const gchar *name)
+C2Mailbox *
+c2_mailbox_get_by_name (C2Mailbox *head, const gchar *name)
 {
-	const C2Mailbox *l;
+	C2Mailbox *l;
 	
 	c2_return_val_if_fail (name, NULL, C2EDATA);
 
@@ -641,7 +740,7 @@ c2_mailbox_get_by_name (const C2Mailbox *head, const gchar *name)
 			return l;
 		if (l->child)
 		{
-			const C2Mailbox *s;
+			C2Mailbox *s;
 			if ((s = c2_mailbox_get_by_name (l->child, name)))
 				return s;
 		}

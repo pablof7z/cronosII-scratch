@@ -128,7 +128,7 @@ c2_app_report (const gchar *msg, C2ReportSeverity severity)
 		else
 			realmsg = g_strdup (msg);
 		gnome_appbar_push (GNOME_APPBAR (appbar), msg);
-		gtk_timeout_add (5000, on_report_expirate, NULL);
+		gtk_timeout_add (10000, on_report_expirate, NULL);
 		g_free (realmsg);
 		pthread_mutex_unlock (&WMain.appbar_lock);
 	}
@@ -250,4 +250,53 @@ c2_mailbox_tree_fill (C2Mailbox *head, GtkCTreeNode *node, GtkWidget *ctree, Gtk
 
 	if (!node)
 		gtk_clist_thaw (GTK_CLIST (ctree));
+}
+
+/**
+ * c2_app_get_mailbox_configuration_id_by_name
+ * @name: Name of searched mailbox.
+ *
+ * This function will return the Configuration ID
+ * of the mailbox with name @name.
+ * Mailboxes, in the c2 configuration file are
+ * stored in sections, each mailbox is a separated
+ * section, with an ID, in the form:
+ * [Mailbox $configuration_id]
+ * name=@name
+ * id=0-0-1
+ *
+ * Return Value:
+ * Configuration ID of mailbox or -1.
+ **/
+gint
+c2_app_get_mailbox_configuration_id_by_name (const gchar *name)
+{
+	gchar *prefix;
+	gchar *gname;
+	gint max = gnome_config_get_int_with_default ("/cronosII/Mailboxes/quantity=-1", NULL);
+	gint i;
+	
+	c2_return_val_if_fail (name, -1, C2EDATA);
+
+	for (i = 1; i <= max; i++)
+	{
+		prefix = g_strdup_printf ("/cronosII/Mailbox %d/", i);
+		gnome_config_push_prefix (prefix);
+
+		gname = gnome_config_get_string ("name");
+
+		if (c2_streq (gname, name))
+		{
+			g_free (gname);
+			gnome_config_pop_prefix ();
+			g_free (prefix);
+			return i;
+		}
+
+		g_free (gname);
+		gnome_config_pop_prefix ();
+		g_free (prefix);
+	}
+	
+	return -1;
 }

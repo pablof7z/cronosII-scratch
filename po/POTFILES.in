@@ -1,0 +1,13 @@
+libcronosII/error.c
+libcronosII/utils.c
+libcronosII/i18n.h
+libcronosII/utils.h
+src/c2-main-window.c
+src/install-wizard.c
+src/main-window.c
+src/main.c
+src/preferences.c
+src/widget-index.c
+src/c2-app.h
+src/preferences-trans.h
+src/trans.h

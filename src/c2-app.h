@@ -32,6 +32,10 @@ extern "C" {
 #endif
 #include <gnome.h>
 
+#ifdef BUILDING_C2
+#	define C2_APP_GLADE_FILE(x)					(PKGDATADIR "/" x ".glade")
+#endif
+
 #define MAILBOX_INBOX		_("Inbox"	)
 #define MAILBOX_OUTBOX		_("Outbox"	)
 #define MAILBOX_QUEUE		_("Queue"	)
@@ -96,8 +100,8 @@ extern "C" {
 #define DEFAULT_RC_CLIST_5						"70"
 #define DEFAULT_RC_CLIST_6						"70"
 #define DEFAULT_RC_CLIST_7						"70"
-#define DEFAULT_RC_WIDTH						"600"
-#define DEFAULT_RC_HEIGHT						"440"
+#define DEFAULT_RC_WIDTH						"800" /* XXX */
+#define DEFAULT_RC_HEIGHT						"600" /* XXX */
 #define DEFAULT_RC_SHOWABLE_HEADERS_PREVIEW		"9"
 #define DEFAULT_RC_SHOWABLE_HEADERS_MESSAGE		"63"
 #define DEFAULT_RC_SHOWABLE_HEADERS_COMPOSE		"61"
@@ -246,11 +250,14 @@ c2_app_stop_activity							(void);
 void
 c2_install_new									(void);
 
+gint
+c2_app_get_mailbox_configuration_id_by_name		(const gchar *name);
+
 void
 c2_mailbox_tree_fill							(C2Mailbox *head, GtkCTreeNode *node,
 												 GtkWidget *ctree, GtkWidget *window);
 
-/* defined in preferences.c */
+/* preferences.c */
 void
 c2_preferences_new								(void);
 

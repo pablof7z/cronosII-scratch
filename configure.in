@@ -29,7 +29,7 @@ dnl #######################################################
 AC_INIT(src)
 AM_CONFIG_HEADER(config.h)
 
-AM_INIT_AUTOMAKE(cronosII, 0.2.3)
+AM_INIT_AUTOMAKE(cronosII-scratch, 0.0.1)
 
 dnl #######################################################
 dnl   Command, paths and libraries checks
@@ -189,8 +189,8 @@ dnl   GtkXmHtml
 dnl #######################################################
 
 AC_ARG_ENABLE([gtkxmhtml],
-[  --enable-gtkxmhtml        Use the GtkXmHTML widget for showing messages [default=no]],
-[ gtkxmhtml=$enableval ], [ gtkxmhtml=no ])
+[  --disable-gtkxmhtml        Disable the use of the GtkXmHTML widget for showing messages [default=no]],
+[ gtkxmhtml=$enableval ], [ gtkxmhtml=yes ])
 
 AC_MSG_CHECKING(for GtkXmHTML)
 if test "$gtkxmhtml" = "yes"; then
@@ -229,19 +229,6 @@ if test "$gtkhtml" = "yes"; then
 	fi
 else
 	AC_MSG_RESULT(no)
-fi
-
-dnl #######################################################
-dnl   MySQL
-dnl #######################################################
-
-AC_ARG_ENABLE([mysql],
-[  --enable-mysql            Enable MySQL support. [default=no]],
-[ mysql=$enableval ], [ mysql=no ])
-
-if test "$mysql" = "yes"; then
-	AC_DEFINE(USE_MYSQL)
-	FEATURES="$FEATURES 'mysql'"
 fi
 
 dnl #######################################################
@@ -288,7 +275,6 @@ echo  Installing in prefix.............: $prefix
 echo  Building test suite..............: $test_suite
 echo  Building with debugging routines.: $debug
 echo
-echo  Building with MySQL support......: $mysql
 echo  Building with HTML support.......: $html
 echo
 echo  Run \'make\' to start compiling this software.

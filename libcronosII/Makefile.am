@@ -22,4 +22,5 @@ INCLUDES=-DBUILDING_C2 -I. -I${top_srcdir} $(GNOME_INCLUDEDIR)
 
 EXTRA_DIST = \
 	README				\
+	README.api			\
 	README.mailbox_id	

@@ -57,7 +57,6 @@
 #undef HAVE_STPCPY
 #undef HAVE_SETSOCKOPT
 #undef USE_DEBUG
-#undef USE_MYSQL
 #undef PREFIX
 #undef USE_SPOOL_DIR
 #undef USE_XMAILER

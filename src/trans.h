@@ -82,39 +82,27 @@ gchar *s = N_("Contacts");
 gchar *s = N_("Exit");
 gchar *s = N_("label7");
 gchar *s = N_("Show the Checking Window.");
-gchar *s = N_("Mailbox Options");
-gchar *s = N_("Name:");
-gchar *s = N_("Type");
-gchar *s = N_("\n"
-              "");
-gchar *s = N_("Extra data");
-gchar *s = N_("Port:");
-gchar *s = N_("localhost");
-gchar *s = N_("Host:");
-gchar *s = N_("User:");
-gchar *s = N_("Pass:");
-gchar *s = N_("Db:");
 gchar *s = N_("That mailbox name\n"
               "is already taken.");
 gchar *s = N_("Error");
 gchar *s = N_("Mailbox properties");
 gchar *s = N_("Warning");
-gchar *s = N_("The edition of mailboxes\n"
-              "is really dangerous and\n"
-              "might result in the lost of\n"
-              "all mails of the mailbox.");
+gchar *s = N_("The edition of mailboxes is really dangerous and might result in the lost of all mails of the mailbox.");
+gchar *s = N_("Type here the name of the new mailbox");
 gchar *s = N_("Type:");
 gchar *s = N_("Name:");
+gchar *s = N_("Select the type of access you want for this mailbox");
 gchar *s = N_("Extra data");
 gchar *s = N_("Port:");
-gchar *s = N_("localhost");
+gchar *s = N_("Type here the port where this mailbox is stored");
+gchar *s = N_("Type here the hostname where this mailbox is stored");
 gchar *s = N_("Host:");
 gchar *s = N_("User:");
 gchar *s = N_("Pass:");
-gchar *s = N_("Db:");
+gchar *s = N_("Path:");
 gchar *s = N_("Cronos II : Checking");
 gchar *s = N_("Checking account %s %v of %u");
-gchar *s = N_("Getting E-Mail %v of %u (%p%%)");
+gchar *s = N_("Getting e-mail %v of %u (%p%%)");
 gchar *s = N_("This progress bar indicates the progress of the fetch of the current message.");
 gchar *s = N_("%P %%");
 gchar *s = N_("Account");
@@ -144,3 +132,30 @@ gchar *s = N_("Create a new mailbox");
 gchar *s = N_("_New Mailbox");
 gchar *s = N_("Delete selected mailbox");
 gchar *s = N_("_Delete Mailbox");
+gchar *s = N_("The deletion of a mailbox will\n"
+              "permanently delete all mails stored\n"
+              "in it and all mailboxes pending from it.\n"
+              "\n"
+              "Are you sure you want to delete it?");
+gchar *s = N_("Information");
+gchar *s = N_("Cronos II : Composer");
+gchar *s = N_("_Insert");
+gchar *s = N_("Insert a file as in-line.");
+gchar *s = N_("_File");
+gchar *s = N_("Insert a file as an attachment");
+gchar *s = N_("_Attachment");
+gchar *s = N_("_Spell Checker");
+gchar *s = N_("_Options");
+gchar *s = N_("Priority");
+gchar *s = N_("Highest");
+gchar *s = N_("High");
+gchar *s = N_("Normal");
+gchar *s = N_("Low");
+gchar *s = N_("Lowest");
+gchar *s = N_("Wrap");
+gchar *s = N_("New File");
+gchar *s = N_("New");
+gchar *s = N_("Open File");
+gchar *s = N_("Open");
+gchar *s = N_("Save File");
+gchar *s = N_("Save");

@@ -174,7 +174,7 @@ c2_preferences_new (void)
 		return;
 	}
 	
-	preferences_xml = glade_xml_new (DATADIR "/cronosII/preferences.glade", "dlg_preferences");
+	preferences_xml = glade_xml_new (C2_APP_GLADE_FILE ("preferences"), "dlg_preferences");
 	
 	/* Dialog */
 	dialog = glade_xml_get_widget (preferences_xml, "dlg_preferences");

@@ -43,7 +43,7 @@ typedef enum _C2MailboxType C2MailboxType;
 #	include <cronosII.h>
 #endif
 
-#define C2_MAILBOX_IS_TOPLEVEL(mbox)				(strlen (mbox->id) == 1)
+#define C2_MAILBOX_IS_TOPLEVEL(mbox)				(strstr (mbox->id, "-") ? 0 : 1)
 
 enum _C2MailboxSortBy
 {
@@ -62,9 +62,6 @@ enum _C2MailboxType
 {
 	C2_MAILBOX_CRONOSII,
 	C2_MAILBOX_IMAP
-#ifdef USE_MYSQL
-	,C2_MAILBOX_MYSQL
-#endif
 };
 
 struct _C2Mailbox
@@ -84,20 +81,12 @@ struct _C2Mailbox
 		struct {
 		} cronosII;
 		struct {
-			gchar *server;
+			gchar *host;
 			gint port;
 			gchar *user;
 			gchar *pass;
+			gchar *path;
 		} imap;
-#ifdef USE_MYSQL
-		struct {
-			gchar *server;
-			gint port;
-			gchar *db;
-			gchar *user;
-			gchar *pass;
-		} mysql;
-#endif
 	} protocol;
 	
 	C2MailboxSortBy sort_by;
@@ -129,10 +118,14 @@ c2_mailbox_new									(const gchar *name, const gchar *id, C2MailboxType type,
 
 C2Mailbox *
 c2_mailbox_new_with_parent						(const gchar *name, const gchar *parent_id, C2MailboxType type,
-												 C2MailboxSortBy sort_by, GtkSortType sort_type);
+												 C2MailboxSortBy sort_by, GtkSortType sort_type, ...);
 
 void
 c2_mailbox_destroy_tree							(void);
+
+void
+c2_mailbox_update								(C2Mailbox *mailbox, const gchar *name, const gchar *id,
+												 C2MailboxType type, ...);
 
 void
 c2_mailbox_remove								(C2Mailbox *mailbox);
@@ -151,8 +144,8 @@ c2_mailbox_get_id								(const gchar *id, gint number);
 C2Mailbox *
 c2_mailbox_get_head								(void);
 
-const C2Mailbox *
-c2_mailbox_get_by_name							(const C2Mailbox *head, const gchar *name);
+C2Mailbox *
+c2_mailbox_get_by_name							(C2Mailbox *head, const gchar *name);
 
 #ifdef __cplusplus
 }
