@@ -1121,10 +1121,10 @@
       <widget>
 	<class>Custom</class>
 	<name>edit</name>
-	<creation_function>c2_edit_new</creation_function>
+	<creation_function>c2_html_edit_new</creation_function>
 	<int1>0</int1>
 	<int2>0</int2>
-	<last_modification_time>Wed, 08 Aug 2001 23:14:18 GMT</last_modification_time>
+	<last_modification_time>Wed, 15 Aug 2001 18:30:07 GMT</last_modification_time>
 	<child>
 	  <padding>0</padding>
 	  <expand>True</expand>

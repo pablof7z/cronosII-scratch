@@ -41,7 +41,7 @@
   <widget>
     <class>GnomeDock</class>
     <child_name>GnomeApp:dock</child_name>
-    <name>dock1</name>
+    <name>wnd_main_contents</name>
     <allow_floating>True</allow_floating>
     <child>
       <padding>0</padding>
@@ -308,7 +308,8 @@
 
 	    <widget>
 	      <class>GtkMenuItem</class>
-	      <name>separator1</name>
+	      <name>file_egg_separator</name>
+	      <tooltip>mmmm, I smell a nice egg coming from the east...</tooltip>
 	      <right_justify>False</right_justify>
 	    </widget>
 
@@ -1001,7 +1002,7 @@
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_contacts</name>
 	  <tooltip>Open the Address Book</tooltip>
-	  <label>Contacts.</label>
+	  <label>Contacts</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_BOOK_RED</stock_pixmap>
 	  <child>
 	    <new_group>True</new_group>
@@ -1012,7 +1013,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_exit</name>
-	  <tooltip>Close CronosII</tooltip>
+	  <tooltip>Close Cronos II</tooltip>
 	  <signal>
 	    <name>clicked</name>
 	    <handler>on_quit</handler>
@@ -1049,7 +1050,7 @@
 
 	<widget>
 	  <class>GtkScrolledWindow</class>
-	  <name>scrolledwindow5</name>
+	  <name>mlist_scroll</name>
 	  <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
 	  <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
 	  <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
@@ -1060,52 +1061,7 @@
 	  </child>
 
 	  <widget>
-	    <class>GtkCTree</class>
-	    <name>ctree</name>
-	    <can_focus>True</can_focus>
-	    <signal>
-	      <name>button_press_event</name>
-	      <handler>on_ctree_button_press_event</handler>
-	      <last_modification_time>Wed, 08 Aug 2001 18:28:08 GMT</last_modification_time>
-	    </signal>
-	    <signal>
-	      <name>tree_select_row</name>
-	      <handler>on_ctree_tree_select_row</handler>
-	      <last_modification_time>Wed, 08 Aug 2001 18:28:19 GMT</last_modification_time>
-	    </signal>
-	    <signal>
-	      <name>tree_unselect_row</name>
-	      <handler>on_ctree_tree_unselect_row</handler>
-	      <last_modification_time>Wed, 08 Aug 2001 18:28:27 GMT</last_modification_time>
-	    </signal>
-	    <columns>3</columns>
-	    <column_widths>144,38,31</column_widths>
-	    <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
-	    <show_titles>True</show_titles>
-	    <shadow_type>GTK_SHADOW_IN</shadow_type>
-
-	    <widget>
-	      <class>GtkLabel</class>
-	      <child_name>CTree:title</child_name>
-	      <name>label72</name>
-	      <label>Mailbox</label>
-	      <justify>GTK_JUSTIFY_CENTER</justify>
-	      <wrap>False</wrap>
-	      <xalign>0.5</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	    </widget>
-
-	    <widget>
-	      <class>Placeholder</class>
-	      <child_name>CTree:title</child_name>
-	    </widget>
-
-	    <widget>
-	      <class>Placeholder</class>
-	      <child_name>CTree:title</child_name>
-	    </widget>
+	    <class>Placeholder</class>
 	  </widget>
 	</widget>
 
@@ -1122,7 +1078,7 @@
 
 	  <widget>
 	    <class>GtkScrolledWindow</class>
-	    <name>scrolledwindow10</name>
+	    <name>index_scroll</name>
 	    <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
 	    <vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
 	    <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
@@ -1133,19 +1089,7 @@
 	    </child>
 
 	    <widget>
-	      <class>Custom</class>
-	      <name>index</name>
-	      <tooltip>Message List</tooltip>
-	      <signal>
-		<name>select_message</name>
-		<handler>on_index_select_message</handler>
-		<last_modification_time>Wed, 08 Aug 2001 18:32:53 GMT</last_modification_time>
-	      </signal>
-	      <creation_function>c2_index_new</creation_function>
-	      <string1></string1>
-	      <int1>0</int1>
-	      <int2>0</int2>
-	      <last_modification_time>Thu, 03 May 2001 00:26:16 GMT</last_modification_time>
+	      <class>Placeholder</class>
 	    </widget>
 	  </widget>
 
@@ -1215,8 +1159,8 @@
   <class>GnomeMessageBox</class>
   <name>dlg_mailbox_err</name>
   <message_box_type>GNOME_MESSAGE_BOX_ERROR</message_box_type>
-  <message>That mailbox name
-is already in use.</message>
+  <message>The mailbox name you
+entered is invalid.</message>
   <title>Error</title>
   <position>GTK_WIN_POS_CENTER</position>
   <modal>True</modal>
@@ -1276,7 +1220,7 @@ is already in use.</message>
   <visible>False</visible>
   <title>Mailbox properties</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
-  <position>GTK_WIN_POS_CENTER</position>
+  <position>GTK_WIN_POS_NONE</position>
   <modal>False</modal>
   <allow_shrink>False</allow_shrink>
   <allow_grow>False</allow_grow>
@@ -1289,7 +1233,7 @@ is already in use.</message>
   <widget>
     <class>GtkVBox</class>
     <child_name>GnomeDialog:vbox</child_name>
-    <name>dialog-vbox6</name>
+    <name>box6</name>
     <homogeneous>False</homogeneous>
     <spacing>8</spacing>
     <child>
@@ -1335,7 +1279,7 @@ is already in use.</message>
 
     <widget>
       <class>GtkVBox</class>
-      <name>vbox11</name>
+      <name>dlg_mailbox_properties_contents</name>
       <homogeneous>False</homogeneous>
       <spacing>10</spacing>
       <child>
@@ -1517,7 +1461,7 @@ result in the lost of all mails in it.</label>
 
       <widget>
 	<class>GtkFrame</class>
-	<name>extra_data</name>
+	<name>edata</name>
 	<visible>False</visible>
 	<label>Extra data</label>
 	<label_xalign>0</label_xalign>
@@ -1535,12 +1479,12 @@ result in the lost of all mails in it.</label>
 	  <rows>4</rows>
 	  <columns>4</columns>
 	  <homogeneous>False</homogeneous>
-	  <row_spacing>3</row_spacing>
+	  <row_spacing>4</row_spacing>
 	  <column_spacing>4</column_spacing>
 
 	  <widget>
 	    <class>GtkLabel</class>
-	    <name>port_label</name>
+	    <name>eportl</name>
 	    <label>Port:</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
@@ -1566,7 +1510,7 @@ result in the lost of all mails in it.</label>
 
 	  <widget>
 	    <class>GtkSpinButton</class>
-	    <name>extra_data_port</name>
+	    <name>eport</name>
 	    <tooltip>Type here the port where this mailbox is stored</tooltip>
 	    <can_focus>True</can_focus>
 	    <climb_rate>1</climb_rate>
@@ -1599,7 +1543,7 @@ result in the lost of all mails in it.</label>
 
 	  <widget>
 	    <class>GtkEntry</class>
-	    <name>extra_data_host</name>
+	    <name>ehost</name>
 	    <tooltip>Type here the hostname where this mailbox is stored</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
@@ -1624,7 +1568,7 @@ result in the lost of all mails in it.</label>
 
 	  <widget>
 	    <class>GtkEntry</class>
-	    <name>extra_data_pass</name>
+	    <name>epass</name>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>False</text_visible>
@@ -1648,7 +1592,7 @@ result in the lost of all mails in it.</label>
 
 	  <widget>
 	    <class>GtkLabel</class>
-	    <name>hostname_label</name>
+	    <name>ehostl</name>
 	    <label>Hostname:</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
@@ -1674,7 +1618,7 @@ result in the lost of all mails in it.</label>
 
 	  <widget>
 	    <class>GtkLabel</class>
-	    <name>username_label</name>
+	    <name>euserl</name>
 	    <label>Username:</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
@@ -1700,7 +1644,7 @@ result in the lost of all mails in it.</label>
 
 	  <widget>
 	    <class>GtkLabel</class>
-	    <name>password_label</name>
+	    <name>epassl</name>
 	    <label>Password:</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
@@ -1726,7 +1670,7 @@ result in the lost of all mails in it.</label>
 
 	  <widget>
 	    <class>GtkEntry</class>
-	    <name>extra_data_user</name>
+	    <name>euser</name>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -1750,7 +1694,7 @@ result in the lost of all mails in it.</label>
 
 	  <widget>
 	    <class>GtkLabel</class>
-	    <name>path_label</name>
+	    <name>epathl</name>
 	    <label>Path:</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
@@ -1796,7 +1740,7 @@ result in the lost of all mails in it.</label>
 
 	    <widget>
 	      <class>GnomeFileEntry</class>
-	      <name>extra_data_path_spool</name>
+	      <name>epath_spool</name>
 	      <history_id>extra_data_path_spool</history_id>
 	      <max_saved>10</max_saved>
 	      <title>Select file</title>
@@ -1804,8 +1748,8 @@ result in the lost of all mails in it.</label>
 	      <modal>False</modal>
 	      <child>
 		<padding>0</padding>
-		<expand>False</expand>
-		<fill>False</fill>
+		<expand>True</expand>
+		<fill>True</fill>
 	      </child>
 
 	      <widget>
@@ -1822,7 +1766,7 @@ result in the lost of all mails in it.</label>
 
 	    <widget>
 	      <class>GtkEntry</class>
-	      <name>extra_data_path_imap</name>
+	      <name>epath_imap</name>
 	      <can_focus>True</can_focus>
 	      <editable>True</editable>
 	      <text_visible>True</text_visible>
@@ -1839,32 +1783,6 @@ result in the lost of all mails in it.</label>
       </widget>
     </widget>
   </widget>
-</widget>
-
-<widget>
-  <class>GnomeAbout</class>
-  <name>dlg_about</name>
-  <tooltip>about</tooltip>
-  <modal>True</modal>
-  <wmclass_name>cronosII</wmclass_name>
-  <wmclass_class>about</wmclass_class>
-  <copyright>© 2000-2001 Pablo Fernández Navarro</copyright>
-  <authors>Pablo Fernández Navarro
-Bosko Blagojevic
-André Casteliano
-Peter Gossner
-Marc Zaritsky
-Yves Mettier
-See the 'AUTHORS' file for more...
-</authors>
-  <comments>Cronos II is a fast, light, user friendly and powerful mail client for you and the Gnome Desktop.
-It has an extended and intuitive interface which  makes  for  easier use while remaining extensible for you as your experience grows.
- 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-See the 'COPYING' file for the complete license or check it at http://www.gnu.org.
- 
-The Cronos II Website is at:
-http://cronosII.sourceforge.net</comments>
 </widget>
 
 <widget>
@@ -3283,6 +3201,161 @@ able to compose mails.</message>
 <widget>
   <class>GtkMenu</class>
   <name>html_menu</name>
+</widget>
+
+<widget>
+  <class>GnomeDialog</class>
+  <name>dlg_eastern_egg</name>
+  <width>500</width>
+  <height>480</height>
+  <title>You found the Eastern Egg!</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>False</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <auto_close>False</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox13</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area13</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button77</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<label>Neat, baby!</label>
+	<stock_pixmap>GNOME_STOCK_PIXMAP_VOLUME</stock_pixmap>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkVBox</class>
+      <name>dlg_eastern_egg_contents</name>
+      <homogeneous>False</homogeneous>
+      <spacing>5</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkViewport</class>
+	<name>viewport3</name>
+	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GnomePixmap</class>
+	  <name>picture</name>
+	</widget>
+      </widget>
+
+      <widget>
+	<class>GtkEntry</class>
+	<name>entry</name>
+	<can_focus>True</can_focus>
+	<editable>False</editable>
+	<text_visible>True</text_visible>
+	<text_max_length>0</text_max_length>
+	<text></text>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeMessageBox</class>
+  <name>dlg_mailbox_not_enough_data</name>
+  <message_box_type>GNOME_MESSAGE_BOX_ERROR</message_box_type>
+  <message>Not enough data was filled in,
+complete the missing data
+and try again.</message>
+  <title>Error</title>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>False</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <auto_close>True</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox14</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area14</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button80</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
+      </widget>
+    </widget>
+  </widget>
 </widget>
 
 </GTK-Interface>
