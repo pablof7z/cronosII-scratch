@@ -27,14 +27,15 @@
 
 /* hard-hat area, in progress by bosko */
 /* feel free to mess around -- help me get this module up to spec faster! */
-/* (done!) TODO: implement keep-alive smtp connection */
-/* (in progress) TODO: implement local sendmail capability */
-/* TODO: upgrade this module to use the C2 Net-Object */
-/* (in progress) TODO: create a test-module */
-/* (done!) TODO: implement BCC */
 /* TODO: implement sending of MIME attachments */
 /* TODO: implement authentication (posted by pablo) */
+/* TODO: update this module to use C2 Net-Object */
+/* (in progress) TODO: implement local sendmail capability */
+/* (in progress) TODO: create a test-module */
+/* (done!) TODO: implement BCC */
 /* (done!) TODO: implement EHLO */
+/* (done!) TODO: implement keep-alive smtp connection */
+
 
 static gint
 c2_smtp_connect (C2SMTP *smtp);
@@ -100,15 +101,6 @@ c2_smtp_new (C2SMTPType type, ...)
 			smtp->user = g_strdup (va_arg (args, const gchar *));
 			smtp->pass = g_strdup (va_arg (args, const gchar *));
 			va_end (args);
-			
-			if (smtp->flags & C2_SMTP_DO_PERSIST)
-			{
-				/* Cache the object if it has been marked as persistent
-				 * and connect it
-				 */
-				c2_smtp_connect (smtp);
-				cached_smtp = smtp;
-			}
 			break;
 		case C2_SMTP_LOCAL:
 			va_start (args, type);
@@ -134,6 +126,15 @@ c2_smtp_set_flags (C2SMTP *smtp, gint flags)
 	c2_return_if_fail (smtp, C2EDATA);
 
 	smtp->flags = flags;
+	
+	if (smtp->flags & C2_SMTP_DO_PERSIST)
+	{
+		/* Cache the object if it has been marked as persistent
+		 * and connect it
+		 */
+		c2_smtp_connect (smtp);
+		cached_smtp = smtp;
+	}
 }
 
 void
@@ -323,7 +324,7 @@ c2_smtp_send_helo (C2SMTP *smtp, gboolean esmtp)
 {
 	gchar *hostname, *buffer = NULL;
 	
-	/* hostname = c2_net_get_local_hostname(smtp->sock); */ /* temp */
+	/* hostname = c2_net_get_local_hostname(smtp->sock); */
 	hostname = g_strdup("localhost.localdomain");
 	if(!hostname)
 		hostname = g_strdup("localhost.localdomain");
