@@ -22,6 +22,10 @@
 
 #include "widget-sidebar.h"
 
+#define RED_COLOR	0x7500
+#define GREEN_COLOR	0x7500
+#define BLUE_COLOR	0x7500
+
 static void
 class_init									(C2SidebarClass *klass);
 
@@ -152,14 +156,14 @@ c2_sidebar_set_contents (C2Sidebar *sidebar, C2SidebarSection *list)
 		gtk_widget_show (viewport);
 		style = gtk_style_copy (gtk_widget_get_style (viewport));
 		
-		style->bg[GTK_STATE_NORMAL].red = 0x7000;
-		style->bg[GTK_STATE_NORMAL].green = 0x8000;
-		style->bg[GTK_STATE_NORMAL].blue = 0x9000;
-		
+		style->bg[GTK_STATE_NORMAL].red = RED_COLOR;
+		style->bg[GTK_STATE_NORMAL].green = GREEN_COLOR;
+		style->bg[GTK_STATE_NORMAL].blue = BLUE_COLOR;
+
 		gdk_color_alloc (gdk_colormap_get_system (), &style->bg[GTK_STATE_NORMAL]);
 		gtk_widget_set_style (viewport, style);
 
-		vbox = gtk_vbox_new (FALSE, 10);
+		vbox = gtk_vbox_new (FALSE, 0);
 		gtk_container_add (GTK_CONTAINER (viewport), vbox);
 		gtk_widget_show (vbox);
 		
@@ -179,6 +183,17 @@ c2_sidebar_set_contents (C2Sidebar *sidebar, C2SidebarSection *list)
 			
 			button = gtk_radio_button_new (bgroup);
 			gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
+			style = gtk_style_copy (gtk_widget_get_style (button));
+		
+			style->bg[GTK_STATE_PRELIGHT].red = RED_COLOR;
+			style->bg[GTK_STATE_PRELIGHT].green = GREEN_COLOR;
+			style->bg[GTK_STATE_PRELIGHT].blue = BLUE_COLOR;
+			style->bg[GTK_STATE_ACTIVE].red = RED_COLOR;
+			style->bg[GTK_STATE_ACTIVE].green = GREEN_COLOR;
+			style->bg[GTK_STATE_ACTIVE].blue = BLUE_COLOR;
+			gdk_color_alloc (gdk_colormap_get_system (), &style->bg[GTK_STATE_NORMAL]);
+			gtk_widget_set_style (button, style);
+			GTK_WIDGET_UNSET_FLAGS (button, GTK_CAN_FOCUS);
 			gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (button), FALSE);
 			bgroup = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 			gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
@@ -208,14 +223,17 @@ c2_sidebar_set_contents (C2Sidebar *sidebar, C2SidebarSection *list)
 
 					if (sl->icon)
 					{
-						GdkPixmap *pixmap;
-						GdkBitmap *mask;
+						GtkWidget *pixmap;
 						GtkWidget *icon;
+						size_t isize;
+
+						isize = sidebar->buttons_type == C2_SIDEBAR_BUTTON_TEXT_UNDER_ICON ?
+									48 : 24;
 						
-						pixbuf = gdk_pixbuf_new_from_file (sl->icon);
-						gdk_pixbuf_render_pixmap_and_mask (pixbuf, &pixmap, &mask, 100);
-						gdk_pixbuf_unref (pixbuf);
-						icon = gtk_pixmap_new (pixmap, mask);
+						pixmap = gnome_pixmap_new_from_file_at_size (sl->icon,
+										isize, isize);
+						icon = gtk_pixmap_new (GNOME_PIXMAP (pixmap)->pixmap,
+												GNOME_PIXMAP (pixmap)->mask);
 						gtk_box_pack_start (GTK_BOX (box), icon, FALSE, FALSE, 0);
 						gtk_widget_show (icon);
 					}
@@ -274,4 +292,12 @@ on_subsection_button_clicked (GtkWidget *button, C2Sidebar *sidebar)
 	C2SidebarSubSection *subsection = gtk_object_get_data (GTK_OBJECT (button), "subsection");
 
 	gtk_signal_emit (GTK_OBJECT (sidebar), signals[SUBSECTION_SELECTED], section->name, subsection->name);
+}
+
+void
+c2_sidebar_set_buttons_type (C2Sidebar *sidebar, C2SidebarButtonType type)
+{
+	sidebar->buttons_type = type;
+
+	/* [TODO] Some kind of reload? */
 }

@@ -30,6 +30,7 @@ cronosII_scratch_SOURCES = \
 	widget-mailbox-list.c		widget-mailbox-list.h		\
 	widget-part.c				widget-part.h				\
 	widget-sidebar.c			widget-sidebar.h			\
+	widget-toolbar.c			widget-toolbar.h			\
 	widget-transfer-item.c		widget-transfer-item.h		\
 	widget-transfer-list.c		widget-transfer-list.h		\
 	widget-window-main.c		widget-window-main.h		\

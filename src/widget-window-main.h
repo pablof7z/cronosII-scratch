@@ -36,15 +36,39 @@ extern "C" {
 
 #define C2_WINDOW_MAIN(obj)					(GTK_CHECK_CAST (obj, c2_window_main_get_type (), C2WindowMain))
 #define C2_WINDOW_MAIN_CLASS(klass)			(GTK_CHECK_CLASS_CAST (klass, c2_window_main_get_type (), C2WindowMainClass))
+#define C2_IS_WINDOW_MAIN(obj)				(GTK_CHECK_TYPE (obj, c2_window_main_get_type ()))
 
 typedef struct _C2WindowMain C2WindowMain;
 typedef struct _C2WindowMainClass C2WindowMainClass;
+typedef enum _C2WindowMainToolbarButton C2WindowMainToolbarButton;
+
+enum _C2WindowMainToolbarButton
+{
+	C2_WINDOW_MAIN_TOOLBAR_CHECK,
+	C2_WINDOW_MAIN_TOOLBAR_SEND,
+	C2_WINDOW_MAIN_TOOLBAR_FIND,
+	C2_WINDOW_MAIN_TOOLBAR_SAVE,
+	C2_WINDOW_MAIN_TOOLBAR_PRINT,
+	C2_WINDOW_MAIN_TOOLBAR_DELETE,
+	C2_WINDOW_MAIN_TOOLBAR_COPY,
+	C2_WINDOW_MAIN_TOOLBAR_MOVE,
+	C2_WINDOW_MAIN_TOOLBAR_COMPOSE,
+	C2_WINDOW_MAIN_TOOLBAR_REPLY,
+	C2_WINDOW_MAIN_TOOLBAR_REPLY_ALL,
+	C2_WINDOW_MAIN_TOOLBAR_FORWARD,
+	C2_WINDOW_MAIN_TOOLBAR_PREVIOUS,
+	C2_WINDOW_MAIN_TOOLBAR_NEXT,
+	C2_WINDOW_MAIN_TOOLBAR_CONTACTS,
+	C2_WINDOW_MAIN_TOOLBAR_CLOSE,
+	C2_WINDOW_MAIN_TOOLBAR_EXIT,
+	C2_WINDOW_MAIN_TOOLBAR_SPACE
+};
 	
 struct _C2WindowMain
 {
 	C2Window window;
 	
-	GtkWidget *mlist, *index; /* Statically created widgets need a reference here */
+	GtkWidget *toolbar, *mlist, *index; /* Statically created widgets need a reference here */
 	GladeXML *ctree_menu;
 	GladeXML *toolbar_menu;
 
@@ -77,6 +101,9 @@ c2_window_main_edit_mailbox_dialog			(C2WindowMain *wmain);
 
 void
 c2_window_main_remove_mailbox_dialog		(C2WindowMain *wmain);
+
+void
+c2_window_main_toolbar_configuration_dialog	(C2WindowMain *wmain);
 
 #ifdef __cplusplus
 }

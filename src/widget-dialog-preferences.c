@@ -640,6 +640,7 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 
 	/* Sidebar */
 	sidebar = glade_xml_get_widget (xml, "sidebar");
+	c2_sidebar_set_buttons_type (C2_SIDEBAR (sidebar), C2_SIDEBAR_BUTTON_TEXT_NEXT_TO_ICON);
 	c2_sidebar_set_contents (C2_SIDEBAR (sidebar), sidebar_info);
 	gtk_widget_show (sidebar);
 

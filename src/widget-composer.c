@@ -20,10 +20,13 @@
 
 #include <libcronosII/account.h>
 #include <libcronosII/error.h>
+#include <libcronosII/smtp.h>
 
 #include "widget-application.h"
 #include "widget-composer.h"
 #include "widget-dialog-preferences.h"
+#include "widget-transfer-list.h"
+#include "widget-transfer-item.h"
 #include "widget-window.h"
 
 #define XML_FILE "cronosII-composer"
@@ -68,6 +71,12 @@ on_attachments_clicked						(GtkWidget *widgetv, C2Composer *composer);
 
 static void
 on_mnu_attachments_edit_activate			(GtkWidget *widget, C2Composer *composer);
+
+static C2Account *
+get_account									(C2Composer *composer);
+
+static C2Message *
+create_message								(C2Composer *composer);
 
 enum
 {
@@ -511,9 +520,10 @@ on_send_now_clicked (GtkWidget *widget, C2Composer *composer)
 {
 	C2Message *message = create_message (composer);
 	C2Account *account = get_account (composer);
-	C2SMTP *smtp = C2_SMTP (c2_account_get_extra_data (account, C2_ACCOUNT_KEY_OUTGOING));
+	C2SMTP *smtp = C2_SMTP (c2_account_get_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, NULL));
 	GladeXML *xml;
-	GtkWidget *tl, *widget;
+	GtkWidget *tl;
+	C2TransferItem *ti;
 
 #ifdef USE_DEBUG
 	if (!smtp)
@@ -541,7 +551,8 @@ on_send_now_clicked (GtkWidget *widget, C2Composer *composer)
 	
 	ti = c2_transfer_item_new (C2_WINDOW (composer)->application, account,
 								C2_TRANSFER_ITEM_SEND, smtp, message);
-
+	c2_transfer_list_add_item (C2_TRANSFER_LIST (tl), ti);
+	c2_transfer_item_start (ti);
 }
 
 static void
@@ -737,4 +748,38 @@ c2_composer_set_message_as_quote (C2Composer *composer, C2Message *message)
 			return;
 		}
 	}
+}
+
+static C2Message *
+create_message (C2Composer *composer)
+{
+	GladeXML *xml;
+	GtkWidget *widget;
+
+	xml = C2_WINDOW (composer)->xml;
+//	widget = glade_xml_get_widget (
+	return NULL;
+}
+
+static C2Account *
+get_account (C2Composer *composer)
+{
+	C2Account *account;
+	C2Application *application;
+	GtkWidget *widget;
+	gchar *text, *name;
+
+	application = C2_WINDOW (composer)->application;
+
+	widget = GTK_COMBO (glade_xml_get_widget (C2_WINDOW (composer)->xml, "account"))->entry;
+	text = gtk_entry_get_text (GTK_ENTRY (widget));
+	name = c2_str_get_enclosed_text_backward (text, '(', ')', 0);
+
+	for (account = application->account; account; account = c2_account_next (account))
+	{
+		if (c2_streq (account->name, name))
+			return account;
+	}
+
+	return NULL;
 }

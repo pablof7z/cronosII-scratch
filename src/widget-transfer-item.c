@@ -37,7 +37,7 @@ static void
 on_cancel_clicked							(GtkWidget *button, C2TransferItem *ti);
 
 static void
-on_pop3_resolve								(GtkObject *object, C2TransferItem *ti);
+on_pop3_resolve								(GtkObject *object, C2NetObjectByte *byte, C2TransferItem *ti);
 
 static void
 on_pop3_login								(GtkObject *object, C2TransferItem *ti);
@@ -60,7 +60,8 @@ static void
 on_pop3_synchronize							(GtkObject *object, gint nth, gint mails, C2TransferItem *ti);
 
 static void
-on_pop3_disconnect							(GtkObject *object, gboolean success, C2TransferItem *ti);
+on_pop3_disconnect							(GtkObject *object, gboolean success, C2NetObjectByte *byte,
+											 C2TransferItem *ti);
 
 enum
 {
@@ -304,7 +305,7 @@ c2_transfer_item_start (C2TransferItem *ti)
 					gtk_progress_set_show_text (GTK_PROGRESS (ti->progress_mail), TRUE);
 					gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail),
 									_("No Inbox mailbox"));
-					on_pop3_disconnect (NULL, FALSE, ti);
+					on_pop3_disconnect (NULL, FALSE, NULL, ti);
 					return;
 				}
 				gtk_signal_emit_by_name (GTK_OBJECT (inbox), "changed_mailboxes");
@@ -358,7 +359,7 @@ c2_transfer_item_start (C2TransferItem *ti)
 }
 
 static void
-on_pop3_resolve (GtkObject *object, C2TransferItem *ti)
+on_pop3_resolve (GtkObject *object, C2NetObjectByte *byte, C2TransferItem *ti)
 {
 	gdk_threads_enter ();
 	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Connecting"));
@@ -565,7 +566,7 @@ on_pop3_synchronize (GtkObject *object, gint nth, gint mails, C2TransferItem *ti
 }
 
 static void
-on_pop3_disconnect (GtkObject *object, gboolean success, C2TransferItem *ti)
+on_pop3_disconnect (GtkObject *object, gboolean success, C2NetObjectByte *byte, C2TransferItem *ti)
 {
 	gdk_threads_enter ();
 	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Completed"));
