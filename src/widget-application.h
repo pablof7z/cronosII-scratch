@@ -40,8 +40,13 @@ extern "C" {
 #define C2_MAILBOX_INBOX					_("Inbox")
 #define C2_MAILBOX_OUTBOX					_("Outbox")
 #define C2_MAILBOX_SENT_ITEMS				_("Sent Items")
-#define C2_MAILBOX_GARBAGE					_("Trash")
+#define C2_MAILBOX_TRASH					_("Trash")
 #define C2_MAILBOX_DRAFTS					_("Drafts")
+#define C2_MAILBOX_N_INBOX					N_("Inbox")
+#define C2_MAILBOX_N_OUTBOX					N_("Outbox")
+#define C2_MAILBOX_N_SENT_ITEMS				N_("Sent Items")
+#define C2_MAILBOX_N_TRASH					N_("Trash")
+#define C2_MAILBOX_N_DRAFTS					N_("Drafts")
 
 #define DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_RED	"0"
 #define DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_GREEN	"0"
@@ -69,18 +74,6 @@ typedef enum
 	C2_DEFAULT_MIME_PLAIN,
 	C2_DEFAULT_MIME_HTML
 } C2DefaultMimeType;
-
-typedef enum
-{
-	C2_FONT_USE_DOCUMENTS_FONT,
-	C2_FONT_USE_MY_FONT
-} C2FontSource;
-
-typedef enum
-{
-	C2_COLOR_USE_DOCUMENTS_COLORS,
-	C2_COLOR_USE_MY_COLOR
-} C2ColorSource;
 
 typedef enum
 {
@@ -144,13 +137,8 @@ struct _C2Application
 	GdkFont *fonts_gdk_readed_mails;
 	GdkFont *fonts_gdk_unreaded_mails;
 	GdkFont *fonts_gdk_unreaded_mailbox;
+	GdkFont *fonts_gdk_composer_body;
 	GdkFont *fonts_gdk_message_body;
-	C2FontSource fonts_source;
-
-	GdkColor colors_replying_original_message;
-	GdkColor colors_message_bg;
-	GdkColor colors_message_fg;
-	C2ColorSource colors_message_source;
 };
 
 struct _C2ApplicationClass
@@ -188,8 +176,9 @@ c2_application_window_get					(C2Application *application, const gchar *type);
 gboolean
 c2_application_check_account_exists			(C2Application *application);
 
+/* install.c */
 void
-c2_install_new					(void);
+c2_install_new								(void);
 
 gint
 c2_app_get_mailbox_configuration_id_by_name	(const gchar *name);

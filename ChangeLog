@@ -1,5 +1,21 @@
+Thu Nov 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Work in the composer in order to have replying working,
+	  not yet, but very close...
+
+Sun Nov 11 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Fixed one more bug on the Preferences Dialog.
+
+Sat Nov 10 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Finished the god dam installer, hope you enjoy it.
+	* Watched the movie "The Cell": Pretty good, although I don't like
+	  Jennifer Lopez that much...
+
 Fri Nov 09 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Starting to work on the installer.
+	* Added the default directory and cronosII.glade.in, default.elm.in
+	  and default.index.in.
+	* Work with configure.in and Makefile.am's in order to get things
+	  to work properly with the new changes.
 
 Tue Nov 08 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work in the unfunctional Db module, should be working now.

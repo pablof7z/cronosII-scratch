@@ -284,10 +284,7 @@ c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *pa
 		
 		id = c2_mailbox_create_id_from_parent (*head, parent);
 	} else
-	{
 		id = c2_mailbox_create_id_from_parent (*head, NULL);
-	}
-	C2_DEBUG (id);
 
 	switch (type)
 	{
@@ -615,9 +612,9 @@ c2_mailbox_create_id_from_parent (C2Mailbox *head, C2Mailbox *parent)
 	
 	if (!parent)
 	{
-		if ((l = head))
+		if (head)
 		{
-			for (; l->next; l = l->next)
+			for (l = head; l->next; l = l->next)
 				;
 			id = g_strdup_printf ("%d", atoi (l->id)+1);
 		} else

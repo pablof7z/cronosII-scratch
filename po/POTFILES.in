@@ -5,10 +5,11 @@ libcronosII/imap.c
 libcronosII/mime.c
 libcronosII/pop3.c
 libcronosII/smtp.c
+libcronosII/utils-mutex.c
 libcronosII/utils.c
 libcronosII/i18n.h
 libcronosII/utils.h
-src/install-wizard.c
+src/install.c
 src/main.c
 src/widget-composer.c
 src/widget-dialog-preferences.c
@@ -18,5 +19,6 @@ src/widget-transfer-item.c
 src/widget-transfer-list.c
 src/widget-window-main.c
 src/preferences-trans.h
+src/preferences.h
 src/trans.h
 src/widget-application.h

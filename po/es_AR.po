@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Cronos II 0.0.3\n"
-"POT-Creation-Date: 2001-11-09 13:10-0300\n"
+"POT-Creation-Date: 2001-11-09 22:18-0300\n"
 "PO-Revision-Date: 2001-08-07 00:25-0300\n"
 "Last-Translator: Pablo Fernández Navarro <cronosII@users.sourceforge.net>\n"
 "Language-Team: Spanish (Argentina) <es_AR@li.org>\n"
@@ -38,7 +38,8 @@ msgid "Unable to create structure for Spool Db (2): %s\n"
 msgstr ""
 
 #. C2SUCCESS
-#: libcronosII/error.c:25
+#: libcronosII/error.c:25 src/install.c:355 src/install.c:381
+#: src/install.c:408 src/install.c:435 src/install.c:462
 msgid "Success"
 msgstr "Éxito"
 
@@ -163,267 +164,79 @@ msgstr ""
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
 msgstr ""
 
+#: libcronosII/utils-mutex.c:96
+msgid "Critical Internal Error: Creating Mutex Pipe\n"
+msgstr ""
+
+#: libcronosII/utils-mutex.c:102
+msgid "Critical Internal Error: Using Mutex Pipe\n"
+msgstr ""
+
+#: libcronosII/utils-mutex.c:143
+msgid "Attempting to unlock an already unlocked mutex\n"
+msgstr ""
+
+#: libcronosII/utils-mutex.c:162
+msgid "Critical Internal Error: Writing to Mutex Pipe\n"
+msgstr ""
+
 #: libcronosII/utils.c:1107
 msgid "Bad syntaxes, quotes aren't closed.\n"
 msgstr ""
 
-#: src/install-wizard.c:105
-msgid "Old configuration found, importing it..."
+#. Translators: Change here just the name
+#. * of the Inbox mailbox to whatever name
+#. * your language uses, note that it MUST
+#. * be the same name as when you translated
+#. * before.
+#.
+#: src/install.c:121
+msgid "~/.c2/Inbox.mbx/1"
 msgstr ""
 
-#: src/install-wizard.c:109
-msgid "Creating new configuration due to previous error..."
+#. Translators: Same here, just change the
+#. * Inbox name to whatever name you used
+#. * before.
+#.
+#: src/install.c:131
+msgid "~/.c2/Inbox.mbx/index"
 msgstr ""
 
-#: src/install-wizard.c:115
-msgid "No previous configuration found, creating new..."
-msgstr ""
-
-#: src/install-wizard.c:131
-msgid "Detecting old configuration..."
-msgstr ""
-
-#: src/install-wizard.c:156
-msgid "Wrong upgrade_database parameters"
-msgstr ""
-
-#: src/install-wizard.c:169
+#: src/install.c:334
 #, c-format
-msgid "Unable to open index file: %s"
+msgid "Remove directory %s"
 msgstr ""
 
-#: src/install-wizard.c:180
-#, c-format
-msgid "Unable to load db: %s"
-msgstr ""
-
-#: src/install-wizard.c:228
-#, c-format
-msgid "Unable to move the temporary file to the correct location: %s"
-msgstr ""
-
-#: src/install-wizard.c:402
-msgid "Loading old configuration"
-msgstr ""
-
-#: src/install-wizard.c:414
-msgid "Registering  the new configuration 'Version'"
-msgstr ""
-
-#: src/install-wizard.c:416 src/install-wizard.c:438 src/install-wizard.c:445
-#: src/install-wizard.c:451 src/install-wizard.c:457 src/install-wizard.c:463
-#: src/install-wizard.c:469 src/install-wizard.c:475 src/install-wizard.c:481
-#: src/install-wizard.c:487 src/install-wizard.c:493 src/install-wizard.c:499
-#: src/install-wizard.c:505 src/install-wizard.c:511 src/install-wizard.c:517
-#: src/install-wizard.c:523 src/install-wizard.c:529 src/install-wizard.c:538
-#: src/install-wizard.c:567 src/install-wizard.c:573 src/install-wizard.c:579
-#: src/install-wizard.c:585 src/install-wizard.c:591 src/install-wizard.c:599
-#: src/install-wizard.c:605 src/install-wizard.c:611 src/install-wizard.c:617
-#: src/install-wizard.c:623 src/install-wizard.c:629 src/install-wizard.c:635
-#: src/install-wizard.c:641 src/install-wizard.c:647 src/install-wizard.c:653
-#: src/install-wizard.c:659 src/install-wizard.c:666 src/install-wizard.c:710
-#: src/install-wizard.c:728 src/install-wizard.c:789
-msgid "Success."
-msgstr "Éxito."
-
-#: src/install-wizard.c:429
-msgid "Parsing a mailbox"
-msgstr ""
-
-#: src/install-wizard.c:433
-msgid "Failed."
+#: src/install.c:342 src/install.c:368 src/install.c:395 src/install.c:422
+#: src/install.c:449
+#, fuzzy, c-format
+msgid "Failed: %s\n"
 msgstr "Fallo."
 
-#: src/install-wizard.c:440
-msgid "Upgrading database"
+#: src/install.c:344 src/install.c:370 src/install.c:397 src/install.c:424
+#: src/install.c:451 src/widget-transfer-item.c:693
+#, fuzzy
+msgid "Failed"
+msgstr "Fallo."
+
+#: src/install.c:360
+#, c-format
+msgid "Create directory %s"
 msgstr ""
 
-#: src/install-wizard.c:448
-msgid "Registering in the new configuration 'addrbook_init'"
+#: src/install.c:387
+#, fuzzy, c-format
+msgid "Create mailbox %s"
+msgstr "Cargar buzones"
+
+#: src/install.c:414
+#, c-format
+msgid "Remove file %s"
 msgstr ""
 
-#: src/install-wizard.c:454
-msgid "Registering in the new configuration 'empty_garbage'"
-msgstr ""
-
-#: src/install-wizard.c:460
-msgid "Registering in the new configuration 'check_at_start'"
-msgstr ""
-
-#: src/install-wizard.c:466
-msgid "Registering in the new configuration 'use_outbox'"
-msgstr ""
-
-#: src/install-wizard.c:472
-msgid "Registering in the new configuration 'use_persistent_smtp_connection'"
-msgstr ""
-
-#: src/install-wizard.c:478
-msgid "Registering in the new configuration 'check_timeout'"
-msgstr ""
-
-#: src/install-wizard.c:484
-msgid "Registering in the new configuration 'message_size_limit'"
-msgstr ""
-
-#: src/install-wizard.c:490
-msgid "Registering in the new configuration 'net_timeout'"
-msgstr ""
-
-#: src/install-wizard.c:496
-msgid "Registering in the new configuration 'mark_as_read_timeout'"
-msgstr ""
-
-#: src/install-wizard.c:502
-msgid "Registering in the new configuration 'persistent_smtp_port'"
-msgstr ""
-
-#: src/install-wizard.c:508
-msgid "Registering in the new configuration 'prepend_character'"
-msgstr ""
-
-#: src/install-wizard.c:514
-msgid "Registering in the new configuration 'persistent_smtp_host'"
-msgstr ""
-
-#: src/install-wizard.c:520
-msgid "Registering in the new configuration 'color_reply_original_message'"
-msgstr ""
-
-#: src/install-wizard.c:526
-msgid "Registering in the new configuration 'color_misc_body'"
-msgstr ""
-
-#: src/install-wizard.c:534
-msgid "Upgrading mailboxes tree."
-msgstr ""
-
-#: src/install-wizard.c:544
-msgid "Loading old rc configuration"
-msgstr ""
-
-#: src/install-wizard.c:564
-msgid "Registering in the new configuration 'mime_window'"
-msgstr ""
-
-#: src/install-wizard.c:570
-msgid "Registering in the new configuration 'toolbar'"
-msgstr ""
-
-#: src/install-wizard.c:576
-msgid "Registering in the new configuration 'wm_hpan'"
-msgstr ""
-
-#: src/install-wizard.c:582
-msgid "Registering in the new configuration 'wm_vpan'"
-msgstr ""
-
-#: src/install-wizard.c:589
-msgid "Registering in the new configuration 'wm_clist'"
-msgstr ""
-
-#: src/install-wizard.c:596
-msgid "Registering in the new configuration 'wm_width'"
-msgstr ""
-
-#: src/install-wizard.c:602
-msgid "Registering in the new configuration 'wm_height'"
-msgstr ""
-
-#: src/install-wizard.c:608
-msgid "Registering in the new configuration 'showable_headers:preview'"
-msgstr ""
-
-#: src/install-wizard.c:614
-msgid "Registering in the new configuration 'showable_headers:message'"
-msgstr ""
-
-#: src/install-wizard.c:620
-msgid "Registering in the new configuration 'showable_headers:compose'"
-msgstr ""
-
-#: src/install-wizard.c:626
-msgid "Registering in the new configuration 'showable_headers:save'"
-msgstr ""
-
-#: src/install-wizard.c:632
-msgid "Registering in the new configuration 'showable_headers:print'"
-msgstr ""
-
-#: src/install-wizard.c:638
-msgid "Registering in the new configuration 'font_read'"
-msgstr ""
-
-#: src/install-wizard.c:644
-msgid "Registering in the new configuration 'font_unread'"
-msgstr ""
-
-#: src/install-wizard.c:650
-msgid "Registering in the new configuration 'font_body'"
-msgstr ""
-
-#: src/install-wizard.c:656
-msgid "Registering in the new configuration 'app_title'"
-msgstr ""
-
-#: src/install-wizard.c:664
-msgid "Saving the new configuration"
-msgstr ""
-
-#: src/install-wizard.c:696
-msgid "Creating internal directory structure"
-msgstr ""
-
-#: src/install-wizard.c:712
-msgid "Creating internal file structure"
-msgstr ""
-
-#: src/install-wizard.c:730
-msgid "Configuring Cronos II"
-msgstr ""
-
-#: src/install-wizard.c:806
-msgid "Cronos II Configuration Kit"
-msgstr ""
-
-#: src/install-wizard.c:834
-msgid "Welcome to Cronos II 0.3.0"
-msgstr ""
-
-#: src/install-wizard.c:836
-msgid ""
-"Since this is the first time you ever used Cronos II 0.3.0\n"
-"your configuration must be created, in order to be able\n"
-"to use all of the new functions Cronos II has.\n"
-"\n"
-"Through this simple wizard you will be able to finish the\n"
-"installation of Cronos II in your system.\n"
-"\n"
-"To start the process, press the 'Next' button."
-msgstr ""
-
-#: src/install-wizard.c:853
-msgid "Cronos II 0.3.0"
-msgstr ""
-
-#: src/install-wizard.c:880
-msgid "Installation complete"
-msgstr ""
-
-#: src/install-wizard.c:882
-msgid ""
-"The installation of Cronos II in your system is complete, you can\n"
-"now start it by clicking the 'Finish' button or by accessing your\n"
-"Gnome menu in the Net menu.\n"
-"\n"
-"Thanks for choosing Cronos II.\n"
-"The Cronos II Developers Team."
-msgstr ""
-
-#: src/install-wizard.c:902
-msgid ""
-"The configuration wasn't generated.\n"
-"Quit anyway?"
+#: src/install.c:441
+#, c-format
+msgid "Copy %s to %s"
 msgstr ""
 
 #: src/main.c:35
@@ -711,11 +524,6 @@ msgstr ""
 #, fuzzy
 msgid "Sending"
 msgstr "Sendmail"
-
-#: src/widget-transfer-item.c:693
-#, fuzzy
-msgid "Failed"
-msgstr "Fallo."
 
 #: src/widget-transfer-list.c:115
 msgid "Stop all"
@@ -2267,6 +2075,12 @@ msgstr ""
 #, fuzzy
 msgid "Select Mailbox"
 msgstr "Buzón"
+
+#~ msgid "Success."
+#~ msgstr "Éxito."
+
+#~ msgid "Failed."
+#~ msgstr "Fallo."
 
 #~ msgid "The mailbox '%s' couldn't be loaded"
 #~ msgstr "El buzón '%s' no pudo ser cargado"

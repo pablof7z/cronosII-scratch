@@ -125,12 +125,24 @@ on_interface_fonts_unreaded_mails_font_set	(GtkWidget *widget, gchar *font, C2Di
 static void
 on_interface_fonts_unreaded_mailbox_font_set(GtkWidget *widget, gchar *font, C2DialogPreferences *preferences);
 
-#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
+#ifdef USE_ADVANCED_EDITOR
 static void
-on_interface_fonts_readed_mails_activate	(GtkWidget *widget, C2DialogPreferences *preferences);
+on_interface_fonts_composer_body_activate	(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
-on_interface_fonts_readed_mails_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
+on_interface_fonts_composer_body_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
+												 C2DialogPreferences *preferences);
+#else
+static void
+on_interface_fonts_composer_body_font_set	(GtkWidget *widget, gchar *font, C2DialogPreferences *preferences);
+#endif
+
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
+static void
+on_interface_fonts_message_body_activate	(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_interface_fonts_message_body_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
 												 C2DialogPreferences *preferences);
 #else
 static void
@@ -142,6 +154,10 @@ on_interface_html_links_default_toggled		(GtkWidget *widget, C2DialogPreferences
 
 static void
 on_interface_html_links_mailto_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_interface_composer_quote_color_color_set		(GtkWidget *widget, guint r, guint g, guint b,
+												 guint a, C2DialogPreferences *preferences);
 
 static void
 on_interface_composer_editor_internal_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
@@ -394,16 +410,28 @@ set_signals (C2DialogPreferences *preferences)
 	gtk_signal_connect (GTK_OBJECT (widget), "font_set",
 						GTK_SIGNAL_FUNC (on_interface_fonts_unreaded_mailbox_font_set), preferences);
 
+	widget = preferences->interface_fonts_composer_body;
+#ifdef USE_ADVANCED_EDITOR
+	gtk_signal_connect (GTK_OBJECT (widget), "activate",
+						GTK_SIGNAL_FUNC (on_interface_fonts_composer_body_activate), preferences);
+
+	gtk_signal_connect (GTK_OBJECT (widget), "focus_out_event",
+						GTK_SIGNAL_FUNC (on_interface_fonts_composer_body_focus_out_event), preferences);
+#else
+	gtk_signal_connect (GTK_OBJECT (widget), "font_set",
+						GTK_SIGNAL_FUNC (on_interface_fonts_composer_body_font_set), preferences);
+#endif
+
 	widget = preferences->interface_fonts_message_body;
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 	gtk_signal_connect (GTK_OBJECT (widget), "activate",
-						GTK_SIGNAL_FUNC (on_interface_fonts_readed_mails_activate), preferences);
+						GTK_SIGNAL_FUNC (on_interface_fonts_message_body_activate), preferences);
 
 	gtk_signal_connect (GTK_OBJECT (widget), "focus_out_event",
-						GTK_SIGNAL_FUNC (on_interface_fonts_readed_mails_focus_out_event), preferences);
+						GTK_SIGNAL_FUNC (on_interface_fonts_message_body_focus_out_event), preferences);
 #else
 	gtk_signal_connect (GTK_OBJECT (widget), "font_set",
-						GTK_SIGNAL_FUNC (on_interface_fonts_readed_mails_font_set), preferences);
+						GTK_SIGNAL_FUNC (on_interface_fonts_message_body_font_set), preferences);
 #endif
 
 
@@ -414,6 +442,10 @@ set_signals (C2DialogPreferences *preferences)
 	widget = glade_xml_get_widget (xml, "interface_html_links_mailto");
 	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
 						GTK_SIGNAL_FUNC (on_interface_html_links_mailto_toggled), preferences);
+
+	widget = glade_xml_get_widget (xml, "interface_composer_quote_color");
+	gtk_signal_connect (GTK_OBJECT (widget), "color_set",
+						GTK_SIGNAL_FUNC (on_interface_composer_quote_color_color_set), preferences);
 
 	widget = glade_xml_get_widget (xml, "interface_composer_editor_internal");
 	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
@@ -549,6 +581,15 @@ set_values (C2DialogPreferences *preferences)
 	gnome_font_picker_set_font_name (GNOME_FONT_PICKER (widgetv), charv);
 	g_free (charv);
 
+	charv = c2_preferences_get_interface_fonts_composer_body ();
+	widgetv = preferences->interface_fonts_composer_body;
+#ifdef USE_ADVANCED_EDITOR
+	gtk_entry_set_text (GTK_ENTRY (widgetv), charv);
+#else
+	gnome_font_picker_set_font_name (GNOME_FONT_PICKER (widgetv), charv);
+#endif
+	g_free (charv);
+	
 	charv = c2_preferences_get_interface_fonts_message_body ();
 	widgetv = preferences->interface_fonts_message_body;
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
@@ -719,6 +760,21 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 	container = glade_xml_get_widget (xml, "general_plugins_configure_pixmap");
 	gtk_box_pack_start (GTK_BOX (container), widget, TRUE, TRUE, 0);
 	gtk_widget_show (widget);
+
+	widget = glade_xml_get_widget (xml, "interface_fonts_composer_body_container");
+#ifdef USE_ADVANCED_EDITOR
+	preferences->interface_fonts_composer_body = gtk_entry_new ();
+#else
+	preferences->interface_fonts_composer_body = gnome_font_picker_new ();
+	gnome_font_picker_set_mode (GNOME_FONT_PICKER (
+							preferences->interface_fonts_composer_body), GNOME_FONT_PICKER_MODE_FONT_INFO);
+	gnome_font_picker_fi_set_use_font_in_label (GNOME_FONT_PICKER (
+							preferences->interface_fonts_composer_body), TRUE, 14);
+	gnome_font_picker_fi_set_show_size (GNOME_FONT_PICKER (
+							preferences->interface_fonts_composer_body), FALSE);
+#endif
+	gtk_box_pack_start (GTK_BOX (widget), preferences->interface_fonts_composer_body, TRUE, TRUE, 0);
+	gtk_widget_show (preferences->interface_fonts_composer_body);
 
 	widget = glade_xml_get_widget (xml, "interface_fonts_message_body_container");
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
@@ -1300,30 +1356,59 @@ on_interface_fonts_unreaded_mailbox_font_set (GtkWidget *widget, gchar *font, C2
 					C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_UNREADED_MAILBOX, font);
 }
 
+#ifdef USE_ADVANCED_EDITOR
+static void
+on_interface_fonts_composer_body_activate (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gchar *font = gtk_entry_get_text (GTK_ENTRY (widget));
+
+	c2_preferences_set_interface_fonts_composer_body (font);
+	c2_preferences_commit ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_COMPOSER_BODY, font);
+}
+
+static void
+on_interface_fonts_composer_body_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
+			C2DialogPreferences *preferences)
+{
+	on_interface_fonts_composer_body_activate (widget, preferences);
+}
+#else
+static void
+on_interface_fonts_composer_body_font_set (GtkWidget *widget, gchar *font, C2DialogPreferences *preferences)
+{
+	c2_preferences_set_interface_fonts_composer_body (font);
+	c2_preferences_commit ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_COMPOSER_BODY, font);
+}
+#endif
+
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 static void
-on_interface_fonts_readed_mails_activate (GtkWidget *widget, C2DialogPreferences *preferences)
+on_interface_fonts_message_body_activate (GtkWidget *widget, C2DialogPreferences *preferences)
 {
 	gchar *font = gtk_entry_get_text (GTK_ENTRY (widget));
 
 	c2_preferences_set_interface_fonts_message_body (font);
-	gnome_config_sync ();
+	c2_preferences_commit ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 					C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_MESSAGE_BODY, font);
 }
 
 static void
-on_interface_fonts_readed_mails_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
+on_interface_fonts_message_body_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
 			C2DialogPreferences *preferences)
 {
-	on_interface_fonts_readed_mails_activate (widget, preferences);
+	on_interface_fonts_message_body_activate (widget, preferences);
 }
 #else
 static void
 on_interface_fonts_message_body_font_set (GtkWidget *widget, gchar *font, C2DialogPreferences *preferences)
 {
 	c2_preferences_set_interface_fonts_message_body (font);
-	gnome_config_sync ();
+	c2_preferences_commit ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 					C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_MESSAGE_BODY, font);
 }
@@ -1361,6 +1446,14 @@ on_interface_html_links_mailto_toggled (GtkWidget *widget, C2DialogPreferences *
 	gnome_config_sync ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 					C2_DIALOG_PREFERENCES_KEY_INTERFACE_HTML_LINKS, "mailto");
+}
+
+static void
+on_interface_composer_quote_color_color_set (GtkWidget *widget, guint r, guint g, guint b,
+											 guint a, C2DialogPreferences *preferences)
+{
+	c2_preferences_set_interface_composer_quote_color (r, g, b);
+	c2_preferences_commit ();
 }
 
 static void
@@ -1908,7 +2001,7 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 	
 	widget = glade_xml_get_widget (xml, "identity_email");
 	buf2 = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-	gnome_config_set_string ("identity_email", buf);
+	gnome_config_set_string ("identity_email", buf2);
 
 	account = c2_account_new (type, buf, buf2);
 	C2_DIALOG (preferences)->application->account =

@@ -4,7 +4,7 @@ else
 test_suite = 
 endif
 
-SUBDIRS = intl po libcronosII src $(test_suite) macros images pixmaps doc man plugins xml
+SUBDIRS = intl po libcronosII src $(test_suite) macros default images pixmaps doc man plugins xml
 
 bin_SCRIPTS = cronosII-config
 

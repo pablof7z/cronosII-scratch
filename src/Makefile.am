@@ -14,7 +14,7 @@ endif
 bin_PROGRAMS = cronosII $(UI_TEXT_EDITOR)
 
 cronosII_SOURCES = \
-	install-wizard.c										\
+	install.c												\
 	main.c						main.h						\
 	object-ui-data.c			object-ui-data.h			\
 								preferences.h				\

@@ -318,27 +318,6 @@ ignore:
 		g_free (tmp);
 	}
 
-	application->colors_replying_original_message.red = gnome_config_get_int_with_default
-			("/Cronos II/Colors/replying_original_message_red=" DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_RED, NULL);
-	application->colors_replying_original_message.green = gnome_config_get_int_with_default
-		("/Cronos II/Colors/replying_original_message_green=" DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_GREEN, NULL);
-	application->colors_replying_original_message.blue = gnome_config_get_int_with_default
-			("/Cronos II/Colors/replying_original_message_blue=" DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_BLUE, NULL);
-	application->colors_message_bg.red = gnome_config_get_int_with_default
-				("/Cronos II/Colors/message_bg_red=" DEFAULT_COLORS_MESSAGE_BG_RED, NULL);
-	application->colors_message_bg.green = gnome_config_get_int_with_default
-				("/Cronos II/Colors/replying_original_message_green=" DEFAULT_COLORS_MESSAGE_BG_GREEN, NULL);
-	application->colors_message_bg.blue = gnome_config_get_int_with_default
-				("/Cronos II/Colors/message_bg_blue=" DEFAULT_COLORS_MESSAGE_BG_BLUE, NULL);	
-	application->colors_message_fg.red = gnome_config_get_int_with_default
-				("/Cronos II/Colors/message_fg_red=" DEFAULT_COLORS_MESSAGE_FG_RED, NULL);
-	application->colors_message_fg.green = gnome_config_get_int_with_default
-				("/Cronos II/Colors/message_fg_green=" DEFAULT_COLORS_MESSAGE_FG_GREEN, NULL);
-	application->colors_message_fg.blue = gnome_config_get_int_with_default
-				("/Cronos II/Colors/message_fg_blue=" DEFAULT_COLORS_MESSAGE_FG_BLUE, NULL);
-	application->colors_message_source = gnome_config_get_int_with_default
-									("/Cronos II/Colors/message_source=" DEFAULT_COLORS_MESSAGE_SOURCE, NULL);
-
 	
 	load_mailboxes_at_start = c2_preferences_get_general_options_start_load ();
 	for (application->mailbox = NULL, i = 1; i <= quantity; i++)
@@ -434,13 +413,12 @@ ignore:
 	buf = c2_preferences_get_interface_fonts_unreaded_mailbox ();
 	application->fonts_gdk_unreaded_mailbox = gdk_font_load (buf);
 	g_free (buf);
+	buf = c2_preferences_get_interface_fonts_composer_body ();
+	application->fonts_gdk_composer_body = gdk_font_load (buf);
+	g_free (buf);
 	buf = c2_preferences_get_interface_fonts_message_body ();
 	application->fonts_gdk_message_body = gdk_font_load (buf);
 	g_free (buf);
-
-	gdk_color_alloc (gdk_colormap_get_system (), &application->colors_replying_original_message);
-	gdk_color_alloc (gdk_colormap_get_system (), &application->colors_message_bg);
-	gdk_color_alloc (gdk_colormap_get_system (), &application->colors_message_fg);
 }
 
 static void
@@ -636,6 +614,12 @@ on_preferences_changed (C2DialogPreferences *preferences, C2DialogPreferencesKey
 		case C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_UNREADED_MAILBOX:
 			application->fonts_gdk_unreaded_mailbox = gdk_font_load ((gchar*)value);
 			break;
+#ifdef USE_ADVANCED_EDITOR
+#else
+		case C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_COMPOSER_BODY:
+			application->fonts_gdk_composer_body = gdk_font_load ((gchar*)value);
+			break;
+#endif
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 #else
 		case C2_DIALOG_PREFERENCES_KEY_INTERFACE_FONTS_MESSAGE_BODY:

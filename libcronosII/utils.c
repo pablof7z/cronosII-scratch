@@ -293,6 +293,9 @@ c2_str_replace_all (const gchar *or_string, const gchar *se_string, const gchar 
 	g_return_val_if_fail (se_string, NULL);
 	g_return_val_if_fail (re_string, NULL);
 	
+	/* It would be better to do a for
+	 * counting how many strstr we get.
+	 */
 	for (ptr = C2_CHAR (or_string);;)
 	{
 		if (*ptr == '\0')
@@ -1137,7 +1140,7 @@ c2_fd_get_word (FILE *fd)
  * in a binary way.
  *
  * Return Value:
- * 0 is success, 1 on error (c2_errno gets a proper value).
+ * 0 is success, -1 on error (c2_errno gets a proper value).
  **/
 gint
 c2_file_binary_copy (const gchar *from_path, const gchar *target_path)
@@ -1152,14 +1155,14 @@ c2_file_binary_copy (const gchar *from_path, const gchar *target_path)
 	if (!(frm = fopen (from_path, "rt")))
 	{
 		c2_error_set (-errno);
-		return FALSE;
+		return -1;
 	}
 	
 	if (!(dst = fopen (target_path, "wt")))
 	{
 		c2_error_set (-errno);
 		fclose (frm);
-		return FALSE;
+		return -1;
 	}
 	
 	for (;!feof (frm);)
@@ -1184,7 +1187,7 @@ c2_file_binary_copy (const gchar *from_path, const gchar *target_path)
  * in a binary way.
  *
  * Return Value:
- * 0 is success, 1 on error (c2_errno gets a proper value).
+ * 0 is success, -1 on error (c2_errno gets a proper value).
  **/
 gint
 c2_file_binary_move (const gchar *from_path, const gchar *target_path)
@@ -1209,10 +1212,12 @@ c2_file_exists (const gchar *file)
 {
 	struct stat st;
 	
-	c2_return_val_if_fail (file, FALSE, C2EDATA);
+	c2_return_val_if_fail (file, -1, C2EDATA);
 	
-	if (stat (file, &st) < 0) return FALSE;
-	return TRUE;
+	if (stat (file, &st) < 0)
+		return -1;
+	
+	return 0;
 }
 
 /**

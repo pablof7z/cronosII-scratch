@@ -33,7 +33,7 @@ Navarro) <cronosII@users.sourceforge.net>
 %setup -q
 
 %build
-%configure --disable-debug --disable-gtkxmhtml
+%configure --disable-debug --disable-gtkxmhtml --disable-htmleditor
 make
 
 %install

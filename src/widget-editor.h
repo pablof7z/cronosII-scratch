@@ -38,6 +38,7 @@ extern "C" {
 
 #define C2_EDITOR(obj)						(GTK_CHECK_CAST (obj, c2_editor_get_type (), C2Editor))
 #define C2_EDITOR_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, c2_editor_get_type (), C2Editor))
+#define C2_IS_EDITOR(obj)					(GTK_CHECK_TYPE (obj, c2_editor_get_type ()))
 #define C2_EDITOR_OPERATION(obj)			((C2EditorOperation*)obj)
 
 typedef struct _C2Editor C2Editor;
@@ -66,6 +67,12 @@ struct _C2Editor
 	GtkVBox object;
 
 	GtkWidget *text;
+
+	/* Implementation specific data */
+#ifdef USE_ADVANCED_EDITOR
+#else
+	GdkFont *font;
+#endif
 
 	/* Undo and Redo */
 #ifndef USE_ADVANCED_EDITOR
@@ -102,7 +109,8 @@ void
 c2_editor_clear								(C2Editor *editor);
 
 void
-c2_editor_append							(C2Editor *editor, const gchar *string);
+c2_editor_append							(C2Editor *editor, const gchar *string,
+											 gint red, gint green, gint blue);
 
 gchar *
 c2_editor_get_text							(C2Editor *editor);

@@ -12,6 +12,9 @@ widget-mail:
 dialogs:
 			o Add mailbox dialog: redisign it, is not intuitive enough, use the
 			  mailbox list widget.
+			o Add a new dialog that will popup when a new version is installed,
+			  which tells the user what has changed since the previous version
+			  s/he was using.
 
 supports:
 			o MH mailbox.
@@ -22,6 +25,12 @@ backends:
 			o Create some kind of IPC in the application widget to make it
 			  listen for actions like separated processes fireing a composer,
 			  or a main window.
+			o Add a new member to the C2Db object: C2Db *parent: this way
+			  we can implement message threading in the db module itself!
+			o It would be nice for message threading to be able to access
+			  message-id of messages in a fast way, thus why I think
+			  the db-cronosII submodule needs to store the message-id of each
+			  message in the master file of the database.
 
 more:
 			o Check TODO.CVS for more TODO's!! :)

@@ -796,7 +796,7 @@ delete_thread (C2Pthread3 *data)
 	C2WindowMain *wmain = C2_WINDOW_MAIN (data->v1);
 	C2Mailbox *fmailbox = C2_MAILBOX (data->v2);
 	C2Mailbox *tmailbox = c2_mailbox_get_by_name (C2_WINDOW (wmain)->application->mailbox,
-													C2_MAILBOX_GARBAGE);
+													C2_MAILBOX_TRASH);
 	GList *list = (GList*) data->v3;
 	GList *l;
 	GtkWidget *widget;
@@ -908,7 +908,7 @@ delete (C2WindowMain *wmain)
 	if (c2_preferences_get_general_options_delete_use_trash ())
 	{
 		/* We have to save in «Trash» */
-		if (c2_streq (fmailbox->name, C2_MAILBOX_GARBAGE))
+		if (c2_streq (fmailbox->name, C2_MAILBOX_TRASH))
 			/* This is already «Trash», we have to expunge */
 			goto expunge;
 		
@@ -1130,7 +1130,7 @@ reply (C2WindowMain *wmain)
 	mail = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail");
 	message = c2_mail_get_message (C2_MAIL (mail));
 	composer = c2_composer_new (C2_WINDOW (wmain)->application);
-	c2_composer_set_message_as_quote (C2_COMPOSER (composer), message);
+	c2_composer_set_message_as_reply (C2_COMPOSER (composer), message);
 	gtk_widget_show (composer);
 }
 

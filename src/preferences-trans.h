@@ -88,6 +88,7 @@ gchar *s = N_("Font to be used for listing mailbox that have unreaded mails in i
 gchar *s = N_("Select font for unreaded mailbox");
 gchar *s = N_("Pablo was in Rome.");
 gchar *s = N_("Message body:");
+gchar *s = N_("Composer body:");
 gchar *s = N_("Interface/Fonts");
 gchar *s = N_("Images from net");
 gchar *s = N_("Download.");

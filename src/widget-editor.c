@@ -138,6 +138,11 @@ class_init (C2EditorClass *klass)
 static void
 init (C2Editor *editor)
 {
+#ifdef USE_ADVANCED_EDITOR
+#else
+	editor->font = NULL;
+#endif
+
 	editor->undo = NULL;
 	editor->redo = NULL;
 }
@@ -267,18 +272,24 @@ c2_editor_clear (C2Editor *editor)
 }
 
 void
-c2_editor_append (C2Editor *editor, const gchar *string)
+c2_editor_append (C2Editor *editor, const gchar *string, gint red, gint green, gint blue)
 {
 #ifdef USE_ADVANCED_EDITOR
+	gushort r, g, b;
 #else
 	guint length;
+	GdkColor fg_color = { 0, red, green, blue };
 #endif
+
+	c2_return_if_fail (C2_IS_EDITOR (editor), C2EDATA);
+	c2_return_if_fail (string, C2EDATA);
 
 #ifdef USE_ADVANCED_EDITOR
 #else
 	length = strlen (string);
+	gdk_color_alloc (gdk_colormap_get_system (), &fg_color);
 
-	gtk_text_insert (GTK_TEXT (editor->text), NULL, NULL, NULL, string, length);
+	gtk_text_insert (GTK_TEXT (editor->text), editor->font, &fg_color, NULL, string, length);
 #endif
 }
 

@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
-i *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -137,7 +137,7 @@ c2_init (gint argc, gchar **argv)
 			N_("Inbox")
 		},
 		{
-			"check", 'c', POPT_ARG_NONE,
+			"check", 'f', POPT_ARG_NONE,
 			&(flags.check), 0,
 			N_("Check account for mail."), NULL
 		},
@@ -192,13 +192,25 @@ main (gint argc, gchar **argv)
 {
 	GtkWidget *widget;
 	gboolean something_opened = FALSE;
+	gchar *version;
 
 	/* Initialization of GNOME and Glade */
 	c2_init (argc, argv);
 
 	gdk_threads_enter ();
+
+	/* Get the Version of the Application */
+	version = c2_preferences_get_application_version ();
+	if (!version)
+	{
+		c2_install_new ();
+		gtk_main ();
+	}
+
+	/* Create the Application object */
 	application = c2_application_new (PACKAGE);
 
+	/* Open specified windows */
 	if (flags.open_main_window)
 		CREATE_WINDOW_MAIN;
 
@@ -216,6 +228,7 @@ main (gint argc, gchar **argv)
 		something_opened = TRUE;
 	}
 
+	/* If nothing opened we will open the defaults window */
 	if (!something_opened)
 		CREATE_WINDOW_MAIN;
 

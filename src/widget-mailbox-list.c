@@ -444,7 +444,7 @@ get_pixmap (C2Mailbox *mailbox, gboolean open)
 		return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/outbox.png");
 	else if (c2_streq (mailbox->name, C2_MAILBOX_SENT_ITEMS))
 		return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/queue.png");
-	else if (c2_streq (mailbox->name, C2_MAILBOX_GARBAGE))
+	else if (c2_streq (mailbox->name, C2_MAILBOX_TRASH))
 		return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/garbage.png");
 	else if (c2_streq (mailbox->name, C2_MAILBOX_DRAFTS))
 		return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/drafts.png");

@@ -34,6 +34,11 @@ extern "C" {
 #define COMPOSER "Composer"
 #define MISC "Misc"
 
+#define c2_preferences_get_application_version() \
+	gnome_config_get_string ("/"PACKAGE"/Application/Version")
+#define c2_preferences_set_application_version(val) \
+	gnome_config_set_string ("/"PACKAGE"/Application/Version", val)
+
 #define c2_preferences_get_general_options_start_check() \
 	gnome_config_get_bool_with_default ("/"PACKAGE"/"GENERAL"-"OPTIONS"/start_check=true", NULL)
 #define c2_preferences_set_general_options_start_check(val) \
@@ -135,6 +140,11 @@ extern "C" {
 										  "-adobe-helvetica-bold-r-normal-*-*-120-*-*-p-*-iso8859-1", NULL)
 #define c2_preferences_set_interface_fonts_unreaded_mailbox(val) \
 	gnome_config_set_string ("/"PACKAGE"/"INTERFACE"-"FONTS"/unreaded_mailbox", val)
+
+#define c2_preferences_get_interface_fonts_composer_body() \
+	gnome_config_get_string_with_default ("/"PACKAGE"/"INTERFACE"-"FONTS"/composer_body=Helvetica", NULL)
+#define c2_preferences_set_interface_fonts_composer_body(val) \
+	gnome_config_set_string ("/"PACKAGE"/"INTERFACE"-"FONTS"/composer_body", val)
 	
 #define c2_preferences_get_interface_fonts_message_body() \
 	gnome_config_get_string_with_default ("/"PACKAGE"/"INTERFACE"-"FONTS"/message_body=Helvetica", NULL)

@@ -1,0 +1,56 @@
+[Application]
+Version=@VERSION@
+
+[Window-Main]
+index_width_0=18
+index_width_1=0
+index_width_2=0
+index_width_3=147
+index_width_4=141
+index_width_5=130
+index_width_6=80
+width=800
+height=570
+
+[Toolbar::Window Main]
+item 1=0
+item 2=1
+item 3=17
+item 4=3
+item 5=17
+item 6=5
+item 7=17
+item 8=6
+item 9=7
+item 10=17
+item 11=8
+item 12=9
+item 13=11
+item 14=17
+item 15=12
+item 16=13
+item 17=17
+item 18=16
+
+[General-Options]
+start_check=true
+start_load=true
+outbox_sent_items=true
+delete_use_trash=true
+delete_confirmation=true
+delete_archive=true
+incoming_warn=true
+
+[General-Paths]
+smart=true
+
+[Interface-Composer]
+editor=internal
+editor_external_cmnd=gnome-edit
+
+[Interface-Misc]
+date=%d.%m.%Y %H:%M %z
+
+[Interface-Fonts]
+readed_mails=-adobe-helvetica-medium-r-normal-*-*-100-*-*-p-*-iso8859-1
+unreaded_mails=-adobe-helvetica-bold-r-normal-*-*-100-*-*-p-*-iso8859-1

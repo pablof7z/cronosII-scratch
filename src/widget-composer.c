@@ -28,6 +28,7 @@
 #include <libcronosII/message.h>
 #include <libcronosII/smtp.h>
 
+#include "preferences.h"
 #include "widget-application.h"
 #include "widget-composer.h"
 #include "widget-dialog-preferences.h"
@@ -537,6 +538,10 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	} else
 	{ /* Create the internal widget */
 		composer->editor = c2_editor_new ();
+#ifdef USE_ADVANCED_EDITOR
+#else
+		C2_EDITOR (composer->editor)->font = application->fonts_gdk_composer_body;
+#endif
 		gtk_box_pack_start (GTK_BOX (editor_container), composer->editor, TRUE, TRUE, 0);
 		gtk_widget_show (composer->editor);
 
@@ -942,31 +947,45 @@ c2_composer_set_action (C2Composer *composer, C2ComposerAction action)
 	composer->action = action;
 }
 
-void
-c2_composer_set_message_as_quote (C2Composer *composer, C2Message *message)
+static C2Account *
+set_message_account (C2Composer *composer, C2Message *message)
 {
-	GtkWidget *widget;
-	gchar *buf, *buf2, *body;
 	C2Account *account;
-	C2Mime *mime;
-	FILE *fd;
-	
-	c2_return_if_fail_obj (message, C2EDATA, GTK_OBJECT (composer));
-	
-	/* Account */
+	GtkWidget *widget;
+	gchar *buf, *buf2;
+
 	buf = c2_message_get_header_field (message, "\nX-CronosII-Account:");
 	account = c2_account_get_by_name (C2_WINDOW (composer)->application->account, buf);
 	if (!account)
-		c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING,
-							_("The account specified does not exist: %s"), buf);
-	else
+	{
+		if (buf)
+		{
+			c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING,
+								_("The account specified does not longer exist: %s"), buf);
+			return NULL;
+		} else
+		{
+			c2_window_report (C2_WINDOW (composer), C2_WINDOW_REPORT_WARNING,
+							_("The message is not asociated to an account, default account will be used."));
+			return C2_WINDOW (composer)->application->account;
+		}
+	} else
 	{
 		ACCOUNT_ENTRY (account, buf2);
 		widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "account");
 		gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (widget)->entry), buf2);
+		g_free (buf2);
 	}
 	g_free (buf);
-	g_free (buf2);
+
+	return account;
+}
+
+static void
+set_message_to (C2Composer *composer, C2Message *message)
+{
+	GtkWidget *widget;
+	gchar *buf;
 	
 	/* To */
 	switch (composer->action)
@@ -975,39 +994,120 @@ c2_composer_set_message_as_quote (C2Composer *composer, C2Message *message)
 		case C2_COMPOSER_ACTION_REPLY_ALL:
 			buf = c2_message_get_header_field (message, "\nFrom:");
 			widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "to");
-			gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (widget)->entry), buf);
+			gtk_entry_set_text (GTK_ENTRY (widget), buf);
 			g_free (buf);
 			break;
 		case C2_COMPOSER_ACTION_DRAFT:
 			buf = c2_message_get_header_field (message, "\nTo:");
 			widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "to");
-			gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (widget)->entry), buf);
+			gtk_entry_set_text (GTK_ENTRY (widget), buf);
 			g_free (buf);
 			break;
 	}
+}
+
+static void
+set_message_cc (C2Composer *composer, C2Message *message)
+{
+	GtkWidget *widget;
+	gchar *buf;
 	
-	/* CC */
 	switch (composer->action)
 	{
 		case C2_COMPOSER_ACTION_REPLY_ALL:
 		case C2_COMPOSER_ACTION_DRAFT:
 			buf = c2_message_get_header_field (message, "\nCC:");
 			widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "cc");
-			gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (widget)->entry), buf);
+			gtk_entry_set_text (GTK_ENTRY (widget), buf);
 			g_free (buf);
 			break;
 	}
+}
+
+static void
+set_message_bcc (C2Composer *composer, C2Message *message)
+{
+	GtkWidget *widget;
+	gchar *buf;
 	
-	/* BCC */
 	switch (composer->action)
 	{
+		case C2_COMPOSER_ACTION_REPLY_ALL:
 		case C2_COMPOSER_ACTION_DRAFT:
 			buf = c2_message_get_header_field (message, "\nBCC:");
 			widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "bcc");
-			gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (widget)->entry), buf);
+			gtk_entry_set_text (GTK_ENTRY (widget), buf);
 			g_free (buf);
 			break;
 	}
+}
+
+static void
+set_message_subject (C2Composer *composer, C2Message *message)
+{
+	GtkWidget *widget;
+	gchar *buf, *buf2;
+
+	buf2 = c2_message_get_header_field (message, "\nSubject:");
+	widget = glade_xml_get_widget (C2_WINDOW (composer)->xml, "subject");
+	
+	switch (composer->action)
+	{
+		case C2_COMPOSER_ACTION_REPLY:
+		case C2_COMPOSER_ACTION_REPLY_ALL:
+			buf = "Re: ";
+			break;
+		case C2_COMPOSER_ACTION_FORWARD:
+			buf = "Fw: ";
+			break;
+		case C2_COMPOSER_ACTION_DRAFT:
+			buf = "";
+			break;
+	}
+
+	buf = g_strdup_printf ("%s%s", buf, buf2);
+	gtk_entry_set_text (GTK_ENTRY (gnome_entry_gtk_entry (GNOME_ENTRY (widget))), buf);
+	g_free (buf2);
+	g_free (buf);
+}
+
+static void
+set_message_in_reply_to (C2Composer *composer, C2Message *message)
+{
+	gchar *buf, *buf2;
+
+	buf = c2_message_get_header_field (message, "\nMessage-ID:");
+	if (!buf)
+		return;
+
+	c2_composer_set_extra_field (composer, "In-Reply-To", buf);
+	g_free (buf);
+}
+
+static void
+set_message_references (C2Composer *composer, C2Message *message)
+{
+	gchar *id, *ref, *buf;
+
+	id = c2_message_get_header_field (message, "\nMessage-ID:");
+	if (!id)
+		return;
+	
+	ref = c2_message_get_header_field (message, "\nReferences:");
+
+	/* I don't like the cutting of the references header that some
+	 * mail clients seems to do, thus why this will not do it
+	 */
+	buf = g_strdup_printf ("%s%s%s", ref ? ref : "", ref ? " " : "", id);
+
+	c2_composer_set_extra_field (composer, "References", buf);
+	g_free (buf);
+}
+
+static void
+set_message_attachments (C2Composer *composer, C2Message *message)
+{
+	C2Mime *mime;
 	
 	/* Attachments */
 	switch (composer->action)
@@ -1024,8 +1124,159 @@ c2_composer_set_message_as_quote (C2Composer *composer, C2Message *message)
 				
 				/* Attach the file */
 			}
+
 			break;
 	}
+}
+
+static void
+set_message_body_internal (C2Composer *composer, const gchar *body)
+{
+	gint r, g, b;
+		
+	c2_preferences_get_interface_composer_quote_color (r, g, b);
+	c2_editor_freeze (C2_EDITOR (composer->editor));
+	c2_editor_append (C2_EDITOR (composer->editor), body, r, g, b);
+	c2_editor_thaw (C2_EDITOR (composer->editor));
+}
+
+static void
+set_message_body_external (C2Composer *composer, const gchar *body)
+{
+}
+
+/* TODO
+ * This is a good idea: We create three functions:
+ * set_message_body_[in|en]ternal_freeze,
+ * set_message_body_[in|en]ternal_write,
+ * set_message_body_[in|en]ternal_thaw.
+ *
+ * Each of this functions does what it should do,
+ * wheter freeze the editor or open a file
+ * (gtk_object_set_data to remember the FD),
+ * the other would append to the editor or
+ * write to the file,
+ * and the other would thaw the editor or close
+ * the file.
+ *
+ * This way we avoid having to alloc so many buffers.
+ */
+static void
+set_message_body (C2Composer *composer, C2Message *message)
+{
+	gchar *body = NULL;
+	gchar *ptr, *partbody;
+	C2Mime *part;
+
+	/* First learn which is the right body (HTML or PLAIN) */
+	/* We will use the HTML part of the message to reply
+	 * when the message has an HTML part and when the composer
+	 * has support for HTML, if something of this is not true
+	 * we use the PLAIN part */
+#ifdef USE_ADVANCED_EDITOR
+	part = c2_mime_get_part_by_content_type (message->mime, "text/html");
+	if (!part)
+		/* There's no HTML part */
+		part = c2_mime_get_part_by_content_type (message->mime, "text/plain");
+	
+#else
+	part = c2_mime_get_part_by_content_type (message->mime, "text/plain");
+	/* TODO If there's no text/plain we should check if there's
+	 * a text/html and use a function to convert HTML to PLAIN
+	 */
+	
+#endif
+	
+	/* There is a chance that we don't have a part (there's no
+	 * text/html or text/plain in the message), if we don't
+	 * have a part yet, we will just use an empty body.
+	 */
+	if (part)
+	{
+		gchar *quote_char;
+		gchar *buf = c2_preferences_get_interface_composer_quote_character ();
+		gboolean newline;
+
+		/* TODO This can get much better if we use a 
+		 * buffer and we flush it sometimes
+		 */
+		
+		partbody = c2_str_wrap (part->part, 75);
+		g_free (part->part);
+		part->part = NULL;
+
+		newline = TRUE;
+#if 0
+		for (ptr = partbody; *ptr != '\0'; ptr++)
+		{
+			/* If it is a new line we have to append the
+			 * quote character.
+			 */
+			if (newline)
+			{
+				
+				newline = FALSE;
+			}
+		}
+#endif
+
+		quote_char = g_strdup_printf ("\n%s", buf);
+		body = c2_str_replace_all (partbody, "\n", quote_char);
+		g_free (partbody);
+
+		g_free (quote_char);
+		g_free (buf);
+	}
+
+	if (composer->type == C2_COMPOSER_TYPE_INTERNAL)
+		set_message_body_internal (composer, body);
+	else
+		set_message_body_external (composer, body);
+
+	g_free (body);
+}
+
+/**
+ * c2_composer_set_message_as_reply
+ * @composer: The composer object.
+ * @message: Message to be used.
+ *
+ * This function will put the message
+ * in the composer as a reply.
+ **/
+void
+c2_composer_set_message_as_reply (C2Composer *composer, C2Message *message)
+{
+	C2Account *account;
+	
+	c2_return_if_fail (C2_IS_COMPOSER (composer), C2EDATA);
+	c2_return_if_fail_obj (C2_IS_MESSAGE (message), C2EDATA, GTK_OBJECT (composer));
+	
+	composer->action = C2_COMPOSER_ACTION_REPLY;
+
+	account = set_message_account (composer, message);
+	set_message_to (composer, message);
+	set_message_cc (composer, message);
+	set_message_bcc (composer, message);
+	set_message_subject (composer, message);
+	set_message_in_reply_to (composer, message);
+	set_message_references (composer, message);
+	set_message_body (composer, message);
+
+	gtk_widget_grab_focus (C2_EDITOR (composer->editor)->text);
+}
+
+void
+c2_composer_set_message_as_quote (C2Composer *composer, C2Message *message)
+{
+	GtkWidget *widget;
+	gchar *buf, *buf2, *body;
+	C2Account *account;
+	FILE *fd;
+	
+	c2_return_if_fail_obj (C2_IS_MESSAGE (message), C2EDATA, GTK_OBJECT (composer));
+	
+	
 	
 	/* Body */
 	switch (composer->action)
@@ -1036,12 +1287,12 @@ c2_composer_set_message_as_quote (C2Composer *composer, C2Message *message)
 			
 		case C2_COMPOSER_ACTION_DRAFT:
 	}
-//			body = g_strdup (
+	
+	//string = create_quoted_message (message);
+	
 	if (composer->type == C2_COMPOSER_TYPE_INTERNAL)
 	{
-		c2_editor_freeze (C2_EDITOR (composer->editor));
-		c2_editor_append (C2_EDITOR (composer->editor), message->body);
-		c2_editor_thaw (C2_EDITOR (composer->editor));
+		
 	} else
 	{
 		FILE *fd;
