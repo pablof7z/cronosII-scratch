@@ -571,6 +571,19 @@ installdirs mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
+bzdist: distdir
+	-chmod -R a+r $(distdir)
+	$(TAR) choIf $(distdir).tar.bz2 $(distdir)
+	-rm -rf $(distdir)
+
+fulldist: distdir
+	-chmod -R a+r $(distdir)
+	$(TAR) choIf $(distdir).tar.bz2 $(distdir)
+	echo Done with $(distdir).tar.bz2
+	GZIP=$(GZIP_ENV) $(TAR) chozf $(distdir).tar.gz $(distdir)
+	echo Done with $(distdir).tar.gz
+	-rm -rf $(distdir)
+
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

@@ -28,11 +28,11 @@ cronos_LDFLAGS = \
 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS) $(LIBGLADE_LIBS) $(HTMLLIBS)
 
 EXTRA_DIST = \
-	forward.xpm		\
-	mark.xpm		\
-	mini_about.xpm	\
-	mini_error.xpm	\
-	new.xpm			\
-	read.xpm		\
-	reply.xpm		\
-	unread.xpm
+	xpm/forward.xpm		\
+	xpm/mark.xpm		\
+	xpm/mini_about.xpm	\
+	xpm/mini_error.xpm	\
+	xpm/new.xpm			\
+	xpm/read.xpm		\
+	xpm/reply.xpm		\
+	xpm/unread.xpm

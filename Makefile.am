@@ -35,3 +35,16 @@ Applicationsdir = $(datadir)/gnome/apps/Applications
 Applications_DATA = c2addrbook.desktop
 GMCdir = $(datadir)/mc/templates
 GMC_DATA = cronosII-gmc.desktop c2addrbook-gmc.desktop
+
+bzdist: distdir
+	-chmod -R a+r $(distdir)
+	$(TAR) choIf $(distdir).tar.bz2 $(distdir)
+	-rm -rf $(distdir)
+
+fulldist: distdir
+	-chmod -R a+r $(distdir)
+	$(TAR) choIf $(distdir).tar.bz2 $(distdir)
+	echo Done with $(distdir).tar.bz2
+	GZIP=$(GZIP_ENV) $(TAR) chozf $(distdir).tar.gz $(distdir)
+	echo Done with $(distdir).tar.gz
+	-rm -rf $(distdir)

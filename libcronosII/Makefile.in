@@ -137,6 +137,9 @@ libcronosII_a_SOURCES =  	account.c			account.h						db.c				db.h							error.c	
 libcronosII_a_LIBADD = @LIBOBJS@
 
 INCLUDES = -DBUILDING_C2 -I. -I${top_srcdir} $(GNOME_INCLUDEDIR)
+
+EXTRA_DIST =  	README					README.mailbox_id	
+
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
