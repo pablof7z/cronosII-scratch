@@ -154,7 +154,7 @@ c2_html_new (C2Application *application)
 	GtkWidget *html;
 	
 	html = gtk_widget_new (C2_TYPE_HTML, "hadjustment", NULL, "vadjustment", NULL,	 NULL);
-	html->application = application;
+	C2_HTML(html)->application = application;
 	return html;
 #endif
 }
