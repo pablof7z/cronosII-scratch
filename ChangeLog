@@ -9,6 +9,8 @@ Mon Oct 15 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	  c2_str_are_email.
 	* Fixed a bug in c2_str_is_email that produced a SegFault.
 	* Fixed bug utils.c::011014.
+	* Applied the new functions in the composer and in 
+	  Preferences » Accounts » Add.
 
 Mon Oct 15 Peter William Gossner <gossner@arcom.com.au>
 	* Added a few new file to further "modularise" the manual.

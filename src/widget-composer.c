@@ -488,11 +488,19 @@ on_to_changed (GtkWidget *widget, C2Composer *composer)
 {
 	GladeXML *xml;
 	gboolean sensitive;
+	GList *list, *l;
 
-	if (!c2_str_is_email (gtk_entry_get_text (GTK_ENTRY (widget))))
+	/* Get emails */
+	list = c2_str_get_emails (gtk_entry_get_text (GTK_ENTRY (widget)));
+	if (!c2_str_are_emails (list))
 		sensitive = FALSE;
 	else
 		sensitive = TRUE;
+	
+	/* Free no-longer-used data */
+	for (l = list; l; l = g_list_next (l))
+		g_free (l->data);
+	g_list_free (list);
 	
 	xml = C2_WINDOW (composer)->xml;
 

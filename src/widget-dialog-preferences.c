@@ -1261,7 +1261,7 @@ process_page_identity (GladeXML *xml)
 
 	widget = glade_xml_get_widget (xml, "identity_email");
 	buf = gtk_entry_get_text (GTK_ENTRY (widget));
-	if (!strlen (buf) || !(buf2 = strstr (buf, "@")) || strlen (buf2) == 1)
+	if (!c2_str_is_email (buf))
 	{
 		sensitive = FALSE;
 		goto identity_set_sensitive;
