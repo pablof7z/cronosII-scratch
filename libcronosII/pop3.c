@@ -119,7 +119,7 @@ c2_pop3_set_flags (C2Pop3 *pop3, gint flags)
  * This function sets the function that will be called when a wrong
  * password in this C2Pop3 object is found.
  * The C2Pop3GetPass type function should return the new password
- * or NULL if it want's to cancel the fetching.
+ * or NULL if it wants to cancel the fetching.
  */
 void
 c2_pop3_set_wrong_pass_cb (C2Pop3 *pop3, C2Pop3GetPass func)
@@ -241,7 +241,7 @@ login (C2Pop3 *pop3)
 	/* Password */
 	do
 	{
-		/* FIXME This crashes when the password is wrong and
+		/* FIX-ME This crashes when the password is wrong and
 		 * is executed for 2 time (probably for >1 time) */
 		g_free (string);
 		if (c2_net_object_send (C2_NET_OBJECT (pop3), "PASS %s\r\n", pop3->pass) < 0)
