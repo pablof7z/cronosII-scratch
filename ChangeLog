@@ -1,3 +1,10 @@
+Wed Apr 3  Bosko Blagojevic <falling@users.sourceforge.net>
+	* Added c2_imap_reconnect.
+	* Fixed bug to properly kill gdk_input listeners
+	  on closed IMAP sockets.
+	* Added another check for specific incoming untagged
+	  data to check for auto-logouts from server.
+
 Wed Mar 20 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Added c2_imap_mailbox_is_subscribed()
 
