@@ -139,7 +139,7 @@ c2_message_set_message (C2Message *message, const gchar *string)
 		 * by seeing what looks like
 		 * a header line and what not */
 		const gchar *ptr2 = NULL;
-		gboolean dots_reached;
+		gboolean dots_reached = FALSE;
 		
 		for (ptr = string; *ptr != '\0'; ptr++)
 		{
@@ -195,7 +195,7 @@ c2_message_get_header_field (C2Message *message, const gchar *field)
 		if (!c2_message_get_message_header (message))
 			return NULL;
 
-	return c2_message_str_get_header_field (message->header, field);
+	return c2_message_str_get_header_field (g_strdup(message->header), field);
 }
 
 gchar *
@@ -210,7 +210,7 @@ c2_message_str_get_header_field (const gchar *message, const gchar *field)
 
 	/* Search for the field */
 	for (msg_ptr = message; *msg_ptr != '\0'; msg_ptr++)
-		if ((msg_ptr == message) || (msg_ptr > message) && (*(msg_ptr-1) == '\n'))
+		if ((msg_ptr == message) || ((msg_ptr > message) && (*(msg_ptr-1) == '\n')))
 		{
 			if (c2_strneq (msg_ptr, field, field_length))
 				break;
