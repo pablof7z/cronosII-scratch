@@ -1,4 +1,4 @@
-/*  Cronos II
+/*  Cronos II Mail Client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
+#include "main-window.h"
 #include "c2-main-window.h"
 #include "c2-app.h"
 

@@ -1,4 +1,4 @@
-/*  Cronos II
+/*  Cronos II Mail Client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,8 @@ static const gchar *err_list[] =
 	/* C2SUCCESS */		N_("Success"),
 	/* C2EDATA */		N_("Data exception"),
 	/* C2ENOMSG */		N_("No such message"),
-	/* C2EBUSY */		N_("Process is busy")
+	/* C2EBUSY */		N_("Process is busy"),
+	/* C2ERSLV */		N_("Unknown hostname")
 };
 
 /**

@@ -1,4 +1,4 @@
-/*  Cronos II
+/*  Cronos II Mail Client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __LIBC2_MAILBOX_H__
-#define __LIBC2_MAILBOX_H__
+#ifndef __LIBCRONOSII_MAILBOX_H__
+#define __LIBCRONOSII_MAILBOX_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,12 +37,13 @@ typedef enum _C2MailboxSortBy C2MailboxSortBy;
 typedef enum _C2MailboxType C2MailboxType;
 
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
+#	include <config.h>
 #	include "db.h"
 #else
 #	include <cronosII.h>
 #endif
 
-#define C2_MAILBOX_IS_IN_TOPLEVEL(mbox)				(strlen (mbox) == 1)
+#define C2_MAILBOX_IS_TOPLEVEL(mbox)				(strlen (mbox->id) == 1)
 
 enum _C2MailboxSortBy
 {
@@ -61,6 +62,9 @@ enum _C2MailboxType
 {
 	C2_MAILBOX_CRONOSII,
 	C2_MAILBOX_IMAP
+#ifdef USE_MYSQL
+	,C2_MAILBOX_MYSQL
+#endif
 };
 
 struct _C2Mailbox
@@ -70,6 +74,31 @@ struct _C2Mailbox
 	gchar *name;
 	gchar *id;
 	C2MailboxType type;
+
+	/* Here we will store information about the
+	 * mailbox, specific information according
+	 * to the type of mailbox.
+	 */
+	union
+	{
+		struct {
+		} cronosII;
+		struct {
+			gchar *server;
+			gint port;
+			gchar *user;
+			gchar *pass;
+		} imap;
+#ifdef USE_MYSQL
+		struct {
+			gchar *server;
+			gint port;
+			gchar *db;
+			gchar *user;
+			gchar *pass;
+		} mysql;
+#endif
+	} protocol;
 	
 	C2MailboxSortBy sort_by;
 	GtkSortType sort_type;
@@ -96,25 +125,23 @@ c2_mailbox_get_type								(void);
 
 C2Mailbox *
 c2_mailbox_new									(const gchar *name, const gchar *id, C2MailboxType type,
+												 C2MailboxSortBy sort_by, GtkSortType sort_type, ...);
+
+C2Mailbox *
+c2_mailbox_new_with_parent						(const gchar *name, const gchar *parent_id, C2MailboxType type,
 												 C2MailboxSortBy sort_by, GtkSortType sort_type);
 
-C2Mailbox *
-c2_mailbox_append								(C2Mailbox *head, C2Mailbox *mailbox);
+void
+c2_mailbox_destroy_tree							(void);
 
-gchar *
-c2_mailbox_next_id								(const C2Mailbox *head, const C2Mailbox *parent);
-
-C2Mailbox *
-c2_mailbox_search_id							(C2Mailbox *head, const gchar *id);
+void
+c2_mailbox_remove								(C2Mailbox *mailbox);
 
 C2Mailbox *
-c2_mailbox_search_name							(C2Mailbox *head, const gchar *name);
+c2_mailbox_get_head								(void);
 
-gint
-c2_mailbox_length								(const C2Mailbox *mbox);
-
-gint
-c2_mailbox_next_mid								(C2Mailbox *mbox);
+const C2Mailbox *
+c2_mailbox_get_by_name							(const C2Mailbox *head, const gchar *name);
 
 #ifdef __cplusplus
 }

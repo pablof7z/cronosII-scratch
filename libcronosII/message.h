@@ -1,4 +1,4 @@
-/*  Cronos II
+/*  Cronos II Mail Client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __LIBC2_MESSAGE_H__
-#define __LIBC2_MESSAGE_H__
+#ifndef __LIBCRONOSII_MESSAGE_H__
+#define __LIBCRONOSII_MESSAGE_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,13 +24,6 @@ extern "C" {
 
 #include <gtk/gtk.h>
 #include <time.h>
-
-#ifdef HAVE_CONFIG_H
-#	include "db.h"
-#	include "mailbox.h"
-#else
-#	include <cronosII.h>
-#endif
 
 #define C2_TYPE_MESSAGE							(c2_message_get_type ())
 #define C2_MESSAGE(obj)							(GTK_CHECK_CAST (obj, C2_TYPE_MESSAGE, C2Message))

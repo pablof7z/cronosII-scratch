@@ -1,4 +1,4 @@
-/*  Cronos II
+/*  Cronos II Mail Client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -17,8 +17,8 @@
  */
 #include <stdio.h>
 
-#include "libmodules/utils.h"
-#include "libmodules/mailbox.h"
+#include <libmodules/utils.h>
+#include <libmodules/mailbox.h>
 
 static void
 print_tree (C2Mailbox *head, gint indentation)

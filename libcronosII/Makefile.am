@@ -1,13 +1,15 @@
 noinst_LIBRARIES = libcronosII.a
 
 libcronosII_a_SOURCES = \
-	date-utils.c		date-utils.h				\
 	db.c				db.h						\
 	error.c				error.h						\
 						i18n.h						\
 	mailbox.c			mailbox.h					\
 	message.c			message.h					\
-	utils.c				utils.h					
+	request.c			request.h					\
+	utils.c				utils.h						\
+	utils-date.c		utils-date.h				\
+	utils-net.c			utils-net.h
 
 libcronosII_a_LIBADD = @LIBOBJS@
 

@@ -1,4 +1,4 @@
-/*  Cronos II
+/*  Cronos II Mail Client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __LIBMODULES_UTILS_H__
-#define __LIBMODULES_UTILS_H__
+#ifndef __LIBCRONOSII_UTILS_H__
+#define __LIBCRONOSII_UTILS_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,11 +24,28 @@ extern "C" {
 
 #include <glib.h>
 #include <stdio.h>
+#if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
+#	include <config.h>
+#else
+#	include <cronosII.h>
+#endif
 
-#define CHAR(x)										((gchar*)x)
+#define C2_CHAR(x)								((gchar*)x)
 
-typedef void *(*PthreadFunc)						(void*);
-#define PTHREAD_FUNC(x)								((PthreadFunc)x)
+typedef void *(*PthreadFunc)					(void*);
+#define C2_PTHREAD_FUNC(x)						((PthreadFunc)x)
+
+#ifdef USE_DEBUG
+#	define L									g_print ("%s:%d:%s\n", __FILE__, __LINE__, \
+														__PRETTY_FUNCTION__);
+#	define C2_DEBUG(x)							g_print ("%s:%d:%s:%s: %s\n", __FILE__, __LINE__,\
+														__PRETTY_FUNCTION__, #x, x)
+#	define C2_DEBUG_(x)							{ x }
+#else
+#	define L									;
+#	define C2_DEBUG(x)							;
+#	define C2_DEBUG_(x)							;
+#endif
 
 gboolean
 c2_strcaseeq									(const gchar *fst, const gchar *snd);

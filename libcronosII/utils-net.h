@@ -15,33 +15,50 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __LIBCRONOSII_POP_H__
-#define __LIBCRONOSII_POP_H__
+#ifndef __LIBCRONOSII_UTILS_NET_H__
+#define __LIBCRONOSII_UTILS_NET_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <glib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <stdarg.h>
 
-typedef struct
+#ifndef MAXHOSTNAMELEN
+#	define MAXHOSTNAMELEN 64
+#endif
+
+typedef struct _C2Cache C2Cache;
+
+struct _C2Cache
 {
-	gchar *host;
-	gint port;
+	gchar *hostname;
+	gchar *ip;
 
-	gboolean keep_copy;
-
-	gint sock;
-} C2Pop;
-
-C2Pop *
-c2_pop_new (const gchar *host, gint port);
-
-void
-c2_pop_free (C2Pop *pop);
+	C2Cache *next;
+};
 
 gint
-c2_pop_fetchmail (C2Pop *pop);
+c2_net_resolve									(const gchar *hostname, gchar **ip);
+
+gint
+c2_net_connect									(const gchar *ip, guint port, guint *sock);
+
+gint
+c2_net_printf									(guint sock, const gchar *fmt, ...);
+
+gint
+c2_net_read										(guint sock, gchar **string);
+
+void
+c2_net_disconnect								(guint sock);
 
 #ifdef __cplusplus
 }

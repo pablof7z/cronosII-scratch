@@ -1,3 +1,20 @@
+/*  Cronos II Mail Client
+ *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 #include <gnome.h>
 #include <time.h>
 
@@ -7,8 +24,19 @@
 #include "widget-index.h"
 #include "main-window.h"
 
+#include "xpm/unread.xpm"
+
 static void
-c2_index_class_init									(C2IndexClass * klass);
+c2_index_init									(C2Index *index);
+
+static void
+c2_index_class_init								(C2IndexClass * klass);
+
+static void
+on_index_click_column							(GtkCList *clist, gint column, gpointer data);
+
+static void
+select_row										(C2Index *index, gint row, gint column, GdkEvent *event);
 
 /* signals */
 enum
@@ -31,238 +59,6 @@ enum
 static gint c2_index_signals[LAST_SIGNAL] = { 0 };
 
 static GtkCListClass *parent_class = NULL;
-
-void
-c2_index_add_mailbox (C2Index *index, C2Mailbox *mbox)
-{
-	C2Mailbox *tmp;
-	C2Db *db;
-	GtkStyle *style = NULL, *style2;
-	
-	c2_return_if_fail (index, C2EDATA);
-	c2_return_if_fail (mbox, C2EDATA);
-	
-	if (GTK_CLIST (index)->selection)
-	{
-		/* Get the mailbox that was loaded */
-		tmp = WMain.selected_mbox;
-		if (tmp)
-		{
-			if (GTK_CLIST (index)->selection)
-				tmp->selection = GPOINTER_TO_INT (GTK_CLIST (index)->selection->data);
-		}
-	}
-
-	gtk_clist_freeze (GTK_CLIST (index));
-	for (db = mbox->db; db != NULL; db = db->next)
-	{
-		struct tm *tm;
-		gchar *tmp = g_strdup_printf ("%d", db->mid);
-		gchar *info[] = {
-			NULL, NULL, NULL, db->subject, db->from, NULL,
-			db->account, tmp
-		};
-		tm = localtime (&db->date);
-		info[5] = g_new0 (gchar, 128);
-		strftime (info[5], 128, DATE_FORMAT, tm);/* TODO date format should be editable */
-		gtk_clist_append (GTK_CLIST (index), info);
-		if (!style)
-			style = gtk_widget_get_style (GTK_WIDGET (index));
-		style2 = gtk_style_copy (style);
-		if (db->state == C2_MESSAGE_UNREADED)
-		{
-			style2->font = c2_app.gdk_font_unread;
-			index->unreaded_messages++;
-			index->total_messages++;
-		} else
-		{
-			style2->font = c2_app.gdk_font_read;
-			index->total_messages++;
-		}
-		gtk_clist_set_row_style (GTK_CLIST (index), GTK_CLIST (index)->rows-1, style2);
-	}
-	gtk_clist_thaw (GTK_CLIST (index));
-}
-
-void
-c2_index_remove_mailbox (C2Index *index)
-{
-	c2_return_if_fail (C2_IS_INDEX (index), C2EDATA);
-
-	gtk_clist_freeze (GTK_CLIST (index));
-	gtk_clist_clear (GTK_CLIST (index));
-	gtk_clist_thaw (GTK_CLIST (index));
-
-	index->unreaded_messages = 0;
-	index->total_messages = 0;
-}
-
-static void
-select_message (GtkWidget *widget, gint row, gint column, GdkEventButton *event, gpointer data)
-{
-}
-
-static void
-open_message (GtkWidget *widget, gint row, gint column, GdkEventButton *event, gpointer data)
-{
-}
-
-static void
-delete_message (GtkWidget *widget, gint row, gint column, GdkEventButton *event, gpointer data)
-{
-}
-
-static void
-expunge_message (GtkWidget *widget, gint row, gint column, GdkEventButton *event, gpointer data)
-{
-}
-
-static void
-move_message (GtkWidget *widget, gint row, gint column, GdkEventButton *event, gpointer data)
-{
-}
-
-static void
-copy_message (GtkWidget *widget, gint row, gint column, GdkEventButton *event, gpointer data)
-{
-}
-
-static void
-reply_message (GtkWidget *widget, gint row, gint column, GdkEventButton *event, gpointer data)
-{
-}
-
-static void
-reply_all_message (GtkWidget *widget, gint row, gint column, GdkEventButton *event, gpointer data)
-{
-}
-
-static void
-forward_message (GtkWidget *widget, gint row, gint column, GdkEventButton *event, gpointer data)
-{
-}
-
-static void
-print_message (GtkWidget *widget, gint row, gint column, GdkEventButton *event, gpointer data)
-{
-}
-
-static void
-save_message (GtkWidget *widget, gint row, gint column, GdkEventButton *event, gpointer data)
-{
-}
-
-static void
-add_contact (GtkWidget *widget, gint row, gint column, GdkEventButton *event, gpointer data)
-{
-}
-
-static void
-on_index_click_column (GtkCList *clist, gint column, gpointer data)
-{
-	if (column == clist->sort_column)
-	{
-		clist->sort_type = (clist->sort_type == GTK_SORT_ASCENDING) ?
-			GTK_SORT_DESCENDING : GTK_SORT_ASCENDING;
-	} else
-		gtk_clist_set_sort_column (clist, column);
-
-	switch (column)
-	{
-/*		case 0:
-			gtk_clist_set_compare_func(clist, state_compare);
-			break;
-		case 5:
-			gtk_clist_set_compare_func(clist, date_compare);
-			break;
-*/		default:
-			gtk_clist_set_compare_func(clist, NULL);
-    }
-
-	gtk_clist_sort (clist);
-}
-
-static void
-c2_index_init (C2Index *index)
-{
-	GtkWidget *pixmap;
-	GtkCList *clist;
-	static gchar *titles[] = {
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	};
-
-	titles[3] = _("Subject");
-	titles[4] = _("From");
-	titles[5] = _("Date");
-	titles[6] = _("Account");
-
-    /* create the clist */
-    gtk_clist_construct (GTK_CLIST (index), 8, titles);
-    clist = GTK_CLIST(index);
-
-    gtk_signal_connect (GTK_OBJECT (index), "click_column",
-		       GTK_SIGNAL_FUNC(on_index_click_column), NULL);
-
-	pixmap = gtk_pixmap_new (c2_app.pixmap_unread, c2_app.mask_unread);
-	gtk_clist_set_column_widget (clist, 0, pixmap);
-	
-    gtk_clist_set_column_width (clist, 0, c2_app.wm_clist[0]);
-	gtk_clist_set_column_width (clist, 1, c2_app.wm_clist[1]);
-	gtk_clist_set_column_width (clist, 2, c2_app.wm_clist[2]);
-	gtk_clist_set_column_width (clist, 3, c2_app.wm_clist[3]);
-	gtk_clist_set_column_width (clist, 4, c2_app.wm_clist[4]);
-	gtk_clist_set_column_width (clist, 5, c2_app.wm_clist[5]);
-	gtk_clist_set_column_width (clist, 6, c2_app.wm_clist[6]);
-	gtk_clist_set_column_width (clist, 7, c2_app.wm_clist[7]);
-	gtk_clist_set_column_visibility (clist, 1, FALSE);
-	gtk_clist_set_column_visibility (clist, 2, FALSE);
-	gtk_clist_set_column_visibility (clist, 7, FALSE);
-	gtk_clist_column_titles_show (clist);
-    gtk_clist_set_row_height (clist, 16);
-	gtk_clist_set_selection_mode (clist, GTK_SELECTION_EXTENDED);
-
-    /* Set default sorting behaviour */
-/*    gtk_clist_set_sort_column(clist, 5);
-    gtk_clist_set_compare_func(clist, date_compare);
-    gtk_clist_set_sort_type(clist, GTK_SORT_DESCENDING);
-
-    gtk_signal_connect(GTK_OBJECT(clist),
-		       "select-row",
-		       (GtkSignalFunc) select_message, (gpointer) bindex);
-
-    gtk_signal_connect(GTK_OBJECT(clist),
-		       "unselect-row",
-		       (GtkSignalFunc) unselect_message,
-		       (gpointer) bindex);
-
-    gtk_signal_connect(GTK_OBJECT(clist),
-		       "button_press_event",
-		       (GtkSignalFunc) button_event_press_cb,
-		       (gpointer) bindex);
-
-    gtk_signal_connect(GTK_OBJECT(clist),
-		       "button_release_event",
-		       (GtkSignalFunc) button_event_release_cb,
-		       (gpointer) bindex);
-*/
-    /* We want to catch column resize attempts to store the new value */
-/*    gtk_signal_connect(GTK_OBJECT(clist),
-		       "resize_column",
-		       GTK_SIGNAL_FUNC(resize_column_event_cb), NULL);
-*/
-    gtk_widget_show (GTK_WIDGET (clist));
-    gtk_widget_ref (GTK_WIDGET (clist));
-
-	index->unreaded_messages = 0;
-	index->total_messages = 0;
-}
 
 guint
 c2_index_get_type (void)
@@ -410,6 +206,195 @@ c2_index_class_init (C2IndexClass *klass)
 	klass->print_message = NULL;
 	klass->save_message = NULL;
 	klass->add_contact = NULL;
+}
+
+static void
+c2_index_init (C2Index *index)
+{
+	GtkWidget *pixmap;
+	GtkCList *clist;
+	gint i;
+	static gchar *titles[] = {
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL
+	};
+
+    /* create the clist */
+    gtk_clist_construct (GTK_CLIST (index), 7, titles);
+    clist = GTK_CLIST (index);
+
+	/* Create the columns */
+	for (i = 0; i < 8; i++)
+	{
+		GtkWidget *hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
+		GtkWidget *label;
+
+		switch (i)
+		{
+			case 0:
+				label = gnome_pixmap_new_from_xpm_d (unread_xpm); break;
+			case 1:
+				label = gtk_label_new (NULL); break;
+			case 2:
+				label = gtk_label_new (NULL); break;
+			case 3:
+				label = gtk_label_new (_("Subject")); break;
+			case 4:
+				label = gtk_label_new (_("From")); break;
+			case 5:
+				label = gtk_label_new (_("Date")); break;
+			case 6:
+				label = gtk_label_new (_("Account")); break;
+			case 7:
+				label = gtk_label_new (NULL); break;
+		}
+
+		gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
+		gtk_widget_show (label);
+
+		index->clist_titles_arrow[i] = gtk_arrow_new (GTK_ARROW_DOWN, GTK_SHADOW_OUT);
+		gtk_box_pack_start (GTK_BOX (hbox), index->clist_titles_arrow[i], FALSE, FALSE, 0);
+		
+		gtk_clist_set_column_widget (clist, i, hbox);
+		gtk_widget_show (hbox);
+	}
+	
+    gtk_signal_connect (GTK_OBJECT (index), "click_column",
+		       GTK_SIGNAL_FUNC(on_index_click_column), NULL);
+
+	pixmap = gtk_pixmap_new (c2_app.pixmap_unread, c2_app.mask_unread);
+	gtk_clist_set_column_widget (clist, 0, pixmap);
+	
+    gtk_clist_set_column_width (clist, 0, c2_app.wm_clist[0]);
+	gtk_clist_set_column_width (clist, 1, c2_app.wm_clist[1]);
+	gtk_clist_set_column_width (clist, 2, c2_app.wm_clist[2]);
+	gtk_clist_set_column_width (clist, 3, c2_app.wm_clist[3]);
+	gtk_clist_set_column_width (clist, 4, c2_app.wm_clist[4]);
+	gtk_clist_set_column_width (clist, 5, c2_app.wm_clist[5]);
+	gtk_clist_set_column_width (clist, 6, c2_app.wm_clist[6]);
+	gtk_clist_set_column_width (clist, 7, c2_app.wm_clist[7]);
+	gtk_clist_set_column_visibility (clist, 1, FALSE);
+	gtk_clist_set_column_visibility (clist, 2, FALSE);
+	gtk_clist_set_column_visibility (clist, 7, FALSE);
+	gtk_clist_column_titles_show (clist);
+    gtk_clist_set_row_height (clist, 16);
+	gtk_clist_set_selection_mode (clist, GTK_SELECTION_EXTENDED);
+
+/*    gtk_signal_connect (GTK_OBJECT (clist), "select-row",
+						GTK_SIGNAL_FUNC (select_row), NULL);
+	gtk_signal_connect (GTK_OBJECT (clist), "unselect-row",
+						GTK_SIGNAL_FUNC (unselect_row), NULL);
+	gtk_signal_connect (GTK_OBJECT (clist), "button_press_event",
+						GTK_SIGNAL_FUNC (button_press_event), NULL);
+	gtk_signal_connect (GTK_OBJECT (clist), "resize_column",
+						GTK_SIGNAL_FUNC (resize_column), NULL);*/
+
+    gtk_widget_show (GTK_WIDGET (clist));
+    gtk_widget_ref (GTK_WIDGET (clist));
+
+	index->unreaded_messages = 0;
+	index->total_messages = 0;
+	index->mbox = NULL;
+}
+
+void
+c2_index_add_mailbox (C2Index *index, C2Mailbox *mbox)
+{
+	C2Db *db;
+	GtkCList *clist = GTK_CLIST (GTK_WIDGET (index));
+	
+	c2_return_if_fail (mbox, C2EDATA);
+
+	gdk_threads_enter ();
+	gtk_clist_freeze (clist);
+	for (db = mbox->db; db != NULL; db = db->next)
+	{
+		struct tm *tm;
+		gchar *row[] = {
+			NULL, NULL, NULL, db->subject, db->from, NULL, db->account, g_strdup_printf ("%d", db->position)
+		};
+		
+		gchar *tmp = g_strdup_printf ("%d", db->mid);
+		gchar *info[] = {
+			NULL, NULL, NULL, db->subject, db->from, NULL,
+			db->account, tmp
+		};
+		tm = localtime (&db->date);
+		row[5] = g_new0 (gchar, 128);
+		strftime (row[5], 128, c2_app.date_fmt, tm);
+		g_free (tm);
+
+		gtk_clist_append (clist, row);
+
+		/* Set the state */
+		switch (db->state)
+		{
+			case C2_MESSAGE_READED:
+				gtk_clist_set_pixmap (clist, clist->rows-1, 0, c2_app.pixmap_read, c2_app.mask_read);
+				break;
+			case C2_MESSAGE_UNREADED:
+				gtk_clist_set_pixmap (clist, clist->rows-1, 0, c2_app.pixmap_unread, c2_app.mask_unread);
+				break;
+			case C2_MESSAGE_FORWARDED:
+				gtk_clist_set_pixmap (clist, clist->rows-1, 0, c2_app.pixmap_forward, c2_app.mask_forward);
+				break;
+			case C2_MESSAGE_REPLIED:
+				gtk_clist_set_pixmap (clist, clist->rows-1, 0, c2_app.pixmap_reply, c2_app.mask_reply);
+				break;
+			default:
+				gtk_clist_set_pixmap (clist, clist->rows-1, 0, c2_app.pixmap_read, c2_app.mask_read);
+		}
+
+		gtk_clist_set_row_data (clist, clist->rows-1, db);
+	}
+	gtk_clist_thaw (clist);
+	gdk_threads_leave ();
+}
+
+void
+c2_index_remove_mailbox (C2Index *index)
+{
+	GtkCList *clist = GTK_CLIST (GTK_WIDGET (index));
+
+	gtk_clist_freeze (clist);
+	gtk_clist_clear (clist);
+	gtk_clist_thaw (clist);
+}
+
+static void
+select_row (C2Index *index, gint row, gint column, GdkEvent *event)
+{
+}
+
+static void
+on_index_click_column (GtkCList *clist, gint column, gpointer data)
+{
+	if (column == clist->sort_column)
+	{
+		clist->sort_type = (clist->sort_type == GTK_SORT_ASCENDING) ?
+			GTK_SORT_DESCENDING : GTK_SORT_ASCENDING;
+	} else
+		gtk_clist_set_sort_column (clist, column);
+
+	switch (column)
+	{
+/*		case 0:
+			gtk_clist_set_compare_func(clist, state_compare);
+			break;
+		case 5:
+			gtk_clist_set_compare_func(clist, date_compare);
+			break;
+*/		default:
+			gtk_clist_set_compare_func(clist, NULL);
+    }
+
+	gtk_clist_sort (clist);
 }
 
 GtkWidget *

@@ -1,4 +1,4 @@
-/*  Cronos II
+/*  Cronos II Mail Client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #include "db.h"
 #include "error.h"
 #include "utils.h"
-#include "date-utils.h"
+#include "utils-date.h"
 
 static void
 c2_db_init										(C2Db *db);

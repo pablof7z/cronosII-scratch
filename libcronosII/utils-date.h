@@ -15,33 +15,23 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __LIBCRONOSII_POP_H__
-#define __LIBCRONOSII_POP_H__
+#ifndef __LIBCRONOSII_UTILS_DATE_H__
+#define __LIBCRONOSII_UTILS_DATE_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <glib.h>
-
-typedef struct
-{
-	gchar *host;
-	gint port;
-
-	gboolean keep_copy;
-
-	gint sock;
-} C2Pop;
-
-C2Pop *
-c2_pop_new (const gchar *host, gint port);
-
-void
-c2_pop_free (C2Pop *pop);
+#include <time.h>
 
 gint
-c2_pop_fetchmail (C2Pop *pop);
+c2_date_get_month									(const gchar *strmnt);
+
+time_t
+c2_date_parse										(const gchar *strtime);
+
+time_t
+c2_date_parse_fmt2									(const gchar *strtime);
 
 #ifdef __cplusplus
 }

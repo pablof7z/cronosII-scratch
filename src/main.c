@@ -1,4 +1,4 @@
-/*  Cronos II
+/*  Cronos II Mail Client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -119,6 +119,7 @@ c2_config_init (void)
 	c2_app.font_read = gnome_config_get_string_with_default ("/cronosII/Fonts/font_read=-b&h-lucida-medium-r-normal-*-*-100-*-*-p-*-iso8859-1", NULL);
 	c2_app.font_unread = gnome_config_get_string_with_default ("/cronosII/Fonts/font_unread=-b&h-lucida-bold-r-normal-*-*-100-*-*-p-*-iso8859-1", NULL);
 	c2_app.font_body = gnome_config_get_string_with_default ("/cronosII/Fonts/font_body=-adobe-courier-medium-r-normal-*-*-120-*-*-m-*-iso8859-1", NULL);
+	c2_app.date_fmt = gnome_config_get_string_with_default ("/cronosII/Interface/Date fmt=" DATE_FORMAT, NULL);
 
 	return 0;
 }

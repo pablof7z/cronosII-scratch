@@ -1,4 +1,4 @@
-/*  Cronos II
+/*  Cronos II Mail Client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __LIBMODULES_ACCOUNT_H__
-#define __LIBMODULES_ACCOUNT_H__
+#ifndef __LIBCRONOSII_ACCOUNT_H__
+#define __LIBCRONOSII_ACCOUNT_H__
 
 #ifdef __cplusplus
 extern "C" {

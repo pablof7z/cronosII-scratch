@@ -1,4 +1,4 @@
-/*  Cronos II
+/*  Cronos II Mail Client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __C2_APP_H__
-#define __C2_APP_H__
+#ifndef __CRONOSII_APP_H__
+#define __CRONOSII_APP_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,6 +25,7 @@ extern "C" {
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <config.h>
 #	include <libcronosII/mailbox.h>
+#	include <libcronosII/utils.h>
 #else
 #	include <cronosII.h>
 #endif
@@ -37,11 +38,6 @@ extern "C" {
 #define MAILBOX_DRAFTS		_("Drafts"	)
 
 #define DATE_FORMAT								"%d.%m.%Y %H:%M:%S %z"
-
-#ifdef USE_DEBUG
-#	define L				g_print ("%s:%d:%s\n", __FILE__, __LINE__, __PRETTY_FUNCTION__);
-#	define DEBUG(x)			g_print ("%s:%d:%s:%s: '%s'\n", __FILE__, __LINE__, __PRETTY_FUNCTION__, #x, x);
-#endif
 
 typedef enum
 {
@@ -154,6 +150,7 @@ struct C2Application
 	gchar *font_unread;
 	gchar *font_body;
 	gchar *app_title;
+	gchar *date_fmt;
 } c2_app;
 
 gint

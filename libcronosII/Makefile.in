@@ -131,7 +131,7 @@ l = @l@
 
 noinst_LIBRARIES = libcronosII.a
 
-libcronosII_a_SOURCES =  	date-utils.c		date-utils.h					db.c				db.h							error.c				error.h												i18n.h							mailbox.c			mailbox.h						message.c			message.h						utils.c				utils.h					
+libcronosII_a_SOURCES =  	db.c				db.h							error.c				error.h												i18n.h							mailbox.c			mailbox.h						message.c			message.h						request.c			request.h						utils.c				utils.h							utils-date.c		utils-date.h					utils-net.c			utils-net.h
 
 
 libcronosII_a_LIBADD = @LIBOBJS@
@@ -147,8 +147,8 @@ DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 libcronosII_a_DEPENDENCIES =  @LIBOBJS@
-libcronosII_a_OBJECTS =  date-utils.o db.o error.o mailbox.o message.o \
-utils.o
+libcronosII_a_OBJECTS =  db.o error.o mailbox.o message.o request.o \
+utils.o utils-date.o utils-net.o
 AR = ar
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -161,8 +161,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = gtar
 GZIP_ENV = --best
-DEP_FILES =  .deps/date-utils.P .deps/db.P .deps/error.P .deps/mailbox.P \
-.deps/message.P .deps/utils.P
+DEP_FILES =  .deps/db.P .deps/error.P .deps/mailbox.P .deps/message.P \
+.deps/request.P .deps/utils-date.P .deps/utils-net.P .deps/utils.P
 SOURCES = $(libcronosII_a_SOURCES)
 OBJECTS = $(libcronosII_a_OBJECTS)
 

@@ -129,28 +129,29 @@ ZVT_LIBS = -rdynamic -lzvt -lutil -lSM -lICE -lgtk -lgdk -lgmodule -lglib -ldl -
 cronosIIpath = /usr/bin/cronosII-config
 l = 
 
-bin_PROGRAMS = db mailbox date
+bin_PROGRAMS = db mailbox date request
 
 INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules $(GNOME_INCLUDEDIR)
 
-db_SOURCES =  	db.c
+LDADD = $(top_builddir)/libcronosII/libcronosII.a
+LDFLAGS = $(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS)
 
 
-db_LDADD = $(top_builddir)/libcronosII/libcronosII.a
-db_LDFLAGS = $(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS)
+db_SOURCES = db.c
+db_LDADD = $(LDADD)
+db_LDFLAGS = $(LDFLAGS)
 
+mailbox_SOURCES = mailbox.c
+mailbox_LDADD = $(LDADD)
+mailbox_LDFLAGS = $(LDFLAGS)
 
-mailbox_SOURCES =  	mailbox.c
+date_SOURCES = date.c
+date_LDADD = $(LDADD)
+date_LDFLAGS = $(LDFLAGS)
 
-
-mailbox_LDADD = $(db_LDADD)
-mailbox_LDFLAGS = $(db_LDFLAGS)
-
-date_SOURCES =  	date.c
-
-
-date_LDADD = $(db_LDADD)
-date_LDFLAGS = $(db_LDFLAGS)
+request_SOURCES = request.c
+request_LDADD = $(LDADD)
+request_LDFLAGS = $(LDFLAGS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -159,13 +160,14 @@ PROGRAMS =  $(bin_PROGRAMS)
 
 DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I..
 CPPFLAGS =  -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/X11R6/include
-LDFLAGS = 
 db_OBJECTS =  db.o
 db_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 mailbox_OBJECTS =  mailbox.o
 mailbox_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 date_OBJECTS =  date.o
 date_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+request_OBJECTS =  request.o
+request_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -177,9 +179,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = gtar
 GZIP_ENV = --best
-DEP_FILES =  .deps/date.P .deps/db.P .deps/mailbox.P
-SOURCES = $(db_SOURCES) $(mailbox_SOURCES) $(date_SOURCES)
-OBJECTS = $(db_OBJECTS) $(mailbox_OBJECTS) $(date_OBJECTS)
+DEP_FILES =  .deps/date.P .deps/db.P .deps/mailbox.P .deps/request.P
+SOURCES = $(db_SOURCES) $(mailbox_SOURCES) $(date_SOURCES) $(request_SOURCES)
+OBJECTS = $(db_OBJECTS) $(mailbox_OBJECTS) $(date_OBJECTS) $(request_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -260,6 +262,10 @@ mailbox: $(mailbox_OBJECTS) $(mailbox_DEPENDENCIES)
 date: $(date_OBJECTS) $(date_DEPENDENCIES)
 	@rm -f date
 	$(LINK) $(date_LDFLAGS) $(date_OBJECTS) $(date_LDADD) $(LIBS)
+
+request: $(request_OBJECTS) $(request_DEPENDENCIES)
+	@rm -f request
+	$(LINK) $(request_LDFLAGS) $(request_OBJECTS) $(request_LDADD) $(LIBS)
 
 tags: TAGS
 

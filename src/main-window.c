@@ -1,4 +1,4 @@
-/*  Cronos II
+/*  Cronos II Mail Client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -44,6 +44,9 @@ on_ctree_tree_unselect_row							(GtkCTree *ctree, GtkCTreeNode *row, gint colum
 
 static void
 on_ctree_button_press_event							(GtkWidget *widget, GdkEvent *event);
+
+static void
+on_index_selected_message							(GtkWidget *index, C2MailboxType *type, C2Db *node);
 
 static void
 on_preferences_activated							(GtkWidget *widget);
@@ -116,9 +119,14 @@ c2_window_new (void)
 
 	/* Vpaned */
 	vpaned = glade_xml_get_widget (WMain.xml, "vpaned");
-	gtk_paned_set_position (GTK_PANED(vpaned), c2_app.wm_vpan);
+	gtk_paned_set_position (GTK_PANED (vpaned), c2_app.wm_vpan);
 
 	appbar = glade_xml_get_widget (WMain.xml, "appbar");
+
+	/* Index */
+	index = glade_xml_get_widget (WMain.xml, "index");
+	gtk_signal_connect (GTK_OBJECT (index), "select_message",
+							GTK_SIGNAL_FUNC (on_index_selected_message), NULL);
 
 	/* Button */
 	button = glade_xml_get_widget (WMain.xml, "appbar_button");
@@ -243,6 +251,12 @@ on_ctree_changed_mailboxes (C2Mailbox *mailbox)
 
 	c2_app.mailboxes = c2_mailbox_get_head ();
 	c2_mailbox_tree_fill (c2_app.mailboxes, NULL, ctree, window);
+}
+
+static void
+on_index_selected_message (GtkWidget *index, C2MailboxType *type, C2Db *node)
+{
+	L
 }
 
 static void
