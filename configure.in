@@ -32,7 +32,7 @@ AM_CONFIG_HEADER(config.h)
 
 dnl Don't forget to update the FEATURES variable when changing
 dnl version.
-AM_INIT_AUTOMAKE(cronosII, 0.0.5)
+AM_INIT_AUTOMAKE(cronosII, "0.2.0")
 AC_DEFINE_UNQUOTED(URL, "http://www.cronosII.net/")
 
 dnl #######################################################

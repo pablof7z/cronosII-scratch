@@ -63,7 +63,7 @@
 
 /* TODO
  * 20011208 Spell checking, loading attachments in reply, forward and drafts,
- *          confirming closing when body has changed and it hasn't been sabed,
+ *          confirming closing when body has changed and it hasn't been saved,
  *          address book, find/replace, gtkhtml support, open stuff.
  */
 
@@ -574,6 +574,8 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 #ifndef USE_ADVANCED_EDITOR
 	gtk_widget_set_sensitive (widget, FALSE);
 #endif
+	widget = glade_xml_get_widget (xml, "priority_normal");
+	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (widget), TRUE);
 
 	widget = glade_xml_get_widget (xml, "send_now_btn");
 	gtk_widget_set_sensitive (widget, FALSE);

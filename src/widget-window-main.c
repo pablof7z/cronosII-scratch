@@ -29,10 +29,11 @@
 #include "preferences.h"
 #include "widget-application-utils.h"
 #include "widget-composer.h"
-#include "widget-dialog-network-traffic.h"
+#include "widget-network-traffic.h"
 #include "widget-dialog-preferences.h"
 #include "widget-mailbox-list.h"
 #include "widget-mail.h"
+#include "widget-network-traffic.h"
 #include "widget-HTML.h"
 #include "widget-toolbar.h"
 #include "widget-transfer-list.h"
@@ -114,6 +115,10 @@ static void
 on_application_window_changed				(C2Application *application, GSList *list, C2WindowMain *wmain);
 
 static void
+on_application_application_preferences_changed	(C2Application *application, gint key, gpointer value,
+											C2WindowMain *wmain);
+
+static void
 on_docktoolbar_button_press_event			(GtkWidget *widget, GdkEventButton *event, C2WindowMain *wmain);
 
 static void
@@ -147,10 +152,13 @@ static void
 on_menubar_view_headers_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
+on_menubar_view_network_traffic_activate	(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_menubar_view_mail_source_activate		(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
-on_menubar_view_network_traffic_activate	(GtkWidget *widget, C2WindowMain *wmain);
+on_menubar_view_dialog_network_traffic_activate	(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_menubar_message_reply_activate			(GtkWidget *widget, C2WindowMain *wmain);
@@ -686,11 +694,16 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_index_select_message), wmain);
 	gtk_signal_connect (GTK_OBJECT (wmain->index), "unselect_message",
 							GTK_SIGNAL_FUNC (on_index_unselect_message), wmain);
+	
+	/* Mail VBox */
+	wmain->mail_vbox = gtk_vbox_new (FALSE, 4);
+	widget = glade_xml_get_widget (xml, "vpaned");
+	gtk_paned_add2 (GTK_PANED (widget), wmain->mail_vbox);
+	gtk_widget_show (wmain->mail_vbox);
 
 	/* Mail */
 	wmain->mail = c2_mail_new (application);
-	widget = glade_xml_get_widget (xml, "vpaned");
-	gtk_paned_add2 (GTK_PANED (widget), wmain->mail);
+	gtk_box_pack_start (GTK_BOX (wmain->mail_vbox), wmain->mail, TRUE, TRUE, 0);
 	if (c2_preferences_get_window_main_mail_preview_visible ())
 		gtk_widget_show (wmain->mail);
 	c2_mail_install_hints (C2_MAIL (wmain->mail), appbar, &C2_WINDOW (wmain)->status_lock);
@@ -702,6 +715,21 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	} else
 	{
 		c2_mail_set_headers_visible (C2_MAIL (wmain->mail), FALSE);
+		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
+	}
+
+	/* Network Traffic */
+	menuitem = glade_xml_get_widget (xml, "view_network_traffic");
+	if (c2_preferences_get_window_main_network_traffic_visible ())
+	{
+		wmain->nt = c2_network_traffic_new (application);
+		gtk_box_pack_end (GTK_BOX (wmain->mail_vbox), wmain->nt, FALSE, TRUE, 0);
+		gtk_widget_set_usize (wmain->nt, -1, 100);
+		gtk_widget_show (wmain->nt);
+		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
+	} else
+	{
+		wmain->nt = NULL;
 		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
 	}
 
@@ -738,10 +766,12 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_menubar_view_mail_preview_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_headers")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_view_headers_activate), wmain);
-	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_mail_source")), "activate",
-							GTK_SIGNAL_FUNC (on_menubar_view_mail_source_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_network_traffic")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_view_network_traffic_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_mail_source")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_view_mail_source_activate), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_dialog_network_traffic")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_view_dialog_network_traffic_activate), wmain);
 
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "message_reply")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_message_reply_activate), wmain);
@@ -788,7 +818,10 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 
 	gtk_signal_emit_by_name (GTK_OBJECT (application), "window_changed",
 							c2_application_open_windows (application));
-//	c2_main_window_build_dynamic_menu_accounts ();
+
+	/* Build the menu Accounts */
+	on_application_application_preferences_changed (application, C2_DIALOG_PREFERENCES_KEY_GENERAL_ACCOUNTS,
+													application->account, wmain);
 }
 
 static void
@@ -1501,6 +1534,48 @@ on_application_window_changed (C2Application *application, GSList *list, C2Windo
 	gtk_menu_item_set_submenu (GTK_MENU_ITEM (widget), menu);
 }
 
+static void
+on_application_application_preferences_changed (C2Application *application, gint key, gpointer value,
+												C2WindowMain *wmain)
+{
+	GtkWidget *widget;
+	GtkWidget *sep;
+	GtkWidget *submenu;
+	GtkWidget *item, *label, *pixmap;
+	GList *children, *l;
+	C2Account *account;
+	
+	if (key != C2_DIALOG_PREFERENCES_KEY_GENERAL_ACCOUNTS)
+		return;
+
+	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "file_check_mail");
+	submenu = GTK_MENU_ITEM (widget)->submenu;
+	children = gtk_container_children (GTK_CONTAINER (submenu));
+
+	/* Find the separator */
+	sep = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "file_check_mail_sep");
+	for (l = children; l; l = g_list_next (l))
+	{
+		if (GTK_WIDGET (l->data) == sep)
+			break;
+	}
+
+	/* And remove the rest */
+	for (l = g_list_next (l); l; l = g_list_next (l))
+		if (GTK_IS_WIDGET (l->data))
+			gtk_widget_destroy (GTK_WIDGET (l->data));
+	g_list_free (children);
+	
+	for (account = application->account; account; account = account->next)
+	{
+		item = gtk_pixmap_menu_item_new ();
+
+		pixmap = gnome_stock_pixmap_widget_at_size (GTK_WINDOW (wmain),
+												PKGDATADIR "/ui/mail.xpm", 16, 16);
+
+	}
+}
+
 /**
  * c2_window_main_set_mailbox
  * @wmain: Object where to act.
@@ -1651,6 +1726,26 @@ on_menubar_view_headers_activate (GtkWidget *widget, C2WindowMain *wmain)
 }
 
 static void
+on_menubar_view_network_traffic_activate (GtkWidget *widget, C2WindowMain *wmain)
+{
+	gboolean active = GTK_CHECK_MENU_ITEM (widget)->active;
+
+	if (active)
+	{
+		wmain->nt = c2_network_traffic_new (application);
+		gtk_box_pack_end (GTK_BOX (wmain->mail_vbox), wmain->nt, FALSE, TRUE, 0);
+		gtk_widget_set_usize (wmain->nt, -1, 100);
+		gtk_widget_show (wmain->nt);
+	} else
+	{
+		gtk_widget_destroy (wmain->nt);
+		wmain->nt = NULL;
+	}
+
+	c2_preferences_set_window_main_network_traffic_visible (active);
+}
+
+static void
 on_menubar_view_mail_source_activate (GtkWidget *widget, C2WindowMain *wmain)
 {
 	C2Message *message;
@@ -1662,12 +1757,9 @@ on_menubar_view_mail_source_activate (GtkWidget *widget, C2WindowMain *wmain)
 }
 
 static void
-on_menubar_view_network_traffic_activate (GtkWidget *widget, C2WindowMain *wmain)
+on_menubar_view_dialog_network_traffic_activate (GtkWidget *widget, C2WindowMain *wmain)
 {
-	GtkWidget *widget;
-
-	widget = c2_dialog_network_traffic_new (C2_WINDOW (wmain)->application);
-	gtk_widget_show (widget);
+	c2_application_dialog_network_traffic (C2_WINDOW (wmain)->application);
 }
 
 static void

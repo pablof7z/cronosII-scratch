@@ -3151,7 +3151,7 @@ Do you want to continue?</message>
   <class>GtkWindow</class>
   <name>dlg_account_editor</name>
   <title>Account Editor</title>
-  <type>GTK_WINDOW_TOPLEVEL</type>
+  <type>GTK_WINDOW_DIALOG</type>
   <position>GTK_WIN_POS_NONE</position>
   <modal>False</modal>
   <allow_shrink>False</allow_shrink>
@@ -4200,6 +4200,7 @@ Sendmail
 	      <widget>
 		<class>GtkLabel</class>
 		<name>outgoing_server_username_label</name>
+		<visible>False</visible>
 		<label>Username:</label>
 		<justify>GTK_JUSTIFY_CENTER</justify>
 		<wrap>False</wrap>
@@ -4226,6 +4227,7 @@ Sendmail
 	      <widget>
 		<class>GtkEntry</class>
 		<name>outgoing_server_username</name>
+		<visible>False</visible>
 		<tooltip>Username Cronos II will use to authenticate it self to the MTA</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
@@ -4271,6 +4273,7 @@ Sendmail
 		<widget>
 		  <class>GtkCheckButton</class>
 		  <name>outgoing_auth_required</name>
+		  <visible>False</visible>
 		  <tooltip>Enable this option if your server requires authentication</tooltip>
 		  <can_focus>True</can_focus>
 		  <label>This server requires authentication.</label>
@@ -4301,6 +4304,7 @@ Sendmail
 	      <widget>
 		<class>GtkLabel</class>
 		<name>outgoing_server_password_label</name>
+		<visible>False</visible>
 		<label>Password:</label>
 		<justify>GTK_JUSTIFY_CENTER</justify>
 		<wrap>False</wrap>
@@ -4327,6 +4331,7 @@ Sendmail
 	      <widget>
 		<class>GtkEntry</class>
 		<name>outgoing_server_password</name>
+		<visible>False</visible>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -4353,12 +4358,13 @@ Sendmail
 	  <widget>
 	    <class>GtkFrame</class>
 	    <name>outgoing_auth_frame</name>
+	    <visible>False</visible>
 	    <label>Authentication</label>
 	    <label_xalign>0</label_xalign>
 	    <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
 	    <child>
 	      <padding>0</padding>
-	      <expand>True</expand>
+	      <expand>False</expand>
 	      <fill>True</fill>
 	    </child>
 

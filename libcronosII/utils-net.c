@@ -376,8 +376,6 @@ on_tracker_set_send_timeout (gpointer data)
 
 	x = internal_tracker_send/1024;
 
-	printf ("Send speed: (%d) %.2f Kb/s\n", internal_tracker_send, x);
-
 	return TRUE;
 }
 
@@ -390,8 +388,6 @@ on_tracker_set_recv_timeout (gpointer data)
 	internal_tracker_recv_bytes = 0;
 
 	x = internal_tracker_recv/1024;
-
-	printf ("Recv speed: (%d) %.2f Kb/s\n", internal_tracker_recv, x);
 
 	return TRUE;
 }

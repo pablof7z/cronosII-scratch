@@ -70,7 +70,7 @@ struct _C2WindowMain
 {
 	C2Window window;
 	
-	GtkWidget *toolbar, *mlist, *index, *mail; /* Statically created widgets need a reference here */
+	GtkWidget *toolbar, *mlist, *index, *mail_vbox, *mail, *nt; /* Statically created widgets need a reference here */
 	GladeXML *ctree_menu;
 	GladeXML *toolbar_menu;
 

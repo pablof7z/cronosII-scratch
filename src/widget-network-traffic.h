@@ -15,8 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __WIDGET_DIALOG_NETWORK_TRAFFIC_H__
-#define __WIDGET_DIALOG_NETWORK_TRAFFIC_H__
+#ifndef __WIDGET_NETWORK_TRAFFIC_H__
+#define __WIDGET_NETWORK_TRAFFIC_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,38 +24,39 @@ extern "C" {
 
 #include <gnome.h>
 
-#include "widget-dialog.h"
+#include "widget-application.h"
 
-#define C2_DIALOG_NETWORK_TRAFFIC(obj)		(GTK_CHECK_CAST (obj, c2_dialog_network_traffic_get_type (), C2DialogNetworkTraffic))
-#define C2_DIALOG_NETWORK_TRAFFIC_CLASS(klass)	(GTK_CHECK_CLASS_CAST (klass, c2_dialog_network_traffic_get_type (), C2DialogNetworkTraffic))
+#define C2_NETWORK_TRAFFIC(obj)				(GTK_CHECK_CAST (obj, c2_network_traffic_get_type (), C2NetworkTraffic))
+#define C2_NETWORK_TRAFFIC_CLASS(klass)		(GTK_CHECK_CLASS_CAST (klass, c2_network_traffic_get_type (), C2NetworkTrafficClass))
 
-typedef struct _C2DialogNetworkTraffic C2DialogNetworkTraffic;
-typedef struct _C2DialogNetworkTrafficClass C2DialogNetworkTrafficClass;
+typedef struct _C2NetworkTraffic C2NetworkTraffic;
+typedef struct _C2NetworkTrafficClass C2NetworkTrafficClass;
 
-struct _C2DialogNetworkTraffic
+struct _C2NetworkTraffic
 {
-	C2Dialog dialog;
+	GtkDrawingArea darea;
 
-	GtkWidget *darea;
+	C2Application *application;
 
 	GdkPixmap *pixmap;
 	GdkGC *blue;
 	GdkGC *red;
 
+	guint16 timeout_id;
 	gint top_speed;
 	GSList *recv, *send;
 };
 
-struct _C2DialogNetworkTrafficClass
+struct _C2NetworkTrafficClass
 {
-	C2DialogClass parent_class;
+	GtkDrawingAreaClass parent_class;
 };
 
 GtkType
-c2_dialog_network_traffic_get_type			(void);
+c2_network_traffic_get_type					(void);
 
 GtkWidget *
-c2_dialog_network_traffic_new				(C2Application *application);
+c2_network_traffic_new						(C2Application *application);
 
 #ifdef __cplusplus
 }

@@ -26,12 +26,12 @@ cronosII_SOURCES = \
 	widget-application.c		widget-application.h		\
 	widget-composer.c			widget-composer.h			\
 	widget-dialog-preferences.c	widget-dialog-preferences.h	\
-	widget-dialog-network-traffic.c	widget-dialog-network-traffic.h	\
 	widget-dialog.c				widget-dialog.h				\
 	widget-editor.c				widget-editor.h				\
 	widget-index.c				widget-index.h				\
 	widget-mail.c				widget-mail.h				\
 	widget-mailbox-list.c		widget-mailbox-list.h		\
+	widget-network-traffic.c	widget-network-traffic.h	\
 	widget-part.c				widget-part.h				\
 	widget-select-list.c		widget-select-list.h		\
 	widget-sidebar.c			widget-sidebar.h			\

@@ -318,6 +318,10 @@ extern "C" {
 	gnome_config_get_bool_with_default ("/"PACKAGE"/Window-Main/mail_preview_visible=true", NULL)
 #define c2_preferences_set_window_main_mail_preview_visible(val) \
 	gnome_config_set_bool ("/"PACKAGE"/Window-Main/mail_preview_visible", val)
+#define c2_preferences_get_window_main_network_traffic_visible() \
+	gnome_config_get_bool_with_default ("/"PACKAGE"/Window-Main/network_traffic_visible=false", NULL)
+#define c2_preferences_set_window_main_network_traffic_visible(val) \
+	gnome_config_set_bool ("/"PACKAGE"/Window-Main/network_traffic_visible", val)
 	
 #define c2_preferences_get_window_main_index_width_0() \
 	gnome_config_get_int_with_default ("/"PACKAGE"/Window-Main/index_width_0=30", NULL)

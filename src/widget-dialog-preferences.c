@@ -1401,6 +1401,7 @@ c2_dialog_preferences_account_editor_new (C2Application *application, C2DialogPr
 	
 	if (account)
 	{ /* Set the data of the account */
+		C2SMTP *smtp;
 
 		/* Real Name */
 		widget = glade_xml_get_widget (xml, "identity_name");
@@ -1470,6 +1471,26 @@ c2_dialog_preferences_account_editor_new (C2Application *application, C2DialogPr
 
 			widget = glade_xml_get_widget (xml, "incoming_auth_remember");
 			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), imap->auth_remember);
+		}
+
+		/* Outgoing */
+		smtp = C2_SMTP (c2_account_get_extra_data (account, C2_ACCOUNT_KEY_OUTGOING, NULL));
+		if (smtp->type == C2_SMTP_REMOTE)
+		{
+			widget = glade_xml_get_widget (xml, "outgoing_server_protocol");
+			gtk_option_menu_set_history (GTK_OPTION_MENU (widget), 0);
+
+			widget = glade_xml_get_widget (xml, "outgoing_server_hostname");
+			gtk_entry_set_text (GTK_ENTRY (widget), smtp->host);
+
+			widget = glade_xml_get_widget (xml, "outgoing_server_port");
+			gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), smtp->port);
+
+			widget = glade_xml_get_widget (xml, "outgoing_server_username");
+			gtk_entry_set_text (GTK_ENTRY (widget), smtp->user);
+
+			widget = glade_xml_get_widget (xml, "outgoing_server_password");
+			gtk_entry_set_text (GTK_ENTRY (widget), smtp->pass);
 		}
 	} else
 			

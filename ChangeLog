@@ -1,9 +1,19 @@
+Sat Dec 22 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* Converted the widget dialog-network-traffic to
+	  network-traffic.
+	* Some fixes in the network-traffic widget.
+	* Added a way to dock the network-traffic widget
+	  in the main window.
+
+Fri Dec 21 Pablo Fernández Navarro <cronosII@users.sf.net>
+	* Fixed the default of the priority in the composer to
+	  normal.
+	* Work in the website.
+
 Fri Dec 21 Peter Gossner <petergozz@users.sourceforge.net>
-        * Edits to content: welcome.html.in, touch.html.in
-	        * Edits to Content: default.elm.in
-		* Lets us know when you get to Spain Cob.
-
-
+	* Edits to content: welcome.html.in, touch.html.in
+	* Edits to Content: default.elm.in
+	* Lets us know when you get to Spain Cob.
 
 Thu Dec 20 Pablo Fernández Navarro <cronosII@users.sf.net>
 	* FUCKING CAVALLO HAS QUIT THE GOVERNMENT!

@@ -23,6 +23,7 @@
 #include "widget-application.h"
 #include "widget-dialog-preferences.h"
 #include "widget-mailbox-list.h"
+#include "widget-network-traffic.h"
 #include "widget-select-list.h"
 
 /* TODO
@@ -65,8 +66,7 @@ on_dialog_add_features_thread_disconnect (C2Request *request, C2NetObjectByte *b
 											GladeXML *xml)
 {
 	GtkWidget *widget;
-	const gchar *source;
-	gchar *ptr;
+	const gchar *source, *ptr;
 
 	if (!success)
 	{
@@ -172,16 +172,29 @@ c2_application_dialog_add_features (C2Application *application)
 	gtk_object_destroy (GTK_OBJECT (xml));
 }
 
+static void
+on_dialog_network_traffic_close_clicked (GtkWidget *widget, GtkWidget *dialog)
+{
+	gtk_widget_destroy (dialog);
+}
+
 void
 c2_application_dialog_network_traffic (C2Application *application)
 {
-	GladeXML *xml;
-	GtkWidget *widget;
+	GtkWidget *dialog;
+	GtkWidget *nt;
 
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_network_traffic");
+	dialog = c2_dialog_new (application, _("Network Traffic"), "network-traffic",
+							PKGDATADIR "/pixmaps/send-receive16.png",
+							GNOME_STOCK_BUTTON_CLOSE, NULL);
+	gnome_dialog_button_connect (GNOME_DIALOG (dialog), 0,
+								on_dialog_network_traffic_close_clicked, dialog);
+	
+	nt = c2_network_traffic_new (application);
+	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox), nt, TRUE, TRUE, 0);
+	gtk_widget_show (nt);
 
-	widget = glade_xml_get_widget (xml, "darea");
-
+	gtk_widget_show (dialog);
 }
 
 static void
