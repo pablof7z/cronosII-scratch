@@ -142,21 +142,23 @@ gchar *s = N_("This will permanently remove\n"
 gchar *s = N_("Confirmation");
 gchar *s = N_("Account Editor");
 gchar *s = N_("Account Setup");
-gchar *s = N_("Cronos II supports several identities through the usage\n"
-              "of different accounts.\n"
+gchar *s = N_("Cronos II supports multiple mail accounts and identities.\n"
               "\n"
               "With this tool you will be able to add new accounts\n"
-              "and edit the information of already existent accounts.\n"
+              "and edit existing accounts.\n"
               "\n"
-              "If you need help you can get it by going to Help the\n"
-              "help menu.");
+              "Extra Help is available from the Main Window Help Menu.");
 gchar *s = N_("Identity");
 gchar *s = N_("Required information");
 gchar *s = N_("Full Name:");
 gchar *s = N_("E-Mail Address:");
+gchar *s = N_("This Identity name");
+gchar *s = N_("A functional email address for this Identity");
 gchar *s = N_("Optional information");
 gchar *s = N_("Organization:");
 gchar *s = N_("Reply-To Address:");
+gchar *s = N_("Optional: Only required when different to the above email address.");
+gchar *s = N_("Optional Name for this Organisation");
 gchar *s = N_("Submit Personal Card:");
 gchar *s = N_("[TODO]");
 gchar *s = N_("Incoming mail");
@@ -169,24 +171,28 @@ gchar *s = N_("IMAP");
 gchar *s = N_("Server information");
 gchar *s = N_("Hostname:");
 gchar *s = N_("Port:");
+gchar *s = N_("The Mail Server Hostname.");
 gchar *s = N_("Use Secure Server Layer (SSL).");
 gchar *s = N_("Username:");
+gchar *s = N_("Your user name at this accounts server.");
 gchar *s = N_("Authentication");
 gchar *s = N_("Authentication method:");
 gchar *s = N_("Password");
 gchar *s = N_("APOP");
 gchar *s = N_("Remember password.");
 gchar *s = N_("Outgoing mail");
-gchar *s = N_("Please, fill in the information regarding the outgoing mail.\n"
+gchar *s = N_("Please, fill in the information regarding the outgoing mail server.\n"
               "If you don't know the protocol your server uses you should ask your\n"
-              "system administrator or your ISP or just use the Sendmail protocol.");
+              "System Administrator, your ISP or use the Sendmail protocol.");
 gchar *s = N_("Server Protocol:");
 gchar *s = N_("SMTP");
 gchar *s = N_("Sendmail");
 gchar *s = N_("Server information");
 gchar *s = N_("Hostname:");
 gchar *s = N_("Port:");
+gchar *s = N_("This address often takes the format of  \"mail.yourisp.com\"");
 gchar *s = N_("Username:");
+gchar *s = N_("Your User Name at this mail account.");
 gchar *s = N_("This server requires authentication.");
 gchar *s = N_("Use Secure Server Layer (SSL).");
 gchar *s = N_("Authentication");
@@ -196,6 +202,7 @@ gchar *s = N_("Remember password.");
 gchar *s = N_("Options");
 gchar *s = N_("Account Information");
 gchar *s = N_("Name:");
+gchar *s = N_("Give this account a unique name.");
 gchar *s = N_("Signature");
 gchar *s = N_("Signature file (plain):");
 gchar *s = N_("Signature file (HTML):");

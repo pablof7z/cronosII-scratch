@@ -373,6 +373,11 @@ Are you sure you want this?</message>
 	<name>button66</name>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
+	<signal>
+	  <name>clicked</name>
+	  <handler>gtk_widget_destroy</handler>
+	  <last_modification_time>Fri, 21 Sep 2001 13:50:19 GMT</last_modification_time>
+	</signal>
 	<stock_button>GNOME_STOCK_BUTTON_CLOSE</stock_button>
       </widget>
     </widget>
@@ -3063,14 +3068,12 @@ Do you want to continue?</message>
       <class>GnomeDruidPageStart</class>
       <name>page0</name>
       <title>Account Setup</title>
-      <text>Cronos II supports several identities through the usage
-of different accounts.
+      <text>Cronos II supports multiple mail accounts and identities.
 
 With this tool you will be able to add new accounts
-and edit the information of already existent accounts.
+and edit existing accounts.
 
-If you need help you can get it by going to Help the
-help menu.</text>
+Extra Help is available from the Main Window Help Menu.</text>
       <title_color>255,255,255</title_color>
       <text_color>0,0,0</text_color>
       <background_color>53,69,163</background_color>
@@ -3187,6 +3190,7 @@ help menu.</text>
 	      <widget>
 		<class>GtkEntry</class>
 		<name>identity_name</name>
+		<tooltip>This Identity name</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3211,6 +3215,7 @@ help menu.</text>
 	      <widget>
 		<class>GtkEntry</class>
 		<name>identity_email</name>
+		<tooltip>A functional email address for this Identity</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3311,6 +3316,7 @@ help menu.</text>
 	      <widget>
 		<class>GtkEntry</class>
 		<name>identity_reply_to</name>
+		<tooltip>Optional: Only required when different to the above email address.</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3335,6 +3341,7 @@ help menu.</text>
 	      <widget>
 		<class>GtkEntry</class>
 		<name>identity_organization</name>
+		<tooltip>Optional Name for this Organisation</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3627,6 +3634,7 @@ IMAP
 	      <widget>
 		<class>GtkEntry</class>
 		<name>incoming_server_hostname</name>
+		<tooltip>The Mail Server Hostname.</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3700,6 +3708,7 @@ IMAP
 	      <widget>
 		<class>GtkEntry</class>
 		<name>incoming_server_username</name>
+		<tooltip>Your user name at this accounts server.</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -3852,9 +3861,9 @@ APOP
 	    <widget>
 	      <class>GtkLabel</class>
 	      <name>label166</name>
-	      <label>Please, fill in the information regarding the outgoing mail.
+	      <label>Please, fill in the information regarding the outgoing mail server.
 If you don't know the protocol your server uses you should ask your
-system administrator or your ISP or just use the Sendmail protocol.</label>
+System Administrator, your ISP or use the Sendmail protocol.</label>
 	      <justify>GTK_JUSTIFY_LEFT</justify>
 	      <wrap>False</wrap>
 	      <xalign>0.01</xalign>
@@ -4018,6 +4027,7 @@ Sendmail
 	      <widget>
 		<class>GtkEntry</class>
 		<name>outgoing_server_hostname</name>
+		<tooltip>This address often takes the format of  &quot;mail.yourisp.com&quot;</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -4068,6 +4078,7 @@ Sendmail
 	      <widget>
 		<class>GtkEntry</class>
 		<name>outgoing_server_username</name>
+		<tooltip>Your User Name at this mail account.</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -4325,6 +4336,7 @@ Sendmail
 	      <widget>
 		<class>GtkEntry</class>
 		<name>options_account_name</name>
+		<tooltip>Give this account a unique name.</tooltip>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>

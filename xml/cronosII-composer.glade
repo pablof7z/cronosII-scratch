@@ -669,6 +669,11 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>close_btn</name>
+	  <signal>
+	    <name>clicked</name>
+	    <handler>on_close_btn_clicked</handler>
+	    <last_modification_time>Fri, 21 Sep 2001 13:27:31 GMT</last_modification_time>
+	  </signal>
 	  <label>Close</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_CLOSE</stock_pixmap>
 	  <child>
