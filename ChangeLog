@@ -1,3 +1,7 @@
+Wed Oct 24 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Added a dialog to write information about the current
+	  release, known bugs and missing features.
+
 Tue Oct 23 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* A lot of work that I just don't want to remember (around the
 	  phreacking DB module).

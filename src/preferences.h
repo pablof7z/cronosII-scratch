@@ -25,6 +25,7 @@ extern "C" {
 #define GENERAL "General"
 #define INTERFACE "Interface"
 #define ADVANCED "Advanced"
+#define EXTRA "Extra"
 
 #define OPTIONS "Options"
 #define PATHS "Paths"
@@ -251,7 +252,15 @@ extern "C" {
 	gnome_config_get_int_with_default ("/"PACKAGE"/"ADVANCED"-"MISC"/ftp_port=8080", NULL)
 #define c2_preferences_set_advanced_misc_proxy_ftp_port(val) \
 	gnome_config_set_int ("/"PACKAGE"/"ADVANCED"-"MISC"/ftp_port", val)
+
+
 	
+#define c2_preferences_get_extra_release_information_show() \
+	gnome_config_get_bool_with_default ("/"PACKAGE"/"EXTRA"-release_information/show=true", NULL)
+#define c2_preferences_set_extra_release_information_show(val) \
+	gnome_config_set_bool ("/"PACKAGE"/"EXTRA"-release_information/show", val)
+	
+
 
 #define c2_preferences_commit() gnome_config_sync ()
 

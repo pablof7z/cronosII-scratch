@@ -1,0 +1,25 @@
+<html>
+<body bgcolor=#ffffff>
+<font face="Helvetica">
+<h3 align=center>Missing Features</h3>
+
+This is a list of features that this release
+of Cronos II misses but are supposed to be
+implemented in a short time.<br>
+
+<ul>
+<li>IMAP support.
+<li>Spool support.
+<li>Search support.
+<li>Print support.
+<li>Drafts support.
+<li>Message headers display.
+<li>Message mark support.
+<li>Copy & Move support.
+<li>Importing & Exporting support.
+<li>Downloading images in HTML messages from an external location.
+</ul>
+
+</font>
+</body>
+</html>

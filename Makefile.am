@@ -12,7 +12,7 @@ plugindir = $(pkgdatadir)/plugins
 plugin_DATA =
 
 aboutdir = $(pkgdatadir)
-about_DATA = about.html header.png
+about_DATA = about.html bugs.html features.html header.png welcome.html
 
 cronosincludedir = $(includedir)/cronosII
 cronosinclude_HEADERS = config.h

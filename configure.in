@@ -392,6 +392,9 @@ po/Makefile.in
 src/Makefile
 Makefile
 about.html
+bugs.html
+features.html
+welcome.html
 cronosII.spec
 cronosII-config
 ])

@@ -6309,6 +6309,9 @@ po/Makefile.in
 src/Makefile
 Makefile
 about.html
+bugs.html
+features.html
+welcome.html
 cronosII.spec
 cronosII-config
  config.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
@@ -6498,6 +6501,9 @@ po/Makefile.in
 src/Makefile
 Makefile
 about.html
+bugs.html
+features.html
+welcome.html
 cronosII.spec
 cronosII-config
 "}

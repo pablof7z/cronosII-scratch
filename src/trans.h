@@ -193,3 +193,8 @@ gchar *s = N_("Do not ask again.");
 gchar *s = N_("Are you sure you want to\n"
               "expunge the selected mails?");
 gchar *s = N_("Confirmation");
+gchar *s = N_("Release Information");
+gchar *s = N_("Welcome");
+gchar *s = N_("Known Bugs");
+gchar *s = N_("Missing Features");
+gchar *s = N_("Show this dialog at start.");

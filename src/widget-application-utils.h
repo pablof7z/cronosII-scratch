@@ -25,6 +25,10 @@ extern "C" {
 gboolean
 c2_application_check_account_exists			(C2Application *application);
 
+/* Dialogs */
+void
+c2_application_dialog_release_information	(C2Application *application);
+
 #ifdef __cplusplus
 }
 #endif

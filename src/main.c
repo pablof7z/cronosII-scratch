@@ -23,9 +23,12 @@
 #include <libcronosII/hash.h>
 
 #include "main.h"
-
+#include "preferences.h"
 #include "widget-composer.h"
 #include "widget-window-main.h"
+
+static gint
+idle										(C2Application *application);
 
 static struct {
 	gboolean open_composer;
@@ -179,6 +182,7 @@ main (gint argc, gchar **argv)
 	/* Initialization of GNOME and Glade */
 	c2_init (argc, argv);
 
+	gdk_threads_enter ();
 	application = c2_application_new (PACKAGE);
 
 	if (flags.open_main_window)
@@ -200,8 +204,11 @@ main (gint argc, gchar **argv)
 
 	if (!something_opened)
 		CREATE_WINDOW_MAIN;
+
+	/* Release Information Dialog */
+	if (c2_preferences_get_extra_release_information_show ())
+		gtk_idle_add (idle, application);
 	
-	gdk_threads_enter ();
 	gtk_main ();
 	gdk_threads_leave ();
 	
@@ -209,4 +216,12 @@ main (gint argc, gchar **argv)
 	c2_hash_destroy ();
 
 	return 0;
+}
+
+static gint
+idle (C2Application *application)
+{
+	c2_application_dialog_release_information (application);
+
+	return FALSE;
 }

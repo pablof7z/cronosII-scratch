@@ -1,0 +1,16 @@
+<html>
+<body bgcolor=#ffffff>
+<font face="Helvetica">
+<h3 align=center>Known Bugs</h3>
+
+This is a list of the known bugs that this release
+of Cronos II has.<br>
+If you find an unlisted bug, please, report it
+using our <a href="http://sourceforge.net/bugs/?group_id=7093">online forms</a>.
+
+<ul>
+<li>You can not check for mail several times in the same session.
+</ul>
+</font>
+</body>
+</html>
