@@ -37,14 +37,6 @@ init											(C2POP3 *pop3);
 static void
 destroy											(GtkObject *object);
 
-static void
-my_marshal_NONE__INT_INT_INT					(GtkObject *object, GtkSignalFunc func,
-												 gpointer func_data, GtkArg * args);
-
-static void
-my_marshal_POINTER__POINTER						(GtkObject *object, GtkSignalFunc func,
-												 gpointer func_data, GtkArg * args);
-
 static gint
 welcome											(C2POP3 *pop3);
 
@@ -560,7 +552,7 @@ class_init (C2POP3Class *klass)
 					GTK_RUN_LAST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2POP3Class, login_failed),
-					my_marshal_POINTER__POINTER, GTK_TYPE_STRING, 1,
+					c2_marshal_POINTER__POINTER, GTK_TYPE_STRING, 1,
 					GTK_TYPE_STRING);
 	signals[STATUS] =
 		gtk_signal_new ("status",
@@ -575,7 +567,7 @@ class_init (C2POP3Class *klass)
 					GTK_RUN_FIRST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2POP3Class, retrieve),
-					my_marshal_NONE__INT_INT_INT, GTK_TYPE_NONE, 3,
+					c2_marshal_NONE__INT_INT_INT, GTK_TYPE_NONE, 3,
 					GTK_TYPE_INT, GTK_TYPE_INT, GTK_TYPE_INT);
 	
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
@@ -613,26 +605,3 @@ destroy (GtkObject *object)
 	g_free (pop3->pass);
 	pthread_mutex_destroy (&pop3->run_lock);
 }
-
-typedef void (*C2Signal_NONE__INT_INT_INT)		(GtkObject *object, gint arg1, gint arg2, gint arg3,
-													gpointer user_data);
-
-static void
-my_marshal_NONE__INT_INT_INT (GtkObject *object, GtkSignalFunc func, gpointer func_data, GtkArg * args)
-{
-	C2Signal_NONE__INT_INT_INT rfunc;
-	rfunc = (C2Signal_NONE__INT_INT_INT) func;
-	(*rfunc) (object, GTK_VALUE_INT (args[0]), GTK_VALUE_INT (args[1]), GTK_VALUE_INT (args[2]), func_data);
-}
-
-typedef gchar *(*C2Signal_POINTER__POINTER)	(GtkObject *object, gpointer arg1, gpointer user_data);
-
-static void
-my_marshal_POINTER__POINTER (GtkObject *object, GtkSignalFunc func, gpointer func_data, GtkArg * args)
-{
-	C2Signal_POINTER__POINTER rfunc;
-	gchar **return_val;
-L	return_val = GTK_RETLOC_STRING (args[1]);
-L	rfunc = (C2Signal_POINTER__POINTER) func;
-L	*return_val = (*rfunc) (object, GTK_VALUE_POINTER (args[0]), func_data);
-L}

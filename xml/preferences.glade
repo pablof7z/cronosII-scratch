@@ -2219,7 +2219,7 @@ Are you sure you want this?</message>
 	    <class>GtkCheckButton</class>
 	    <name>interface_html_interpret_text_plain</name>
 	    <can_focus>True</can_focus>
-	    <label>Interpret text/plain symbols</label>
+	    <label>Interpret text/plain symbols.</label>
 	    <active>False</active>
 	    <draw_indicator>True</draw_indicator>
 	    <child>
@@ -3066,7 +3066,7 @@ Do you want to continue?</message>
 
   <widget>
     <class>GnomeDruid</class>
-    <name>druid</name>
+    <name>dlg_account_editor_contents</name>
 
     <widget>
       <class>GnomeDruidPageStart</class>

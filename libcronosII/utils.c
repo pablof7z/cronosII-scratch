@@ -748,3 +748,26 @@ c2_fd_move_to (FILE *fp, gchar c, guint8 cant, gboolean forward, gboolean next)
 	
 	return TRUE;
 }
+
+typedef void (*C2Signal_NONE__INT_INT_INT)		(GtkObject *object, gint arg1, gint arg2, gint arg3,
+													gpointer user_data);
+
+void
+c2_marshal_NONE__INT_INT_INT (GtkObject *object, GtkSignalFunc func, gpointer func_data, GtkArg * args)
+{
+	C2Signal_NONE__INT_INT_INT rfunc;
+	rfunc = (C2Signal_NONE__INT_INT_INT) func;
+	(*rfunc) (object, GTK_VALUE_INT (args[0]), GTK_VALUE_INT (args[1]), GTK_VALUE_INT (args[2]), func_data);
+}
+
+typedef gchar *(*C2Signal_POINTER__POINTER)	(GtkObject *object, gpointer arg1, gpointer user_data);
+
+void
+c2_marshal_POINTER__POINTER (GtkObject *object, GtkSignalFunc func, gpointer func_data, GtkArg * args)
+{
+	C2Signal_POINTER__POINTER rfunc;
+	gchar **return_val;
+	return_val = GTK_RETLOC_STRING (args[1]);
+	rfunc = (C2Signal_POINTER__POINTER) func;
+	*return_val = (*rfunc) (object, GTK_VALUE_POINTER (args[0]), func_data);
+}

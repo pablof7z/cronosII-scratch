@@ -10,6 +10,7 @@ libcronosII_a_SOURCES = \
 						i18n.h						\
 	hash.c				hash.h						\
 						hash-definitions.h			\
+	imap.c				imap.h						\
 	mailbox.c			mailbox.h					\
 	md5.c				md5.h						\
 	message.c			message.h					\

@@ -114,7 +114,7 @@ C2Account *
 c2_account_get_by_name								(C2Account *head, const gchar *name);
 
 gint
-c2_account_check									(const C2Account *account);
+c2_account_check							(C2Account *account);
 
 #ifdef __cplusplus
 }

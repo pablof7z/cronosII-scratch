@@ -295,9 +295,9 @@ c2_account_last (C2Account *head)
  * 0 on success, -1 on error.
  **/
 gint
-c2_account_check (const C2Account *account)
+c2_account_check (C2Account *account)
 {
-	typedef gint (*FetchmailFunction) (const C2Account *);
+	typedef gint (*FetchmailFunction) (C2Account *);
 	FetchmailFunction fetchmail;
 	
 	switch (account->type)

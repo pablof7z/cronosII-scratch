@@ -24,6 +24,7 @@ extern "C" {
 
 #include <glib.h>
 #include <stdio.h>
+#include <gtk/gtk.h>
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include <config.h>
 #else
@@ -122,6 +123,14 @@ c2_file_is_directory							(const gchar *file);
 gboolean
 c2_fd_move_to									(FILE *fp, gchar c, guint8 cant,
 										 		 gboolean forward, gboolean next);
+
+void
+c2_marshal_NONE__INT_INT_INT				(GtkObject *object, GtkSignalFunc func,
+											 gpointer func_data, GtkArg * args);
+
+void
+c2_marshal_POINTER__POINTER					(GtkObject *object, GtkSignalFunc func,
+											 gpointer func_data, GtkArg * args);
 
 #ifdef __cplusplus
 }

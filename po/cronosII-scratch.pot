@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-07 17:47-0300\n"
+"POT-Creation-Date: 2001-09-08 20:18-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,60 +70,60 @@ msgstr ""
 msgid "This message claims to be multipart but it seems to be broken."
 msgstr ""
 
-#: libcronosII/smtp.c:197
+#: libcronosII/smtp.c:200
 msgid "SMTP server did not respond to our sent messaage in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:215
+#: libcronosII/smtp.c:218
 msgid "System Error: Unable to write message to disk for local SMTP command"
 msgstr ""
 
-#: libcronosII/smtp.c:224
+#: libcronosII/smtp.c:227
 msgid "Internal C2 Error: Unable to fetch headers in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:248
+#: libcronosII/smtp.c:251
 msgid ""
 "Problem running local SMTP command to send messages -- Check SMTP settings"
 msgstr ""
 
-#: libcronosII/smtp.c:277
+#: libcronosII/smtp.c:280
 msgid "Unable to resolve SMTP server hostname"
 msgstr ""
 
-#: libcronosII/smtp.c:283
+#: libcronosII/smtp.c:286
 msgid "Unable to connect to SMTP server"
 msgstr ""
 
-#: libcronosII/smtp.c:298
+#: libcronosII/smtp.c:301
 msgid "SMTP server was not friendly on our connect! May not be RFC compliant"
 msgstr ""
 
-#: libcronosII/smtp.c:360
+#: libcronosII/smtp.c:363
 msgid "SMTP server did not respond to 'EHLO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:389
+#: libcronosII/smtp.c:392
 msgid "SMTP server did not respond to HELO in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:412
+#: libcronosII/smtp.c:415
 msgid "Internal C2 Error: Unable to fetch \"From:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:428
+#: libcronosII/smtp.c:431
 msgid "Internal C2 Error: Unable to fetch \"To:\" header in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:441
+#: libcronosII/smtp.c:444
 msgid "SMTP server did not reply to 'MAIL FROM:' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:483
+#: libcronosII/smtp.c:486
 msgid "SMTP server did not reply to 'DATA' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:707
+#: libcronosII/smtp.c:833
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
 msgstr ""
 
@@ -131,7 +131,7 @@ msgstr ""
 msgid "Bad syntaxes, quotes aren't closed.\n"
 msgstr ""
 
-#: src/c2-main-window.c:352 src/widget-window-main.c:842
+#: src/c2-main-window.c:352 src/widget-window-main.c:920
 msgid "Unable to create mailbox"
 msgstr ""
 
@@ -458,8 +458,8 @@ msgstr ""
 msgid "Open the main window (default)"
 msgstr ""
 
-#: src/preferences.c:205 src/widget-dialog-preferences.c:447
-#: src/widget-dialog-preferences.c:519
+#: src/preferences.c:205 src/widget-dialog-preferences.c:468
+#: src/widget-dialog-preferences.c:540
 msgid "General"
 msgstr ""
 
@@ -475,8 +475,8 @@ msgstr ""
 msgid "Accounts"
 msgstr ""
 
-#: src/preferences.c:221 src/widget-dialog-preferences.c:448
-#: src/widget-dialog-preferences.c:529
+#: src/preferences.c:221 src/widget-dialog-preferences.c:469
+#: src/widget-dialog-preferences.c:550
 msgid "Interface"
 msgstr ""
 
@@ -488,36 +488,36 @@ msgstr ""
 msgid "Colors"
 msgstr ""
 
-#: src/widget-dialog-preferences.c:449 src/widget-dialog-preferences.c:539
+#: src/widget-dialog-preferences.c:470 src/widget-dialog-preferences.c:560
 msgid "Advanced"
 msgstr ""
 
 #: src/preferences-trans.h:29 src/trans.h:204
-#: src/widget-dialog-preferences.c:457
+#: src/widget-dialog-preferences.c:478
 msgid "Preferences"
 msgstr ""
 
-#: src/preferences-trans.h:144 src/widget-dialog-preferences.c:674
+#: src/preferences-trans.h:144 src/widget-dialog-preferences.c:696
 msgid "Account Editor"
 msgstr ""
 
-#: src/preferences-trans.h:168 src/widget-dialog-preferences.c:781
-#: src/widget-dialog-preferences.c:1029
+#: src/preferences-trans.h:168 src/widget-dialog-preferences.c:838
+#: src/widget-dialog-preferences.c:1086
 msgid "POP3"
 msgstr ""
 
-#: src/preferences-trans.h:169 src/widget-dialog-preferences.c:781
-#: src/widget-dialog-preferences.c:1038
+#: src/preferences-trans.h:169 src/widget-dialog-preferences.c:838
+#: src/widget-dialog-preferences.c:1095
 msgid "IMAP"
 msgstr ""
 
-#: src/preferences-trans.h:184 src/widget-dialog-preferences.c:813
-#: src/widget-dialog-preferences.c:919
+#: src/preferences-trans.h:184 src/widget-dialog-preferences.c:870
+#: src/widget-dialog-preferences.c:976
 msgid "SMTP"
 msgstr ""
 
-#: src/preferences-trans.h:185 src/widget-dialog-preferences.c:819
-#: src/widget-dialog-preferences.c:938
+#: src/preferences-trans.h:185 src/widget-dialog-preferences.c:876
+#: src/widget-dialog-preferences.c:995
 msgid "Sendmail"
 msgstr ""
 
@@ -569,35 +569,35 @@ msgstr ""
 msgid "%d messages downloaded."
 msgstr ""
 
-#: src/widget-window-main.c:177
+#: src/widget-window-main.c:184
 msgid ""
 "Cronos II was not able to load the UI, you should check your installation.\n"
 "Aborting.\n"
 msgstr ""
 
-#: src/widget-window-main.c:335
+#: src/widget-window-main.c:387
 #, c-format
 msgid "The mailbox '%s' couldn't be loaded"
 msgstr ""
 
-#: src/widget-window-main.c:352
+#: src/widget-window-main.c:404
 #, c-format
 msgid "%d messages, %d new."
 msgstr ""
 
-#: src/trans.h:205 src/widget-window-main.c:444
+#: src/trans.h:205 src/widget-window-main.c:496
 msgid "You found the Eastern Egg!"
 msgstr ""
 
-#: src/trans.h:206 src/widget-window-main.c:445
+#: src/trans.h:206 src/widget-window-main.c:497
 msgid "Neat, baby!"
 msgstr ""
 
-#: src/widget-window-main.c:483
+#: src/widget-window-main.c:535
 msgid "Unable to open about file"
 msgstr ""
 
-#: src/widget-window-main.c:671
+#: src/widget-window-main.c:749
 msgid "New mailbox"
 msgstr ""
 
@@ -617,7 +617,7 @@ msgstr ""
 
 #: src/preferences-trans.h:12 src/preferences-trans.h:16
 #: src/preferences-trans.h:20 src/preferences-trans.h:23
-#: src/preferences-trans.h:210 src/trans.h:100 src/trans.h:203 src/trans.h:210
+#: src/preferences-trans.h:213 src/trans.h:100 src/trans.h:203 src/trans.h:210
 msgid "Error"
 msgstr ""
 
@@ -936,7 +936,7 @@ msgid "Ask for confirmation before acting."
 msgstr ""
 
 #: src/preferences-trans.h:100
-msgid "Interpret text/plain symbols"
+msgid "Interpret text/plain symbols."
 msgstr ""
 
 #: src/preferences-trans.h:101
@@ -1221,18 +1221,30 @@ msgid "Signature file (HTML):"
 msgstr ""
 
 #: src/preferences-trans.h:201
-msgid "Leave message in the server."
+msgid "Multiple server access options"
 msgstr ""
 
 #: src/preferences-trans.h:202
-msgid "Automatically check this account."
+msgid "Leave message in the server."
 msgstr ""
 
 #: src/preferences-trans.h:203
-msgid "Finished"
+msgid "Remove messages which are"
 msgstr ""
 
 #: src/preferences-trans.h:204
+msgid "days all."
+msgstr ""
+
+#: src/preferences-trans.h:205
+msgid "Automatically check this account."
+msgstr ""
+
+#: src/preferences-trans.h:206
+msgid "Finished"
+msgstr ""
+
+#: src/preferences-trans.h:207
 msgid ""
 "Congratulations, you have successfully configured\n"
 "your account for use with Cronos II.\n"
@@ -1240,16 +1252,16 @@ msgid ""
 "Press «Finish» to store the new configuration."
 msgstr ""
 
-#: src/preferences-trans.h:208
+#: src/preferences-trans.h:211
 msgid ""
 "The name you entered is\n"
 "not valid."
 msgstr ""
 
 #.
-#. * Translatable strings file generated by Glade.
-#. * Add this file to your project's POTFILES.in.
-#. * DO NOT compile it as part of your application.
+#. * Archivo de cadenas traducibles generado por Glade.
+#. * Añada este archivo a su POTFILES.in de su proyecto.
+#. * NO lo compile como parte de su aplicación.
 #.
 #: src/trans.h:7
 msgid "Cronos II"
@@ -1878,4 +1890,36 @@ msgstr ""
 
 #: src/trans.h:211
 msgid "Login problem"
+msgstr ""
+
+#: src/trans.h:215
+msgid "Show both icons and text in the buttons"
+msgstr ""
+
+#: src/trans.h:216
+msgid "_Both"
+msgstr ""
+
+#: src/trans.h:217
+msgid "Show only the icons in the buttons"
+msgstr ""
+
+#: src/trans.h:218
+msgid "_Icons"
+msgstr ""
+
+#: src/trans.h:219
+msgid "Show just text in the buttons"
+msgstr ""
+
+#: src/trans.h:220
+msgid "_Text"
+msgstr ""
+
+#: src/trans.h:221
+msgid "Show tooltips of buttons"
+msgstr ""
+
+#: src/trans.h:222
+msgid "_Tooltips"
 msgstr ""
