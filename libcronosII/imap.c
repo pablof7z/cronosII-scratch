@@ -35,8 +35,8 @@
 
 /* C2 IMAP Module in the process of being engineered by Bosko */
 /* TODO: Re-Implement recursive folder listing (its too slow) */
-/* (in progress) TODO: Set marks for emails */
 /* (in progress) TODO: Elegent network problem handling (reconnecting, etc) */
+/* (done!) TODO: Set marks for emails */
 /* (done!) TODO: Function that handles untagged messages that come unwarranted */
 /* (done!) TODO: Implement subscribtion facility */
 /* (done!) TODO: Get messages */
@@ -442,7 +442,7 @@ DIE:
 			g_warning(_("Error reading from socket on IMAP host %s! Reader thread aborting!\n"),
 						C2_NET_OBJECT(imap)->host);
 			c2_imap_set_error(imap, NET_READ_FAILED);
-      gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+			gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 			c2_net_object_disconnect(C2_NET_OBJECT(imap));
 			c2_net_object_destroy_byte (C2_NET_OBJECT (imap));
 			if(final) g_free(final);
@@ -1041,6 +1041,8 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 				unixdate = time (&unixdate);
 			/* FIX ME: the @account below should not be NULL */
 			db = c2_db_new(mailbox, !seen, subject, from, NULL, unixdate, uid, messages);
+			if(answered)
+				db->state = C2_MESSAGE_REPLIED;
 			messages++;
 			if(date) g_free(date);
 			date = NULL;
@@ -1752,9 +1754,22 @@ L
 	return message;
 }
 
-/* in progress! */
+/** c2_imap_message_set_state
+ * 
+ * @imap: A locked IMAP object
+ * @db: C2Db of message to manipulate
+ * @state: the state to put the message in.
+ *
+ * Manipulates the flags of a message, and 
+ * sets the message as "makred" if !@state and
+ * sets it as unmarked if its already marked
+ * and !@state.  
+ * 
+ * Return Value:
+ * 0 on success, -1 otherwise.
+ **/
 gint
-c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState state)
+c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState *state)
 {
 	gchar *cmd = NULL;
 	tag_t tag;
@@ -1763,7 +1778,7 @@ c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState state)
 		return -1;
 	
 	tag = c2_imap_get_tag(imap);
-	switch (state) {
+	switch (*state) {
 	 
 	 case C2_MESSAGE_READED:
 		cmd = g_strdup("+FLAGS.SILENT (\\Seen)");
@@ -1775,19 +1790,31 @@ c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState state)
 		cmd = g_strdup("+FLAGS.SILENT (\\Answered)");
 		break;
 	 case C2_MESSAGE_FORWARDED:
-		cmd = g_strdup("+FLAGS.SILENT (\\Answered)");
+		cmd = g_strdup("+FLAGS.SILENT (\"\\Forwarded\")");
 		break;
-	}
+	 case NULL:
+		if(db->mark)
+			cmd = g_strdup("-FLAGS.SILENT (\\Flagged)");
+		else
+			cmd = g_strdup("+FLAGS.SILENT (\\Flagged)");
+		break;
+	 default:
+		g_warning("Attempting to set an invalid message state!\n");
+		c2_imap_close_mailbox(imap);
+		return -1;
+	}	
 	
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d "
 	   "STORE %i %s\r\n", tag, db->position, cmd) < 0)
 	{
 		g_free(cmd);
+		c2_imap_close_mailbox(imap);
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return NULL;
 	}
 	g_free(cmd);
+	c2_imap_close_mailbox(imap);
 
 	if(!(cmd = c2_imap_get_server_reply(imap, tag)))
 		return -1;

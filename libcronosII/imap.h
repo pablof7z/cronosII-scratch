@@ -178,7 +178,7 @@ C2Message *
 c2_imap_load_message (C2IMAP *imap, C2Db *db);
 
 gint
-c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState state);
+c2_imap_message_set_state (C2IMAP *imap, C2Db *db, C2MessageState *state);
 
 #ifdef __cplusplus
 }
