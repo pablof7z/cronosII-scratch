@@ -62,18 +62,23 @@ run_imap(C2IMAP *imap)
 	if(c2_imap_init(imap) < 0)
 	{	
 		printf("failed to login\n");
+		gtk_object_destroy(GTK_OBJECT(imap));
 		exit(-1);
 	}
 	
 	if(c2_imap_populate_folders(imap) < 0)
 	{
 		printf("failed to populate the IMAP Folders tree");
+		gtk_object_destroy(GTK_OBJECT(imap));
 		exit(-1);
 	}
  
 	printf("listing folders: \n");
 	print_imap_tree(imap, NULL, NULL);
 
+	gtk_object_destroy(GTK_OBJECT(imap));
+	exit(0);
+	
 	printf("\nCreating top-level folder CronosII...");
 
 	if(!(mailbox = c2_mailbox_new_with_parent(&imap->mailboxes, "CronosII", NULL, C2_MAILBOX_IMAP,
@@ -81,6 +86,7 @@ run_imap(C2IMAP *imap)
 	{
 		printf("failure!\n");
 		printf("Error was: %s\n", gtk_object_get_data(GTK_OBJECT(imap), "error"));
+		gtk_object_destroy(GTK_OBJECT(imap));
 		exit(-1);
 	}
 	printf("success!");
@@ -93,6 +99,7 @@ run_imap(C2IMAP *imap)
 	{
 		printf("failure!\n");
 		printf("Error was: %s", gtk_object_get_data(GTK_OBJECT(imap), "error"));
+		gtk_object_destroy(GTK_OBJECT(imap));
 		exit(-1);
 	}
   printf("success!\n");
@@ -107,6 +114,7 @@ run_imap(C2IMAP *imap)
 	if(c2_db_load(mailbox) < 0)
 	{
 		printf("failure!\n");
+		gtk_object_destroy(GTK_OBJECT(imap));
 		exit(-1);
 	}
 	/*printf("success!\n");*/
@@ -116,6 +124,7 @@ run_imap(C2IMAP *imap)
 	{
 		printf("failure!\n");
     printf("Error was: %s", gtk_object_get_data(GTK_OBJECT(imap), "error"));
+		gtk_object_destroy(GTK_OBJECT(imap));
 		exit(-1);
 	}*/
 	
@@ -130,11 +139,13 @@ run_imap(C2IMAP *imap)
 	{
 		printf("failure!\n");
 		printf("Error was: %s", gtk_object_get_data(GTK_OBJECT(imap), "error"));
+		gtk_object_destroy(GTK_OBJECT(imap));
 		exit(-1);
 	}
 	printf("success!\n");
 	
 	printf("\nCronosII IMAP capability testing completed successfully!\n");
+	gtk_object_destroy(GTK_OBJECT(imap));
 	exit(0);
 }
 
