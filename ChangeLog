@@ -1,3 +1,6 @@
+Thu Jun 27 Pablo Fernández
+	* Fixed a bug in /libcronosII/db-imap.c.
+
 Mon Jun 17 Bosko Blagojevic <falling at cronosii dot org>
 	* Bug fixes in libcronosII/imap.c and libcronosII/mime.c
 

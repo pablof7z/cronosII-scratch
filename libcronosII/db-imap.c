@@ -27,6 +27,7 @@
 #include "mailbox.h"
 #include "utils.h"
 #include "utils-net.h"
+#include "imap.h"
 
 gboolean
 c2_db_imap_create_structure (C2Mailbox *mailbox)
@@ -145,7 +146,7 @@ c2_db_imap_message_set_mark (C2Db *db, gboolean mark)
 	C2IMAP *imap = db->mailbox->protocol.IMAP.imap;
 
 	c2_mutex_lock(&imap->lock);
-	c2_imap_message_set_state(imap, db, NULL);
+	c2_imap_message_set_state(imap, db, 0);
 	c2_mutex_unlock(&imap->lock);
 	return;
 }
