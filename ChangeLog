@@ -1,3 +1,8 @@
+Wed Sep 26 Peter Gossner <gossner@arcom.com.au>
+	* Continuing work on the New Manual 
+	* This version more modularised and flexible.
+	* Some work done on xml files over the last week.
+
 Tue Sep 24 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed a bug in POP3 that made it not to show the "Receiving message X of Y"
 	  string when using UIDL and some messages were already downloaded.
