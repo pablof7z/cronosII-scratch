@@ -71,8 +71,6 @@ struct _C2Message
 struct _C2MessageClass
 {
 	GtkObjectClass parent_class;
-	
-	void (*message_die) (C2Message *message);
 };
 
 GtkType

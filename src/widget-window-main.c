@@ -875,6 +875,8 @@ delete_thread (C2Pthread3 *data)
 	c2_db_thaw (tmailbox);
 	c2_db_thaw (fmailbox);
 
+	g_list_free (list);
+
 	gdk_threads_enter ();
 
 	if (status_ownership)
@@ -925,7 +927,7 @@ delete (C2WindowMain *wmain)
 		data = g_new0 (C2Pthread3, 1);
 		data->v1 = wmain;
 		data->v2 = fmailbox;
-		data->v3 = GTK_CLIST (wmain->index)->selection;
+		data->v3 = g_list_copy (GTK_CLIST (wmain->index)->selection);
 		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (delete_thread), data);
 	} else
 	{ /* We have to expunge */
@@ -1057,6 +1059,8 @@ move_thread (C2Pthread4 *data)
 	c2_db_thaw (tmailbox);
 	c2_db_thaw (fmailbox);
 
+	g_list_free (list);
+
 	gdk_threads_enter ();
 
 	if (status_ownership)
@@ -1097,7 +1101,7 @@ move (C2WindowMain *wmain)
 	data->v1 = wmain;
 	data->v2 = fmailbox;
 	data->v3 = tmailbox;
-	data->v4 = GTK_CLIST (wmain->index)->selection;
+	data->v4 = g_list_copy (GTK_CLIST (wmain->index)->selection);
 	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (move_thread), data);
 }
 
@@ -1354,7 +1358,7 @@ on_toolbar_copy_clicked (GtkWidget *widget, C2WindowMain *wmain)
 static void
 on_toolbar_delete_clicked (GtkWidget *widget, C2WindowMain *wmain)
 {
-	C2_WINDOW_MAIN_CLASS_FW (wmain)->delete (wmain);
+L	C2_WINDOW_MAIN_CLASS_FW (wmain)->delete (wmain);
 }
 
 static void
@@ -1429,19 +1433,20 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 	GladeXML *xml;
 	GtkWidget *widget;
 
+
 	if (g_list_length (GTK_CLIST (index)->selection) > 1)
 		return;
 	
-	if (!node->message)
+	if (!C2_IS_MESSAGE (node->message))
 	{
 		/* [TODO] This should be in a separated thread */
 		c2_db_load_message (node);
 
-		if (!node->message)
+		if (!C2_IS_MESSAGE (node->message))
 		{
 			/* Something went wrong */
 			const gchar *error;
-			
+		
 			error = c2_error_object_get (GTK_OBJECT (node));
 			if (error)
 				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
@@ -1454,6 +1459,7 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 		}
 	}
 
+	
 	c2_mail_set_message (C2_MAIL (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail")), node->message);
 
 	/* Set some widgets sensivity */

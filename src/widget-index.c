@@ -501,18 +501,53 @@ on_application_preferences_changed (C2Application *application, gint key, gpoint
 		reload (index);
 }
 
+static void
+on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *db_node, C2Index *index)
+{
+	/* TODO This is a temp fix */
+	/* WARN This function assumes it is being called
+	 * by a separated thread since all DB action is
+	 * supposed to run in other thread.
+	 */
+	gdk_threads_enter ();
+	C2_INDEX_CLASS_FW (index)->reload (index);
+	gdk_threads_leave ();
+}
+
+static void
+_connect (C2Index *index)
+{
+	if (!C2_IS_MAILBOX (index->mailbox))
+		return;
+
+	gtk_signal_connect (GTK_OBJECT (index->mailbox), "changed_mailbox",
+						GTK_SIGNAL_FUNC (on_mailbox_changed_mailbox), index);
+}
+
+static void
+disconnect (C2Index *index)
+{
+	if (C2_IS_MAILBOX (index->mailbox))
+		gtk_signal_disconnect_by_func (GTK_OBJECT (index->mailbox),
+							GTK_SIGNAL_FUNC (on_mailbox_changed_mailbox), index);
+}
+
 void
 c2_index_add_mailbox (C2Index *index, C2Mailbox *mailbox)
 {
-	c2_return_if_fail_obj (mailbox, C2EDATA, GTK_OBJECT (index));
+	c2_return_if_fail_obj (C2_IS_MAILBOX (mailbox), C2EDATA, GTK_OBJECT (index));
 
+	disconnect (index);	
 	index->mailbox = mailbox;
+	_connect (index);
+
 	C2_INDEX_CLASS_FW (index)->reload (index);
 }
 
 void
 c2_index_remove_mailbox (C2Index *index)
 {
+	disconnect (index);
 	index->mailbox = NULL;
 	
 	C2_INDEX_CLASS_FW (index)->reload (index);

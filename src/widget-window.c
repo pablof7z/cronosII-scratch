@@ -151,7 +151,7 @@ void
 c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, ...)
 {
 	va_list args;
-	gchar *msg, *rmsg;
+	gchar *msg;
 
 	va_start (args, fmt);
 	msg = g_strdup_vprintf (fmt, args);
@@ -168,25 +168,19 @@ c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, .
 			return;
 		}
 
-		if (c2_errno && (type != C2_WINDOW_REPORT_MESSAGE))
-			rmsg = g_strdup_printf ("%s: %s\n", msg, c2_error_get ());
-		else
-			rmsg = g_strdup (msg);
-
 		data = g_new0 (C2Pthread2, 1);
 		data->v1 = (gpointer) window;
 
 		gnome_appbar_clear_stack (GNOME_APPBAR (appbar));
-		gnome_appbar_push (GNOME_APPBAR (appbar), rmsg);
+		gnome_appbar_push (GNOME_APPBAR (appbar), msg);
 		data->v2 = (gpointer) gtk_timeout_add (3000, on_report_timeout, data);
 		report_timeout_id = GPOINTER_TO_INT (data->v2);
-		g_free (rmsg);
 		pthread_mutex_unlock (&window->status_lock);
 	} else
 	{
 		if (type == C2_WINDOW_REPORT_WARNING)
 		{
-			GtkWidget *dialog = gnome_warning_dialog (rmsg);
+			GtkWidget *dialog = gnome_warning_dialog (msg);
 
 			c2_application_window_add (window->application, GTK_WINDOW (dialog));
 			gtk_object_ref (GTK_OBJECT (dialog));
@@ -196,7 +190,7 @@ c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, .
 			gtk_object_destroy (GTK_OBJECT (dialog));
 		} else if (type == C2_WINDOW_REPORT_ERROR)
 		{
-			GtkWidget *dialog = gnome_error_dialog (rmsg);
+			GtkWidget *dialog = gnome_error_dialog (msg);
 
 			c2_application_window_add (window->application, GTK_WINDOW (dialog));
 			gtk_object_ref (GTK_OBJECT (dialog));
@@ -205,7 +199,6 @@ c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, .
 
 			gtk_object_destroy (GTK_OBJECT (dialog));
 		}
-		g_free (rmsg);
 	}
 
 	g_free (msg);

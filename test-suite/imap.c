@@ -38,12 +38,6 @@ run_imap(C2IMAP *imap)
 		return;
 	}
 	
-	if(c2_imap_get_folder_list(imap, &list, "", "*") < 0)
-	{
-		printf("failed to get folder list\n");
-		return;
-	}
-	
 	if(c2_imap_create_folder(imap, NULL, "CronosII") < 0)
 	{
 		printf("failed to create folder \"CronosII\"\n");
@@ -78,6 +72,8 @@ run_imap(C2IMAP *imap)
 gint
 main (gint argc, gchar **argv)
 {
+	gchar *host, *user, *pass;
+	gint port;
 	pthread_t thread;
 	C2IMAP *imap;
 
@@ -86,7 +82,20 @@ main (gint argc, gchar **argv)
 	printf("Welcome to the IMAP module of the C2 Engine Test-Suite\n"
 				 "Hit Crtl+C to exit program once tests are complete\n");
 	
-	imap = c2_imap_new("192.168.1.2", 143, "falling", "password", C2_IMAP_AUTHENTICATION_PLAINTEXT, FALSE);
+	if (argc > 4)
+	{
+		host = g_strdup (argv[1]);
+		port = atoi (argv[2]);
+		user = g_strdup (argv[3]);
+		pass = g_strdup (argv[4]);
+	} else
+	{
+		host = g_strdup ("192.168.1.2");
+		port = 143;
+		user = g_strdup ("falling");
+		pass = g_strdup ("password");
+	}
+	imap = c2_imap_new (host, port, user, pass, C2_IMAP_AUTHENTICATION_PLAINTEXT, FALSE);
 	
 	pthread_create(&thread, NULL, (void*)run_imap, imap);
 	

@@ -1,3 +1,14 @@
+Tue Nov 01 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Fixed a bug that caused c2 not to destroy messages after downloading
+	  them from POP3 (the message object).
+	* Fixed the bug that caused c2 to move or to delete all mails in
+	  a mailbox when trying to move or delete the last one.
+	* Got rid of the useless message_die signal in the message object.
+	* Fixed a couple of bugs that crashed c2.
+	* Added E-Mail address inline detection (wo mailto: prefix requirement).
+	* Added support to dynamically reload the index widget when
+	  is required.
+
 Thu Oct 30 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* A lot of work that I don't remember.
 	* Added a new developer to Cronos II: Peter Gebauer: Welcome!

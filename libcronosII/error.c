@@ -90,10 +90,20 @@ c2_error_object_get (GtkObject *object)
 {
 	gint err = GPOINTER_TO_INT (gtk_object_get_data (object, "c2_errno"));
 	
-	if (err != C2CUSTOM)
-		return err_list[err];
+	if (c2_errno >= 0 && c2_errno != C2CUSTOM)
+		return err_list[c2_errno];
+	else if (c2_errno >= 0)
+		return c2_errstr;
 	else
+		return g_strerror (c2_errno*(-1));
+	
+	if (err >= 0 && err != C2CUSTOM)
+		return err_list[err];
+	else if (err >= 0)
 		return ((gchar*)gtk_object_get_data (object, "c2_errstr"));
+	else
+		return g_strerror (err*(-1));
+
 	return NULL;
 }
 

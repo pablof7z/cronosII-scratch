@@ -153,6 +153,13 @@ static void
 on_interface_composer_editor_external_cmnd_changed	(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
+on_interface_misc_date_changed				(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_interface_misc_date_focus_out_event		(GtkWidget *widget, GdkEventFocus *event,
+											 C2DialogPreferences *preferences);
+
+static void
 on_general_accounts_identity_name_changed		(GtkWidget *widget, C2Window *window);
 
 static void
@@ -419,6 +426,10 @@ set_signals (C2DialogPreferences *preferences)
 	widget = glade_xml_get_widget (xml, "interface_composer_editor_external_cmnd");
 	gtk_signal_connect (GTK_OBJECT (widget), "changed",
 						GTK_SIGNAL_FUNC (on_interface_composer_editor_external_cmnd_changed), preferences);
+
+	widget = glade_xml_get_widget (xml, "interface_misc_date");
+	gtk_signal_connect (GTK_OBJECT (widget), "changed",
+						GTK_SIGNAL_FUNC (on_interface_misc_date_changed), preferences);
 }
 
 #define SET_BOOLEAN(func, wkey)	\
@@ -1391,9 +1402,32 @@ on_interface_composer_editor_external_cmnd_changed (GtkWidget *widget, C2DialogP
 	gchar *cmnd = gtk_entry_get_text (GTK_ENTRY (widget));
 
 	c2_preferences_set_interface_composer_editor_external_cmnd (cmnd);
-	gnome_config_sync ();
+	c2_preferences_commit ();
 	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
 					C2_DIALOG_PREFERENCES_KEY_INTERFACE_COMPOSER_EDITOR_CMND, cmnd);
+}
+
+static void
+on_interface_misc_date_changed (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gchar *date = gtk_entry_get_text (GTK_ENTRY (widget));
+
+	c2_preferences_set_interface_misc_date (date);
+	c2_preferences_commit ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_MISC_DATE, date);
+}
+
+static void
+on_interface_misc_date_focus_out_event (GtkWidget *widget, GdkEventFocus *event,
+				C2DialogPreferences *preferences)
+{
+	gchar *date = gtk_entry_get_text (GTK_ENTRY (widget));
+
+	c2_preferences_set_interface_misc_date (date);
+	c2_preferences_commit ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_MISC_DATE, date);
 }
 
 static void

@@ -817,7 +817,10 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 			c2_net_object_read (C2_NET_OBJECT (pop3), &string);
 
 			if (c2_streq (string, ".\r\n"))
+			{
+				g_free (string);
 				break;
+			}
 			
 			len = strlen (string);
 			if (len == 2 && getting_header)
@@ -840,12 +843,12 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 
 		/* Load the mail */
 		message = c2_db_message_get_from_file (tmp);
-		gtk_object_ref (GTK_OBJECT (message));
 		gtk_object_set_data (GTK_OBJECT (message), "state", (gpointer) C2_MESSAGE_UNREADED);
 		c2_db_message_add (inbox, message);
 		gtk_object_remove_data (GTK_OBJECT (message), "state");
 		gtk_object_unref (GTK_OBJECT (message));
 		unlink (tmp);
+		g_free (tmp);
 
 		/* Now that everything is written, delete the mail
 		 * or add the UIDL to the db.
@@ -877,9 +880,6 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 				return -1;
 			}
 		}
-
-		gtk_object_destroy (GTK_OBJECT (message));
-		g_free (tmp);
 	}
 
 	return 0;

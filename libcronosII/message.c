@@ -46,7 +46,6 @@ destroy										(GtkObject *object);
 
 enum
 {
-	MESSAGE_DIE,
 	LAST_SIGNAL
 };
 
@@ -83,22 +82,10 @@ static void
 class_init (C2MessageClass *klass)
 {
 	GtkObjectClass *object_class;
-
 	object_class = (GtkObjectClass *) klass;
 
 	parent_class = gtk_type_class (gtk_object_get_type ());
-
-	signals[MESSAGE_DIE] =
-		gtk_signal_new ("message_die",
-					GTK_RUN_FIRST,
-					object_class->type,
-					GTK_SIGNAL_OFFSET (C2MessageClass, message_die),
-					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
-
-	object_class->destroy = destroy;
-
-	klass->message_die = NULL;
 }
 
 static void
@@ -112,7 +99,14 @@ init (C2Message *message)
 C2Message *
 c2_message_new (void)
 {
-	return gtk_type_new (C2_TYPE_MESSAGE);
+	C2Message *message;
+
+	message = gtk_type_new (C2_TYPE_MESSAGE);
+
+	gtk_signal_connect (GTK_OBJECT (message), "destroy",
+						GTK_SIGNAL_FUNC (destroy), NULL);
+
+	return message;
 }
 
 /**

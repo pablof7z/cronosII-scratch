@@ -38,6 +38,9 @@ class_init									(C2DbClass *class);
 static void
 destroy										(GtkObject *object);
 
+static void
+message_destroy								(C2Message *message, C2Db *db);
+
 enum
 {
 	DELETED,
@@ -98,8 +101,6 @@ class_init (C2DbClass *klass)
 
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 
-	object_class->destroy = destroy;
-
 	klass->deleted = NULL;
 	klass->updated = NULL;
 }
@@ -125,6 +126,12 @@ destroy (GtkObject *object)
 	g_free (db->subject);
 	g_free (db->from);
 	g_free (db->account);
+}
+
+static void
+message_destroy (C2Message *message, C2Db *db)
+{
+	db->message = NULL;
 }
 
 /**
@@ -185,7 +192,23 @@ c2_db_new (C2Mailbox *mailbox, gboolean mark, gchar *subject, gchar *from,
 	db->prev = last;
 	db->next = mailbox->db;
 
+	gtk_signal_connect (GTK_OBJECT (db), "destroy",
+						GTK_SIGNAL_FUNC (destroy), NULL);
+
 	return db;
+}
+
+void
+c2_db_set_message (C2Db *db, C2Message *message)
+{
+	if (C2_IS_MESSAGE (db->message))
+		gtk_signal_disconnect_by_func (GTK_OBJECT (db->message),
+								GTK_SIGNAL_FUNC (message_destroy), db);
+	if (C2_IS_MESSAGE (message))
+		gtk_signal_connect (GTK_OBJECT (message), "destroy",
+							GTK_SIGNAL_FUNC (message_destroy), db);
+
+	db->message = message;
 }
 
 /**
@@ -497,7 +520,7 @@ add_message (C2Mailbox *mailbox, C2Message *message)
 					from ? from : "",
 					account ? account : "",
 					date, 0, mailbox->db ? mailbox->db->prev->position+1 : 1);
-	db->message = message;
+	c2_db_set_message (db, message);
 	buf = c2_message_get_header_field (message, "X-CronosII-State:");
 	if (!buf)
 	{
@@ -594,7 +617,7 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 		func (mailbox, db);
 
 		gtk_object_unref (GTK_OBJECT (message));
-		db->message = NULL;
+		c2_db_set_message (db, NULL);
 
 		gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
 							C2_MAILBOX_CHANGE_ADD, db->prev);
@@ -677,6 +700,9 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 			break;
 	}
 
+	/* Remove from the db */
+	retval = func (mailbox, list);
+
 	/* Remove from the loaded db list */
 	db = mailbox->db;
 	i = 0;
@@ -718,13 +744,11 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 		i++;
 	} while (db);
 
-	retval = func (mailbox, list);
-
 	db = c2_db_get_node (mailbox, first ? first-1 : 0);
-L	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
+	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
 							C2_MAILBOX_CHANGE_REMOVE,
 							db);
-L
+
 	if (thaw)
 		c2_db_thaw (mailbox);
 
@@ -835,7 +859,7 @@ c2_db_load_message (C2Db *db)
 			break;
 	}
 
-	db->message = func (db);
+	c2_db_set_message (db, func (db));
 	if (db->message)
 	{
 		db->message->mime = c2_mime_new (db->message);

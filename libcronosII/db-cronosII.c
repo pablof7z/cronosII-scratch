@@ -175,11 +175,10 @@ remove_message (C2Mailbox *mailbox, FILE *fd, gint *line, gint n, C2Db **db)
 		}
 		fseek (fd, -1, SEEK_CUR);
 
-		/* If we get here it means that this line represents a mail */
-		*db = (*db)->next;
-
 		if ((*line)++ != n)
 		{
+			*db = (*db)->next;
+			
 			if (!c2_fd_move_to (fd, '\n', 1, TRUE, TRUE))
 			{
 				printf ("Error!\n"); L
@@ -191,6 +190,7 @@ remove_message (C2Mailbox *mailbox, FILE *fd, gint *line, gint n, C2Db **db)
 		fputc ('?', fd);
 		if (!c2_fd_move_to (fd, '\n', 1, TRUE, TRUE))
 		{
+			*db = (*db)->next;
 			printf ("Error!\n"); L
 			return -1;
 		}
@@ -205,11 +205,12 @@ remove_message (C2Mailbox *mailbox, FILE *fd, gint *line, gint n, C2Db **db)
 		}
 		perror (mpath);
 		g_free (mpath);
+		*db = (*db)->next;
 		break;
 	}
 
 	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
-							 C2_MAILBOX_CHANGE_REMOVE, db);
+							 C2_MAILBOX_CHANGE_REMOVE, (*db)->prev);
 	
 	return 0;
 }
@@ -498,10 +499,11 @@ c2_db_cronosII_load_message (C2Db *db)
 	
 	if (stat (path, &stat_buf) < 0)
 	{
-		c2_error_object_set (GTK_OBJECT (message), -errno);
+		c2_error_object_set (GTK_OBJECT (db), -errno);
 #ifdef USE_DEBUG
 		g_print ("Stating the file failed: %s\n", path);
 #endif
+		gtk_object_destroy (GTK_OBJECT (message));
 		return NULL;
 	}
 
@@ -511,7 +513,8 @@ c2_db_cronosII_load_message (C2Db *db)
 
 	if (!(fd = fopen (path, "r")))
 	{
-		c2_error_object_set (GTK_OBJECT (message), -errno);
+		c2_error_object_set (GTK_OBJECT (db), -errno);
+		gtk_object_destroy (GTK_OBJECT (message));
 		return NULL;
 	}
 

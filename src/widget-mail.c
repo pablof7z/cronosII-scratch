@@ -77,10 +77,9 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 
 	c2_return_if_fail (message, C2EDATA);
 
-	if (mail->message)
+	if (C2_IS_MESSAGE (mail->message) && message != mail->message)
 		gtk_object_unref (GTK_OBJECT (mail->message));
 	mail->message = message;
-	gtk_object_ref (GTK_OBJECT (message));
 
 	/* Get the part that should be displayed */
 	default_mime = c2_preferences_get_interface_misc_attachments_default ();
@@ -460,7 +459,12 @@ avoid_interpret:
 				g_string_append (string, buf);
 				g_free (buf);
 			}
-			else
+			else if (c2_str_is_email (word))
+			{
+				buf = g_strdup_printf ("<a href=\"mailto:%s\">%s</a>", word, word);
+				g_string_append (string, buf);
+				g_free (buf);
+			} else
 				g_string_append (string, word);
 		}
 
