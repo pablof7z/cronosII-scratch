@@ -283,6 +283,10 @@ extern "C" {
 	gnome_config_get_bool_with_default ("/"PACKAGE"/"ADVANCED"-"SECURITY"/password_ask=false", NULL)
 #define c2_preferences_set_advanced_security_password_ask(val) \
 	gnome_config_set_bool ("/"PACKAGE"/"ADVANCED"-"SECURITY"/password_ask", val)
+#define c2_preferences_get_advanced_security_password() \
+	gnome_config_get_string_with_default ("/"PACKAGE"/"ADVANCED"-"SECURITY"/password=", NULL)
+#define c2_preferences_set_advanced_security_password(val) \
+	gnome_config_set_string ("/"PACKAGE"/"ADVANCED"-"SECURITY"/password", val)
 
 
 #define c2_preferences_get_advanced_misc_proxy_http() \
@@ -325,6 +329,11 @@ extern "C" {
 	gnome_config_get_bool_with_default ("/"PACKAGE"/"EXTRA"-release_information/show=true", NULL)
 #define c2_preferences_set_extra_release_information_show(val) \
 	gnome_config_set_bool ("/"PACKAGE"/"EXTRA"-release_information/show", val)
+
+#define c2_preferences_get_extra_default_mailer_check() \
+	gnome_config_get_bool_with_default ("/"PACKAGE"/"EXTRA"-default_mailer/check=true", NULL)
+#define c2_preferences_set_extra_default_mailer_check(val) \
+	gnome_config_set_bool ("/"PACKAGE"/"EXTRA"-default_mailer/check", val)
 
 /* Window Specific Preferences
  *
@@ -394,6 +403,14 @@ extern "C" {
 	gnome_config_get_bool_with_default ("/"PACKAGE"/Widget-Mail/headers_visible=true", NULL)
 #define c2_preferences_set_widget_mail_headers_visible(val) \
 	gnome_config_set_bool ("/"PACKAGE"/Widget-Mail/headers_visible", val)
+#define c2_preferences_get_widget_mail_search_case_sensitive() \
+	gnome_config_get_bool_with_default ("/"PACKAGE"/Widget-Mail/search_case_sensitive=false", NULL)
+#define c2_preferences_set_widget_mail_search_case_sensitive(val) \
+	gnome_config_set_bool ("/"PACKAGE"/Widget-Mail/search_case_sensitive", val)
+#define c2_preferences_get_widget_mail_search_stop_at_end() \
+	gnome_config_get_bool_with_default ("/"PACKAGE"/Widget-Mail/search_stop_at_end=false", NULL)
+#define c2_preferences_set_widget_mail_search_stop_at_end(val) \
+	gnome_config_set_bool ("/"PACKAGE"/Widget-Mail/search_stop_at_end", val)
 
 
 /* Widget Transfer List */

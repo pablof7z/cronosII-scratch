@@ -42,6 +42,7 @@ extern "C" {
 #define C2_MAIL(obj)						GTK_CHECK_CAST (obj, c2_mail_get_type (), C2Mail)
 #define C2_MAIL_CLASS(klass)				GTK_CHECK_CLASS_CAST (klass, c2_mail_get_type (), C2MailClass)
 #define C2_IS_MAIL(obj)						GTK_CHECK_TYPE (obj, c2_mail_get_type ())
+#define C2_MAIL_CLASS_FW(obj)				(C2_MAIL_CLASS (((GtkObject*)(obj))->klass))
 
 typedef struct _C2Mail C2Mail;
 typedef struct _C2MailClass C2MailClass;
@@ -54,6 +55,15 @@ struct _C2Mail
 	GtkWidget *window;
 
 	C2Message *message;
+
+	/* Search options */
+	gchar *search_string;
+	gboolean case_sensitive : 1;
+	gboolean stop_at_end : 1;
+
+	/* Search internal data */
+	gboolean started_at_begining : 1;
+	gint search_position;
 	
 	/* Headers */
 	GtkWidget *headers;
@@ -73,6 +83,9 @@ struct _C2Mail
 struct _C2MailClass
 {
 	GtkVBoxClass parent_class;
+
+	void (*search) (C2Mail *mail, const gchar *string);
+	void (*next_search_match) (C2Mail *mail);
 };
 
 guint

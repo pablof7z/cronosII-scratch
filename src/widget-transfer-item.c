@@ -745,6 +745,7 @@ on_pop3_resolve (GtkObject *object, C2NetObjectByte *byte, C2TransferItem *ti)
 static void
 on_pop3_login (GtkObject *object, C2TransferItem *ti)
 {
+	printf ("Entrando en la cuenta\n");
 	gdk_threads_enter ();
 	/* [FIXME]
 	 * Action to login? Loggining?
@@ -877,6 +878,8 @@ on_pop3_login_failed (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pa
 static void
 on_pop3_uidl (GtkObject *object, gint nth, gint mails, C2TransferItem *ti)
 {
+	printf ("%s\n", __PRETTY_FUNCTION__);
+
 	gdk_threads_enter ();
 	if (!nth)
 	{
@@ -895,12 +898,16 @@ on_pop3_uidl (GtkObject *object, gint nth, gint mails, C2TransferItem *ti)
 	if (GTK_IS_PROGRESS (ti->popup_progress))
 		gtk_progress_set_value (GTK_PROGRESS (ti->popup_progress), nth);
 	gdk_threads_leave ();
+
+	printf ("Saliendo de uidl\n");
 }
 
 static void
 on_pop3_status (GtkObject *object, gint mails, C2TransferItem *ti)
 {
 	gchar *buf, *buf2;
+
+	printf ("%s\n", __PRETTY_FUNCTION__);
 
 	gdk_threads_enter ();
 	gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
@@ -946,17 +953,19 @@ on_pop3_retrieve (GtkObject *object, gint16 nth, gint32 received, gint32 total, 
 {
 	gchar *buf;
 
+	printf ("%s\n", __PRETTY_FUNCTION__);
+L
 	gdk_threads_enter ();
 	
 	if (!received)
 	{
-		if (nth == 1)
+L		if (nth == 1)
 		{
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Receiving %v of %u"));
 			if (GTK_IS_PROGRESS (ti->popup_progress))
 				gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("Receiving %v of %u"));
 		}
-		gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), nth);
+L		gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), nth);
 		if (GTK_IS_PROGRESS (ti->popup_progress))
 			gtk_progress_set_value (GTK_PROGRESS (ti->popup_progress), nth);
 		
@@ -967,23 +976,25 @@ on_pop3_retrieve (GtkObject *object, gint16 nth, gint32 received, gint32 total, 
 		g_free (buf);
 	} else if (total)
 	{
-		gtk_progress_set_value (GTK_PROGRESS (ti->progress_byte), received);
-		buf = g_strdup_printf (_("The message %d is being downloaded (%.2f%%"), nth, (received*100)/total);
-		popup_set_label (ti, buf);
+L		gtk_progress_set_value (GTK_PROGRESS (ti->progress_byte), received);
+		printf ("nth = %d - received = %d - total = %f\n", nth, received, (received*100)/total);
+L		buf = g_strdup_printf ("The message %d is being downloaded (%d %%)", nth, (received*100)/total);
+L		popup_set_label (ti, buf);
 		g_free (buf);
 	} else
 	{
-		gtk_widget_hide (ti->progress_byte);
+L		gtk_widget_hide (ti->progress_byte);
 		buf = g_strdup_printf (_("The message %d is been downloaded."), nth);
-		popup_set_label (ti, buf);
+L		popup_set_label (ti, buf);
 		g_free (buf);
 	}
 	gdk_threads_leave ();
-}
+L}
 
 static void
 on_pop3_synchronize (GtkObject *object, gint nth, gint mails, C2TransferItem *ti)
 {
+	printf ("%s\n", __PRETTY_FUNCTION__);
 	gdk_threads_enter ();
 	if (!nth)
 	{
@@ -1015,6 +1026,7 @@ on_pop3_disconnect (GtkObject *object, C2NetObjectByte *byte, gboolean success, 
 	gchar *str = NULL;
 	gchar *estr = NULL;
 
+	printf ("%s\n", __PRETTY_FUNCTION__);
 	L
 	
 	gdk_threads_enter ();
@@ -1226,4 +1238,6 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 	gtk_object_unref (GTK_OBJECT (ti->type_info.send.db->message));
 
 	gdk_threads_leave ();
+
+	printf ("%s\n", __PRETTY_FUNCTION__);
 }

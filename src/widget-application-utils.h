@@ -34,7 +34,8 @@ gboolean
 c2_application_check_checkeable_account_exists (C2Application *application);
 
 gchar *
-c2_application_cut_text				(C2Application *application, GdkFont *font, const gchar *text, guint16 av_space);
+c2_application_cut_text						(C2Application *application, GdkFont *font,
+											 const gchar *text, guint16 av_space);
 
 /* Dialogs */
 void
@@ -57,6 +58,9 @@ c2_application_dialog_network_traffic		(C2Application *application);
 
 void
 c2_application_dialog_release_information	(C2Application *application);
+
+void
+c2_application_dialog_default_mailer_check	(C2Application *application);
 
 void
 c2_application_dialog_about			(C2Application *application);

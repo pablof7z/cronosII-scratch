@@ -145,7 +145,7 @@ INCLUDES = -DBUILDING_C2 -I$(top_srcdir) -I$(includedir) 	`gnome-config --cflags
 
 bin_PROGRAMS = cronosII $(UI_TEXT_EDITOR)
 
-cronosII_SOURCES =  	install.c													main.c						main.h							object-ui-data.c			object-ui-data.h											preferences.h					widget-HTML-gtkhtml.c		widget-HTML-gtkhtml.h			widget-HTML-gtkxmhtml.c		widget-HTML-gtkxmhtml.h			widget-HTML-text.c			widget-HTML-text.h				widget-HTML.c				widget-HTML.h					widget-application-utils.c	widget-application-utils.h		widget-application.c		widget-application.h			widget-composer.c			widget-composer.h				widget-dialog-preferences.c	widget-dialog-preferences.h		widget-dialog.c				widget-dialog.h					widget-editor.c				widget-editor.h					widget-index.c				widget-index.h					widget-mail.c				widget-mail.h					widget-mailbox-list.c		widget-mailbox-list.h			widget-network-traffic.c	widget-network-traffic.h		widget-part.c				widget-part.h					widget-select-list.c		widget-select-list.h			widget-sidebar.c			widget-sidebar.h				widget-toolbar.c			widget-toolbar.h				widget-transfer-item.c		widget-transfer-item.h			widget-transfer-list.c		widget-transfer-list.h			widget-window-main.c		widget-window-main.h			widget-window.c				widget-window.h
+cronosII_SOURCES =  	install.c													main.c						main.h							object-ui-data.c			object-ui-data.h											preferences.h					widget-HTML-gtkhtml.c		widget-HTML-gtkhtml.h			widget-HTML-gtkxmhtml.c		widget-HTML-gtkxmhtml.h			widget-HTML-text.c			widget-HTML-text.h				widget-HTML.c				widget-HTML.h					widget-application-utils.c	widget-application-utils.h		widget-application.c		widget-application.h			widget-composer.c			widget-composer.h				widget-dialog-preferences.c	widget-dialog-preferences.h		widget-dialog.c				widget-dialog.h					widget-editor.c				widget-editor.h					widget-index.c				widget-index.h					widget-mail.c				widget-mail.h					widget-mailbox-list.c		widget-mailbox-list.h			widget-network-traffic.c	widget-network-traffic.h		widget-part.c				widget-part.h					widget-select-list.c		widget-select-list.h			widget-sidebar.c			widget-sidebar.h				widget-toolbar.c			widget-toolbar.h				widget-transfer-item.c		widget-transfer-item.h			widget-transfer-list.c		widget-transfer-list.h			widget-window-mail.c		widget-window-mail.h			widget-window-main.c		widget-window-main.h			widget-window.c				widget-window.h
 
 
 cronosII_LDADD =  	./$(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(LIBGLADE_LIBS) $(HTMLLIBS) $(GCONFLIBS)
@@ -179,7 +179,8 @@ widget-composer.o widget-dialog-preferences.o widget-dialog.o \
 widget-editor.o widget-index.o widget-mail.o widget-mailbox-list.o \
 widget-network-traffic.o widget-part.o widget-select-list.o \
 widget-sidebar.o widget-toolbar.o widget-transfer-item.o \
-widget-transfer-list.o widget-window-main.o widget-window.o
+widget-transfer-list.o widget-window-mail.o widget-window-main.o \
+widget-window.o
 cronosII_DEPENDENCIES =  ./$(top_builddir)/libcronosII/libcronosII.a
 ui_text_editor_OBJECTS =  object-ui-data.o ui-text-editor.o
 ui_text_editor_DEPENDENCIES =  \
@@ -205,8 +206,8 @@ DEP_FILES =  .deps/install.P .deps/main.P .deps/object-ui-data.P \
 .deps/widget-mailbox-list.P .deps/widget-network-traffic.P \
 .deps/widget-part.P .deps/widget-select-list.P .deps/widget-sidebar.P \
 .deps/widget-toolbar.P .deps/widget-transfer-item.P \
-.deps/widget-transfer-list.P .deps/widget-window-main.P \
-.deps/widget-window.P
+.deps/widget-transfer-list.P .deps/widget-window-mail.P \
+.deps/widget-window-main.P .deps/widget-window.P
 SOURCES = $(cronosII_SOURCES) $(ui_text_editor_SOURCES)
 OBJECTS = $(cronosII_OBJECTS) $(ui_text_editor_OBJECTS)
 

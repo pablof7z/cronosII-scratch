@@ -734,13 +734,16 @@ uidl_in_db (C2Account *account, const gchar *uidl)
 	FILE *fd;
 
 	path = g_strconcat (g_get_home_dir (), C2_HOME, "uidl" G_DIR_SEPARATOR_S, account->name, NULL);
-	if (!(fd = fopen (path, "rt")))
+	if (!(fd = fopen (path, "r+")))
 	{
-		c2_error_set (-errno);
+		if (errno != ENOENT)
+		{
+			c2_error_set (-errno);
 #ifdef USE_DEBUG
-		g_warning ("Unable to search for a UIDL: %s\n", c2_error_get ());
-		C2_DEBUG (path);
+			g_warning ("Unable to search for an UIDL: %s\n", c2_error_get ());
+			C2_DEBUG (path);
 #endif
+		}
 		g_free (path);
 		return FALSE;
 	}

@@ -155,6 +155,12 @@ static void
 on_menubar_file_exit_activate				(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
+on_menubar_edit_find_in_mail				(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
+on_menubar_edit_find_next					(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_menubar_view_toolbar_activate			(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
@@ -292,7 +298,7 @@ on_toolbar_search_clicked					(GtkWidget *widget, C2WindowMain *wmain);
 static void
 on_toolbar_send_clicked						(GtkWidget *widget, C2WindowMain *wmain);
 
-static void
+static gint
 on_index_open_message						(GtkWidget *index, C2Db *node, C2WindowMain *wmain);
 
 static void
@@ -340,7 +346,7 @@ static guint signals[LAST_SIGNAL] = { 0 };
 
 static C2WindowClass *parent_class = NULL;
 
-C2ToolbarItem toolbar_items[] =
+static C2ToolbarItem toolbar_items[] =
 {
 	{
 		C2_TOOLBAR_BUTTON,
@@ -801,6 +807,11 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_menubar_file_exit_activate), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "file_egg_separator")), "activate",
 							GTK_SIGNAL_FUNC (on_eastern_egg_separator_activate), wmain);
+
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "edit_find_in_mail")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_edit_find_in_mail), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "edit_next_search_match")), "activate",
+							GTK_SIGNAL_FUNC (on_menubar_edit_find_next), wmain);
 
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "view_toolbar")), "activate",
 							GTK_SIGNAL_FUNC (on_menubar_view_toolbar_activate), wmain);
@@ -1479,6 +1490,18 @@ on_menubar_file_exit_activate (GtkWidget *widget, C2WindowMain *wmain)
 }
 
 static void
+on_menubar_edit_find_in_mail (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_MAIL_CLASS_FW (wmain->mail)->search (C2_MAIL (wmain->mail), NULL);
+}
+
+static void
+on_menubar_edit_find_next (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2_MAIL_CLASS_FW (wmain->mail)->next_search_match (C2_MAIL (wmain->mail));
+}
+
+static void
 on_menubar_view_toolbar_activate (GtkWidget *widget, C2WindowMain *wmain)
 {
 	GtkWidget *toolbar;
@@ -1893,7 +1916,7 @@ on_toolbar_send_clicked (GtkWidget *widget, C2WindowMain *wmain)
 	C2_APPLICATION_CLASS_FW (wmain)->send (application);
 }
 
-static void
+static gint
 on_index_open_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 {
 	C2Mailbox *mailbox;
@@ -1911,7 +1934,7 @@ on_index_open_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 			if (!c2_db_load_message (node))
 			{
 				gtk_widget_destroy (composer);
-				return;
+				return TRUE;
 			}
 			
 			gtk_object_ref (GTK_OBJECT (node->message));
@@ -1919,10 +1942,11 @@ on_index_open_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 			gtk_widget_show (composer);
 			gtk_object_unref (GTK_OBJECT (node->message));
 		}
-	} else
-	{
-		/* Open a window message */
+
+		return FALSE;
 	}
+
+	return TRUE;
 }
 
 static void
@@ -2090,7 +2114,7 @@ on_index_unselect_message (C2Index *index, C2Db *node, C2WindowMain *wmain)
 {
 	GtkWidget *widget;
 	GladeXML *xml;
-L
+
 	/* Set some widgets sensivity */
 	xml = C2_WINDOW (wmain)->xml;
 	

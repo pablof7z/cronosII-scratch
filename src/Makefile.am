@@ -40,6 +40,7 @@ cronosII_SOURCES = \
 	widget-toolbar.c			widget-toolbar.h			\
 	widget-transfer-item.c		widget-transfer-item.h		\
 	widget-transfer-list.c		widget-transfer-list.h		\
+	widget-window-mail.c		widget-window-mail.h		\
 	widget-window-main.c		widget-window-main.h		\
 	widget-window.c				widget-window.h
 

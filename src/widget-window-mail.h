@@ -27,6 +27,8 @@ extern "C" {
 #include <glade/glade.h>
 
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
+#	include "widget-window.h"
+#	include "widget-window-main.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -44,6 +46,7 @@ struct _C2WindowMail
 	C2Window window;
 
 	GtkWidget *toolbar;
+	GtkWidget *mail;
 
 	/* Data */
 	C2Db *db;
@@ -60,12 +63,12 @@ struct _C2WindowMailClass
 	void (*delete) (C2WindowMail *wmail);
 	void (*forward) (C2WindowMain *wmain);
 	void (*print) (C2WindowMail *wmail);
-	void (*next) (C2WindowMain *wmain);
-	void (*previous) (C2WindowMain *wmain);
-	void (*reply) (C2WindowMain *wmain);
-	void (*reply_all) (C2WindowMain *wmain);
-	void (*save) (C2WindowMain *wmain);
-	void (*search) (C2WindowMain *wmain);
+	void (*next) (C2WindowMail *wmail);
+	void (*previous) (C2WindowMail *wmail);
+	void (*reply) (C2WindowMail *wmail);
+	void (*reply_all) (C2WindowMail *wmail);
+	void (*save) (C2WindowMail *wmail);
+	void (*search) (C2WindowMail *wmail);
 };
 
 GtkType
@@ -78,10 +81,10 @@ void
 c2_window_mail_construct					(C2WindowMail *wmail, C2Application *application);
 
 void
-c2_window_main_set_db						(C2WindowMail *wmail, C2Db *db);
+c2_window_mail_set_db						(C2WindowMail *wmail, C2Db *db);
 
 void
-c2_window_main_set_message					(C2WindowMail *wmail, C2Message *message);
+c2_window_mail_set_message					(C2WindowMail *wmail, C2Message *message);
 
 #ifdef __cplusplus
 }

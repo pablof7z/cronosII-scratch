@@ -415,15 +415,17 @@ on_open_draft_index_unselect_message (C2Index *index, C2Db *db, GtkWidget *dialo
 	gnome_dialog_set_sensitive (GNOME_DIALOG (dialog), 0, FALSE);
 }
 
-static void
+static gint
 on_open_draft_index_open_message (C2Index *index, C2Db *db, GtkWidget *dialog)
 {
 	if (!c2_db_load_message (db))
-		return;
+		return TRUE;
 	
 	gtk_object_set_data (GTK_OBJECT (dialog), "db", db);
 
 	gnome_dialog_close (GNOME_DIALOG (dialog));
+
+	return FALSE;
 }
 
 static void

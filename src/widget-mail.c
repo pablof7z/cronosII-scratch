@@ -76,6 +76,12 @@ on_attachments_clicked						(GtkWidget *btn, C2Mail *mail);
 static void
 on_mail_parent_set							(GtkWidget *widget, GtkWidget *prev, C2Mail *mail);
 
+void
+_search										(C2Mail *mail, const gchar *string);
+
+void
+_next_search_match							(C2Mail *mail);
+
 #ifdef USE_GTKHTML
 void
 html_link_manager_cid						(C2HTML *html, const gchar *url, GtkHTMLStream *stream);
@@ -141,6 +147,9 @@ c2_mail_class_init (C2MailClass *klass)
 	gtk_object_class_add_signals (object_class, c2_mail_signals, LAST_SIGNAL);
 
 	object_class->destroy = c2_mail_destroy;
+
+	klass->search = _search;
+	klass->next_search_match = _next_search_match;
 }
 
 static void
@@ -149,6 +158,11 @@ c2_mail_init (C2Mail *mail)
 	mail->window = NULL;
 	mail->message = NULL;
 	mail->headers_visible = 1;
+	mail->search_string = NULL;
+	mail->case_sensitive = 0;
+	mail->stop_at_end = 0;
+	mail->started_at_begining = 1;
+	mail->search_position = 0;
 }
 
 static void
@@ -961,6 +975,106 @@ c2_mail_install_hints (C2Mail *mail, GtkWidget *appbar, C2Mutex *lock)
 
 static void
 on_body_button_press_event (GtkWidget *widget, GdkEventButton *event)
+{
+}
+
+static void
+on_search_case_sensitive_toggled (GtkWidget *button, C2Mail *mail)
+{
+	gint active = GTK_TOGGLE_BUTTON (button)->active;
+
+	c2_preferences_set_widget_mail_search_case_sensitive (active);
+	mail->case_sensitive = active;
+	c2_preferences_commit ();
+}
+
+static void
+on_search_stop_at_end_toggled (GtkWidget *button, C2Mail *mail)
+{
+	gint active = GTK_TOGGLE_BUTTON (button)->active;
+
+	c2_preferences_set_widget_mail_search_stop_at_end (active);
+	mail->stop_at_end = active;
+	c2_preferences_commit ();
+}
+
+static void
+_search_thread (C2Pthread5 *data)
+{
+	C2Mail *mail = C2_MAIL (data->v1);
+	gchar *str = (gchar*) data->v2;
+	gint case_sensitive = (gint) data->v3;
+	gint stop_at_end = (gint) data->v4;
+	gint forward = (gint) data->v5;
+
+	gchar *text;
+	
+}
+
+void
+_search (C2Mail *mail, const gchar *string)
+{
+	GladeXML *xml;
+	GtkWidget *widget, *case_sensitive_btn, *stop_btn, *entry;
+	C2Pthread5 *data;
+	pthread_t thread;
+
+	c2_return_if_fail (C2_IS_MAIL (mail), C2EDATA);
+
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_widget_mail_search");
+	
+	widget = glade_xml_get_widget (xml, "search_for_entry");
+	if (string)
+		gtk_entry_set_text (GTK_ENTRY (widget), string);
+
+	case_sensitive_btn = glade_xml_get_widget (xml, "case_sensitive_btn");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (case_sensitive_btn),
+									c2_preferences_get_widget_mail_search_case_sensitive ());
+	gtk_signal_connect (GTK_OBJECT (case_sensitive_btn), "toggled",
+						GTK_SIGNAL_FUNC (on_search_case_sensitive_toggled), mail);
+
+	stop_btn = glade_xml_get_widget (xml, "stop_at_end_btn");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (stop_btn),
+									c2_preferences_get_widget_mail_search_stop_at_end ());
+	gtk_signal_connect (GTK_OBJECT (stop_btn), "toggled",
+						GTK_SIGNAL_FUNC (on_search_stop_at_end_toggled), mail);
+
+	widget = glade_xml_get_widget (xml, "dlg_widget_mail_search");
+	c2_application_window_add (mail->application, GTK_WINDOW (widget));
+
+	entry = glade_xml_get_widget (xml, "search_for_entry");
+
+	data = g_new0 (C2Pthread5, 1);
+	data->v1 = mail;
+	
+run:
+	switch (gnome_dialog_run (GNOME_DIALOG (widget)))
+	{
+		case 0:
+			data->v2 = (gchar*) gtk_entry_get_text (GTK_ENTRY (entry));
+			data->v3 = (gint) GTK_TOGGLE_BUTTON (case_sensitive_btn)->active;
+			data->v4 = (gint) GTK_TOGGLE_BUTTON (stop_btn)->active;
+			data->v5 = (gint) FALSE;
+			
+			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (_search_thread), data);
+			break;
+		case 1:
+			data->v2 = (gchar*) gtk_entry_get_text (GTK_ENTRY (entry));
+			data->v3 = (gint) GTK_TOGGLE_BUTTON (case_sensitive_btn)->active;
+			data->v4 = (gint) GTK_TOGGLE_BUTTON (stop_btn)->active;
+			data->v5 = (gint) TRUE;
+			
+			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (_search_thread), data);
+			break;
+		case 2:
+			gnome_dialog_close (GNOME_DIALOG (widget));
+			gtk_object_destroy (GTK_OBJECT (xml));
+			break;
+	}
+}
+
+void
+_next_search_match (C2Mail *mail)
 {
 }
 

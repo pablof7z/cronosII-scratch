@@ -1246,6 +1246,65 @@ c2_application_dialog_release_information (C2Application *application)
 	gtk_widget_show (widget);
 }
 
+void
+c2_application_dialog_default_mailer_check (C2Application *application)
+{
+	GladeXML *xml;
+	GtkWidget *widget;
+	gint i;
+	gchar *buf;
+	gboolean elm_is_set = TRUE;
+
+	/* TODO */
+	return;
+
+#if 0
+	/* Checks:
+	 *   o "cronosII -l" must be the handler for "mailto:" URLs
+	 *   o "cronosII -f" must be the handler for .elm files.
+	 */
+	if (!(buf = gnome_mime_type ("message.elm")))
+		elm_is_set = FALSE;
+
+	if (elm_is_set)
+	{
+		C2_DEBUG (buf);
+		buf = gnome_mime_program (buf);
+
+		if (!strstr (buf, "cronosII -f"))
+			elm_is_set = FALSE;
+		C2_DEBUG (buf);
+	}
+
+	if (!elm_is_set)
+	{
+		
+	}
+		
+
+	
+	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("dialogs"), "dlg_default_mailer");
+	gtk_object_set_data (GTK_OBJECT (xml), "application", application);
+
+	widget = glade_xml_get_widget (xml, "check_again_btn");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget),
+								c2_preferences_get_extra_default_mailer_check ());
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_dialog_default_mailer_check_check_again_btn_toggled), NULL);
+	
+	widget = glade_xml_get_widget (xml, "dlg_default_mailer");
+	gtk_signal_connect (GTK_OBJECT (widget), "delete_event",
+						GTK_SIGNAL_FUNC (on_dialog_default_mailer_check_window_delete_event), xml);
+	gnome_dialog_button_connect (GNOME_DIALOG (widget), 0,
+						GTK_SIGNAL_FUNC (on_dialog_default_mailer_check_yes_clicked), xml);
+	gnome_dialog_button_connect (GNOME_DIALOG (widget), 1,
+						GTK_SIGNAL_FUNC (on_dialog_default_mailer_check_no_clicked), xml);
+	c2_application_window_add (application, GTK_WINDOW (widget));
+
+	gtk_widget_show (widget);
+#endif
+}
+
 
 
 static gboolean

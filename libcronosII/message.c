@@ -25,6 +25,9 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "db.h"
 #include "message.h"
@@ -168,6 +171,39 @@ c2_message_set_message (C2Message *message, const gchar *string)
 	for (; *ptr == '\n'; ptr++)
 		;
 	message->body = g_strdup (ptr);
+}
+
+gboolean
+c2_message_set_message_from_file (C2Message *message, const gchar *file)
+{
+	gchar *string;
+	struct stat stat_buf;
+	FILE *fd;
+	gint length;
+
+	if (stat (file, &stat_buf) < 0)
+	{
+		c2_error_object_set (GTK_OBJECT (message), -errno);
+		return FALSE;
+	}
+
+	length = ((gint) stat_buf.st_size * sizeof (gchar));
+
+	string = g_new0 (gchar, length+1);
+
+	if (!(fd = fopen (file, "r")))
+	{
+		c2_error_object_set (GTK_OBJECT (message), -errno);
+		return FALSE;
+	}
+
+	fread (string, sizeof (gchar), length, fd);
+	fclose (fd);
+
+	c2_message_set_message (message, string);
+	g_free (string);
+
+	return TRUE;
 }
 
 static void

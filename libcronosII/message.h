@@ -99,6 +99,9 @@ c2_message_new								(void);
 void
 c2_message_set_message						(C2Message *message, const gchar *string);
 
+gboolean
+c2_message_set_message_from_file			(C2Message *message, const gchar *file);
+
 const gchar *
 c2_message_get_message_header				(const C2Message *message);
 

@@ -53,6 +53,7 @@
 #include "widget-transfer-item.h"
 #include "widget-transfer-list.h"
 #include "widget-window.h"
+#include "widget-window-mail.h"
 #include "widget-window-main.h"
 
 /* TODO
@@ -100,7 +101,8 @@ static void
 _move										(C2Application *application, GList *list, C2Window *window);
 
 static void
-_open_message								(C2Application *application, C2Db *db, C2Message *message);
+_open_message								(C2Application *application, C2Db *db, C2Message *message,
+											 const gchar *file);
 
 static void
 _print										(C2Application *application, C2Message *message);
@@ -147,6 +149,9 @@ static void
 command_composer_new						(C2Application *application, va_list args);
 
 static void
+command_open_file							(C2Application *application, va_list args);
+
+static void
 command_check_mail							(C2Application *application, va_list args);
 
 static void
@@ -190,6 +195,13 @@ struct {
 		C2_COMMAND_FUNC (command_composer_new),
 		1*sizeof(gboolean)+2*sizeof(gchar),
 		GTK_TYPE_BOOL, GTK_TYPE_STRING, GTK_TYPE_STRING, GTK_TYPE_NONE,
+		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE
+	},
+	{
+		C2_COMMAND_OPEN_FILE,
+		C2_COMMAND_FUNC (command_open_file),
+		1*sizeof(gchar*),
+		GTK_TYPE_STRING, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE,
 		GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE, GTK_TYPE_NONE
 	},
 	{
@@ -1887,10 +1899,50 @@ _move (C2Application *application, GList *list, C2Window *window)
 }
 
 static void
-_open_message (C2Application *application, C2Db *db, C2Message *message)
+_open_message (C2Application *application, C2Db *db, C2Message *message, const gchar *file)
 {
+	GtkWidget *wmail;
+	
 	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
-	c2_return_if_fail (!(!C2_IS_DB (db) && !C2_IS_MESSAGE (message)), C2EDATA);
+	c2_return_if_fail (!(!C2_IS_DB (db) && !C2_IS_MESSAGE (message) && !file), C2EDATA);
+
+	if (C2_IS_DB (db))
+	{
+		wmail = c2_window_mail_new (application);
+		c2_window_mail_set_db (wmail, db);
+	} else if (C2_IS_MESSAGE (message))
+	{
+		wmail = c2_window_mail_new (application);
+		c2_window_mail_set_message (wmail, message);
+	} else if (file)
+	{
+		C2Message *message;
+
+		wmail = c2_window_mail_new (application);
+		
+		message = c2_message_new ();
+
+		if (!c2_message_set_message_from_file (message, file))
+		{
+			/* Failed */
+			GtkWidget *dialog;
+			gchar *str;
+
+			str = g_strdup_printf (_("The file couldn't be loaded: %s"),
+										c2_error_object_get (GTK_OBJECT (message)));
+			dialog = gnome_warning_dialog (str);
+
+			gtk_widget_show (dialog);
+
+			g_free (str);
+		} else
+		{
+			c2_window_mail_set_message (wmail, message);
+		}
+	}
+
+	if (C2_IS_WINDOW_MAIL (wmail))
+		gtk_widget_show (wmail);
 }
 
 static void
@@ -2122,7 +2174,8 @@ c2_application_new (const gchar *name, gboolean running_as_server)
 			gtk_object_set_data (GTK_OBJECT (application), "check::wait_idle", NULL);
 		} else if (timeout_check)
 		{
-			application->check_timeout = gtk_timeout_add (timeout_check * 6000, /* 60000 = 60 (seconds) * 1000 */
+			printf ("Conectando timeout a %d\n", timeout_check);
+			application->check_timeout = gtk_timeout_add (timeout_check * 60000, /* 60000 = 60 (seconds) * 1000 */
 								(GtkFunction) on_application_timeout_check, application);
 		}
 	}
@@ -2531,6 +2584,16 @@ command_composer_new (C2Application *application, va_list args)
 
 end:
 	gtk_widget_show (widget);
+}
+
+static void
+command_open_file (C2Application *application, va_list args)
+{
+	const gchar *file;
+
+	file = va_arg (args, gchar*);
+	
+	C2_APPLICATION_CLASS_FW (application)->open_message (application, NULL, NULL, file);
 }
 
 static void

@@ -149,6 +149,9 @@ c2_html_set_content_from_url				(C2HTML *html, const gchar *url);
 void
 c2_html_set_content_from_string				(C2HTML *html, const gchar *string);
 
+gchar *
+c2_html_get_content							(C2HTML *html);
+
 /* Misc */
 void
 c2_html_set_line							(C2HTML *html, guint line);

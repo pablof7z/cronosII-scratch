@@ -31,9 +31,6 @@ static void
 destroy										(GtkObject *object);
 
 static gint
-on_key_press_event							(GtkWidget *widget, GdkEventKey *event);
-
-static gint
 on_report_timeout							(gpointer data);
 
 static gint
@@ -139,113 +136,6 @@ c2_window_construct (C2Window *window, C2Application *application, const gchar *
 						GTK_SIGNAL_FUNC (destroy), NULL);
 
 	c2_application_window_add (application, GTK_WINDOW (window));
-}
-
-static gint
-on_key_press_event (GtkWidget *widget, GdkEventKey *event)
-{
-	GtkWindow *window;
-	GtkDirectionType direction = 0;
-	gboolean handled;
-
-	g_return_val_if_fail (widget != NULL, FALSE);
-	g_return_val_if_fail (GTK_IS_WINDOW (widget), FALSE);
-	g_return_val_if_fail (event != NULL, FALSE);
-
-	window = GTK_WINDOW (widget);
-
-	handled = FALSE;
-  
-	if (window->focus_widget &&
-		window->focus_widget != widget &&
-		GTK_WIDGET_IS_SENSITIVE (window->focus_widget))
-	{
-		handled = gtk_widget_event (window->focus_widget, (GdkEvent*) event);
-	}
-	
-	if (!handled)
-		handled = gtk_accel_groups_activate (GTK_OBJECT (window), event->keyval, event->state);
-	
-	if (!handled)
-	{
-		switch (event->keyval)
-		{
-			case GDK_space:
-				if (window->focus_widget)
-				{
-					if (GTK_WIDGET_IS_SENSITIVE (window->focus_widget))
-						gtk_widget_activate (window->focus_widget);
-					handled = TRUE;
-				}
-				break;
-			case GDK_Return:
-			case GDK_KP_Enter:
-				if (window->default_widget && GTK_WIDGET_IS_SENSITIVE (window->default_widget) &&
-						(!window->focus_widget || !GTK_WIDGET_RECEIVES_DEFAULT (window->focus_widget)))
-				{
-					gtk_widget_activate (window->default_widget);
-					handled = TRUE;
-				}
-				else if (window->focus_widget)
-				{
-					if (GTK_WIDGET_IS_SENSITIVE (window->focus_widget))
-						gtk_widget_activate (window->focus_widget);
-					handled = TRUE;
-				}
-				break;
-			case GDK_Up:
-			case GDK_Down:
-			case GDK_Left:
-			case GDK_Right:
-			case GDK_KP_Up:
-			case GDK_KP_Down:
-			case GDK_KP_Left:
-			case GDK_KP_Right:
-			case GDK_Tab:
-			case GDK_ISO_Left_Tab:
-				switch (event->keyval)
-				{
-					case GDK_Up:
-					case GDK_KP_Up:
-						direction = GTK_DIR_UP;
-						break;
-					case GDK_Down:
-					case GDK_KP_Down:
-						direction = GTK_DIR_DOWN;
-						break;
-					case GDK_Left:
-					case GDK_KP_Left:
-						direction = GTK_DIR_LEFT;
-						break;
-					case GDK_Right:
-					case GDK_KP_Right:
-						direction = GTK_DIR_RIGHT;
-						break;
-					case GDK_Tab:
-					case GDK_ISO_Left_Tab:
-						if (event->state & GDK_SHIFT_MASK)
-							direction = GTK_DIR_TAB_BACKWARD;
-						else
-							direction = GTK_DIR_TAB_FORWARD;
-						break;
-					default :
-						direction = GTK_DIR_UP; /* never reached, but makes compiler happy */
-				}
-				
-				gtk_container_focus (GTK_CONTAINER (widget), direction);
-				
-				if (!GTK_CONTAINER (window)->focus_child)
-					gtk_window_set_focus (GTK_WINDOW (widget), NULL);
-				else
-					handled = TRUE;
-				break;
-		}
-	}
-	
-	if (!handled && GTK_WIDGET_CLASS (parent_class)->key_press_event)
-		handled = GTK_WIDGET_CLASS (parent_class)->key_press_event (widget, event);
-	
-	return handled;
 }
 
 void

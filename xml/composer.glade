@@ -1170,10 +1170,9 @@
       </widget>
 
       <widget>
-	<class>GtkHBox</class>
-	<name>editor_container</name>
-	<homogeneous>False</homogeneous>
-	<spacing>0</spacing>
+	<class>GtkViewport</class>
+	<name>viewport1</name>
+	<shadow_type>GTK_SHADOW_NONE</shadow_type>
 	<child>
 	  <padding>0</padding>
 	  <expand>True</expand>
@@ -1181,7 +1180,15 @@
 	</child>
 
 	<widget>
-	  <class>Placeholder</class>
+	  <class>GtkHBox</class>
+	  <name>editor_container</name>
+	  <border_width>4</border_width>
+	  <homogeneous>False</homogeneous>
+	  <spacing>0</spacing>
+
+	  <widget>
+	    <class>Placeholder</class>
+	  </widget>
 	</widget>
       </widget>
 

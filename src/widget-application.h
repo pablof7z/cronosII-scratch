@@ -62,6 +62,7 @@ extern "C" {
 #define C2_COMMAND_WINDOW_MAIN_RAISE	"wmain::raise"/* () */
 #define C2_COMMAND_WINDOW_MAIN_HIDE		"wmain::hide"/* () */
 #define C2_COMMAND_COMPOSER_NEW			"composer::new"/* (gboolean is_link, gchar *headers, gchar *values) */
+#define C2_COMMAND_OPEN_FILE			"open_file"/* (gchar *file) */
 #define C2_COMMAND_CHECK_MAIL			"check_mail"/* () */
 #define C2_COMMAND_EXIT					"exit"/* () */
 
@@ -141,7 +142,7 @@ struct _C2ApplicationClass
 	void (*expunge) (C2Application *application, GList *list, C2Window *window);
 	void (*forward) (C2Application *application, C2Db *db, C2Message *message);
 	void (*move) (C2Application *application, GList *list, C2Window *window);
-	void (*open_message) (C2Application *application, C2Db *db, C2Message *message);
+	void (*open_message) (C2Application *application, C2Db *db, C2Message *message, const gchar *file);
 	void (*print) (C2Application *application, C2Message *message);
 	void (*reply) (C2Application *application, C2Db *db, C2Message *message);
 	void (*reply_all) (C2Application *application, C2Db *db, C2Message *message);

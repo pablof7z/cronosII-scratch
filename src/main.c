@@ -35,7 +35,7 @@
 #include "widget-window-main.h"
 
 static gint
-on_release_information_idle					(gpointer);
+on_main_idle								(gpointer);
 
 #ifdef USE_DEBUG
 static gint
@@ -76,6 +76,7 @@ static struct {
 	gchar *mailbox;
 
 	gboolean check;
+	gchar *open_file;
 	gboolean open_main_window;
 	gboolean be_server;
 	
@@ -104,6 +105,7 @@ static struct {
 	NULL,
 
 	FALSE,
+	NULL,
 	FALSE,
 	FALSE,
 	FALSE,
@@ -193,9 +195,14 @@ c2_init (gint argc, gchar **argv)
 			N_("Inbox")
 		},
 		{
-			"check", 'f', POPT_ARG_NONE,
+			"check", 'k', POPT_ARG_NONE,
 			&(flags.check), 0,
 			N_("Check account for mail."), NULL
+		},
+		{
+			"file", 'f', POPT_ARG_STRING,
+			&(flags.open_file), 0,
+			N_("Open the specified file with the Mail Viewer"), NULL
 		},
 		{
 			"wmain", 0, POPT_ARG_NONE,
@@ -312,6 +319,9 @@ main (gint argc, gchar **argv)
 	if (flags.be_server)
 	{
 		something_opened = TRUE;
+	} else if (c2_preferences_get_advanced_security_password_ask ())
+	{
+//		GtkWidget *
 	}
 	
 	/* Open specified windows */
@@ -456,6 +466,13 @@ main (gint argc, gchar **argv)
 		something_opened = TRUE;
 	}
 
+	/* Open file */
+	if (flags.open_file)
+	{
+		c2_application_command (application, C2_COMMAND_OPEN_FILE, flags.open_file);
+		something_opened = TRUE;
+	}
+
 	/* Check mail */
 	if (flags.check)
 	{
@@ -498,8 +515,9 @@ main (gint argc, gchar **argv)
 	if (application->acting_as_server)
 	{
 		/* Release Information Dialog */
-		if (c2_preferences_get_extra_release_information_show ())
-			gtk_idle_add (on_release_information_idle, application);
+		if (c2_preferences_get_extra_release_information_show () ||
+			c2_preferences_get_extra_default_mailer_check ())
+			gtk_idle_add (on_main_idle, application);
 	
 		gtk_main ();
 		gdk_threads_leave ();
@@ -512,10 +530,15 @@ main (gint argc, gchar **argv)
 }
 
 static gint
-on_release_information_idle (gpointer data)
+on_main_idle (gpointer data)
 {
 	C2Application *application = C2_APPLICATION (data);
-	c2_application_dialog_release_information (application);
+
+	if (c2_preferences_get_extra_release_information_show ())
+		c2_application_dialog_release_information (application);
+
+	if (c2_preferences_get_extra_default_mailer_check ())
+		c2_application_dialog_default_mailer_check (application);
 
 	return FALSE;
 }

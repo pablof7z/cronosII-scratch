@@ -77,7 +77,7 @@ struct _C2IndexClass
 
 	void (*select_message) (C2Index *index, C2Db *node);
 	void (*unselect_message) (C2Index *index, C2Db *node);
-	void (*open_message) (C2Index *index, C2Db *node);
+	gint (*open_message) (C2Index *index, C2Db *node);
 
 	/* Not functions */
 	void (*reload) (C2Index *index);

@@ -18,19 +18,22 @@
 
 <widget>
   <class>GnomeApp</class>
-  <name>app1</name>
+  <name>wnd_maIl</name>
+  <title>Mail Viewer</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>
   <modal>False</modal>
-  <allow_shrink>False</allow_shrink>
+  <allow_shrink>True</allow_shrink>
   <allow_grow>True</allow_grow>
-  <auto_shrink>False</auto_shrink>
+  <auto_shrink>True</auto_shrink>
+  <wmclass_name>cronosii</wmclass_name>
+  <wmclass_class>wnd_mail</wmclass_class>
   <enable_layout_config>True</enable_layout_config>
 
   <widget>
     <class>GnomeDock</class>
     <child_name>GnomeApp:dock</child_name>
-    <name>dock1</name>
+    <name>wnd_mail_contents</name>
     <allow_floating>True</allow_floating>
     <child>
       <padding>0</padding>
@@ -55,7 +58,7 @@
 
       <widget>
 	<class>GtkMenuBar</class>
-	<name>menubar1</name>
+	<name>menubar</name>
 	<shadow_type>GTK_SHADOW_NONE</shadow_type>
 
 	<widget>
@@ -523,18 +526,40 @@
       <locked>False</locked>
       <exclusive>True</exclusive>
       <never_floating>False</never_floating>
-      <never_vertical>False</never_vertical>
+      <never_vertical>True</never_vertical>
       <never_horizontal>False</never_horizontal>
       <shadow_type>GTK_SHADOW_OUT</shadow_type>
 
       <widget>
-	<class>Placeholder</class>
+	<class>GtkHBox</class>
+	<name>toolbar_container</name>
+	<homogeneous>False</homogeneous>
+	<spacing>0</spacing>
+
+	<widget>
+	  <class>Placeholder</class>
+	</widget>
       </widget>
     </widget>
 
     <widget>
-      <class>Placeholder</class>
+      <class>GtkViewport</class>
       <child_name>GnomeDock:contents</child_name>
+      <name>viewport1</name>
+      <shadow_type>GTK_SHADOW_OUT</shadow_type>
+
+      <widget>
+	<class>GtkVBox</class>
+	<child_name>GnomeDock:contents</child_name>
+	<name>mail_container</name>
+	<border_width>4</border_width>
+	<homogeneous>False</homogeneous>
+	<spacing>0</spacing>
+
+	<widget>
+	  <class>Placeholder</class>
+	</widget>
+      </widget>
     </widget>
   </widget>
 

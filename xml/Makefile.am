@@ -3,6 +3,7 @@ gladeui_DATA =				\
 	composer.glade			\
 	dialogs.glade			\
 	install.glade			\
+	mail.glade				\
 	preferences.glade		\
 	ui-text-editor.glade
 

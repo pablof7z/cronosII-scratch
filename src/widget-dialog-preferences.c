@@ -175,6 +175,10 @@ on_interface_misc_mail_warn_screen_motion_notify_event (GtkWidget *widget, GdkEv
 static void
 on_advanced_security_password_ask_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
 
+static void
+on_advanced_security_password_2_focus_out_event	(GtkWidget *widget, GdkEventFocus *e,
+												C2DialogPreferences *preferences);
+
 /* Widget Stuff */
 enum
 {
@@ -427,6 +431,10 @@ set_signals (C2DialogPreferences *preferences)
 	widget = glade_xml_get_widget (xml, "advanced_security_password_ask");
 	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
 						GTK_SIGNAL_FUNC (on_advanced_security_password_ask_toggled), preferences);
+
+	widget = glade_xml_get_widget (xml, "advanced_security_password_2");
+	gtk_signal_connect (GTK_OBJECT (widget), "focus_out_event",
+						GTK_SIGNAL_FUNC (on_advanced_security_password_2_focus_out_event), preferences);
 }
 
 #define SET_BOOLEAN(func, wkey)	\
@@ -1541,6 +1549,35 @@ on_advanced_security_password_ask_toggled (GtkWidget *widget, C2DialogPreference
 	gtk_widget_set_sensitive (entry, active);
 	entry = glade_xml_get_widget (C2_DIALOG (preferences)->xml, "advanced_security_password_2");
 	gtk_widget_set_sensitive (entry, active);
+}
+
+static void
+on_advanced_security_password_2_focus_out_event	(GtkWidget *widget, GdkEventFocus *e,
+C2DialogPreferences *preferences)
+{
+	GtkWidget *p1, *p2;
+	gchar *s1, *s2;
+
+	p1 = glade_xml_get_widget (C2_DIALOG (preferences)->xml, "advanced_security_password_1");
+	p2 = glade_xml_get_widget (C2_DIALOG (preferences)->xml, "advanced_security_password_2");
+
+	s1 = gtk_entry_get_text (GTK_ENTRY (p1));
+	s2 = gtk_entry_get_text (GTK_ENTRY (p2));
+
+	if (strcmp (s1, s2))
+	{
+		GtkWidget *dialog;
+
+		dialog = gnome_error_dialog (_("The password aren't equal. Try typing them again.\nNote that the password is case sensitive."));
+
+		gtk_widget_show (dialog);
+
+		gtk_entry_set_text (GTK_ENTRY (p1), "");
+		gtk_entry_set_text (GTK_ENTRY (p2), "");
+	} else
+	{
+		c2_preferences_set_advanced_security_password (s1);
+	}
 }
 #endif
 

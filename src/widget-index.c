@@ -261,10 +261,10 @@ class_init (C2IndexClass *klass)
 						GTK_TYPE_POINTER);
     signals[OPEN_MESSAGE] =
 		gtk_signal_new("open_message",
-						GTK_RUN_FIRST,
+						GTK_RUN_LAST,
 						object_class->type,
 						GTK_SIGNAL_OFFSET(C2IndexClass, open_message),
-						gtk_marshal_NONE__POINTER, GTK_TYPE_NONE, 1,
+						gtk_marshal_INT__POINTER, GTK_TYPE_INT, 1,
 						GTK_TYPE_POINTER);
 	gtk_object_class_add_signals(object_class, signals, LAST_SIGNAL);
 
@@ -1040,6 +1040,7 @@ on_clist_button_press_event (C2Index *index, GdkEvent *e)
 	C2Db *db;
 	GladeXML *xml;
 	GtkWidget *widget;
+	gint ret = 0;
 
 	gtk_clist_get_selection_info ((GtkCList*) index, button->x, button->y, &row, &col);
 	if (row < 0)
@@ -1059,7 +1060,10 @@ on_clist_button_press_event (C2Index *index, GdkEvent *e)
 			if ((e->type == GDK_2BUTTON_PRESS || e->type == GDK_3BUTTON_PRESS))
 			{
 				/* Double click or three clicks */
-				gtk_signal_emit (GTK_OBJECT (index), signals[OPEN_MESSAGE], db);
+				gtk_signal_emit (GTK_OBJECT (index), signals[OPEN_MESSAGE], db, &ret);
+
+				if (ret)
+					C2_APPLICATION_CLASS_FW (index->application)->open_message (index->application, db, NULL, NULL);
 			}
 			break;
 
@@ -1160,7 +1164,7 @@ on_mnu_open_message_activate (GtkWidget *widget, C2Index *index)
 	if (!db)
 		return;
 	
-	C2_APPLICATION_CLASS_FW (application)->open_message (application, db, NULL);
+	C2_APPLICATION_CLASS_FW (application)->open_message (application, db, NULL, NULL);
 }
 
 static void

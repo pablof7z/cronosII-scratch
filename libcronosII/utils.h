@@ -63,6 +63,11 @@ typedef struct
 	gpointer v1, v2, v3, v4;
 } C2Pthread4;
 
+typedef struct
+{
+	gpointer v1, v2, v3, v4, v5;
+} C2Pthread5;
+
 #ifdef USE_DEBUG
 #	define L								g_print ("%s:%d:%s\n", __FILE__, __LINE__, \
 													__PRETTY_FUNCTION__);

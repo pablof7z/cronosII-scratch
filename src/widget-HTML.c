@@ -301,6 +301,21 @@ c2_html_set_content_from_string (C2HTML *html, const gchar *string)
 	c2_html_thaw (html);
 }
 
+gchar *
+c2_html_get_content (C2HTML *html)
+{
+	gchar *string;
+	
+	c2_return_val_if_fail (C2_IS_HTML (html), NULL, C2EDATA);
+
+#ifdef USE_GTKHTML
+//	string = 
+#elif defined (USE_GTKXMHTML)
+#else
+	
+#endif
+}
+
 void
 c2_html_set_line (C2HTML *html, guint line)
 {
