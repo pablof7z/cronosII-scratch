@@ -33,8 +33,10 @@
 #include "i18n.h" 
 
 /* C2 IMAP Module in the process of being engineered by Bosko */
+/* TODO: Set marks for emails */
 /* TODO: Re-Implement recursive folder listing (its too slow) */
 /* TODO: Function that handles untagged messages that come unwarranted */
+/* (in progress) TODO: Implement subscribtion facility */
 /* (in progress) TODO: Elegent network problem handling (reconnecting, etc) */
 /* (done!) TODO: Get messages */
 /* (done!) TODO: Add messages */
@@ -227,6 +229,8 @@ init (C2IMAP *imap)
 	imap->hash = NULL;
 	imap->pending = NULL;
 	imap->login = NULL;
+	imap->auth_remember = TRUE;
+	imap->only_subscribed = TRUE;
 	imap->state = C2IMAPDisconnected;
 	c2_mutex_init(&imap->lock);
 }
@@ -704,7 +708,7 @@ c2_imap_mailbox_loop(C2IMAP *imap, C2Mailbox *parent)
 			C2Mailbox *folder;
 			gchar *buf2, *ptr2;
 			guint num = 0;
-			gchar *id = NULL;
+			gchar *id = NULL, *tmp;
 			gboolean noselect = FALSE, noinferiors = FALSE, marked = FALSE;
 			if(parent) id = parent->id;
 			
@@ -733,9 +737,25 @@ c2_imap_mailbox_loop(C2IMAP *imap, C2Mailbox *parent)
 						name = g_strndup(ptr2+1, strlen(ptr2) - 3);
 					else
 						name = g_strndup(ptr2, strlen(ptr2) - 1);
+					tmp = name;
+					name = c2_imap_get_mailbox_hierarchy (name, 
+						c2_imap_get_mailbox_level(name));
+					g_free(tmp);
+					/* check to see if this is a repeat... */
+					if(parent && parent->child)
+						folder = parent->child;
+					else if(!parent && imap->mailboxes)
+						folder = imap->mailboxes;
+					else
+						folder = NULL;
+					for(; folder; folder = folder->next)
+					{
+						if(c2_streq(folder->name, name))
+							goto NEXT;
+					}
 					folder = c2_mailbox_new_with_parent(&imap->mailboxes,
-							c2_imap_get_mailbox_hierarchy (name, c2_imap_get_mailbox_level(name)), 
-							id, C2_MAILBOX_IMAP, C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap, FALSE);
+						name, id, C2_MAILBOX_IMAP, C2_MAILBOX_SORT_DATE, 
+						GTK_SORT_ASCENDING, imap, FALSE);
 					g_free(name);
 					folder->protocol.IMAP.noinferiors = noinferiors;
 					folder->protocol.IMAP.noselect = noselect;
@@ -744,6 +764,7 @@ c2_imap_mailbox_loop(C2IMAP *imap, C2Mailbox *parent)
 					if(!folder->protocol.IMAP.noinferiors)
 						if(c2_imap_mailbox_loop(imap, folder) < 0)
 							return -1;
+NEXT:
 					num = 0;
 					start = ptr+1;
 					break;
@@ -898,7 +919,7 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 			for(i = 0; i < 3; i++)
 			{
 				gchar *ending;
-				if(c2_strneq(ptr, "From: ", 1))
+				if(c2_strneq(ptr, "From: ", 6))
 				{
 					ptr += 6; /* strlen("From: ") + 1; */
 					ending = strstr(ptr, "\r\n");
@@ -906,7 +927,7 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 					ptr += strlen(from) + 2;
 					i++;
 				}
-				if(c2_strneq(ptr, "Subject: ", 1))
+				if(c2_strneq(ptr, "Subject: ", 9))
 				{
 					ptr += 9; /* strlen("Subject: ") + 1; */
 					ending = strstr(ptr, "\r\n");
@@ -914,7 +935,7 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 					ptr += strlen(subject) + 2;
 					i++;
 				}
-				if(c2_strneq(ptr, "Date: ", 1))
+				if(c2_strneq(ptr, "Date: ", 6))
 				{
 					ptr += 6; /* strlen("Date: ") + 1; */
 					ending = strstr(ptr, "\r\n");
@@ -1104,7 +1125,7 @@ c2_imap_plaintext_login (C2IMAP *imap)
  * @name: folder name or wildcard
  * 
  * Returns the exact server output of the 
- * LSUB command after checking weather it
+ * LSUB or LIST command after checking if it
  * was an OK reply
  * 
  * Return Value:
@@ -1114,19 +1135,23 @@ static gchar*
 c2_imap_get_mailbox_list(C2IMAP *imap, const gchar *reference, const gchar *name)
 {
 	tag_t tag;
-	gchar *reply;
+	gchar *reply, *cmd;
 	
 	tag = c2_imap_get_tag(imap);
+	if(imap->only_subscribed) cmd = g_strdup("LSUB");
+	else cmd = g_strdup("LIST");
 	
-	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d LSUB \"%s\""
-				" \"%s\"\r\n", tag, (reference) ? reference : "" , (name) ? name : "") < 0)
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d %s \"%s\""
+				" \"%s\"\r\n", tag, cmd, (reference) ? reference : "" , (name) ? name : "") < 0)
   {
+		g_free(cmd);
 		c2_imap_set_error(imap, NET_WRITE_FAILED);
 		imap->state = C2IMAPDisconnected;
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return NULL;
 	}
 	
+	g_free(cmd);
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
 		return NULL;
 	
