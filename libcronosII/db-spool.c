@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/db-spool.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -19,3 +19,12 @@
 #include <config.h>
 
 #include "error.h"
+/*hmmm this is almost beautifull in its minimalism -pete ;)*/
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/db-cronosII
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -147,3 +147,6 @@ c2_db_cronosII_message_get (C2Db *db, gint mid)
 	
 	return message;
 }
+
+
+
