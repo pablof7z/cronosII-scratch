@@ -463,8 +463,8 @@ ignore:
 		C2MailboxType type;
 		C2MailboxSortBy sort_by;
 		GtkSortType sort_type;
-		gchar *host, *user, *pass, *path;
-		gint port;
+		C2MailboxUseAs use_as;
+		gchar *path;
 		gchar *query = g_strdup_printf ("/"PACKAGE"/Mailbox %d/", i);
 		C2Mailbox *mailbox;
 		
@@ -480,23 +480,12 @@ ignore:
 		type = gnome_config_get_int ("type");
 		sort_by = gnome_config_get_int ("sort_by");
 		sort_type = gnome_config_get_int ("sort_type");
+		use_as = gnome_config_get_int ("use_as");
 
 		switch (type)
 		{
 			case C2_MAILBOX_CRONOSII:
 				mailbox = c2_mailbox_new (&application->mailbox, name, id, type, sort_by, sort_type);
-				break;
-			case C2_MAILBOX_IMAP:
-				host = gnome_config_get_string ("host");
-				port = gnome_config_get_int ("port");
-				user = gnome_config_get_string ("user");
-				pass = gnome_config_get_string ("pass");
-				path = gnome_config_get_string ("path");
-				mailbox = c2_mailbox_new (&application->mailbox, name, id, type, sort_by, sort_type, host, port, user, pass, path);
-				g_free (host);
-				g_free (user);
-				g_free (pass);
-				g_free (path);
 				break;
 			case C2_MAILBOX_SPOOL:
 				path = gnome_config_get_string ("path");
@@ -505,8 +494,9 @@ ignore:
 				break;
 			default:
 				mailbox = NULL;
-				
 		}
+
+		c2_mailbox_set_use_as (application->mailbox, mailbox, use_as);
 
 		/* [TODO]
 		 * Maybe fireing a separated thread where to do this? */
@@ -1528,55 +1518,6 @@ on_preferences_changed (C2DialogPreferences *preferences, C2DialogPreferencesKey
 	
 	gtk_signal_emit (GTK_OBJECT (application), signals[PREFERENCES_CHANGED],
 					key, value);
-}
-
-/**
- * c2_app_get_mailbox_configuration_id_by_name
- * @name: Name of searched mailbox.
- *
- * This function will return the Configuration ID
- * of the mailbox with name @name.
- * Mailboxes, in the c2 configuration file are
- * stored in sections, each mailbox is a separated
- * section, with an ID, in the form:
- * [Mailbox $configuration_id]
- * name=@name
- * id=0-0-1
- *
- * Return Value:
- * Configuration ID of mailbox or -1.
- **/
-gint
-c2_app_get_mailbox_configuration_id_by_name (const gchar *name)
-{
-	gchar *prefix;
-	gchar *gname;
-	gint max = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=-1", NULL);
-	gint i;
-	
-	c2_return_val_if_fail (name, -1, C2EDATA);
-
-	for (i = 1; i <= max; i++)
-	{
-		prefix = g_strdup_printf ("/"PACKAGE"/Mailbox %d/", i);
-		gnome_config_push_prefix (prefix);
-
-		gname = gnome_config_get_string ("name");
-
-		if (c2_streq (gname, name))
-		{
-			g_free (gname);
-			gnome_config_pop_prefix ();
-			g_free (prefix);
-			return i;
-		}
-
-		g_free (gname);
-		gnome_config_pop_prefix ();
-		g_free (prefix);
-	}
-	
-	return -1;
 }
 
 #if 1 /* Delete Mails Confirmation Dialog */

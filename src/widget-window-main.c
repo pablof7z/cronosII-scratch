@@ -317,10 +317,6 @@ on_mnu_toolbar_edit_toolbar_activate		(GtkWidget *widget, C2WindowMain *wmain);
 static gboolean
 dlg_confirm_expunge_message					(C2WindowMain *wmain);
 
-/* in widget-application.c */
-extern void
-on_mailbox_changed_mailboxes				(C2Mailbox *mailbox, C2Application *application);
-
 enum
 {
 	LAST_SIGNAL
@@ -1969,13 +1965,15 @@ on_index_open_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 }
 
 static void
-on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
+on_index_select_message_thread (C2Pthread3 *data)
 {
+	GtkWidget *index = GTK_WIDGET (data->v1);
+	C2Db *node = C2_DB (data->v2);
+	C2WindowMain *wmain = C2_WINDOW_MAIN (data->v3);
 	GtkWidget *widget;
 	GladeXML *xml;
-	
-	if (g_list_length (GTK_CLIST (index)->selection) > 1)
-		return;
+
+	g_free (data);
 
 	if (!C2_IS_MESSAGE (node->message))
 	{
@@ -1986,7 +1984,8 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 		{
 			/* Something went wrong */
 			const gchar *error;
-		
+	
+			gdk_threads_enter ();
 			error = c2_error_object_get (GTK_OBJECT (node));
 			if (error)
 				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
@@ -1995,10 +1994,13 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
 								error_list[C2_FAIL_MESSAGE_LOAD], error_list[C2_UNKNOWN_REASON]);
 
+			gdk_threads_leave ();
 			return;
 		}
 	}
 
+	gdk_threads_enter ();
+	
 	c2_mail_set_message (C2_MAIL (wmain->mail), node->message);
 
 	/* Set some widgets sensivity */
@@ -2076,6 +2078,25 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 	widget = c2_toolbar_get_item (C2_TOOLBAR (wmain->toolbar), "toolbar_forward");
 	if (GTK_IS_WIDGET (widget))
 		gtk_widget_set_sensitive (widget, TRUE);
+
+	gdk_threads_leave ();
+}
+
+static void
+on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
+{
+	C2Pthread3 *data;
+	pthread_t thread;
+	
+	if (g_list_length (GTK_CLIST (index)->selection) > 1)
+		return;
+
+	data = g_new0 (C2Pthread3, 1);
+	data->v1 = (gpointer) index;
+	data->v2 = (gpointer) node;
+	data->v3 = (gpointer) wmain;
+
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_index_select_message_thread), data);
 }
 
 static void
@@ -2170,7 +2191,7 @@ on_mlist_object_selected_pthread (C2WindowMain *wmain)
 	gdk_threads_enter ();
 	c2_window_set_activity (C2_WINDOW (wmain), TRUE);
 	gdk_threads_leave ();
-	
+L	
 	if (!mailbox->db)
 	{
 		if (!c2_mailbox_load_db (mailbox))
@@ -2194,18 +2215,18 @@ on_mlist_object_selected_pthread (C2WindowMain *wmain)
 	
 	if (c2_mutex_trylock (&wmain->index_lock))
 		return 0;
-	
+L	
 	gdk_threads_enter ();
 	c2_index_clear (index);
-	c2_index_set_mailbox (index, mailbox);
-	c2_window_set_activity (C2_WINDOW (wmain), FALSE);
+L	c2_index_set_mailbox (index, mailbox);
+L	c2_window_set_activity (C2_WINDOW (wmain), FALSE);
 	gtk_widget_queue_draw (GTK_WIDGET (index));
 	c2_index_sort (index, mailbox->sort_by, mailbox->sort_type);
 	c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
 						_("%d messages, %d new."), c2_db_length (mailbox),
 						c2_db_length_type (mailbox, C2_MESSAGE_UNREADED));
 	gdk_threads_leave ();
-
+L
 	c2_mutex_unlock (&wmain->index_lock);
 	return 0;
 }

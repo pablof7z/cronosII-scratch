@@ -76,6 +76,55 @@ c2_application_check_account_exists (C2Application *application)
 	return FALSE;
 }
 
+/**
+ * c2_application_get_mailbox_configuration_id_by_name
+ * @name: Name of searched mailbox.
+ *
+ * This function will return the Configuration ID
+ * of the mailbox with name @name.
+ * Mailboxes, in the c2 configuration file are
+ * stored in sections, each mailbox is a separated
+ * section, with an ID, in the form:
+ * [Mailbox $configuration_id]
+ * name=@name
+ * id=0-0-1
+ *
+ * Return Value:
+ * Configuration ID of mailbox or -1.
+ **/
+gint
+c2_application_get_mailbox_configuration_id_by_name	(const gchar *name)
+{
+	gchar *prefix;
+	gchar *gname;
+	gint max = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=-1", NULL);
+	gint i;
+	
+	c2_return_val_if_fail (name, -1, C2EDATA);
+
+	for (i = 1; i <= max; i++)
+	{
+		prefix = g_strdup_printf ("/"PACKAGE"/Mailbox %d/", i);
+		gnome_config_push_prefix (prefix);
+
+		gname = gnome_config_get_string ("name");
+
+		if (c2_streq (gname, name))
+		{
+			g_free (gname);
+			gnome_config_pop_prefix ();
+			g_free (prefix);
+			return i;
+		}
+
+		g_free (gname);
+		gnome_config_pop_prefix ();
+		g_free (prefix);
+	}
+	
+	return -1;
+}
+
 static void
 add_mailbox_dialog_type_selection_done (GtkWidget *widget, GladeXML *xml)
 {

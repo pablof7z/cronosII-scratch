@@ -175,12 +175,12 @@ c2_application_open_windows					(C2Application *application);
 gboolean
 c2_application_check_account_exists			(C2Application *application);
 
+gint
+c2_application_get_mailbox_configuration_id_by_name	(const gchar *name);
+
 /* install.c */
 void
 c2_install_new								(void);
-
-gint
-c2_app_get_mailbox_configuration_id_by_name	(const gchar *name);
 
 void
 c2_mailbox_tree_fill				(C2Mailbox *head, GtkCTreeNode *node, GtkWidget *ctree, GtkWidget *window);

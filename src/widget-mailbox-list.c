@@ -60,6 +60,21 @@ static void
 on_menu_properties_activate					(GtkWidget *widget, C2MailboxList *mlist);
 
 static void
+on_menu_use_as_inbox_toggled				(GtkWidget *widget, C2MailboxList *mlist);
+
+static void
+on_menu_use_as_outbox_toggled				(GtkWidget *widget, C2MailboxList *mlist);
+
+static void
+on_menu_use_as_sent_items_toggled			(GtkWidget *widget, C2MailboxList *mlist);
+
+static void
+on_menu_use_as_trash_toggled				(GtkWidget *widget, C2MailboxList *mlist);
+
+static void
+on_menu_use_as_drafts_toggled				(GtkWidget *widget, C2MailboxList *mlist);
+
+static void
 on_tree_expand								(GtkCTree *ctree, GtkCTreeNode *node);
 
 static void
@@ -228,6 +243,16 @@ c2_mailbox_list_new (C2Application *application)
 						GTK_SIGNAL_FUNC (on_menu_delete_mailbox_activate), mlist);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "properties")), "activate",
 						GTK_SIGNAL_FUNC (on_menu_properties_activate), mlist);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "use_as_inbox")), "toggled",
+						GTK_SIGNAL_FUNC (on_menu_use_as_inbox_toggled), mlist);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "use_as_outbox")), "toggled",
+						GTK_SIGNAL_FUNC (on_menu_use_as_outbox_toggled), mlist);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "use_as_sent_items")), "toggled",
+						GTK_SIGNAL_FUNC (on_menu_use_as_sent_items_toggled), mlist);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "use_as_trash")), "toggled",
+						GTK_SIGNAL_FUNC (on_menu_use_as_trash_toggled), mlist);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "use_as_drafts")), "toggled",
+						GTK_SIGNAL_FUNC (on_menu_use_as_drafts_toggled), mlist);
 						
 
 	gtk_signal_connect (GTK_OBJECT (application), "reload_mailboxes",
@@ -348,7 +373,7 @@ on_mlist_button_press_event (GtkWidget *mlist, GdkEvent *event)
 		if (C2_IS_MAILBOX (object))
 		{
 			C2Mailbox *mailbox = C2_MAILBOX (object);
-
+				
 			gtk_check_menu_item_set_active (glade_xml_get_widget (xml, "use_as_inbox"),
 											mailbox->use_as & C2_MAILBOX_USE_AS_INBOX);
 			gtk_check_menu_item_set_active (glade_xml_get_widget (xml, "use_as_outbox"),
@@ -384,6 +409,176 @@ on_menu_delete_mailbox_activate (GtkWidget *widget, C2MailboxList *mlist)
 static void
 on_menu_properties_activate (GtkWidget *widget, C2MailboxList *mlist)
 {
+}
+
+static void
+on_menu_use_as_inbox_toggled (GtkWidget *widget, C2MailboxList *mlist)
+{
+	C2Mailbox *mailbox;
+	gchar *path;
+	gint id;
+
+	/* Get the selected mailbox */
+	if (!C2_IS_MAILBOX ((mailbox = C2_MAILBOX (c2_mailbox_list_get_selected_object (mlist)))))
+		return;
+
+	/* Update the mark */
+	if (mailbox->type == C2_MAILBOX_IMAP)
+		c2_mailbox_set_use_as (mailbox->protocol.IMAP.imap->mailboxes, mailbox,
+								mailbox->use_as | C2_MAILBOX_USE_AS_INBOX);
+	else
+		c2_mailbox_set_use_as (C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (mlist),
+													"application"))->mailbox, mailbox,
+								mailbox->use_as | C2_MAILBOX_USE_AS_INBOX);
+
+	/* Update the CheckMenuItem */
+	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (widget),
+									mailbox->use_as & C2_MAILBOX_USE_AS_INBOX);
+
+	/* Update the configuration */
+	if ((id = c2_application_get_mailbox_configuration_id_by_name (mailbox->name)) < 0)
+		return;
+
+	path = g_strdup_printf (PACKAGE "/Mailbox %d/use_as", id);
+	gnome_config_set_int (path, mailbox->use_as);
+	gnome_config_sync ();
+	g_free (path);
+}
+
+static void
+on_menu_use_as_outbox_toggled (GtkWidget *widget, C2MailboxList *mlist)
+{
+	C2Mailbox *mailbox;
+	gchar *path;
+	gint id;
+
+	/* Get the selected mailbox */
+	if (!C2_IS_MAILBOX ((mailbox = C2_MAILBOX (c2_mailbox_list_get_selected_object (mlist)))))
+		return;
+
+	/* Update the mark */
+	if (mailbox->type == C2_MAILBOX_IMAP)
+		c2_mailbox_set_use_as (mailbox->protocol.IMAP.imap->mailboxes, mailbox,
+								mailbox->use_as | C2_MAILBOX_USE_AS_OUTBOX);
+	else
+		c2_mailbox_set_use_as (C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (mlist),
+													"application"))->mailbox, mailbox,
+								mailbox->use_as | C2_MAILBOX_USE_AS_OUTBOX);
+
+	/* Update the CheckMenuItem */
+	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (widget),
+									mailbox->use_as & C2_MAILBOX_USE_AS_OUTBOX);
+
+	/* Update the configuration */
+	if ((id = c2_application_get_mailbox_configuration_id_by_name (mailbox->name)) < 0)
+		return;
+
+	path = g_strdup_printf (PACKAGE "/Mailbox %d/use_as", id);
+	gnome_config_set_int (path, mailbox->use_as);
+	gnome_config_sync ();
+	g_free (path);
+}
+
+static void
+on_menu_use_as_sent_items_toggled (GtkWidget *widget, C2MailboxList *mlist)
+{
+	C2Mailbox *mailbox;
+	gchar *path;
+	gint id;
+
+	/* Get the selected mailbox */
+	if (!C2_IS_MAILBOX ((mailbox = C2_MAILBOX (c2_mailbox_list_get_selected_object (mlist)))))
+		return;
+
+	/* Update the mark */
+	if (mailbox->type == C2_MAILBOX_IMAP)
+		c2_mailbox_set_use_as (mailbox->protocol.IMAP.imap->mailboxes, mailbox,
+								mailbox->use_as | C2_MAILBOX_USE_AS_SENT_ITEMS);
+	else
+		c2_mailbox_set_use_as (C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (mlist),
+													"application"))->mailbox, mailbox,
+								mailbox->use_as | C2_MAILBOX_USE_AS_SENT_ITEMS);
+
+	/* Update the CheckMenuItem */
+	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (widget),
+									mailbox->use_as & C2_MAILBOX_USE_AS_SENT_ITEMS);
+
+	/* Update the configuration */
+	if ((id = c2_application_get_mailbox_configuration_id_by_name (mailbox->name)) < 0)
+		return;
+
+	path = g_strdup_printf (PACKAGE "/Mailbox %d/use_as", id);
+	gnome_config_set_int (path, mailbox->use_as);
+	gnome_config_sync ();
+	g_free (path);
+}
+
+static void
+on_menu_use_as_trash_toggled (GtkWidget *widget, C2MailboxList *mlist)
+{
+	C2Mailbox *mailbox;
+	gchar *path;
+	gint id;
+
+	/* Get the selected mailbox */
+	if (!C2_IS_MAILBOX ((mailbox = C2_MAILBOX (c2_mailbox_list_get_selected_object (mlist)))))
+		return;
+
+	/* Update the mark */
+	if (mailbox->type == C2_MAILBOX_IMAP)
+		c2_mailbox_set_use_as (mailbox->protocol.IMAP.imap->mailboxes, mailbox,
+								mailbox->use_as | C2_MAILBOX_USE_AS_TRASH);
+	else
+		c2_mailbox_set_use_as (C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (mlist),
+													"application"))->mailbox, mailbox,
+								mailbox->use_as | C2_MAILBOX_USE_AS_TRASH);
+
+	/* Update the CheckMenuItem */
+	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (widget),
+									mailbox->use_as & C2_MAILBOX_USE_AS_TRASH);
+
+	/* Update the configuration */
+	if ((id = c2_application_get_mailbox_configuration_id_by_name (mailbox->name)) < 0)
+		return;
+
+	path = g_strdup_printf (PACKAGE "/Mailbox %d/use_as", id);
+	gnome_config_set_int (path, mailbox->use_as);
+	gnome_config_sync ();
+	g_free (path);
+}
+
+static void
+on_menu_use_as_drafts_toggled (GtkWidget *widget, C2MailboxList *mlist)
+{
+	C2Mailbox *mailbox;
+	gchar *path;
+	gint id;
+
+	/* Get the selected mailbox */
+	if (!C2_IS_MAILBOX ((mailbox = C2_MAILBOX (c2_mailbox_list_get_selected_object (mlist)))))
+		return;
+
+	/* Update the mark */
+	if (mailbox->type == C2_MAILBOX_IMAP)
+		c2_mailbox_set_use_as (mailbox->protocol.IMAP.imap->mailboxes, mailbox,
+								mailbox->use_as | C2_MAILBOX_USE_AS_DRAFTS);
+	else
+		c2_mailbox_set_use_as (C2_APPLICATION (gtk_object_get_data (GTK_OBJECT (mlist),
+													"application"))->mailbox, mailbox,
+								mailbox->use_as | C2_MAILBOX_USE_AS_DRAFTS);
+
+	/* Update the CheckMenuItem */
+	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (widget),
+									mailbox->use_as & C2_MAILBOX_USE_AS_DRAFTS);
+
+	/* Update the configuration */
+	if ((id = c2_application_get_mailbox_configuration_id_by_name (mailbox->name)) < 0)
+		return;
+
+	path = g_strdup_printf (PACKAGE "/Mailbox %d/use_as", id);
+	gnome_config_set_int (path, mailbox->use_as);
+	gnome_config_sync ();
+	g_free (path);
 }
 
 static void
@@ -659,15 +854,15 @@ get_pixmap (C2Mailbox *mailbox, gboolean open)
 {
 	if (C2_IS_MAILBOX (mailbox))
 	{
-		if (c2_streq (mailbox->name, C2_MAILBOX_INBOX))
+		if (mailbox->use_as & C2_MAILBOX_USE_AS_INBOX)
 			return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/inbox.png");
-		else if (c2_streq (mailbox->name, C2_MAILBOX_OUTBOX))
+		else if (mailbox->use_as & C2_MAILBOX_USE_AS_SENT_ITEMS)
 			return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/outbox.png");
-		else if (c2_streq (mailbox->name, C2_MAILBOX_SENT_ITEMS))
+		else if (mailbox->use_as & C2_MAILBOX_USE_AS_OUTBOX)
 			return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/queue.png");
-		else if (c2_streq (mailbox->name, C2_MAILBOX_TRASH))
+		else if (mailbox->use_as & C2_MAILBOX_USE_AS_TRASH)
 			return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/garbage.png");
-		else if (c2_streq (mailbox->name, C2_MAILBOX_DRAFTS))
+		else if (mailbox->use_as & C2_MAILBOX_USE_AS_DRAFTS)
 			return gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/drafts.png");
 		else
 		{
