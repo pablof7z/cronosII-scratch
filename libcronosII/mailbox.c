@@ -136,7 +136,7 @@ init (C2Mailbox *mailbox)
 	mailbox->freezed = 0;
 	mailbox->signals_queued = 0;
 
-	pthread_mutex_init (&mailbox->lock, NULL);
+	c2_mutex_init (&mailbox->lock);
 	
 	return mailbox;
 }
@@ -146,7 +146,7 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 {
 	c2_return_if_fail (mailbox, C2EDATA);
 
-	pthread_mutex_lock(&mailbox->lock);
+	c2_mutex_lock(&mailbox->lock);
 	switch (mailbox->type)
 	{
 		case C2_MAILBOX_SPOOL:
@@ -161,8 +161,8 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 	if (mailbox->child)
 		gtk_object_unref (GTK_OBJECT (mailbox->child));
 	
-	pthread_mutex_unlock(&mailbox->lock);
-	pthread_mutex_destroy(&mailbox->lock);
+	c2_mutex_unlock(&mailbox->lock);
+	c2_mutex_destroy(&mailbox->lock);
 }
 
 static void
@@ -359,7 +359,7 @@ c2_mailbox_insert (C2Mailbox *head, C2Mailbox *mailbox)
 		if (!l)
 		{
 			c2_error_object_set (GTK_OBJECT (mailbox), C2EDATA);
-			pthread_mutex_unlock(&mailbox->lock);
+			c2_mutex_unlock(&mailbox->lock);
 			return;
 		}
 		
@@ -414,7 +414,7 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
 	 *      Do what it currently does.
 	 */
 
-	pthread_mutex_lock(&mailbox->lock);
+	c2_mutex_lock(&mailbox->lock);
 	
 	g_free (mailbox->name);
 	mailbox->name = g_strdup (name);
@@ -444,7 +444,7 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
 	}
 
 	gtk_signal_emit (GTK_OBJECT (mailbox), signals[CHANGED_MAILBOXES]);
-	pthread_mutex_unlock(&mailbox->lock);
+	c2_mutex_unlock(&mailbox->lock);
 }
 
 /**
@@ -465,7 +465,7 @@ c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 	
 	c2_return_if_fail (mailbox, C2EDATA);
 	
-	pthread_mutex_lock(&mailbox->lock);
+	c2_mutex_lock(&mailbox->lock);
 
 	/* First get the parent/previous and next mailboxes */
 	if (!(my_id = c2_mailbox_get_id (mailbox->id, -1)))
@@ -473,13 +473,13 @@ c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 		/* This mailbox has no previous mailbox in the same level */
 		if (!(parent_id = c2_mailbox_get_parent_id (mailbox->id)))
 		{	
-			pthread_mutex_unlock(&mailbox->lock);
+			c2_mutex_unlock(&mailbox->lock);
 			return;
 		}
 		
 		if (!(parent = c2_mailbox_search_by_id (*head, parent_id)))
 		{
-			pthread_mutex_unlock(&mailbox->lock);
+			c2_mutex_unlock(&mailbox->lock);
 			return;
 		}
 		
@@ -494,7 +494,7 @@ c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 		
 		if (!(previous = c2_mailbox_search_by_id (*head, previous_id)))
 		{
-			pthread_mutex_unlock(&mailbox->lock);
+			c2_mutex_unlock(&mailbox->lock);
 			return;
 		}
 		
@@ -525,7 +525,7 @@ c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 #endif
 	c2_db_remove_structure (mailbox);
 
-	pthread_mutex_unlock(&mailbox->lock);
+	c2_mutex_unlock(&mailbox->lock);
 	gtk_object_unref (GTK_OBJECT (mailbox));
 }
 

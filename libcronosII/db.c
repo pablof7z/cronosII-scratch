@@ -26,6 +26,7 @@
 #include "error.h"
 #include "utils.h"
 #include "utils-date.h"
+#include "utils-mutex.h"
 
 #define FIRST_MID			1
 
@@ -414,7 +415,7 @@ c2_db_freeze (C2Mailbox *mailbox)
 {
 	void (*func) (C2Mailbox *mailbox);
 
-	pthread_mutex_lock (&mailbox->lock);
+	c2_mutex_lock (&mailbox->lock);
 	mailbox->freezed = 1;
 	
 	switch (mailbox->type)
@@ -458,7 +459,7 @@ c2_db_thaw (C2Mailbox *mailbox)
 	}
 
 	func (mailbox);
-	pthread_mutex_unlock (&mailbox->lock);
+	c2_mutex_unlock (&mailbox->lock);
 
 	/* Now emit queued signals */
 	if (mailbox->signals_queued)
@@ -487,7 +488,7 @@ c2_db_load (C2Mailbox *mailbox)
 	
 	c2_return_val_if_fail (mailbox, 1, C2EDATA);
 	
-	pthread_mutex_lock (&mailbox->lock);
+	c2_mutex_lock (&mailbox->lock);
 	
 	switch (mailbox->type)
 	{
@@ -505,7 +506,7 @@ c2_db_load (C2Mailbox *mailbox)
 	if (!((retval = func (mailbox)) < 0))
 		mailbox->db_is_loaded = 1;
 
-	pthread_mutex_unlock (&mailbox->lock);
+	c2_mutex_unlock (&mailbox->lock);
 
 	return retval;
 }

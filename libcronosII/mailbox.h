@@ -43,6 +43,7 @@ typedef enum _C2MailboxChangeType C2MailboxChangeType;
 #if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
 #	include "db.h"
 #	include "imap.h"
+# include "utils-mutex.h"
 #else
 #	include <cronosII.h>
 #endif
@@ -113,7 +114,7 @@ struct _C2Mailbox
 	gint freezed : 1;
 	gint signals_queued : 1;
 
-	pthread_mutex_t lock;
+	C2Mutex lock;
 	
 	C2MailboxSortBy sort_by;
 	GtkSortType sort_type;
