@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client  /testsuite/request.c
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -65,37 +65,22 @@ main (gint argc, gchar **argv)
 static void
 on_request_resolve (C2Request *request)
 {
-	g_print ("done.\n"
-			 "Connecting... ");
-	fflush (stdout);
 }
 
 static void
 on_request_connect (C2Request *request)
 {
-	g_print ("done.\n"
-			 "Retrieving... ");
-	fflush (stdout);
 }
 
 static void
 on_request_retrieve (C2Request *request, C2NetObjectExchangeType type, gint length)
 {
-	if (type == C2_NET_OBJECT_EXCHANGE_SEND)
-		g_print ("< ");
-	else
-		g_print ("> ");
-	g_print ("%d ", length);
-	fflush (stdout);
 }
 
 static void
 on_request_disconnect (C2Request *request, gboolean success)
 {
 	C2_REQUEST (GTK_OBJECT (request));
-	g_print ("done.\n"
-			 "Showing result in 3 seconds.\n\n");
-	sleep (3);
-	g_print ("%s\n", c2_request_get_source (request));
+	fwrite (c2_request_get_source (request), request->got_size, sizeof (gchar), stdout);
 	exit (0);
 }

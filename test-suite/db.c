@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client  /testsuite/db.c
+/*  Cronos II - The GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -165,12 +165,12 @@ on_cmnd_load (const gchar *w1, const gchar *w2)
 		g_print ("The mailbox has the db loaded already!\n");
 		return;
 	}
-	if (!(mailbox->db = c2_db_new (mailbox)))
+	if (c2_db_load (mailbox))
 	{
 		g_print ("Unable to load db: %s\n", c2_error_get (c2_errno));
 		return;
 	}
-	g_print ("%d messages in database.\n", c2_db_messages (mailbox->db));
+	g_print ("%d messages in database.\n", c2_db_length (mailbox));
 }
 
 static void
@@ -206,14 +206,14 @@ on_cmnd_get (const gchar *w1, const gchar *w2)
 		g_print ("Oh yeah? Well don't u think u should at least load the db for me?!\n");
 		return;
 	}
-	if (!(message = c2_db_message_get (mailbox->db, atoi (w1))))
+/*	if (!(message = c2_db_message_get (mailbox->db, atoi (w1))))
 	{
 		g_print ("Unable to get message: %s\n", c2_error_get (c2_errno));
 		return;
 	}
 	
 	c2_message_get_message_body (message);
-	g_print ("%s\n", message->body);
+	g_print ("%s\n", message->body);*/
 }
 
 static void
@@ -232,7 +232,7 @@ on_cmnd_field (const gchar *w1, const gchar *w2)
 		g_print ("Oh yeah? Well don't u think u should at least load the db for me?!\n");
 		return;
 	}
-	if (!(message = c2_db_message_get (mailbox->db, atoi (w1))))
+/*	if (!(message = c2_db_message_get (mailbox->db, atoi (w1))))
 	{
 		g_print ("Unable to get message: %s\n", c2_error_get (c2_errno));
 		return;
@@ -248,7 +248,7 @@ on_cmnd_field (const gchar *w1, const gchar *w2)
 			date = c2_date_parse_fmt2 (field);
 		g_print ("%s (%d)\n", field, date);
 	}
-	g_free (field);
+	g_free (field);*/
 }
 
 static void
