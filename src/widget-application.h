@@ -58,12 +58,12 @@ extern "C" {
 
 #define C2_UNIX_SOCKET						"server"
 
-#define C2_COMMAND_WINDOW_MAIN_NEW	"window main::new"
-#define C2_COMMAND_WINDOW_MAIN_RAISE	"window main::raise"
-#define C2_COMMAND_WINDOW_MAIN_HIDE	"window main::hide"
-#define C2_COMMAND_COMPOSER_NEW		"composer::new"
-#define C2_COMMAND_CHECK_MAIL		"check mail"
-#define C2_COMMAND_EXIT				"exit"
+#define C2_COMMAND_WINDOW_MAIN_NEW		"wmain::new"/* (gchar *select_mailbox¦NULL) */
+#define C2_COMMAND_WINDOW_MAIN_RAISE	"wmain::raise"/* (gchar *select_mailbox|NULL) */
+#define C2_COMMAND_WINDOW_MAIN_HIDE		"wmain::hide"/* () */
+#define C2_COMMAND_COMPOSER_NEW			"composer::new"/* (gboolean is_link, gchar *headers, gchar *values) */
+#define C2_COMMAND_CHECK_MAIL			"check_mail"/* () */
+#define C2_COMMAND_EXIT					"exit"/* () */
 
 typedef struct _C2Application C2Application;
 typedef struct _C2ApplicationClass C2ApplicationClass;
@@ -176,7 +176,7 @@ c2_application_open_windows					(C2Application *application);
  ****************/
 
 void
-c2_application_command						(C2Application *application, const gchar *cmnd, gpointer edata);
+c2_application_command						(C2Application *application, const gchar *cmnd, ...);
 
 /***********************
  * [Application Utils] *

@@ -51,6 +51,7 @@
 #include "widget-transfer-item.h"
 #include "widget-transfer-list.h"
 #include "widget-window.h"
+#include "widget-window-main.h"
 
 /* TODO
  * 20011208 We have to send a delete_event to all open window when
@@ -59,20 +60,6 @@
  
 #define MOD "[Widget] Application"
 #define DMOD FALSE
-
-struct {
-	const gchar *cmnd;
-	void (*func) (C2Application *application, gpointer data);
-} commands[] =
-{
-	{ C2_COMMAND_WINDOW_MAIN_NEW, command_wmain_new },
-	{ C2_COMMAND_WINDOW_MAIN_RAISE, command_wmain_raise },
-	{ C2_COMMAND_WINDOW_MAIN_HIDE, command_wmain_hide },
-	{ C2_COMMAND_COMPOSER_NEW, command_composer_new },
-	{ C2_COMMAND_CHECK_MAIL, command_check_mail },
-	{ C2_COMMAND_EXIT, command_exit },
-	{ NULL, NULL }
-};
 
 static void
 class_init									(C2ApplicationClass *klass);
@@ -135,6 +122,43 @@ on_preferences_changed						(C2DialogPreferences *preferences,
 
 static gboolean
 dlg_confirm_delete_message					(C2Application *application, GtkWindow *window);
+
+static void
+command_wmain_new							(C2Application *application, va_list args);
+
+static void
+command_wmain_raise							(C2Application *application, va_list args);
+
+static void
+command_wmain_hide							(C2Application *application, va_list args);
+
+static void
+command_composer_new						(C2Application *application, va_list args);
+
+static void
+command_check_mail							(C2Application *application, va_list args);
+
+static void
+command_exit								(C2Application *application, va_list args);
+
+typedef gpointer (*C2CommandFunc)			(C2Application *application, va_list args);
+
+#define C2_COMMAND_FUNC(f)					(C2CommandFunc) f
+
+struct {
+	const gchar *cmnd;
+	C2CommandFunc func;
+	size_t params;
+} commands[] =
+{
+	{ C2_COMMAND_WINDOW_MAIN_NEW, C2_COMMAND_FUNC (command_wmain_new), 1*sizeof (gchar)},
+	{ C2_COMMAND_WINDOW_MAIN_RAISE, C2_COMMAND_FUNC (command_wmain_raise), 1*sizeof (gchar) },
+	{ C2_COMMAND_WINDOW_MAIN_HIDE, C2_COMMAND_FUNC (command_wmain_hide), 0 },
+	{ C2_COMMAND_COMPOSER_NEW, C2_COMMAND_FUNC (command_composer_new), 1*sizeof(gboolean)+2*sizeof(gchar) },
+	{ C2_COMMAND_CHECK_MAIL, C2_COMMAND_FUNC (command_check_mail), 0 },
+	{ C2_COMMAND_EXIT, C2_COMMAND_FUNC (command_exit), 0 },
+	{ NULL, NULL, 0 }
+};
 
 enum
 {
@@ -638,10 +662,11 @@ destroy (GtkObject *object)
 static void
 on_server_read (C2Application *application, gint sock, GdkInputCondition cond)
 {
-	gchar *buffer;
+	gchar *buffer = NULL;
 	struct sockaddr_un sa;
 	size_t size;
-	gchar *path;
+	gchar *path, *cmnd;
+	gint i;
 
 	c2_mutex_lock (application->server_lock);
 	
@@ -668,19 +693,51 @@ start:
 				perror ("accept");
 			else
 				goto start;
-		}
-		
-		perror ("read");
+		} else
+			perror ("read");
 		return;
 	}
-/*
-	for (i = 0; remote_commands[i]; i++)
+
+	/* Get the command */
+	size = strlen (buffer);
+	if (buffer[size-1] == '\n')
+		buffer[size-1] = '\0';
+	cmnd = c2_str_get_word (0, buffer, ' ');
+
+	for (i = 0; commands[i].func; i++)
 	{
-		if (c2_streq (
-	}*/
+		if (c2_streq (commands[i].cmnd, cmnd))
+		{
+			gint params;
+			gpointer data;
+
+			data = g_malloc0 (commands[i].params);
+			
+			if (c2_streq (commands[i].cmnd, C2_COMMAND_WINDOW_MAIN_NEW))
+			{
+				gchar *arg1;
+
+				arg1 = c2_str_get_word (1, buffer, '\n'); /* Usar en lugar de \n algun caracter q no sea ni \r ni \0 ni \n */
+				if (!strlen (arg1))
+				{
+					g_free (arg1);
+					arg1 = NULL;
+				}
+
+				c2_application_command (application, C2_COMMAND_WINDOW_MAIN_NEW, arg1);
+			} else if (c2_streq (commands[i].cmnd, C2_COMMAND_COMPOSER_NEW))
+			{
+				gboolean is_link;
+				gchar *headers = NULL;
+				gchar *values = NULL;
+				gchar *buf;
+
+//				buf = c2_str_get_word (1, buffer, 
+			}
+		}
+	}
 
 	g_free (buffer);
-	perror ("read");
 
 	c2_mutex_unlock (application->server_lock);
 }
@@ -1394,6 +1451,8 @@ c2_application_running_as_server (C2Application *application)
 void
 c2_application_window_add (C2Application *application, GtkWindow *window)
 {
+	c2_return_if_fail (GTK_IS_WINDOW (window), C2EDATA);
+
 	application->open_windows = g_slist_append (application->open_windows, window);
 	gtk_object_ref (GTK_OBJECT (application));
 
@@ -1434,7 +1493,7 @@ c2_application_window_remove (C2Application *application, GtkWindow *window)
 	if (asked_send_unsent_mails == 1)
 		return;
 
-	if (GTK_OBJECT (application)->ref_count <= 1)
+	if (!application->running_as_server && GTK_OBJECT (application)->ref_count <= 1)
 	{
 		C2Mailbox *mailbox;
 
@@ -1494,19 +1553,180 @@ c2_application_open_windows (C2Application *application)
 	return application->open_windows;
 }
 
+/* COMMANDS */
 void
-c2_application_command (C2Application *application, const gchar *cmnd, gpointer data)
+c2_application_command (C2Application *application, const gchar *cmnd, ...)
 {
 	gint i;
+	va_list args;
+
+	va_start (args, cmnd);
 
 	for (i = 0; commands[i].func; i++)
-	{
 		if (c2_streq (commands[i].cmnd, cmnd))
 		{
-			commands[i].func (application, data);
+			printf ("Executing command %s\n", commands[i].cmnd);
+			commands[i].func (application, args);
 			break;
 		}
+
+	va_end (args);
+}
+
+static void
+on_command_wmain_new_window_main_show (GtkWidget *widget, C2WindowMain *wmain)
+{
+	C2Mailbox *mailbox;
+	gchar *sel_mailbox;
+
+	sel_mailbox = gtk_object_get_data (GTK_OBJECT (wmain), "command_wmain_new::mailbox");
+
+	if (sel_mailbox)
+	{
+		mailbox = c2_mailbox_get_by_name (application->mailbox, sel_mailbox);
+	} else
+	{
+		mailbox = c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_INBOX);
+		if (!mailbox)
+			if (!(mailbox = c2_mailbox_get_by_name (application->mailbox, C2_MAILBOX_INBOX)))
+				sel_mailbox = C2_MAILBOX_INBOX;
 	}
+	
+	if (!mailbox)
+		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
+							_("The mailbox \"%s\", specified in command line, "
+							  "does not exist."), sel_mailbox);
+	else
+		c2_window_main_set_mailbox (wmain, mailbox);
+	
+	return;
+}
+
+static void
+command_wmain_new (C2Application *application, va_list args)
+{
+	GtkWidget *widget;
+	gchar *mailbox;
+
+	mailbox = va_arg (args, gchar*);
+
+	widget = c2_window_main_new (application);
+	gtk_object_set_data (GTK_OBJECT (widget), "command_wmain_new::mailbox", mailbox);
+	gtk_signal_connect (GTK_OBJECT (widget), "show",
+							GTK_SIGNAL_FUNC (on_command_wmain_new_window_main_show), widget); \
+	gtk_widget_show (widget);
+}
+
+static void
+command_wmain_raise (C2Application *application, va_list args)
+{
+	GtkWidget *widget;
+
+	widget = c2_application_window_get (application, "wmain");
+
+	if (!C2_IS_WINDOW_MAIN (widget))
+		command_wmain_new (application, args);
+	else
+	{
+		gtk_widget_show (widget);
+		gdk_window_raise (widget->window);
+	}
+}
+
+static void
+command_wmain_hide (C2Application *application, va_list args)
+{
+	GtkWidget *widget;
+
+	widget = c2_application_window_get (application, "wmain");
+
+	if (C2_IS_WINDOW_MAIN (widget))
+		gtk_widget_hide (widget);
+}
+
+/**
+ * if (interpret_as_link)
+ *      ... = @gchar* = String containing a mailto: link
+ * else
+ *      ... = @gchar*1 = String containing the list of headers to be passed, list
+ *                       separated by \r.
+ *            @gchar*2 = String containing the list of value of each header, list
+ *                       separated by \r.
+ **/
+static void
+command_composer_new (C2Application *application, va_list args)
+{
+	GtkWidget *widget;
+	gchar *arg1, *arg2;
+	gboolean interpret_as_link;
+
+	if (!(widget = c2_composer_new (application)))
+		return;
+
+	interpret_as_link = va_arg (args, gboolean);
+	
+	if (interpret_as_link)
+	{
+		arg1 = va_arg (args, gchar*);
+
+		if (!arg1)
+		{
+			g_warning ("command_composer_new: Caller said it was going to be interpreted "
+					   "as link but didn't give any parameter\n");
+		} else
+		{
+			c2_composer_set_contents_from_link (C2_COMPOSER (widget), arg1);
+		}
+	} else
+	{
+		if ((arg1 = va_arg (args, gchar*)))
+		{
+			gint i;
+			
+			if (!(arg2 = va_arg (args, gchar*)))
+			{
+				g_warning ("command_composer_new: Caller specify a header (%s) but didn't "
+						   "give any value for it.\n", arg1);
+				g_free (arg1);
+				goto end;
+			}
+
+			for (i = 0;; i++)
+			{
+				gchar *header, *data;
+
+				if (!(header = c2_str_get_word (i, arg1, '\r')) || !strlen (header))
+					break;
+				if (!(data = c2_str_get_word (i, arg2, '\r')))
+				{
+					g_free (header);
+					break;
+				}
+
+				c2_composer_set_extra_field (C2_COMPOSER (widget), header, data);
+				g_free (header);
+				g_free (data);
+			}
+
+			g_free (arg1);
+			g_free (arg2);
+		}
+	}
+
+end:
+	gtk_widget_show (widget);
+}
+
+static void
+command_check_mail (C2Application *application, va_list args)
+{
+	C2_APPLICATION_CLASS_FW (application)->check (application);
+}
+
+static void
+command_exit (C2Application *application, va_list args)
+{
+	gtk_object_destroy (GTK_OBJECT (application));
 }
 
 static void

@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  * Code of this file by:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  */
 #include <gnome.h>
 #include <stdlib.h>
@@ -884,7 +884,7 @@ C2Mailbox *
 c2_mailbox_get_by_usage (C2Mailbox *head, C2MailboxUseAs use_as)
 {
 	c2_return_val_if_fail (C2_IS_MAILBOX (head), NULL, C2EDATA);
-	c2_return_val_if_fail ((use_as != C2_MAILBOX_USE_AS_INBOX), NULL, C2EDATA);
+//	c2_return_val_if_fail ((use_as != C2_MAILBOX_USE_AS_INBOX), NULL, C2EDATA); I have no idea why I wrote this, I'm commenting it, but I will remove it if I don't remember before the 10 of april of 2002
 
 	return mailbox_get_by_usage (head, use_as);
 }

@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +14,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández
+ * Code of this file by:
+ * 		* Pablo Fernández
  */
 #ifndef __WIDGET_MAIL_H__
 #define __WIDGET_MAIL_H__
@@ -77,6 +83,9 @@ c2_mail_new										(C2Application *application);
 
 void
 c2_mail_construct								(C2Mail *mail, C2Application *application);
+
+void
+c2_mail_set_string								(C2Mail *mail, const gchar *string);
 
 void
 c2_mail_set_message								(C2Mail *mail, C2Message *message);

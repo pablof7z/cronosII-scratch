@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  * Code of this file by:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  */
 #include <glib.h>
 #include <string.h>
@@ -361,8 +361,6 @@ c2_mime_class_init (C2MimeClass *klass)
 	parent_class = gtk_type_class (gtk_object_get_type ());
 
 	gtk_object_class_add_signals (object_class, c2_mime_signals, LAST_SIGNAL);
-
-	object_class->destroy = c2_mime_destroy;
 }
 
 static void
@@ -417,7 +415,12 @@ c2_mime_new (C2Message *message)
 	C2Mime *mime;
 	
 	if (!message)
-		return gtk_type_new (c2_mime_get_type ());
+	{
+		mime = gtk_type_new (c2_mime_get_type ());
+		gtk_signal_connect (GTK_OBJECT (mime), "destroy",
+							GTK_SIGNAL_FUNC (c2_mime_destroy), NULL);
+		return mime;
+	}
 
 	if (message->mime)
 		return message->mime;
@@ -446,7 +449,9 @@ c2_mime_get_part (C2Mime *mime)
 		mime->part = c2_mime_decode_quoted_printable (tmp, &mime->length);
 		g_free (tmp);
 	} else
+	{
 		mime->part = tmp;
+	}
 
 	return mime->part;
 }

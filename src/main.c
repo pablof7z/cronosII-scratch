@@ -187,10 +187,7 @@ c2_init (gint argc, gchar **argv)
 
 #define CREATE_WINDOW_MAIN \
 	{ \
-		widget = c2_window_main_new (application); \
-		gtk_signal_connect (GTK_OBJECT (widget), "show", \
-							GTK_SIGNAL_FUNC (on_window_main_show), widget); \
-		gtk_widget_show (widget); \
+		c2_application_command (application, C2_COMMAND_WINDOW_MAIN_NEW, flags.mailbox); \
 		something_opened = TRUE; \
 	}
 
@@ -229,38 +226,146 @@ main (gint argc, gchar **argv)
 		if (flags.open_main_window)
 			CREATE_WINDOW_MAIN;
 	
+		/* Composer */
 		if (flags.open_composer || flags.account || flags.to || flags.cc ||
 			flags.bcc || flags.subject || flags.body || flags.mailto)
 		{
-			if ((widget = c2_composer_new (application)))
+			gchar *headers = NULL;
+			gchar *values = NULL;
+			gchar *buf = NULL;
+			gboolean interpret_as_link = FALSE;
+			
+			if (flags.mailto)
 			{
-				if (flags.mailto)
-					c2_composer_set_contents_from_link (C2_COMPOSER (widget), flags.mailto);
-				else
+				interpret_as_link = TRUE;
+				headers = flags.mailto;
+			} else
+			{
+				if (flags.account)
 				{
-					if (flags.account)
-						c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_ACCOUNT,
-													flags.account);
-					if (flags.to)
-						c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_TO,
-													flags.to);
-					if (flags.cc)
-					c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_CC,
-													flags.cc);
-					if (flags.bcc)
-						c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_BCC,
-													flags.bcc);
-					if (flags.subject)
-						c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_SUBJECT,
-													flags.subject);
-					if (flags.body)
-						c2_composer_set_extra_field (C2_COMPOSER (widget), C2_COMPOSER_BODY,
-													flags.body);
+					if (headers)
+					{
+						buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_ACCOUNT);
+						g_free (headers);
+					} else
+						buf = g_strdup (C2_COMPOSER_ACCOUNT);
+					headers = buf;
+
+					if (values)
+					{
+						buf = g_strdup_printf ("%s\r%s", values, flags.account);
+						g_free (values);
+					} else
+						buf = g_strdup (flags.account);
+					values = buf;
+				}
+						
+				if (flags.to)
+				{
+					if (headers)
+					{
+						buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_TO);
+						g_free (headers);
+					} else
+						buf = g_strdup (C2_COMPOSER_TO);
+					headers = buf;
+
+					if (values)
+					{
+						buf = g_strdup_printf ("%s\r%s", values, flags.to);
+						g_free (values);
+					} else
+						buf = g_strdup (flags.to);
+					values = buf;
 				}
 				
-				gtk_widget_show (widget);
+				if (flags.cc)
+				{
+					if (headers)
+					{
+						buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_CC);
+						g_free (headers);
+					} else
+						buf = g_strdup (C2_COMPOSER_CC);
+					headers = buf;
+
+					if (values)
+					{
+						buf = g_strdup_printf ("%s\r%s", values, flags.cc);
+						g_free (values);
+					} else
+						buf = g_strdup (flags.cc);
+					values = buf;
+					
+				}
+				
+				if (flags.bcc)
+				{
+					if (headers)
+					{
+						buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_BCC);
+						g_free (headers);
+					} else
+						buf = g_strdup (C2_COMPOSER_BCC);
+					headers = buf;
+
+					if (values)
+					{
+						buf = g_strdup_printf ("%s\r%s", values, flags.bcc);
+						g_free (values);
+					} else
+						buf = g_strdup (flags.bcc);
+					values = buf;
+				}
+				
+				if (flags.subject)
+				{
+					if (headers)
+					{
+						buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_SUBJECT);
+						g_free (headers);
+					} else
+						buf = g_strdup (C2_COMPOSER_SUBJECT);
+					headers = buf;
+
+					if (values)
+					{
+						buf = g_strdup_printf ("%s\r%s", values, flags.subject);
+						g_free (values);
+					} else
+						buf = g_strdup (flags.subject);
+					values = buf;
+				}
+				
+				if (flags.body)
+				{
+					if (headers)
+					{
+						buf = g_strdup_printf ("%s\r%s", headers, C2_COMPOSER_BODY);
+						g_free (headers);
+					} else
+						buf = g_strdup (C2_COMPOSER_BODY);
+					headers = buf;
+
+					if (values)
+					{
+						buf = g_strdup_printf ("%s\r%s", values, flags.body);
+						g_free (values);
+					} else
+						buf = g_strdup (flags.body);
+					values = buf;
+				}
 			}
-	
+
+			c2_application_command (application, C2_COMMAND_COMPOSER_NEW, interpret_as_link, headers, values);
+			
+			something_opened = TRUE;
+		}
+
+		/* Check mail */
+		if (flags.check)
+		{
+			c2_application_command (application, C2_COMMAND_CHECK_MAIL);
 			something_opened = TRUE;
 		}
 	
@@ -289,22 +394,4 @@ on_release_information_idle (gpointer data)
 	c2_application_dialog_release_information (application);
 
 	return FALSE;
-}
-
-static void
-on_window_main_show (GtkWidget *widget, C2WindowMain *wmain)
-{
-	C2Mailbox *mailbox;
-
-	mailbox = c2_mailbox_get_by_name (application->mailbox,
-							flags.mailbox ? flags.mailbox : C2_MAILBOX_INBOX);
-	
-	if (!mailbox)
-		c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
-							_("The mailbox \"%s\", specified in command line, "
-							  "does not exist."), flags.mailbox);
-	else
-		c2_window_main_set_mailbox (wmain, mailbox);
-	
-	return;
 }

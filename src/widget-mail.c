@@ -364,6 +364,17 @@ set_headers (C2Mail *mail, C2Message *message)
 {
 	gchar *buf;
 
+	if (!C2_IS_MESSAGE (message))
+	{
+		gtk_label_set_text (GTK_LABEL (mail->subject_label[1]), "");
+		gtk_label_set_text (GTK_LABEL (mail->from_label[1]), "");
+		gtk_label_set_text (GTK_LABEL (mail->to_label[1]), "");
+		gtk_label_set_text (GTK_LABEL (mail->cc_label[1]), "");
+		gtk_widget_hide (mail->attachments_button);
+		gtk_widget_queue_resize (mail->attachments_button->parent);
+		return;
+	}
+
 	/* Subject */
 	buf = c2_message_get_header_field (message, "Subject:");
 	if (!buf || !strlen (buf))
@@ -429,6 +440,21 @@ set_headers (C2Mail *mail, C2Message *message)
 }
 
 void
+c2_mail_set_string (C2Mail *mail, const gchar *string)
+{
+	if (C2_IS_MESSAGE (mail->message))
+	{
+		gtk_object_unref (GTK_OBJECT (mail->message));
+	}
+	mail->message = NULL;
+
+	gtk_object_set_data (GTK_OBJECT (mail->body), "message", NULL);
+	
+	set_headers (mail, NULL);
+	c2_html_set_content_from_string (C2_HTML (mail->body), string);
+}
+
+void
 c2_mail_set_message (C2Mail *mail, C2Message *message)
 {
 	C2Mime *mime;
@@ -478,6 +504,8 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 		}
 	}
 
+	C2_DEBUG (mime->part);
+
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 	if (text_plain && mime)
 		string = interpret_text_plain_symbols (mime->part);
@@ -492,21 +520,30 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 		string = message->mime ? c2_mime_get_part (message->mime) : message->body;
 #endif
 
+	C2_DEBUG (mime->part);
+
 	gtk_object_set_data (GTK_OBJECT (mail->body), "message", message);
 	
-	buf = c2_str_wrap (string, 75);
-#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
-	g_free (string);
-#endif
-	string = buf;
+	if (text_plain)
+	{
+		buf = c2_str_wrap (string, 75);
+		g_free (string);
+		string = buf;
+	}
+	printf ("string = %d\nmime-> = %d\n", string, mime->part);
 
 	set_headers (mail, message);
+	C2_DEBUG (mime->part);
 	c2_html_set_content_from_string (C2_HTML (mail->body), string);
+
+	C2_DEBUG (mime->part);
 
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 	if (text_plain)
 		g_free (string);
 #endif
+
+	C2_DEBUG (mime->part);
 }
 
 C2Message *

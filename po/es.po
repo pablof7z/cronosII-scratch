@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Cronos II 0.3-pre1\n"
-"POT-Creation-Date: 2002-04-04 18:15+0200\n"
+"POT-Creation-Date: 2002-04-06 02:37+0200\n"
 "PO-Revision-Date: 2001-11-09 22:35-0300\n"
 "Last-Translator: Pablo Fernández <sandokan@pablossite.net>\n"
 "Language-Team: Cronos II Hackers Team "
@@ -60,7 +60,8 @@ msgstr "Error interno"
 #. C2NOBJ
 #: libcronosII/error.c:38
 msgid "Internal error: Net Object has reached its maximal allocated buffer"
-msgstr "Error interno: Objeto de red a alcanzado su alocación máxima de buffers"
+msgstr ""
+"Error interno: Objeto de red a alcanzado su alocación máxima de buffers"
 
 #: libcronosII/imap.c:289 libcronosII/imap.c:373
 msgid "Error connecting to IMAP server."
@@ -69,7 +70,8 @@ msgstr "Error conectandose al servidor IMAP"
 #: libcronosII/imap.c:406
 #, c-format
 msgid "Error reading from socket on IMAP host %s! Reader thread aborting!\n"
-msgstr "Error leyendo del socket en el servidor IMAP %s! Proceso lector abortado!\n"
+msgstr ""
+"Error leyendo del socket en el servidor IMAP %s! Proceso lector abortado!\n"
 
 #: libcronosII/imap.c:654
 #, c-format
@@ -216,7 +218,7 @@ msgid "Failed: %s\n"
 msgstr "Falló: %s\n"
 
 #: src/install.c:404 src/install.c:431 src/install.c:460 src/install.c:488
-#: src/install.c:516 src/widget-transfer-item.c:774
+#: src/install.c:516 src/widget-transfer-item.c:776
 msgid "Failed"
 msgstr "Falló"
 
@@ -266,7 +268,7 @@ msgid "Failed to create mailbox «%s»: %s."
 msgstr "Fallo al crear el buzón «%s»: %s."
 
 #: src/main.c:48
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to save file: %s."
 msgstr ""
 
@@ -360,11 +362,6 @@ msgid ""
 "Cronos II instances"
 msgstr ""
 
-#: src/main.c:304
-#, c-format
-msgid "The mailbox \"%s\", specified in command line, does not exist."
-msgstr ""
-
 #: src/widget-composer.c:442
 #, fuzzy
 msgid "Select a message"
@@ -417,7 +414,8 @@ msgstr "La cuenta especificada ya no existe: %s"
 msgid ""
 "The message is not asociated to an account, default account will be used."
 msgstr ""
-"El mensaje no esta asociado a ninguna cuenta, la cuenta predeterminada será utilizada."
+"El mensaje no esta asociado a ninguna cuenta, la cuenta predeterminada será "
+"utilizada."
 
 #: src/widget-composer.c:1579
 #, c-format
@@ -575,30 +573,34 @@ msgstr "Recibiendo %v de %u"
 msgid "Synchronizing"
 msgstr "Sincronizando"
 
-#: src/widget-transfer-item.c:714
+#: src/widget-transfer-item.c:716
 #, c-format
 msgid "Received %d new mail%s"
-msgstr "%d correo%s nuevo%s"	
+msgstr "%d correo%s nuevo%s"
 
-#: src/widget-transfer-item.c:717
+#: src/widget-transfer-item.c:717 src/widget-transfer-item.c:720
+msgid "s"
+msgstr ""
+
+#: src/widget-transfer-item.c:719
 msgid "No new mails available"
 msgstr "No hay correo"
 
-#: src/widget-transfer-item.c:722
+#: src/widget-transfer-item.c:724
 #, c-format
 msgid "Failure: %s"
 msgstr "Fallo: %s"
 
-#: src/widget-transfer-item.c:724
+#: src/widget-transfer-item.c:726
 msgid "Failure"
 msgstr ""
 
-#: src/widget-transfer-item.c:751
+#: src/widget-transfer-item.c:753
 #, fuzzy
 msgid "Sending"
 msgstr "Sendmail"
 
-#: src/widget-transfer-item.c:774
+#: src/widget-transfer-item.c:776
 msgid "Message Sent"
 msgstr "Correo enviado"
 
@@ -614,146 +616,146 @@ msgstr "Cerrar al finalizar."
 msgid "Send & Receive"
 msgstr "Envio & Recepción"
 
-#: src/widget-window-main.c:337
+#: src/widget-window-main.c:340
 msgid "Check"
 msgstr "Chequear"
 
-#: src/widget-window-main.c:338
+#: src/widget-window-main.c:341
 #, fuzzy
 msgid "Check for incoming mails"
 msgstr "Chequear cuentas activas por correo entrante cada"
 
-#: src/widget-window-main.c:345
+#: src/widget-window-main.c:348
 msgid "Send"
 msgstr "Enviar"
 
-#: src/widget-window-main.c:346
+#: src/widget-window-main.c:349
 #, fuzzy
 msgid "Send outgoing mails"
 msgstr "Correo saliente"
 
-#: src/widget-window-main.c:353
+#: src/widget-window-main.c:356
 msgid "Search"
 msgstr "Buscar"
 
-#: src/widget-window-main.c:354
+#: src/widget-window-main.c:357
 msgid "Search a message in existent mailboxes"
 msgstr ""
 
-#: src/trans.h:117 src/widget-window-main.c:361
+#: src/trans.h:117 src/widget-window-main.c:364
 msgid "Save"
 msgstr "Guardar"
 
-#: src/widget-window-main.c:362
+#: src/widget-window-main.c:365
 #, fuzzy
 msgid "Save selected message"
 msgstr "No éxiste tal mensaje"
 
-#: src/widget-window-main.c:369
+#: src/widget-window-main.c:372
 msgid "Print"
 msgstr "Imprimir"
 
-#: src/widget-window-main.c:370
+#: src/widget-window-main.c:373
 msgid "Print selected message"
 msgstr ""
 
-#: src/widget-window-main.c:377
+#: src/widget-window-main.c:380
 msgid "Delete"
 msgstr "Eliminar"
 
-#: src/widget-window-main.c:378
+#: src/widget-window-main.c:381
 msgid "Delete selected mails"
 msgstr "Eliminar los mensajes seleccionados"
 
-#: src/widget-window-main.c:385
+#: src/widget-window-main.c:388
 msgid "Copy"
 msgstr "Copiar"
 
-#: src/widget-window-main.c:386
+#: src/widget-window-main.c:389
 msgid "Copy selected mails"
 msgstr "Copiar los mensajes seleccionados"
 
-#: src/widget-window-main.c:393
+#: src/widget-window-main.c:396
 msgid "Move"
 msgstr "Mover"
 
-#: src/widget-window-main.c:394
+#: src/widget-window-main.c:397
 msgid "Move selected mails"
 msgstr ""
 
-#: src/widget-window-main.c:401
+#: src/widget-window-main.c:404
 msgid "Compose"
 msgstr "Componer"
 
-#: src/widget-window-main.c:402
+#: src/widget-window-main.c:405
 msgid "Compose a new message"
 msgstr "Componer un nuevo correo"
 
-#: src/widget-window-main.c:409
+#: src/widget-window-main.c:412
 msgid "Reply"
 msgstr "Contestar"
 
-#: src/widget-window-main.c:410
+#: src/widget-window-main.c:413
 msgid "Reply selected message"
 msgstr "Contestar el mensaje seleccionado"
 
-#: src/widget-window-main.c:417
+#: src/widget-window-main.c:420
 msgid "Reply All"
 msgstr "Contestar todos"
 
-#: src/widget-window-main.c:418
+#: src/widget-window-main.c:421
 msgid "Reply selected message to all recipients"
 msgstr ""
 
-#: src/widget-window-main.c:425
+#: src/widget-window-main.c:428
 msgid "Forward"
 msgstr "Reenviar"
 
-#: src/widget-window-main.c:426
+#: src/widget-window-main.c:429
 msgid "Forward selected message"
 msgstr ""
 
-#: src/widget-window-main.c:433
+#: src/widget-window-main.c:436
 msgid "Previous"
 msgstr "Anterior"
 
-#: src/trans.h:61 src/widget-window-main.c:434
+#: src/trans.h:61 src/widget-window-main.c:437
 msgid "Select previous message"
 msgstr ""
 
-#: src/widget-window-main.c:441
+#: src/widget-window-main.c:444
 msgid "Next"
 msgstr "Siguiente"
 
-#: src/trans.h:63 src/widget-window-main.c:442
+#: src/trans.h:63 src/widget-window-main.c:445
 msgid "Select next message"
 msgstr ""
 
-#: src/widget-window-main.c:449
+#: src/widget-window-main.c:452
 msgid "Contacts"
 msgstr "Contactos"
 
-#: src/widget-window-main.c:450
+#: src/widget-window-main.c:453
 msgid "Open the Contacts Address Book"
 msgstr ""
 
-#: src/trans.h:156 src/widget-window-main.c:457
+#: src/trans.h:156 src/widget-window-main.c:460
 msgid "Close"
 msgstr "Cerrar"
 
-#: src/widget-window-main.c:459
+#: src/widget-window-main.c:462
 msgid "Close the main window of Cronos II"
 msgstr ""
 
-#: src/widget-window-main.c:466
+#: src/widget-window-main.c:469
 msgid "Exit"
 msgstr "Salir"
 
-#: src/widget-window-main.c:467
+#: src/widget-window-main.c:470
 msgid "Close all windows of Cronos II"
 msgstr ""
 
-#: src/widget-window-main.c:581
+#: src/widget-window-main.c:592
 msgid ""
 "Cronos II was not able to load the UI, you should check your installation.\n"
 "Aborting.\n"
@@ -763,30 +765,36 @@ msgstr ""
 "Abortando.\n"
 
 #. Configure the status bar
-#: src/widget-window-main.c:956
+#: src/widget-window-main.c:978
 #, fuzzy
 msgid "Deleting..."
 msgstr "Borrando..."
 
-#: src/widget-window-main.c:2237
+#: src/widget-window-main.c:2265
 #, c-format
 msgid "%d messages, %d new."
 msgstr "%d mensajes, %d nuevos."
 
-#: src/trans.h:172 src/widget-window-main.c:2290
+#: src/widget-window-main.c:2377
+msgid ""
+"This folder parents all the local mailboxes that <b>Cronos II</b> handles "
+"for you."
+msgstr ""
+
+#: src/trans.h:172 src/widget-window-main.c:2418
 msgid "You found the Eastern Egg!"
 msgstr "Has encontrado el Huevo de Pascua!"
 
-#: src/trans.h:173 src/widget-window-main.c:2291
+#: src/trans.h:173 src/widget-window-main.c:2419
 msgid "Neat, baby!"
 msgstr "Buenísimo!"
 
-#: src/widget-window-main.c:2550
+#: src/widget-window-main.c:2678
 #, fuzzy
 msgid "Toolbar Configuration"
 msgstr "Configuración de la Barra de Herramientas"
 
-#: src/widget-window-main.c:2653
+#: src/widget-window-main.c:2781
 msgid "Separator"
 msgstr "Separador"
 

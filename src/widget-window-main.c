@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  * Code of this file by:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  **/
 #include <config.h>
 #include <gnome.h>
@@ -51,6 +51,9 @@ class_init									(C2WindowMainClass *klass);
 
 static void
 init										(C2WindowMain *wmain);
+
+static void
+destroy										(GtkObject *obj);
 
 static void
 check										(C2WindowMain *wmain);
@@ -529,6 +532,12 @@ init (C2WindowMain *wmain)
 	c2_mutex_init (&wmain->body_lock);
 }
 
+static void
+destroy (GtkObject *obj)
+{
+	C2_WINDOW_MAIN_CLASS_FW (obj)->close (C2_WINDOW_MAIN (obj));
+}
+
 GtkWidget *
 c2_window_main_new (C2Application *application)
 {
@@ -563,6 +572,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	c2_window_construct (C2_WINDOW (wmain), application, "Cronos II", "wmain", NULL);
 	gtk_signal_connect (GTK_OBJECT (application), "window_changed",
 						GTK_SIGNAL_FUNC (on_application_window_changed), wmain);
+	gtk_signal_connect (GTK_OBJECT (wmain), "destroy",
+						GTK_SIGNAL_FUNC (destroy), wmain);
 
 	C2_WINDOW (wmain)->xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "wnd_main_contents");
 	c2_window_set_contents_from_glade (C2_WINDOW (wmain), "wnd_main_contents");
@@ -582,7 +593,6 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 			   "your installation.\nAborting.\n"));
 #endif
 		gtk_object_destroy (GTK_OBJECT (application));
-		exit (0);
 	}
 
 	gtk_widget_realize (GTK_WIDGET (wmain));
@@ -878,6 +888,18 @@ check (C2WindowMain *wmain)
 static void
 close_ (C2WindowMain *wmain)
 {
+	C2Application *application = C2_WINDOW (wmain)->application;
+	
+	/* Disconnect to signals connected to object that might not be destroyed */
+	gtk_signal_disconnect_by_func (GTK_OBJECT (application),
+									GTK_SIGNAL_FUNC (on_application_window_changed), wmain);
+	gtk_signal_disconnect_by_func (GTK_OBJECT (application),
+									GTK_SIGNAL_FUNC (on_application_application_preferences_changed), wmain);
+
+	/* Destroy objects */
+	gtk_object_destroy (GTK_OBJECT (wmain->toolbar));
+	gtk_object_destroy (GTK_OBJECT (wmain->toolbar_menu));
+//	gtk_object_destroy (GTK_OBJECT (
 	gtk_object_destroy (GTK_OBJECT (wmain));
 }
 
@@ -1027,8 +1049,14 @@ delete (C2WindowMain *wmain)
 static void
 exit_ (C2WindowMain *wmain)
 {
+	C2Application *application = C2_WINDOW (wmain)->application;
+	
 /* TODO	c2_application_finish (C2_WINDOW (wmain)->application); */
-	gtk_object_destroy (GTK_OBJECT (wmain));
+	
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->close (wmain);
+
+	if (C2_IS_APPLICATION (application))
+		gtk_object_destroy (GTK_OBJECT (application));
 }
 
 static void
@@ -2245,16 +2273,116 @@ on_mlist_object_selected_pthread (C2WindowMain *wmain)
 static void
 on_mlist_object_selected (C2MailboxList *mlist, GtkObject *object, C2WindowMain *wmain)
 {
+	static GtkWidget *index_scroll = NULL;
+	static GtkWidget *view_mail_preview = NULL;
+	static GtkWidget *view_headers = NULL;
+	static GtkWidget *vpaned = NULL;
+	static C2WindowMain *static_wmain = NULL;
+	static gint pan_size = -1;
+	static unsigned char showing_mailbox = TRUE;
 	pthread_t thread;
 
-	if (!C2_IS_MAILBOX (object))
+	if (static_wmain != wmain)
 	{
-		/* If this is not a mailbox we don't want to show anything */
-		c2_index_clear (C2_INDEX (wmain->index));
-		return;
+		index_scroll = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "index_scroll");
+		view_mail_preview = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "view_mail_preview");
+		view_headers = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "view_headers");
+		vpaned = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "vpaned");
 	}
 
-	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_mlist_object_selected_pthread), wmain);
+	if (C2_IS_MAILBOX (object))
+	{
+		if (!showing_mailbox)
+		{
+			gtk_widget_show (index_scroll);
+			if (GTK_CHECK_MENU_ITEM (view_mail_preview)->active)
+				gtk_widget_show (wmain->mail);
+	
+			c2_mail_set_headers_visible (C2_MAIL (wmain->mail),
+									GTK_CHECK_MENU_ITEM (view_headers)->active);
+				
+			gtk_paned_set_position (GTK_PANED (vpaned), pan_size);
+		}
+		
+		showing_mailbox = TRUE;
+		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_mlist_object_selected_pthread), wmain);
+	} else
+	{
+		gchar *string = NULL;
+		
+		if (showing_mailbox)
+		{
+			gtk_widget_hide (index_scroll);
+			gtk_widget_show (wmain->mail);
+			c2_index_clear (C2_INDEX (wmain->index));
+
+			c2_mail_set_headers_visible (C2_MAIL (wmain->mail), FALSE);
+
+			if (showing_mailbox)
+				pan_size = GTK_PANED (vpaned)->child1_size;
+
+			showing_mailbox = FALSE;
+			gtk_paned_set_position (GTK_PANED (vpaned), 0);
+		}
+
+		if (C2_IS_ACCOUNT (object))
+		{
+		} else
+		{
+			gchar *buf1, *buf2, *text;
+			
+			buf1 = g_getenv ("HOSTNAME");
+			buf2 = g_get_user_name ();
+			text = g_strdup_printf ("%s@%s", buf2, buf1);
+			
+#if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
+			string = g_strdup_printf (
+"<html>
+<body bgcolor=#ffffff>
+<h1>%s</h1>
+
+<table cellspacing=4>
+  <tr>
+    <td>
+	
+	  <table bgcolor=#ff9000 cellspacing=0 cellpadding=1 border=0 width=150>
+	    <tr>
+		  <td align=\"center\">
+		    <font color=#ffffff face=\"Verdana, Helvetica\" size=\"-1\"><b>%s</b></font>
+	      </td>
+        </tr>
+	    <tr>
+		  <td width=150>
+	        <table bgcolor=#ffd050 cellspacing=0 height=\"100%%\" valign=\"top\">
+			  <tr>
+			    <td>
+				  <font face=\"Verdana, Helvetica\" size=\"-1\" color=#000000>%s</font>
+				</td>
+			  </tr>
+			</table>
+		  </td>
+		</tr>
+	  </table>
+
+	</td>
+    <td>
+	  <font face=\"Verdana, Helvetica\">%s</font>
+	</td>
+  </tr>
+</table>
+
+</body>
+</html>
+", text, _("Tip of the day"), _("There are no available tips yet."),
+_("This folder parents all the local mailboxes that <b>Cronos II</b> handles for you."));
+#else
+		
+#endif
+		}
+
+		c2_mail_set_string (C2_MAIL (wmain->mail), string);
+		g_free (string);
+	}
 }
 
 static void
