@@ -779,7 +779,7 @@ c2_application_dialog_incoming_mail_warning (C2Application *application)
 	GdkFont *font;
 	gchar *str;
 
-	if (GTK_IS_WINDOW ((window = (GtkWidget*) gtk_object_get_data (application, "mail_warn_window"))))
+	if (GTK_IS_WINDOW ((window = (GtkWidget*) gtk_object_get_data (GTK_OBJECT (application), "mail_warn_window"))))
 	{
 		gint mails;
 		GdkEventExpose *e;
@@ -1029,7 +1029,7 @@ void
 c2_application_dialog_release_information (C2Application *application)
 {
 	GladeXML *xml;
-	GtkWidget *widget, *html, *scroll, *parent;
+	GtkWidget *widget, *html, *parent;
 	gint i;
 	gchar *buf;
 	
@@ -1199,8 +1199,11 @@ void
 c2_application_dialog_getting_in_touch (C2Application *application)
 {
 	GladeXML *xml;
-	GtkWidget *widget, *html, *scroll, *parent;
+	GtkWidget *widget, *html, *parent;
 	gchar *buf;
+#ifdef USE_GTKHTML
+	GtkWidget *scroll;
+#endif
 	
 	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_getting_in_touch");
 
@@ -1369,7 +1372,7 @@ c2_application_dialog_select_file_save (C2Application *application, gchar **file
 	c2_application_window_add (application, GTK_WINDOW (filesel));
 
 	c2_preferences_get_general_paths_save (dir);
-	buf = g_strdup_printf ("%s/%s", dir, file);
+	buf = g_strdup_printf ("%s/%s", dir, *file);
 	gtk_file_selection_set_filename (GTK_FILE_SELECTION (filesel), buf);
 	g_free (buf);
 	g_free (dir);
@@ -1436,7 +1439,10 @@ rerun:
 
 	gtk_widget_hide (filesel);
 	if (file)
+	{
+		g_free (*file);
 		*file = g_strdup (buf);
+	}
 
 	if (!(fd = fopen (buf, "w")))
 		c2_error_set (-errno);

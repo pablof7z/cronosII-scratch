@@ -1450,10 +1450,124 @@ expunge:
 }
 
 static void
+_expunge_thread (C2Pthread2 *data)
+{
+	C2Mailbox *fmailbox;
+	GList *list, *l;
+	C2Window *window;
+	GtkWidget *widget = NULL;
+	GtkProgress *progress = NULL;
+	gint length, off;
+	gboolean progress_ownership = FALSE,
+			 status_ownership = FALSE;
+
+	/* Load the data */
+	list = (GList*) data->v1;
+	window = (C2Window*) (data->v2);
+	fmailbox = C2_DB (list->data)->mailbox;
+	g_free (data);
+
+	/* Get the length of the list to move */
+	length = g_list_length (list);
+
+	/* Get the appbar */
+	if (window)
+	{
+		widget = glade_xml_get_widget (window->xml, "appbar");
+
+		if (GNOME_IS_APPBAR (widget))
+		{
+			/* Try to reserve ownership over the progress bar */
+			if (!c2_mutex_trylock (&window->progress_lock))
+				progress_ownership = TRUE;
+
+			/* Try to reserve ownership over the status bar */
+			if (!c2_mutex_trylock (&window->status_lock))
+				status_ownership = TRUE;
+		}
+	}
+
+	gdk_threads_enter ();
+
+	if (progress_ownership)
+	{
+		/* Configure the progressbar */
+		progress = (GtkProgress*) ((GnomeAppBar*) widget)->progress;
+		gtk_progress_configure (progress, 0, 0, length);
+	}
+	
+	if (status_ownership)
+	{
+		/* Configure the statusbar */
+		gnome_appbar_push (GNOME_APPBAR (widget), _("Deleting..."));
+	}
+
+	gdk_threads_leave ();
+
+	/* Start moving */
+	c2_db_freeze (fmailbox);
+	for (l = list, off = 0; l; l = g_list_next (l), off++)
+	{
+		C2Db *db;
+		
+		/* Now do the actual copy */
+		db = C2_DB (l->data);
+
+		c2_db_message_remove (fmailbox, db);
+
+		if (progress_ownership)
+		{
+			gdk_threads_enter ();
+			gtk_progress_set_value (progress, off);
+			gdk_threads_leave ();
+		}
+	}
+	c2_db_thaw (fmailbox);
+
+	g_list_free (list);
+
+	gdk_threads_enter ();
+	
+	if (status_ownership)
+	{
+		gnome_appbar_pop (GNOME_APPBAR (widget));
+		c2_mutex_unlock (&window->status_lock);
+	}
+
+	if (progress_ownership)
+	{
+		gtk_progress_set_percentage (progress, 1.0);
+		c2_mutex_unlock (&window->progress_lock);
+	}
+	
+	gdk_threads_leave ();
+}
+
+static void
 _expunge (C2Application *application, GList *list, C2Window *window)
 {
+	C2Pthread2 *data;
+	pthread_t thread;
+	
 	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
 	c2_return_if_fail (list, C2EDATA);
+
+	/* Ask for confirmation */
+	if (!dlg_confirm_delete_message (application, (GtkWindow*) window))
+	{
+		if (window)
+			c2_window_report (window, C2_WINDOW_REPORT_MESSAGE,
+						error_list[C2_CANCEL_USER]);
+		return;
+	}
+
+	/* Ok, we are ready to move everything to «Trash» */
+	/* Fire the thread */
+	data = g_new0 (C2Pthread3, 1);
+	data->v1 = g_list_copy (list);
+	data->v2 = window;
+
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (_expunge_thread), data);
 }
 
 static void
@@ -1647,6 +1761,8 @@ _reply_all (C2Application *application, C2Db *db, C2Message *message)
 static void
 _save (C2Application *application, C2Message *message, C2Window *window)
 {
+	gchar *file;
+	gchar *buf;
 	FILE *fd;
 	
 	c2_return_if_fail (C2_IS_APPLICATION (application), C2EDATA);
@@ -1661,7 +1777,11 @@ _save (C2Application *application, C2Message *message, C2Window *window)
 		goto no_name;
 	}
 
-	fd = c2_application_dialog_select_file_save (application, NULL);
+	buf = c2_message_get_header_field (message, "Subject:");
+	file = g_strdup_printf ("%s.eml", buf);
+	g_free (buf);
+
+	fd = c2_application_dialog_select_file_save (application, &file);
 	
 	if (!fd)
 	{

@@ -1,6 +1,11 @@
 Sat Jun  1 Pablo Fernández <sandokan at pablossite dot net>
 	* Fixed a compilation time bug (gcc 3 (I'm starting to hate
 	  that version!)).
+	* Fixed some bugs with the saving functionality.
+	* Added the expunge functionality.
+	* Fixed a bug in compilation time for GtkHTML.
+	* Fixed a bug that caused problems when compiling
+	  with some installations of libglade.
 
 Fri May 31 Pablo Fernández <sandokan at pablossite dot net>
 	* Fixed a bug for the GtkText code.

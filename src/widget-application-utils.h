@@ -25,27 +25,26 @@ extern "C" {
 #include <libcronosII/message.h>
 
 gboolean
-c2_application_check_account_exists			(C2Application *application);
+c2_application_check_account_exists		(C2Application *application);
 
 gboolean
 c2_application_check_checkeable_account_exists (C2Application *application);
 
 gchar *
-c2_application_cut_text						(C2Application *application, GdkFont *font,
-											 const gchar *text, guint16 av_space);
+c2_application_cut_text				(C2Application *application, GdkFont *font, const gchar *text, guint16 av_space);
 
 /* Dialogs */
 void
 c2_application_dialog_missing_mailbox_inform	(C2Application *application, const gchar *name);
 
 void
-c2_application_dialog_add_mailbox			(C2Application *application);
+c2_application_dialog_add_mailbox		(C2Application *application);
 
 void
 c2_application_dialog_incoming_mail_warning	(C2Application *application);
 
 void
-c2_application_dialog_add_features			(C2Application *application);
+c2_application_dialog_add_features		(C2Application *application);
 
 void
 c2_application_dialog_network_traffic		(C2Application *application);
@@ -54,7 +53,7 @@ void
 c2_application_dialog_release_information	(C2Application *application);
 
 void
-c2_application_dialog_about					(C2Application *application);
+c2_application_dialog_about			(C2Application *application);
 
 void
 c2_application_dialog_getting_in_touch		(C2Application *application);
@@ -69,7 +68,7 @@ FILE *
 c2_application_dialog_select_file_save		(C2Application *application, gchar **file);
 
 void
-c2_application_dialog_mail_source			(C2Application *application, C2Message *message);
+c2_application_dialog_mail_source		(C2Application *application, C2Message *message);
 
 #ifdef __cplusplus
 }

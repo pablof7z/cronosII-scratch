@@ -3043,7 +3043,6 @@ in the following fields.</label>
       <widget>
 	<class>GtkButton</class>
 	<name>button</name>
-	<tooltip>Close this dialog</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_CLOSE</stock_button>
