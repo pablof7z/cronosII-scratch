@@ -489,7 +489,6 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	scroll = glade_xml_get_widget (xml, "mlist_scroll");
 	gtk_container_add (GTK_CONTAINER (scroll), wmain->mlist);
 	gtk_widget_show (wmain->mlist);
-	GTK_WIDGET_UNSET_FLAGS (wmain->mlist, GTK_CAN_FOCUS);
 
 	gtk_signal_connect (GTK_OBJECT (wmain->mlist), "mailbox_selected",
 								GTK_SIGNAL_FUNC (on_mlist_mailbox_selected), wmain);
@@ -652,10 +651,106 @@ contacts (C2WindowMain *wmain)
 }
 
 static void
+copy_thread (C2Pthread4 *data)
+{
+	C2WindowMain *wmain = C2_WINDOW_MAIN (data->v1);
+	C2Mailbox *fmailbox = C2_MAILBOX (data->v2);
+	C2Mailbox *tmailbox = C2_MAILBOX (data->v3);
+	GList *list = (GList*) data->v4;
+	GList *l;
+	GtkWidget *widget;
+	GtkProgress *progress;
+	gint length, off;
+	gboolean progress_ownership;
+	gboolean status_ownership;
+	
+	g_free (data);
+
+	/* Get the length of our list */
+	length = g_list_length (list);
+
+	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "appbar");
+
+	/* Try to reserve ownership over the progress bar */
+	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->progress_lock))
+		progress_ownership = TRUE;
+	else
+		progress_ownership = FALSE;
+
+	/* Try to reserver ownership over the status bar */
+	if (!pthread_mutex_trylock (&C2_WINDOW (wmain)->status_lock))
+		status_ownership = TRUE;
+	else
+		status_ownership = FALSE;
+
+	gdk_threads_enter ();
+	
+	if (progress_ownership)
+	{
+		/* Configure the progress bar */
+		progress = GTK_PROGRESS (GNOME_APPBAR (widget)->progress);
+		gtk_progress_configure (progress, 0, 0, length);
+	}
+
+	if (status_ownership)
+	{
+		/* Configure the status bar */
+		gnome_appbar_push (GNOME_APPBAR (widget), _("Copying..."));
+	}
+
+	gdk_threads_leave ();
+	
+	c2_db_freeze (tmailbox);
+	for (l = list, off = 0; l; l = g_list_next (l), off++)
+	{
+		C2Db *db;
+		
+		/* Now do the actual copy */
+		db = c2_db_get_node (fmailbox, GPOINTER_TO_INT (l->data));
+
+		if (!db->message)
+			c2_db_load_message (db);
+		
+		gtk_object_ref (GTK_OBJECT (db->message));
+		c2_db_message_add (tmailbox, db->message);
+		gtk_object_unref (GTK_OBJECT (db->message));
+
+		if (progress_ownership)
+		{
+			gdk_threads_enter ();
+			gtk_progress_set_value (progress, off);
+			gdk_threads_leave ();
+		}
+	}
+	c2_db_thaw (tmailbox);
+
+	gdk_threads_enter ();
+
+	if (status_ownership)
+	{
+		gnome_appbar_pop (GNOME_APPBAR (widget));
+		pthread_mutex_unlock (&C2_WINDOW (wmain)->status_lock);
+	}
+
+	if (progress_ownership)
+	{
+		gtk_progress_set_percentage (progress, 1.0);
+		pthread_mutex_unlock (&C2_WINDOW (wmain)->progress_lock);
+	}
+
+	gdk_threads_leave ();
+}
+
+static void
 copy (C2WindowMain *wmain)
 {
 	GtkWidget *widget;
 	C2Mailbox *fmailbox, *tmailbox;
+	C2Pthread4 *data;
+	pthread_t thread;
+
+	if (!GTK_CLIST (wmain->index)->selection)
+		return;
 
 	fmailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
 	if (!(tmailbox = c2_application_dialog_select_mailbox (
@@ -665,8 +760,12 @@ copy (C2WindowMain *wmain)
 		return;
 	}
 
-	c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE, _("Mailbox selected is «%s»."),
-						tmailbox->name);
+	data = g_new0 (C2Pthread4, 1);
+	data->v1 = wmain;
+	data->v2 = fmailbox;
+	data->v3 = tmailbox;
+	data->v4 = GTK_CLIST (wmain->index)->selection;
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (copy_thread), data);
 }
 
 static void

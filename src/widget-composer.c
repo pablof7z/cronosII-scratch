@@ -208,10 +208,14 @@ destroy (GtkObject *object)
 static void
 send_ (C2Composer *composer, C2ComposerSendType type)
 {
-	C2Message *message = create_message (composer);
+	C2Message *message;
 	C2Mailbox *mailbox;
 	GladeXML *xml;
 	gchar *buf;
+
+	gdk_threads_enter ();
+	message = create_message (composer);
+	gdk_threads_leave ();
 
 	/* Set the Send Now state of the message */
 	buf = message->header;
@@ -224,19 +228,48 @@ send_ (C2Composer *composer, C2ComposerSendType type)
 		g_assert_not_reached ();
 
 	if (!c2_db_message_add (mailbox, message))
+	{
+		gdk_threads_enter ();
 		gtk_widget_destroy (GTK_WIDGET (composer));
+		gdk_threads_leave ();
+	} else
+	{
+		/* Make the send buttons sensitive again */
+	}
 }
 
 static void
-send_now (C2Composer *composer)
+send_now_thread (C2Composer *composer)
 {
 	send_ (composer, C2_COMPOSER_SEND_NOW);
 }
 
 static void
-send_later (C2Composer *composer)
+send_now (C2Composer *composer)
+{
+	pthread_t thread;
+	
+	/* TODO Set all possible way to send this message (now or later)
+	 * insensitive */
+
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (send_now_thread), composer);
+}
+
+static void
+send_later_thread (C2Composer *composer)
 {
 	send_ (composer, C2_COMPOSER_SEND_LATER);
+}
+
+static void
+send_later (C2Composer *composer)
+{
+	pthread_t thread;
+	
+	/* TODO Set all possible way to send this message (now or later)
+	 * insensitive */
+
+	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (send_later_thread), composer);
 }
 
 GtkWidget *

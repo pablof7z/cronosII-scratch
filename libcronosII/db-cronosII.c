@@ -150,11 +150,9 @@ add_message (C2Mailbox *mailbox, FILE *fd, C2Db *db)
 		return -errno;
 	}
 
-	fprintf (fd, "%s\n%s", db->message->header, db->message->body);
+	fprintf (fd, "%s\n\n%s", db->message->header, db->message->body);
 	fclose (fd);
 	g_free (buf);
-
-	/* TODO Emit the changed_mailbox signal right here */
 
 	return 0;
 }
@@ -324,6 +322,7 @@ c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 	} else
 	{
 		fd = mailbox->protocol.cronosII.fd;
+		fseek (fd, 0, SEEK_END);
 	}
 
 	if ((mid = add_message (mailbox, fd, db)))

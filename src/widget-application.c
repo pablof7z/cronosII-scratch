@@ -575,7 +575,7 @@ on_outbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType change, C2Db 
 	GtkWidget *tl;
 	C2TransferItem *ti;
 	gchar *buf;
-	
+L	
 	if (change != C2_MAILBOX_CHANGE_ADD)
 		return;
 

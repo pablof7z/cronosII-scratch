@@ -311,7 +311,6 @@ c2_net_object_send (C2NetObject *nobj, C2NetObjectByte *byte, const gchar *fmt, 
 
 	va_start (args, fmt);
 	string = g_strdup_vprintf (fmt, args);
-	printf ("C: %s", string);
 	va_end (args);
 	
 	if (nobj->max == 1)

@@ -16,6 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <libcronosII/imap.h>
+#include <libcronosII/error.h>
 
 #include "widget-dialog-preferences.h"
 #include "widget-mailbox-list.h"
@@ -25,6 +26,9 @@ class_init									(C2MailboxListClass *klass);
 
 static void
 init										(C2MailboxList *mlist);
+
+static void
+destroy										(GtkObject *object);
 
 static void
 on_tree_select_row							(GtkCTree *ctree, GtkCTreeNode *row, gint column,
@@ -49,6 +53,10 @@ on_application_preferences_changed			(C2Application *application, gint key, gpoi
 
 static C2Mailbox *
 get_mailbox_from_node						(C2MailboxList *mlist, GtkCTreeNode *node);
+
+static void
+on_mailbox_changed_mailbox					(C2Mailbox *mailbox, C2MailboxChangeType type,
+											 C2Db *db, C2Pthread2 *data);
 
 static void
 node_fill									(GtkCTree *ctree, GtkCTreeNode *cnode,
@@ -120,31 +128,57 @@ class_init (C2MailboxListClass *klass)
 
 	klass->mailbox_selected = NULL;
 	klass->mailbox_unselected = NULL;
+	object_class->destroy = destroy;
 }
 
 static void
 init (C2MailboxList *mlist)
-{
-	gchar *titles[] =
-	{
-		N_("Mailbox"),
-		NULL,
-		NULL
-	};
-	
+{	
 	mlist->selected_node = NULL;
-	gtk_ctree_construct (GTK_CTREE (mlist), 1, 0, titles);
+	mlist->mailbox_list = NULL;
+	mlist->data_list = NULL;
+}
+
+static void
+destroy (GtkObject *object)
+{
+	C2MailboxList *mlist;
+	GList *ml, *dl;
+
+	mlist = C2_MAILBOX_LIST (object);
+	
+	for (ml = mlist->mailbox_list, dl = mlist->data_list;
+		 ml && dl;
+		 ml = g_list_next (ml), dl = g_list_next (dl))
+	{
+		if (C2_IS_MAILBOX (ml->data))
+			gtk_signal_disconnect_by_func (GTK_OBJECT (ml->data),
+											GTK_SIGNAL_FUNC (on_mailbox_changed_mailbox),
+											dl->data);
+		g_free (dl->data);
+	}
+
+	g_list_free (mlist->mailbox_list);
+	g_list_free (mlist->data_list);
 }
 
 GtkWidget *
 c2_mailbox_list_new (C2Application *application)
 {
 	C2MailboxList *mlist;
+	GtkWidget *widget;
+	gchar *titles[] =
+	{
+		N_("Mailbox"),
+		NULL,
+		NULL
+	};
 
 	mlist = gtk_type_new (c2_mailbox_list_get_type ());
 
 	gtk_object_set_data (GTK_OBJECT (mlist), "application", application);
 
+	gtk_ctree_construct (GTK_CTREE (mlist), 1, 0, titles);
 	tree_fill (mlist, application->mailbox, application->account, NULL);
 
 	gtk_signal_connect (GTK_OBJECT (mlist), "tree_select_row",
@@ -161,7 +195,9 @@ c2_mailbox_list_new (C2Application *application)
 	gtk_signal_connect (GTK_OBJECT (application), "application_preferences_changed",
 							GTK_SIGNAL_FUNC (on_application_preferences_changed), mlist);
 	
-	return GTK_WIDGET (mlist);
+	widget = GTK_WIDGET (mlist);
+	GTK_WIDGET_UNSET_FLAGS (widget, GTK_CAN_FOCUS);
+	return widget;
 }
 
 C2Mailbox *
@@ -247,11 +283,13 @@ on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *
 	GtkCTree *ctree = GTK_CTREE (data->v1);
 	GtkCTreeNode *cnode = GTK_CTREE_NODE (data->v2);
 	gint unreaded;
-	
+
 	switch (type)
 	{
 		case C2_MAILBOX_CHANGE_ADD:
+			gdk_threads_enter ();
 			node_fill (ctree, cnode, mailbox, NULL, &unreaded);
+			gdk_threads_leave ();
 			break;
 		case C2_MAILBOX_CHANGE_REMOVE:
 			gdk_threads_enter ();
@@ -344,6 +382,8 @@ tree_fill (C2MailboxList *mlist, C2Mailbox *mailbox, C2Account *account,
 
 		gtk_signal_connect (GTK_OBJECT (l), "changed_mailbox",
 							GTK_SIGNAL_FUNC (on_mailbox_changed_mailbox), data);
+		mlist->data_list = g_list_prepend (mlist->data_list, data);
+		mlist->mailbox_list = g_list_prepend (mlist->mailbox_list, l);
 		
 		if (l->child)
 			tree_fill (mlist, l, account, cnode);

@@ -1,3 +1,8 @@
+Fri Oct 26 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* A lot of work to make c2 able to copy messages from one mailbox
+	  to other.
+	* Fixed a lot of bugs that I don't remember.
+
 Wed Oct 24 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Added a dialog to write information about the current
 	  release, known bugs and missing features.

@@ -135,7 +135,9 @@ c2_message_set_message (C2Message *message, const gchar *string)
 		return;
 
 	message->header = g_strndup (string, ptr-string);
-	message->body = g_strdup (ptr+2);
+	for (; *ptr == '\n'; ptr++)
+		;
+	message->body = g_strdup (ptr);
 }
 
 static void
@@ -144,8 +146,6 @@ destroy (GtkObject *object)
 	C2Message *message;
 	
 	c2_return_if_fail (C2_IS_MESSAGE (object), C2EDATA);
-
-	printf ("A message is being murded! aaaaaaaaaaaaaaahhhhhhhh!!!!\n");
 
 	message = C2_MESSAGE (object);
 

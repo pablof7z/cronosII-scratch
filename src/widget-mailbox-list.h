@@ -43,6 +43,9 @@ struct _C2MailboxList
 	GtkCTree ctree;
 
 	GtkCTreeNode *selected_node;
+
+	GList *mailbox_list;
+	GList *data_list;
 };
 
 struct _C2MailboxListClass

@@ -557,10 +557,7 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 	if (!mailbox->freezed)
 		pthread_mutex_lock (&mailbox->lock);
 	else
-	{
-		c2_db_freeze (mailbox);
 		thaw = TRUE;
-	}
 
 	if (!c2_db_is_load (mailbox))
 		c2_mailbox_load_db (mailbox);
@@ -607,8 +604,6 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 
 	if (!thaw)
 		pthread_mutex_unlock (&mailbox->lock);
-	else
-		c2_db_thaw (mailbox);
 	
 	return 0;
 }
@@ -713,10 +708,10 @@ c2_db_message_remove (C2Mailbox *mailbox, GList *list)
 	retval = func (mailbox, list);
 
 	db = c2_db_get_node (mailbox, first ? first-1 : 0);
-	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
+L	gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
 							C2_MAILBOX_CHANGE_REMOVE,
 							db);
-
+L
 	if (thaw)
 		c2_db_thaw (mailbox);
 

@@ -68,8 +68,7 @@ main (gint argc, gchar **argv)
 	
 	msg = g_new0(C2Message, 1);
 	msg->header = g_strdup("From: testing <testing@cronosii.net>\n"
-													"To: cronosii@users.sourceforge.net\n"
-												  "BCC: falling@users.sourceforge.net\n"
+													"To: c2-test@ciudad.com.ar\n"
 													"Subject: Testing C2 smtp module!");
 	msg->body = g_strdup("Testing 1-2-3\n");
 	msg->mime = NULL;
