@@ -1,3 +1,10 @@
+2001-07-31 Peter Gossner <petergozz@users.sourceforge.net>
+	* preferences.glade Updates and fixes to content of user messages.
+	* cronosII.glade ditto.
+	* images added png format icons for GUI.
+	* xml added cronosii.xpm for glade to use (?)
+	* added icon/logo to config druid. (need new logo ??)
+
 2001-06-29 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
 	* Spòol Db: The loading function works!
