@@ -140,7 +140,6 @@ init (C2Mailbox *mailbox)
 		mailbox->protocol.IMAP.noinferiors = FALSE;
 		mailbox->protocol.IMAP.noselect = FALSE;
 		mailbox->protocol.IMAP.marked = FALSE;
-		mailbox->protocol.IMAP.imap_name = NULL;
 	}
 
 	c2_mutex_init (&mailbox->lock);
@@ -171,9 +170,6 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 		gtk_object_unref (GTK_OBJECT (mailbox->db));
 	if (mailbox->child)
 		gtk_object_unref (GTK_OBJECT (mailbox->child));
-	if (mailbox->type == C2_MAILBOX_IMAP)
-		if(mailbox->protocol.IMAP.imap_name)
-			g_free(mailbox->protocol.IMAP.imap_name);
 	
 	c2_mutex_unlock(&mailbox->lock);
 	c2_mutex_destroy(&mailbox->lock);
