@@ -27,6 +27,7 @@
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
+#include "preferences.h"
 #include "widget-application.h"
 
 static void
