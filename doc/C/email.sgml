@@ -17,10 +17,12 @@
 <listitem><para>The SMTP password  </para></listitem>
 <listitem><para>Your Username at the SMTP server </para></listitem>
 </orderedlist>
+<para>See <xref linkend="account-dialog"> to go onto set up Accounts on &app;. </para>
 </sect2>
 
 <sect2 id="about-email">
 <title> About EMAIL or "Where do I put the Stamp ???"</title>
+<!-- find a better title -->
 <para> What is all this stuff about MUA 's and SMTP servers ? Why do we attach things to an email ? Like most issues to do with the Internet or even computing generally the terminology is often in itself not self explanatory. Perhaps there is a place (here) to briefly outline how email works.</para>
 <para>First a quick look at the structure of an email: </para>
 <para> Classically an email is a text (ASCII) file that has two sections. A header and a body. The header functions much like the envelope in a paper based mail system and the body like the letter itself inside the envelope. An attachment might be thought of as a parcel that you have to pick up from the Post Office separately.</para>

@@ -1,0 +1,49 @@
+<sect1 id="interface">
+<title>Configure the Interface</title>
+<para>Selecting the Interface Title button on the Preferences Dialog opens gives you access to four areas. </para>
+<para>
+Configure the &app; User Interface from these dialogs.
+</para>
+<para>
+<itemizedlist>
+     <listitem><para><link linkend="interface-fonts">Fonts</link></para></listitem>
+     <listitem><para><link linkend="interface-html">HTML</link></para></listitem>
+     <listitem><para><link linkend="interface-composer">Composer</link></para></listitem> 
+     <listitem><para><link linkend="interface-miscellaneous">Miscellaneous</link></para></listitem>  
+    </itemizedlist>
+</para>
+
+<sect2 id="interface-fonts">
+<title>Fonts</title>
+<informalexample>
+<para>Settings => Preferences => Interface => Fonts
+</para>
+</informalexample>
+</sect2>
+
+<sect2 id="interface-html">
+<title>HTML</title>
+<informalexample>
+<para>Settings => Preferences => Interface => HTML
+</para>
+</informalexample>
+</sect2>
+
+<sect2 id="interface-composer">
+<title>Composer </title>
+<informalexample>
+<para>Settings => Preferences => Interface => Composer
+</para>
+</informalexample>
+</sect2>
+
+<sect2 id="interface-miscellaneous">
+<title>Miscellaneous Display Items</title>
+
+<informalexample>
+<para>Settings => Preferences => Interface => Misc..
+</para>
+</informalexample>
+<para>Set the window manager format</para>
+</sect2>
+</sect1>

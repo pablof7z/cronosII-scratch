@@ -1,12 +1,12 @@
 <!-- Accounts.sgml  Restrict to preferences -->
-<sect3 id="account-dialog">
+<sect1 id="account-dialog">
 <title>The Account Setup Dialog</title>
 <para>
 &app; supports the use of multiple accounts using separate identities and various mail transfer protocols. These include POP, APOP, SMTP, IMAP and your local mail spool (e.g. Sendmail).
 </para>
 <example>
 <title>Setting up an Initial Account</title>
-<para>Read <xref linkend="needed-info">  For a list of configuration information  required by &app; and your Servers.</para>
+<para>Read <xref linkend="needed-info">  for a list of configuration information  required by &app; and your Servers.  If you already know your ISP and Email account details read on:</para>
 <para>
 From the Main Window, 
 open the Account Editor :
@@ -60,4 +60,4 @@ This is the method used near universally for SENDING mail across the Internet.</
 </orderedlist>
 </example>
 
-</sect3>
+</sect1>

@@ -26,6 +26,7 @@
 <!ENTITY users "CronosII-users@lists.sourceforge.net ">
 <!ENTITY security "cronosii-security@lists.sourceforge.net">
 <!ENTITY announce "cronosii-announce@lists.sourceforge.net">
+
 <!-- Documents to include (and sequence) -->
 
 <!ENTITY FDL SYSTEM "fdl.sgml"> 
@@ -34,10 +35,16 @@
 <!ENTITY composer SYSTEM "composer.sgml">
 <!ENTITY authors SYSTEM "authors.sgml">
 <!ENTITY addressbook SYSTEM "addressbook.sgml">
-<!ENTITY plugins SYSTEM "plugins.sgml">
+<!ENTITY general-accounts SYSTEM "accounts.sgml">
+<!ENTITY general-options SYSTEM "general-options.sgml">
+<!ENTITY general-plugins SYSTEM "plugins.sgml">
+<!ENTITY plugins SYSTEM "plugins-extension.sgml">
 <!ENTITY bugs SYSTEM "bugs.sgml">
-<!ENTITY accounts SYSTEM "accounts.sgml">
 <!ENTITY email SYSTEM "email.sgml">
+<!ENTITY interface SYSTEM "interface.sgml">
+<!ENTITY gtk-brief SYSTEM "gtk-brief.sgml">
+<!ENTITY latest SYSTEM "latest.sgml">
+
 ]>
 <!-- This is a GNOME documentation template, designed by the GNOME
   Documentation Project Team. Please use it for writing GNOME
@@ -127,15 +134,20 @@ aim for reliability, simplicity, speed and flexibility while gradually increasin
 </example>
 </sect2>
 </sect1>
+<!-- here are the many other sections of this document. you should be able to change the build/read order here at will -->
+
 &email;
 &preferences;
+&general-options;
+&general-plugins;
+&general-accounts;
 &mainwindow;
 &composer;
 &addressbook;
 &plugins;
 &bugs;
 &authors;
-<!--
 &gtk-brief;
-&latest;-->
+&latest;
+<!-- END OF DOCUMENT -->
 </article>

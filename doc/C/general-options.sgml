@@ -1,0 +1,110 @@
+
+<sect1 id="general">
+<title>General  Options</title>
+<informalexample>
+<para>Settings => Preferences => General 
+</para></informalexample>
+
+<para>Here you configure required and other  major options. 
+</para>
+
+ <itemizedlist>
+     <listitem><para><link linkend="general-options">Options</link></para></listitem>
+     <listitem><para><link linkend="general-accounts">Accounts</link></para></listitem>
+     <listitem><para><link linkend="general-paths">Paths</link></para></listitem> 
+     <listitem><para><link linkend="general-plugins">Plugins</link></para></listitem>  
+ </itemizedlist> 
+
+<sect2 id="general-options">
+<title>Running  Options</title>
+<informalexample>
+<para>
+Settings => Preferences => General => Options
+</para>
+</informalexample>
+<para>
+The dialog gives an interface to set some useful general running options, arranged in five broad areas:
+<itemizedlist>
+	 <listitem><para><link linkend="options-startup">Start Up Actions</link></para></listitem>
+	  <listitem><para><link linkend="options-exit">Exit Actions</link></para></listitem>
+	 <listitem><para><link linkend="options-timeout">Timeouts</link></para></listitem> 
+	 <listitem><para><link linkend="options-incoming">Incoming</link></para></listitem>
+	  <listitem><para><link linkend="options-outgoing">Outgoing</link></para></listitem>
+</itemizedlist>
+</para>
+
+<sect3  id="options-startup">
+<title>Startup</title>
+<para>The top left section of the dialog contains two "toggles" . If you want &app; to check for mail automatically at startup and load all mailboxes check the appropriate button.
+</para>
+</sect3>
+
+<sect3 id="options-exit">
+<title>Exit</title>
+<para>On the top right hand side of the preferences dialog you find a toggle for actions to take when &app; shuts down. Currently there is only the choice to empty the garbage or not.
+</para>
+<para>Select this button to clean out deleted mail from the garbage mailbox. </para>
+</sect3>
+
+<sect3 id="options-timeout">
+<title>Timeouts</title>
+<para>The Timeouts Section of the preferences dialog contains two small scrollable entry areas. These are for setting the length of time &app; will wait before:</para>
+
+	    <para>Marking any selected mail as having been read.</para>
+	    <para>Checking any active, configured accounts for new mail.</para>
+
+
+</sect3>
+
+<sect3 id="options-incoming">
+<title>Incoming</title>
+<para>
+</para>
+</sect3>
+
+<sect3 id="options-outgoing">
+<title>Outgoing</title>
+<para>
+</para>
+</sect3>
+
+</sect2>
+
+
+
+
+<sect2 id="general-paths">
+<title>Paths and Smart File Selection</title>
+<informalexample>
+<para>Settings => Preferences => General => Paths
+</para>
+</informalexample>
+<para>Selecting the "Paths" Icon opens an interactive dialog in the large work area of the Prefences Dialog.  These text entry areas enable you to set the location of the directory &app; will Save and Load (Get) files from. The Browse buttons on the far right open a "File Selection" dialog that gives you a graphical interface to the selection. Otherwise simply enter the target directories into the text entry areas. Finally there is the option of disabling this Smart File Selection.
+</para>
+</sect2>
+
+<sect2 id="general-plugins">
+<title>Plugins</title>
+<informalexample>
+<para>Settings => Preferences => General => Plugins
+</para>
+</informalexample>
+</sect2>
+
+<sect2 id="general-accounts">
+<title>Accounts</title>
+<informalexample>
+<para>Settings => Preferences => General => Accounts
+</para>
+</informalexample>
+</sect2>
+
+
+<sect2 id="interface-menu">
+<title>Interface</title>
+<informalexample>
+<para>Settings => Preferences => Interface
+</para>
+</informalexample>
+</sect2>
+&interface;
