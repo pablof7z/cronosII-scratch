@@ -1,3 +1,7 @@
+Mon Aug 12 Bosko Blaogojevic
+	* Fixed bug in libcronosII/imap.c
+	* Added some module debugging printing in imap.c
+
 Sat Aug 10 Pablo Fernández
 	* Fixed a bug in the net object that was driving me crazy.
 
