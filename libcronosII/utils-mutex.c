@@ -217,7 +217,11 @@ c2_mutex_destroy (C2Mutex *mutex)
 	mutex->dead = 1;
 	
 	if(g_list_length(mutex->queue) != 0)
+	{
+		mutex->dead = 0;
+		c2_mutex_unlock(mutex);
 		return -1;
-	else
-		return 0;
+	}
+	
+	return 0;
 }
