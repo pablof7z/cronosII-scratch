@@ -1,3 +1,8 @@
+Sun Nov 18 Bosko Blagojevic <falling@users.sourceforge.net>
+	* The IMAP module should now be able to recursivly create 
+	  a tree of the IMAP folders.
+	* Added c2_str_count_lines() to utils.c
+
 Sat Nov 17 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Fixed the bug in the main window widget that made it not
 	  to put an account for checking for second time in the same
