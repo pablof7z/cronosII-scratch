@@ -33,6 +33,7 @@ extern "C" {
 #define HTML "HTML"
 #define COMPOSER "Composer"
 #define MISC "Misc"
+#define SECURITY "Security"
 
 #define c2_preferences_get_application_version() \
 	gnome_config_get_string ("/"PACKAGE"/Application/Version")
@@ -276,6 +277,12 @@ extern "C" {
 #define c2_preferences_set_interface_misc_mail_warning(val) \
 	gnome_config_set_string ("/"PACKAGE"/"INTERFACE"-"MISC"/mail_warning", val)
 	
+
+
+#define c2_preferences_get_advanced_security_password_ask() \
+	gnome_config_get_bool_with_default ("/"PACKAGE"/"ADVANCED"-"SECURITY"/password_ask=false", NULL)
+#define c2_preferences_set_advanced_security_password_ask(val) \
+	gnome_config_set_bool ("/"PACKAGE"/"ADVANCED"-"SECURITY"/password_ask", val)
 
 
 #define c2_preferences_get_advanced_misc_proxy_http() \

@@ -247,7 +247,6 @@ on_key_press_event (GtkWidget *widget, GdkEventKey *event)
 	
 	if (!handled && GTK_WIDGET_CLASS (parent_class)->key_press_event)
 		handled = GTK_WIDGET_CLASS (parent_class)->key_press_event (widget, event);
-	printf ("handled = %d\n", handled);
 	
 	return handled;
 }

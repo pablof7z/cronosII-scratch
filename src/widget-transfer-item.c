@@ -1093,6 +1093,8 @@ on_smtp_smtp_update (C2SMTP *smtp, gint id, guint length, guint bytes, C2Transfe
 			gtk_progress_configure (GTK_PROGRESS (ti->popup_progress), 0, 0, length);
 			gtk_progress_set_format_string (GTK_PROGRESS (ti->popup_progress), _("Sending"));
 		}
+
+		popup_set_label (ti, _("Cronos II is sending the message."));
 	}
 
 	gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), bytes);
@@ -1109,6 +1111,7 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 	C2TransferItem *_ti;
 	C2Mailbox *outbox;
 	C2Mailbox *sent_items;
+	gchar *str, *estr;
 
 	gdk_threads_enter ();
 
@@ -1131,7 +1134,24 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 									success ? _("Message Sent") : _("Failed"));
 		gtk_progress_set_percentage (GTK_PROGRESS (ti->popup_progress), 1.0);
 	}
-	
+
+	if (success)
+		popup_set_label (ti, _("The message was successfully sent to the specified destinataries."));
+	else
+	{
+		estr = c2_error_object_get (GTK_OBJECT (smtp));
+		if (!estr)
+			estr = c2_error_get ();
+		
+		if (!estr)
+			str = g_strdup_printf (_("The delivery of the message failed for an unknown reason."));
+		else
+			str = g_strdup_printf (_("The delivery of the message failed.\n%s."), estr);
+		g_free (estr);
+
+		popup_set_label (ti, str);
+	}
+
 	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
 
 	ti->finished = 1;

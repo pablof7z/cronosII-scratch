@@ -171,6 +171,9 @@ static void
 on_interface_misc_mail_warn_screen_motion_notify_event (GtkWidget *widget, GdkEventMotion *e,
 												C2DialogPreferences *preferences);
 
+static void
+on_advanced_security_preferences_ask_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
+
 /* Widget Stuff */
 enum
 {
@@ -419,6 +422,10 @@ set_signals (C2DialogPreferences *preferences)
 						GTK_SIGNAL_FUNC (on_interface_misc_mail_warn_screen_button_release_event), preferences);
 	gtk_signal_connect (GTK_OBJECT (widget), "motion_notify_event",
 						GTK_SIGNAL_FUNC (on_interface_misc_mail_warn_screen_motion_notify_event), preferences);
+
+	widget = glade_xml_get_widget (xml, "advanced_security_password_ask");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_advanced_security_password_ask_toggled), preferences);
 }
 
 #define SET_BOOLEAN(func, wkey)	\
@@ -642,6 +649,7 @@ set_values (C2DialogPreferences *preferences)
 #define INTERFACE_HTML		"HTML"
 #define INTERFACE_COMPOSER	"Composer"
 #define INTERFACE_MISC		"Misc"
+#define ADVANCED_SECURITY	"Security"
 #define ADVANCED_MISC		"Misc"
 
 void
@@ -675,6 +683,7 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 
 	static C2SidebarSubSection advanced_icons[] =
 	{
+		{ NULL, PKGDATADIR "/pixmaps/advanced_security.png" },
 		{ NULL, PKGDATADIR "/pixmaps/advanced_misc.png" },
 		{ NULL, NULL }
 	};
@@ -698,7 +707,8 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 	interface_icons[2].name = _(INTERFACE_COMPOSER);
 	interface_icons[3].name = _(INTERFACE_MISC);
 
-	advanced_icons[0].name = _(ADVANCED_MISC);
+	advanced_icons[0].name = _(ADVANCED_SECURITY);
+	advanced_icons[1].name = _(ADVANCED_MISC);
 
 	sidebar_info[0].name = _("General");
 	sidebar_info[1].name = _("Interface");
@@ -800,6 +810,8 @@ c2_dialog_preferences_construct (C2DialogPreferences *preferences, C2Application
 
 	gtk_signal_connect (GTK_OBJECT (sidebar), "subsection_selected",
 							GTK_SIGNAL_FUNC (on_sidebar_subsection_selected), preferences);
+
+	gtk_window_add_accel_group (GTK_WINDOW (preferences), glade_xml_ensure_accel (xml));
 }
 
 static void
@@ -833,7 +845,9 @@ on_sidebar_subsection_selected (C2Sidebar *sidebar, const gchar *section, const 
 			page = C2_DIALOG_PREFERENCES_SUBSECTION_INTERFACE_MISC;
 	} else if (c2_streq (section, _("Advanced")))
 	{
-		if (c2_streq (subsection, _(ADVANCED_MISC)))
+		if (c2_streq (subsection, _(ADVANCED_SECURITY)))
+			page = C2_DIALOG_PREFERENCES_SUBSECTION_ADVANCED_SECURITY;
+		else if (c2_streq (subsection, _(ADVANCED_MISC)))
 			page = C2_DIALOG_PREFERENCES_SUBSECTION_ADVANCED_MISC;
 	}
 
@@ -1508,10 +1522,16 @@ on_interface_misc_mail_warn_screen_motion_notify_event (GtkWidget *widget, GdkEv
 
 /****************************************************
  ****************************************************
- ****************************************************
+ *************[ ADVANCED/SECURITY ]******************
  ****************************************************
  ****************************************************/
 #if 1
+static void
+on_advanced_security_password_ask_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	gboolean 
+	c2_preferences_set_advanced_security_password_ask (
+}
 #endif
 
 /****************************************************

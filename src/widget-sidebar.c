@@ -21,9 +21,9 @@
 
 #include "widget-sidebar.h"
 
-#define RED_COLOR	0x7500
-#define GREEN_COLOR	0x7500
-#define BLUE_COLOR	0x7500
+#define RED_COLOR	0x8500
+#define GREEN_COLOR	0x8500
+#define BLUE_COLOR	0x8500
 
 static void
 class_init									(C2SidebarClass *klass);
@@ -227,7 +227,7 @@ c2_sidebar_set_contents (C2Sidebar *sidebar, C2SidebarSection *list)
 						size_t isize;
 
 						isize = sidebar->buttons_type == C2_SIDEBAR_BUTTON_TEXT_UNDER_ICON ?
-									48 : 24;
+									36 : 24;
 						
 						pixmap = gnome_pixmap_new_from_file_at_size (sl->icon,
 										isize, isize);

@@ -320,7 +320,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 		}
 		if(!c2_strneq(buffer, "250", 3))
 		{
-			c2_smtp_set_error(smtp, _("SMTP server did not respond to our sent messaage in a friendly way"));
+			c2_smtp_set_error(smtp, _("SMTP server did not respond to our sent message in a friendly way"));
 			g_free(buffer);
 			smtp_disconnect(smtp, byte);
 			smtp->uses--;
