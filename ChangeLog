@@ -1,3 +1,7 @@
+Tue Aug 28 17:26:58 CST 2001 Pete Gossner <gossner@arcom.com.au>
+	*Updates to all xml/*.glade files
+	*? What do I do with source files produced by glade ?
+
 2001-08-12 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* HTML Widget: GtkHTML support is partial working: first HTML message
 					succesfully displayed.
