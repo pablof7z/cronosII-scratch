@@ -19,6 +19,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 #include "db.h"
 #include "error.h"
@@ -260,10 +262,9 @@ c2_db_message_get (C2Db *db, gint row)
 	for (l = db, i = 0; i < row && l != NULL; i++, l = l->next);
 	c2_return_val_if_fail (l, NULL, C2EDATA);
 
-	if (l->message.message)
+	if (l)
 	{
-		message = &l->message;
-		return message;
+		return C2_MESSAGE (l);
 	}
 
 	mid = l->mid;
@@ -282,7 +283,54 @@ c2_db_message_get (C2Db *db, gint row)
 	return message;
 }
 
+/**
+ * c2_db_message_get_from_file
+ * @path: Path to the file.
+ *
+ * This function will load a file understanding it
+ * as a message.
+ *
+ * Return Value:
+ * The message or NULL.
+ **/
+C2Message *
+c2_db_message_get_from_file (const gchar *path)
+{
+	C2Message *message;
+	gchar *string;
+	struct stat stat_buf;
+	FILE *fd;
+	gint length;
 
+	c2_return_val_if_fail (path, NULL, C2EDATA);
+
+	if (stat (path, &stat_buf) < 0)
+	{
+		c2_error_set (-errno);
+#ifdef USE_DEBUG
+		g_print ("Stating the file failed: %s\n", path);
+#endif
+		return NULL;
+	}
+
+	length = ((gint) stat_buf.st_size * sizeof (gchar));
+
+	string = g_new0 (gchar, length+1);
+
+	if (!(fd = fopen (path, "r")))
+	{
+		c2_error_set (-errno);
+		return NULL;
+	}
+
+	fread (string, sizeof (gchar), length, fd);
+	fclose (fd);
+
+	c2_message_set_message (message, string);
+	g_free (string);
+
+	return message;
+}
 
 /**
  * c2_db_message_search_by_mid

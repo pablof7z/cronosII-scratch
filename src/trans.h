@@ -107,7 +107,9 @@ gchar *s = N_("Path:");
 gchar *s = N_("© 2000-2001 Pablo Fernández Navarro");
 gchar *s = N_("Cronos II is a fast, light, user friendly and powerful mail client for the Gnome Desktop.\n"
               "It has an extended and intuitive interface which will make life for novice easier without taking out the power to the gurus.\n"
-              "\n"
+              " \n"
+              "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+              "See the 'COPYING' file for the complete license or check it at http://www.gnu.org.\n"
               " \n"
               "You can find the website of Cronos II at:\n"
               "http://cronosII.sourceforge.net");
@@ -158,14 +160,14 @@ gchar *s = N_("Open");
 gchar *s = N_("Save File");
 gchar *s = N_("Save");
 gchar *s = N_("Message Tranfer");
+gchar *s = N_("Tasks's list");
+gchar *s = N_("Account");
+gchar *s = N_("Information");
 gchar *s = N_("Subtasks");
 gchar *s = N_("This bar shows how many subtasks there are for the current task");
-gchar *s = N_("%P %%");
+gchar *s = N_("%v of %u [%P%%]");
 gchar *s = N_("Progress of subtask");
-gchar *s = N_("%P %%");
-gchar *s = N_("Tasks's list");
-gchar *s = N_("Type");
-gchar *s = N_("Account");
+gchar *s = N_("%u bytes [%P%%]");
 gchar *s = N_("Automatically close when finished.");
 gchar *s = N_("Bad Password");
 gchar *s = N_("Password:");

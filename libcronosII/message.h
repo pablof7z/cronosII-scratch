@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/message.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -62,9 +62,9 @@ struct _C2Message
 {
 	GtkObject object;
 	
-	gchar *message;
 	gchar *header;
-	const gchar *body;
+	gchar *body;
+	
 	C2Mime *mime;
 };
 
@@ -81,11 +81,14 @@ c2_message_get_type									(void);
 C2Message *
 c2_message_new										(void);
 
-gchar *
-c2_message_get_message_header						(C2Message *message);
+void
+c2_message_set_message								(C2Message *message, const gchar *string);
 
 const gchar *
-c2_message_get_message_body							(C2Message *message);
+c2_message_get_message_header						(const C2Message *message);
+
+const gchar *
+c2_message_get_message_body							(const C2Message *message);
 
 gchar *
 c2_message_get_header_field							(C2Message *message, const gchar *field);

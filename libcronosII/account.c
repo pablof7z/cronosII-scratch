@@ -55,19 +55,17 @@ static GtkObjectClass *parent_class = NULL;
 gint
 c2_account_check (const C2Account *account)
 {
-	gpointer obj;
-	typedef gint (*FetchmailFunction) (gpointer);
+	typedef gint (*FetchmailFunction) (const C2Account *);
 	FetchmailFunction fetchmail;
 	
 	switch (account->type)
 	{
 		case C2_ACCOUNT_POP3:
-			obj = GTK_OBJECT (account->protocol.pop3);
 			fetchmail = (FetchmailFunction) c2_pop3_fetchmail;
 			break;
 	}
 
-	return fetchmail (obj);
+	return fetchmail (account);
 }
 
 GtkType

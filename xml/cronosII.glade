@@ -3043,8 +3043,8 @@ Are you sure you want to delete it?</message>
 	      <bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
 	      <orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
 	      <activity_mode>False</activity_mode>
-	      <show_text>False</show_text>
-	      <format>%P %%</format>
+	      <show_text>True</show_text>
+	      <format>%v of %u [%P%%]</format>
 	      <text_xalign>0.5</text_xalign>
 	      <text_yalign>0.5</text_yalign>
 	      <child>
@@ -3084,8 +3084,8 @@ Are you sure you want to delete it?</message>
 	      <bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
 	      <orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
 	      <activity_mode>False</activity_mode>
-	      <show_text>False</show_text>
-	      <format>%P %%</format>
+	      <show_text>True</show_text>
+	      <format>%u bytes [%P%%]</format>
 	      <text_xalign>0.5</text_xalign>
 	      <text_yalign>0.5</text_yalign>
 	      <child>

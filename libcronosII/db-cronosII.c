@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /libcronosII/db-cronosII
+/*  Cronos II Mail Client /libcronosII/db-cronosII.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -61,7 +61,7 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 		}
 
 		next = c2_db_new (mailbox);
-		next->message.message = NULL;
+		/* next->message.message = NULL; What is this for??? */
 		
 		buf = c2_str_get_word (0, line, '\r');
 		if (buf)
@@ -113,7 +113,7 @@ c2_db_cronosII_message_get (C2Db *db, gint mid)
 {
 	C2Message *message;
 	static gchar *home = NULL;
-	gchar *path;
+	gchar *path, *string;
 	struct stat stat_buf;
 	FILE *fd;
 	gint length;
@@ -137,7 +137,7 @@ c2_db_cronosII_message_get (C2Db *db, gint mid)
 
 	length = ((gint) stat_buf.st_size * sizeof (gchar));
 
-	message->message = g_new0 (gchar, length+1);
+	string = g_new0 (gchar, length+1);
 
 	if (!(fd = fopen (path, "r")))
 	{
@@ -145,8 +145,11 @@ c2_db_cronosII_message_get (C2Db *db, gint mid)
 		return NULL;
 	}
 
-	fread (message->message, sizeof (gchar), length, fd);
+	fread (string, sizeof (gchar), length, fd);
 	fclose (fd);
+
+	c2_message_set_message (message, string);
+	g_free (string);
 
 	g_free (path);
 	

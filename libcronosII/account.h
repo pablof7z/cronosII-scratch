@@ -25,14 +25,6 @@ extern "C" {
 #include <glib.h>
 #include <gtk/gtk.h>
 
-#ifdef HAVE_CONFIG_H
-#	include "mailbox.h"
-#	include "pop3.h"
-#	include "smtp.h"
-#else
-#	include <cronosII.h>
-#endif
-
 #define C2_TYPE_ACCOUNT							(c2_account_get_type ())
 #define C2_ACCOUNT(obj)							(GTK_CHECK_CAST (obj, C2_TYPE_ACCOUNT, C2Account))
 #define C2_ACCOUNT_CLASS(klass)					(GTK_CHECK_CLASS (klass, C2_TYPE_ACCOUNT, C2Account))
@@ -45,6 +37,14 @@ typedef struct _C2Account C2Account;
 typedef struct _C2AccountClass C2AccountClass;
 typedef enum _C2AccountType C2AccountType;
 typedef enum _C2AccountSignatureType C2AccountSignatureType;
+
+#ifdef HAVE_CONFIG_H
+#	include "mailbox.h"
+#	include "pop3.h"
+#	include "smtp.h"
+#else
+#	include <cronosII.h>
+#endif
 
 enum _C2AccountType
 {

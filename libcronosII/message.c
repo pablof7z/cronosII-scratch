@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/message.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -93,7 +93,6 @@ c2_message_class_init (C2MessageClass *klass)
 static void
 c2_message_init (C2Message *message)
 {
-	message->message = NULL;
 	message->body = NULL;
 	message->header = NULL;
 	message->mime = NULL;
@@ -105,6 +104,29 @@ c2_message_new (void)
 	return gtk_type_new (C2_TYPE_MESSAGE);
 }
 
+/**
+ * c2_message_set_message
+ * @message: The message that we need to work with.
+ * @string: The message in standard RFC 821 format.
+ *
+ * This function will load the message @string
+ * into the C2Message object @message.
+ **/
+void
+c2_message_set_message (C2Message *message, const gchar *string)
+{
+	const gchar *ptr;
+	
+	c2_return_if_fail (message, C2EDATA);
+	c2_return_if_fail (string, C2EDATA);
+
+	if (!(ptr = strstr (string, "\n\n")))
+		return;
+
+	message->header = g_strndup (string, ptr-string);
+	message->body = g_strdup (ptr+2);
+}
+
 static void
 c2_message_destroy (GtkObject *object)
 {
@@ -114,8 +136,8 @@ c2_message_destroy (GtkObject *object)
 	
 	message = C2_MESSAGE (object);
 
-	if (message->message)
-		g_free (message->message);
+	if (message->body)
+		g_free (message->body);
 
 	if (message->header)
 		g_free (message->header);
@@ -210,31 +232,12 @@ c2_message_get_header_field (C2Message *message, const gchar *field)
  * Gets a header from the message source.
  *
  * Return Value:
- * A newly allocated mem chunk with the header in it.
+ * A non-freable mem chunk with the header in it.
  **/
-gchar *
-c2_message_get_message_header (C2Message *message)
+const gchar *
+c2_message_get_message_header (const C2Message *message)
 {
-	const gchar *ptr;
-	gchar *chunk;
-	
-	c2_return_val_if_fail (message->message, NULL, C2EDATA);
-
-	/* Message header is recorder in C2Message objects,
-	 * if it has already been asked for it, just return it.
-	 */
-	if (message && message->header)
-		return message->header;
-	
-	if (!(ptr = strstr (message->message, "\n\n")))
-		return NULL;
-
-	chunk = g_strndup (message->message, ptr - message->message);
-
-	if (message)
-		message->header = chunk;
-
-	return chunk;
+	return message->header;
 }
 
 /**
@@ -247,20 +250,7 @@ c2_message_get_message_header (C2Message *message)
  * A pointer to the start of the body within the argument.
  **/
 const gchar *
-c2_message_get_message_body (C2Message *message)
+c2_message_get_message_body (const C2Message *message)
 {
-	const gchar *ptr;
-	
-	c2_return_val_if_fail (message->message, NULL, C2EDATA);
-
-	if (message->body)
-		return message->body;
-	
-	if (!(ptr = strstr (message->message, "\n\n")))
-		return NULL;
-
-	if (message)
-		message->body = ptr;
-
-	return ptr;
+	return message->body;
 }

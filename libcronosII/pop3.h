@@ -15,8 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __LIBCRONOSII_POP_H__
-#define __LIBCRONOSII_POP_H__
+#ifndef __LIBCRONOSII_POP3_H__
+#define __LIBCRONOSII_POP3_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,12 +24,6 @@ extern "C" {
 
 #include <glib.h>
 #include <pthread.h>
-
-#ifdef BUILDING_C2
-#	include "net-object.h"
-#else
-#	include <cronosII.h>
-#endif
 
 #define C2_TYPE_POP3							(c2_pop3_get_type ())
 #define C2_POP3(obj)							(GTK_CHECK_CAST (obj, C2_TYPE_POP3, C2Pop3))
@@ -44,6 +38,13 @@ typedef struct _C2Pop3Class C2Pop3Class;
 typedef enum _C2Pop3Flags C2Pop3Flags;
 
 typedef gchar* (*C2Pop3GetPass) 				(C2Pop3 *pop3, const gchar *error);
+
+#ifdef BUILDING_C2
+#	include "account.h"
+#	include "net-object.h"
+#else
+#	include <cronosII.h>
+#endif
 
 enum _C2Pop3Flags
 {
@@ -90,7 +91,7 @@ void
 c2_pop3_set_wrong_pass_cb						(C2Pop3 *pop3, C2Pop3GetPass func);
 
 gint
-c2_pop3_fetchmail								(C2Pop3 *pop3);
+c2_pop3_fetchmail								(C2Account *account);
 
 #ifdef __cplusplus
 }

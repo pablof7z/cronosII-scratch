@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/db.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -118,6 +118,9 @@ c2_db_message_load								(C2Db *db);
 /* Virtual function */
 C2Message *
 c2_db_message_get								(C2Db *db, gint row);
+
+C2Message *
+c2_db_message_get_from_file						(const gchar *path);
 
 gint
 c2_db_message_search_by_mid						(const C2Db *db, gint mid);

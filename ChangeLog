@@ -1,10 +1,16 @@
-2001-06-19 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+2001-06-21 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+
+	* POP3 module: Initial retrieve.
+			New theory: while messages are being downloaded they
+			will be stored in a file in the HD, not in the RAM.
+			
+2001-06-20 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
 	* Message Transfer Widget: Created the arrows (RGB and yellow).
 			We are now ready to code the c2_pop3_fetchmail
 			and this widget should already be prepared to
 			show what's going on (through signals).
-	* POP3 module: Welcome function.
+	* POP3 module: Welcome function, login, status request.
 	* Preferences: Fixed the problem that made that when you edit an
 			account the username appear empty and the password with the
 			username on it (actually, the fix was in the Account module,
@@ -39,7 +45,7 @@
 2001-06-14 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
 	* Request module: Using gnome-download due to problems with http images downloading
-			  that took me off!
+			that took me off!
 
 2001-06-13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 

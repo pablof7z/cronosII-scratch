@@ -80,6 +80,9 @@ static void
 check_disconnect								(C2NetObject *object, gboolean success, C2Pthread2 *data);
 
 static void
+auto_close_btn_toggled							(GtkToggleButton *toggle, C2MessageTransfer *mt);
+
+static void
 clist_select_row								(GtkCList *clist, gint row, gint column,
 												 GdkEvent *event, C2MessageTransfer *mt);
 
@@ -117,13 +120,26 @@ c2_message_transfer_new (void)
 
 	gtk_widget_set_usize (GTK_WIDGET (mt), -1, 420);
 
+	box = glade_xml_get_widget (mt->xml, "auto_close_btn");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (box),
+					gnome_config_get_bool_with_default ("/cronosII/Rc/message_transfer_auto_close=0", NULL));
+	gtk_signal_connect (GTK_OBJECT (box), "toggled",
+						GTK_SIGNAL_FUNC (auto_close_btn_toggled), mt);
+	
 	box = glade_xml_get_widget (mt->xml, "task_clist");
 	gtk_signal_connect (GTK_OBJECT (box), "select_row",
 							GTK_SIGNAL_FUNC (clist_select_row), mt);
 	gtk_signal_connect (GTK_OBJECT (box), "unselect_row",
 							GTK_SIGNAL_FUNC (clist_unselect_row), mt);
 	gnome_dialog_button_connect (GNOME_DIALOG (GTK_WIDGET (mt)), 0, ok_btn_clicked, mt);
-	gnome_dialog_button_connect (GNOME_DIALOG (GTK_WIDGET (mt)), 1, cancel_btn_clicked, mt);	
+	gnome_dialog_button_connect (GNOME_DIALOG (GTK_WIDGET (mt)), 1, cancel_btn_clicked, mt);
+
+	/* mt is a window widget, so we should use other non-windowed widget */
+	gnome_widget_add_help (GTK_WIDGET (mt),
+				_("This window shows the transfering of messages "
+				  "(both incoming and outcoming).\n"
+				  "Clicking a row of the list you will get more information "
+				  "in the progress of the transfering"));
 
 	return GTK_WIDGET (mt);
 }
@@ -346,6 +362,9 @@ static void
 change_mails_of_queue (C2MessageTransfer *mt, C2MessageTransferQueue *queue, gint row,
 						gint16 done_messages, gint16 total_messages)
 {
+	if (total_messages < done_messages)
+		total_messages = done_messages;
+	
 	queue->subtasks[DONE] = done_messages;
 	queue->subtasks[TOTAL] = total_messages;
 
@@ -363,6 +382,9 @@ static void
 change_mail_of_queue (C2MessageTransfer *mt, C2MessageTransferQueue *queue, gint row,
 						gint32 done, gint32 total)
 {
+	if (total < done)
+		total = done;
+
 	queue->subtask[DONE] = done;
 	queue->subtask[TOTAL] = total;
 
@@ -382,6 +404,7 @@ check (C2Pthread3 *data)
 	C2MessageTransferQueue *queue = data->v2;
 	gint row = GPOINTER_TO_INT (data->v3);
 	gint signal[4];
+	GtkCList *clist = GTK_CLIST (glade_xml_get_widget (mt->xml, "account_clist"));
 
 	if (queue->account->type == C2_ACCOUNT_POP3)
 	{
@@ -401,6 +424,27 @@ check (C2Pthread3 *data)
 	}
 
 	c2_account_check (queue->account);
+
+	/* When we finish checking we must
+	 * free the C2MessageTransferQueue
+	 */
+	gtk_clist_set_row_data (clist, row, NULL);
+	queue_free (queue);
+
+	if (GTK_TOGGLE_BUTTON (glade_xml_get_widget (mt->xml, "auto_close_btn"))->active)
+	{
+		/* Check if all the other transfering had ended */
+		gint i;
+
+		for (i = 0; i < clist->rows; i++)
+		{
+			if (gtk_clist_get_row_data (clist, i))
+				break;
+		}
+
+		if (i == clist->rows)
+			gtk_widget_hide (GTK_WIDGET (mt));
+	}
 }
 
 static void
@@ -435,11 +479,12 @@ check_retrieve (C2Pop3 *pop3, gint16 nth, gint32 received, gint32 total, C2Pthre
 	C2MessageTransferQueue *queue = data->v2;
 	gint row = GPOINTER_TO_INT (data->v3);
 
-	printf ("%d %d %d\n", nth, received, total);
-/*	if (!received)
+	printf ("<%d> <%d> <%d>\n", nth, received, total);
+
+	if (!received)
 		change_mails_of_queue (mt, queue, row, nth, queue->subtasks[TOTAL]);
 	else
-		change_mail_of_queue (mt, queue, row, received, total);*/
+		change_mail_of_queue (mt, queue, row, received, total);
 }
 
 static void
@@ -464,6 +509,13 @@ check_disconnect (C2NetObject *object, gboolean success, C2Pthread2 *data)
 }
 
 static void
+auto_close_btn_toggled (GtkToggleButton *toggle, C2MessageTransfer *mt)
+{
+	gnome_config_set_bool ("/cronosII/Rc/message_transfer_auto_close", toggle->active);
+	gnome_config_sync ();
+}
+
+static void
 clist_select_row (GtkCList *clist, gint row, gint column, GdkEvent *event, C2MessageTransfer *mt)
 {
 	GtkWidget *info_box = glade_xml_get_widget (mt->xml, "info_box");
@@ -475,6 +527,8 @@ clist_select_row (GtkCList *clist, gint row, gint column, GdkEvent *event, C2Mes
 									GTK_CLIST (glade_xml_get_widget (mt->xml, "task_clist")), row);
 
 
+	mt->selected_task = row;
+	
 	gtk_progress_configure (GTK_PROGRESS (subtasks_progress), queue->subtasks[DONE], 0,
 							queue->subtasks[TOTAL]);
 	gtk_progress_configure (GTK_PROGRESS (subtask_progress), queue->subtask[DONE], 0,
@@ -492,6 +546,7 @@ clist_unselect_row (GtkCList *clist, gint row, gint column, GdkEvent *event, C2M
 {
 	GtkWidget *info_box = glade_xml_get_widget (mt->xml, "info_box");
 
+	mt->selected_task = -1;
 	gtk_widget_hide (info_box);
 }
 

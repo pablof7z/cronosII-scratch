@@ -80,7 +80,7 @@ C2Pop3 *
 c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port)
 {
 	C2Pop3 *pop3;
-	
+L	
 	c2_return_val_if_fail (user || host, NULL, C2EDATA);
 	
 	pop3 = gtk_type_new (C2_TYPE_POP3);
@@ -90,7 +90,7 @@ c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port)
 
 	c2_net_object_construct (C2_NET_OBJECT (pop3), host, port);
 
-	return pop3;
+L	return pop3;
 }
 
 /**
@@ -131,14 +131,19 @@ c2_pop3_set_wrong_pass_cb (C2Pop3 *pop3, C2Pop3GetPass func)
 
 /**
  * c2_pop3_fetchmail
- * @pop3: Loaded C2Pop3 object.
+ * @account: Loaded C2Account object.
  *
  * This function will download
- * messages from 
+ * messages from the account @account using
+ * the POP3 protocol.
+ *
+ * Return Value:
+ * 0 on success or -1.
  **/
 gint
-c2_pop3_fetchmail (C2Pop3 *pop3)
+c2_pop3_fetchmail (C2Account *account)
 {
+	C2Pop3 *pop3 = account->protocol.pop3;
 	gint mails;
 
 	c2_return_val_if_fail (pop3, -1, C2EDATA);
@@ -298,8 +303,10 @@ static gint
 retrieve (C2Pop3 *pop3, gint mails)
 {
 	gchar *string;
-	gint i;
-	gint32 length = 0;
+	gint i, len;
+	gint32 length, total_length = 0;
+	gchar *tmp;
+	FILE *fd;
 	
 	for (i = 1; i <= mails; i++)
 	{
@@ -325,10 +332,46 @@ L			/* TODO */
 			return -1;
 		}
 
-		sscanf (string, "+OK %d octets\r\n", &length);
+		sscanf (string, "+OK %d octets\r\n", &total_length);
 
-		printf ("<%d> '%s'\n", length, string);
-		gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], i, 0, length);
+		C2_DEBUG (string);
+		printf ("%d: %d\n", __LINE__, total_length);
+
+		gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], i, 0, total_length);
+
+		/* Get a temp name */
+		tmp = c2_get_tmp_file ();
+
+		/* Open it */
+		if (!(fd = fopen (tmp, "w")))
+		{
+#ifdef USE_DEBUG
+			g_print ("Unable to open tmp file: %s\n", tmp);
+#endif
+			g_free (tmp);
+			return -1;
+		}
+
+		for (length = 0;;)
+		{
+			c2_net_object_read (C2_NET_OBJECT (pop3), &string);
+
+			if (c2_streq (string, ".\r\n"))
+				break;
+			
+			len = strlen (string);
+			string[len-2] = '\n';
+			fwrite (string, sizeof (gchar), len-1, fd);
+			g_free (string);
+
+			length += len;
+
+			printf ("%d: %d\n", __LINE__, total_length);
+			gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], i, length, total_length);
+		}
+
+		fclose (fd);
+		g_free (tmp);
 	}
 
 	return 0;
@@ -425,5 +468,5 @@ my_marshal_NONE__INT_INT_INT (GtkObject *object, GtkSignalFunc func, gpointer fu
 {
 	C2Signal_NONE__INT_INT_INT rfunc;
 	rfunc = (C2Signal_NONE__INT_INT_INT) func;
-	(*rfunc) (object, GTK_VALUE_INT (args[0]), GTK_VALUE_INT (args[1]), GTK_VALUE_INT (args[3]), func_data);
+	(*rfunc) (object, GTK_VALUE_INT (args[0]), GTK_VALUE_INT (args[1]), GTK_VALUE_INT (args[2]), func_data);
 }
