@@ -90,13 +90,13 @@ struct C2InstallAction
 	},
 	{
 		C2_INSTALL_ACTION_FILE_RM,
-		"~/.gnome/"PACKAGE, NULL, NULL,
+		"~/.gnome_private/"PACKAGE, NULL, NULL,
 		FALSE
 	},
 	{
 		C2_INSTALL_ACTION_FILE_CP,
 		PKGDATADIR "/default/cronosII.gnome",
-		"~/.gnome/"PACKAGE,
+		"~/.gnome_private/"PACKAGE,
 		NULL, TRUE
 	},
 	{
