@@ -1,3 +1,7 @@
+Mon Nov 19 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Fixed the new crash when destroying the byte in a
+	  net object with a limit of 1.
+
 Sun Nov 18 Bosko Blagojevic <falling@users.sourceforge.net>
 	* The IMAP module should now be able to recursivly create 
 	  a tree of the IMAP folders.

@@ -533,25 +533,29 @@ void
 c2_net_object_destroy_byte (C2NetObject *nobj, ...)
 {
 	C2NetObjectByte *byte;
+	GList *link;
+
+	c2_return_if_fail_obj (C2_IS_NET_OBJECT (nobj) || g_list_length (nobj->bytes) > 1,
+							C2EDATA, GTK_OBJECT (nobj));
 
 	/* Get the byte */
 	if (nobj->max == 1)
 	{
-		GList *l;
-		l = g_list_nth (nobj->bytes, 0);
-		byte = (C2NetObjectByte*) l->data;
+		link = g_list_nth (nobj->bytes, 0);
+		byte = (C2NetObjectByte*) link->data;
 	} else
 	{
 		va_list args;
 		va_start (args, nobj);
 		byte = va_arg (args, C2NetObjectByte*);
 		va_end (args);
+		link = g_list_find (nobj->bytes, (gpointer) byte);
 	}
 	
-	if (!byte)
+	if (!byte || !link)
 		return;
 	
-	nobj->bytes = g_list_remove_link (nobj->bytes, (gpointer) byte);
+	nobj->bytes = g_list_remove_link (nobj->bytes, link);
 	g_free (byte);
 }
 
