@@ -411,14 +411,12 @@ on_resize_column (C2Index *index, gint column, gint width)
 static gint
 date_compare (GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 {
-	printf ("%d %s\n", ((GtkCListCellInfo*) ptr1)->row, ptr2);
 	return 0;
 }
 
 static gint
 string_compare (GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 {
-	printf ("%s %s\n", ptr1, ptr2);
 	return 0;
 }
 

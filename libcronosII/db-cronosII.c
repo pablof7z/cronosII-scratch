@@ -224,7 +224,7 @@ c2_db_cronosII_message_add (C2Mailbox *mailbox, C2Db *db)
 gint
 c2_db_cronosII_message_remove (C2Mailbox *mailbox, GList *list)
 {
-	gchar *path;
+	gchar *path, *mpath;
 	FILE *fd;
 	GList *l;
 	gint line = 0, n;
@@ -232,17 +232,18 @@ c2_db_cronosII_message_remove (C2Mailbox *mailbox, GList *list)
 	/* Remove from index first */
 	/* Get the path */
 	path = g_strconcat (g_get_home_dir (), C2_HOME,	mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
-	if (!(fd = fopen (path, "at")))
+	if (!(fd = fopen (path, "rt+")))
 	{
 		c2_error_object_set (GTK_OBJECT (mailbox), -errno);
 		return -1;
 	}
+	fseek (fd, 0, SEEK_SET);
 
-	for (l = list; l; l = g_list_next (l))
+	for (l = list, line = 0; l; l = g_list_next (l))
 	{
 		n = GPOINTER_TO_INT (l->data);
 
-		for (line = 0;; line++)
+		for (;;)
 		{
 			if (fgetc (fd) == '?')
 			{
@@ -250,11 +251,35 @@ c2_db_cronosII_message_remove (C2Mailbox *mailbox, GList *list)
 					goto finish;
 				continue;
 			}
+			fseek (fd, -1, SEEK_CUR);
+
+			if (line++ != n)
+			{
+				if (!c2_fd_move_to (fd, '\n', 1, TRUE, TRUE))
+					goto finish;
+				continue;
+			}
+
+			fputc ('?', fd);
+			if (!c2_fd_move_to (fd, '\n', 1, TRUE, TRUE))
+				goto finish;
+
+			/* Remove mail file */
+			mpath = g_strdup_printf ("%s" C2_HOME "%s.mbx" G_DIR_SEPARATOR_S "%d",
+									 g_get_home_dir (), mailbox->name, n+1);
+			if (unlink (mpath) < 0)
+				L
+			else
+				L;
+			perror (mpath);
+			g_free (mpath);
+			break;
 		}
 	}
 finish:
 	
 	fclose (fd);
+	g_free (path);
 }
 
 void

@@ -1059,27 +1059,35 @@ c2_fd_move_to (FILE *fp, gchar c, guint8 cant, gboolean forward, gboolean next)
 	
 	if (c == EOF)
 	{
-		for (;;) if ((s = getc (fp)) == EOF) break;
-		if (!next) if (fseek (fp, -1, SEEK_CUR) < 0) return FALSE;
+		for (;;)
+			if ((s = getc (fp)) == EOF)
+				break;
+		if (!next)
+			if (fseek (fp, -1, SEEK_CUR) < 0)
+				return FALSE;
 		return TRUE;
 	}
 	
 	for (ia = 0, go = 0; s != c; ia++)
 	{
-		if ((s = getc (fp)) == EOF) break;
+		if ((s = getc (fp)) == EOF)
+			break;
 		if (s == c)
-		{
-			if (++go == cant) break;
-		}
+			if (++go == cant)
+				break;
 		
-		if (!forward) if (fseek (fp, -2, SEEK_CUR) < 0) return FALSE;
+		if (!forward)
+			if (fseek (fp, -2, SEEK_CUR) < 0)
+				return FALSE;
 	}
 	
 	
-	if (s != c) return FALSE;
+	if (s != c)
+		return FALSE;
 	if (!next)
 	{
-		if (fseek (fp, -1, SEEK_CUR) < 0) return FALSE;
+		if (fseek (fp, -1, SEEK_CUR) < 0)
+			return FALSE;
 		ia -= 1;
 	}
 	

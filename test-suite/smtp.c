@@ -37,25 +37,24 @@ main (gint argc, gchar **argv)
 	
 	gtk_init(&argc, &argv);
 	
-	smtp = c2_smtp_new(C2_SMTP_REMOTE, "smtp.arnet.com.ar", 25, FALSE, FALSE, NULL, NULL);
+	smtp = c2_smtp_new(C2_SMTP_REMOTE, "localhost", 25, FALSE, FALSE, NULL, NULL);
 	
 	gtk_signal_connect(GTK_OBJECT(smtp), "smtp_update", GTK_SIGNAL_FUNC(on_smtp_update), NULL);
 	
 	msg = g_new0(C2Message, 1);
 	msg->header = g_strdup("From: testing <testing@cronosii.sourceforge.net>\n"
-													"To: cronosII@users.sourceforge.net\n"
-													"CC: falling@users.sourceforge.net\n"
-													"Subject: Testing C2 smtp module!");
+						   "To: cronosII@users.sourceforge.net\n"
+						   "Subject: Testing C2 smtp module!");
 	msg->body = g_strdup("Testing 1-2-3");
 	
 	/* sending the message... please work!! */
-	if(c2_smtp_send_message(smtp, msg) == 0)
+L	if(c2_smtp_send_message(smtp, msg) == 0)
 		printf("Sending mail via SMTP worked! Check your email\n");
 	else {
 		printf("Sending message via SMTP failed... back to the drawing board\n");
 		printf("the error was: %s\n", gtk_object_get_data(GTK_OBJECT(smtp), "error"));
 	}
-	
+L		
 	gtk_object_destroy(GTK_OBJECT(smtp));
 	
 	smtp = c2_smtp_new(C2_SMTP_LOCAL, "sendmail -t < %m");
@@ -78,10 +77,10 @@ main (gint argc, gchar **argv)
 static void
 on_smtp_update(C2SMTP *smtp, void *message, guint len, guint sent)
 {
-	float len2 = len, sent2 = sent;
-	int percent;
-	len2 = floorf((sent2/len2)*100.00);
- 	percent = len2;
+	gfloat v1, v2;
+
+	v1 = (gfloat) len;
+	v2 = (gfloat) sent;
 	
-	printf("%i%s of message sent!\n", percent, "%");
+	printf("%f%% (%f %f) of message sent!\n", 100*(v2/v1), v1, v2);
 }

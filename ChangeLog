@@ -1,5 +1,5 @@
 Mon Oct 08 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
-	* Work in the Db module.
+	* Work in the Db module: Deletion is working, with some bugs.
 	* Work in the utils.
 
 Sun Oct 07 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
