@@ -890,6 +890,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 									application->mailbox, C2_MAILBOX_USE_AS_OUTBOX), C2_MAILBOX_CHANGE_ANY,
 									NULL, wmain);
 	gdk_threads_enter ();
+
+	gtk_window_add_accel_group (GTK_WINDOW (wmain), glade_xml_ensure_accel (xml));
 }
 
 static void

@@ -563,8 +563,12 @@ c2_db_thaw (C2Mailbox *mailbox)
 
 	/* Now emit queued signals */
 	if (mailbox->signals_queued)
+	{
+		printf ("emiting signals\n");
 		gtk_signal_emit_by_name (GTK_OBJECT (mailbox), "changed_mailbox",
 										C2_MAILBOX_CHANGE_ANY, mailbox->db);
+		printf ("emitted\n");
+	}
 }
 
 /**

@@ -817,9 +817,11 @@ on_mailbox_changed_mailbox (C2Mailbox *mailbox, C2MailboxChangeType type, C2Db *
 		case C2_MAILBOX_CHANGE_ADD:
 		case C2_MAILBOX_CHANGE_REMOVE:
 		case C2_MAILBOX_CHANGE_STATE:
+			printf ("entrando\n");
 			gdk_threads_enter ();
-			mailbox_node_fill (ctree, cnode, mailbox, NULL, &unreaded);
-			gdk_threads_leave ();
+L			mailbox_node_fill (ctree, cnode, mailbox, NULL, &unreaded);
+L			gdk_threads_leave ();
+			printf ("saliendo\n");
 			break;
 	}
 }
@@ -841,9 +843,10 @@ account_node_fill (GtkCTree *ctree, GtkCTreeNode *cnode, C2Account *account)
 		
 		buf1 = g_getenv ("HOSTNAME");
 		buf2 = g_get_user_name ();
-		text = g_strdup_printf ("%s@%s", buf2, buf1);
-		if (!text || !strlen (text))
+		if (!buf1 || !strlen (buf1))
 			text = g_strdup (_("Local Mailboxes"));
+		else
+			text = g_strdup_printf ("%s@%s", buf2, buf1);
 		
 		pixmap = get_pixmap (NULL, TRUE);
 		gtk_ctree_node_set_pixtext (ctree, cnode, 0, text, 2, GNOME_PIXMAP (pixmap)->pixmap,

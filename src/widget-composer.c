@@ -942,6 +942,8 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 							GTK_SIGNAL_FUNC (on_composer_size_allocate), NULL);
 	gtk_signal_connect_object (GTK_OBJECT (composer), "destroy",
 							GTK_SIGNAL_FUNC (destroy), NULL);
+
+	gtk_window_add_accel_group (GTK_WINDOW (composer), glade_xml_ensure_accel (xml));
 }
 
 static void

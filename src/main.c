@@ -37,6 +37,11 @@
 static gint
 on_release_information_idle					(gpointer);
 
+#ifdef USE_DEBUG
+static gint
+on_intensive_test_timeout					(gpointer data);
+#endif
+
 C2Application *
 global_application = NULL;
 
@@ -78,6 +83,11 @@ static struct {
 	gboolean raise_wmain;
 
 	gboolean exit;
+
+#ifdef USE_DEBUG
+	gchar *intensive_test;
+	gboolean intensive_test_list;
+#endif
 } flags =
 {
 	FALSE,
@@ -98,7 +108,12 @@ static struct {
 	FALSE,
 	FALSE,
 	FALSE,
+	FALSE,
+
+#ifdef USE_DEBUG
+	NULL,
 	FALSE
+#endif
 };
 
 void on_sigsegv (int signal)
@@ -207,6 +222,20 @@ c2_init (gint argc, gchar **argv)
 			N_("Finishes Cronos II and its multisession server"),
 			NULL
 		}
+#ifdef USE_DEBUG
+		, {
+			"intensive-test", 0, POPT_ARG_STRING,
+			&(flags.intensive_test), 0,
+			N_("Runs an intensive test"),
+			NULL
+		},
+		{
+			"intensive-test-list", 0, POPT_ARG_NONE,
+			&(flags.intensive_test_list), 0,
+			N_("Shows a list of available intensive tests and quit"),
+			NULL
+		}
+#endif
 	};
 
 	g_thread_init (NULL);
@@ -248,6 +277,17 @@ main (gint argc, gchar **argv)
 
 	/* Initialization of GNOME and Glade */
 	c2_init (argc, argv);
+
+#ifdef USE_DEBUG
+	if (flags.intensive_test_list)
+	{
+			printf ("\nAvailable intensive tests are:\n"
+					"%18s\t\t%s.\n"
+					"\n",
+					"mailbox", "Makes a hard tests creating, manipulating and deleting mailboxes");
+			exit (0);
+	}
+#endif
 
 	gdk_threads_enter ();
 
@@ -445,6 +485,14 @@ main (gint argc, gchar **argv)
 		CREATE_WINDOW_MAIN;
 	}
 
+#ifdef USE_DEBUG
+	if (flags.intensive_test)
+	{
+		printf ("Starting intensive test '%s' in 2 seconds\n", flags.intensive_test);
+		gtk_timeout_add (2000, on_intensive_test_timeout, application);
+	}
+#endif
+
 	if (application->acting_as_server)
 	{
 		/* Release Information Dialog */
@@ -469,3 +517,127 @@ on_release_information_idle (gpointer data)
 
 	return FALSE;
 }
+
+#ifdef USE_DEBUG
+static void
+intensive_test_mailbox (C2Application *application)
+{
+	C2Mailbox *test1, *test2;
+	gint config_id;
+	gchar *query;
+	C2Message *message;
+	gint i;
+	GList *mlist = NULL;
+	
+/*	printf ("Checking if mailbox 'test1' exists: ");
+	fflush (stdout);
+
+	test1 = c2_mailbox_get_by_name (application->mailbox, "test1");
+	if (C2_IS_MAILBOX (test1))
+	{
+		printf ("yes\n");
+		printf ("Removing it...\n");
+		if (c2_mailbox_remove (application->mailbox, test1))
+			printf ("Success\n");
+		else
+			printf ("Failed: %s\n", c2_error_object_get (GTK_OBJECT (test1)));
+	} else
+		printf ("no\n");
+
+	sleep (2);
+
+	printf ("Creating mailbox 'test1'\n");
+	
+	gdk_threads_enter ();
+	test1 = c2_mailbox_new_with_parent (&application->mailbox, "test1", NULL, C2_MAILBOX_CRONOSII,
+								C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING);
+	gdk_threads_leave ();
+	
+	config_id = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL)+1;
+	query = g_strdup_printf ("/"PACKAGE"/Mailbox %d/", config_id);
+	gnome_config_push_prefix (query);
+	gnome_config_set_string ("name", test1->name);
+	gnome_config_set_string ("id", test1->id);
+	gnome_config_set_int ("type", test1->type);
+	gnome_config_set_int ("sort_by", test1->sort_by);
+	gnome_config_set_int ("sort_type", test1->sort_type);
+	gnome_config_pop_prefix ();
+	g_free (query);
+	gnome_config_set_int ("/"PACKAGE"/Mailboxes/quantity", config_id);
+
+*/	/* Do the same for test2 */
+/*	test2 = c2_mailbox_get_by_name (application->mailbox, "test2");
+	if (C2_IS_MAILBOX (test2))
+	{
+		printf ("yes\n");
+		printf ("Removing it...\n");
+		if (c2_mailbox_remove (application->mailbox, test2))
+			printf ("Success\n");
+		else
+			printf ("Failed: %s\n", c2_error_object_get (GTK_OBJECT (test2)));
+	} else
+		printf ("no\n");
+
+	sleep (1);
+
+	printf ("Creating mailbox 'test2'\n");
+	
+	gdk_threads_enter ();
+	test2 = c2_mailbox_new_with_parent (&application->mailbox, "test2", NULL, C2_MAILBOX_CRONOSII,
+								C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING);
+	gdk_threads_leave ();
+	
+	config_id = gnome_config_get_int_with_default ("/"PACKAGE"/Mailboxes/quantity=0", NULL)+1;
+	query = g_strdup_printf ("/"PACKAGE"/Mailbox %d/", config_id);
+	gnome_config_push_prefix (query);
+	gnome_config_set_string ("name", test1->name);
+	gnome_config_set_string ("id", test1->id);
+	gnome_config_set_int ("type", test1->type);
+	gnome_config_set_int ("sort_by", test1->sort_by);
+	gnome_config_set_int ("sort_type", test1->sort_type);
+	gnome_config_pop_prefix ();
+	g_free (query);
+	gnome_config_set_int ("/"PACKAGE"/Mailboxes/quantity", config_id);
+
+*/	/* We are going to add a message */
+	message = c2_message_new ();
+	c2_message_set_message (message, "From: Intensive Test <intensive@test.org>\n"
+									 "To: You <y@u.net>\n"
+									 "Subject: Just an intensive test\n"
+									 "\n"
+									 "This is a mail produced by an intensive test.\n");
+
+	printf ("Making a list of 2000 messages\n");
+	/* Add this message 2000 times */
+	for (i = 0; i < 2000; i++)
+		mlist = g_list_prepend (mlist, message);
+	
+	test1 = c2_mailbox_get_by_name (application->mailbox, "Drafts");
+	printf ("Freezing the test1 mailbox\n");
+	c2_db_freeze (test1);
+	printf ("Adding the messages\n");
+	c2_db_message_add_list (test1, mlist);
+	printf ("Thawing the test1 mailbox\n");
+	c2_db_thaw (test1);
+	printf ("Done adding the 2000 messages to test1\n");
+	
+	
+	
+	c2_preferences_commit ();
+}
+
+static gint
+on_intensive_test_timeout (gpointer data)
+{
+	pthread_t thread;
+	
+	printf ("Starting intensive test '%s'\n\n\n\n", flags.intensive_test);
+
+	if (c2_streq (flags.intensive_test, "mailbox"))
+		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (intensive_test_mailbox), data);
+	else
+		printf ("Intensive test error: '%s' is not a valid intensive test.\n", flags.intensive_test);
+	
+	return FALSE;
+}
+#endif

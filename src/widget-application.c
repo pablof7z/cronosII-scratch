@@ -31,6 +31,7 @@
 #include <sys/un.h>
 #include <sys/poll.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include <libcronosII/account.h>
@@ -214,6 +215,25 @@ struct {
 	}
 };
 
+static const gchar *check_files[] =
+{
+	C2_APPLICATION_GLADE_FILE ("cronosII"),
+	C2_APPLICATION_GLADE_FILE ("dialogs"),
+	C2_APPLICATION_GLADE_FILE ("preferences"),
+	C2_APPLICATION_GLADE_FILE ("composer"),
+	PKGDATADIR "/about.html",
+	PKGDATADIR "/bugs.html",
+	PKGDATADIR "/features.html",
+	PKGDATADIR "/header.png",
+	PKGDATADIR "/message_404.html",
+	PKGDATADIR "/touch.html",
+	PKGDATADIR "/welcome.html",
+	PKGDATADIR "/default/cronosII.gnome",
+	PKGDATADIR "/default/default.elm",
+	PKGDATADIR "/default/default.index",
+	NULL
+};
+
 enum
 {
 	EMERGENCY_DATA_SAVE,
@@ -323,6 +343,7 @@ init (C2Application *application)
 	GtkWidget *pixmap;
 	gboolean load_mailboxes_at_start;
 	struct sockaddr_un sa;
+	struct stat stbuf;
 
 	application->open_windows = NULL;
 	application->tmp_files = NULL;
@@ -691,6 +712,27 @@ ignore:
 	if (!C2_IS_MAILBOX (c2_mailbox_get_by_usage (application->mailbox, C2_MAILBOX_USE_AS_DRAFTS)))
 		c2_application_dialog_missing_mailbox_inform (application, C2_MAILBOX_DRAFTS);
 
+	/* Check that the package has been installed */
+	for (i = 0; check_files[i]; i++)
+	{
+		if (stat (check_files[i], &stbuf) < 0)
+		{
+			GtkWidget *dialog;
+			gchar *str;
+
+			c2_error_set (-errno);
+			str = g_strdup_printf (_("The package Cronos II hasn't been installed "
+									 "properly.\n"
+									 "Please, reinstall the package to fix this problem.\n\n"
+									 "The error is that the file %s couldn't be load because %s."),
+									 check_files[i], c2_error_get ());
+			
+			dialog = gnome_error_dialog (str);
+			g_free (str);
+			gnome_dialog_run_and_close (GNOME_DIALOG (dialog));
+			abort ();
+		}
+	}
 }
 
 static void

@@ -94,8 +94,8 @@
 		  <name>file_new_message</name>
 		  <tooltip>Compose a new E-Mail</tooltip>
 		  <accelerator>
-		    <modifiers>0</modifiers>
-		    <key>GDK_M</key>
+		    <modifiers>GDK_CONTROL_MASK</modifiers>
+		    <key>GDK_N</key>
 		    <signal>activate</signal>
 		  </accelerator>
 		  <signal>
@@ -111,6 +111,7 @@
 		<widget>
 		  <class>GtkMenuItem</class>
 		  <name>separator5</name>
+		  <sensitive>False</sensitive>
 		  <right_justify>False</right_justify>
 		</widget>
 
@@ -120,7 +121,7 @@
 		  <tooltip>Create a new mailbox</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_CONTROL_MASK</modifiers>
-		    <key>GDK_N</key>
+		    <key>GDK_G</key>
 		    <signal>activate</signal>
 		  </accelerator>
 		  <signal>
@@ -156,6 +157,7 @@
 		<widget>
 		  <class>GtkMenuItem</class>
 		  <name>separator3</name>
+		  <sensitive>False</sensitive>
 		  <right_justify>False</right_justify>
 		</widget>
 
@@ -208,6 +210,7 @@
 		<widget>
 		  <class>GtkMenuItem</class>
 		  <name>file_check_mail_sep</name>
+		  <sensitive>False</sensitive>
 		  <right_justify>False</right_justify>
 		</widget>
 	      </widget>
@@ -234,6 +237,7 @@
 	    <widget>
 	      <class>GtkMenuItem</class>
 	      <name>separator1</name>
+	      <sensitive>False</sensitive>
 	      <right_justify>False</right_justify>
 	    </widget>
 
@@ -330,7 +334,7 @@
 	      <class>GtkCheckMenuItem</class>
 	      <name>view_toolbar</name>
 	      <accelerator>
-		<modifiers>GDK_CONTROL_MASK | GDK_SHIFT_MASK</modifiers>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_T</key>
 		<signal>activate</signal>
 	      </accelerator>
@@ -347,6 +351,7 @@
 	    <widget>
 	      <class>GtkMenuItem</class>
 	      <name>separator22</name>
+	      <sensitive>False</sensitive>
 	      <right_justify>False</right_justify>
 	    </widget>
 
@@ -354,8 +359,8 @@
 	      <class>GtkCheckMenuItem</class>
 	      <name>view_mailboxes_list</name>
 	      <accelerator>
-		<modifiers>GDK_CONTROL_MASK | GDK_SHIFT_MASK</modifiers>
-		<key>GDK_M</key>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
+		<key>GDK_Y</key>
 		<signal>activate</signal>
 	      </accelerator>
 	      <signal>
@@ -372,8 +377,8 @@
 	      <class>GtkCheckMenuItem</class>
 	      <name>view_mail_preview</name>
 	      <accelerator>
-		<modifiers>GDK_CONTROL_MASK | GDK_SHIFT_MASK</modifiers>
-		<key>GDK_P</key>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
+		<key>GDK_I</key>
 		<signal>activate</signal>
 	      </accelerator>
 	      <signal>
@@ -390,7 +395,7 @@
 	      <class>GtkCheckMenuItem</class>
 	      <name>view_headers</name>
 	      <accelerator>
-		<modifiers>GDK_CONTROL_MASK | GDK_SHIFT_MASK</modifiers>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_H</key>
 		<signal>activate</signal>
 	      </accelerator>
@@ -408,8 +413,8 @@
 	      <class>GtkCheckMenuItem</class>
 	      <name>view_network_traffic</name>
 	      <accelerator>
-		<modifiers>GDK_CONTROL_MASK | GDK_SHIFT_MASK</modifiers>
-		<key>GDK_N</key>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
+		<key>GDK_J</key>
 		<signal>activate</signal>
 	      </accelerator>
 	      <signal>
@@ -425,6 +430,7 @@
 	    <widget>
 	      <class>GtkMenuItem</class>
 	      <name>separator21</name>
+	      <sensitive>False</sensitive>
 	      <right_justify>False</right_justify>
 	    </widget>
 
@@ -451,7 +457,7 @@
 	      <name>view_dialog_network_traffic</name>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
-		<key>GDK_T</key>
+		<key>GDK_K</key>
 		<signal>activate</signal>
 	      </accelerator>
 	      <label>Network _Traffic</label>
@@ -464,7 +470,7 @@
 	      <name>view_dialog_send_receive</name>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
-		<key>GDK_H</key>
+		<key>GDK_L</key>
 		<signal>activate</signal>
 	      </accelerator>
 	      <label>Send &amp; Re_ceive</label>
@@ -495,6 +501,7 @@
 	    <widget>
 	      <class>GtkMenuItem</class>
 	      <name>separator1</name>
+	      <sensitive>False</sensitive>
 	      <right_justify>False</right_justify>
 	    </widget>
 
@@ -519,6 +526,7 @@
 	    <widget>
 	      <class>GtkMenuItem</class>
 	      <name>separator14</name>
+	      <sensitive>False</sensitive>
 	      <right_justify>False</right_justify>
 	    </widget>
 
@@ -589,6 +597,7 @@
 	    <widget>
 	      <class>GtkMenuItem</class>
 	      <name>separator5</name>
+	      <sensitive>False</sensitive>
 	      <right_justify>False</right_justify>
 	    </widget>
 
@@ -597,7 +606,7 @@
 	      <name>message_copy</name>
 	      <tooltip>Copy selected messages</tooltip>
 	      <accelerator>
-		<modifiers>GDK_MOD1_MASK</modifiers>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_C</key>
 		<signal>activate</signal>
 	      </accelerator>
@@ -611,8 +620,8 @@
 	      <name>message_move</name>
 	      <tooltip>Move selected messages</tooltip>
 	      <accelerator>
-		<modifiers>GDK_MOD1_MASK</modifiers>
-		<key>GDK_M</key>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
+		<key>GDK_X</key>
 		<signal>activate</signal>
 	      </accelerator>
 	      <label>_Move...</label>
@@ -623,6 +632,7 @@
 	    <widget>
 	      <class>GtkMenuItem</class>
 	      <name>separator6</name>
+	      <sensitive>False</sensitive>
 	      <right_justify>False</right_justify>
 	    </widget>
 
@@ -658,6 +668,7 @@
 	    <widget>
 	      <class>GtkMenuItem</class>
 	      <name>separator7</name>
+	      <sensitive>False</sensitive>
 	      <right_justify>False</right_justify>
 	    </widget>
 
@@ -677,7 +688,7 @@
 		  <name>message_mark_important</name>
 		  <tooltip>Mark selected message as important</tooltip>
 		  <accelerator>
-		    <modifiers>GDK_MOD1_MASK</modifiers>
+		    <modifiers>0</modifiers>
 		    <key>GDK_I</key>
 		    <signal>activate</signal>
 		  </accelerator>
@@ -689,6 +700,7 @@
 		<widget>
 		  <class>GtkMenuItem</class>
 		  <name>separator6</name>
+		  <sensitive>False</sensitive>
 		  <right_justify>False</right_justify>
 		</widget>
 
@@ -697,7 +709,7 @@
 		  <name>message_mark_unreaded</name>
 		  <tooltip>Mark selected messages as unreaded</tooltip>
 		  <accelerator>
-		    <modifiers>GDK_MOD1_MASK</modifiers>
+		    <modifiers>0</modifiers>
 		    <key>GDK_U</key>
 		    <signal>activate</signal>
 		  </accelerator>
@@ -711,7 +723,7 @@
 		  <name>message_mark_readed</name>
 		  <tooltip>Mark selected messages as readed</tooltip>
 		  <accelerator>
-		    <modifiers>GDK_MOD1_MASK</modifiers>
+		    <modifiers>0</modifiers>
 		    <key>GDK_V</key>
 		    <signal>activate</signal>
 		  </accelerator>
@@ -725,7 +737,7 @@
 		  <name>message_mark_replied</name>
 		  <tooltip>Mark selected messages as replied</tooltip>
 		  <accelerator>
-		    <modifiers>GDK_MOD1_MASK</modifiers>
+		    <modifiers>0</modifiers>
 		    <key>GDK_R</key>
 		    <signal>activate</signal>
 		  </accelerator>
@@ -739,7 +751,7 @@
 		  <name>message_mark_forwarded</name>
 		  <tooltip>Mark selected messages as forwarded</tooltip>
 		  <accelerator>
-		    <modifiers>GDK_MOD1_MASK</modifiers>
+		    <modifiers>0</modifiers>
 		    <key>GDK_F</key>
 		    <signal>activate</signal>
 		  </accelerator>
@@ -753,6 +765,7 @@
 	    <widget>
 	      <class>GtkMenuItem</class>
 	      <name>separator6</name>
+	      <sensitive>False</sensitive>
 	      <right_justify>False</right_justify>
 	    </widget>
 
@@ -787,6 +800,7 @@
 	    <widget>
 	      <class>GtkMenuItem</class>
 	      <name>separator15</name>
+	      <sensitive>False</sensitive>
 	      <right_justify>False</right_justify>
 	    </widget>
 
@@ -903,6 +917,7 @@
 	    <widget>
 	      <class>GtkMenuItem</class>
 	      <name>separator2</name>
+	      <sensitive>False</sensitive>
 	      <right_justify>False</right_justify>
 	    </widget>
 
@@ -1263,8 +1278,6 @@ is equal to
   </widget>
 </widget>
 
-
-
 <widget>
   <class>GtkMenu</class>
   <name>mnu_mlist</name>
@@ -1418,13 +1431,10 @@ is equal to
   </widget>
 </widget>
 
-
-
 <widget>
   <class>GtkMenu</class>
   <name>html_menu</name>
 </widget>
-
 
 <widget>
   <class>GtkMenu</class>
@@ -1524,8 +1534,6 @@ is equal to
     <stock_icon>GNOME_STOCK_MENU_PREF</stock_icon>
   </widget>
 </widget>
-
-
 
 <widget>
   <class>GtkMenu</class>
