@@ -915,7 +915,7 @@ c2_db_message_set_state (C2Db *db, C2MessageState state)
 			func = c2_db_cronosII_message_set_state;
 			break;
 		case C2_MAILBOX_IMAP:
-			//func = c2_db_imap_message_set_state;
+			func = c2_db_imap_message_set_state;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_message_set_state;
