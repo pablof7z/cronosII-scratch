@@ -129,7 +129,7 @@ cronosIIpath = @cronosIIpath@
 gnomedownload = @gnomedownload@
 l = @l@
 
-bin_PROGRAMS = account date db hash mailbox pop3 request smtp
+bin_PROGRAMS = account date db hash mailbox message pop3 request smtp
 
 INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules $(GNOME_INCLUDEDIR)
 
@@ -156,6 +156,10 @@ hash_LDFLAGS = $(LDFLAGS)
 mailbox_SOURCES = mailbox.c
 mailbox_LDADD = $(LDADD)
 mailbox_LDFLAGS = $(LDFLAGS)
+
+message_SOURCES = message.c
+message_LDADD = $(LDADD)
+message_LDFLAGS = $(LDFLAGS)
 
 pop3_SOURCES = pop3.c
 pop3_LDADD = $(LDADD)
@@ -186,6 +190,8 @@ hash_OBJECTS =  hash.o
 hash_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 mailbox_OBJECTS =  mailbox.o
 mailbox_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+message_OBJECTS =  message.o
+message_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 pop3_OBJECTS =  pop3.o
 pop3_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 request_OBJECTS =  request.o
@@ -204,9 +210,10 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/account.P .deps/date.P .deps/db.P .deps/hash.P \
-.deps/mailbox.P .deps/pop3.P .deps/request.P .deps/smtp.P
-SOURCES = $(account_SOURCES) $(date_SOURCES) $(db_SOURCES) $(hash_SOURCES) $(mailbox_SOURCES) $(pop3_SOURCES) $(request_SOURCES) $(smtp_SOURCES)
-OBJECTS = $(account_OBJECTS) $(date_OBJECTS) $(db_OBJECTS) $(hash_OBJECTS) $(mailbox_OBJECTS) $(pop3_OBJECTS) $(request_OBJECTS) $(smtp_OBJECTS)
+.deps/mailbox.P .deps/message.P .deps/pop3.P .deps/request.P \
+.deps/smtp.P
+SOURCES = $(account_SOURCES) $(date_SOURCES) $(db_SOURCES) $(hash_SOURCES) $(mailbox_SOURCES) $(message_SOURCES) $(pop3_SOURCES) $(request_SOURCES) $(smtp_SOURCES)
+OBJECTS = $(account_OBJECTS) $(date_OBJECTS) $(db_OBJECTS) $(hash_OBJECTS) $(mailbox_OBJECTS) $(message_OBJECTS) $(pop3_OBJECTS) $(request_OBJECTS) $(smtp_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -295,6 +302,10 @@ hash: $(hash_OBJECTS) $(hash_DEPENDENCIES)
 mailbox: $(mailbox_OBJECTS) $(mailbox_DEPENDENCIES)
 	@rm -f mailbox
 	$(LINK) $(mailbox_LDFLAGS) $(mailbox_OBJECTS) $(mailbox_LDADD) $(LIBS)
+
+message: $(message_OBJECTS) $(message_DEPENDENCIES)
+	@rm -f message
+	$(LINK) $(message_LDFLAGS) $(message_OBJECTS) $(message_LDADD) $(LIBS)
 
 pop3: $(pop3_OBJECTS) $(pop3_DEPENDENCIES)
 	@rm -f pop3

@@ -1,4 +1,4 @@
-bin_PROGRAMS = account date db hash mailbox pop3 request smtp
+bin_PROGRAMS = account date db hash mailbox message pop3 request smtp
 
 INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules $(GNOME_INCLUDEDIR)
 
@@ -26,6 +26,10 @@ hash_LDFLAGS = $(LDFLAGS)
 mailbox_SOURCES = mailbox.c
 mailbox_LDADD = $(LDADD)
 mailbox_LDFLAGS = $(LDFLAGS)
+
+message_SOURCES = message.c
+message_LDADD = $(LDADD)
+message_LDFLAGS = $(LDFLAGS)
 
 pop3_SOURCES = pop3.c
 pop3_LDADD = $(LDADD)

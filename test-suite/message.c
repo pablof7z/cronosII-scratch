@@ -15,29 +15,17 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#include <glib.h>
+#include <gtk/gtk.h>
 #include <time.h>
 
-#include <libcronosII/utils-date.h>
+#include <libcronosII/message.h>
 
 gint
 main (gint argc, gchar **argv)
 {
-	time_t t;
-	struct tm *tm;
-	gchar str[80];
+	C2Message *message;
 	
-	if (argc < 2)
-	{
-		g_print ("Usage: %s [DATE]\n", argv[0]);
-		return 1;
-	}
+	gtk_init (&argc, &argv);
 
-	if ((t = c2_date_parse (argv[1])) == -1)
-		if ((t = c2_date_parse_fmt2 (argv[1])) == -1)
-			t = c2_date_parse_fmt3 (argv[1]);
-	tm = localtime (&t);
-	strftime (str, sizeof (str), "%Y.%m.%d %H:%M:%S %Z", tm);
-	g_print ("%s\n", str);
-	return 0;
+	message = c2_message_new ();
 }
