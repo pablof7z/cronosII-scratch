@@ -1,7 +1,12 @@
-Sat Oct 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+Sun Oct 14 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* New function to wrap strings.
 	* Wrapping in mail rendering is working.
 	* Changed the name of the binary (cronosII-scratch to cronosII)
+	* Composer without HTML support is working.
+	* Fixed the bug that caused the (null) displaying
+	  when listing mails with no subject or from header.
+	* Some minor changes in the way C2Db knows how to mark
+	  messages stored.
 
 Sat Oct 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Some work in the cronosII man.

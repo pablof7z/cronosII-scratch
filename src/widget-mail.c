@@ -115,7 +115,7 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 
 	gtk_object_set_data (GTK_OBJECT (mail->body), "message", message);
 	
-	buf = c2_str_wrap (string, 70);
+	buf = c2_str_wrap (string, 75);
 	g_free (string);
 	string = buf;
 	
@@ -327,7 +327,9 @@ html_link_manager_cid (C2HTML *html, const gchar *url, C2Pthread2 *data)
 static gchar *
 interpret_text_plain_symbols (const gchar *plain)
 {
-	GString *string = g_string_new ("<html><body bgcolor=#ffffff><table border=0><tr><td><pre>");
+	GString *string = g_string_new ("<html>\n"
+					                "<body bgcolor=#ffffff>\n"
+									"<table border=0><tr><td><pre>\n");
 	const gchar *ptr;
 	gchar *word, *extra, *buf;
 	gboolean quoted = FALSE, quote_line = FALSE, new_line;
@@ -432,9 +434,10 @@ avoid_interpret:
 				g_string_append (string, "<img src=\"c2dist://html-icons/:D.png\" width=10 height=10 alt=\":D\">");
 			else if (c2_streq (word, ":P"))
 				g_string_append (string, "<img src=\"c2dist://html-icons/:P.png\" width=10 height=10 alt=\":P\">");
-			else if (c2_strneq (word, "http://", 7) ||
-					 c2_strneq (word, "ftp://", 6) ||
-					 c2_strneq (word, "file://", 7) ||
+			else if (c2_strneq (word, "http://", 7)		||
+					 c2_strneq (word, "https://", 8)	||
+					 c2_strneq (word, "ftp://", 6)		||
+					 c2_strneq (word, "file://", 7)		||
 					 c2_strneq (word, "mailto:", 7))
 			{
 				buf = g_strdup_printf ("<a href=\"%s\">%s</a>", word, word);
@@ -448,7 +451,7 @@ avoid_interpret:
 		g_free (word);
 	}
 
-	g_string_append (string, "</pre></td></tr></table></body></html>");
+	g_string_append (string, " </pre></td></tr></table></body></html>");
 
 	buf = string->str;
 	g_string_free (string, FALSE);

@@ -67,6 +67,9 @@ static void
 on_to_changed								(GtkWidget *widget, C2Composer *composer);
 
 static void
+on_subject_changed							(GtkWidget *widget, C2Composer *composer);
+
+static void
 on_icon_list_button_press_event				(GtkWidget *widget, GdkEventButton *e, C2Composer *composer);
 
 static void
@@ -218,7 +221,7 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	gchar *str, *buf;
 	GladeXML *xml;
 	
-	c2_window_construct (C2_WINDOW (composer), application, _("Composer"), "composer");
+	c2_window_construct (C2_WINDOW (composer), application, _("Composer: Untitled"), "composer");
 	C2_WINDOW (composer)->xml = glade_xml_new (C2_APPLICATION_GLADE_FILE (XML_FILE),
 								"wnd_composer_contents");
 	xml = C2_WINDOW (composer)->xml;
@@ -247,6 +250,11 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	gtk_widget_set_sensitive (widget, FALSE);
 	widget = glade_xml_get_widget (xml, "insert_link");
 	gtk_widget_set_sensitive (widget, FALSE);
+	widget = glade_xml_get_widget (xml, "format_html");
+#ifndef USE_ADVANCED_EDITOR
+	gtk_widget_set_sensitive (widget, FALSE);
+#endif
+
 	widget = glade_xml_get_widget (xml, "send_now_btn");
 	gtk_widget_set_sensitive (widget, FALSE);
 	widget = glade_xml_get_widget (xml, "send_later_btn");
@@ -365,11 +373,9 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 							GTK_SIGNAL_FUNC (on_run_external_editor_clicked), composer);
 	} else
 	{ /* Create the internal widget */
-		GtkWidget *editor;
-
-		editor = c2_editor_new ();
-		gtk_box_pack_start (GTK_BOX (editor_container), editor, TRUE, TRUE, 0);
-		gtk_widget_show (editor);
+		composer->editor = c2_editor_new ();
+		gtk_box_pack_start (GTK_BOX (editor_container), composer->editor, TRUE, TRUE, 0);
+		gtk_widget_show (composer->editor);
 	}
 
 	g_free (buf);
@@ -392,6 +398,9 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	widget = glade_xml_get_widget (xml, "to");
 	gtk_signal_connect (GTK_OBJECT (widget), "changed",
 						GTK_SIGNAL_FUNC (on_to_changed), composer);
+	widget = GTK_COMBO (glade_xml_get_widget (xml, "subject"))->entry;
+	gtk_signal_connect (GTK_OBJECT (widget), "changed",
+						GTK_SIGNAL_FUNC (on_subject_changed), composer);
 	
 
 	gtk_signal_connect (GTK_OBJECT (composer), "size_allocate",
@@ -494,6 +503,24 @@ on_to_changed (GtkWidget *widget, C2Composer *composer)
 }
 
 static void
+on_subject_changed (GtkWidget *widget, C2Composer *composer)
+{
+	const gchar *subject;
+
+	subject = gtk_entry_get_text (GTK_ENTRY (widget));
+	
+	if (strlen (subject))
+	{
+		gchar *title;
+		
+		title = g_strdup_printf (_("Composer: %s"), subject);
+		gtk_window_set_title (GTK_WINDOW (composer), title);
+		g_free (title);
+	} else
+		gtk_window_set_title (GTK_WINDOW (composer), _("Composer: Untitled"));
+}
+
+static void
 on_application_preferences_changed_account (C2Application *application, gint key, gpointer value,
 				GtkCombo *combo)
 {
@@ -575,6 +602,7 @@ on_send_now_clicked (GtkWidget *widget, C2Composer *composer)
 									   "X-CronosII-Send-Type: %d\n",
 									   message->header, C2_COMPOSER_SEND_NOW);
 	g_free (buf);
+	gtk_object_set_data (GTK_OBJECT (message), "state", (gpointer) C2_MESSAGE_UNREADED);
 
 	xml = C2_WINDOW (composer)->xml;
 	gtk_widget_set_sensitive (glade_xml_get_widget (xml, "file_send_now"), FALSE);
@@ -591,6 +619,7 @@ on_send_now_clicked (GtkWidget *widget, C2Composer *composer)
 		gtk_widget_destroy (GTK_WIDGET (composer));
 		gtk_object_unref (GTK_OBJECT (message));
 	}
+	gtk_object_remove_data (GTK_OBJECT (message), "state");
 }
 
 static void
@@ -908,6 +937,7 @@ create_message (C2Composer *composer)
 	/* Body */
 	if (composer->type == C2_COMPOSER_TYPE_INTERNAL)
 	{
+		message->body = c2_editor_get_text (C2_EDITOR (composer->editor));
 	} else
 	{
 		struct stat stat_buf;
@@ -932,7 +962,6 @@ create_message (C2Composer *composer)
 		}
 
 		length = ((gint) stat_buf.st_size * sizeof (gchar));
-		printf ("%d\n", length);
 
 		message->body = g_new0 (gchar, length+1);
 		fread (message->body, sizeof (gchar), length, fd);
@@ -941,8 +970,6 @@ create_message (C2Composer *composer)
 
 	message->header = header->str;
 	g_string_free (header, FALSE);
-	C2_DEBUG (message->header);
-	C2_DEBUG (message->body);
 	
 	return message;
 }

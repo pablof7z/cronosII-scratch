@@ -27,7 +27,7 @@ main (gint argc, gchar **argv)
 	gtk_init (&argc, &argv);
 
 	message = c2_db_message_get_from_file ("test-string.txt");
-	str = c2_str_wrap (message->body, 30);
+	str = c2_str_wrap (message->body, 70);
 	printf ("Not wrapped:\n"
 			"-------------------------------\n"
 			"%s\n"

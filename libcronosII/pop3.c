@@ -822,8 +822,7 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 			if (len == 2 && getting_header)
 			{
 				getting_header = FALSE;
-				fprintf (fd, "X-CronosII-Account: %s\n", account->name);
-				fprintf (fd, "X-CronosII-State: %c\n\n", C2_MESSAGE_UNREADED);
+				fprintf (fd, "X-CronosII-Account: %s\n\n", account->name);
 			}
 			
 			string[len-2] = '\n';
@@ -840,7 +839,9 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 
 		/* Load the mail */
 		message = c2_db_message_get_from_file (tmp);
+		gtk_object_set_data (GTK_OBJECT (message), "state", (gpointer) C2_MESSAGE_UNREADED);
 		c2_db_message_add (inbox, message);
+		gtk_object_remove_data (GTK_OBJECT (message), "state");
 		unlink (tmp);
 
 		/* Now that everything is written, delete the mail

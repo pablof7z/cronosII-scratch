@@ -10,7 +10,7 @@ It may also create one or more `.h' files containing system-dependent
 definitions.  Finally, it creates a shell script `config.status' that
 you can run in the future to recreate the current configuration, a file
 `config.cache' that saves the results of its tests to speed up
-re-configuring, and a file `config.log' containing compiler output
+reconfiguring, and a file `config.log' containing compiler output
 (useful mainly for debugging `configure').
 
    If you need to do unusual things to compile the package, please try
@@ -78,7 +78,7 @@ source code in the directory that `configure' is in and in `..'.
    If you have to use a `make' that does not supports the `VPATH'
 variable, you have to compile the package for one architecture at a time
 in the source code directory.  After you have installed the package for
-one architecture, use `make distclean' before re-configuring for another
+one architecture, use `make distclean' before reconfiguring for another
 architecture.
 
 Installation Names

@@ -308,12 +308,21 @@ if test "$bonobo" = "yes"; then
 fi
 
 dnl Check if we can build the editor with GtkHTML support
+AC_ARG_ENABLE([htmleditor],
+[  --disable-htmleditor      Disable the editor with HTML support [default=auto]],
+[ htmleditor=$enableval ], [ htmleditor=yes ])
+
 AC_MSG_CHECKING([for editor type])
-if test $bonobo; then
-	if test "$gtkhtml" = "yes"; then
-		AC_DEFINE(USE_ADVANCED_EDITOR)
-		AC_MSG_RESULT([advanced (extended support)])
-		editor="Advanced, with HTML support"
+if test "$htmleditor" = "yes"; then
+	if test $bonobo; then
+		if test "$gtkhtml" = "yes"; then
+			AC_DEFINE(USE_ADVANCED_EDITOR)
+			AC_MSG_RESULT([advanced (extended support)])
+			editor="Advanced, with HTML support"
+		else
+			AC_MSG_RESULT([basic])
+			editor="Basic, without HTML support"
+		fi
 	else
 		AC_MSG_RESULT([basic])
 		editor="Basic, without HTML support"

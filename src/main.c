@@ -120,23 +120,6 @@ c2_init (gint argc, gchar **argv)
 			N_("Open the main window (default)"), NULL
 		}
 	};
-	gnome_init_with_popt_table ("Cronos II", VERSION, argc, argv, options, 0, NULL);
-	glade_gnome_init ();
-	c2_hash_init ();
-
-#ifdef USE_GTKHTML
-#ifdef USE_GCONF
-	gconf_init (argc, argv, NULL);
-#endif
-#endif
-}
-
-gint
-main (gint argc, gchar **argv)
-{
-	GtkWidget *widget;
-	GtkWidget *transfer_list;
-	gboolean something_opened = FALSE;
 
 	g_thread_init (NULL);
 	
@@ -149,6 +132,23 @@ main (gint argc, gchar **argv)
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
 #endif
+	
+	gnome_init_with_popt_table ("Cronos II", VERSION, argc, argv, options, 0, NULL);
+	
+#ifdef USE_GCONF
+	gconf_init (argc, argv, NULL);
+#endif
+	
+	glade_gnome_init ();
+	c2_hash_init ();
+}
+
+gint
+main (gint argc, gchar **argv)
+{
+	GtkWidget *widget;
+	GtkWidget *transfer_list;
+	gboolean something_opened = FALSE;
 
 	/* Initialization of GNOME and Glade */
 	c2_init (argc, argv);

@@ -74,6 +74,9 @@ struct _C2ComposerAttachment
 struct _C2Composer
 {
 	C2Window window;
+
+	/* Editor */
+	GtkWidget *editor;
 	
 	/* Type */
 	C2ComposerType type;

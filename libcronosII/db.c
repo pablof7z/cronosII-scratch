@@ -425,6 +425,7 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 	C2Db *l, *db;
 	gchar *buf;
 	gboolean marked = FALSE;
+	gchar *subject, *from, *account;
 	time_t date;
 
 	if (!mailbox->db)
@@ -451,14 +452,16 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 	} else
 		date = time (NULL);
 
-	db = c2_db_new (mailbox, marked, c2_message_get_header_field (message, "Subject:"),
-					c2_message_get_header_field (message, "From:"),
-					c2_message_get_header_field (message, "X-CronosII-Account:"),
+	subject = c2_message_get_header_field (message, "Subject:");
+		from = c2_message_get_header_field (message, "From:");
+		account = c2_message_get_header_field (message, "X-CronosII-Account:");
+
+	db = c2_db_new (mailbox, marked, subject ? subject : "",
+					from ? from : "",
+					account ? account : "",
 					date, 0, mailbox->db ? mailbox->db->prev->position+1 : 1);
 	db->message = message;
-	db->state = *(c2_message_get_header_field (message, "X-CronosII-State:"));
-	if (!db->state)
-		db->state = C2_MESSAGE_UNREADED;
+	db->state = (C2MessageState) GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (message), "state"));
 	
 	switch (mailbox->type)
 	{
@@ -531,6 +534,7 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 	{
 		C2Message *message = C2_MESSAGE (l->data);
 		gboolean marked = FALSE;
+		gchar *subject, *from, *account;
 		time_t date;
 		
 		buf = c2_message_get_header_field (message, "X-Priority:");
@@ -546,9 +550,12 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 		} else
 			date = time (NULL);
 		
-		db = c2_db_new (mailbox, marked, c2_message_get_header_field (message, "Subject:"),
-						c2_message_get_header_field (message, "From:"),
-						c2_message_get_header_field (message, "X-CronosII-Account:"),
+		subject = c2_message_get_header_field (message, "Subject:");
+		from = c2_message_get_header_field (message, "From:");
+		account = c2_message_get_header_field (message, "X-CronosII-Account:");
+		
+		db = c2_db_new (mailbox, marked, subject ? subject : "",
+						from ? from : "", account ? account : "",
 						date, 0, mailbox->db ? mailbox->db->prev->position+1 : 1);
 		db->message = message;
 		db->state = *(c2_message_get_header_field (message, "X-CronosII-State:"));
@@ -628,13 +635,12 @@ c2_db_message_remove (C2Mailbox *mailbox, GList *list)
 	i = 0;
 	do
 	{
-		printf ("<%d %d>\n", i, GPOINTER_TO_INT (sorted_list->data));
 		if (i == GPOINTER_TO_INT (sorted_list->data))
 		{
 			C2Db *prev = db->prev;
 			C2Db *curr = db;
 			C2Db *next = db->next;
-L
+
 			prev->next = next;
 			next->prev = prev;
 

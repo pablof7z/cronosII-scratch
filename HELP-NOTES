@@ -1,0 +1,45 @@
+This file won't ship with Cronos II,
+is just a couple of notes added that
+should be noted to when writing the
+user manual, so, basically, this are
+notes for Pete :)
+
+NOTE: This notes SHOULD NOT be quoted
+since they might be written in a too
+casual way, the point of the notes
+is so the writter of the help system
+knows about "obscure" functions of
+Cronos II that are not too obvious.
+
+NOTE: This notes SHOULD NOT be only
+in CVS, this are NOT notes for users.
+
+------------------------------------------
+
+1. Preferences » Interface » HTML » "Interpret text/plain symbols"
+   This option causes Cronos II to search, when displaying
+   text/plain messages, for symbols that are commonly used
+   to express some kind 
+
+2. How can I do to make Cronos II my default e-mail client?
+   (for stuff like responding to mailto: links)
+
+   You have to open the Control Center, then go to
+   Documents Handlers » URL Handlers
+   And write in the text entry in the top of the page the following:
+
+   +------------+          +---------------------------------------+ +-----+ +--------+
+   | mailto:    | handler: | cronosII -l "%s"                      | ||Set|| ||Remove||
+   +------------+          +---------------------------------------+ +-----+ +--------+
+                             ^^^^^^^^ By now the binary is actually cronosII-scratch,
+							          but when stable is released it will change to
+									  cronosII.
+
+   After writing that you have to click the "Set" button.
+
+   Note that not all browsers support this, I know Galeon does,
+   so Yves and I won't have problems (yes, we both use it).
+
+   Pete, maybe you can research a little, I know that in [fmII]
+   there're programs that make Netscape answer to mailto: links
+   with external commands.
