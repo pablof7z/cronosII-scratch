@@ -83,11 +83,13 @@ struct _C2POP3Class
 {
 	C2NetObjectClass parent_class;
 
+	void (*login) (C2POP3 *pop3);
 	gboolean (*login_failed) (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pass,
 							  pthread_mutex_t *lock);
-	
+	void (*uidl) (C2POP3 *pop3, gint nth, gint mails);
 	void (*status) (C2POP3 *pop3, gint mails);
 	void (*retrieve) (C2POP3 *pop3, gint16 nth, gint32 received, gint32 total);
+	void (*synchronize) (C2POP3 *pop3, gint nth, gint max);
 };
 
 #ifdef USE_SSL

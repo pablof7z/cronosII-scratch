@@ -1,3 +1,10 @@
+Sat Sep 22 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Fixed a bug in the copy and moving functions
+	  in the utils.
+	* A lot of work in the POP3 in order to get UIDL
+	  (non deleting in server) to work: POP3 is
+	  about to be done.
+
 Fri Sep 21 Peter Gossner <gossner@arcom.com.au>
 	* Framework for new manual in place
 

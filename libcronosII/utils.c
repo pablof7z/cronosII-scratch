@@ -624,11 +624,11 @@ c2_file_binary_copy (const gchar *from_path, const gchar *target_path)
 		return FALSE;
 	}
 	
-	for (;;)
+	for (;!feof (frm);)
 	{
-		if (fread (buf, sizeof (gchar), sizeof (buf), frm) < sizeof (buf)-1)
-			break;
-		fwrite (buf, sizeof (gchar), sizeof (buf), dst);
+		memset (buf, 0, sizeof (buf)*sizeof (gchar));
+		fwrite (buf, sizeof (gchar),
+			fread (buf, sizeof (gchar), sizeof (buf), frm), dst);
 	}
 	
 	fclose (frm);

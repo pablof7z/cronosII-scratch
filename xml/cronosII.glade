@@ -937,7 +937,6 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_delete</name>
-	  <sensitive>False</sensitive>
 	  <tooltip>Delete selected messages</tooltip>
 	  <label>Delete</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_TRASH</stock_pixmap>

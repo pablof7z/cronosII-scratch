@@ -21,7 +21,8 @@
 
 #include "widget-transfer-item.h"
 
-#define MAX_CHARS_IN_LABEL		23
+#define MAX_CHARS_IN_LABEL		33
+#define WIDGET_WIDTH			210
 
 static void
 class_init									(C2TransferItemClass *klass);
@@ -38,9 +39,15 @@ on_cancel_clicked							(GtkWidget *button, C2TransferItem *ti);
 static void
 on_pop3_resolve								(GtkObject *object, C2TransferItem *ti);
 
+static void
+on_pop3_login								(GtkObject *object, C2TransferItem *ti);
+
 static gboolean
 on_pop3_login_failed						(C2POP3 *pop3, const gchar *error, gchar **user,
 											 gchar **pass, pthread_mutex_t *mutex);
+
+static void
+on_pop3_uidl								(GtkObject *object, gint nth, gint mails, C2TransferItem *ti);
 
 static void
 on_pop3_status								(GtkObject *object, gint mails, C2TransferItem *ti);
@@ -48,6 +55,9 @@ on_pop3_status								(GtkObject *object, gint mails, C2TransferItem *ti);
 static void
 on_pop3_retrieve							(GtkObject *object, gint16 nth, gint32 received,
 											 gint32 total, C2TransferItem *ti);
+
+static void
+on_pop3_synchronize							(GtkObject *object, gint nth, gint mails, C2TransferItem *ti);
 
 static void
 on_pop3_disconnect							(GtkObject *object, gboolean success, C2TransferItem *ti);
@@ -206,7 +216,7 @@ C2TransferItemType type, va_list args)
 	label = gtk_label_new (buffer);
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 	gtk_widget_show (label);
-	gtk_widget_set_usize (label, 138, -1);
+	gtk_widget_set_usize (label, WIDGET_WIDTH, -1);
 
 	box = gtk_vbox_new (FALSE, 0);
 	gtk_widget_show (box);
@@ -304,15 +314,23 @@ c2_transfer_item_start (C2TransferItem *ti)
 			gtk_signal_connect (GTK_OBJECT (pop3), "resolve",
 								GTK_SIGNAL_FUNC (on_pop3_resolve), ti);
 
+			gtk_signal_connect (GTK_OBJECT (pop3), "login",
+								GTK_SIGNAL_FUNC (on_pop3_login), ti);
 
 			gtk_object_set_data (GTK_OBJECT (pop3), "login_failed::data", ti);
 			C2_POP3_CLASS_FW (pop3)->login_failed = on_pop3_login_failed;
+
+			gtk_signal_connect (GTK_OBJECT (pop3), "uidl",
+								GTK_SIGNAL_FUNC (on_pop3_uidl), ti);
 
 			gtk_signal_connect (GTK_OBJECT (pop3), "status",
 								GTK_SIGNAL_FUNC (on_pop3_status), ti);
 
 			gtk_signal_connect (GTK_OBJECT (pop3), "retrieve",
 								GTK_SIGNAL_FUNC (on_pop3_retrieve), ti);
+
+			gtk_signal_connect (GTK_OBJECT (pop3), "synchronize",
+								GTK_SIGNAL_FUNC (on_pop3_synchronize), ti);
 
 			gtk_signal_connect (GTK_OBJECT (pop3), "disconnect",
 								GTK_SIGNAL_FUNC (on_pop3_disconnect), ti);
@@ -345,6 +363,17 @@ on_pop3_resolve (GtkObject *object, C2TransferItem *ti)
 {
 	gdk_threads_enter ();
 	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Connecting"));
+	gdk_threads_leave ();
+}
+
+static void
+on_pop3_login (GtkObject *object, C2TransferItem *ti)
+{
+	gdk_threads_enter ();
+	/* [FIXME]
+	 * Action to login? Loggining?
+	 */
+	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Loggining"));
 	gdk_threads_leave ();
 }
 
@@ -464,8 +493,23 @@ on_pop3_login_failed (C2POP3 *pop3, const gchar *error, gchar **user, gchar **pa
 }
 
 static void
+on_pop3_uidl (GtkObject *object, gint nth, gint mails, C2TransferItem *ti)
+{
+	gdk_threads_enter ();
+	if (!nth)
+	{
+		gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
+		gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Getting mail list"));
+	}
+
+	gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), nth);
+	gdk_threads_leave ();
+}
+
+static void
 on_pop3_status (GtkObject *object, gint mails, C2TransferItem *ti)
 {
+	gdk_threads_enter ();
 	gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
 
 	if (!mails)
@@ -479,6 +523,7 @@ on_pop3_status (GtkObject *object, gint mails, C2TransferItem *ti)
 		
 		gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
 	}
+	gdk_threads_leave ();
 }
 
 static void
@@ -502,9 +547,25 @@ on_pop3_retrieve (GtkObject *object, gint16 nth, gint32 received, gint32 total, 
 }
 
 static void
+on_pop3_synchronize (GtkObject *object, gint nth, gint mails, C2TransferItem *ti)
+{
+	gdk_threads_enter ();
+	if (!nth)
+	{
+		gtk_progress_configure (GTK_PROGRESS (ti->progress_mail), 0, 0, mails);
+		gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Synchronizing"));
+	}
+
+	gtk_progress_set_value (GTK_PROGRESS (ti->progress_mail), nth);
+	gdk_threads_leave ();
+}
+
+static void
 on_pop3_disconnect (GtkObject *object, gboolean success, C2TransferItem *ti)
 {
+	gdk_threads_enter ();
 	gtk_progress_set_format_string (GTK_PROGRESS (ti->progress_mail), _("Completed"));
 	gtk_progress_set_percentage (GTK_PROGRESS (ti->progress_mail), 1.0);
 	gtk_widget_set_sensitive (ti->cancel_button, FALSE);
+	gdk_threads_leave ();
 }

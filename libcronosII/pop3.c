@@ -28,40 +28,57 @@
 
 #define DEFAULT_FLAGS C2_POP3_DO_NOT_KEEP_COPY | C2_POP3_DO_NOT_LOSE_PASSWORD
 
-static void
-class_init										(C2POP3Class *klass);
+#define UIDL_LENGTH		128		/* [FIXME]
+								 * I'm not sure about this length
+								 * of the buffer, I need to check
+								 * the RFC.
+								 */
 
 static void
-init											(C2POP3 *pop3);
+class_init									(C2POP3Class *klass);
 
 static void
-destroy											(GtkObject *object);
+init										(C2POP3 *pop3);
+
+static void
+destroy										(GtkObject *object);
 
 static gint
-welcome											(C2POP3 *pop3);
+welcome										(C2POP3 *pop3);
 
 static gint
-login											(C2POP3 *pop3);
+login										(C2POP3 *pop3);
 
 static GSList *
-status											(C2POP3 *pop3, C2Account *account);
+status										(C2POP3 *pop3, C2Account *account, GSList **cuidl);
 
 static gboolean
-uidl											(C2POP3 *pop3, C2Account *account, gint mails);
+uidl_in_db									(C2Account *account, const gchar *uidl);
 
 static void
-uidl_clean										(C2Account *account);
+uidl_clean									(C2Account *account);
 
+static void
+uidl_add									(C2Account *account, const gchar *uidl, time_t date);
 
 static gint
-retrieve										(C2POP3 *pop3, C2Account *account,
-												 C2Mailbox *inbox, GSList *download_list);
+retrieve									(C2POP3 *pop3, C2Account *account,
+											 C2Mailbox *inbox, GSList *download_list);
+
+static gint
+synchronize									(C2POP3 *pop3, C2Account *account, GSList *uidl);
+
+static void
+quit										(C2POP3 *pop3);
 
 enum
 {
+	LOGIN,
 	LOGIN_FAILED,
+	UIDL,
 	STATUS,
 	RETRIEVE,
+	SYNCHRONIZE,
 	LAST_SIGNAL
 };
 
@@ -102,6 +119,19 @@ class_init (C2POP3Class *klass)
 	
 	parent_class = gtk_type_class (c2_net_object_get_type ());
 
+	signals[LOGIN] =
+		gtk_signal_new ("login",
+					GTK_RUN_FIRST,
+					object_class->type,
+					GTK_SIGNAL_OFFSET (C2POP3Class, login),
+					gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
+	signals[UIDL] =
+		gtk_signal_new ("uidl",
+					GTK_RUN_FIRST,
+					object_class->type,
+					GTK_SIGNAL_OFFSET (C2POP3Class, uidl),
+					gtk_marshal_NONE__INT_INT, GTK_TYPE_NONE, 2,
+					GTK_TYPE_INT, GTK_TYPE_INT);
 	signals[STATUS] =
 		gtk_signal_new ("status",
 					GTK_RUN_FIRST,
@@ -109,7 +139,6 @@ class_init (C2POP3Class *klass)
 					GTK_SIGNAL_OFFSET (C2POP3Class, status),
 					gtk_marshal_NONE__INT, GTK_TYPE_NONE, 1,
 					GTK_TYPE_INT);
-
 	signals[RETRIEVE] =
 		gtk_signal_new ("retrieve",
 					GTK_RUN_FIRST,
@@ -117,12 +146,22 @@ class_init (C2POP3Class *klass)
 					GTK_SIGNAL_OFFSET (C2POP3Class, retrieve),
 					c2_marshal_NONE__INT_INT_INT, GTK_TYPE_NONE, 3,
 					GTK_TYPE_INT, GTK_TYPE_INT, GTK_TYPE_INT);
+	signals[SYNCHRONIZE] =
+		gtk_signal_new ("synchronize",
+					GTK_RUN_FIRST,
+					object_class->type,
+					GTK_SIGNAL_OFFSET (C2POP3Class, synchronize),
+					gtk_marshal_NONE__INT_INT, GTK_TYPE_NONE, 2,
+					GTK_TYPE_INT, GTK_TYPE_INT);
 	
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 	
+	klass->login = NULL;
 	klass->login_failed = NULL;
+	klass->uidl = NULL;
 	klass->status = NULL;
 	klass->retrieve = NULL;
+	klass->synchronize = NULL;
 	object_class->destroy = destroy;
 }
 
@@ -243,7 +282,7 @@ c2_pop3_set_leave_copy (C2POP3 *pop3, gboolean leave_copy, gint days)
 gint
 c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 {
-	GSList *download_list;
+	GSList *download_list, *uidl_list;
 	gint mails;
 
 	c2_return_val_if_fail (pop3, -1, C2EDATA);
@@ -276,7 +315,7 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 		return -1;
 	}
 
-	if ((download_list = status (pop3, account)) < 0)
+	if ((download_list = status (pop3, account, &uidl_list)) < 0)
 	{
 		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
 		gtk_object_remove_data (GTK_OBJECT (pop3), "account");
@@ -291,6 +330,26 @@ c2_pop3_fetchmail (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox)
 		pthread_mutex_unlock (&pop3->run_lock);
 		return -1;
 	}
+
+	if (pop3->flags & C2_POP3_DO_KEEP_COPY && pop3->copies_in_server_life_time)
+	{
+		if (synchronize (pop3, account, uidl_list))
+			goto after_quit;
+	} else
+	{
+		GSList *l;
+
+#ifdef USE_DEBUG
+		printf ("Freeing unused complete uidl list\n");
+#endif
+		for (l = uidl_list; l; l = g_slist_next (l))
+			g_free (l->data);
+		g_slist_free (uidl_list);
+	}
+
+	quit (pop3);
+	
+after_quit:
 	printf("done with fetching\n");
 
 	c2_net_object_disconnect (C2_NET_OBJECT (pop3));
@@ -335,10 +394,8 @@ welcome (C2POP3 *pop3)
 		logintoken[loginsize-1] = 0;				 /* overwrite the \n with the NULL terminator */
 	
 	
-		printf("Welcome token is \"%s\"\n",logintoken);
-		pop3->logintoken = (gchar*)g_malloc(sizeof(gchar) * loginsize);
-		strncpy(pop3->logintoken,logintoken,loginsize); 	/* set the login token so we can use it later in the login call */
-		//printf("pop3->logintoken in login is \"%s\"\n",pop3->logintoken);
+		pop3->logintoken = g_strndup (logintoken, loginsize);
+		C2_DEBUG (pop3->logintoken);
 	}
 	else
 	{
@@ -372,6 +429,8 @@ login (C2POP3 *pop3)
 	gint i = 0;
 	gboolean logged_in = FALSE;
 	
+	gtk_signal_emit (GTK_OBJECT (pop3), signals[LOGIN]);
+
 	if (pop3->auth_method == C2_POP3_AUTHENTICATION_APOP)
 	{
 		if (pop3->logintoken == NULL)
@@ -401,6 +460,7 @@ login (C2POP3 *pop3)
 
 		//printf("%s\n",md5apopstring);
 
+		printf ("APOP %s %s\n", pop3->user, md5apopstring);
 		if (c2_net_object_send (C2_NET_OBJECT (pop3), "APOP %s %s\r\n", pop3->user,md5apopstring) < 0)
 		{
 			c2_error_set_custom("Sending APOP login failed");
@@ -424,6 +484,11 @@ login (C2POP3 *pop3)
 			return -1;
 		} else
 		{
+			/* Something wrong, probably APOP not supported, but it might be
+			 * login not supported.
+			 *
+			 * [TODO] I will continue developing APOP once I find a server
+			 * that supports it.*/
 			return 0;
 		}
 
@@ -431,7 +496,6 @@ login (C2POP3 *pop3)
 
 	do
 	{
-		printf ("%s\n%s\n", pop3->user, pop3->pass);
 		/* Username */
 		if (c2_net_object_send (C2_NET_OBJECT (pop3), "USER %s\r\n", pop3->user) < 0)
 			return -1;
@@ -494,12 +558,6 @@ login (C2POP3 *pop3)
 				pthread_mutex_destroy (&lock);
 				return -1;
 			}
-/*
-			if (newpass)
-			{
-				g_free (pop3->pass);
-				pop3->pass = newpass;
-			}*/
 		} else
 			logged_in = TRUE;
 	} while (i++ < 3 && !logged_in && pop3->pass);
@@ -511,11 +569,13 @@ login (C2POP3 *pop3)
 }
 
 static GSList *
-status (C2POP3 *pop3, C2Account *account)
+status (C2POP3 *pop3, C2Account *account, GSList **cuidl)
 {
 	gchar *string;
 	gint mails;
 	GSList *list = NULL;
+
+	*cuidl = NULL;
 
 	if (c2_net_object_send (C2_NET_OBJECT (pop3), "STAT\r\n") < 0)
 		return NULL;
@@ -537,80 +597,123 @@ status (C2POP3 *pop3, C2Account *account)
 
 	/* Bosko's suggestion. 08/09/01 --pablo */
 	if (!mails)
-	{
-		C2_DEBUG (account->name);
 		uidl_clean (account);
-	}
-	
-	if (pop3->flags & C2_POP3_DO_KEEP_COPY)
+	else
 	{
-		gint i;
-		
-		if (c2_net_object_send (C2_NET_OBJECT (pop3), "UIDL\r\n") < 0)
-			return NULL;
-
-		if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
-			return NULL;
-
-		if (c2_strnne (string, "+OK", 3))
+		if (pop3->flags & C2_POP3_DO_KEEP_COPY)
 		{
-			g_free (string);
-			goto no_uidl;
-		}
-
-		for (i = 1; ; i++)
-		{
-			gchar *prompt;
-			gchar *uidl;
+			gint i;
+			
+			gtk_signal_emit (GTK_OBJECT (pop3), signals[UIDL], 0, mails);
+			
+			if (c2_net_object_send (C2_NET_OBJECT (pop3), "UIDL\r\n") < 0)
+				return NULL;
 			
 			if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
 				return NULL;
+			
+			if (c2_strnne (string, "+OK", 3))
+			{
+				g_free (string);
+				goto no_uidl;
+			}
+			g_free (string);
+			
+			for (i = 1; ; i++)
+			{
+				gchar *prompt;
+				gchar uidl[UIDL_LENGTH] = { 0 };
+				
+				if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+					return NULL;
+				
+				prompt = g_strdup_printf ("%d %%s\r\n", i);
+				sscanf (string, prompt, uidl);
+				
+				if (!i || !strlen (uidl))
+				{
+					g_free (prompt);
+					g_free (string);
+					break;
+				}
 
-			prompt = g_strdup_printf ("%d %%s\r\n", i);
-			C2_DEBUG (prompt);
-			sscanf (string, prompt, &uidl);
-			C2_DEBUG (uidl);
-			g_free (uidl);
-			g_free (prompt);
-		}
-	} else
-	{
-		/* Append every message to the download list */
-		gint i;
+				/* We have a Unique-ID, add it to the
+				 * cuidl list, no matter what...
+				 */
+				*cuidl = g_slist_append (*cuidl, (gpointer) g_strdup (string));
+				
+				/* We have the Unique-ID, check if
+				 * we already have it in our database.
+			 	 */
+				if (!uidl_in_db (account, uidl))
+					list = g_slist_append (list, (gpointer) string);
+				else
+					g_free (string);
 
+				gtk_signal_emit (GTK_OBJECT (pop3), signals[UIDL], i, mails);
+		
+				g_free (prompt);
+			}
+		} else
+		{
+			/* Append every message to the download list */
+			gint i;
+	
 no_uidl:
-		for (i = 1; i <= mails; i++)
-			list = g_slist_append (list, (gpointer) i);
+			for (i = 1; i <= mails; i++)
+				list = g_slist_append (list, (gpointer) g_strdup_printf ("%d", i));
+		}
 	}
-
+	
+	mails = g_slist_length (list);
 	gtk_signal_emit (GTK_OBJECT (pop3), signals[STATUS], mails);
 
 	return list;
 }
 
 static gboolean
-uidl_get (C2POP3 *pop3, C2Account *account, const gchar *string)
+uidl_in_db (C2Account *account, const gchar *uidl)
 {
-	gchar *path;
+	gchar *path, *buf;
 	FILE *fd;
 
 	path = g_strconcat (g_get_home_dir (), C2_HOME, "uidl" G_DIR_SEPARATOR_S, account->name, NULL);
-	if (!(fd = fopen (path, "at")))
+	if (!(fd = fopen (path, "rt")))
 	{
 		c2_error_set (-errno);
 #ifdef USE_DEBUG
-		g_warning ("Unable to add an UIDL: %s\n", c2_error_get (c2_errno));
+		g_warning ("Unable to search for a UIDL: %s\n", c2_error_get (c2_errno));
 #endif
 		g_free (path);
 		return;
 	}
-	
-	fprintf (fd, "%s\n", string);
+	g_free (path);
+
+	for (;;)
+	{
+		if (!(path = c2_fd_get_line (fd)))
+			break;
+
+		buf = c2_str_get_word (1, path, ' ');
+		g_free (path);
+		
+		if (c2_streq (buf, uidl))
+			break;
+		g_free (buf);
+	}
+
 	fclose (fd);
+
+	if (!buf)
+		return FALSE;
+
+	g_free (buf);
+
+	return TRUE;
 }
 
 static void
-uidl_set (C2POP3 *pop3, C2Account *account, const gchar *string)
+uidl_add (C2Account *account, const gchar *uidl, time_t date)
 {
 	gchar *path;
 	FILE *fd;
@@ -626,7 +729,7 @@ uidl_set (C2POP3 *pop3, C2Account *account, const gchar *string)
 		return;
 	}
 	
-	fprintf (fd, "%s\n", string);
+	fprintf (fd, "%d %s\n", date, uidl);
 	fclose (fd);
 }
 
@@ -636,7 +739,6 @@ uidl_clean (C2Account *account)
 	gchar *path;
 
 	path = g_strconcat (g_get_home_dir (), C2_HOME, "uidl" G_DIR_SEPARATOR_S, account->name, NULL);
-	printf ("Cleaning UIDL database for %s in '%s'\n", account->name, path);
 	unlink (path);
 }
 
@@ -654,7 +756,8 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 	
 	for (l = download_list; l; l = g_slist_next (l))
 	{
-		nth = GPOINTER_TO_INT (l->data);
+		nth = atoi ((gchar*)l->data);
+		
 		if (pop3->flags & C2_POP3_DO_KEEP_COPY)
 		{
 		}
@@ -722,15 +825,160 @@ retrieve (C2POP3 *pop3, C2Account *account, C2Mailbox *inbox, GSList *download_l
 		fclose (fd);
 
 		/* Load the mail */
-		if ((message = c2_db_message_get_from_file (tmp)))
+		message = c2_db_message_get_from_file (tmp);
+		c2_db_message_add (inbox, message);
+		unlink (tmp);
+
+		/* Now that everything is written, delete the mail
+		 * or add the UIDL to the db.
+		 */
+		if (pop3->flags & C2_POP3_DO_KEEP_COPY)
 		{
-			c2_db_message_add (inbox, message);
+			gchar uidl[UIDL_LENGTH];
+			gchar *prompt;
+
+			prompt = g_strdup_printf ("%d %%s", nth);
+			sscanf ((gchar*)l->data, prompt, uidl);
+			uidl_add (account, uidl, inbox->db->prev->date);
+			g_free (prompt);
 		} else
-			L
+		{
+		}
 
 		gtk_object_destroy (GTK_OBJECT (message));
 		g_free (tmp);
 	}
 
 	return 0;
+}
+
+static gint
+synchronize_search_uidl_in_list (GSList *uidl_list, const gchar *uidl)
+{
+	GSList *l;
+	gint n, length;
+	gchar *ptr;
+	gchar fmt[] = " %%s";
+	gchar buf[UIDL_LENGTH] = { 0 };
+
+	/* [HACK]
+	 * Here we assume that UIDL is in the following fmt:
+	 * # uidl
+	 *  ^ (just one space)
+	 */
+	for (l = uidl_list, n = 0; l; l = g_slist_next (l), n++)
+	{
+		ptr = strstr ((gchar*) l->data, " ")+1;
+		length = strlen (ptr);
+		strncpy (buf, ptr, length-2);
+		buf[length-1] = 0;
+		if (c2_streq (buf, uidl))
+			return n;
+	}
+	
+	return -1;
+}
+
+static gint
+synchronize (C2POP3 *pop3, C2Account *account, GSList *uidl_list)
+{
+	gchar *path, *tmppath, *line, *buf;
+	gint length, i, nth;
+	FILE *fd, *tmpfd;
+	time_t date;
+
+	length = g_slist_length (uidl_list);
+
+	gtk_signal_emit (GTK_OBJECT (pop3), signals[SYNCHRONIZE], 0, length);
+
+	path = g_strconcat (g_get_home_dir (), C2_HOME, "uidl" G_DIR_SEPARATOR_S, account->name, NULL);
+	if (!(fd = fopen (path, "rt")))
+	{
+		c2_error_set (-errno);
+#ifdef USE_DEBUG
+		g_warning ("Unable to synchronize[1]: %s\n", c2_error_get (c2_errno));
+#endif
+		g_free (path);
+		return -1;
+	}
+
+	tmppath = c2_get_tmp_file ();
+	if (!(tmpfd = fopen (tmppath, "wt")))
+	{
+		c2_error_set (-errno);
+#ifdef USE_DEBUG
+		g_warning ("Unable to synchronize[2]: %s\n", c2_error_get (c2_errno));
+#endif
+		g_free (path);
+		fclose (fd);
+		g_free (tmppath);
+		return -1;
+	}
+
+	for (i = 1;; i++)
+	{
+		if (!(line = c2_fd_get_line (fd)))
+			break;
+
+		buf = c2_str_get_word (0, line, ' ');
+		
+		date = atoi (buf);
+		g_free (buf);
+		
+		if (pop3->copies_in_server_life_time < time (NULL)-date)
+		{
+			GSList *link;
+			gchar *string;
+			
+			/* We have to remove this one,
+			 * check if it is still in the
+			 * server (in the uidl_list)
+			 */
+			buf = c2_str_get_word (1, line, ' ');
+			if ((nth = synchronize_search_uidl_in_list (uidl_list, buf)) < 0)
+				continue;
+
+			link = g_slist_nth (uidl_list, nth);
+			if (c2_net_object_send (C2_NET_OBJECT (pop3), "DELE %d\r\n", atoi (link->data)) < 0)
+				return -1;
+			uidl_list = g_slist_remove_link (uidl_list, link);
+			
+			if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+				return -1;
+
+			if (c2_strnne (string, "+OK", 3))
+			{
+				string = strstr (string, " ");
+				if (string)
+					string++;
+				
+				c2_error_set_custom (string);
+				return -1;
+			}
+		} else
+		{
+save_uidl:
+			fprintf (tmpfd, "%s\n", line);
+		}
+
+		g_free (line);
+		gtk_signal_emit (GTK_OBJECT (pop3), signals[SYNCHRONIZE], i, length);
+	}
+
+	fclose (tmpfd);
+	fclose (fd);
+	
+	/* Clear UIDL database */
+	uidl_clean (account);
+	
+	/* Add all pending elements to the UIDL database */
+	c2_file_binary_move (tmppath, path);
+	g_free (tmppath);
+	g_free (path);
+}
+
+static void
+quit (C2POP3 *pop3)
+{
+	c2_net_object_send (C2_NET_OBJECT (pop3), "QUIT\r\n");
 }

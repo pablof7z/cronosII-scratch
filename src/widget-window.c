@@ -161,7 +161,6 @@ c2_window_report (C2Window *window, C2WindowReportType type, const gchar *fmt, .
 
 	va_start (args, fmt);
 	msg = g_strdup_vprintf (fmt, args);
-	C2_DEBUG (msg);
 	va_end (args);
 
 	if (!pthread_mutex_trylock (&window->status_lock))

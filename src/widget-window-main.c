@@ -54,6 +54,9 @@ static void
 on_toolbar_check_clicked					(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
+on_toolbar_delete_clicked					(GtkWidget *widget, C2WindowMain *wmain);
+
+static void
 on_index_select_message						(GtkWidget *index, C2Db *node, C2WindowMain *wmain);
 
 static void
@@ -260,6 +263,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 							GTK_SIGNAL_FUNC (on_docktoolbar_button_press_event), wmain);
 	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "toolbar_check")), "clicked",
 							GTK_SIGNAL_FUNC (on_toolbar_check_clicked), wmain);
+	gtk_signal_connect (GTK_OBJECT (glade_xml_get_widget (xml, "toolbar_delete")), "clicked",
+							GTK_SIGNAL_FUNC (on_toolbar_delete_clicked), wmain);
 /*	glade_xml_signal_connect (xml, "on_new_mail_activate", GTK_SIGNAL_FUNC (on_new_mail_activate));
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (xml, "file_exit")), "activate",
 							GTK_SIGNAL_FUNC (on_quit), NULL);
@@ -392,6 +397,12 @@ on_toolbar_check_clicked (GtkWidget *widget, C2WindowMain *wmain)
 		c2_transfer_list_add_item (C2_TRANSFER_LIST (wtl), wti);
 		c2_transfer_item_start (wti);
 	}
+}
+
+static void
+on_toolbar_delete_clicked (GtkWidget *widget, C2WindowMain *wmain)
+{
+	L
 }
 
 static void
