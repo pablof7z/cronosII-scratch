@@ -75,7 +75,8 @@ static gchar *
 c2_smtp_mime_make_message_boundary (void);
 
 static gint
-c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundary);
+c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundary, 
+	const guint len, guint *sent);
 
 static gboolean
 smtp_test_connection(C2SMTP *smtp);
@@ -117,7 +118,7 @@ c2_smtp_get_type (void)
 			(GtkObjectInitFunc) init,
 			/* reserved_1 */ NULL,
 			/* reserved_2 */ NULL,
-			(GtkClassInitFunc) /*class_init*/ NULL
+			(GtkClassInitFunc) NULL
 		};
 		
 		type = gtk_type_unique(c2_net_object_get_type(), &info);
@@ -618,6 +619,8 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 					pthread_mutex_unlock(&smtp->lock);
 					return -1;
 				}
+				sent += strlen(buf) + 1;
+				gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], message, len, sent);
 				g_free(buf);
 				if(*ptr == '\0') ptr--;
 				start = ptr + 1;
@@ -631,8 +634,8 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 		}
 		else if(contents == message->body)
 		{
-			if(c2_smtp_send_message_mime(smtp, message, mimeboundary) < 0)
-			{	
+			if(c2_smtp_send_message_mime(smtp, message, mimeboundary, len, &sent) < 0)
+			{
 				g_free(mimeboundary);
 				return -1;
 			}
@@ -738,7 +741,8 @@ c2_smtp_mime_make_message_boundary (void)
 
 
 static gint
-c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundary)
+c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundary, 
+	const guint len, guint *sent)
 {
 	gint i, x;
 	gchar *buf;
@@ -788,6 +792,8 @@ c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundary)
 				pthread_mutex_unlock(&smtp->lock);
 				return -1;
 			}
+			*sent += strlen(buf);
+			gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], message, len, sent);
 			g_free(buf);
 		}
 		if(c2_net_object_send(C2_NET_OBJECT(smtp), "--%s%s\r\n\r\n", boundary, (mime->next) ? "" : "--") < 0)
@@ -1037,3 +1043,4 @@ c2_smtp_set_error(C2SMTP *smtp, const gchar *error)
 	if(smtp->error) g_free(smtp->error);
 	smtp->error = g_strdup(error);
 }
+
