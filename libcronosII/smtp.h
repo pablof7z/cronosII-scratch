@@ -111,6 +111,7 @@ struct _C2SMTPClass
 	C2NetObjectClass parent_class;
 	
 	void (*smtp_update) (C2SMTP *smtp, gint id, guint length, guint bytes);
+	void (*finished) (C2SMTP *smtp, gint id, gboolean success);
 	/*gboolean (*login_failed) (C2SMTP *smtp, const gchar *error, gchar **user, gchar **pass);*/
 };
 

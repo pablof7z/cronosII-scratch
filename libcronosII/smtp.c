@@ -44,6 +44,7 @@
 enum
 {
 	SMTP_UPDATE,
+	FINISHED,
 	LAST_SIGNAL
 };
 
@@ -142,10 +143,18 @@ class_init (C2SMTPClass *klass)
 						GTK_SIGNAL_OFFSET (C2SMTPClass, smtp_update),
 						c2_marshal_NONE__INT_INT_INT, GTK_TYPE_NONE, 3,
 						GTK_TYPE_INT, GTK_TYPE_INT, GTK_TYPE_INT);
+	signals[FINISHED] =
+		gtk_signal_new ("finished",
+						GTK_RUN_FIRST,
+						object_class->type,
+						GTK_SIGNAL_OFFSET (C2SMTPClass, finished),
+						gtk_marshal_NONE__INT_INT, GTK_TYPE_NONE, 2,
+						GTK_TYPE_INT, GTK_TYPE_INT);
 	
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
 	
 	klass->smtp_update = NULL;
+	klass->finished = NULL;
 	object_class->destroy = destroy;
 }
 
@@ -275,27 +284,40 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 		if(smtp->flags & C2_SMTP_DO_PERSIST)
 			byte = smtp->persistent;
 		if(!byte)
+		{
 			if(c2_smtp_connect(smtp, &byte) < 0)
+			{
+				gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 				return -1;
+			}
+		}
 		if(smtp->flags & C2_SMTP_DO_PERSIST)
 			smtp->persistent = byte;
 		else
 			smtp->persistent = NULL;
 		if(smtp->flags & C2_SMTP_DO_NOT_PERSIST) c2_mutex_unlock(&smtp->lock);
 		if(c2_smtp_send_headers(smtp, byte, message) < 0)
+		{	
+			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, 1);
 			return -1;
+		}
 		if(c2_smtp_send_message_contents(smtp, byte, message, id) < 0)
+		{
+			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
+		}
 		if(c2_net_object_send(C2_NET_OBJECT(smtp), byte, "\r\n.\r\n") < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp, byte);
+			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
 		if(c2_net_object_read(C2_NET_OBJECT(smtp), &buffer, byte) < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_READ_FAILED);
 			smtp_disconnect(smtp, byte);
+			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
 		if(!c2_strneq(buffer, "250", 3))
@@ -303,6 +325,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 			c2_smtp_set_error(smtp, _("SMTP server did not respond to our sent messaage in a friendly way"));
 			g_free(buffer);
 			smtp_disconnect(smtp, byte);
+			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
 		if(smtp->flags & C2_SMTP_DO_NOT_PERSIST)
@@ -320,6 +343,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 		{
 			g_free(file_name);
 			c2_smtp_set_error(smtp, _("System Error: Unable to write message to disk for local SMTP command"));
+			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
 		
@@ -331,6 +355,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 			unlink(file_name);
 			if(from) g_free(from);
 			g_free(file_name);
+			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
 				
@@ -354,6 +379,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 			unlink(file_name);
 			g_free(file_name);
 			g_free(cmd);
+			gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, -1);
 			return -1;
 		}
 		gtk_signal_emit(GTK_OBJECT(smtp), signals[SMTP_UPDATE], id, 1, 1);
@@ -364,6 +390,7 @@ c2_smtp_send_message (C2SMTP *smtp, C2Message *message, const gint id)
 
 	gtk_object_unref (GTK_OBJECT (message));
 	
+	gtk_signal_emit(GTK_OBJECT(smtp), signals[FINISHED], id, 1);
 	return 0;
 }
 
