@@ -33,18 +33,29 @@ in CVS, this are NOT notes for users.
    +------------+          +---------------------------------------+ +-----+ +--------+
    | mailto:    | handler: | cronosII -l "%s"                      | ||Set|| ||Remove||
    +------------+          +---------------------------------------+ +-----+ +--------+
-                             ^^^^^^^^ By now the binary is actually cronosII-scratch,
-							          but when stable is released it will change to
-									  cronosII.
+                           
 
    After writing that you have to click the "Set" button.
 
    Note that not all browsers support this, I know Galeon does,
    so Yves and I won't have problems (yes, we both use it).
 
+
+
    Pete, maybe you can research a little, I know that in [fmII]
    there're programs that make Netscape answer to mailto: links
    with external commands.
-
+//
 Hmm.. OK.
+
+muttzilla-0.40 seems like it will do the job.
+
+Mutzilla does work with Netscape (It takes a little stuffing about).
+I will have to wait until I can get a new build of C2scratch to test it out fully.
+It should be possible to have this as a configurable option under prefernces or as a plugin.
+All of it can be done under the users home directory.
+There may be security issues here as well......
+Pete. //
+
+
 
