@@ -1,3 +1,8 @@
+Tue Jan 1 2002 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Happy new year, everbody!
+	* Fixed a number of compilation warnings in libcronosII/mailbox.c
+	* Some IMAP clean up's.
+
 Sun Dec 30 Bosko Blagojevic <falling@users.sourceforge.net>
 	* A lot of IMAP work. Note: IMAP mailbox loading of each
 	  individual mailbox (when building the imap tree) is kinda
