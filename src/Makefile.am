@@ -25,6 +25,7 @@ cronosII_scratch_SOURCES = \
 	widget-composer.c			widget-composer.h			\
 	widget-dialog-preferences.c	widget-dialog-preferences.h	\
 	widget-dialog.c				widget-dialog.h				\
+	widget-editor.c				widget-editor.h				\
 	widget-index.c				widget-index.h				\
 	widget-mail.c				widget-mail.h				\
 	widget-mailbox-list.c		widget-mailbox-list.h		\
@@ -60,8 +61,5 @@ ui_text_editor_LDFLAGS = \
 	
 EXTRA_DIST = \
 	README.FAQ			\
-	xpm/mini_about.xpm	\
-	xpm/mini_error.xpm	\
-	xpm/new.xpm			\
 	preferences-trans.h	\
 	trans.h

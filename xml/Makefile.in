@@ -60,6 +60,7 @@ POST_UNINSTALL = :
 host_alias = @host_alias@
 host_triplet = @host@
 AS = @AS@
+BONOBOLIBS = @BONOBOLIBS@
 CATALOGS = @CATALOGS@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@

@@ -17,6 +17,7 @@
  */
 #include <glade/glade.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include <libcronosII/account.h>
 #include <libcronosII/error.h>
@@ -25,6 +26,7 @@
 #include "widget-application.h"
 #include "widget-composer.h"
 #include "widget-dialog-preferences.h"
+#include "widget-editor.h"
 #include "widget-transfer-list.h"
 #include "widget-transfer-item.h"
 #include "widget-window.h"
@@ -35,6 +37,8 @@
 #define GET_WINDOW_HEIGHT	gnome_config_get_int_with_default ("/"PACKAGE"/Composer/height=480", NULL)
 #define SET_WINDOW_WIDTH(x)	gnome_config_set_int ("/"PACKAGE"/Composer/width", x)
 #define SET_WINDOW_HEIGHT(x)gnome_config_set_int ("/"PACKAGE"/Composer/height", x)
+
+#define EXTERNAL_EDITOR_FILE	"external editor::file"
 
 #define ACCOUNT_ENTRY(account, str)	\
 	{ \
@@ -187,8 +191,6 @@ init (C2Composer *composer)
 	composer->cmnd = NULL;
 	composer->file = NULL;
 	composer->draft_id = -1;
-	composer->operations = NULL;
-	composer->operations_ptr = NULL;
 	composer->eheaders = NULL;
 }
 
@@ -211,7 +213,7 @@ c2_composer_new (C2Application *application)
 void
 c2_composer_construct (C2Composer *composer, C2Application *application)
 {
-	GtkWidget *scroll;
+	GtkWidget *editor_container;
 	GtkWidget *widget;
 	gchar *str, *buf;
 	GladeXML *xml;
@@ -258,6 +260,8 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 
 	if (c2_streq (buf, "external"))
 	{
+		composer->type = C2_COMPOSER_TYPE_EXTERNAL;
+
 		widget = glade_xml_get_widget (xml, "edit_select_all");
 		gtk_widget_set_sensitive (widget, FALSE);
 		widget = glade_xml_get_widget (xml, "edit_clear");
@@ -268,7 +272,8 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 		gtk_widget_set_sensitive (widget, FALSE);
 		widget = glade_xml_get_widget (xml, "edit_spell_check");
 		gtk_widget_set_sensitive (widget, FALSE);
-	}
+	} else
+		composer->type = C2_COMPOSER_TYPE_INTERNAL;
 
 	/* Fill the account combo */
 	widget = glade_xml_get_widget (xml, "account");
@@ -285,7 +290,7 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 						GTK_SIGNAL_FUNC (on_icon_list_button_press_event), composer);
 
 	/* Create the actual editor widget */
-	scroll = glade_xml_get_widget (xml, "scroll");
+	editor_container = glade_xml_get_widget (xml, "editor_container");
 
 	if (c2_streq (buf, "external"))
 	{
@@ -295,7 +300,7 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 		GtkWidget *vbox, *label, *button, *hbox, *pixmap;
 		
 		viewport = gtk_viewport_new (NULL, NULL);
-		gtk_container_add (GTK_CONTAINER (scroll), viewport);
+		gtk_box_pack_start (GTK_BOX (editor_container), viewport, TRUE, TRUE, 0);
 		gtk_widget_show (viewport);
 
 		alignment = gtk_alignment_new (0.5, 0.5, 0.220001, 0.0100004);
@@ -358,6 +363,13 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 		
 		gtk_signal_connect (GTK_OBJECT (button), "clicked",
 							GTK_SIGNAL_FUNC (on_run_external_editor_clicked), composer);
+	} else
+	{ /* Create the internal widget */
+		GtkWidget *editor;
+
+		editor = c2_editor_new ();
+		gtk_box_pack_start (GTK_BOX (editor_container), editor, TRUE, TRUE, 0);
+		gtk_widget_show (editor);
 	}
 
 	g_free (buf);
@@ -523,11 +535,11 @@ on_run_external_editor_clicked (GtkWidget *widget, C2Composer *composer)
 	gchar *filename;
 	pid_t pid;
 
-	filename = gtk_object_get_data (GTK_OBJECT (composer), "external editor::file");
+	filename = gtk_object_get_data (GTK_OBJECT (composer), EXTERNAL_EDITOR_FILE);
 	if (!filename)
 	{
 		filename = c2_get_tmp_file ("c2-editor-XXXXXX");
-		gtk_object_set_data (GTK_OBJECT (composer), "external editor::file", filename);
+		gtk_object_set_data (GTK_OBJECT (composer), EXTERNAL_EDITOR_FILE, filename);
 	}
 
 	cmnd = gnome_config_get_string ("/"PACKAGE"/Interface-Composer/editor_external_cmnd");
@@ -765,7 +777,7 @@ c2_composer_set_message_as_quote (C2Composer *composer, C2Message *message)
 		FILE *fd;
 		gchar *file;
 
-		file = (gchar*) gtk_object_get_data (GTK_OBJECT (composer), "external editor::file");
+//		file = (gchar*) gtk_object_get_data (GTK_OBJECT (composer), );
 
 		if (!(fd = fopen (file, "a")))
 		{
@@ -893,9 +905,44 @@ create_message (C2Composer *composer)
 	g_string_append (header, buf1);
 	g_free (buf1);
 
+	/* Body */
+	if (composer->type == C2_COMPOSER_TYPE_INTERNAL)
+	{
+	} else
+	{
+		struct stat stat_buf;
+		FILE *fd;
+		gint length;
+
+		buf = (gchar*) gtk_object_get_data (GTK_OBJECT (composer), EXTERNAL_EDITOR_FILE);
+
+		C2_DEBUG (buf);
+		if (stat (buf, &stat_buf) < 0)
+		{
+			c2_error_object_set (GTK_OBJECT (composer), -errno);
+			gtk_object_destroy (GTK_OBJECT (message));
+			return NULL;
+		}
+
+		if (!(fd = fopen (buf, "r")))
+		{
+			c2_error_object_set (GTK_OBJECT (composer), -errno);
+			gtk_object_destroy (GTK_OBJECT (message));
+			return NULL;
+		}
+
+		length = ((gint) stat_buf.st_size * sizeof (gchar));
+		printf ("%d\n", length);
+
+		message->body = g_new0 (gchar, length+1);
+		fread (message->body, sizeof (gchar), length, fd);
+		fclose (fd);
+	}
+
 	message->header = header->str;
 	g_string_free (header, FALSE);
 	C2_DEBUG (message->header);
+	C2_DEBUG (message->body);
 	
 	return message;
 }

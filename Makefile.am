@@ -19,10 +19,6 @@ cronosinclude_HEADERS = config.h
 
 EXTRA_DIST =				\
 	cronosII.spec			\
-	cronosII.desktop		\
-	c2addrbook.desktop		\
-	cronosII-gmc.desktop	\
-	c2addrbook-gmc.desktop	\
 	mkpotfiles-in			\
 	AUTHORS					\
 	COPYING					\
@@ -32,13 +28,6 @@ EXTRA_DIST =				\
 	TODO					\
 	ChangeLog				\
 	$(about_DATA)
-
-Internetdir = $(datadir)/gnome/apps/Internet
-Internet_DATA = cronosII.desktop
-Applicationsdir = $(datadir)/gnome/apps/Applications
-Applications_DATA = c2addrbook.desktop
-GMCdir = $(datadir)/mc/templates
-GMC_DATA = cronosII-gmc.desktop c2addrbook-gmc.desktop
 
 bzdist: distdir
 	-chmod -R a+r $(distdir)

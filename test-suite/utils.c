@@ -16,21 +16,26 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <libcronosII/utils.h>
+#include <libcronosII/db.h>
 
 gint
 main (gint argc, gchar **argv)
 {
-	gchar *string;
-	FILE *fd;
+	C2Message *message;
+	gchar *str;
 
-	fd = fopen ("test-string.txt", "r");
-	
-L	for (;(string = c2_fd_get_line (fd)) != NULL;)
-	{
-L		printf ("%s\n", string);
-	}
-	fseek (fd, 0, SEEK_SET);
-L	fclose (fd);
+	gtk_init (&argc, &argv);
+
+	message = c2_db_message_get_from_file ("test-string.txt");
+	str = c2_str_wrap (message->body, 30);
+	printf ("Not wrapped:\n"
+			"-------------------------------\n"
+			"%s\n"
+			"-------------------------------\n", message->body);
+	printf ("\nWrapped:\n"
+			"-------------------------------\n"
+			"%s\n"
+			"-------------------------------\n", str);
 
 	return 0;
 }

@@ -104,7 +104,7 @@ c2_init (gint argc, gchar **argv)
 			N_("Text")
 		},
 		{
-			"mailto", 'l', POPT_ARG_STRING,
+			"link", 'l', POPT_ARG_STRING,
 			&(flags.mailto), 0,
 			N_("Compose a new email decoding the argument as a mailto: link"),
 			"mailto:email@somewhere."

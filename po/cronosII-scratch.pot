@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-10-09 20:19-0300\n"
+"POT-Creation-Date: 2001-10-13 22:06-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -109,28 +109,28 @@ msgstr ""
 msgid "Server does not support APOP"
 msgstr ""
 
-#: libcronosII/smtp.c:311
+#: libcronosII/smtp.c:312
 msgid "SMTP server did not respond to our sent messaage in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:329
+#: libcronosII/smtp.c:330
 msgid "System Error: Unable to write message to disk for local SMTP command"
 msgstr ""
 
-#: libcronosII/smtp.c:338
+#: libcronosII/smtp.c:339
 msgid "Internal C2 Error: Unable to fetch headers in email message"
 msgstr ""
 
-#: libcronosII/smtp.c:362
+#: libcronosII/smtp.c:363
 msgid ""
 "Problem running local SMTP command to send messages -- Check SMTP settings"
 msgstr ""
 
-#: libcronosII/smtp.c:392
+#: libcronosII/smtp.c:393
 msgid "Unable to connect to SMTP server"
 msgstr ""
 
-#: libcronosII/smtp.c:406
+#: libcronosII/smtp.c:407
 msgid "SMTP server was not friendly on our connect! May not be RFC compliant"
 msgstr ""
 
@@ -158,7 +158,7 @@ msgstr ""
 msgid "SMTP server did not reply to 'DATA' in a friendly way"
 msgstr ""
 
-#: libcronosII/smtp.c:1066
+#: libcronosII/smtp.c:1067
 msgid "SMTP server did not reply to 'RCPT TO:' in a friendly way"
 msgstr ""
 
@@ -481,11 +481,11 @@ msgstr ""
 msgid "Open the main window (default)"
 msgstr ""
 
-#: src/widget-composer.c:219
+#: src/widget-composer.c:221
 msgid "Composer"
 msgstr ""
 
-#: src/widget-composer.c:315
+#: src/widget-composer.c:320
 msgid ""
 "You have choosen to use an external editor instead of the built-in with "
 "Cronos II.\n"
@@ -499,71 +499,71 @@ msgid ""
 "window.\n"
 msgstr ""
 
-#: src/widget-composer.c:513
+#: src/widget-composer.c:525
 #, c-format
 msgid "Run external editor: %s"
 msgstr ""
 
-#: src/widget-composer.c:588
+#: src/widget-composer.c:604
 msgid "unknown"
 msgstr ""
 
-#: src/widget-composer.c:940
+#: src/widget-composer.c:991
 #, c-format
 msgid "The account specified does not exist: %s"
 msgstr ""
 
-#: src/widget-dialog-preferences.c:396
+#: src/widget-dialog-preferences.c:410
 #, c-format
 msgid "%s (default)"
 msgstr ""
 
-#: src/widget-dialog-preferences.c:585 src/widget-dialog-preferences.c:658
+#: src/widget-dialog-preferences.c:599 src/widget-dialog-preferences.c:672
 msgid "General"
 msgstr ""
 
-#: src/widget-dialog-preferences.c:586 src/widget-dialog-preferences.c:668
+#: src/widget-dialog-preferences.c:600 src/widget-dialog-preferences.c:682
 msgid "Interface"
 msgstr ""
 
-#: src/widget-dialog-preferences.c:587 src/widget-dialog-preferences.c:678
+#: src/widget-dialog-preferences.c:601 src/widget-dialog-preferences.c:692
 msgid "Advanced"
 msgstr ""
 
 #: src/preferences-trans.h:29 src/trans.h:165
-#: src/widget-dialog-preferences.c:595
+#: src/widget-dialog-preferences.c:609
 msgid "Preferences"
 msgstr ""
 
-#: src/preferences-trans.h:144 src/widget-dialog-preferences.c:1006
+#: src/preferences-trans.h:144 src/widget-dialog-preferences.c:1020
 msgid "Account Editor"
 msgstr ""
 
-#: src/preferences-trans.h:168 src/widget-dialog-preferences.c:1338
-#: src/widget-dialog-preferences.c:1349 src/widget-dialog-preferences.c:1663
+#: src/preferences-trans.h:168 src/widget-dialog-preferences.c:1385
+#: src/widget-dialog-preferences.c:1396 src/widget-dialog-preferences.c:1710
 msgid "Post Office Protocol 3 (POP3)"
 msgstr ""
 
-#: src/preferences-trans.h:169 src/widget-dialog-preferences.c:1338
-#: src/widget-dialog-preferences.c:1358 src/widget-dialog-preferences.c:1665
+#: src/preferences-trans.h:169 src/widget-dialog-preferences.c:1385
+#: src/widget-dialog-preferences.c:1405 src/widget-dialog-preferences.c:1712
 msgid "Internet Message Access Protocol 4 (IMAP)"
 msgstr ""
 
-#: src/preferences-trans.h:188 src/widget-dialog-preferences.c:1395
-#: src/widget-dialog-preferences.c:1454 src/widget-dialog-preferences.c:1804
+#: src/preferences-trans.h:188 src/widget-dialog-preferences.c:1442
+#: src/widget-dialog-preferences.c:1501 src/widget-dialog-preferences.c:1851
 msgid "SMTP"
 msgstr ""
 
-#: src/preferences-trans.h:189 src/widget-dialog-preferences.c:1460
-#: src/widget-dialog-preferences.c:1808
+#: src/preferences-trans.h:189 src/widget-dialog-preferences.c:1507
+#: src/widget-dialog-preferences.c:1855
 msgid "Sendmail"
 msgstr ""
 
-#: src/preferences-trans.h:180 src/widget-dialog-preferences.c:1731
+#: src/preferences-trans.h:180 src/widget-dialog-preferences.c:1778
 msgid "Plain"
 msgstr ""
 
-#: src/preferences-trans.h:181 src/widget-dialog-preferences.c:1735
+#: src/preferences-trans.h:181 src/widget-dialog-preferences.c:1782
 msgid "APOP"
 msgstr ""
 
@@ -798,7 +798,7 @@ msgstr ""
 
 #: src/widget-window-main.c:656
 #, c-format
-msgid "Message failed to load: %s"
+msgid "Message failed to load: %s."
 msgstr ""
 
 #: src/widget-window-main.c:659

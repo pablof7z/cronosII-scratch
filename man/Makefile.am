@@ -1,4 +1,4 @@
-man_MANS = cronos.1
+man_MANS = cronosII.1
 
 EXTRA_DIST =		\
-	cronos.1
+	cronosII.1

@@ -66,6 +66,8 @@
 #undef USE_GTKXMHTML
 #undef USE_GTKHTML
 #undef USE_GCONF
+#undef USE_BONOBO
+#undef USE_ADVANCED_EDITOR
 #undef USE_UI_TEXT_EDITOR
 #undef C2_PLUGIN_VERSION_MAJOR
 #undef C2_PLUGIN_VERSION_MINOR
@@ -91,12 +93,6 @@
 
 /* Define if you have the getpagesize function.  */
 #undef HAVE_GETPAGESIZE
-
-/* Define if you have the getwd function.  */
-#undef HAVE_GETWD
-
-/* Define if you have the mkdir function.  */
-#undef HAVE_MKDIR
 
 /* Define if you have the munmap function.  */
 #undef HAVE_MUNMAP

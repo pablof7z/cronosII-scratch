@@ -5,6 +5,7 @@ o HTML support.
 o MIME support.
 o HTTP support.
 o SMTP support.
+o IMAP support.
 o POP3 support.
 o APOP support.
-o Spool supports.
+o Spool support.

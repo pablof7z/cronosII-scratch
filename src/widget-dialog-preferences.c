@@ -111,6 +111,12 @@ static void
 on_general_paths_get_changed				(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
+on_interface_html_links_default_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
+on_interface_html_links_mailto_toggled		(GtkWidget *widget, C2DialogPreferences *preferences);
+
+static void
 on_interface_composer_editor_internal_toggled	(GtkWidget *widget, C2DialogPreferences *preferences);
 
 static void
@@ -332,6 +338,14 @@ set_signals (C2DialogPreferences *preferences)
 	gtk_signal_connect (GTK_OBJECT (widget), "changed",
 						GTK_SIGNAL_FUNC (on_general_paths_get_changed), preferences);
 
+	widget = glade_xml_get_widget (xml, "interface_html_links_default");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_interface_html_links_default_toggled), preferences);
+	
+	widget = glade_xml_get_widget (xml, "interface_html_links_mailto");
+	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
+						GTK_SIGNAL_FUNC (on_interface_html_links_mailto_toggled), preferences);
+
 	widget = glade_xml_get_widget (xml, "interface_composer_editor_internal");
 	gtk_signal_connect (GTK_OBJECT (widget), "toggled",
 						GTK_SIGNAL_FUNC (on_interface_composer_editor_internal_toggled), preferences);
@@ -477,8 +491,8 @@ set_values (C2DialogPreferences *preferences)
 	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-HTML/images=full_download", NULL);
 	if (c2_streq (charv, "full_download"))
 		widgetv = glade_xml_get_widget (xml, "interface_html_images_full_download");
-	else if (c2_streq (charv, "partial_download"))
-		widgetv = glade_xml_get_widget (xml, "interface_html_images_partial_download");
+/*	else if (c2_streq (charv, "partial_download"))
+		widgetv = glade_xml_get_widget (xml, "interface_html_images_partial_download");*/
 	else if (c2_streq (charv, "user_download"))
 		widgetv = glade_xml_get_widget (xml, "interface_html_images_user_download");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widgetv), TRUE);
@@ -489,8 +503,8 @@ set_values (C2DialogPreferences *preferences)
 	charv = gnome_config_get_string_with_default ("/"PACKAGE"/Interface-HTML/links=default", NULL);
 	if (c2_streq (charv, "default"))
 		widgetv = glade_xml_get_widget (xml, "interface_html_links_default");
-	else if (c2_streq (charv, "internal"))
-		widgetv = glade_xml_get_widget (xml, "interface_html_links_internal");
+/*	else if (c2_streq (charv, "internal"))
+		widgetv = glade_xml_get_widget (xml, "interface_html_links_internal");*/
 	else if (c2_streq (charv, "mailto"))
 		widgetv = glade_xml_get_widget (xml, "interface_html_links_mailto");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widgetv), TRUE);
@@ -1151,6 +1165,39 @@ on_general_paths_get_changed (GtkWidget *widget, C2DialogPreferences *preference
 					C2_DIALOG_PREFERENCES_KEY_GENERAL_PATHS_GET, value);
 }
 
+static void
+on_interface_html_links_default_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	GladeXML *xml = C2_DIALOG (preferences)->xml;
+	GtkWidget *confirm_btn = glade_xml_get_widget (xml, "interface_html_links_confirm");
+
+	if (GTK_TOGGLE_BUTTON (widget)->active)
+		gtk_widget_set_sensitive (confirm_btn, TRUE);
+	else
+		gtk_widget_set_sensitive (confirm_btn, FALSE);
+
+	gnome_config_set_string ("/"PACKAGE"/Interface-HTML/links", "default");
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_HTML_LINKS, "default");
+}
+
+static void
+on_interface_html_links_mailto_toggled (GtkWidget *widget, C2DialogPreferences *preferences)
+{
+	GladeXML *xml = C2_DIALOG (preferences)->xml;
+	GtkWidget *confirm_btn = glade_xml_get_widget (xml, "interface_html_links_confirm");
+
+	if (!GTK_TOGGLE_BUTTON (widget)->active)
+		gtk_widget_set_sensitive (confirm_btn, TRUE);
+	else
+		gtk_widget_set_sensitive (confirm_btn, FALSE);
+
+	gnome_config_set_string ("/"PACKAGE"/Interface-HTML/links", "mailto");
+	gnome_config_sync ();
+	gtk_signal_emit (GTK_OBJECT (preferences), signals[CHANGED],
+					C2_DIALOG_PREFERENCES_KEY_INTERFACE_HTML_LINKS, "mailto");
+}
 
 static void
 on_interface_composer_editor_internal_toggled (GtkWidget *widget, C2DialogPreferences *preferences)

@@ -72,19 +72,35 @@ void
 c2_html_gtkhtml_link_clicked (GtkHTML *gtkhtml, const gchar *url, gpointer data)
 {
 	C2Pthread3 *data3;
-	gchar *prefix;
+	gchar *prefix, *buf;
 	pthread_t thread;
 
 	prefix = c2_str_get_word (0, url, ':');
 
-	data3 = g_new0 (C2Pthread3, 1);
-	data3->v1 = (gpointer) gtkhtml;
-	data3->v2 = (gpointer) url;
-	
-	if (c2_streq (prefix, "http"))
-		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_html_http_link_clicked), data3);
-	else if (c2_streq (prefix, "ftp"))
-		L
+	buf = gnome_config_get_string ("/"PACKAGE"/Interface-HTML/links");
+	if (c2_streq (buf, "default"))
+	{
+		if (c2_streq (prefix, "mailto"))
+		{
+			GtkWidget *composer;
+
+/*			composer = c2_composer_new ( I have to make changes so
+										 I can get the application
+										 with the HTML widget. */
+		} else
+			gnome_url_show (url);
+	} else
+	{
+/*		data3 = g_new0 (C2Pthread3, 1);
+		data3->v1 = (gpointer) gtkhtml;
+		data3->v2 = (gpointer) url;
+
+		} else if (c2_streq (prefix, "http"))
+			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_html_http_link_clicked), data3);
+		else if (c2_streq (prefix, "ftp"))
+		L*/
+	}
+
 	g_free (prefix);
 }
 

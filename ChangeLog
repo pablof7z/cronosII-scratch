@@ -1,3 +1,16 @@
+Sat Oct 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* New function to wrap strings.
+	* Wrapping in mail rendering is working.
+
+Sat Oct 13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Some work in the cronosII man.
+	* Work in the configure.in stuff.
+	* Upgraded version to number 0.0.5.
+
+Fri Oct 12 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Some work in the composer.
+	* Started work in the editor widget.
+
 Tue Oct 09 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work with the deletion in the db module.
 	* Added a couple of functions to the module.

@@ -1,4 +1,4 @@
-/*  Cronos II - The GNOME mail client
+/*  Cronos II Mail Client  /testsuite/smtp.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -16,6 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <stdio.h>
+#include <math.h>
 #include <gtk/gtk.h>
 
 #include <libcronosII/smtp.h>
@@ -26,61 +27,72 @@
 /* file to test the c2 smtp module  -- 
  * by Bosko Blagojevic <falling@users.sourcforge.net> */
 
-static void
+struct asdf
+{
+	C2SMTP *smtp;
+	C2Message *msg;
+};
+
+static void 
 on_smtp_update(C2SMTP *smtp, void *message, guint len, guint sent);
+
+static void
+send_my_message(struct asdf *yo)
+{
+	
+	/* sending the message... please work!! */
+	if(c2_smtp_send_message(yo->smtp, yo->msg) == 0)
+		printf("Sending mail via SMTP worked! Check your email\n");
+	else {
+		printf("Sending message via SMTP failed... back to the drawing board\n");
+		printf("the error was: %s\n", gtk_object_get_data(GTK_OBJECT(yo->smtp), "error"));
+	}
+}
 
 gint
 main (gint argc, gchar **argv)
 {
-	C2SMTP *smtp;
+	pthread_t thread, thread2, thread3, thread4;
+	C2SMTP *smtp = NULL;
 	C2Message *msg;
+	struct asdf *yo = g_new0(struct asdf, 1);
 	
 	gtk_init(&argc, &argv);
 	
 	smtp = c2_smtp_new(C2_SMTP_REMOTE, "smtp.arnet.com.ar", 25, FALSE, FALSE, NULL, NULL);
-	
-	gtk_signal_connect(GTK_OBJECT(smtp), "smtp_update", GTK_SIGNAL_FUNC(on_smtp_update), NULL);
+
+	//gtk_signal_connect(GTK_OBJECT(smtp), "smtp_update", GTK_SIGNAL_FUNC(on_smtp_update), NULL);
 	
 	msg = g_new0(C2Message, 1);
-	msg->header = g_strdup("From: testing <testing@cronosii.sourceforge.net>\n"
-						   "To: cronosII@users.sourceforge.net\n"
-						   "Subject: Testing C2 smtp module!");
+	msg->header = g_strdup("From: testing<ice@fcc.net>\n"
+													"To: ice@fcc.net\n"
+													"CC: cronosII@users.sourceforge.net\n"
+													"Subject: Testing C2 smtp module!");
 	msg->body = g_strdup("Testing 1-2-3\n");
+	msg->mime = NULL;
 	
-	/* sending the message... please work!! */
-	if(c2_smtp_send_message(smtp, msg) == 0)
-		printf("Sending mail via SMTP worked! Check your email\n");
-	else {
-		printf("Sending message via SMTP failed... back to the drawing board\n");
-		printf("the error was: %s\n", gtk_object_get_data(GTK_OBJECT(smtp), "error"));
-	}
-		
-	gtk_object_destroy(GTK_OBJECT(smtp));
+	yo->smtp = smtp;
+	yo->msg = msg;
 	
-	smtp = c2_smtp_new(C2_SMTP_LOCAL, "sendmail -t < %m");
+	pthread_create(&thread, NULL, (void*)send_my_message, yo);
+	pthread_create(&thread2, NULL, (void*)send_my_message, yo);
+	//pthread_create(&thread3, NULL, (void*)send_my_message, yo);
+	//pthread_create(&thread4, NULL, (void*)send_my_message, yo);
 	
-	if(c2_smtp_send_message(smtp, msg) == 0)
-		printf("Sending mail via local SMTP program worked! Check your email\n");
-	else {
-		printf("Sending message via local SMTP failed... back to the drawing board\n");
-		printf("the error was: %s\n", gtk_object_get_data(GTK_OBJECT(smtp), "error"));
-	}
+	gtk_main();
 	
 	gtk_object_destroy(GTK_OBJECT(smtp));
-	g_free(msg->header);
-	g_free(msg->body);
-	g_free(msg);
-	
+
 	return 0;
 }
 
 static void
 on_smtp_update(C2SMTP *smtp, void *message, guint len, guint sent)
 {
-	gfloat v1, v2;
-
-	v1 = (gfloat) len;
-	v2 = (gfloat) sent;
+	float len2 = len, sent2 = sent;
+	int percent;
+	len2 = floorf((sent2/len2)*100.00);
+ 	percent = len2;
 	
-	printf("%f%% (%f %f) of message sent!\n", 100*(v2/v1), v1, v2);
+	printf("%i%s of message sent!\n", percent, "%");
 }

@@ -72,7 +72,7 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 {
 	C2Mime *mime;
 	gboolean text_plain = TRUE;
-	gchar *string, *html;
+	gchar *string, *buf, *html;
 
 	c2_return_if_fail (message, C2EDATA);
 
@@ -114,6 +114,10 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 		string = interpret_text_plain_symbols (mime->part);
 
 	gtk_object_set_data (GTK_OBJECT (mail->body), "message", message);
+	
+	buf = c2_str_wrap (string, 70);
+	g_free (string);
+	string = buf;
 	
 	c2_html_set_content_from_string (C2_HTML (mail->body), string);
 

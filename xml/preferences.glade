@@ -2110,6 +2110,7 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GtkRadioButton</class>
 		<name>interface_html_images_partial_download</name>
+		<visible>False</visible>
 		<can_focus>True</can_focus>
 		<label>Download if remitent is in address book.</label>
 		<active>False</active>
@@ -2190,6 +2191,7 @@ Are you sure you want this?</message>
 	      <widget>
 		<class>GtkRadioButton</class>
 		<name>interface_html_links_internal</name>
+		<sensitive>False</sensitive>
 		<can_focus>True</can_focus>
 		<label>Open using internal browser.</label>
 		<active>False</active>
@@ -2784,6 +2786,7 @@ text/html
 	      <widget>
 		<class>GtkEntry</class>
 		<name>advanced_misc_proxy_http_host</name>
+		<sensitive>False</sensitive>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -2808,6 +2811,7 @@ text/html
 	      <widget>
 		<class>GtkEntry</class>
 		<name>advanced_misc_proxy_ftp_host</name>
+		<sensitive>False</sensitive>
 		<can_focus>True</can_focus>
 		<editable>True</editable>
 		<text_visible>True</text_visible>
@@ -2884,6 +2888,7 @@ text/html
 	      <widget>
 		<class>GtkSpinButton</class>
 		<name>advanced_misc_proxy_http_port</name>
+		<sensitive>False</sensitive>
 		<can_focus>True</can_focus>
 		<climb_rate>1</climb_rate>
 		<digits>0</digits>
@@ -2916,6 +2921,7 @@ text/html
 	      <widget>
 		<class>GtkSpinButton</class>
 		<name>advanced_misc_proxy_ftp_port</name>
+		<sensitive>False</sensitive>
 		<can_focus>True</can_focus>
 		<climb_rate>1</climb_rate>
 		<digits>0</digits>
@@ -2948,6 +2954,7 @@ text/html
 	      <widget>
 		<class>GtkButton</class>
 		<name>advanced_misc_proxy_http_btn</name>
+		<sensitive>False</sensitive>
 		<tooltip>Copy values.</tooltip>
 		<can_focus>True</can_focus>
 		<relief>GTK_RELIEF_NORMAL</relief>

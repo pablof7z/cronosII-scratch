@@ -60,6 +60,7 @@ POST_UNINSTALL = :
 host_alias = @host_alias@
 host_triplet = @host@
 AS = @AS@
+BONOBOLIBS = @BONOBOLIBS@
 CATALOGS = @CATALOGS@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
@@ -131,7 +132,7 @@ gconfconfig = @gconfconfig@
 gnomedownload = @gnomedownload@
 l = @l@
 
-bin_PROGRAMS = account date db hash mailbox message pop3 request smtp utils imap
+bin_PROGRAMS = account date db hash imap mailbox message pop3 request smtp utils
 
 INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules -I$(top_srcdir)/src $(GNOME_INCLUDEDIR)
 
@@ -182,7 +183,6 @@ utils_LDFLAGS = $(LDFLAGS)
 imap_SOURCES = imap.c
 imap_LDADD = $(LDADD)
 imap_LDFLAGS = $(LDFLAGS)
-
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -199,6 +199,8 @@ db_OBJECTS =  db.o
 db_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 hash_OBJECTS =  hash.o
 hash_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+imap_OBJECTS =  imap.o
+imap_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 mailbox_OBJECTS =  mailbox.o
 mailbox_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 message_OBJECTS =  message.o
@@ -211,8 +213,6 @@ smtp_OBJECTS =  smtp.o
 smtp_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 utils_OBJECTS =  utils.o
 utils_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
-imap_OBJECTS =  imap.o
-imap_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -225,10 +225,10 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/account.P .deps/date.P .deps/db.P .deps/hash.P \
-.deps/mailbox.P .deps/message.P .deps/pop3.P .deps/request.P \
-.deps/smtp.P .deps/utils.P
-SOURCES = $(account_SOURCES) $(date_SOURCES) $(db_SOURCES) $(hash_SOURCES) $(mailbox_SOURCES) $(message_SOURCES) $(pop3_SOURCES) $(request_SOURCES) $(smtp_SOURCES) $(utils_SOURCES) $(imap_SOURCES)
-OBJECTS = $(account_OBJECTS) $(date_OBJECTS) $(db_OBJECTS) $(hash_OBJECTS) $(mailbox_OBJECTS) $(message_OBJECTS) $(pop3_OBJECTS) $(request_OBJECTS) $(smtp_OBJECTS) $(utils_OBJECTS) $(imap_OBJECTS)
+.deps/imap.P .deps/mailbox.P .deps/message.P .deps/pop3.P \
+.deps/request.P .deps/smtp.P .deps/utils.P
+SOURCES = $(account_SOURCES) $(date_SOURCES) $(db_SOURCES) $(hash_SOURCES) $(imap_SOURCES) $(mailbox_SOURCES) $(message_SOURCES) $(pop3_SOURCES) $(request_SOURCES) $(smtp_SOURCES) $(utils_SOURCES)
+OBJECTS = $(account_OBJECTS) $(date_OBJECTS) $(db_OBJECTS) $(hash_OBJECTS) $(imap_OBJECTS) $(mailbox_OBJECTS) $(message_OBJECTS) $(pop3_OBJECTS) $(request_OBJECTS) $(smtp_OBJECTS) $(utils_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -314,6 +314,10 @@ hash: $(hash_OBJECTS) $(hash_DEPENDENCIES)
 	@rm -f hash
 	$(LINK) $(hash_LDFLAGS) $(hash_OBJECTS) $(hash_LDADD) $(LIBS)
 
+imap: $(imap_OBJECTS) $(imap_DEPENDENCIES)
+	@rm -f imap
+	$(LINK) $(imap_LDFLAGS) $(imap_OBJECTS) $(imap_LDADD) $(LIBS)
+
 mailbox: $(mailbox_OBJECTS) $(mailbox_DEPENDENCIES)
 	@rm -f mailbox
 	$(LINK) $(mailbox_LDFLAGS) $(mailbox_OBJECTS) $(mailbox_LDADD) $(LIBS)
@@ -337,10 +341,6 @@ smtp: $(smtp_OBJECTS) $(smtp_DEPENDENCIES)
 utils: $(utils_OBJECTS) $(utils_DEPENDENCIES)
 	@rm -f utils
 	$(LINK) $(utils_LDFLAGS) $(utils_OBJECTS) $(utils_LDADD) $(LIBS)
-
-imap: $(imap_OBJECTS) $(imap_DEPENDENCIES)
-	@rm -f imap
-	$(LINK) $(imap_LDFLAGS) $(imap_OBJECTS) $(imap_LDADD) $(LIBS)
 
 tags: TAGS
 

@@ -60,6 +60,7 @@ POST_UNINSTALL = :
 host_alias = @host_alias@
 host_triplet = @host@
 AS = @AS@
+BONOBOLIBS = @BONOBOLIBS@
 CATALOGS = @CATALOGS@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
@@ -131,9 +132,9 @@ gconfconfig = @gconfconfig@
 gnomedownload = @gnomedownload@
 l = @l@
 
-man_MANS = cronos.1
+man_MANS = cronosII.1
 
-EXTRA_DIST =  	cronos.1
+EXTRA_DIST =  	cronosII.1
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h

@@ -1,4 +1,4 @@
-bin_PROGRAMS = account date db hash mailbox message pop3 request smtp utils
+bin_PROGRAMS = account date db hash imap mailbox message pop3 request smtp utils
 
 INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules -I$(top_srcdir)/src $(GNOME_INCLUDEDIR)
 

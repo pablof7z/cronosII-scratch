@@ -85,10 +85,6 @@ struct _C2Composer
 	/* Draft recovery */
 	gint draft_id;
  
-	/* Undo and Redo */
-	GList *operations; /* History of operations */
-	GList *operations_ptr;
-
 	/* Extra data */
 	GList *eheaders;
 };

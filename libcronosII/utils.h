@@ -118,6 +118,9 @@ c2_str_get_line									(const gchar *str);
 gchar *
 c2_str_get_word									(guint8 word_n, const gchar *str, gchar ch);
 
+gchar *
+c2_str_wrap									(const gchar *str, guint8 position);
+
 gboolean
 c2_str_is_email									(const gchar *email);
 
