@@ -122,7 +122,7 @@ c2_message_transfer_new (void)
 
 	box = glade_xml_get_widget (mt->xml, "auto_close_btn");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (box),
-					gnome_config_get_bool_with_default ("/cronosII/Rc/message_transfer_auto_close=0", NULL));
+					gnome_config_get_bool_with_default ("/Cronos II/Rc/message_transfer_auto_close=0", NULL));
 	gtk_signal_connect (GTK_OBJECT (box), "toggled",
 						GTK_SIGNAL_FUNC (auto_close_btn_toggled), mt);
 	
@@ -527,7 +527,7 @@ check_disconnect (C2NetObject *object, gboolean success, C2Pthread2 *data)
 static void
 auto_close_btn_toggled (GtkToggleButton *toggle, C2MessageTransfer *mt)
 {
-	gnome_config_set_bool ("/cronosII/Rc/message_transfer_auto_close", toggle->active);
+	gnome_config_set_bool ("/Cronos II/Rc/message_transfer_auto_close", toggle->active);
 	gnome_config_sync ();
 }
 

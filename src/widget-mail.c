@@ -80,15 +80,24 @@ c2_mail_construct (C2Mail *mail)
 	gtk_widget_show (mail->table);
 	
 #ifdef USE_GTKHTML
+	scroll = gtk_viewport_new (NULL, NULL);
+	gtk_box_pack_start (GTK_BOX (mail), scroll, TRUE, TRUE, 0);
+	gtk_widget_show (scroll);
+	gtk_viewport_set_shadow_type (GTK_VIEWPORT (scroll), GTK_SHADOW_IN);
+	
+	parent = gtk_scrolled_window_new (NULL, NULL);
+	gtk_container_add (GTK_CONTAINER (scroll), parent);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (parent), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 #elif defined (USE_GTKXMHTML)
 	parent = gtk_viewport_new (NULL, NULL);
+	gtk_box_pack_start (GTK_BOX (mail), parent, TRUE, TRUE, 0);
 #else
 	parent = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (parent), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
-#endif
 	gtk_box_pack_start (GTK_BOX (mail), parent, TRUE, TRUE, 0);
+#endif
 	gtk_widget_show (parent);
-	
+
 	mail->body = c2_html_new ();
 	gtk_container_add (GTK_CONTAINER (parent), mail->body);
 	gtk_widget_show (mail->body);

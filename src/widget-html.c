@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /src/widget-html.c
+/*  Cronos II - A GNOME Mail Client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -15,9 +15,18 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+#include <gnome.h>
 #include <config.h>
 
 #include <libcronosII/error.h>
+#include <libcronosII/utils.h>
+
+#ifdef USE_GTKHTML
+#	include <gtkhtml/gtkhtml.h>
+#elif defined (USE_GTKXMTML)
+#	include <gtk-xmhtml/gtk-xmhtml.h>
+#else
+#endif
 
 #include "widget-html.h"
 
@@ -52,6 +61,7 @@ enum
 static gint c2_html_signals[LAST_SIGNAL] = { 0 };
 
 #ifdef USE_GTKHTML
+static GtkHTML *parent_class = NULL;
 #elif defined (USE_GTKXMHTML)
 static GtkXmHTMLClass *parent_class = NULL;
 #else
@@ -231,6 +241,7 @@ c2_html_get_type (void)
 		};
 
 #ifdef USE_GTKHTML
+		c2_html_type = gtk_type_unique (gtk_html_get_type (), &c2_html_info);
 #elif defined (USE_GTKXMHTML)
 #else
 		c2_html_type = gtk_type_unique (gtk_text_get_type (), &c2_html_info);
@@ -244,6 +255,7 @@ static void
 c2_html_class_init (C2HtmlClass *klass)
 {
 #ifdef USE_GTKHTML
+	parent_class = gtk_type_class (gtk_html_get_type ());
 #elif defined (USE_GTKXMHTML)
 #else
 	parent_class = gtk_type_class (gtk_text_get_type ());
@@ -255,11 +267,10 @@ c2_html_init (C2Html *obj)
 {
 #if defined (USE_GTKHTML)
 #elif defined (USE_GTKXMHTML)
-	gtk_xmhtml_set_anchor_underline_type (GTK_XMHTML (part),
-											GTK_ANCHOR_SINGLE_LINE);
-	gtk_xmhtml_set_anchor_buttons (GTK_XMHTML (part), FALSE);
-	gtk_xmhtml_set_image_procs (GTK_XMHTML (part), (XmImageProc) on_gtkxmhtml_image_load,
-								NULL, NULL, NULL);
+	gtk_xmhtml_set_anchor_underline_type (GTK_XMHTML (obj), GTK_ANCHOR_SINGLE_LINE);
+	gtk_xmhtml_set_anchor_buttons (GTK_XMHTML (obj), FALSE);
+	gtk_xmhtml_set_image_procs (GTK_XMHTML (obj), (XmImageProc) on_gtkxmhtml_image_load,
+					NULL, NULL, NULL);
 #else
 #endif
 
@@ -271,7 +282,14 @@ c2_html_init (C2Html *obj)
 GtkWidget *
 c2_html_new (void)
 {
-#ifdef USE_GTKHTML
+#if defined (USE_GTKHTML)
+	GtkWidget *html;
+
+	html = gtk_type_new (c2_html_get_type ());
+	gtk_html_construct (html);
+	gtk_html_load_from_string (GTK_HTML (html), "<BODY BGCOLOR=#ff0000></BODY>", -1);
+
+	return html;
 #elif defined (USE_GTKXMHTML)
 	C2Html *html;
 	
@@ -306,7 +324,7 @@ on_gtkxmhtml_image_load_pthread_request_disconnect (C2Request *request, gboolean
 	{
 		/* The fetching failed for whatever reason */
 		gdk_threads_enter ();
-		new_image = XmHTMLImageDefaultProc (widget, DATADIR "/cronosII/pixmaps/no-image.png", NULL, 0);
+		new_image = XmHTMLImageDefaultProc (widget, DATADIR "/Cronos II/pixmaps/no-image.png", NULL, 0);
 	} else
 	{
 		/* The fetching was successful:
@@ -320,7 +338,7 @@ on_gtkxmhtml_image_load_pthread_request_disconnect (C2Request *request, gboolean
 			g_print ("Unable to open to %s: %s\n", tmpfile, c2_error_get (-errno));
 #endif
 			gdk_threads_enter ();
-			new_image = XmHTMLImageDefaultProc (widget, DATADIR "/cronosII/pixmaps/no-image.png", NULL, 0);
+			new_image = XmHTMLImageDefaultProc (widget, DATADIR "/Cronos II/pixmaps/no-image.png", NULL, 0);
 			g_free (tmpfile);
 		} else
 		{
@@ -362,7 +380,7 @@ on_gtkxmhtml_image_load (GtkWidget *widget, const gchar *href)
 	data = g_new0 (C2Pthread3, 1);
 	data->v1 = widget;
 	data->v2 = C2_CHAR (href);
-	data->v3 = XmHTMLImageDefaultProc (widget, DATADIR "/cronosII/pixmaps/loading-image.png", NULL, 0);
+	data->v3 = XmHTMLImageDefaultProc (widget, DATADIR "/Cronos II/pixmaps/loading-image.png", NULL, 0);
 	pthread_create (&thread, NULL, C2_PTHREAD_FUNC (on_gtkxmhtml_image_load_pthread), data);
 	return data->v3;
 }

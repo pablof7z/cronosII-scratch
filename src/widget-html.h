@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /src/widget-html.h
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -63,6 +63,7 @@ enum _C2HtmlProxyType
 struct _C2Html
 {
 #ifdef USE_GTKHTML
+	GtkHTML parent;
 #elif defined (USE_GTKXMHTML)
 	GtkXmHTML parent;
 #else
@@ -87,6 +88,7 @@ struct _C2Html
 struct _C2HtmlClass
 {
 #ifdef USE_GTKHTML
+	GtkHTMLClass parent_class;
 #elif defined (USE_GTKXMHTML)
 	GtkXmHTMLClass parent_class;
 #else

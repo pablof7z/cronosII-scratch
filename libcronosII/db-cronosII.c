@@ -166,7 +166,6 @@ c2_db_cronosII_create_structure (C2Mailbox *mailbox)
 	{
 		c2_error_set (-errno);
 		g_warning (_("Unable to create structure for Cronos II Db: %s\n"), c2_error_get (c2_errno));
-		g_free (path);
 		return -1;
 	}
 

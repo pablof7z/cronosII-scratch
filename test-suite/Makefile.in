@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4a from Makefile.am
+# Makefile.in generated automatically by automake 1.4 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -46,10 +46,9 @@ AUTOMAKE = @AUTOMAKE@
 AUTOHEADER = @AUTOHEADER@
 
 INSTALL = @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
-INSTALL_STRIP_FLAG =
 transform = @program_transform_name@
 
 NORMAL_INSTALL = :
@@ -130,7 +129,7 @@ cronosIIpath = @cronosIIpath@
 gnomedownload = @gnomedownload@
 l = @l@
 
-bin_PROGRAMS = db mailbox date request
+bin_PROGRAMS = date db hash mailbox request
 
 INCLUDES = -DBUILDING_C2 -I.. -I$(srcdir) -I$(top_srcdir)/libmodules $(GNOME_INCLUDEDIR)
 
@@ -138,17 +137,21 @@ LDADD = $(top_builddir)/libcronosII/libcronosII.a
 LDFLAGS = $(top_builddir)/libcronosII/libcronosII.a 	$(LIBS) $(INTLLIBS) $(GNOME_LIBDIR) $(GNOMEUI_LIBDIR) $(PTHREAD_LIB) 	$(GNOME_PRINT_LIBS) $(GLIB_LIBS)
 
 
+date_SOURCES = date.c
+date_LDADD = $(LDADD)
+date_LDFLAGS = $(LDFLAGS)
+
 db_SOURCES = db.c
 db_LDADD = $(LDADD)
 db_LDFLAGS = $(LDFLAGS)
 
+hash_SOURCES = hash.c
+hash_LDADD = $(LDADD)
+hash_LDFLAGS = $(LDFLAGS)
+
 mailbox_SOURCES = mailbox.c
 mailbox_LDADD = $(LDADD)
 mailbox_LDFLAGS = $(LDFLAGS)
-
-date_SOURCES = date.c
-date_LDADD = $(LDADD)
-date_LDFLAGS = $(LDFLAGS)
 
 request_SOURCES = request.c
 request_LDADD = $(LDADD)
@@ -161,12 +164,14 @@ PROGRAMS =  $(bin_PROGRAMS)
 
 DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
-db_OBJECTS =  db.o
-db_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
-mailbox_OBJECTS =  mailbox.o
-mailbox_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 date_OBJECTS =  date.o
 date_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+db_OBJECTS =  db.o
+db_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+hash_OBJECTS =  hash.o
+hash_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
+mailbox_OBJECTS =  mailbox.o
+mailbox_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 request_OBJECTS =  request.o
 request_DEPENDENCIES =  $(top_builddir)/libcronosII/libcronosII.a
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -178,11 +183,12 @@ DIST_COMMON =  Makefile.am Makefile.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/date.P .deps/db.P .deps/mailbox.P .deps/request.P
-SOURCES = $(db_SOURCES) $(mailbox_SOURCES) $(date_SOURCES) $(request_SOURCES)
-OBJECTS = $(db_OBJECTS) $(mailbox_OBJECTS) $(date_OBJECTS) $(request_OBJECTS)
+DEP_FILES =  .deps/date.P .deps/db.P .deps/hash.P .deps/mailbox.P \
+.deps/request.P
+SOURCES = $(date_SOURCES) $(db_SOURCES) $(hash_SOURCES) $(mailbox_SOURCES) $(request_SOURCES)
+OBJECTS = $(date_OBJECTS) $(db_OBJECTS) $(hash_OBJECTS) $(mailbox_OBJECTS) $(request_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -209,8 +215,8 @@ install-binPROGRAMS: $(bin_PROGRAMS)
 	$(mkinstalldirs) $(DESTDIR)$(bindir)
 	@list='$(bin_PROGRAMS)'; for p in $$list; do \
 	  if test -f $$p; then \
-	    echo " $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
-	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	    echo " $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
 	  else :; fi; \
 	done
 
@@ -252,17 +258,21 @@ distclean-libtool:
 
 maintainer-clean-libtool:
 
+date: $(date_OBJECTS) $(date_DEPENDENCIES)
+	@rm -f date
+	$(LINK) $(date_LDFLAGS) $(date_OBJECTS) $(date_LDADD) $(LIBS)
+
 db: $(db_OBJECTS) $(db_DEPENDENCIES)
 	@rm -f db
 	$(LINK) $(db_LDFLAGS) $(db_OBJECTS) $(db_LDADD) $(LIBS)
 
+hash: $(hash_OBJECTS) $(hash_DEPENDENCIES)
+	@rm -f hash
+	$(LINK) $(hash_LDFLAGS) $(hash_OBJECTS) $(hash_LDADD) $(LIBS)
+
 mailbox: $(mailbox_OBJECTS) $(mailbox_DEPENDENCIES)
 	@rm -f mailbox
 	$(LINK) $(mailbox_LDFLAGS) $(mailbox_OBJECTS) $(mailbox_LDADD) $(LIBS)
-
-date: $(date_OBJECTS) $(date_DEPENDENCIES)
-	@rm -f date
-	$(LINK) $(date_LDFLAGS) $(date_OBJECTS) $(date_LDADD) $(LIBS)
 
 request: $(request_OBJECTS) $(request_DEPENDENCIES)
 	@rm -f request
@@ -371,7 +381,7 @@ uninstall: uninstall-am
 all-am: Makefile $(PROGRAMS)
 all-redirect: all-am
 install-strip:
-	$(MAKE) $(AM_MAKEFLAGS) INSTALL_STRIP_FLAG=-s install
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
 	$(mkinstalldirs)  $(DESTDIR)$(bindir)
 

@@ -8,6 +8,8 @@ libcronosII_a_SOURCES = \
 	db-spool.c			db-spool.h					\
 	error.c				error.h						\
 						i18n.h						\
+	hash.c				hash.h						\
+						hash-definitions.h			\
 	mailbox.c			mailbox.h					\
 	message.c			message.h					\
 	mime.c				mime.h						\

@@ -126,11 +126,12 @@ c2_app_report (const gchar *msg, C2ReportSeverity severity)
 	if (!pthread_mutex_trylock (&WMain.appbar_lock))
 	{
 		GtkWidget *appbar = glade_xml_get_widget (WMain.xml, "appbar");
-		if (severity == C2_REPORT_WARNING || severity == C2_REPORT_ERROR)
+		if (c2_errno && (severity == C2_REPORT_WARNING || severity == C2_REPORT_ERROR))
 			realmsg = g_strdup_printf ("%s: %s", msg, c2_error_get (c2_errno));
 		else
 			realmsg = g_strdup (msg);
-		gnome_appbar_push (GNOME_APPBAR (appbar), msg);
+		
+		gnome_appbar_push (GNOME_APPBAR (appbar), realmsg);
 		gtk_timeout_add (10000, on_report_expirate, NULL);
 		g_free (realmsg);
 		pthread_mutex_unlock (&WMain.appbar_lock);
@@ -316,14 +317,14 @@ c2_app_get_mailbox_configuration_id_by_name (const gchar *name)
 {
 	gchar *prefix;
 	gchar *gname;
-	gint max = gnome_config_get_int_with_default ("/cronosII/Mailboxes/quantity=-1", NULL);
+	gint max = gnome_config_get_int_with_default ("/Cronos II/Mailboxes/quantity=-1", NULL);
 	gint i;
 	
 	c2_return_val_if_fail (name, -1, C2EDATA);
 
 	for (i = 1; i <= max; i++)
 	{
-		prefix = g_strdup_printf ("/cronosII/Mailbox %d/", i);
+		prefix = g_strdup_printf ("/Cronos II/Mailbox %d/", i);
 		gnome_config_push_prefix (prefix);
 
 		gname = gnome_config_get_string ("name");

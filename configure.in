@@ -223,7 +223,7 @@ dnl #######################################################
 
 AC_ARG_ENABLE([gtkhtml],
 [  --enable-gtkhtml          Use the GtkHtml widget for showing messages [default=no]],
-[ gtkhtml=$enableval ], [ gtkhtml=no ])
+[ gtkhtml=$enableval ], [ gtkhtml=yes ])
 
 AC_MSG_CHECKING(for GtkHTML)
 if test "$gtkhtml" = "yes"; then
@@ -251,6 +251,15 @@ AC_ARG_ENABLE([test_suite],
 [ test_suite=$enableval ], [ test_suite=no ])
 AM_CONDITIONAL(USE_TEST_SUITE, test "x$test_suite" = "xyes")
 
+dnl #######################################################
+dnl   UI Text Editor
+dnl #######################################################
+
+AC_ARG_ENABLE([ui_text_editor],
+[  --enable-ui-text-editor   Enable UI Text Editor. (Developers only)],
+[ ui_text_editor=$enableval ], [ ui_text_editor=no ])
+AC_DEFINE(USE_UI_TEXT_EDITOR)
+AM_CONDITIONAL(USE_UI_TEXT_EDITOR, test "x$ui_text_editor" = "xyes")
 
 AC_DEFINE_UNQUOTED(C2_PLUGIN_VERSION_MAJOR, $C2_PLUGIN_VERSION_MAJOR)
 AC_DEFINE_UNQUOTED(C2_PLUGIN_VERSION_MINOR, $C2_PLUGIN_VERSION_MINOR)

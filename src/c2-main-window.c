@@ -347,6 +347,12 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 			break;
 	}
 
+	if (!retval)
+	{
+		c2_app_report (_("Unable to create mailbox"), C2_REPORT_ERROR);
+		return;
+	}
+
 	gtk_signal_connect (GTK_OBJECT (retval), "db_loaded",
 						GTK_SIGNAL_FUNC (on_mailbox_db_loaded), NULL);
 	
@@ -361,8 +367,8 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 	}
 
 	/* Now we have to write to the config file the new mailbox */
-	config_id = gnome_config_get_int_with_default ("/cronosII/Mailboxes/quantity=0", NULL)+1;
-	query = g_strdup_printf ("/cronosII/Mailbox %d/", config_id);
+	config_id = gnome_config_get_int_with_default ("/Cronos II/Mailboxes/quantity=0", NULL)+1;
+	query = g_strdup_printf ("/Cronos II/Mailbox %d/", config_id);
 	gnome_config_push_prefix (query);
 
 	gnome_config_set_string ("name", retval->name);
@@ -387,7 +393,7 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 	gnome_config_pop_prefix ();
 	g_free (query);
 
-	gnome_config_set_int ("/cronosII/Mailboxes/quantity", config_id);
+	gnome_config_set_int ("/Cronos II/Mailboxes/quantity", config_id);
 	gnome_config_sync ();
 }
 
@@ -533,7 +539,7 @@ on_properties_mailbox_dlg_ok_btn_clicked (GtkWidget *widget, GladeXML *xml)
 			break;
 	}
 
-	query = g_strdup_printf ("/cronosII/Mailbox %d/", configuration_id);
+	query = g_strdup_printf ("/Cronos II/Mailbox %d/", configuration_id);
 	gnome_config_push_prefix (query);
 
 	gnome_config_set_string ("name", mailbox->name);
@@ -682,17 +688,17 @@ on_delete_mailbox_dlg (void)
 				return;
 			}
 			
-			buffer = g_strdup_printf ("/cronosII/Mailbox %d", configuration_id);
+			buffer = g_strdup_printf ("/Cronos II/Mailbox %d", configuration_id);
 			gnome_config_clean_section (buffer);
 			g_free (buffer);
 
-			max_configuration_id = gnome_config_get_int ("/cronosII/Mailboxes/quantity");
+			max_configuration_id = gnome_config_get_int ("/Cronos II/Mailboxes/quantity");
 			
 			if (max_configuration_id == configuration_id)
 				/* If this is the last mailbox in the configuration file
 				 * we have to update the /Mailboxes/quantity variable
 				 */
-				gnome_config_set_int ("/cronosII/Mailboxes/quantity", --max_configuration_id);
+				gnome_config_set_int ("/Cronos II/Mailboxes/quantity", --max_configuration_id);
 
 			c2_mailbox_remove (mailbox, FALSE); /* <---- This is just for testing!!!!!! XXX XXX XXX XXX XXX */
 	}

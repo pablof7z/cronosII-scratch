@@ -7,3 +7,31 @@ A: main-window.{ch} stores the functions that handles nearly all callbacks for
    create a dialog or some kind of UI interaction (except for minimal changes
    like a c2_app_report) and also stores the function that should also get called
    outside of {c2-}main-window.c.
+ 
+Q: What's that HTML-Data stuff and how do I use it?
+A: 'That' stuff, as you call it, is a thing that gave me a little work, so
+   have a little more respect for other's people work and ask properly
+   you big fat moron!
+
+Q: Hey! Take it easy, I didn't mean to offend you!
+A: Ok, I forgive you, but, you didn't make any question, so why
+   the heck did I put a Q as a prefix of your line?!
+ 
+x: mmmm, I don't know, are u using pat?
+ª: yeah, is probably that...
+   Well, back to your question, the HTML-Data is a way to provide access
+   to standard messages to Cronos II, instead of having to store messages
+   (messages not as mails, but as messages to the users, like in druid
+   text and stuff like that) inside of the code, I choose to store that
+   text in a separated data file, and the html-data object gives an API
+   to store and to retrieve that text (yeah, of course the storing is not
+   going to be in a menu of something, that's internal...) through queries.
+
+Q: Ok, I get it, so, how do you make a query?
+A: Like this:
+   action [key] subtype [text]
+
+   action can be PUT or GET.
+   key is the unique identifier of this string.
+   subtype is 'html' or 'plain' (the type defaults to 'text' always).
+   text is the value of the string.

@@ -546,7 +546,7 @@ static void
 on_apply_btn_clicked (void)
 {
 	{ /* Version */
-		gnome_config_set_string ("/cronosII/Cronos II/Version", VERSION);
+		gnome_config_set_string ("/Cronos II/Cronos II/Version", VERSION);
 	}
 	{ /* Options page */
 		GtkWidget *check_timeout = glade_xml_get_widget (preferences_xml, "options_check_timeout");
@@ -603,15 +603,15 @@ on_apply_btn_clicked (void)
 			}
 		}
 
-		gnome_config_set_int ("/cronosII/Options/check_timeout", c2_app.options_check_timeout);
-		gnome_config_set_int ("/cronosII/Options/wrap_outgoing_text", c2_app.options_wrap_outgoing_text);
-		gnome_config_set_int ("/cronosII/Options/mark_timeout", c2_app.options_mark_timeout);
-		gnome_config_set_string ("/cronosII/Options/prepend_character", c2_app.options_prepend_character);
-		gnome_config_set_int ("/cronosII/Options/empty_garbage", c2_app.options_empty_garbage);
-		gnome_config_set_int ("/cronosII/Options/use_outbox", c2_app.options_use_outbox);
-		gnome_config_set_int ("/cronosII/Options/check_at_start", c2_app.options_check_at_start);
-		gnome_config_set_int ("/cronosII/Options/mt_mode", c2_app.options_mt_mode);
-		gnome_config_set_int ("/cronosII/Options/default_mime", c2_app.options_default_mime);
+		gnome_config_set_int ("/Cronos II/Options/check_timeout", c2_app.options_check_timeout);
+		gnome_config_set_int ("/Cronos II/Options/wrap_outgoing_text", c2_app.options_wrap_outgoing_text);
+		gnome_config_set_int ("/Cronos II/Options/mark_timeout", c2_app.options_mark_timeout);
+		gnome_config_set_string ("/Cronos II/Options/prepend_character", c2_app.options_prepend_character);
+		gnome_config_set_int ("/Cronos II/Options/empty_garbage", c2_app.options_empty_garbage);
+		gnome_config_set_int ("/Cronos II/Options/use_outbox", c2_app.options_use_outbox);
+		gnome_config_set_int ("/Cronos II/Options/check_at_start", c2_app.options_check_at_start);
+		gnome_config_set_int ("/Cronos II/Options/mt_mode", c2_app.options_mt_mode);
+		gnome_config_set_int ("/Cronos II/Options/default_mime", c2_app.options_default_mime);
 	}
 	{ /* Accounts */
 		GtkCList *accounts_clist = GTK_CLIST (glade_xml_get_widget (preferences_xml, "accounts_clist"));
@@ -634,7 +634,7 @@ on_apply_btn_clicked (void)
 			}
 			account->next = gtk_clist_get_row_data (accounts_clist, i+1);
 			
-			buf = g_strdup_printf ("/cronosII/Account %d/", i);
+			buf = g_strdup_printf ("/Cronos II/Account %d/", i);
 			gnome_config_push_prefix (buf);
 			gnome_config_set_string ("name", account->name);
 			gnome_config_set_string ("per_name", account->per_name);
@@ -680,7 +680,7 @@ on_apply_btn_clicked (void)
 		/* Now we must remove every section labeled 'Account ${>i}' */
 		for (;;i++)
 		{
-			buf = g_strdup_printf ("/cronosII/Account %d/", i);
+			buf = g_strdup_printf ("/Cronos II/Account %d/", i);
 			gnome_config_push_prefix (buf);
 			if (!gnome_config_get_string ("name"))
 			{
@@ -728,9 +728,9 @@ on_apply_btn_clicked (void)
 								c2_app.interface_toolbar);
 		gtk_widget_queue_resize (glade_xml_get_widget (WMain.xml, "wnd_main"));
 
-		gnome_config_set_string ("/cronosII/Interface/title", c2_app.interface_title);
-		gnome_config_set_int ("/cronosII/Interface/toolbar", c2_app.interface_toolbar);
-		gnome_config_set_string ("/cronosII/Interface/date_fmt", c2_app.interface_date_fmt);
+		gnome_config_set_string ("/Cronos II/Interface/title", c2_app.interface_title);
+		gnome_config_set_int ("/Cronos II/Interface/toolbar", c2_app.interface_toolbar);
+		gnome_config_set_string ("/Cronos II/Interface/date_fmt", c2_app.interface_date_fmt);
 	}
 	{ /* Fonts */
 		GtkWidget *message_body = glade_xml_get_widget (preferences_xml, "fonts_message_body");
@@ -777,11 +777,11 @@ on_apply_btn_clicked (void)
 			}
 		}
 
-		gnome_config_set_string ("/cronosII/Fonts/message_body", c2_app.fonts_message_body);
-		gnome_config_set_string ("/cronosII/Fonts/unreaded_message", c2_app.fonts_unreaded_message);
-		gnome_config_set_string ("/cronosII/Fonts/readed_message", c2_app.fonts_readed_message);
-		gnome_config_set_string ("/cronosII/Fonts/unreaded_mailbox", c2_app.fonts_unreaded_mailbox);
-		gnome_config_set_int ("/cronosII/Fonts/source", c2_app.fonts_source);
+		gnome_config_set_string ("/Cronos II/Fonts/message_body", c2_app.fonts_message_body);
+		gnome_config_set_string ("/Cronos II/Fonts/unreaded_message", c2_app.fonts_unreaded_message);
+		gnome_config_set_string ("/Cronos II/Fonts/readed_message", c2_app.fonts_readed_message);
+		gnome_config_set_string ("/Cronos II/Fonts/unreaded_mailbox", c2_app.fonts_unreaded_mailbox);
+		gnome_config_set_int ("/Cronos II/Fonts/source", c2_app.fonts_source);
 	}
 	{ /* Colors */
 		GtkWidget *replying_original_message = glade_xml_get_widget
@@ -826,10 +826,10 @@ on_apply_btn_clicked (void)
 		c2_app.paths_get = g_strdup (gtk_entry_get_text (GTK_ENTRY (get_entry)));
 		c2_app.paths_always_use = GTK_TOGGLE_BUTTON (always_use)->active;
 
-		gnome_config_set_string ("/cronosII/Paths/saving", c2_app.paths_saving);
-		gnome_config_set_string ("/cronosII/Paths/download", c2_app.paths_download);
-		gnome_config_set_string ("/cronosII/Paths/get", c2_app.paths_get);
-		gnome_config_set_int ("/cronosII/Paths/always_use", c2_app.paths_always_use);
+		gnome_config_set_string ("/Cronos II/Paths/saving", c2_app.paths_saving);
+		gnome_config_set_string ("/Cronos II/Paths/download", c2_app.paths_download);
+		gnome_config_set_string ("/Cronos II/Paths/get", c2_app.paths_get);
+		gnome_config_set_int ("/Cronos II/Paths/always_use", c2_app.paths_always_use);
 	}
 	{ /* Advanced */
 		GtkWidget *http_proxy_btn = glade_xml_get_widget (preferences_xml, "advanced_http_proxy_btn");
@@ -859,16 +859,16 @@ on_apply_btn_clicked (void)
 		c2_app.advanced_use_internal_browser = GTK_TOGGLE_BUTTON (use_internal_browser)->active;
 
 
-		gnome_config_set_int ("/cronosII/Advanced/http_proxy", c2_app.advanced_http_proxy);
-		gnome_config_set_string ("/cronosII/Advanced/http_proxy_addr", c2_app.advanced_http_proxy_addr);
-		gnome_config_set_int ("/cronosII/Advanced/http_proxy_port", c2_app.advanced_http_proxy_port);
-		gnome_config_set_int ("/cronosII/Advanced/ftp_proxy", c2_app.advanced_ftp_proxy);
-		gnome_config_set_string ("/cronosII/Advanced/ftp_proxy_addr", c2_app.advanced_ftp_proxy_addr);
-		gnome_config_set_int ("/cronosII/Advanced/ftp_proxy_port", c2_app.advanced_ftp_proxy_port);
-		gnome_config_set_int ("/cronosII/Advanced/persistent_smtp", c2_app.advanced_persistent_smtp);
-		gnome_config_set_string ("/cronosII/Advanced/persistent_smtp_addr", c2_app.advanced_persistent_smtp_addr);
-		gnome_config_set_int ("/cronosII/Advanced/persistent_smtp_port", c2_app.advanced_persistent_smtp_port);
-		gnome_config_set_int ("/cronosII/Advanced/use_internal_browser", c2_app.advanced_use_internal_browser);
+		gnome_config_set_int ("/Cronos II/Advanced/http_proxy", c2_app.advanced_http_proxy);
+		gnome_config_set_string ("/Cronos II/Advanced/http_proxy_addr", c2_app.advanced_http_proxy_addr);
+		gnome_config_set_int ("/Cronos II/Advanced/http_proxy_port", c2_app.advanced_http_proxy_port);
+		gnome_config_set_int ("/Cronos II/Advanced/ftp_proxy", c2_app.advanced_ftp_proxy);
+		gnome_config_set_string ("/Cronos II/Advanced/ftp_proxy_addr", c2_app.advanced_ftp_proxy_addr);
+		gnome_config_set_int ("/Cronos II/Advanced/ftp_proxy_port", c2_app.advanced_ftp_proxy_port);
+		gnome_config_set_int ("/Cronos II/Advanced/persistent_smtp", c2_app.advanced_persistent_smtp);
+		gnome_config_set_string ("/Cronos II/Advanced/persistent_smtp_addr", c2_app.advanced_persistent_smtp_addr);
+		gnome_config_set_int ("/Cronos II/Advanced/persistent_smtp_port", c2_app.advanced_persistent_smtp_port);
+		gnome_config_set_int ("/Cronos II/Advanced/use_internal_browser", c2_app.advanced_use_internal_browser);
 		
 	}
 	

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /src/main-window.c
+/*  Cronos II - A GNOME mail client
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -84,6 +84,18 @@ c2_window_new (void)
 	
 	WMain.xml = glade_xml_new (C2_APP_GLADE_FILE ("cronosII"), "wnd_main");
 	WMain.ctree_menu = glade_xml_new (C2_APP_GLADE_FILE ("cronosII"), "mnu_ctree");
+
+	if (!WMain.xml)
+	{
+#ifdef USE_DEBUG
+		g_warning ("Unable to find Glade files, check that you 'make install' "
+			   "the directories /xml and /images in the source distribution.\n");
+#else
+		g_print (_("Cronos II was not able to load the UI, you should check "
+			   "your installation.\nAborting.\n"));
+#endif
+		exit (1);
+	}
 
 	window = glade_xml_get_widget (WMain.xml, "wnd_main");
 	gtk_widget_realize (window);

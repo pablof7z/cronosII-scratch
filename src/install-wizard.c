@@ -372,7 +372,7 @@ new_mailbox_write (C2Mailbox *head)
 
 	for (l = head; l != NULL; l = l->next)
 	{
-		gchar *prefix = g_strdup_printf ("/cronosII/Mailbox-%d/", i++);
+		gchar *prefix = g_strdup_printf ("/Cronos II/Mailbox-%d/", i++);
 		
 		gnome_config_push_prefix (prefix);
 		gnome_config_set_string ("Name", l->name);
@@ -412,7 +412,7 @@ import_old_configuration (void)
 	g_free (path);
 
 	REPORT (N_("Registering  the new configuration 'Version'"));
-	gnome_config_set_string ("/cronosII/CronosII/Version", VERSION);
+	gnome_config_set_string ("/Cronos II/Cronos II/Version", VERSION);
 	REPORT_RESULT (N_("Success."), TRUE);
 
 	for (;;)
@@ -446,85 +446,85 @@ import_old_configuration (void)
 		} else if (c2_streq (key, "addrbook_init"))
 		{
 			REPORT (N_("Registering in the new configuration 'addrbook_init'"));
-			gnome_config_set_int ("/cronosII/Address Book/init", atoi (val));
+			gnome_config_set_int ("/Cronos II/Address Book/init", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "empty_garbage"))
 		{
 			REPORT (N_("Registering in the new configuration 'empty_garbage'"));
-			gnome_config_set_bool ("/cronosII/Options/empty_garbage", atoi (val));
+			gnome_config_set_bool ("/Cronos II/Options/empty_garbage", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "check_at_start"))
 		{
 			REPORT (N_("Registering in the new configuration 'check_at_start'"));
-			gnome_config_set_bool ("/cronosII/Options/check_at_start", atoi (val));
+			gnome_config_set_bool ("/Cronos II/Options/check_at_start", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "use_outbox"))
 		{
 			REPORT (N_("Registering in the new configuration 'use_outbox'"));
-			gnome_config_set_bool ("/cronosII/Options/use_outbox", atoi (val));
+			gnome_config_set_bool ("/Cronos II/Options/use_outbox", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "use_persistent_smtp_connection"))
 		{
 			REPORT (N_("Registering in the new configuration 'use_persistent_smtp_connection'"));
-			gnome_config_set_bool ("/cronosII/Persistent SMTP/use", atoi (val));
+			gnome_config_set_bool ("/Cronos II/Persistent SMTP/use", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "check_timeout"))
 		{
 			REPORT (N_("Registering in the new configuration 'check_timeout'"));
-			gnome_config_set_int ("/cronosII/Options/check_timeout", atoi (val));
+			gnome_config_set_int ("/Cronos II/Options/check_timeout", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "message_bigger"))
 		{
 			REPORT (N_("Registering in the new configuration 'message_size_limit'"));
-			gnome_config_set_int ("/cronosII/Options/message_size_limit", atoi (val));
+			gnome_config_set_int ("/Cronos II/Options/message_size_limit", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "timeout"))
 		{
 			REPORT (N_("Registering in the new configuration 'net_timeout'"));
-			gnome_config_set_int ("/cronosII/Timeout/net", atoi (val));
+			gnome_config_set_int ("/Cronos II/Timeout/net", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "mark_as_read"))
 		{
 			REPORT (N_("Registering in the new configuration 'mark_as_read_timeout'"));
-			gnome_config_set_int ("/cronosII/Timeout/mark_as_read", atoi (val));
+			gnome_config_set_int ("/Cronos II/Timeout/mark_as_read", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "persistent_smtp_port"))
 		{
 			REPORT (N_("Registering in the new configuration 'persistent_smtp_port'"));
-			gnome_config_set_int ("/cronosII/Persistent SMTP/port", atoi (val));
+			gnome_config_set_int ("/Cronos II/Persistent SMTP/port", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "prepend_char_on_re"))
 		{
 			REPORT (N_("Registering in the new configuration 'prepend_character'"));
-			gnome_config_set_string ("/cronosII/Options/prepend_character", val);
+			gnome_config_set_string ("/Cronos II/Options/prepend_character", val);
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "persistent_smtp_address"))
 		{
 			REPORT (N_("Registering in the new configuration 'persistent_smtp_host'"));
-			gnome_config_set_string ("/cronosII/Persistent SMTP/host", val);
+			gnome_config_set_string ("/Cronos II/Persistent SMTP/host", val);
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "color_reply_original_message"))
 		{
 			REPORT (N_("Registering in the new configuration 'color_reply_original_message'"));
-			gnome_config_set_string ("/cronosII/Colors/reply_original_message", val);
+			gnome_config_set_string ("/Cronos II/Colors/reply_original_message", val);
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "color_misc_body"))
 		{
 			REPORT (N_("Registering in the new configuration 'color_misc_body'"));
-			gnome_config_set_string ("/cronosII/Colors/misc_body", val);
+			gnome_config_set_string ("/Cronos II/Colors/misc_body", val);
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		}
@@ -562,30 +562,30 @@ import_old_configuration (void)
 		if (c2_streq (key, "mime_win_mode"))
 		{
 			REPORT (N_("Registering in the new configuration 'mime_window'"));
-			gnome_config_set_int ("/cronosII/Appareance/mime_window", atoi (val));
+			gnome_config_set_int ("/Cronos II/Appareance/mime_window", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "toolbar"))
 		{
 			REPORT (N_("Registering in the new configuration 'toolbar'"));
-			gnome_config_set_int ("/cronosII/Appareance/toolbar", atoi (val));
+			gnome_config_set_int ("/Cronos II/Appareance/toolbar", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "h_pan"))
 		{
 			REPORT (N_("Registering in the new configuration 'wm_hpan'"));
-			gnome_config_set_int ("/cronosII/Appareance/wm_hpan", atoi (val));
+			gnome_config_set_int ("/Cronos II/Appareance/wm_hpan", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "v_pan"))
 		{
 			REPORT (N_("Registering in the new configuration 'wm_vpan'"));
-			gnome_config_set_int ("/cronosII/Appareance/wm_hpan", atoi (val));
+			gnome_config_set_int ("/Cronos II/Appareance/wm_hpan", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_strneq (key, "clist_", 6))
 		{
-			gnome_config_push_prefix ("/cronosII/Appareance/wm_clist::");
+			gnome_config_push_prefix ("/Cronos II/Appareance/wm_clist::");
 			REPORT (N_("Registering in the new configuration 'wm_clist'"));
 			gnome_config_set_int (key+6, atoi (val));
 			REPORT_RESULT (N_("Success."), TRUE);
@@ -594,67 +594,67 @@ import_old_configuration (void)
 		} else if (c2_streq (key, "main_window_width"))
 		{
 			REPORT (N_("Registering in the new configuration 'wm_width'"));
-			gnome_config_set_int ("/cronosII/Appareance/wm_width", atoi (val));
+			gnome_config_set_int ("/Cronos II/Appareance/wm_width", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "main_window_height"))
 		{
 			REPORT (N_("Registering in the new configuration 'wm_height'"));
-			gnome_config_set_int ("/cronosII/Appareance/wm_height", atoi (val));
+			gnome_config_set_int ("/Cronos II/Appareance/wm_height", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "showable_headers:preview"))
 		{
 			REPORT (N_("Registering in the new configuration 'showable_headers:preview'"));
-			gnome_config_set_int ("/cronosII/Appareance/showable_headers:preview", atoi (val));
+			gnome_config_set_int ("/Cronos II/Appareance/showable_headers:preview", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "showable_headers:message"))
 		{
 			REPORT (N_("Registering in the new configuration 'showable_headers:message'"));
-			gnome_config_set_int ("/cronosII/Appareance/showable_headers:message", atoi (val));
+			gnome_config_set_int ("/Cronos II/Appareance/showable_headers:message", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "showable_headers:compose"))
 		{
 			REPORT (N_("Registering in the new configuration 'showable_headers:compose'"));
-			gnome_config_set_int ("/cronosII/Appareance/showable_headers:compose", atoi (val));
+			gnome_config_set_int ("/Cronos II/Appareance/showable_headers:compose", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "showable_headers:save"))
 		{
 			REPORT (N_("Registering in the new configuration 'showable_headers:save'"));
-			gnome_config_set_int ("/cronosII/Appareance/showable_headers:save", atoi (val));
+			gnome_config_set_int ("/Cronos II/Appareance/showable_headers:save", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "showable_headers:print"))
 		{
 			REPORT (N_("Registering in the new configuration 'showable_headers:print'"));
-			gnome_config_set_int ("/cronosII/Appareance/showable_headers:print", atoi (val));
+			gnome_config_set_int ("/Cronos II/Appareance/showable_headers:print", atoi (val));
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "font_read"))
 		{
 			REPORT (N_("Registering in the new configuration 'font_read'"));
-			gnome_config_set_string ("/cronosII/Fonts/font_read", val);
+			gnome_config_set_string ("/Cronos II/Fonts/font_read", val);
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "font_unread"))
 		{
 			REPORT (N_("Registering in the new configuration 'font_unread'"));
-			gnome_config_set_string ("/cronosII/Fonts/font_unread", val);
+			gnome_config_set_string ("/Cronos II/Fonts/font_unread", val);
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "font_body"))
 		{
 			REPORT (N_("Registering in the new configuration 'font_body'"));
-			gnome_config_set_string ("/cronosII/Fonts/font_body", val);
+			gnome_config_set_string ("/Cronos II/Fonts/font_body", val);
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		} else if (c2_streq (key, "title"))
 		{
 			REPORT (N_("Registering in the new configuration 'app_title'"));
-			gnome_config_set_string ("/cronosII/Appareance/app_title", val);
+			gnome_config_set_string ("/Cronos II/Appareance/app_title", val);
 			g_free (val);
 			REPORT_RESULT (N_("Success."), TRUE);
 		}
@@ -728,63 +728,63 @@ create_new_configuration (void)
 	REPORT_RESULT (N_("Success."), TRUE);
 
 	REPORT (N_("Configuring Cronos II"));
-	gnome_config_set_string ("/cronosII/CronosII/Version", VERSION);
-	gnome_config_set_string ("/cronosII/Mailboxes/0", "");
-	gnome_config_set_string ("/cronosII/Mailboxes/0::Name", MAILBOX_INBOX);
-	gnome_config_set_int ("/cronosII/Mailboxes/0::Id", 0);
-	gnome_config_set_int ("/cronosII/Mailboxes/0::Parent Id", 0);
-	gnome_config_set_string ("/cronosII/Mailboxes/1", "");
-	gnome_config_set_string ("/cronosII/Mailboxes/1::Name", MAILBOX_OUTBOX);
-	gnome_config_set_int ("/cronosII/Mailboxes/1::Id", 1);
-	gnome_config_set_int ("/cronosII/Mailboxes/1::Parent Id", 1);
-	gnome_config_set_string ("/cronosII/Mailboxes/2", "");
-	gnome_config_set_string ("/cronosII/Mailboxes/2::Name", MAILBOX_QUEUE);
-	gnome_config_set_int ("/cronosII/Mailboxes/2::Id", 2);
-	gnome_config_set_int ("/cronosII/Mailboxes/2::Parent Id", 2);
-	gnome_config_set_string ("/cronosII/Mailboxes/3", "");
-	gnome_config_set_string ("/cronosII/Mailboxes/3::Name", MAILBOX_GARBAGE);
-	gnome_config_set_int ("/cronosII/Mailboxes/3::Id", 3);
-	gnome_config_set_int ("/cronosII/Mailboxes/3::Parent Id", 3);
-	gnome_config_set_string ("/cronosII/Mailboxes/4", "");
-	gnome_config_set_string ("/cronosII/Mailboxes/4::Name", MAILBOX_DRAFTS);
-	gnome_config_set_int ("/cronosII/Mailboxes/4::Id", 4);
-	gnome_config_set_int ("/cronosII/Mailboxes/4::Parent Id", 4);
-	gnome_config_set_int ("/cronosII/Address Book/init", C2_INIT_ADDRBOOK_AT_START);
-	gnome_config_set_bool ("/cronosII/Options/empty_garbage", FALSE);
-	gnome_config_set_bool ("/cronosII/Options/check_at_start", FALSE);
-	gnome_config_set_bool ("/cronosII/Options/use_outbox", TRUE);
-	gnome_config_set_bool ("/cronosII/Persistent SMTP/use", FALSE);
-	gnome_config_set_int ("/cronosII/Options/check_timeout", 10);
-	gnome_config_set_int ("/cronosII/Options/message_size_limit", 0);
-	gnome_config_set_int ("/cronosII/Timeout/net", 20);
-	gnome_config_set_int ("/cronosII/Timeout/mark_as_read", 2);
-	gnome_config_set_string ("/cronosII/Options/prepend_character", "> ");
-	gnome_config_set_string ("/cronosII/Colors/reply_original_message", "0x0x65535");
-	gnome_config_set_string ("/cronosII/Colors/misc_body", "0x0x0");
-	gnome_config_set_int ("/cronosII/Appareance/mime_window", C2_MIME_WINDOW_AUTOMATIC);
-	gnome_config_set_int ("/cronosII/Appareance/toolbar", GTK_TOOLBAR_BOTH);
-	gnome_config_set_int ("/cronosII/Appareance/wm_hpan", 120);
-	gnome_config_set_int ("/cronosII/Appareance/wm_vpan", 120);
-	gnome_config_push_prefix ("/cronosII/Appareance/wm_clist::");
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::0", 20);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::1", 10);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::2", 10);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::3", 150);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::4", 150);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::5", 100);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::6", 65);
-	gnome_config_set_int ("/cronosII/Appareance/wm_clist::7", 15);
-	gnome_config_set_int ("/cronosII/Appareance/wm_width", gdk_screen_width ()-40);
-	gnome_config_set_int ("/cronosII/Appareance/wm_height", gdk_screen_height ()-40);
-	gnome_config_set_int ("/cronosII/Appareance/showable_headers:preview", 12);
-	gnome_config_set_int ("/cronosII/Appareance/showable_headers:message", 63);
-	gnome_config_set_int ("/cronosII/Appareance/showable_headers:compose", 61);
-	gnome_config_set_int ("/cronosII/Appareance/showable_headers:save", 0);
-	gnome_config_set_int ("/cronosII/Appareance/showable_headers:print", 0);
-	gnome_config_set_string ("/cronosII/Fonts/font_read", "-b&h-lucida-medium-r-normal-*-*-100-*-*-p-*-iso8859-1");
-	gnome_config_set_string ("/cronosII/Fonts/font_unread", "-b&h-lucida-bold-r-normal-*-*-100-*-*-p-*-iso8859-1");
-	gnome_config_set_string ("/cronosII/Fonts/font_body", "-adobe-times-medium-r-normal-*-*-140-*-*-p-*-iso8859-1");
-	gnome_config_set_string ("/cronosII/Appareance/app_title", "%a v.%v - %M");
+	gnome_config_set_string ("/Cronos II/Cronos II/Version", VERSION);
+	gnome_config_set_string ("/Cronos II/Mailboxes/0", "");
+	gnome_config_set_string ("/Cronos II/Mailboxes/0::Name", MAILBOX_INBOX);
+	gnome_config_set_int ("/Cronos II/Mailboxes/0::Id", 0);
+	gnome_config_set_int ("/Cronos II/Mailboxes/0::Parent Id", 0);
+	gnome_config_set_string ("/Cronos II/Mailboxes/1", "");
+	gnome_config_set_string ("/Cronos II/Mailboxes/1::Name", MAILBOX_OUTBOX);
+	gnome_config_set_int ("/Cronos II/Mailboxes/1::Id", 1);
+	gnome_config_set_int ("/Cronos II/Mailboxes/1::Parent Id", 1);
+	gnome_config_set_string ("/Cronos II/Mailboxes/2", "");
+	gnome_config_set_string ("/Cronos II/Mailboxes/2::Name", MAILBOX_QUEUE);
+	gnome_config_set_int ("/Cronos II/Mailboxes/2::Id", 2);
+	gnome_config_set_int ("/Cronos II/Mailboxes/2::Parent Id", 2);
+	gnome_config_set_string ("/Cronos II/Mailboxes/3", "");
+	gnome_config_set_string ("/Cronos II/Mailboxes/3::Name", MAILBOX_GARBAGE);
+	gnome_config_set_int ("/Cronos II/Mailboxes/3::Id", 3);
+	gnome_config_set_int ("/Cronos II/Mailboxes/3::Parent Id", 3);
+	gnome_config_set_string ("/Cronos II/Mailboxes/4", "");
+	gnome_config_set_string ("/Cronos II/Mailboxes/4::Name", MAILBOX_DRAFTS);
+	gnome_config_set_int ("/Cronos II/Mailboxes/4::Id", 4);
+	gnome_config_set_int ("/Cronos II/Mailboxes/4::Parent Id", 4);
+	gnome_config_set_int ("/Cronos II/Address Book/init", C2_INIT_ADDRBOOK_AT_START);
+	gnome_config_set_bool ("/Cronos II/Options/empty_garbage", FALSE);
+	gnome_config_set_bool ("/Cronos II/Options/check_at_start", FALSE);
+	gnome_config_set_bool ("/Cronos II/Options/use_outbox", TRUE);
+	gnome_config_set_bool ("/Cronos II/Persistent SMTP/use", FALSE);
+	gnome_config_set_int ("/Cronos II/Options/check_timeout", 10);
+	gnome_config_set_int ("/Cronos II/Options/message_size_limit", 0);
+	gnome_config_set_int ("/Cronos II/Timeout/net", 20);
+	gnome_config_set_int ("/Cronos II/Timeout/mark_as_read", 2);
+	gnome_config_set_string ("/Cronos II/Options/prepend_character", "> ");
+	gnome_config_set_string ("/Cronos II/Colors/reply_original_message", "0x0x65535");
+	gnome_config_set_string ("/Cronos II/Colors/misc_body", "0x0x0");
+	gnome_config_set_int ("/Cronos II/Appareance/mime_window", C2_MIME_WINDOW_AUTOMATIC);
+	gnome_config_set_int ("/Cronos II/Appareance/toolbar", GTK_TOOLBAR_BOTH);
+	gnome_config_set_int ("/Cronos II/Appareance/wm_hpan", 120);
+	gnome_config_set_int ("/Cronos II/Appareance/wm_vpan", 120);
+	gnome_config_push_prefix ("/Cronos II/Appareance/wm_clist::");
+	gnome_config_set_int ("/Cronos II/Appareance/wm_clist::0", 20);
+	gnome_config_set_int ("/Cronos II/Appareance/wm_clist::1", 10);
+	gnome_config_set_int ("/Cronos II/Appareance/wm_clist::2", 10);
+	gnome_config_set_int ("/Cronos II/Appareance/wm_clist::3", 150);
+	gnome_config_set_int ("/Cronos II/Appareance/wm_clist::4", 150);
+	gnome_config_set_int ("/Cronos II/Appareance/wm_clist::5", 100);
+	gnome_config_set_int ("/Cronos II/Appareance/wm_clist::6", 65);
+	gnome_config_set_int ("/Cronos II/Appareance/wm_clist::7", 15);
+	gnome_config_set_int ("/Cronos II/Appareance/wm_width", gdk_screen_width ()-40);
+	gnome_config_set_int ("/Cronos II/Appareance/wm_height", gdk_screen_height ()-40);
+	gnome_config_set_int ("/Cronos II/Appareance/showable_headers:preview", 12);
+	gnome_config_set_int ("/Cronos II/Appareance/showable_headers:message", 63);
+	gnome_config_set_int ("/Cronos II/Appareance/showable_headers:compose", 61);
+	gnome_config_set_int ("/Cronos II/Appareance/showable_headers:save", 0);
+	gnome_config_set_int ("/Cronos II/Appareance/showable_headers:print", 0);
+	gnome_config_set_string ("/Cronos II/Fonts/font_read", "-b&h-lucida-medium-r-normal-*-*-100-*-*-p-*-iso8859-1");
+	gnome_config_set_string ("/Cronos II/Fonts/font_unread", "-b&h-lucida-bold-r-normal-*-*-100-*-*-p-*-iso8859-1");
+	gnome_config_set_string ("/Cronos II/Fonts/font_body", "-adobe-times-medium-r-normal-*-*-140-*-*-p-*-iso8859-1");
+	gnome_config_set_string ("/Cronos II/Appareance/app_title", "%a v.%v - %M");
 	gnome_config_sync ();
 	REPORT_RESULT (N_("Success."), TRUE);
 	return TRUE;
