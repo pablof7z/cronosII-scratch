@@ -174,7 +174,7 @@ c2_mailbox_destroy_node (C2Mailbox *mailbox)
 static void
 destroy (GtkObject *object)
 {
-	C2Mailbox *mailbox, *l, *n;
+	C2Mailbox *mailbox;
 
 	mailbox = C2_MAILBOX (object);
 	c2_mailbox_destroy_node (mailbox);
@@ -270,10 +270,9 @@ C2Mailbox *
 c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *parent_id, C2MailboxType type,
 							C2MailboxSortBy sort_by, GtkSortType sort_type, ...)
 {
-	C2Mailbox *value;
+	C2Mailbox *value = NULL;
 	gboolean create_db_struct = TRUE;
 	gchar *id;
-	gint port;
 	va_list edata;
 	
 	c2_return_val_if_fail (name, NULL, C2EDATA);
@@ -462,15 +461,18 @@ c2_mailbox_update (C2Mailbox *mailbox, const gchar *name, const gchar *id, C2Mai
  * Removes a mailbox and all of its children.
  * 
  * TODO: Ability to delete the mailbox with ID "0".
+ * 
+ * Return Value:
+ * TRUE on success, FALSE otherwise
  **/
 gboolean
 c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 {
 	C2Mailbox *parent = NULL, *previous = NULL, *next;
-	gchar *parent_id, *previous_id, *next_id;
+	gchar *parent_id, *previous_id;
 	gint my_id;
 	
-	c2_return_if_fail (mailbox, C2EDATA);
+	c2_return_val_if_fail (mailbox, FALSE, C2EDATA);
 	
 	/* Remove the structure */
 #ifdef USE_ARCHIVER
@@ -571,9 +573,7 @@ c2_mailbox_recreate_tree_ids (C2Mailbox *head)
 static C2Mailbox *
 _c2_mailbox_search_by_id (C2Mailbox *head, const gchar *id, guint level)
 {
-	const gchar *ptr;
 	C2Mailbox *l;
-	gint pos = 0;
 	gint top_id;
 	gint ck_id;
 
@@ -814,7 +814,7 @@ c2_mailbox_get_by_id (C2Mailbox *head, const gchar *id)
 gboolean
 c2_mailbox_load_db (C2Mailbox *mailbox)
 {
-	c2_return_if_fail (mailbox, C2EDATA);
+	c2_return_val_if_fail (mailbox, FALSE, C2EDATA);
 
 	/* Check if it is already loaded */
 	if (mailbox->db)
