@@ -371,9 +371,13 @@ set_headers (C2Mail *mail, C2Message *message)
 		gtk_label_set_text (GTK_LABEL (mail->to_label[1]), "");
 		gtk_label_set_text (GTK_LABEL (mail->cc_label[1]), "");
 		gtk_widget_hide (mail->attachments_button);
+		gtk_widget_hide (mail->headers);
 		gtk_widget_queue_resize (mail->attachments_button->parent);
 		return;
 	}
+
+	if (mail->headers_visible)
+		gtk_widget_show (mail->headers);
 
 	/* Subject */
 	buf = c2_message_get_header_field (message, "Subject:");
@@ -439,20 +443,45 @@ set_headers (C2Mail *mail, C2Message *message)
 	set_headers_attachments (mail, message);
 }
 
+
+void
+c2_mail_set_file (C2Mail *mail, const gchar *path)
+{
+	FILE *fd;
+	gchar *string;
+	
+	c2_return_if_fail (C2_IS_MAIL (mail), C2EDATA);
+
+	if (c2_get_file (path, &string) < 0)
+		return;
+	
+	c2_mail_set_string (mail, string);
+
+	g_free (string);
+}
+
 void
 c2_mail_set_string (C2Mail *mail, const gchar *string)
 {
+	if (!string)
+	{
+		gtk_widget_hide ((GtkWidget*) mail);
+		set_headers (mail, NULL);
+		return;
+	} else
+		gtk_widget_show ((GtkWidget*) mail);
+	
 	if (C2_IS_MESSAGE (mail->message))
 	{
-		gtk_object_unref (GTK_OBJECT (mail->message));
+L		gtk_object_unref (GTK_OBJECT (mail->message));
 	}
-	mail->message = NULL;
+L	mail->message = NULL;
 
-	gtk_object_set_data (GTK_OBJECT (mail->body), "message", NULL);
+L	gtk_object_set_data (GTK_OBJECT (mail->body), "message", NULL);
 	
-	set_headers (mail, NULL);
-	c2_html_set_content_from_string (C2_HTML (mail->body), string);
-}
+L	set_headers (mail, NULL);
+L	c2_html_set_content_from_string (C2_HTML (mail->body), string);
+L}
 
 void
 c2_mail_set_message (C2Mail *mail, C2Message *message)
@@ -466,7 +495,9 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 		gtk_widget_hide ((GtkWidget*) mail);
 		return;
 	} else
+	{
 		gtk_widget_show ((GtkWidget*) mail);
+	}
 
 	if (C2_IS_MESSAGE (mail->message) && message != mail->message)
 		gtk_object_unref (GTK_OBJECT (mail->message));
@@ -504,8 +535,6 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 		}
 	}
 
-	C2_DEBUG (mime->part);
-
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 	if (text_plain && mime)
 		string = interpret_text_plain_symbols (mime->part);
@@ -520,8 +549,6 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 		string = message->mime ? c2_mime_get_part (message->mime) : message->body;
 #endif
 
-	C2_DEBUG (mime->part);
-
 	gtk_object_set_data (GTK_OBJECT (mail->body), "message", message);
 	
 	if (text_plain)
@@ -530,20 +557,14 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 		g_free (string);
 		string = buf;
 	}
-	printf ("string = %d\nmime-> = %d\n", string, mime->part);
 
 	set_headers (mail, message);
-	C2_DEBUG (mime->part);
 	c2_html_set_content_from_string (C2_HTML (mail->body), string);
-
-	C2_DEBUG (mime->part);
 
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
 	if (text_plain)
 		g_free (string);
 #endif
-
-	C2_DEBUG (mime->part);
 }
 
 C2Message *

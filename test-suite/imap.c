@@ -38,7 +38,7 @@ print_imap_tree(C2IMAP *imap, C2Mailbox *parent, gchar *tab)
 	else
 		parent = parent->child;
 	
-	for(ptr = parent; ptr; ptr = ptr->next)
+	for(ptr = parent; ptr != NULL; ptr = ptr->next)
 	{
 		printf("%s%s\n", tab ? tab : "", ptr->name);
 		if(ptr->child)

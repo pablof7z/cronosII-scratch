@@ -2025,6 +2025,8 @@ on_index_select_message_thread (C2Pthread3 *data)
 			const gchar *error;
 	
 			gdk_threads_enter ();
+			printf ("\n\n[ DISPLAYING THE 404 ERROR PAGE ]\n\n");
+			c2_mail_set_file (C2_MAIL (wmain->mail), PKGDATADIR "/message_404.html");
 			error = c2_error_object_get (GTK_OBJECT (node));
 			if (error)
 				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_WARNING,
@@ -2040,7 +2042,7 @@ on_index_select_message_thread (C2Pthread3 *data)
 
 	gdk_threads_enter ();
 	
-	c2_mail_set_message (C2_MAIL (wmain->mail), node->message);
+L	c2_mail_set_message (C2_MAIL (wmain->mail), node->message);
 
 	/* Set some widgets sensivity */
 	xml = C2_WINDOW (wmain)->xml;
@@ -2393,6 +2395,7 @@ on_mlist_object_unselected (C2MailboxList *mlist, C2WindowMain *wmain)
 		GtkWidget *index = wmain->index;
 
 		c2_index_clear (C2_INDEX (index));
+		printf ("[ DOING ON_MLIST_OBJECT_UNSELECTED ]\n");
 		c2_mail_set_message (C2_MAIL (wmain->mail), NULL);
 		c2_mutex_unlock (&wmain->index_lock);
 	}

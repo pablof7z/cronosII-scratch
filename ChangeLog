@@ -3,6 +3,7 @@ Sat Apr  6 Pablo Fernández <sandokan@pablossite.net>
 	* Work on the transfer list and transfer item widgets.
 	* Added support to check on start and for timeout checking
 	  with overlap control.
+	* Fixed a crash in the transfer list.
 
 Fri Apr  5 Pablo Fernández <sandokan@pablossite.net>
 	* Released Cronos II 0.3.0-pre1.

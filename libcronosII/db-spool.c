@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández López
+ *  Copyright (C) 2000-2001 Pablo Fernández
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  * Code of this file by:
- * 		* Pablo Fernández López
+ * 		* Pablo Fernández
  */
 #include <glib.h>
 #include <config.h>
@@ -805,7 +805,7 @@ load_mail (C2Mailbox *mailbox, FILE *spool, gint iPosition, gint iMid)
 	return db;
 }
 
-void
+gboolean
 c2_db_spool_message_add (C2Mailbox *mailbox, C2Db *db)
 {
 	/* We have to let know the object that we are using
@@ -823,15 +823,19 @@ c2_db_spool_message_add (C2Mailbox *mailbox, C2Db *db)
 
 	/* Add to the queue */
 	c2_spool_queue_item_new (mailbox, db, C2_DB_SPOOL_QUEUE_ADD, NULL);
+
+	return TRUE;
 }
 
-void
+gboolean
 c2_db_spool_message_remove (C2Mailbox *mailbox, GList *list)
 {
 	GList *l;
 	
 	for (l = list; l; l = l->next)
 		c2_spool_queue_item_new (mailbox, C2_DB (list->data), C2_DB_SPOOL_QUEUE_REMOVE, NULL);
+
+	return TRUE;
 }
 
 void

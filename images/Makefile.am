@@ -11,6 +11,7 @@ pixmap_DATA = \
 	copy-message.png	\
 	delete.png			\
 	drafts.png			\
+	error_page.png		\
 	exit.png			\
 	filter.png			\
 	find.png			\
@@ -57,7 +58,6 @@ pixmap_DATA = \
 	send-receive.png	\
 	send-receive16.png	\
 	splash.png			\
-	tip_of_the_day.png	\
 	reply-all.png		\
 	reply.png			\
 	unknown-file.png	\

@@ -36,9 +36,6 @@
 static gint
 on_release_information_idle					(gpointer);
 
-static void
-on_window_main_show							(GtkWidget *widget, C2WindowMain *wmain);
-
 gchar *error_list[] =
 {
 	N_("Failed to load message: %s."),
@@ -194,7 +191,6 @@ c2_init (gint argc, gchar **argv)
 gint
 main (gint argc, gchar **argv)
 {
-	GtkWidget *widget;
 	gboolean something_opened = FALSE;
 	gchar *version;
 

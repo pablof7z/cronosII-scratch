@@ -178,12 +178,14 @@ destroy (GtkObject *object)
 {
 	C2TransferItem *ti = C2_TRANSFER_ITEM (object);
 
-	if (!C2_IS_TRANSFER_ITEM (ti))
-		exit (1);
+	if (GTK_IS_WIDGET (ti->popup))
+		gtk_widget_destroy (ti->popup);
 
-	gtk_widget_destroy (ti->popup);
-	gtk_widget_destroy (ti->event);
-	gtk_widget_destroy (ti->table);
+	if (GTK_IS_WIDGET (ti->event))
+		gtk_widget_destroy (ti->event);
+
+	if (GTK_IS_WIDGET (ti->table))
+		gtk_widget_destroy (ti->table);
 
 	if (ti->type == C2_TRANSFER_ITEM_RECEIVE)
 	{

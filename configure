@@ -6436,6 +6436,7 @@ Makefile
 about.html
 bugs.html
 features.html
+message_404.html
 touch.html
 welcome.html
 cronosII.spec
@@ -6641,6 +6642,7 @@ Makefile
 about.html
 bugs.html
 features.html
+message_404.html
 touch.html
 welcome.html
 cronosII.spec
