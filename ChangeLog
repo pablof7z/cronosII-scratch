@@ -4,6 +4,8 @@ Sat Feb 23 Pablo Fernández López <pablo@pablossite.net>
 	  no text/plain part.
 	* Fixed the bug that caused deleted mails to appear
 	  always as unreaded in the Trash mailbox.
+	* Fixed the bug that caused a crash whenever you tried
+	  to send a mail (amazing noone didn't find this before!)
 
 Fri Feb 22 Pablo Fernández López <pablo@pablossite.net>
 	* Fixed some problems at building time.

@@ -397,8 +397,8 @@ _open (C2Composer *composer, C2Message *message, C2Db *db)
 
 static void
 on_open_draft_index_select_message (C2Index *index, C2Db *db, GtkWidget *dialog)
-{
-	if (!c2_db_load_message (db))
+{	
+	if (!db || !c2_db_load_message (db))
 	{
 		gnome_dialog_set_sensitive (GNOME_DIALOG (dialog), 0, FALSE);
 		return;
@@ -592,6 +592,8 @@ send_ (C2Composer *composer, C2ComposerSendType type)
 
 	gdk_threads_enter ();
 	message = create_message (composer);
+	C2_DEBUG (message->header);
+	C2_DEBUG (message->body);
 	gdk_threads_leave ();
 
 	/* Set the Send Now state of the message */
@@ -1896,7 +1898,7 @@ create_message (C2Composer *composer)
 	if (buf1)
 		buf = g_strdup_printf ("From: %s <%s>\n", buf1, account->email);
 	else
-		buf = g_strdup (account->email);
+		buf = g_strdup_printf ("From: %s\n", account->email);
 	g_string_append (header, buf);
 	g_free (buf);
 

@@ -29,7 +29,7 @@
  */
 
 #define MOD		"[Widget] Transfer Item"
-#define DMOD	FALSE
+#define DMOD	TRUE
 
 #define MAX_CHARS_IN_LABEL		33
 #define WIDGET_WIDTH			210
@@ -794,9 +794,10 @@ on_smtp_finished (C2SMTP *smtp, gint id, gboolean success, C2TransferItem *ti)
 											(gpointer) C2_MESSAGE_READED);
 		c2_db_message_add (sent_items, ti->type_info.send.db->message);
 	}
-
-	c2_db_message_remove (outbox, ti->type_info.send.db->position-1);
-		
+L
+	C2_PRINTD (MOD, "remove '%d'\n", ti->type_info.send.db->position-1);
+	c2_db_message_remove (outbox, ti->type_info.send.db);
+L
 
 	gtk_object_unref (GTK_OBJECT (ti->type_info.send.db->message));
 }

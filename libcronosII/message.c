@@ -508,7 +508,7 @@ encode_base64:
 		fprintf (fd, "%s", message->body);
 	}
 
-	return message;
+	//return message;
 	
 	/* Close the tmpfile */
 	fclose (fd);

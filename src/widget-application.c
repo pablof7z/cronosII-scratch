@@ -15,6 +15,12 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández López
+ * Code of this file by:
+ * 		* Pablo Fernández López
+ */
 #include <config.h>
 #include <gnome.h>
 #include <stdio.h>
@@ -911,7 +917,7 @@ _delete_thread (C2Pthread3 *data)
 			c2_db_load_message (db);
 		
 		gtk_object_ref (GTK_OBJECT (db->message));
-		gtk_object_set_data (GTK_OBJECT (db->message), "state", db->state);
+		gtk_object_set_data (GTK_OBJECT (db->message), "state", (gpointer) db->state);
 		if (c2_db_message_add (tmailbox, db->message))
 			c2_db_message_remove (fmailbox, db);
 		gtk_object_unref (GTK_OBJECT (db->message));

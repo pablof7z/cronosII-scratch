@@ -207,8 +207,6 @@ c2_db_new (C2Mailbox *mailbox, gboolean mark, gchar *subject, gchar *from,
 	C2Db *db = NULL;
 	C2Db *last;
 
-	C2_DEBUG (subject);
-
 	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
 	
 	db = gtk_type_new (C2_TYPE_DB);
