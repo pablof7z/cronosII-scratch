@@ -297,7 +297,7 @@ c2_db_create_structure (C2Mailbox *mailbox)
 			func = c2_db_cronosII_create_structure;
 			break;
 		case C2_MAILBOX_IMAP:
-			func = c2_db_imap_create_structure;
+			//func = c2_db_imap_create_structure;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_create_structure;
@@ -330,7 +330,7 @@ c2_db_update_structure (C2Mailbox *mailbox)
 			func = c2_db_cronosII_update_structure;
 			break;
 		case C2_MAILBOX_IMAP:
-			func = c2_db_imap_update_structure;
+			//func = c2_db_imap_update_structure;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_update_structure;
@@ -362,7 +362,7 @@ c2_db_remove_structure (C2Mailbox *mailbox)
 			func = c2_db_cronosII_remove_structure;
 			break;
 		case C2_MAILBOX_IMAP:
-			func = c2_db_imap_remove_structure;
+			//func = c2_db_imap_remove_structure;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_remove_structure;
@@ -398,7 +398,7 @@ c2_db_load (C2Mailbox *mailbox)
 			func = c2_db_cronosII_load;
 			break;
 		case C2_MAILBOX_IMAP:
-			func = c2_db_imap_load;
+			//func = c2_db_imap_load;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_load;
@@ -469,7 +469,7 @@ c2_db_message_add (C2Mailbox *mailbox, C2Message *message)
 			func = c2_db_cronosII_message_add;
 			break;
 		case C2_MAILBOX_IMAP:
-			func = c2_db_imap_message_add;
+			//func = c2_db_imap_message_add;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_message_add;
@@ -623,7 +623,7 @@ c2_db_message_remove (C2Mailbox *mailbox, GList *list)
 			func = c2_db_cronosII_message_remove;
 			break;
 		case C2_MAILBOX_IMAP:
-			func = c2_db_imap_message_remove;
+			//func = c2_db_imap_message_remove;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_message_remove;
@@ -691,7 +691,7 @@ c2_db_message_set_state (C2Db *db, C2MessageState state)
 			func = c2_db_cronosII_message_set_state;
 			break;
 		case C2_MAILBOX_IMAP:
-			func = c2_db_imap_message_set_state;
+			//func = c2_db_imap_message_set_state;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_message_set_state;
@@ -726,7 +726,7 @@ c2_db_message_set_mark (C2Db *db, gboolean mark)
 			func = c2_db_cronosII_message_set_mark;
 			break;
 		case C2_MAILBOX_IMAP:
-			func = c2_db_imap_message_set_mark;
+			//func = c2_db_imap_message_set_mark;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_message_set_mark;
@@ -754,7 +754,7 @@ c2_db_load_message (C2Db *db)
 			func = c2_db_cronosII_load_message;
 			break;
 		case C2_MAILBOX_IMAP:
-			func = c2_db_imap_load_message;
+			//func = c2_db_imap_load_message;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_load_message;
