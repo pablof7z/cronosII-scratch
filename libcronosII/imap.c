@@ -647,6 +647,7 @@ c2_imap_mailbox_loop(C2IMAP *imap, C2Mailbox *parent)
 					folder->protocol.IMAP.noinferiors = noinferiors;
 					folder->protocol.IMAP.noselect = noselect;
 					folder->protocol.IMAP.marked = marked;
+					c2_db_load(folder);
 					if(!folder->protocol.IMAP.noinferiors)
 						if(c2_imap_mailbox_loop(imap, folder) < 0)
 							return -1;
@@ -737,6 +738,17 @@ c2_imap_get_full_mailbox_name (C2IMAP *imap, C2Mailbox *mailbox)
 	return name;
 }
 
+/** c2_imap_load_mailbox
+ * 
+ * @imap: A locked IMAP object
+ * @mailbox: The mailbox to be loaded
+ * 
+ * Loads a linked list of C2Db's to represent
+ * the messages present in the mailbox.
+ * 
+ * Return Value:
+ * 0 on success, -1 otherwise
+ **/
 gint
 c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 {
@@ -745,10 +757,35 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 	 *  (2) Build C2Db linked list according to messages 
 	 *  (done!) (3) Close box 
 	 **/
+	tag_t tag;
+	gint messages;
+	gchar *reply;
 	
-	if(c2_imap_select_mailbox(imap, mailbox) < 0)
+	if((messages = c2_imap_select_mailbox(imap, mailbox)) < 0)
 		return -1;
-	if(c2_imap_close_mailbox(imap) < 0)
+	
+	if(messages == 0)
+		goto CLOSE;
+	
+	tag = c2_imap_get_tag(imap);
+	
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d FETCH 1:* "
+			"(FLAGS BODY[HEADER.FIELDS (SUBJECT FROM DATE)])\r\n", tag) < 0)
+	{
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		return -1;
+	}
+	
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
+		return -1;
+	
+	printf("received %s\n", reply);
+	/* TODO */
+	
+	g_free(reply);
+	
+CLOSE:
+	 if(c2_imap_close_mailbox(imap) < 0)
 		return -1;
 	
 	return 0;
@@ -821,8 +858,9 @@ c2_imap_select_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 	g_free(line);
 	
 	imap->state = C2IMAPSelected;
+	imap->selected_mailbox = mailbox;
 	g_free(reply);
-	return 0;
+	return retval;
 }
 
 /**
@@ -865,6 +903,7 @@ c2_imap_close_mailbox (C2IMAP *imap)
 	}
 	
 	imap->state = C2IMAPAuthenticated;
+	imap->selected_mailbox = NULL;
 	g_free(reply);
 	return 0;
 }

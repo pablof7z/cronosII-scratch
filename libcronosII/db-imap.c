@@ -65,10 +65,11 @@ gint
 c2_db_imap_load (C2Mailbox *mailbox)
 {
 	C2IMAP *imap = mailbox->protocol.IMAP.imap;
-	gint retval, trylock;
+	gint retval = 0, trylock;
 	
 	trylock = c2_mutex_trylock(&imap->lock);
-	retval = c2_imap_load_mailbox(mailbox->protocol.IMAP.imap, mailbox);
+	if(!mailbox->protocol.IMAP.noselect)
+		retval = c2_imap_load_mailbox(mailbox->protocol.IMAP.imap, mailbox);
 	if(trylock == 0)
 		c2_mutex_unlock(&imap->lock);
 	
