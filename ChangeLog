@@ -1,3 +1,8 @@
+Mon Dec 24 Bosko Blagojevic <falling@users.sourceforge.net>
+	* Added a feature that will not let an SMTP object be
+	  destroyed until all network sockets are closed.
+	* Fixed another bare LF bug in SMTP.
+
 Sat Dec 22 Pablo Fernández Navarro <cronosII@users.sf.net>
 	* Converted the widget dialog-network-traffic to
 	  network-traffic.
