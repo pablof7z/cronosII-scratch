@@ -1,3 +1,7 @@
+Tue Jul 23 Bosko Blagojevic
+	* Small change in libcronosII/db-cronosII.c fixed BIG bug
+	  on *bsd systesm's libc. (opening files w/ wrong mode)
+
 Mon Jul 22 Daniel Fairhead
 	* Split utils.h
 	* Fixed a few things in (now renamed *again*) c2_str_html_to_text :)
