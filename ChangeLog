@@ -6,6 +6,14 @@ Tue Sep 20 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* Work with the Transfer Item widget.
 	* Fixed bug that made the DB-Cronos II to give the same MID
 	  to all messages.
+	* Fixed the crash when the POP3 password was incorrect,
+	  now being able to use a dynamic password for tring to log in.
+	* Fixed the bug in the Net Object that made it to be broken for
+	  more than one use.
+	* Fixed the bug that caused a crash when unselecting a 0 length
+	  mailbox.
+	* Fixed the bugs (3 bugs) that caused the status to act weird
+	  when displaying the number of messages.
 
 Sun Sep 16 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Sending MIME attachments via SMTP seems to be stable now
