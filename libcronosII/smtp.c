@@ -613,7 +613,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 			if(start == ptr && contents == message->header)
 			{
 				/* if this is the BCC  and C2 internal headers, don't send them! */
-				if(c2_strneq(ptr, "BCC: ", 4) || c2_strneq(ptr, "X-C2", 4)) 
+				if(c2_strneq(ptr, "BCC: ", 4) || c2_strneq(ptr, "X-CronosII", 4)) 
 				{
 					for( ; *ptr != '\n'; ptr++) sent++;
 					sent++;
