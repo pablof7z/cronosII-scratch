@@ -37,10 +37,29 @@ init										(C2Editor *editor);
 #ifdef USE_ADVANCED_EDITOR
 
 static gboolean
+on_editor_check_word						(GtkHTML *html, const gchar *word, gpointer data);
+
+static void
+on_editor_suggestion_request				(GtkHTML *html, const gchar *word, gpointer data);
+
+static void
+on_editor_add_to_session					(GtkHTML *html, const gchar *word, gpointer data);
+
+static void
+on_editor_add_to_personal					(GtkHTML *html, const gchar *word, gpointer data);
+
+static void
+on_editor_set_language						(GtkHTML *html, const gchar *language, gpointer data);
+
+static GtkArg *
+on_editor_event								(GtkHTML *html, GtkHTMLEditorEventType event_type,
+											 GtkArg **args, gpointer data);
+
+static gboolean
 on_editor_command							(GtkHTML *html, GtkHTMLCommandType com_type, C2Editor *editor);
 
 static GtkWidget *
-on_editor_create_input_line					(GtkHTML *html, C2Editor *editor);
+on_editor_create_input_line					(GtkHTML *html, gpointer data);
 
 #else
 
@@ -211,8 +230,16 @@ c2_editor_new (void)
 #warning
 #warning
 	
+	memset (&editor_api, 0, sizeof (editor_api));
+	
+	editor_api.check_word = on_editor_check_word;
+	editor_api.suggestion_request = on_editor_suggestion_request;
+	editor_api.add_to_personal = on_editor_add_to_personal;
+	editor_api.add_to_session = on_editor_add_to_session;
+	editor_api.event = on_editor_event;
 	editor_api.command = on_editor_command;
 	editor_api.create_input_line = on_editor_create_input_line;
+	
 	gtk_html_set_editor_api (GTK_HTML (editor->text), &editor_api, GTK_HTML (editor->text)->frame);
 #else
 	editor->insert_signal =
@@ -231,18 +258,100 @@ c2_editor_new (void)
 /* Advanced editor functions */
 
 static gboolean
+on_editor_check_word (GtkHTML *html, const gchar *word, gpointer data)
+{
+	L
+	return TRUE;
+}
+
+static void
+on_editor_suggestion_request (GtkHTML *html, const gchar *word, gpointer data)
+{
+	L
+}
+
+static void
+on_editor_add_to_session (GtkHTML *html, const gchar *word, gpointer data)
+{
+	L
+}
+
+static void
+on_editor_add_to_personal (GtkHTML *html, const gchar *word, gpointer data)
+{
+	L
+}
+
+static void
+on_editor_set_language (GtkHTML *html, const gchar *language, gpointer data)
+{
+	L
+}
+
+static GtkArg *
+on_editor_event (GtkHTML *html, GtkHTMLEditorEventType event_type, GtkArg **args, gpointer data)
+{
+	L
+#if 0
+		GtkHTMLControlData *cd = (GtkHTMLControlData *) data;
+	GtkArg *gtk_retval = NULL;
+
+	/* printf ("editor_api_event\n"); */
+
+	if (cd->editor_bonobo_engine) {
+		GNOME_GtkHTML_Editor_Engine engine;
+		GNOME_GtkHTML_Editor_Listener listener;
+		CORBA_Environment ev;
+
+		CORBA_exception_init (&ev);
+		engine = bonobo_object_corba_objref (BONOBO_OBJECT (cd->editor_bonobo_engine));
+
+		if (engine != CORBA_OBJECT_NIL
+		    && (listener = GNOME_GtkHTML_Editor_Engine__get_listener (engine, &ev)) != CORBA_OBJECT_NIL) {
+
+			switch (event_type) {
+			case GTK_HTML_EDITOR_EVENT_COMMAND_BEFORE:
+				gtk_retval = send_event_str (engine, listener, "command_before", args [0]);
+				break;
+			case GTK_HTML_EDITOR_EVENT_COMMAND_AFTER:
+				gtk_retval = send_event_str (engine, listener, "command_after", args [0]);
+				break;
+			case GTK_HTML_EDITOR_EVENT_IMAGE_URL:
+				gtk_retval = send_event_str (engine, listener, "image_url", args [0]);
+				break;
+			case GTK_HTML_EDITOR_EVENT_DELETE:
+				send_event_void (engine, listener, "delete");
+				break;
+			default:
+				g_warning ("Unsupported event.\n");
+			}
+			CORBA_exception_free (&ev);
+		}
+	}
+	return gtk_retval;
+#endif
+}
+
+static gboolean
 on_editor_command (GtkHTML *html, GtkHTMLCommandType com_type, C2Editor *editor)
 {
+	L
 	printf ("An event of the editor occured: number %d\n", com_type);
 
 	return TRUE;
 }
 
 static GtkWidget *
-on_editor_create_input_line (GtkHTML *html, C2Editor *editor)
+on_editor_create_input_line (GtkHTML *html, gpointer data)
 {
-	printf ("%s\n", __PRETTY_FUNCTION__);
-	return NULL;
+//	GtkHTMLControlData *cd = (GtkHTMLControlData *) data;
+	GtkWidget *entry;
+L
+	entry = gtk_entry_new ();
+//	gtk_box_pack_end (GTK_BOX (cd->vbox), entry, FALSE, FALSE, 0);
+	gtk_widget_show (entry);
+
+	return entry;
 }
 
 #else /* Advanced/Simple functions */

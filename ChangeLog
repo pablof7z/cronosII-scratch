@@ -1,3 +1,11 @@
+Sun Jul 14 Pablo Fernández
+	* Fixed the crash when closing the main window using the window manager.
+
+Sat Jul 13 Pablo Fernández
+	* Fixed a bug when saving temporal attachments with blank spaces.
+	* Fixed a bug with the account editor in the signature stuff.
+	* Fixed a bug that crashed c2 when emptying trash.
+
 Sat Jun 29 Pablo Fernández
 	* Added more actions to the transfer item popup.
 

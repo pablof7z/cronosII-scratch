@@ -53,8 +53,8 @@ class_init									(C2WindowMainClass *klass);
 static void
 init										(C2WindowMain *wmain);
 
-static void
-destroy										(GtkObject *obj);
+static gint
+delete_event								(GtkWidget *widget, GdkEventAny *e, GtkWidget *window);
 
 static void
 check										(C2WindowMain *wmain);
@@ -545,10 +545,12 @@ init (C2WindowMain *wmain)
 	c2_mutex_init (&wmain->body_lock);
 }
 
-static void
-destroy (GtkObject *obj)
+static gint
+delete_event (GtkWidget *widget, GdkEventAny *e, GtkWidget *window)
 {
-	C2_WINDOW_MAIN_CLASS_FW (obj)->close (C2_WINDOW_MAIN (obj));
+	C2_WINDOW_MAIN_CLASS_FW (window)->close (C2_WINDOW_MAIN (window));
+
+	return FALSE;
 }
 
 GtkWidget *
@@ -585,8 +587,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	c2_window_construct (C2_WINDOW (wmain), application, "Cronos II", "wmain", NULL);
 	gtk_signal_connect (GTK_OBJECT (application), "window_changed",
 						GTK_SIGNAL_FUNC (on_application_window_changed), wmain);
-	gtk_signal_connect (GTK_OBJECT (wmain), "destroy",
-						GTK_SIGNAL_FUNC (destroy), wmain);
+	gtk_signal_connect (GTK_OBJECT (wmain), "delete_event",
+						GTK_SIGNAL_FUNC (delete_event), wmain);
 
 	C2_WINDOW (wmain)->xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "wnd_main_contents");
 	c2_window_set_contents_from_glade (C2_WINDOW (wmain), "wnd_main_contents");
@@ -917,11 +919,13 @@ check (C2WindowMain *wmain)
 static void
 close_ (C2WindowMain *wmain)
 {
-	C2Application *application = C2_WINDOW (wmain)->application;
+	C2Application *application;
 	GtkWidget *widget;
 
-	if (!GTK_IS_OBJECT (wmain->mlist))
+	if (!GTK_IS_OBJECT (wmain->mlist) || !C2_IS_WINDOW (wmain))
 		return;
+
+	application = C2_WINDOW (wmain)->application;
 
 	widget = glade_xml_get_widget (C2_WINDOW (wmain)->xml, "hpaned");
 	c2_preferences_set_window_main_hpaned (GTK_PANED (widget)->child1_size);
@@ -938,7 +942,10 @@ close_ (C2WindowMain *wmain)
 	gtk_object_destroy (GTK_OBJECT (wmain->toolbar));
 	gtk_object_destroy (GTK_OBJECT (wmain->toolbar_menu));
 	gtk_object_destroy (GTK_OBJECT (wmain->mlist));
-	gtk_object_destroy (GTK_OBJECT (wmain));
+	gtk_object_destroy (GTK_OBJECT (wmain->index));
+	gtk_object_destroy (GTK_OBJECT (C2_WINDOW (wmain)->xml));
+	c2_mutex_destroy (&wmain->index_lock);
+	c2_mutex_destroy (&wmain->body_lock);
 }
 
 static void

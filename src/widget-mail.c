@@ -421,7 +421,6 @@ on_attachments_mime_activate (GtkWidget *btn, C2Mail *mail)
 	buf = g_strdup_printf ("%s%s%s", dir,
 							(*(dir+(strlen (dir)-1)) == G_DIR_SEPARATOR) ? "" : G_DIR_SEPARATOR_S, filename);
 	gnome_file_entry_set_default_path (GNOME_FILE_ENTRY (widget), buf);
-	C2_DEBUG (buf);
 	g_free (buf);
 	g_free (dir);
 
@@ -476,7 +475,7 @@ rerun:
 			} else
 			{
 				gchar *cmnd;
-				gchar *path;
+				gchar *path, *filename, *filename2;
 				gchar *buf2;
 				FILE *fd;
 
@@ -486,7 +485,19 @@ rerun:
 				if (!cmnd)
 					goto rerun;
 
-				path = c2_get_tmp_file (NULL);
+				/* Try to get the filename */
+				filename = c2_mime_get_parameter_value (mime->disposition, "filename");
+				if (filename && !strlen (filename))
+				{
+					g_free (filename);
+					filename = NULL;
+				}
+				filename2 = c2_str_replace_all (filename, " ", "_");
+				g_free (filename);
+				filename = c2_str_replace_all (filename2, "/", "\\/");
+				g_free (filename2);
+				
+				path = c2_get_tmp_file (filename);
 				
 				if (!(fd = fopen (path, "wb")))
 				{
@@ -498,10 +509,10 @@ rerun:
 					fclose (fd);
 
 					buf = c2_str_replace_all (cmnd, "%f", path);
-					if (!(gnome_mime_needsterminal (mime_type, program) || c2_strne (program, cmnd)))
+					if (!(gnome_mime_needsterminal (mime_type, program)))
 						buf2 = g_strdup_printf ("%s &", buf);
 					else
-						buf2 = g_strdup_printf ("gnome-terminal -x %s &", buf);
+						buf2 = g_strdup_printf ("gnome-terminal -x \"%s\" &", buf);
 					system (buf2);
 					g_free (buf);
 					g_free (buf2);

@@ -458,7 +458,7 @@ _init:
 					type = GTK_TYPE_STRING;
 					break;
 				case C2_ACCOUNT_KEY_SIGNATURE_PLAIN:
-					buf = "options_signature plain";
+					buf = "options_signature_plain";
 					type = GTK_TYPE_STRING;
 					break;
 				case C2_ACCOUNT_KEY_SIGNATURE_HTML:
@@ -1521,7 +1521,6 @@ _empty_trash_thread (C2Pthread2 *data)
 
 	/* Get the length */
 	length = c2_db_length (mailbox);
-	printf ("length = %d\n", length);
 
 	/* Get the appbar */
 	if (window)
@@ -1560,8 +1559,6 @@ _empty_trash_thread (C2Pthread2 *data)
 	c2_db_freeze (mailbox);
 	for (db = mailbox->db;;)
 	{
-		C2Db *db;
-
 		c2_db_message_remove (mailbox, db);
 
 		if (progress_ownership)
@@ -1614,6 +1611,7 @@ _empty_trash (C2Application *application, C2Window *window)
 	c2_application_window_remove (application, GTK_WINDOW (dialog));
 	gtk_widget_destroy (dialog);
 	gtk_object_destroy (GTK_OBJECT (xml));
+	
 
 	if (!empty_trash)
 		return;

@@ -1828,10 +1828,10 @@ c2_dialog_preferences_account_editor_new (C2Application *application, C2DialogPr
 
 		/* Signature */
 		widget = glade_xml_get_widget (xml, "options_signature_plain");
-		gnome_file_entry_set_default_path (GNOME_FILE_ENTRY (widget),
+		gtk_entry_set_text (GTK_ENTRY (gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (widget))),
 						(gchar*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_SIGNATURE_PLAIN, NULL));
 		widget = glade_xml_get_widget (xml, "options_signature_html");
-		gnome_file_entry_set_default_path (GNOME_FILE_ENTRY (widget),
+		gtk_entry_set_text (GTK_ENTRY (gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (widget))),
 						(gchar*) c2_account_get_extra_data (account, C2_ACCOUNT_KEY_SIGNATURE_HTML, NULL));
 
 		/* Automatically check */

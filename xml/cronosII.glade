@@ -1041,7 +1041,7 @@
 	<widget>
 	  <class>GtkButton</class>
 	  <name>button133</name>
-	  <relief>GTK_RELIEF_NORMAL</relief>
+	  <relief>GTK_RELIEF_NONE</relief>
 	  <child>
 	    <padding>0</padding>
 	    <expand>False</expand>
@@ -1245,6 +1245,7 @@ is equal to
 	<class>GtkHPaned</class>
 	<child_name>GnomeDock:contents</child_name>
 	<name>hpaned</name>
+	<border_width>4</border_width>
 	<handle_size>10</handle_size>
 	<gutter_size>10</gutter_size>
 	<position>0</position>
@@ -1307,6 +1308,7 @@ is equal to
 
       <widget>
 	<class>GnomeAppBar</class>
+	<child_name>GnomeDock:contents</child_name>
 	<name>appbar</name>
 	<has_progress>True</has_progress>
 	<has_status>True</has_status>
