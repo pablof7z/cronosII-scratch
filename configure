@@ -760,7 +760,7 @@ fi
 
 PACKAGE=cronosII-scratch
 
-VERSION=0.0.1
+VERSION=0.0.2
 
 if test "`cd $srcdir && pwd`" != "`pwd`" && test -f $srcdir/config.status; then
   { echo "configure: error: source directory already configured; run "make distclean" there first" 1>&2; exit 1; }
@@ -5954,6 +5954,8 @@ EOF
 cat >> confdefs.h <<EOF
 #define C2_PLUGIN_VERSION_MICRO $C2_PLUGIN_VERSION_MICRO
 EOF
+
+
 
 
 

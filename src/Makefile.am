@@ -31,13 +31,8 @@ cronos_LDFLAGS = \
 
 EXTRA_DIST = \
 	README.FAQ			\
-	xpm/forward.xpm		\
-	xpm/mark.xpm		\
 	xpm/mini_about.xpm	\
 	xpm/mini_error.xpm	\
 	xpm/new.xpm			\
-	xpm/read.xpm		\
-	xpm/reply.xpm		\
-	xpm/unread.xpm		\
 	preferences-trans.h	\
 	trans.h

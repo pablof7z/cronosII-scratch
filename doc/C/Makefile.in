@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Makefile.in generated automatically by automake 1.4a from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -46,9 +46,10 @@ AUTOMAKE = @AUTOMAKE@
 AUTOHEADER = @AUTOHEADER@
 
 INSTALL = @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
+INSTALL_STRIP_FLAG =
 transform = @program_transform_name@
 
 NORMAL_INSTALL = :
@@ -134,7 +135,7 @@ cronosII_helpdir = $(datadir)/gnome/help/cronosII/C
 cronosII_help_DATA =          topic.dat
 
 
-SGML_FILES =  	addressbook.sgml		authors.sgml		bugs.sgml		cronosII.sgml		gtk-brief.sgml		latest.sgml		plugins.sgml		shortcuts_table.sgml
+SGML_FILES =          cronosII.sgml
 
 
 # files that aren't in a binary/data/library target have to be listed here
@@ -198,7 +199,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
@@ -223,12 +224,12 @@ install-data: install-data-am
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am: uninstall-cronosII_helpDATA uninstall-local
+uninstall-am: uninstall-cronosII_helpDATA
 uninstall: uninstall-am
 all-am: Makefile $(DATA)
 all-redirect: all-am
 install-strip:
-	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+	$(MAKE) $(AM_MAKEFLAGS) INSTALL_STRIP_FLAG=-s install
 installdirs:
 	$(mkinstalldirs)  $(DESTDIR)$(cronosII_helpdir)
 
@@ -264,37 +265,29 @@ maintainer-clean: maintainer-clean-am
 .PHONY: uninstall-cronosII_helpDATA install-cronosII_helpDATA tags \
 distdir info-am info dvi-am dvi check check-am installcheck-am \
 installcheck install-exec-am install-exec install-data-local \
-install-data-am install-data install-am install uninstall-local \
-uninstall-am uninstall all-redirect all-am all installdirs \
-mostlyclean-generic distclean-generic clean-generic \
-maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
 
 
-all:
+all: cronosII/index.html
 
-distclean: distclean-am
-	-rm -rf cronosII
-	-rm -rf cronosII.junk
-
-cronosII/book1.html: $(SGML_FILES)
+cronosII/index.html: $(SGML_FILES)
 	-db2html cronosII.sgml
 
-dist-hook: cronosII/book1.html
-	mkdir -p $(distdir)/cronosII
+dist-hook:
+	mkdir $(distdir)/cronosII
 	-cp cronosII/*.html cronosII/*.css $(distdir)/cronosII
-	mkdir -p $(distdir)/cronosII/stylesheet-images
+	mkdir $(distdir)/cronosII/stylesheet-images
 	-cp cronosII/stylesheet-images/* $(distdir)/cronosII/stylesheet-images/
 
-install-data-local: cronosII/book1.html
+install-data-local: cronosII/index.html
 	$(mkinstalldirs) $(cronosII_helpdir)/images
 	-for file in $(srcdir)/cronosII/*.html $(srcdir)/cronosII/*.css $(srcdir)/cronosII/stylesheet-images/*; do \
 	basefile=`basename $$file`; \
 	$(INSTALL_DATA) $(srcdir)/$$file $(cronosII_helpdir)/$$basefile; \
 	done
-	-ln -fs `basename $(cronosII_helpdir)/book1.html` $(DESTDIR)$(cronosII_helpdir)/index.html
-
-uninstall-local:
-	rm -rf $(DESTDIR)$(cronosII_helpdir)
 
 cronosII.ps: cronosII.sgml
 	-db2ps $<

@@ -24,8 +24,6 @@
 #include "widget-index.h"
 #include "main-window.h"
 
-#include "xpm/unread.xpm"
-
 static void
 c2_index_init									(C2Index *index);
 
@@ -34,6 +32,9 @@ c2_index_class_init								(C2IndexClass * klass);
 
 static void
 on_index_click_column							(GtkCList *clist, gint column, gpointer data);
+
+static void
+sort											(C2Index *index);
 
 static void
 select_row										(C2Index *index, gint row, gint column, GdkEvent *event);
@@ -226,7 +227,7 @@ c2_index_init (C2Index *index)
 		switch (i)
 		{
 			case 0:
-				label = gnome_pixmap_new_from_xpm_d (unread_xpm); break;
+				i++;
 			case 1:
 				label = gtk_label_new (NULL); break;
 			case 2:
@@ -256,7 +257,7 @@ c2_index_init (C2Index *index)
     gtk_signal_connect (GTK_OBJECT (index), "click_column",
 		       GTK_SIGNAL_FUNC(on_index_click_column), NULL);
 
-	pixmap = gtk_pixmap_new (c2_app.pixmap_unread, c2_app.mask_unread);
+	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/unread.png");
 	gtk_clist_set_column_widget (clist, 0, pixmap);
 	
     gtk_clist_set_column_width (clist, 0, c2_app.rc_clist[0]);
@@ -340,6 +341,15 @@ c2_index_add_mailbox (C2Index *index, C2Mailbox *mbox)
 		gtk_clist_set_row_data (clist, clist->rows-1, db);
 	}
 	gtk_clist_thaw (clist);
+	index->mbox = mbox;
+}
+
+void
+c2_index_sort (C2Index *index)
+{
+	gtk_clist_freeze (GTK_CLIST (index));
+	sort (index);
+	gtk_clist_thaw (GTK_CLIST (index));
 }
 
 void
@@ -360,6 +370,44 @@ select_row (C2Index *index, gint row, gint column, GdkEvent *event)
 	/* Get the Db node */
 	if ((node = C2_DB (gtk_clist_get_row_data (GTK_CLIST (GTK_WIDGET (index)), row))))
 		gtk_signal_emit (GTK_OBJECT (index), c2_index_signals[SELECT_MESSAGE], node);
+}
+
+static gint
+date_compare (GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
+{
+	printf ("%d %s\n", ((GtkCListCellInfo*) ptr1)->row, ptr2);
+	return 0;
+}
+
+static gint
+string_compare (GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
+{
+	printf ("%s %s\n", ptr1, ptr2);
+	return 0;
+}
+
+static void
+sort (C2Index *index)
+{
+	GtkCList *clist = GTK_CLIST (index);
+
+	gtk_clist_set_sort_type (clist, index->mbox->sort_type);
+
+	switch (index->mbox->sort_by)
+	{
+		case C2_MAILBOX_SORT_STATUS:
+#ifdef USE_DEBUG
+			g_print ("Sorting by status has not been coded yet.\n");
+#endif
+			break;
+		case C2_MAILBOX_SORT_DATE:
+			gtk_clist_set_compare_func (clist, date_compare);
+			break;
+		default:
+			gtk_clist_set_compare_func(clist, string_compare);
+	}
+	
+	gtk_clist_sort (clist);
 }
 
 static void

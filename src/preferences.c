@@ -150,6 +150,7 @@ c2_preferences_new (void)
 	GtkWidget *fonts_message_body;
 	GtkWidget *fonts_unreaded_message;
 	GtkWidget *fonts_readed_message;
+	GtkWidget *fonts_unreaded_mailbox;
 	GtkWidget *fonts_source;
 	
 	GtkWidget *colors_replying_original_message;
@@ -389,6 +390,11 @@ c2_preferences_new (void)
 	/* fonts_readed_message */
 	fonts_readed_message = glade_xml_get_widget (preferences_xml, "fonts_readed_message");
 	gnome_font_picker_set_font_name (GNOME_FONT_PICKER (fonts_readed_message), c2_app.fonts_readed_message);
+
+	/* fonts_unreaded_mailbox */
+	fonts_unreaded_mailbox = glade_xml_get_widget (preferences_xml, "fonts_unreaded_mailbox");
+	gnome_font_picker_set_font_name (GNOME_FONT_PICKER (fonts_unreaded_mailbox),
+										c2_app.fonts_unreaded_mailbox);
 	
 	/* fonts_source */
 	fonts_source = glade_xml_get_widget (preferences_xml, "fonts_source");
@@ -525,6 +531,7 @@ c2_preferences_new (void)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (advanced_use_internal_browser),
 									c2_app.advanced_use_internal_browser);
 	
+	c2_app_register_window (GTK_WINDOW (dialog));
 	gtk_widget_show (dialog);
 }
 
@@ -729,12 +736,14 @@ on_apply_btn_clicked (void)
 		GtkWidget *message_body = glade_xml_get_widget (preferences_xml, "fonts_message_body");
 		GtkWidget *unreaded_message = glade_xml_get_widget (preferences_xml, "fonts_unreaded_message");
 		GtkWidget *readed_message = glade_xml_get_widget (preferences_xml, "fonts_readed_message");
+		GtkWidget *unreaded_mailbox = glade_xml_get_widget (preferences_xml, "fonts_unreaded_mailbox");
 		GtkWidget *source = glade_xml_get_widget (preferences_xml, "fonts_source");
 		gchar *selection;
 		
 		g_free (c2_app.fonts_message_body);
 		g_free (c2_app.fonts_unreaded_message);
 		g_free (c2_app.fonts_readed_message);
+		g_free (c2_app.fonts_unreaded_mailbox);
 
 		c2_app.fonts_message_body = g_strdup (gnome_font_picker_get_font_name (
 												GNOME_FONT_PICKER (message_body)));
@@ -742,6 +751,8 @@ on_apply_btn_clicked (void)
 												GNOME_FONT_PICKER (unreaded_message)));
 		c2_app.fonts_readed_message = g_strdup (gnome_font_picker_get_font_name (
 												GNOME_FONT_PICKER (readed_message)));
+		c2_app.fonts_unreaded_mailbox = g_strdup (gnome_font_picker_get_font_name (
+												GNOME_FONT_PICKER (unreaded_mailbox)));
 
 		gdk_font_unref (c2_app.fonts_gdk_message_body);
 		c2_app.fonts_gdk_message_body = gnome_font_picker_get_font (GNOME_FONT_PICKER (message_body));
@@ -749,6 +760,8 @@ on_apply_btn_clicked (void)
 		c2_app.fonts_gdk_unreaded_message = gnome_font_picker_get_font (GNOME_FONT_PICKER (unreaded_message));
 		gdk_font_unref (c2_app.fonts_gdk_readed_message);
 		c2_app.fonts_gdk_readed_message = gnome_font_picker_get_font (GNOME_FONT_PICKER (readed_message));
+		gdk_font_unref (c2_app.fonts_gdk_unreaded_mailbox);
+		c2_app.fonts_gdk_unreaded_mailbox = gnome_font_picker_get_font (GNOME_FONT_PICKER (unreaded_mailbox));
 
 		if (GTK_BIN (source)->child)
 		{
@@ -767,6 +780,7 @@ on_apply_btn_clicked (void)
 		gnome_config_set_string ("/cronosII/Fonts/message_body", c2_app.fonts_message_body);
 		gnome_config_set_string ("/cronosII/Fonts/unreaded_message", c2_app.fonts_unreaded_message);
 		gnome_config_set_string ("/cronosII/Fonts/readed_message", c2_app.fonts_readed_message);
+		gnome_config_set_string ("/cronosII/Fonts/unreaded_mailbox", c2_app.fonts_unreaded_mailbox);
 		gnome_config_set_int ("/cronosII/Fonts/source", c2_app.fonts_source);
 	}
 	{ /* Colors */
@@ -859,11 +873,14 @@ on_apply_btn_clicked (void)
 	}
 	
 	gnome_config_sync ();
+	c2_mailbox_tree_fill (c2_app.mailbox, NULL, glade_xml_get_widget (WMain.xml, "ctree"),
+							glade_xml_get_widget (WMain.xml, "wnd_main"));
 }
 
 static void
 on_cancel_btn_clicked (void)
 {
+	GtkWidget *dialog = glade_xml_get_widget (preferences_xml, "dlg_preferences");
 	GtkCList *clist = GTK_CLIST (glade_xml_get_widget (preferences_xml, "accounts_clist"));
 	C2Account *account;
 	gint i;
@@ -875,7 +892,8 @@ on_cancel_btn_clicked (void)
 		gtk_object_unref (GTK_OBJECT (account));
 	}
 */	
-	gnome_dialog_close (GNOME_DIALOG (glade_xml_get_widget (preferences_xml, "dlg_preferences")));
+	c2_app_unregister_window (GTK_WINDOW (dialog));
+	gnome_dialog_close (GNOME_DIALOG (dialog));
 }
 
 static void

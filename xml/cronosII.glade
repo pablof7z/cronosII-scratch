@@ -62,13 +62,11 @@
       <widget>
 	<class>GtkMenuBar</class>
 	<name>menubar</name>
-	<tooltip>The Text Menu Bar</tooltip>
 	<shadow_type>GTK_SHADOW_NONE</shadow_type>
 
 	<widget>
 	  <class>GtkMenuItem</class>
 	  <name>file</name>
-	  <tooltip>The File Menu.</tooltip>
 	  <stock_item>GNOMEUIINFO_MENU_FILE_TREE</stock_item>
 
 	  <widget>
@@ -87,7 +85,6 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_new_message</name>
-		  <tooltip>Compose a new message</tooltip>
 		  <accelerator>
 		    <modifiers>0</modifiers>
 		    <key>GDK_M</key>
@@ -107,7 +104,6 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_new_mailbox</name>
-		  <tooltip>Add a new Mailbox</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_CONTROL_MASK</modifiers>
 		    <key>GDK_N</key>
@@ -121,7 +117,6 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>file_new_contact</name>
-		  <tooltip>Add a new Contact</tooltip>
 		  <accelerator>
 		    <modifiers>0</modifiers>
 		    <key>GDK_C</key>
@@ -166,7 +161,7 @@
 
 		<widget>
 		  <class>GtkMenuItem</class>
-		  <name>separator1</name>
+		  <name>file_check_mail_sep</name>
 		  <right_justify>False</right_justify>
 		</widget>
 	      </widget>
@@ -248,7 +243,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>file_print</name>
-	      <tooltip>Print the selected Message</tooltip>
 	      <stock_item>GNOMEUIINFO_MENU_PRINT_ITEM</stock_item>
 	    </widget>
 
@@ -274,7 +268,6 @@
 	<widget>
 	  <class>GtkMenuItem</class>
 	  <name>edit1</name>
-	  <tooltip>The Edit Menu</tooltip>
 	  <stock_item>GNOMEUIINFO_MENU_EDIT_TREE</stock_item>
 
 	  <widget>
@@ -292,7 +285,6 @@
 	<widget>
 	  <class>GtkMenuItem</class>
 	  <name>view1</name>
-	  <tooltip>Set your view of Mail Headers</tooltip>
 	  <stock_item>GNOMEUIINFO_MENU_VIEW_TREE</stock_item>
 
 	  <widget>
@@ -304,7 +296,7 @@
 	      <name>view_from</name>
 	      <label>_From</label>
 	      <active>False</active>
-	      <always_show_toggle>True</always_show_toggle>
+	      <always_show_toggle>False</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -312,7 +304,7 @@
 	      <name>view_account</name>
 	      <label>_Account</label>
 	      <active>False</active>
-	      <always_show_toggle>True</always_show_toggle>
+	      <always_show_toggle>False</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -320,7 +312,7 @@
 	      <name>view_to</name>
 	      <label>_To</label>
 	      <active>False</active>
-	      <always_show_toggle>True</always_show_toggle>
+	      <always_show_toggle>False</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -328,7 +320,7 @@
 	      <name>view_carbon_copy</name>
 	      <label>_Carbon Copy</label>
 	      <active>False</active>
-	      <always_show_toggle>True</always_show_toggle>
+	      <always_show_toggle>False</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -336,7 +328,7 @@
 	      <name>view_blind_carbon_copy</name>
 	      <label>_Blind Carbon Copy</label>
 	      <active>False</active>
-	      <always_show_toggle>True</always_show_toggle>
+	      <always_show_toggle>False</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -344,7 +336,7 @@
 	      <name>view_date</name>
 	      <label>_Date</label>
 	      <active>False</active>
-	      <always_show_toggle>True</always_show_toggle>
+	      <always_show_toggle>False</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -352,7 +344,7 @@
 	      <name>view_subject</name>
 	      <label>_Subject</label>
 	      <active>False</active>
-	      <always_show_toggle>True</always_show_toggle>
+	      <always_show_toggle>False</always_show_toggle>
 	    </widget>
 
 	    <widget>
@@ -360,7 +352,7 @@
 	      <name>view_priority</name>
 	      <label>_Priority</label>
 	      <active>False</active>
-	      <always_show_toggle>True</always_show_toggle>
+	      <always_show_toggle>False</always_show_toggle>
 	    </widget>
 	  </widget>
 	</widget>
@@ -368,7 +360,6 @@
 	<widget>
 	  <class>GtkMenuItem</class>
 	  <name>mailbox</name>
-	  <tooltip>Work with your Mailboxes</tooltip>
 	  <label>_Mailbox</label>
 	  <right_justify>False</right_justify>
 
@@ -379,7 +370,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>mailbox_speed_up</name>
-	      <tooltip>Engage the faster sort algorithim. (Scotty)</tooltip>
 	      <label>_Speed Up</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_TIMER</stock_icon>
@@ -394,7 +384,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>mailbox_import</name>
-	      <tooltip>Import a mailbox from another application.</tooltip>
 	      <label>_Import</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_HOME</stock_icon>
@@ -403,7 +392,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>mailbox_export</name>
-	      <tooltip>Export a CronosII mailbox to another file.</tooltip>
 	      <label>_Export</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_CONVERT</stock_icon>
@@ -418,7 +406,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>mailbox_empty_garbage</name>
-	      <tooltip>Clear the garbage file -now.</tooltip>
 	      <signal>
 		<name>activate</name>
 		<handler>on_mailbox_empty_garbage_activate</handler>
@@ -434,7 +421,6 @@
 	<widget>
 	  <class>GtkMenuItem</class>
 	  <name>message</name>
-	  <tooltip>Do things to a selected mail.</tooltip>
 	  <label>Mess_age</label>
 	  <right_justify>False</right_justify>
 
@@ -445,7 +431,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_reply</name>
-	      <tooltip>Reply to the initial sender of this message.</tooltip>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_R</key>
@@ -459,7 +444,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_reply_all</name>
-	      <tooltip>Reply to everybody on this messages recievers list.</tooltip>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_A</key>
@@ -473,7 +457,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_forward</name>
-	      <tooltip>Send message on to somebody else.</tooltip>
 	      <accelerator>
 		<modifiers>GDK_CONTROL_MASK</modifiers>
 		<key>GDK_F</key>
@@ -561,7 +544,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>message_mark</name>
-	      <tooltip>Re-Tag a message</tooltip>
 	      <label>Mar_k</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_INDEX</stock_icon>
@@ -593,7 +575,7 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>message_mark_unread</name>
-		  <tooltip>Mark selected messages as unread</tooltip>
+		  <tooltip>Mark selected messages as unreaded</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_MOD1_MASK</modifiers>
 		    <key>GDK_U</key>
@@ -607,7 +589,7 @@
 		<widget>
 		  <class>GtkPixmapMenuItem</class>
 		  <name>read</name>
-		  <tooltip>Mark selected messages as read</tooltip>
+		  <tooltip>Mark selected messages as readed</tooltip>
 		  <accelerator>
 		    <modifiers>GDK_MOD1_MASK</modifiers>
 		    <key>GDK_V</key>
@@ -712,7 +694,6 @@
 	<widget>
 	  <class>GtkMenuItem</class>
 	  <name>settings1</name>
-	  <tooltip>Configure your User Interface,Accounts and other Prefs</tooltip>
 	  <stock_item>GNOMEUIINFO_MENU_SETTINGS_TREE</stock_item>
 
 	  <widget>
@@ -722,7 +703,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>settings_preferences</name>
-	      <tooltip>Configure your accounts and interface defaults</tooltip>
 	      <signal>
 		<name>activate</name>
 		<handler>on_preferences1_activate</handler>
@@ -736,7 +716,6 @@
 	<widget>
 	  <class>GtkMenuItem</class>
 	  <name>windows</name>
-	  <tooltip>Choose the windows you want opened</tooltip>
 	  <signal>
 	    <name>activate</name>
 	    <handler>on_windows_activate</handler>
@@ -748,7 +727,6 @@
 	<widget>
 	  <class>GtkMenuItem</class>
 	  <name>help1</name>
-	  <tooltip>Click here for help, tips and other info.</tooltip>
 	  <stock_item>GNOMEUIINFO_MENU_HELP_TREE</stock_item>
 
 	  <widget>
@@ -758,7 +736,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>help_user_manual</name>
-	      <tooltip>Opens the Users Help Manual. (When installed)</tooltip>
 	      <accelerator>
 		<modifiers>0</modifiers>
 		<key>GDK_F1</key>
@@ -780,7 +757,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>help_getting_in_touch</name>
-	      <tooltip>Get in touch with CronosII Users and Developers</tooltip>
 	      <accelerator>
 		<modifiers>0</modifiers>
 		<key>GDK_F3</key>
@@ -805,7 +781,6 @@
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>help_about</name>
-	      <tooltip>Version and Copyright Information</tooltip>
 	      <signal>
 		<name>activate</name>
 		<handler>on_about_activate</handler>
@@ -821,12 +796,11 @@
     <widget>
       <class>GnomeDockItem</class>
       <name>dockitem2</name>
-      <border_width>2</border_width>
-      <tooltip>The Icon Menubar</tooltip>
+      <border_width>1</border_width>
       <placement>GNOME_DOCK_TOP</placement>
       <band>1</band>
       <position>0</position>
-      <offset>0</offset>
+      <offset>77</offset>
       <locked>False</locked>
       <exclusive>True</exclusive>
       <never_floating>False</never_floating>
@@ -849,7 +823,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_check</name>
-	  <tooltip>Check all Accounts for new mail.</tooltip>
+	  <tooltip>Check all accounts for new mails</tooltip>
 	  <label>Check</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_RCV</stock_pixmap>
 	</widget>
@@ -858,7 +832,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_send</name>
-	  <tooltip>Send unset messages from the Queue</tooltip>
+	  <tooltip>Send unset messages</tooltip>
 	  <label>Send</label>
 	  <icon>sendqueue.xpm</icon>
 	</widget>
@@ -867,7 +841,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_save</name>
-	  <tooltip>Save current message to Drafts</tooltip>
+	  <tooltip>Save current message</tooltip>
 	  <label>Save</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_SAVE</stock_pixmap>
 	  <child>
@@ -912,7 +886,7 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_reply</name>
-	  <tooltip>Reply to selected message</tooltip>
+	  <tooltip>Reply selected message</tooltip>
 	  <label>Reply</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_MAIL_RPL</stock_pixmap>
 	</widget>
@@ -960,7 +934,6 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_contacts</name>
-	  <tooltip>Open the Address Book</tooltip>
 	  <label>Contacts</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_BOOK_RED</stock_pixmap>
 	  <child>
@@ -972,7 +945,6 @@
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>toolbar_exit</name>
-	  <tooltip>Close Cronos II</tooltip>
 	  <label>Exit</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_EXIT</stock_pixmap>
 	  <child>
@@ -1018,23 +990,33 @@
 	    <class>GtkCTree</class>
 	    <name>ctree</name>
 	    <can_focus>True</can_focus>
-	    <columns>1</columns>
-	    <column_widths>80</column_widths>
+	    <columns>3</columns>
+	    <column_widths>144,34,31</column_widths>
 	    <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
-	    <show_titles>False</show_titles>
+	    <show_titles>True</show_titles>
 	    <shadow_type>GTK_SHADOW_IN</shadow_type>
 
 	    <widget>
 	      <class>GtkLabel</class>
 	      <child_name>CTree:title</child_name>
-	      <name>label17</name>
-	      <label>label7</label>
+	      <name>label72</name>
+	      <label>Mailbox</label>
 	      <justify>GTK_JUSTIFY_CENTER</justify>
 	      <wrap>False</wrap>
 	      <xalign>0.5</xalign>
 	      <yalign>0.5</yalign>
 	      <xpad>0</xpad>
 	      <ypad>0</ypad>
+	    </widget>
+
+	    <widget>
+	      <class>Placeholder</class>
+	      <child_name>CTree:title</child_name>
+	    </widget>
+
+	    <widget>
+	      <class>Placeholder</class>
+	      <child_name>CTree:title</child_name>
 	    </widget>
 	  </widget>
 	</widget>
@@ -1138,8 +1120,7 @@
   <name>dlg_mailbox_err</name>
   <message_box_type>GNOME_MESSAGE_BOX_ERROR</message_box_type>
   <message>That mailbox name
-is already in use.
-Please choose another.</message>
+is already taken.</message>
   <title>Error</title>
   <position>GTK_WIN_POS_CENTER</position>
   <modal>True</modal>
@@ -1240,7 +1221,6 @@ Please choose another.</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button56</name>
-	<tooltip>Finished</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -1249,7 +1229,6 @@ Please choose another.</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button58</name>
-	<tooltip>Abort</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
@@ -1291,7 +1270,6 @@ Please choose another.</message>
 	    <class>GnomePixmap</class>
 	    <name>pixmap</name>
 	    <width>60</width>
-	    <filename>cronosII.png</filename>
 	    <child>
 	      <padding>0</padding>
 	      <expand>False</expand>
@@ -1303,7 +1281,7 @@ Please choose another.</message>
 	    <class>GtkLabel</class>
 	    <name>label57</name>
 	    <width>203</width>
-	    <label>Editing Mailbox Properties is dangerous. Please Backup your valuable files.</label>
+	    <label>The edition of mailboxes is really dangerous and might result in the lost of all mails of the mailbox.</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>True</wrap>
 	    <xalign>0</xalign>
@@ -1337,7 +1315,7 @@ Please choose another.</message>
 	<widget>
 	  <class>GtkEntry</class>
 	  <name>name</name>
-	  <tooltip>Here you type the name of your new Mailbox</tooltip>
+	  <tooltip>Type here the name of the new mailbox</tooltip>
 	  <can_focus>True</can_focus>
 	  <editable>True</editable>
 	  <text_visible>True</text_visible>
@@ -1419,10 +1397,7 @@ Please choose another.</message>
 	  <height>21</height>
 	  <tooltip>Select the type of access you want for this mailbox</tooltip>
 	  <can_focus>True</can_focus>
-	  <items>pop3
-SMTP
-spool
-</items>
+	  <items></items>
 	  <initial_choice>0</initial_choice>
 	  <child>
 	    <left_attach>1</left_attach>
@@ -1493,7 +1468,7 @@ spool
 	  <widget>
 	    <class>GtkSpinButton</class>
 	    <name>extra_data_port</name>
-	    <tooltip>Enter the server port number</tooltip>
+	    <tooltip>Type here the port where this mailbox is stored</tooltip>
 	    <can_focus>True</can_focus>
 	    <climb_rate>1</climb_rate>
 	    <digits>0</digits>
@@ -1526,7 +1501,7 @@ spool
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>extra_data_host</name>
-	    <tooltip>Here you type the hostname of the server where this mailbox is kept.</tooltip>
+	    <tooltip>Type here the hostname where this mailbox is stored</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -1551,7 +1526,6 @@ spool
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>extra_data_pass</name>
-	    <tooltip>Your Password at the server</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>False</text_visible>
@@ -1654,7 +1628,6 @@ spool
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>extra_data_user</name>
-	    <tooltip>Your Username at the server</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
 	    <text_visible>True</text_visible>
@@ -1785,12 +1758,12 @@ Yves Mettier
 See the 'AUTHORS' file for more...
 </authors>
   <comments>Cronos II is a fast, light, user friendly and powerful mail client for the Gnome Desktop.
-It has an extended and intuitive interface which makes life easier for the novice whilst retaining flexibility for the gurus.
+It has an extended and intuitive interface which will make life for novice easier without taking out the power to the gurus.
  
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the 'COPYING' file for the complete license or check it at http://www.gnu.org.
  
-You can find the CronoII website at:
+You can find the website of Cronos II at:
 http://cronosII.sourceforge.net</comments>
 </widget>
 
@@ -2282,8 +2255,6 @@ http://cronosII.sourceforge.net</comments>
 <widget>
   <class>GnomeDialog</class>
   <name>dlg_address_book_card</name>
-  <border_width>2</border_width>
-  <tooltip>CronosII Address Book Vcard</tooltip>
   <title>Address Book vCard</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>
@@ -2405,13 +2376,12 @@ http://cronosII.sourceforge.net</comments>
 <widget>
   <class>GnomeMessageBox</class>
   <name>dlg_mailbox_confirm_deletion</name>
-  <tooltip>Are You Sure ?</tooltip>
   <message_box_type>GNOME_MESSAGE_BOX_QUESTION</message_box_type>
-  <message>
-Removing a Mailbox will eliminate all of it's contents. 
-This includes any sub-mailboxes.
+  <message>The deletion of a mailbox will
+permanently delete all mails stored
+in it and all mailboxes pending from it.
 
-Are you sure you want to delete this Mailbox?</message>
+Are you sure you want to delete it?</message>
   <title>Question</title>
   <position>GTK_WIN_POS_CENTER</position>
   <modal>True</modal>
@@ -2455,7 +2425,6 @@ Are you sure you want to delete this Mailbox?</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button62</name>
-	<tooltip>Yes, I am sure.</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_YES</stock_button>
@@ -2464,7 +2433,6 @@ Are you sure you want to delete this Mailbox?</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button63</name>
-	<tooltip>Hmm. Perhaps Later.</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_NO</stock_button>
@@ -2474,7 +2442,6 @@ Are you sure you want to delete this Mailbox?</message>
     <widget>
       <class>GtkCheckButton</class>
       <name>archive</name>
-      <tooltip>Select this to backup your mail.</tooltip>
       <can_focus>True</can_focus>
       <label>Archive mails (recommended).</label>
       <active>True</active>
@@ -2531,13 +2498,11 @@ Are you sure you want to delete this Mailbox?</message>
       <widget>
 	<class>GtkMenuBar</class>
 	<name>menubar3</name>
-	<tooltip>Composer Text Menu Bar</tooltip>
 	<shadow_type>GTK_SHADOW_NONE</shadow_type>
 
 	<widget>
 	  <class>GtkMenuItem</class>
 	  <name>file</name>
-	  <tooltip>Save</tooltip>
 	  <stock_item>GNOMEUIINFO_MENU_FILE_TREE</stock_item>
 
 	  <widget>
@@ -2546,8 +2511,50 @@ Are you sure you want to delete this Mailbox?</message>
 
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
+	      <name>file_send</name>
+	      <tooltip>Send the current mail</tooltip>
+	      <accelerator>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
+		<key>GDK_M</key>
+		<signal>activate</signal>
+	      </accelerator>
+	      <signal>
+		<name>activate</name>
+		<handler>on_file_send_activate</handler>
+		<last_modification_time>Sun, 01 Jul 2001 04:16:25 GMT</last_modification_time>
+	      </signal>
+	      <label>S_end</label>
+	      <right_justify>False</right_justify>
+	      <stock_icon>GNOME_STOCK_MENU_MAIL_SND</stock_icon>
+	    </widget>
+
+	    <widget>
+	      <class>GtkPixmapMenuItem</class>
+	      <name>file_send_later</name>
+	      <accelerator>
+		<modifiers>GDK_CONTROL_MASK</modifiers>
+		<key>GDK_N</key>
+		<signal>activate</signal>
+	      </accelerator>
+	      <signal>
+		<name>activate</name>
+		<handler>on_file_send_later_activate</handler>
+		<last_modification_time>Sun, 01 Jul 2001 04:16:25 GMT</last_modification_time>
+	      </signal>
+	      <label>Send _Later</label>
+	      <right_justify>False</right_justify>
+	      <icon>sendqueue.xpm</icon>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>separador3</name>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkPixmapMenuItem</class>
 	      <name>save</name>
-	      <tooltip>Save this message to the Drafts Mailbox</tooltip>
 	      <signal>
 		<name>activate</name>
 		<handler>on_save_activate</handler>
@@ -2565,7 +2572,6 @@ Are you sure you want to delete this Mailbox?</message>
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>close</name>
-	      <tooltip>Close the Composer Window</tooltip>
 	      <signal>
 		<name>activate</name>
 		<handler>on_close_activate</handler>
@@ -2621,7 +2627,6 @@ Are you sure you want to delete this Mailbox?</message>
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>select_all</name>
-	      <tooltip>Select the entire contents of the current message</tooltip>
 	      <signal>
 		<name>activate</name>
 		<handler>on_select_all_activate</handler>
@@ -2741,7 +2746,6 @@ Are you sure you want to delete this Mailbox?</message>
 	    <widget>
 	      <class>GtkPixmapMenuItem</class>
 	      <name>spell_checker</name>
-	      <tooltip>Not Yet</tooltip>
 	      <accelerator>
 		<modifiers>0</modifiers>
 		<key>GDK_F7</key>
@@ -2755,6 +2759,19 @@ Are you sure you want to delete this Mailbox?</message>
 	      <label>_Spell Checker</label>
 	      <right_justify>False</right_justify>
 	      <stock_icon>GNOME_STOCK_MENU_SPELLCHECK</stock_icon>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>separador2</name>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>edit_signature</name>
+	      <label>Sig_nature</label>
+	      <right_justify>False</right_justify>
 	    </widget>
 	  </widget>
 	</widget>
@@ -2789,7 +2806,7 @@ Are you sure you want to delete this Mailbox?</message>
 		  </signal>
 		  <label>Highest</label>
 		  <active>False</active>
-		  <always_show_toggle>True</always_show_toggle>
+		  <always_show_toggle>False</always_show_toggle>
 		  <group>priority</group>
 		</widget>
 
@@ -2803,7 +2820,7 @@ Are you sure you want to delete this Mailbox?</message>
 		  </signal>
 		  <label>High</label>
 		  <active>False</active>
-		  <always_show_toggle>True</always_show_toggle>
+		  <always_show_toggle>False</always_show_toggle>
 		  <group>priority</group>
 		</widget>
 
@@ -2816,8 +2833,8 @@ Are you sure you want to delete this Mailbox?</message>
 		    <last_modification_time>Wed, 23 May 2001 03:17:10 GMT</last_modification_time>
 		  </signal>
 		  <label>Normal</label>
-		  <active>False</active>
-		  <always_show_toggle>True</always_show_toggle>
+		  <active>True</active>
+		  <always_show_toggle>False</always_show_toggle>
 		  <group>priority</group>
 		</widget>
 
@@ -2831,7 +2848,7 @@ Are you sure you want to delete this Mailbox?</message>
 		  </signal>
 		  <label>Low</label>
 		  <active>False</active>
-		  <always_show_toggle>True</always_show_toggle>
+		  <always_show_toggle>False</always_show_toggle>
 		  <group>priority</group>
 		</widget>
 
@@ -2845,7 +2862,7 @@ Are you sure you want to delete this Mailbox?</message>
 		  </signal>
 		  <label>Lowest</label>
 		  <active>False</active>
-		  <always_show_toggle>True</always_show_toggle>
+		  <always_show_toggle>False</always_show_toggle>
 		  <group>priority</group>
 		</widget>
 	      </widget>
@@ -2854,7 +2871,6 @@ Are you sure you want to delete this Mailbox?</message>
 	    <widget>
 	      <class>GtkMenuItem</class>
 	      <name>wrap1</name>
-	      <tooltip>Enable Word Wrap</tooltip>
 	      <signal>
 		<name>activate</name>
 		<handler>on_wrap1_activate</handler>
@@ -2916,7 +2932,7 @@ Are you sure you want to delete this Mailbox?</message>
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>button66</name>
-	  <tooltip>Save File </tooltip>
+	  <tooltip>Save File</tooltip>
 	  <label>Save</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_SAVE</stock_pixmap>
 	</widget>
@@ -2924,8 +2940,19 @@ Are you sure you want to delete this Mailbox?</message>
     </widget>
 
     <widget>
-      <class>Placeholder</class>
+      <class>GtkVBox</class>
       <child_name>GnomeDock:contents</child_name>
+      <name>vbox17</name>
+      <homogeneous>False</homogeneous>
+      <spacing>4</spacing>
+
+      <widget>
+	<class>Placeholder</class>
+      </widget>
+
+      <widget>
+	<class>Placeholder</class>
+      </widget>
     </widget>
   </widget>
 
@@ -2947,7 +2974,6 @@ Are you sure you want to delete this Mailbox?</message>
   <class>GnomeDialog</class>
   <name>dlg_message_transfer</name>
   <height>400</height>
-  <tooltip>The Message Transfer Progress Window</tooltip>
   <title>Message Tranfer</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_CENTER</position>
@@ -2992,7 +3018,6 @@ Are you sure you want to delete this Mailbox?</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button67</name>
-	<tooltip>Click here to close this window. The tranfer will continue</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -3000,8 +3025,7 @@ Are you sure you want to delete this Mailbox?</message>
 
       <widget>
 	<class>GtkButton</class>
-	<name>button69</name>
-	<tooltip>Cancel or Halt the transfer</tooltip>
+	<name>cancel_btn</name>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
@@ -3170,7 +3194,6 @@ Are you sure you want to delete this Mailbox?</message>
 	    <widget>
 	      <class>GtkProgressBar</class>
 	      <name>subtask_progress</name>
-	      <tooltip>This shows how far through the tasks we are.</tooltip>
 	      <value>0</value>
 	      <lower>0</lower>
 	      <upper>100</upper>
@@ -3194,7 +3217,6 @@ Are you sure you want to delete this Mailbox?</message>
       <widget>
 	<class>GtkCheckButton</class>
 	<name>auto_close_btn</name>
-	<tooltip>Make this window go away when it's not required.</tooltip>
 	<can_focus>True</can_focus>
 	<label>Automatically close when finished.</label>
 	<active>False</active>
@@ -3212,7 +3234,6 @@ Are you sure you want to delete this Mailbox?</message>
 <widget>
   <class>GnomeDialog</class>
   <name>dlg_req_pass</name>
-  <tooltip>Server access error.  Your Service Provider or your System Administrator should have most of this information.</tooltip>
   <title>Bad Password</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_CENTER</position>
@@ -3257,7 +3278,6 @@ Are you sure you want to delete this Mailbox?</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button70</name>
-	<tooltip>Ok. I Think that's correct</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
@@ -3266,7 +3286,6 @@ Are you sure you want to delete this Mailbox?</message>
       <widget>
 	<class>GtkButton</class>
 	<name>button72</name>
-	<tooltip>I'll fix this very soon I promise !</tooltip>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<stock_button>GNOME_STOCK_BUTTON_CANCEL</stock_button>
@@ -3368,7 +3387,6 @@ Are you sure you want to delete this Mailbox?</message>
       <widget>
 	<class>GtkEntry</class>
 	<name>account</name>
-	<tooltip>The name You gave this account when you configured it.</tooltip>
 	<can_focus>True</can_focus>
 	<editable>False</editable>
 	<text_visible>True</text_visible>
@@ -3412,8 +3430,8 @@ Are you sure you want to delete this Mailbox?</message>
       <widget>
 	<class>GtkLabel</class>
 	<name>label61</name>
-	<label>The server has rejected the password set  for this account.
-Please Enter the correct information.</label>
+	<label>The server has rejected the password
+you seted for this account.</label>
 	<justify>GTK_JUSTIFY_LEFT</justify>
 	<wrap>False</wrap>
 	<xalign>0.5</xalign>
@@ -3439,7 +3457,6 @@ Please Enter the correct information.</label>
       <widget>
 	<class>GtkEntry</class>
 	<name>user</name>
-	<tooltip>Your Account User Name at the mail server</tooltip>
 	<can_focus>True</can_focus>
 	<editable>True</editable>
 	<text_visible>True</text_visible>
@@ -3464,7 +3481,6 @@ Please Enter the correct information.</label>
       <widget>
 	<class>GtkEntry</class>
 	<name>pass</name>
-	<tooltip>Your Password for this mail server. </tooltip>
 	<can_focus>True</can_focus>
 	<editable>True</editable>
 	<text_visible>False</text_visible>
@@ -3495,7 +3511,6 @@ Please Enter the correct information.</label>
   <width>400</width>
   <height>480</height>
   <visible>False</visible>
-  <tooltip>CronosII Contact Details</tooltip>
   <title>Getting in Touch</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_CENTER</position>
@@ -3565,23 +3580,23 @@ Please Enter the correct information.</label>
 	<widget>
 	  <class>GtkLabel</class>
 	  <name>label65</name>
-	  <label>Find some help, submit a Bug Report, add a Feature Request 
-or drop in for a Chat.
+	  <label>You can easily get in touch for help (or just for chating)
+with anyone of the Cronos II comunity (users or developers).
 
-
+There're several methods for getting in touch with us,
+you should select whatever is better for you.
 
 _E_-_M_a_i_l:
 
-To send mail to the CronosII Developers you should write to
+To send a mail to de developers you should write to
 our mailing list: _c_r_o_n_o_s_I_I_-_d_e_v_e_l_o_p_e_r_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.
 
-To contact other Users of Cronos II send mail
+To contact other users of Cronos II you better send it
 to the user's mailing list: _c_r_o_n_o_s_I_I_-_u_s_e_r_s_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.
 
-To contact a particular developer:
-Check the Cronos II homepage for a list of contacts, 
-or select the About dialog from the same menu (Help)
-you launched this dialog from.
+Note that if you want to contact a special developer for
+a special bug-report or for whatever reason you should
+check the Cronos II homepage for a list of contacts.
 
 _I_R_C:
 

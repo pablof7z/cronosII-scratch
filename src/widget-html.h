@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /src/widget-html.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -44,6 +44,7 @@ extern "C" {
 #	include <cronosII.h>
 #endif
 
+#define C2_TYPE_HTML							(c2_html_get_type ())
 #define C2_HTML(obj)							GTK_CHECK_CAST (obj, c2_html_get_type (), C2Html)
 #define C2_HTML_CLASS(klass)					GTK_CHECK_CLASS_CAST (klass, c2_html_get_type, C2HtmlClass)
 #define C2_IS_HTML(obj)							GTK_CHECK_TYPE (obj, c2_html_get_type ())

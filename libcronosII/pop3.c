@@ -50,7 +50,7 @@ static gint
 status											(C2Pop3 *pop3);
 
 static gint
-retrieve										(C2Pop3 *pop3, gint mails);
+retrieve										(C2Account *account, gint mails);
 
 enum
 {
@@ -178,7 +178,7 @@ c2_pop3_fetchmail (C2Account *account)
 		return -1;
 	}
 
-	if (retrieve (pop3, mails) < 0)
+	if (retrieve (account, mails) < 0)
 	{
 		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
 		pthread_mutex_unlock (&pop3->run_lock);
@@ -242,7 +242,7 @@ login (C2Pop3 *pop3)
 	do
 	{
 		/* FIXME This crashes when the password is wrong and
-		 * is executed for 2 time (probably for >1 time) see NULL setting below. */
+		 * is executed for 2 time (probably for >1 time) */
 		g_free (string);
 		if (c2_net_object_send (C2_NET_OBJECT (pop3), "PASS %s\r\n", pop3->pass) < 0)
 			return -1;
@@ -257,8 +257,7 @@ login (C2Pop3 *pop3)
 				string++;
 			
 			g_free (pop3->pass);
-/* set pop3->pass equal to NULL just in case there is no callback function */
-			pop3->pass = NULL;
+
 			if (pop3->wrong_pass_cb)
 				pop3->pass = pop3->wrong_pass_cb (pop3, string);
 		} else
@@ -301,8 +300,9 @@ status (C2Pop3 *pop3)
 }
 
 static gint
-retrieve (C2Pop3 *pop3, gint mails)
+retrieve (C2Account *account, gint mails)
 {
+	C2Pop3 *pop3 = account->protocol.pop3;
 	C2Message *message;
 	gchar *string;
 	gint i, len;
@@ -376,7 +376,7 @@ L			/* TODO */
 		{
 
 		}
-		
+
 		g_free (tmp);
 	}
 

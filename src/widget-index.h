@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /src/widget-index.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -78,6 +78,9 @@ c2_index_add_mailbox							(C2Index *index, C2Mailbox *mbox);
 
 void
 c2_index_remove_mailbox							(C2Index *index);
+
+void
+c2_index_sort									(C2Index *index);
 
 void
 c2_index_add_message							(C2Index *index, const C2Message *message);

@@ -29,7 +29,7 @@ dnl #######################################################
 AC_INIT(src)
 AM_CONFIG_HEADER(config.h)
 
-AM_INIT_AUTOMAKE(cronosII-scratch, 0.0.1)
+AM_INIT_AUTOMAKE(cronosII-scratch, 0.0.2)
 
 dnl #######################################################
 dnl   Command, paths and libraries checks
@@ -260,6 +260,8 @@ AC_SUBST(LIBS)
 AC_SUBST(CFLAGS)
 AC_SUBST(FEATURES)
 AC_SUBST(LIBOBJS)
+AC_SUBST(LIBGLADE_CFLAGS)
+AC_SUBST(LIBGLADE_LIBS)
 
 AC_OUTPUT([
 doc/Makefile

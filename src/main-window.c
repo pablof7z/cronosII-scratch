@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /src/main-window.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -32,40 +32,35 @@
 #include "widget-message-transfer.h"
 #include "widget-index.h"
 
-#include "xpm/read.xpm"
-#include "xpm/unread.xpm"
-#include "xpm/reply.xpm"
-#include "xpm/forward.xpm"
-
 void
-on_ctree_changed_mailboxes							(C2Mailbox *mailbox);
+on_ctree_changed_mailboxes					(C2Mailbox *mailbox);
 
 static void
-on_ctree_tree_select_row							(GtkCTree *ctree, GtkCTreeNode *row, gint column);
+on_ctree_tree_select_row					(GtkCTree *ctree, GtkCTreeNode *row, gint column);
 
 static void
-on_ctree_tree_unselect_row							(GtkCTree *ctree, GtkCTreeNode *row, gint column);
+on_ctree_tree_unselect_row					(GtkCTree *ctree, GtkCTreeNode *row, gint column);
 
 static void
-on_ctree_button_press_event							(GtkWidget *widget, GdkEvent *event);
+on_ctree_button_press_event					(GtkWidget *widget, GdkEvent *event);
 
 static void
-on_index_select_message								(GtkWidget *index, C2Db *node);
+on_index_select_message						(GtkWidget *index, C2Db *node);
 
 static void
-on_preferences_activated							(GtkWidget *widget);
+on_preferences_activated					(GtkWidget *widget);
 
 static void
-on_check_clicked									(GtkWidget *widget);
+on_check_clicked							(GtkWidget *widget);
 
 static void
-on_about_activated									(GtkWidget *widget);
+on_about_activated							(GtkWidget *widget);
 
 static void
-on_getting_in_touch_activated						(GtkWidget *widget);
+on_getting_in_touch_activated				(GtkWidget *widget);
 
 static void
-on_quit												(void);
+on_quit										(void);
 
 void
 c2_window_new (void)
@@ -75,6 +70,7 @@ c2_window_new (void)
 	GtkWidget *hpaned;
 	GtkWidget *vpaned;
 	GtkWidget *ctree;
+	GtkCList *clist;
 	GtkWidget *index;
 	GtkWidget *mail;
 	GtkWidget *button;
@@ -97,18 +93,18 @@ c2_window_new (void)
 							GTK_SIGNAL_FUNC (on_quit), NULL);
 
 	style = gtk_widget_get_default_style ();
-	c2_app.pixmap_read = gdk_pixmap_create_from_xpm_d (window->window, &c2_app.mask_read,
-			&style->bg[GTK_STATE_NORMAL],
-			read_xpm);
-	c2_app.pixmap_unread = gdk_pixmap_create_from_xpm_d (window->window, &c2_app.mask_unread,
-			&style->bg[GTK_STATE_NORMAL],
-			unread_xpm);
-	c2_app.pixmap_reply = gdk_pixmap_create_from_xpm_d (window->window, &c2_app.mask_reply,
-			&style->bg[GTK_STATE_NORMAL],
-			reply_xpm);
-	c2_app.pixmap_forward = gdk_pixmap_create_from_xpm_d (window->window, &c2_app.mask_forward,
-			&style->bg[GTK_STATE_NORMAL],
-			forward_xpm);
+	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/read.png");
+	c2_app.pixmap_read = GNOME_PIXMAP (pixmap)->pixmap;
+	c2_app.mask_read = GNOME_PIXMAP (pixmap)->mask;
+	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/unread.png");
+	c2_app.pixmap_unread = GNOME_PIXMAP (pixmap)->pixmap;
+	c2_app.mask_unread = GNOME_PIXMAP (pixmap)->mask;
+	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/reply.png");
+	c2_app.pixmap_reply = GNOME_PIXMAP (pixmap)->pixmap;
+	c2_app.mask_reply = GNOME_PIXMAP (pixmap)->mask;
+	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/forward.png");
+	c2_app.pixmap_forward = GNOME_PIXMAP (pixmap)->pixmap;
+	c2_app.mask_forward = GNOME_PIXMAP (pixmap)->mask;
 
 	/* Register the window */
 	c2_app_register_window (GTK_WINDOW (window));
@@ -123,6 +119,16 @@ c2_window_new (void)
 
 	/* CTree */
 	ctree = glade_xml_get_widget (WMain.xml, "ctree");
+	clist = GTK_CLIST (ctree);
+	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/unread.png");
+	gtk_clist_set_column_widget (clist, 1, pixmap);
+
+	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mails.png");
+	gtk_clist_set_column_widget (clist, 2, pixmap);
+
+	gtk_clist_set_column_justification (clist, 1, GTK_JUSTIFY_CENTER);
+	gtk_clist_set_column_justification (clist, 2, GTK_JUSTIFY_CENTER);
+	
 	gtk_signal_connect (GTK_OBJECT (ctree), "tree_select_row",
 								GTK_SIGNAL_FUNC (on_ctree_tree_select_row), NULL);
 	gtk_signal_connect (GTK_OBJECT (ctree), "tree_unselect_row",
@@ -180,6 +186,8 @@ c2_window_new (void)
 	gtk_signal_connect_object (GTK_OBJECT (glade_xml_get_widget (WMain.xml, "toolbar_exit")), "clicked",
 							GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
 
+	c2_main_window_build_dynamic_menu_accounts ();
+	
 	gtk_widget_show (window);
 }
 
@@ -201,12 +209,10 @@ on_mailbox_db_loaded (C2Mailbox *mbox, gboolean success)
 		if (pthread_mutex_trylock (&WMain.index_lock))
 			return;
 
-		gdk_threads_enter ();
 		c2_index_remove_mailbox (C2_INDEX (index));
 		c2_app_stop_activity ();
 		c2_index_add_mailbox (C2_INDEX (index), mbox);
 		gtk_widget_queue_draw (index);
-		gdk_threads_leave ();
 
 		pthread_mutex_unlock (&WMain.index_lock);
 	} else
@@ -231,6 +237,10 @@ pthread_ctree_tree_select_row (C2Mailbox *mbox)
 						glade_xml_get_widget (WMain.xml, "appbar")))));
 	gdk_threads_leave ();
 	c2_mailbox_load_db (mbox);
+	gdk_threads_enter ();
+	on_mailbox_db_loaded (mbox, 0);
+	c2_index_sort (C2_INDEX (glade_xml_get_widget (WMain.xml, "index")));
+	gdk_threads_leave ();
 }
 
 static void

@@ -157,9 +157,6 @@ c2_config_init (void)
 #endif
 	}
 	
-	/* Get mailboxes */
-	load_mailboxes ();
-
 	/* Get accounts */
 	c2_app.account = NULL;
 	
@@ -263,6 +260,8 @@ c2_config_init (void)
 									("/cronosII/Fonts/unreaded_message=" DEFAULT_FONTS_UNREADED_MESSAGE, NULL);
 	c2_app.fonts_readed_message = gnome_config_get_string_with_default
 									("/cronosII/Fonts/readed_message=" DEFAULT_FONTS_READED_MESSAGE, NULL);
+	c2_app.fonts_unreaded_mailbox = gnome_config_get_string_with_default
+									("/cronosII/Fonts/unreaded_mailbox=" DEFAULT_FONTS_UNREADED_MAILBOX, NULL);
 	c2_app.fonts_source = gnome_config_get_int_with_default
 									("/cronosII/Fonts/source=" DEFAULT_FONTS_SOURCE, NULL);
 	
@@ -322,6 +321,8 @@ c2_config_init (void)
 									("/cronosII/Advanced/persistent_smtp=" DEFAULT_ADVANCED_PERSISTENT_SMTP, NULL);
 	c2_app.advanced_use_internal_browser = gnome_config_get_int_with_default
 							("/cronosII/Advanced/use_internal_browser=" DEFAULT_ADVANCED_USE_INTERNAL_BROWSER, NULL);
+	c2_app.advanced_load_mailboxes_at_start = gnome_config_get_int_with_default
+							("/cronosII/Advanced/load_mailboxes_at_start=" DEFAULT_ADVANCED_LOAD_MAILBOXES_AT_START, NULL);
 
 	c2_app.rc_hpan = gnome_config_get_int_with_default ("/cronosII/Rc/hpan=" DEFAULT_RC_HPAN, NULL);
 	c2_app.rc_vpan = gnome_config_get_int_with_default ("/cronosII/Rc/vpan=" DEFAULT_RC_VPAN, NULL);
@@ -345,6 +346,9 @@ c2_config_init (void)
 								("/cronosII/Rc/showable_headers_save=" DEFAULT_RC_SHOWABLE_HEADERS_SAVE, NULL);
 	c2_app.rc_showable_headers[C2_SHOWABLE_HEADERS_PRINT] = gnome_config_get_int_with_default
 								("/cronosII/Rc/showable_headers_print=" DEFAULT_RC_SHOWABLE_HEADERS_PRINT, NULL);
+
+	/* Get mailboxes */
+	load_mailboxes ();
 	
 	return 0;
 }
@@ -403,16 +407,21 @@ load_mailboxes (void)
 				g_free (path);
 				break;
 		}
+
+		if (c2_app.advanced_load_mailboxes_at_start)
+			c2_mailbox_load_db (mbox);
+
 		g_free (name);
 		g_free (id);
 		gnome_config_pop_prefix ();
 		g_free (query);
 
+#if FALSE
 		/* We have to connect to the "db_loaded" signal */
 		gtk_signal_connect (GTK_OBJECT (mbox), "db_loaded",
 						GTK_SIGNAL_FUNC (on_mailbox_db_loaded), NULL);
+#endif
 	}
 
 	c2_app.mailbox = c2_mailbox_get_head ();
 }
-

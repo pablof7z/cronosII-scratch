@@ -45,6 +45,7 @@ c2_app_init (void)
 	c2_app.fonts_gdk_message_body = gdk_font_load (c2_app.fonts_message_body);
 	c2_app.fonts_gdk_readed_message = gdk_font_load (c2_app.fonts_readed_message);
 	c2_app.fonts_gdk_unreaded_message = gdk_font_load (c2_app.fonts_unreaded_message);
+	c2_app.fonts_gdk_unreaded_mailbox = gdk_font_load (c2_app.fonts_unreaded_mailbox);
 
 	gdk_color_alloc (gdk_colormap_get_system (), &c2_app.colors_replying_original_message);
 	gdk_color_alloc (gdk_colormap_get_system (), &c2_app.colors_message_bg);
@@ -191,61 +192,101 @@ c2_app_stop_activity (void)
 void
 c2_mailbox_tree_fill (C2Mailbox *head, GtkCTreeNode *node, GtkWidget *ctree, GtkWidget *window)
 {
+	GtkCTree *_ctree = GTK_CTREE (ctree);
 	C2Mailbox *current;
+	C2Db *db;
 	GtkWidget *pixmap_closed;
 	GtkWidget *pixmap_opened;
 	GtkCTreeNode *_node;
+	GtkStyle *style;
+	gint unreaded, total;
 	gchar *buf;
+	gchar *row[] =
+	{
+		"",
+		"",
+		"",
+		NULL
+	};
   
-	c2_return_if_fail (head || ctree, C2EDATA);
+	c2_return_if_fail (head || _ctree, C2EDATA);
 
 	if (!node)
 	{
 		gtk_clist_freeze (GTK_CLIST (ctree));
 		gtk_clist_clear (GTK_CLIST (ctree));
-	}
+	}	
 
 	for (current = head; current; current = current->next)
 	{
 		if (c2_streq (current->name, MAILBOX_INBOX))
 		{
-			pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/inbox.png");
+			pixmap_closed = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/inbox.png");
 			pixmap_opened = pixmap_closed;
 		} else if (c2_streq (current->name, MAILBOX_OUTBOX))
 		{
-			pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/outbox.png");
+			pixmap_closed = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/outbox.png");
 			pixmap_opened = pixmap_closed;
 		} else if (c2_streq (current->name, MAILBOX_QUEUE))
 		{
-			pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/queue_mbox.png");
+			pixmap_closed = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/queue_mbox.png");
 			pixmap_opened = pixmap_closed;
 		} else if (c2_streq (current->name, MAILBOX_GARBAGE))
 		{
-			pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/garbage.png");
+			pixmap_closed = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/garbage.png");
 			pixmap_opened = pixmap_closed;
 		} else if (c2_streq (current->name, MAILBOX_DRAFTS))
 		{
-			pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/drafts.png");
+			pixmap_closed = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/drafts.png");
 			pixmap_opened = pixmap_closed;
 		} else
 		{
 			if (current->child)
 			{
-				pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/folder-closed.png");
-				pixmap_opened = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/folder-opened.png");
+				pixmap_closed = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/folder-closed.png");
+				pixmap_opened = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/folder-opened.png");
 			} else
 			{
-				pixmap_closed = gnome_pixmap_new_from_file (DATADIR "/cronosII/pixmaps/mailbox.png");
+				pixmap_closed = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mailbox.png");
 				pixmap_opened = pixmap_closed;
 			}
 		}
 		
-		buf = g_strdup (current->name);
-		_node = gtk_ctree_insert_node (GTK_CTREE (ctree), node, NULL, (gchar **) &buf, 4,
+		unreaded = total = 0;
+		for (db = current->db; db; db = db->next)
+		{
+			if (db->state == C2_MESSAGE_UNREADED)
+				unreaded++;
+			
+			total++;
+		}
+
+		row[0] = g_strdup (current->name);
+
+		if (c2_app.advanced_load_mailboxes_at_start)		
+		{
+			row[1] = g_strdup_printf ("%d", unreaded);
+			row[2] = g_strdup_printf ("%d", total);
+		} else
+		{
+			row[1] = ""; /* Warning: This is not being allocated, so we should never free it! */
+			row[2] = "";
+		}
+		
+		_node = gtk_ctree_insert_node (_ctree, node, NULL, row, 4,
 									GNOME_PIXMAP (pixmap_closed)->pixmap, GNOME_PIXMAP (pixmap_closed)->mask,
 									GNOME_PIXMAP (pixmap_opened)->pixmap, GNOME_PIXMAP (pixmap_opened)->mask,
 									FALSE, TRUE);
-		gtk_ctree_node_set_row_data(GTK_CTREE(ctree), _node, (gpointer) current);
+		gtk_ctree_node_set_row_data (_ctree, _node, (gpointer) current);
+		if (unreaded)
+		{
+			style = gtk_ctree_node_get_row_style (_ctree, _node);
+			if (!style)
+				style = gtk_style_copy (ctree->style);
+			style->font = c2_app.fonts_gdk_unreaded_mailbox;
+			gtk_ctree_node_set_row_style (_ctree, _node, style);
+		}
+		
 		if (current->child)
 			c2_mailbox_tree_fill (current->child, _node, ctree, window);
 	}

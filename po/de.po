@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Cronos II 0.2.0\n"
-"POT-Creation-Date: 2001-06-27 13:06+0200\n"
+"POT-Creation-Date: 2001-07-08 08:08-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Arne Caspari <arnem@tzi.org>\n"
 "Language-Team: German <de@li.org>\n"
@@ -45,11 +45,11 @@ msgstr ""
 msgid "Bad syntaxes, quotes aren't closed.\n"
 msgstr ""
 
-#: src/c2-main-window.c:512
+#: src/c2-main-window.c:522
 msgid "Unable to update the mailbox: Unable to find the configuration ID"
 msgstr ""
 
-#: src/c2-main-window.c:674
+#: src/c2-main-window.c:684
 msgid "Unable to delete the mailbox: Unable to find the configuration ID"
 msgstr ""
 
@@ -78,7 +78,7 @@ msgstr ""
 msgid "Unable to open index file: %s"
 msgstr ""
 
-#: src/install-wizard.c:180 src/main-window.c:217
+#: src/install-wizard.c:180 src/main-window.c:216
 #, c-format
 msgid "Unable to load db: %s"
 msgstr ""
@@ -319,7 +319,7 @@ msgid ""
 "Quit anyway?"
 msgstr ""
 
-#: src/main-window.c:244
+#: src/main-window.c:247
 msgid "Internal error in CTree listing."
 msgstr ""
 
@@ -342,8 +342,8 @@ msgstr "Neuer Account"
 msgid "Set the Account field."
 msgstr ""
 
-#: src/main.c:44 src/preferences-trans.h:42 src/trans.h:165
-#: src/widget-index.c:241
+#: src/main.c:44 src/preferences-trans.h:37 src/trans.h:169
+#: src/widget-index.c:242
 msgid "Account"
 msgstr ""
 
@@ -385,7 +385,7 @@ msgstr "Betreff"
 msgid "Set the Subject field."
 msgstr ""
 
-#: src/main.c:68 src/widget-index.c:235
+#: src/main.c:68 src/widget-index.c:236
 msgid "Subject"
 msgstr "Betreff"
 
@@ -406,213 +406,217 @@ msgstr "Nachfolgende"
 msgid "Compose a new email decoding the argument as a mailto: link"
 msgstr ""
 
-#: src/preferences-trans.h:21 src/preferences.c:201
+#: src/preferences-trans.h:16 src/preferences.c:202
 msgid "General"
 msgstr "Allgemein"
 
-#: src/preferences-trans.h:41 src/preferences.c:205
+#: src/preferences-trans.h:36 src/preferences.c:206
 msgid "Options"
 msgstr "Optionen"
 
-#: src/preferences-trans.h:102 src/preferences.c:209
+#: src/preferences-trans.h:104 src/preferences.c:210
 msgid "Paths"
 msgstr ""
 
-#: src/preferences-trans.h:55 src/preferences.c:213
+#: src/preferences-trans.h:50 src/preferences.c:214
 msgid "Accounts"
 msgstr ""
 
-#: src/preferences-trans.h:73 src/preferences.c:217
+#: src/preferences-trans.h:68 src/preferences.c:218
 msgid "Interface"
 msgstr "Schnittstelle"
 
-#: src/preferences-trans.h:83 src/preferences.c:221
+#: src/preferences-trans.h:82 src/preferences.c:222
 msgid "Fonts"
 msgstr "Schriften"
 
-#: src/preferences-trans.h:94 src/preferences.c:225
+#: src/preferences-trans.h:96 src/preferences.c:226
 msgid "Colors"
 msgstr "Farben"
 
-#: src/widget-index.c:237
+#: src/widget-index.c:238
 msgid "From"
 msgstr "Von"
 
-#: src/widget-index.c:239
+#: src/widget-index.c:240
 msgid "Date"
 msgstr "Datum"
 
 #.
-#. * Chaînes de caractères à traduire générées par
-#. * Glade. Ajouter ce fichier au fichier POTFILE.in
-#. * de votre projet. NE PAS compiler ce fichier
-#. * avec le reste de votre application.
+#. * Archivo de cadenas traducibles generado por Glade.
+#. * Añada este archivo a su POTFILES.in de su proyecto.
+#. * NO lo compile como parte de su aplicación.
 #.
-#: src/preferences-trans.h:8
+#: src/preferences-trans.h:7
 msgid "Preferences"
 msgstr "Einstellungen"
 
-#: src/preferences-trans.h:9
+#: src/preferences-trans.h:8
 msgid "label76"
 msgstr ""
 
+#: src/preferences-trans.h:9
+#, fuzzy
+msgid "[ Cronos II's logo ]"
+msgstr "Cronos II beenden"
+
 #: src/preferences-trans.h:10
 msgid ""
-"Through this dialog you will be able to configure Cronos II\n"
-"to behave the way you want it too.\n"
+"Through this dialog you will be able to configure Cronos II to behave the "
+"way you want it too.\n"
 "\n"
-"When you don't know what a field is for, you can get help by\n"
-"keeping your mouse for a couple of seconds over it, then a\n"
-"little help will pop-up describing what that field is all about.\n"
+"When you don't know what a field is for, you can get help by keeping your "
+"mouse for a couple of seconds over it, then a little help will pop-up "
+"describing what that field is all about.\n"
 "\n"
-"If you need extra help you should get in touch with other users\n"
-"or with the developers.\n"
-"To have the information of how to get in touch you should\n"
-"click on 'Getting in Touch' in the Help menu of the main window."
+"If you need extra help you should get in touch with other users or with the "
+"developers.\n"
+"To have the information of how to get in touch you should click on 'Getting "
+"in Touch' in the Help menu of the main window."
 msgstr ""
 
-#: src/preferences-trans.h:22
+#: src/preferences-trans.h:17
 #, fuzzy
 msgid "Check for mail every"
 msgstr "Bestimme, wieviele Nachrichten auf dem Server liegen..."
 
-#: src/preferences-trans.h:23
+#: src/preferences-trans.h:18
 msgid "minutes."
 msgstr ""
 
-#: src/preferences-trans.h:24
+#: src/preferences-trans.h:19
 msgid "Wait"
 msgstr ""
 
-#: src/preferences-trans.h:25
+#: src/preferences-trans.h:20
 #, fuzzy
 msgid "seconds before marking a mail as readed."
 msgstr "Warte .. Sekunden, bis die Mail als gelesen markiert wird"
 
-#: src/preferences-trans.h:26
+#: src/preferences-trans.h:21
 msgid "Wrap outgoing text at"
 msgstr ""
 
-#: src/preferences-trans.h:27
+#: src/preferences-trans.h:22
 msgid "characters."
 msgstr ""
 
-#: src/preferences-trans.h:28
+#: src/preferences-trans.h:23
 msgid "Prepend"
 msgstr ""
 
-#: src/preferences-trans.h:29 src/preferences-trans.h:33
+#: src/preferences-trans.h:24 src/preferences-trans.h:28
 msgid "> "
 msgstr ""
 
-#: src/preferences-trans.h:30
+#: src/preferences-trans.h:25
 msgid "::> "
 msgstr ""
 
-#: src/preferences-trans.h:31
+#: src/preferences-trans.h:26
 msgid "# "
 msgstr ""
 
-#: src/preferences-trans.h:32
+#: src/preferences-trans.h:27
 msgid "Quote# "
 msgstr ""
 
-#: src/preferences-trans.h:34
+#: src/preferences-trans.h:29
 msgid "to each line when replying a message."
 msgstr ""
 
-#: src/preferences-trans.h:35
+#: src/preferences-trans.h:30
 #, fuzzy
 msgid "Empty the Garbage mailbox on exit."
 msgstr "Abfalleimer beim Beenden leeren"
 
-#: src/preferences-trans.h:36
+#: src/preferences-trans.h:31
 #, fuzzy
 msgid "Store a copy of outgoing messages in the Outbox mailbox."
 msgstr "Von abgeschickten Mails eine Kopie im Postausgang speichern"
 
-#: src/preferences-trans.h:37
+#: src/preferences-trans.h:32
 msgid "Check for mail at start up."
 msgstr ""
 
-#: src/preferences-trans.h:38
+#: src/preferences-trans.h:33
 #, fuzzy
 msgid "Message Transfer mode:"
 msgstr "Eigenschaften dieser Nachricht"
 
-#: src/preferences-trans.h:39
+#: src/preferences-trans.h:34
 msgid ""
 "This is the mode that will be used when transfering messages. Multithread "
 "means that the transfering will start right when it is needed (all transfers "
 "at once). Monothread means that the transfering will be done one by one."
 msgstr ""
 
-#: src/preferences-trans.h:40
+#: src/preferences-trans.h:35
 msgid "Default MIME part to display:"
 msgstr ""
 
-#: src/preferences-trans.h:43 src/trans.h:127
+#: src/preferences-trans.h:38 src/trans.h:127
 msgid "Name"
 msgstr ""
 
-#: src/preferences-trans.h:44 src/trans.h:128
+#: src/preferences-trans.h:39 src/trans.h:128
 msgid "E-Mail"
 msgstr ""
 
-#: src/preferences-trans.h:45
+#: src/preferences-trans.h:40
 msgid "Click this button to create a new account"
 msgstr ""
 
-#: src/preferences-trans.h:46
+#: src/preferences-trans.h:41
 msgid "_Add"
 msgstr ""
 
-#: src/preferences-trans.h:47
+#: src/preferences-trans.h:42
 msgid ""
 "Click this button to edit the information of the current selected mailbox"
 msgstr ""
 
-#: src/preferences-trans.h:48
+#: src/preferences-trans.h:43
 msgid "_Modify"
 msgstr ""
 
-#: src/preferences-trans.h:49
+#: src/preferences-trans.h:44
 msgid "Click this button to remove the current selected account"
 msgstr ""
 
-#: src/preferences-trans.h:50
+#: src/preferences-trans.h:45
 #, fuzzy
 msgid "_Remove"
 msgstr "_Bewegen"
 
-#: src/preferences-trans.h:51
+#: src/preferences-trans.h:46
 msgid ""
 "Click this button to move up the current selected account in the priority "
 "order"
 msgstr ""
 
-#: src/preferences-trans.h:52
+#: src/preferences-trans.h:47
 #, fuzzy
 msgid "_Up"
 msgstr "Hoch"
 
-#: src/preferences-trans.h:53
+#: src/preferences-trans.h:48
 msgid ""
 "Click this button to move down the current selected account in the priority "
 "order"
 msgstr ""
 
-#: src/preferences-trans.h:54
+#: src/preferences-trans.h:49
 #, fuzzy
 msgid "_Down"
 msgstr "Runter"
 
-#: src/preferences-trans.h:56
+#: src/preferences-trans.h:51
 #, fuzzy
 msgid "Application's Title"
 msgstr "Titelzeile dieser Anwendung anpassen"
 
-#: src/preferences-trans.h:57
+#: src/preferences-trans.h:52
 #, fuzzy
 msgid ""
 "Conversion characters:\n"
@@ -629,167 +633,198 @@ msgstr ""
 "%n = Neue Nachrichten in der ausgewählten Mailbox,\n"
 "%M = Ausgewählte Mailbox."
 
-#: src/preferences-trans.h:63
+#: src/preferences-trans.h:58
 msgid "Show toolbar with"
 msgstr ""
 
-#: src/preferences-trans.h:64
+#: src/preferences-trans.h:59
 msgid "Icons only"
 msgstr "Nur Bilder"
 
-#: src/preferences-trans.h:65
+#: src/preferences-trans.h:60
 msgid "Text only"
 msgstr "Nur Text"
 
-#: src/preferences-trans.h:66
+#: src/preferences-trans.h:61
 #, fuzzy
 msgid "Icons & Text"
 msgstr "Bilder und Text"
 
-#: src/preferences-trans.h:67
+#: src/preferences-trans.h:62
 msgid "Date format:"
 msgstr ""
 
-#: src/preferences-trans.h:68 src/preferences-trans.h:72
+#: src/preferences-trans.h:63 src/preferences-trans.h:67
 msgid "%d.%m.%Y %H:%M %z"
 msgstr ""
 
-#: src/preferences-trans.h:69
+#: src/preferences-trans.h:64
 msgid "%Y.%m.%d %H:%M %z"
 msgstr ""
 
-#: src/preferences-trans.h:70
+#: src/preferences-trans.h:65
 msgid "%A %d %B %Y %H:%M"
 msgstr ""
 
-#: src/preferences-trans.h:71
+#: src/preferences-trans.h:66
 msgid ""
 "Date format to be shown in strftime format. Check man:strfrim(3) for help."
 msgstr ""
 
-#: src/preferences-trans.h:74
+#: src/preferences-trans.h:69
 #, fuzzy
 msgid "Message Body:"
 msgstr "Nachrichtenkörper"
 
-#: src/preferences-trans.h:75
+#: src/preferences-trans.h:70
 #, fuzzy
 msgid "Unreaded Message:"
 msgstr "Ungelesene Nachrichten"
 
-#: src/preferences-trans.h:76
+#: src/preferences-trans.h:71
 #, fuzzy
 msgid "Readed Message:"
 msgstr "Gelesene Nachrichten"
 
-#: src/preferences-trans.h:77 src/preferences-trans.h:79
-#: src/preferences-trans.h:81
+#: src/preferences-trans.h:72 src/preferences-trans.h:74
+#: src/preferences-trans.h:76
 msgid "Pick a Font"
 msgstr ""
 
-#: src/preferences-trans.h:78 src/preferences-trans.h:80
-#: src/preferences-trans.h:82
+#: src/preferences-trans.h:73 src/preferences-trans.h:75
+#: src/preferences-trans.h:77 src/preferences-trans.h:81
 msgid "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
 msgstr ""
 
-#: src/preferences-trans.h:84
+#: src/preferences-trans.h:78
+#, fuzzy
+msgid "Unreaded Mailbox:"
+msgstr "Mailbox hinzufügen"
+
+#: src/preferences-trans.h:79
+msgid "Font to set in mailboxes with unreaded messages."
+msgstr ""
+
+#: src/preferences-trans.h:80
+msgid "Seleccione un tipo de letra"
+msgstr ""
+
+#: src/preferences-trans.h:83
 #, fuzzy
 msgid "Replying and Forwarding"
 msgstr "Antworten und weiterleiten"
 
-#: src/preferences-trans.h:85 src/preferences-trans.h:89
-#: src/preferences-trans.h:91
+#: src/preferences-trans.h:84 src/preferences-trans.h:88
+#: src/preferences-trans.h:90
 msgid "Pick a color"
 msgstr ""
 
-#: src/preferences-trans.h:86
+#: src/preferences-trans.h:85
 msgid "Original message:"
 msgstr "Original Nachricht:"
 
-#: src/preferences-trans.h:87
+#: src/preferences-trans.h:86
 #, fuzzy
-msgid "Message Displaying"
+msgid "Message displaying"
 msgstr "Nachrichtenkörper"
 
-#: src/preferences-trans.h:88
+#: src/preferences-trans.h:87
 msgid "Default background color:"
 msgstr ""
 
-#: src/preferences-trans.h:90
+#: src/preferences-trans.h:89
 msgid "Default foreground color:"
 msgstr ""
 
+#: src/preferences-trans.h:91
+msgid "Mailboxes with marked mails foreground color:"
+msgstr ""
+
 #: src/preferences-trans.h:92
-msgid "Use document specified colors."
+msgid "Elija un color"
 msgstr ""
 
 #: src/preferences-trans.h:93
+msgid "Use document specified colors."
+msgstr ""
+
+#: src/preferences-trans.h:94
 msgid "Always use my colors."
 msgstr ""
 
 #: src/preferences-trans.h:95
+#, fuzzy
+msgid "Mailbox displaying"
+msgstr "Nachrichtenkörper"
+
+#: src/preferences-trans.h:97
 msgid "Default directory for saving files"
 msgstr ""
 
-#: src/preferences-trans.h:96 src/preferences-trans.h:98
-#: src/preferences-trans.h:100
+#: src/preferences-trans.h:98 src/preferences-trans.h:100
+#: src/preferences-trans.h:102
 msgid "Browse..."
 msgstr ""
 
-#: src/preferences-trans.h:97
+#: src/preferences-trans.h:99
 msgid "Default directory for downloading files"
 msgstr ""
 
-#: src/preferences-trans.h:99
+#: src/preferences-trans.h:101
 msgid "Default directory for getting files"
 msgstr ""
 
-#: src/preferences-trans.h:101
+#: src/preferences-trans.h:103
 msgid "Always prompt for this directories."
 msgstr ""
 
-#: src/preferences-trans.h:103
+#: src/preferences-trans.h:105
 #, fuzzy
 msgid "Proxy"
 msgstr "Priorität"
 
-#: src/preferences-trans.h:104
+#: src/preferences-trans.h:106
 msgid "HTTP Proxy:"
 msgstr ""
 
-#: src/preferences-trans.h:105 src/preferences-trans.h:107
-#: src/preferences-trans.h:109 src/preferences-trans.h:134
-#: src/preferences-trans.h:167 src/trans.h:100
+#: src/preferences-trans.h:107 src/preferences-trans.h:109
+#: src/preferences-trans.h:111 src/preferences-trans.h:137
+#: src/preferences-trans.h:170 src/trans.h:100
 #, fuzzy
 msgid "Port:"
 msgstr "Priorität:"
 
-#: src/preferences-trans.h:106
+#: src/preferences-trans.h:108
 msgid "FTP Proxy:"
 msgstr ""
 
-#: src/preferences-trans.h:108
+#: src/preferences-trans.h:110
 msgid "Use persistent SMTP connection:"
 msgstr ""
 
-#: src/preferences-trans.h:110
+#: src/preferences-trans.h:112
 msgid "Use internal browser for following links."
 msgstr ""
 
-#: src/preferences-trans.h:111
+#: src/preferences-trans.h:113
+#, fuzzy
+msgid "Load mailboxes at start."
+msgstr "Öffne Mailbox-Index"
+
+#: src/preferences-trans.h:114
 msgid "Advanced"
 msgstr "Weitergehende Einstellungen"
 
-#: src/preferences-trans.h:112
+#: src/preferences-trans.h:115
 msgid "Cronos II : Preferences : Accounts"
 msgstr ""
 
-#: src/preferences-trans.h:113 src/preferences-trans.h:147
+#: src/preferences-trans.h:116 src/preferences-trans.h:150
 #, fuzzy
 msgid "Account Options"
 msgstr "Account Typ"
 
-#: src/preferences-trans.h:114
+#: src/preferences-trans.h:117
 msgid ""
 "This wizard will help you with the configuration of your\n"
 "accounts for use with Cronos II.\n"
@@ -800,121 +835,121 @@ msgid ""
 "users."
 msgstr ""
 
-#: src/preferences-trans.h:121
+#: src/preferences-trans.h:124
 #, fuzzy
 msgid "Basic Information"
 msgstr "Bestätigung"
 
-#: src/preferences-trans.h:122
+#: src/preferences-trans.h:125
 msgid ""
 "Write here the name which with you want to identify this account. Note that "
 "this is just for internal use."
 msgstr ""
 
-#: src/preferences-trans.h:123
+#: src/preferences-trans.h:126
 msgid ""
 "This is the name that will be sent in outgoing messages in the \"From:\" "
 "field."
 msgstr ""
 
-#: src/preferences-trans.h:124
+#: src/preferences-trans.h:127
 #, fuzzy
 msgid "Account Name:"
 msgstr "Account Typ"
 
-#: src/preferences-trans.h:125
+#: src/preferences-trans.h:128
 #, fuzzy
 msgid "Person Name:"
 msgstr "Benutzer Name: "
 
-#: src/preferences-trans.h:126
+#: src/preferences-trans.h:129
 msgid "Include this account in general account checks."
 msgstr ""
 
-#: src/preferences-trans.h:127
+#: src/preferences-trans.h:130
 msgid "Organization:"
 msgstr ""
 
-#: src/preferences-trans.h:128
+#: src/preferences-trans.h:131
 msgid "E-Mail Address:"
 msgstr ""
 
-#: src/preferences-trans.h:129
+#: src/preferences-trans.h:132
 msgid "Reply-To Address:"
 msgstr ""
 
-#: src/preferences-trans.h:130
+#: src/preferences-trans.h:133
 msgid "Attach Address Book Card with outgoing mails"
 msgstr ""
 
-#: src/preferences-trans.h:131
+#: src/preferences-trans.h:134
 #, fuzzy
 msgid "Select Card"
 msgstr "Bitte wählen sie eine Datei"
 
-#: src/preferences-trans.h:132
+#: src/preferences-trans.h:135
 #, fuzzy
 msgid "Protocol Information"
 msgstr "Bestätigung"
 
-#: src/preferences-trans.h:133
+#: src/preferences-trans.h:136
 #, fuzzy
 msgid "Protocol data"
 msgstr "Protokoll"
 
-#: src/preferences-trans.h:135 src/preferences-trans.h:170 src/trans.h:104
-#: src/trans.h:175
+#: src/preferences-trans.h:138 src/preferences-trans.h:173 src/trans.h:104
+#: src/trans.h:179
 msgid "Username:"
 msgstr "Benutzername:"
 
-#: src/preferences-trans.h:136 src/preferences-trans.h:171 src/trans.h:105
-#: src/trans.h:174
+#: src/preferences-trans.h:139 src/preferences-trans.h:174 src/trans.h:105
+#: src/trans.h:178
 msgid "Password:"
 msgstr "Passwort:"
 
-#: src/preferences-trans.h:137 src/preferences-trans.h:166 src/trans.h:103
+#: src/preferences-trans.h:140 src/preferences-trans.h:169 src/trans.h:103
 #, fuzzy
 msgid "Hostname:"
 msgstr "Benutzername:"
 
-#: src/preferences-trans.h:138
+#: src/preferences-trans.h:141
 #, fuzzy
 msgid "Leave downloaded messages in server."
 msgstr "Keine Nachrichten auf dem Server"
 
-#: src/preferences-trans.h:139
+#: src/preferences-trans.h:142
 #, fuzzy
 msgid "SMTP Options"
 msgstr "Optionen"
 
-#: src/preferences-trans.h:140
+#: src/preferences-trans.h:143
 msgid "Remote SMTP Server."
 msgstr ""
 
-#: src/preferences-trans.h:141
+#: src/preferences-trans.h:144
 msgid "Local sendmail program (MUA)."
 msgstr ""
 
-#: src/preferences-trans.h:142
+#: src/preferences-trans.h:145
 #, fuzzy
 msgid "Set Information"
 msgstr "Bestätigung"
 
-#: src/preferences-trans.h:143 src/preferences-trans.h:145
+#: src/preferences-trans.h:146 src/preferences-trans.h:148
 msgid "Signature"
 msgstr "Signatur"
 
-#: src/preferences-trans.h:144
+#: src/preferences-trans.h:147
 #, fuzzy
 msgid "Type of signature:"
 msgstr "Eine Signatur einfügen"
 
-#: src/preferences-trans.h:146
+#: src/preferences-trans.h:149
 #, fuzzy
 msgid "Automatically append this signature to outgoing messages."
 msgstr "Signatur automatisch einfügen"
 
-#: src/preferences-trans.h:148
+#: src/preferences-trans.h:151
 msgid ""
 "Congratulations! You have successfully created an account to\n"
 "be use with Cronos II.\n"
@@ -922,7 +957,7 @@ msgid ""
 "Click the 'Finish' button to save this new account."
 msgstr ""
 
-#: src/preferences-trans.h:152
+#: src/preferences-trans.h:155
 msgid ""
 "The Account Name you choosed\n"
 "is already being used by other\n"
@@ -932,47 +967,47 @@ msgid ""
 "repited."
 msgstr ""
 
-#: src/preferences-trans.h:158 src/preferences-trans.h:161
-#: src/preferences-trans.h:174 src/preferences-trans.h:184
-#: src/preferences-trans.h:186 src/preferences-trans.h:188 src/trans.h:91
+#: src/preferences-trans.h:161 src/preferences-trans.h:164
+#: src/preferences-trans.h:177 src/preferences-trans.h:187
+#: src/preferences-trans.h:189 src/preferences-trans.h:191 src/trans.h:91
 msgid "Error"
 msgstr ""
 
-#: src/preferences-trans.h:159
+#: src/preferences-trans.h:162
 msgid ""
 "The E-Mail address you\n"
 "entered is not valid."
 msgstr ""
 
-#: src/preferences-trans.h:162
+#: src/preferences-trans.h:165
 msgid "SMTP Server Information"
 msgstr ""
 
-#: src/preferences-trans.h:163
+#: src/preferences-trans.h:166
 msgid ""
 "Provide here the information for the\n"
 "SMTP server for this account."
 msgstr ""
 
-#: src/preferences-trans.h:165
+#: src/preferences-trans.h:168
 msgid "localhost"
 msgstr ""
 
-#: src/preferences-trans.h:168
+#: src/preferences-trans.h:171
 msgid "This server requires authentication"
 msgstr ""
 
-#: src/preferences-trans.h:169
+#: src/preferences-trans.h:172
 msgid "Authentication Information"
 msgstr ""
 
-#: src/preferences-trans.h:172
+#: src/preferences-trans.h:175
 msgid ""
 "The Account name you\n"
 "entered is not valid."
 msgstr ""
 
-#: src/preferences-trans.h:175
+#: src/preferences-trans.h:178
 msgid ""
 "You selected that you want to\n"
 "use a remote SMTP server for\n"
@@ -985,15 +1020,15 @@ msgid ""
 "needed data."
 msgstr ""
 
-#: src/preferences-trans.h:185
+#: src/preferences-trans.h:188
 msgid "You didn't entered a valid hostname."
 msgstr ""
 
-#: src/preferences-trans.h:187
+#: src/preferences-trans.h:190
 msgid "You didn't entered a valid username."
 msgstr ""
 
-#: src/preferences-trans.h:189
+#: src/preferences-trans.h:192
 msgid ""
 "This will permanently remove\n"
 "the account from your configuration.\n"
@@ -1001,14 +1036,14 @@ msgid ""
 "Are you sure you want this?"
 msgstr ""
 
-#: src/preferences-trans.h:193
+#: src/preferences-trans.h:196
 msgid "Confirmation"
 msgstr "Bestätigung"
 
 #.
-#. * Translatable strings file generated by Glade.
-#. * Add this file to your project's POTFILES.in.
-#. * DO NOT compile it as part of your application.
+#. * Archivo de cadenas traducibles generado por Glade.
+#. * Añada este archivo a su POTFILES.in de su proyecto.
+#. * NO lo compile como parte de su aplicación.
 #.
 #: src/trans.h:7 src/trans.h:117
 #, fuzzy
@@ -1280,7 +1315,7 @@ msgstr "Abschicken"
 msgid "Save current message"
 msgstr "Diese Nachricht verschicken"
 
-#: src/trans.h:68 src/trans.h:124 src/trans.h:162
+#: src/trans.h:68 src/trans.h:124 src/trans.h:166
 msgid "Save"
 msgstr "Speichern"
 
@@ -1351,8 +1386,9 @@ msgid "Exit"
 msgstr "Bearbeiten"
 
 #: src/trans.h:87
-msgid "label7"
-msgstr ""
+#, fuzzy
+msgid "Mailbox"
+msgstr "_Mailbox"
 
 #: src/trans.h:88
 #, fuzzy
@@ -1447,25 +1483,25 @@ msgstr ""
 msgid "_New File"
 msgstr "_Datei"
 
-#: src/trans.h:119 src/trans.h:157
+#: src/trans.h:119 src/trans.h:161
 #, fuzzy
 msgid "New File"
 msgstr "In Datei"
 
-#: src/trans.h:120 src/trans.h:158
+#: src/trans.h:120 src/trans.h:162
 msgid "New"
 msgstr "Neu"
 
-#: src/trans.h:121 src/trans.h:159
+#: src/trans.h:121 src/trans.h:163
 #, fuzzy
 msgid "Open File"
 msgstr "In Datei"
 
-#: src/trans.h:122 src/trans.h:160
+#: src/trans.h:122 src/trans.h:164
 msgid "Open"
 msgstr "Öffne"
 
-#: src/trans.h:123 src/trans.h:161
+#: src/trans.h:123 src/trans.h:165
 #, fuzzy
 msgid "Save File"
 msgstr "In eine Datei speichern"
@@ -1531,124 +1567,143 @@ msgid "Cronos II : Composer"
 msgstr ""
 
 #: src/trans.h:143
+#, fuzzy
+msgid "Send the current mail"
+msgstr "Diese Nachricht verschicken"
+
+#: src/trans.h:144
+#, fuzzy
+msgid "S_end"
+msgstr "Abschicken"
+
+#: src/trans.h:145
+msgid "Send _Later"
+msgstr ""
+
+#: src/trans.h:146
 msgid "_Insert"
 msgstr "_Einfügen"
 
-#: src/trans.h:144
+#: src/trans.h:147
 #, fuzzy
 msgid "Insert a file as in-line."
 msgstr "Eine Datei einfügen"
 
-#: src/trans.h:145
+#: src/trans.h:148
 msgid "_File"
 msgstr "_Datei"
 
-#: src/trans.h:146
+#: src/trans.h:149
 #, fuzzy
 msgid "Insert a file as an attachment"
 msgstr "Einen Anhang einfügen"
 
-#: src/trans.h:147
+#: src/trans.h:150
 #, fuzzy
 msgid "_Attachment"
 msgstr "Anhang"
 
-#: src/trans.h:148
+#: src/trans.h:151
 msgid "_Spell Checker"
 msgstr ""
 
-#: src/trans.h:149
+#: src/trans.h:152
+#, fuzzy
+msgid "Sig_nature"
+msgstr "Signatur"
+
+#: src/trans.h:153
 #, fuzzy
 msgid "_Options"
 msgstr "Optionen"
 
-#: src/trans.h:150
+#: src/trans.h:154
 #, fuzzy
 msgid "Priority"
 msgstr "Priorität"
 
-#: src/trans.h:151
+#: src/trans.h:155
 msgid "Highest"
 msgstr ""
 
-#: src/trans.h:152
+#: src/trans.h:156
 msgid "High"
 msgstr ""
 
-#: src/trans.h:153
+#: src/trans.h:157
 msgid "Normal"
 msgstr ""
 
-#: src/trans.h:154
+#: src/trans.h:158
 msgid "Low"
 msgstr ""
 
-#: src/trans.h:155
+#: src/trans.h:159
 msgid "Lowest"
 msgstr ""
 
-#: src/trans.h:156
+#: src/trans.h:160
 msgid "Wrap"
 msgstr ""
 
-#: src/trans.h:163
+#: src/trans.h:167
 #, fuzzy
 msgid "Message Tranfer"
 msgstr "Eigenschaften dieser Nachricht"
 
-#: src/trans.h:164
+#: src/trans.h:168
 msgid "Tasks's list"
 msgstr ""
 
-#: src/trans.h:166
+#: src/trans.h:170
 msgid "Information"
 msgstr ""
 
-#: src/trans.h:167
+#: src/trans.h:171
 msgid "Subtasks"
 msgstr ""
 
-#: src/trans.h:168
+#: src/trans.h:172
 msgid "This bar shows how many subtasks there are for the current task"
 msgstr ""
 
-#: src/trans.h:169
+#: src/trans.h:173
 msgid "%v of %u [%P%%]"
 msgstr ""
 
-#: src/trans.h:170
+#: src/trans.h:174
 msgid "Progress of subtask"
 msgstr ""
 
-#: src/trans.h:171
+#: src/trans.h:175
 msgid "%u bytes [%P%%]"
 msgstr ""
 
-#: src/trans.h:172
+#: src/trans.h:176
 #, fuzzy
 msgid "Automatically close when finished."
 msgstr "Signatur automatisch einfügen"
 
-#: src/trans.h:173
+#: src/trans.h:177
 #, fuzzy
 msgid "Bad Password"
 msgstr "Passwort:"
 
-#: src/trans.h:176
+#: src/trans.h:180
 msgid "Account:"
 msgstr ""
 
-#: src/trans.h:177
+#: src/trans.h:181
 msgid ""
 "The server has rejected the password\n"
 "you seted for this account."
 msgstr ""
 
-#: src/trans.h:179
+#: src/trans.h:183
 msgid "Getting in Touch"
 msgstr ""
 
-#: src/trans.h:180
+#: src/trans.h:184
 msgid ""
 "You can easily get in touch for help (or just for chating)\n"
 "with anyone of the Cronos II comunity (users or developers).\n"
@@ -1976,9 +2031,6 @@ msgstr ""
 
 #~ msgid "Mailboxes"
 #~ msgstr "Mailboxen"
-
-#~ msgid "Add Mailbox"
-#~ msgstr "Mailbox hinzufügen"
 
 #~ msgid "Repling and forwarding"
 #~ msgstr "Beantworten und weiterleiten"

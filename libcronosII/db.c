@@ -108,6 +108,7 @@ c2_db_class_init (C2DbClass *klass)
 static void
 c2_db_init (C2Db *db)
 {
+	db->state = C2_MESSAGE_UNREADED;
 	db->marked = 0;
 	db->subject = NULL;
 	db->from = NULL;
@@ -162,7 +163,7 @@ gint
 c2_db_load (C2Mailbox *mailbox)
 {
 	gint (*func) (C2Mailbox *mailbox);
-	
+L	
 	c2_return_val_if_fail (mailbox, -1, C2EDATA);
 
 	switch (mailbox->type)
@@ -259,12 +260,14 @@ c2_db_message_get (C2Db *db, gint row)
 	gint mid, i;
 	
 	/* Get the mid of the message */
-	for (l = db, i = 0; i < row && l != NULL; i++, l = l->next);
-	c2_return_val_if_fail (l, NULL, C2EDATA);
+	printf ("%d\n", row);
+	for (l = db, i = 1; i < row && l != NULL; i++, l = l->next)
+		L
+L	c2_return_val_if_fail (l, NULL, C2EDATA);
 
-	if (l)
+	if (C2_MESSAGE (l)->header)
 	{
-		return C2_MESSAGE (l);
+L		return C2_MESSAGE (l);
 	}
 
 	mid = l->mid;
@@ -277,6 +280,9 @@ c2_db_message_get (C2Db *db, gint row)
 			break;
 		case C2_MAILBOX_IMAP:
 			/* TODO message = c2_db_message_get_imap (db, mid); TODO */
+			break;
+		case C2_MAILBOX_SPOOL:
+			message = c2_db_spool_message_get (db, mid);
 			break;
 	}
 	
@@ -326,6 +332,7 @@ c2_db_message_get_from_file (const gchar *path)
 	fread (string, sizeof (gchar), length, fd);
 	fclose (fd);
 
+	message = c2_message_new ();
 	c2_message_set_message (message, string);
 	g_free (string);
 
@@ -369,7 +376,7 @@ gint
 c2_db_create_structure (C2Mailbox *mailbox)
 {
 	gint (*func) (C2Mailbox *mailbox);
-	
+L	
 	switch (mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:

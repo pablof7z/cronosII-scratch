@@ -1,21 +1,20 @@
-%define name		@PACKAGE@
-%define version		@VERSION@
+%define name		cronosII
+%define prefix		/usr
 %define sysconfdir	/etc
 %define RELEASE		0
 %define rel	%{?CUSTOM_RELEASE} %{!?$CUSTOM_RELEASE:%RELEASE}
 
 Summary: Cronos II is a powerful mail client for GNOME.
-Name: %{name}
-Version: %{version}
+Name: @PACKAGE@
+Version: @VERSION@
 Release: %rel
 Copyright: GPL
 Group: Applications/Internet
 URL: http://cronosII.sourceforge.net
-Source: %{name}-%{version}.tar.gz
+Source: @PACKAGE@-@VERSION@.tar.gz
 Requires: gnome-libs >= 1.0.0
-Packager: Yves Mettier <ymettier@libertysurf.fr>
+Packager: Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 BuildRoot: %{_tmppath}/%{name}-root
-Prefix: %{_prefix}
 
 %description
 Cronos II is a powerful GNOME mail client that uses its own database storage
@@ -29,17 +28,6 @@ format de stockage des mails afin d'avoir les hautes performances qu'il est
 capable d'atteidre.
 Si vous voulez aider au developpement, contactez Cronos II (Pablo Fernández
 Navarro) <cronosII@users.sourceforge.net>
-
-%package devel
-Summary: Developer files for CronosII
-Group: Applications/Internet
-Requires: gnome-libs-devel >= 1.0.0
-
-%description devel
-Developer files for CronosII
-
-%description devel -l fr
-Fichiers de developpement pour CronosII.
 
 %prep
 %setup -q
@@ -57,19 +45,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc ABOUT-NLS AUTHORS COPYING ChangeLog FEATURES INSTALL NEWS README doc/C/*.sgml TODO
+%doc ABOUT-NLS AUTHORS COPYING ChangeLog FEATURES INSTALL NEWS README doc/C/cronosII/* TODO
 %{_bindir}/cronos
 %{_datadir}/gnome/apps/Internet/cronosII.desktop
-%{_datadir}/gnome/apps/Applications/c2addrbook.desktop
-%{_datadir}/gnome/help/cronosII/*
-%{_datadir}/pixmaps/*
-%{_datadir}/locale/*/*/*
-%{_datadir}/mc/templates/*
-%{_datadir}/cronosII-scratch/
+%{_datadir}/pixmaps/cronosII.png
+#%{_datadir}/locale/*/LC_MESSAGES/cronosII.mo
 %{_mandir}/*
-
-%files devel
-%defattr(-,root,root)
-%{_bindir}/cronosII-config
-%{_includedir}/cronosII/*
-
+%{_datadir}/gnome/help/cronosII/*
+%{_datadir}/cronosII-scratch/

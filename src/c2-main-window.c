@@ -32,7 +32,7 @@
 
 #define CRONOSII_TYPE_STRING		"Cronos II"
 #define IMAP_TYPE_STRING			"IMAP"
-#define SPOOL_TYPE_STRING			"Spool (local)"
+#define SPOOL_TYPE_STRING			_("Spool (local)")
 
 void
 c2_main_window_set_sensitivity (void)
@@ -108,8 +108,8 @@ c2_main_window_build_dynamic_menu_accounts (void)
 		box = gtk_hbox_new (FALSE, 0);
 		if (strlen (account->name) > 40)
 		{
-			char *s = g_strndup (account->name, 40);
-			char *t = g_strconcat (s, "...", NULL);
+			gchar *s = g_strndup (account->name, 40);
+			gchar *t = g_strconcat (s, "...", NULL);
 			label = gtk_label_new (t);
 			g_free (s);
 			g_free (t);
@@ -131,6 +131,13 @@ c2_main_window_build_dynamic_menu_accounts (void)
 	gtk_menu_append (GTK_MENU (submenu), item);
 	gtk_widget_set_sensitive (GTK_WIDGET (item), FALSE);
 	gtk_widget_show (item);
+}
+
+static void
+c2_main_window_build_dynamic_menu_windows_item_activate (GtkWidget *widget, GtkWidget *window)
+{
+	gdk_window_raise (window->window);
+	gtk_widget_show (window);
 }
 
 void
@@ -164,9 +171,10 @@ c2_main_window_build_dynamic_menu_windows (void)
 		pixmap = gnome_stock_pixmap_widget_at_size (submenu, GNOME_STOCK_PIXMAP_MAIL, 18, 18);
 		box = gtk_hbox_new (FALSE, 0);
 		
-		if (strlen (window->title) > 40) {
-			char *s = g_strndup (window->title, 40);
-			char *t = g_strconcat (s, "...", NULL);
+		if (strlen (window->title) > 40)
+		{
+			gchar *s = g_strndup (window->title, 40);
+			gchar *t = g_strconcat (s, "...", NULL);
 			label = gtk_label_new (t);
 			g_free (s);
 			g_free (t);
@@ -178,6 +186,8 @@ c2_main_window_build_dynamic_menu_windows (void)
 		gtk_pixmap_menu_item_set_pixmap (GTK_PIXMAP_MENU_ITEM (item), pixmap);
 		gtk_widget_show (label);
 		gtk_widget_show (box);
+		gtk_signal_connect (GTK_OBJECT (item), "activate",
+								GTK_SIGNAL_FUNC (c2_main_window_build_dynamic_menu_windows_item_activate), window);
 		
 		if (gnome_preferences_get_menus_have_icons ())
 			gtk_widget_show (pixmap);
@@ -349,10 +359,6 @@ on_new_mailbox_dlg_ok_clicked (GladeXML *gxml, gboolean first_mailbox)
 				GTK_SIGNAL_FUNC (on_ctree_changed_mailboxes), NULL);
 		gtk_signal_emit_by_name (GTK_OBJECT (retval), "changed_mailboxes");
 	}
-
-	/* Create the structure */
-	if (c2_db_create_structure (retval) < 0)
-		return;
 
 	/* Now we have to write to the config file the new mailbox */
 	config_id = gnome_config_get_int_with_default ("/cronosII/Mailboxes/quantity=0", NULL)+1;

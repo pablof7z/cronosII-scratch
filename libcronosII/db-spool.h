@@ -40,6 +40,9 @@ c2_db_spool_update_structure					(C2Mailbox *mailbox);
 gint
 c2_db_spool_remove_structure					(C2Mailbox *mailbox);
 
+C2Message *
+c2_db_spool_message_get							(C2Db *db, gint mid);
+
 #ifdef __cplusplus
 }
 #endif

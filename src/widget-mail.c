@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client /widget-mail.c
+/*  Cronos II Mail Client /src/widget-mail.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -17,6 +17,7 @@
  */
 #include <gnome.h>
 
+#include <libcronosII/mailbox.h>
 #include <libcronosII/error.h>
 #include <libcronosII/utils.h>
 
@@ -27,13 +28,13 @@
 #include "c2-app.h"
 
 static void
-on_body_button_press_event						(GtkWidget *widget, GdkEventButton *event);
+on_body_button_press_event					(GtkWidget *widget, GdkEventButton *event);
 
 static void
-c2_mail_class_init								(C2MailClass *klass);
+c2_mail_class_init							(C2MailClass *klass);
 
 static void
-c2_mail_init									(C2Mail *mail);
+c2_mail_init								(C2Mail *mail);
 
 enum
 {
@@ -64,7 +65,8 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 			break;
 	}
 
-	c2_part_set_part (C2_PART (mail->body), mime);
+	c2_html_set_content_from_string (C2_HTML (mail->body), message->body);
+//	c2_part_set_part (C2_HTML (mail->body), mime);
 }
 
 void

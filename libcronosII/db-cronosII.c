@@ -34,11 +34,12 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 	gchar *path, *line, *buf;
 	FILE *fd;
 	gint i;
-	
+
 	c2_return_val_if_fail (mailbox, -1, C2EDATA);
 
 	/* Calculate the path */
 	path = g_strconcat (g_get_home_dir (), C2_HOME,	mailbox->name, ".mbx" G_DIR_SEPARATOR_S "index", NULL);
+	C2_DEBUG (path);
 	
 	/* Open the file */
 	if (!(fd = fopen (path, "rt")))
@@ -102,7 +103,8 @@ c2_db_cronosII_load (C2Mailbox *mailbox)
 		g_free (line);
 	}
 
-	return -1;
+	mailbox->db = head;
+	return 0;
 }
 
 C2Message *
@@ -156,7 +158,7 @@ c2_db_cronosII_message_get (C2Db *db, gint mid)
 gint
 c2_db_cronosII_create_structure (C2Mailbox *mailbox)
 {
-	gchar *path = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S  G_DIR_SEPARATOR_S, mailbox->name,
+	gchar *path = g_strconcat (g_get_home_dir (), C2_HOME, mailbox->name,
 								".mbx" G_DIR_SEPARATOR_S, NULL);
 	FILE *fd;
 
@@ -184,7 +186,7 @@ c2_db_cronosII_update_structure (C2Mailbox *mailbox)
 gint
 c2_db_cronosII_remove_structure (C2Mailbox *mailbox)
 {
-	gchar *directory = g_strconcat (g_get_home_dir (), G_DIR_SEPARATOR_S C2_HOME G_DIR_SEPARATOR_S,
+	gchar *directory = g_strconcat (g_get_home_dir (), C2_HOME,
 									mailbox->name, ".mbx" G_DIR_SEPARATOR_S, NULL);
 	gchar *path;
 	DIR *dir;

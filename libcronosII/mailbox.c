@@ -195,9 +195,10 @@ c2_mailbox_destroy (GtkObject *object)
 }
 
 /**
- * c2_mailbox_new
+ * _c2_mailbox_new
  * @name: Name of mailbox.
  * @id: Id of mailbox.
+ * @independent: TRUE if the call is not from an function-envelopment, you want to say TRUE.
  * @type: Type of mailbox.
  * @sort_by: Column to sort the mailbox by.
  * @sort_type: Whether to use ascending or descending sorting.
@@ -221,7 +222,7 @@ c2_mailbox_destroy (GtkObject *object)
  * The new mailbox object.
  **/
 C2Mailbox *
-c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
+_c2_mailbox_new (const gchar *name, const gchar *id, gboolean independent, C2MailboxType type,
 				C2MailboxSortBy sort_by, GtkSortType sort_type, ...)
 {
 	C2Mailbox *mailbox;
@@ -274,8 +275,9 @@ c2_mailbox_new (const gchar *name, const gchar *id, C2MailboxType type,
 	else
 		c2_mailbox_insert (mailbox_head, mailbox);
 
-	gtk_signal_emit (GTK_OBJECT (mailbox_head),
-						c2_mailbox_signals[CHANGED_MAILBOXES]);
+	if (independent)
+			gtk_signal_emit (GTK_OBJECT (mailbox_head),
+							c2_mailbox_signals[CHANGED_MAILBOXES]);
 
 	return mailbox;
 }
@@ -317,7 +319,7 @@ c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2Mailbox
 	switch (type)
 	{
 		case C2_MAILBOX_CRONOSII:
-			value = c2_mailbox_new (name, id, type, sort_by, sort_type);
+			value = _c2_mailbox_new (name, id, FALSE, type, sort_by, sort_type);
 			break;
 		case C2_MAILBOX_IMAP:
 			va_start (edata, sort_type);
@@ -327,18 +329,27 @@ c2_mailbox_new_with_parent (const gchar *name, const gchar *parent_id, C2Mailbox
 			pass = va_arg (edata, gchar *);
 			path = va_arg (edata, gchar *);
 	
-			value = c2_mailbox_new (name, id, type, sort_by, sort_type, host, port, user, pass, path);
+			value = _c2_mailbox_new (name, id, FALSE, type, sort_by, sort_type, host, port, user, pass, path);
 			va_end (edata);
 			break;
 		case C2_MAILBOX_SPOOL:
 			va_start (edata, sort_type);
 			path = va_arg (edata, gchar *);
 		
-			value = c2_mailbox_new (name, id, type, sort_by, sort_type, path);
+			value = _c2_mailbox_new (name, id, FALSE, type, sort_by, sort_type, path);
 			va_end (edata);
 			break;
 	}
 	g_free (id);
+
+	/* Create the structure */
+	if (c2_db_create_structure (value) < 0)
+		return NULL;
+
+	c2_db_load (value);
+
+	gtk_signal_emit (GTK_OBJECT (c2_mailbox_get_head ()),
+							c2_mailbox_signals[CHANGED_MAILBOXES]);
 	
 	return value;
 }
@@ -795,7 +806,7 @@ c2_mailbox_load_db (C2Mailbox *mailbox)
 	}
 
 	/* We must load the db */
-	if (!c2_db_load (mailbox))
+	if (c2_db_load (mailbox) < 0)
 	{
 		gtk_signal_emit (GTK_OBJECT (mailbox), c2_mailbox_signals[DB_LOADED], -1);
 		return;

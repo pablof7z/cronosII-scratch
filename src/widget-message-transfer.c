@@ -137,7 +137,7 @@ c2_message_transfer_new (void)
 	/* mt is a window widget, so we should use other non-windowed widget */
 	gnome_widget_add_help (GTK_WIDGET (mt),
 				_("This window shows transfer of messages "
-				  "( incoming and outcoming).\n"
+				  "(incoming and outcoming).\n"
 				  "Clicking a row on the list you will get more information "
 				  " the progress of the transfer"));
 
@@ -246,6 +246,7 @@ run (C2MessageTransfer *mt)
 	reset (mt);
 
 	gdk_threads_enter ();
+	gnome_dialog_set_sensitive (GNOME_DIALOG (mt), 1, TRUE);
 	pixmap = GNOME_PIXMAP (gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/blue_arrow.png"));
 	gtk_clist_freeze (clist);
 	for (s = mt->queue, row = 0; s; s = s->next, row++)
@@ -280,7 +281,14 @@ run (C2MessageTransfer *mt)
 			pthread_create (&thread, NULL, C2_PTHREAD_FUNC (check), data);
 			
 			if (c2_app.options_mt_mode == C2_MESSAGE_TRANSFER_MONOTHREAD)
+			{
+				gdk_threads_enter ();
+				if (clist->selection)
+					gtk_clist_unselect_row (clist, GPOINTER_TO_INT (clist->selection->data), 0);
+				gtk_clist_select_row (clist, row, 0);
+				gdk_threads_leave ();
 				pthread_join (thread, NULL);
+			}
 		} else
 		{
 			g_print (PACKAGE " v." VERSION " doesn't support sending of messages, "
@@ -296,6 +304,9 @@ run (C2MessageTransfer *mt)
 	if (pthread_mutex_trylock (&mt->queue_lock))
 	{
 		mt->active = FALSE;
+		gdk_threads_enter ();
+		gnome_dialog_set_sensitive (GNOME_DIALOG (mt), 1, FALSE);
+		gdk_threads_leave ();
 		return 0;
 	}
 
@@ -303,12 +314,14 @@ run (C2MessageTransfer *mt)
 
 	if (GTK_TOGGLE_BUTTON (glade_xml_get_widget (mt->xml, "auto_close_btn"))->active)
 	{
-		gdk_threads_enter ();
-		//gtk_widget_hide (GTK_WIDGET (mt));
-		gnome_dialog_close(GNOME_DIALOG(mt));
-		gdk_threads_leave ();
+		/*gdk_threads_enter ();
+		gtk_widget_hide (GTK_WIDGET (mt));
+		gdk_threads_leave ();*/
 	}
-	
+
+	gdk_threads_enter ();
+	gnome_dialog_set_sensitive (GNOME_DIALOG (mt), 1, FALSE);
+	gdk_threads_leave ();
 	pthread_mutex_unlock (&mt->queue_lock);
 
 	return 0;

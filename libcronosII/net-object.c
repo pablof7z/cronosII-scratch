@@ -219,9 +219,6 @@ c2_net_object_read (C2NetObject *nobj, gchar **string)
 		return -1;
 	}
 	nobj->state = C2_NET_OBJECT_EXCHANGE;
-#ifdef USE_DEBUG
-	g_print ("S: %s", *string);
-#endif
 //	gtk_signal_emit (GTK_OBJECT (nobj), signals[EXCHANGE], C2_NET_OBJECT_EXCHANGE_READ, strlen (*string));
 	return ret;
 }

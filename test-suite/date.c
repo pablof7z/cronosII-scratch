@@ -33,8 +33,9 @@ main (gint argc, gchar **argv)
 		return 1;
 	}
 
-	if ((t = c2_date_parse (argv[1])) < 0)
-		t = c2_date_parse_fmt2 (argv[1]);
+	if ((t = c2_date_parse (argv[1])) == -1)
+		if ((t = c2_date_parse_fmt2 (argv[1])) == -1)
+			t = c2_date_parse_fmt3 (argv[1]);
 	tm = localtime (&t);
 	strftime (str, sizeof (str), "%Y.%m.%d %H:%M:%S %Z", tm);
 	g_print ("%s\n", str);

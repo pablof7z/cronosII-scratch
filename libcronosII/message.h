@@ -25,18 +25,18 @@ extern "C" {
 #include <gtk/gtk.h>
 #include <time.h>
 
-#define C2_TYPE_MESSAGE							(c2_message_get_type ())
-#define C2_MESSAGE(obj)							(GTK_CHECK_CAST (obj, C2_TYPE_MESSAGE, C2Message))
-#define C2_MESSAGE_CLASS(klass)					(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_MESSAGE, C2MessageClass))
-#define C2_IS_MESSAGE(obj)						(GTK_CHECK_TYPE(obj, C2_TYPE_MESSAGE))
-#define C2_IS_MESSAGE_CLASS(klass)				(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_MESSAGE))
+#define C2_TYPE_MESSAGE						(c2_message_get_type ())
+#define C2_MESSAGE(obj)						(GTK_CHECK_CAST (obj, C2_TYPE_MESSAGE, C2Message))
+#define C2_MESSAGE_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_MESSAGE, C2MessageClass))
+#define C2_IS_MESSAGE(obj)					(GTK_CHECK_TYPE(obj, C2_TYPE_MESSAGE))
+#define C2_IS_MESSAGE_CLASS(klass)			(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_MESSAGE))
 
 typedef struct _C2Message C2Message;
 typedef struct _C2MessageClass C2MessageClass;
 typedef enum _C2MessageState C2MessageState;
 typedef enum _C2MessageAction C2MessageAction;
 
-#if defined (HAVE_CONFIG_H) && defined (BUILDING_C2)
+#ifdef BUILDING_C2
 #	include "mime.h"
 #else
 #	include <cronosII.h>
@@ -44,10 +44,10 @@ typedef enum _C2MessageAction C2MessageAction;
 
 enum _C2MessageState
 {
-	C2_MESSAGE_READED		= ' ',
-	C2_MESSAGE_UNREADED		= 'N',
-	C2_MESSAGE_REPLIED		= 'R',
-	C2_MESSAGE_FORWARDED	= 'F'
+	C2_MESSAGE_READED		= 1,
+	C2_MESSAGE_UNREADED		= 2,
+	C2_MESSAGE_REPLIED		= 3,
+	C2_MESSAGE_FORWARDED	= 4
 };
 
 enum _C2MessageAction
@@ -61,7 +61,7 @@ enum _C2MessageAction
 struct _C2Message
 {
 	GtkObject object;
-	
+
 	gchar *header;
 	gchar *body;
 	

@@ -35,82 +35,84 @@ extern "C" {
 #include <gnome.h>
 
 #ifdef BUILDING_C2
-#	define C2_APP_GLADE_FILE(x)					(PKGDATADIR G_DIR_SEPARATOR_S x ".glade")
+#	define C2_APP_GLADE_FILE(x)		(PKGDATADIR G_DIR_SEPARATOR_S x ".glade")
 #endif
 
-#define MAILBOX_INBOX		_("Inbox"	)
-#define MAILBOX_OUTBOX		_("Outbox"	)
-#define MAILBOX_QUEUE		_("Queue"	)
-#define MAILBOX_GARBAGE		_("Garbage"	)
-#define MAILBOX_DRAFTS		_("Drafts"	)
+#define MAILBOX_INBOX				_("Inbox"	)
+#define MAILBOX_OUTBOX				_("Outbox"	)
+#define MAILBOX_QUEUE				_("Queue"	)
+#define MAILBOX_GARBAGE				_("Garbage"	)
+#define MAILBOX_DRAFTS				_("Drafts"	)
 
-#define DEFAULT_OPTIONS_CHECK_TIMEOUT			"20"
-#define DEFAULT_OPTIONS_WRAP_OUTGOING_TEXT		"70"
-#define DEFAULT_OPTIONS_MARK_TIMEOUT			"1"
-#define DEFAULT_OPTIONS_PREPEND_CHARACTER		"> "
-#define DEFAULT_OPTIONS_EMPTY_GARBAGE			"0"
-#define DEFAULT_OPTIONS_USE_OUTBOX				"1"
-#define DEFAULT_OPTIONS_CHECK_AT_START			"0"
-#define DEFAULT_OPTIONS_MT_MODE					"1"
+#define DEFAULT_OPTIONS_CHECK_TIMEOUT		"20"
+#define DEFAULT_OPTIONS_WRAP_OUTGOING_TEXT	"70"
+#define DEFAULT_OPTIONS_MARK_TIMEOUT		"1"
+#define DEFAULT_OPTIONS_PREPEND_CHARACTER	"> "
+#define DEFAULT_OPTIONS_EMPTY_GARBAGE		"0"
+#define DEFAULT_OPTIONS_USE_OUTBOX		"1"
+#define DEFAULT_OPTIONS_CHECK_AT_START		"0"
+#define DEFAULT_OPTIONS_MT_MODE			"1"
 #if defined (USE_GTKHTML) || defined (USE_GTKXMHTML)
-#	define DEFAULT_OPTIONS_DEFAULT_MIME			"1"
+#	define DEFAULT_OPTIONS_DEFAULT_MIME	"1"
 #else
-#	define DEFAULT_OPTIONS_DEFAULT_MIME			"0"
+#	define DEFAULT_OPTIONS_DEFAULT_MIME	"0"
 #endif
 
-#define DEFAULT_INTERFACE_TITLE					"Cronos II v.%v - %M: %m messages, %n new"
-#define DEFAULT_INTERFACE_TOOLBAR				"2"
-#define DEFAULT_INTERFACE_DATE_FMT				"%d.%m.%Y %H:%M"
+#define DEFAULT_INTERFACE_TITLE			"Cronos II v.%v - %M: %m messages, %n new"
+#define DEFAULT_INTERFACE_TOOLBAR		"2"
+#define DEFAULT_INTERFACE_DATE_FMT		"%d.%m.%Y %H:%M"
 	
-#define DEFAULT_FONTS_MESSAGE_BODY				"-adobe-courier-medium-r-normal-*-*-120-*-*-m-*-iso8859-1"
-#define DEFAULT_FONTS_UNREADED_MESSAGE			"-b&h-lucida-bold-r-normal-*-*-100-*-*-p-*-iso8859-1"
-#define DEFAULT_FONTS_READED_MESSAGE			"-b&h-lucida-medium-r-normal-*-*-100-*-*-p-*-iso8859-1"
-#define DEFAULT_FONTS_SOURCE					"0"
+#define DEFAULT_FONTS_MESSAGE_BODY		"-adobe-courier-medium-r-normal-*-*-120-*-*-m-*-iso8859-1"
+#define DEFAULT_FONTS_UNREADED_MESSAGE		"-b&h-lucida-bold-r-normal-*-*-100-*-*-p-*-iso8859-1"
+#define DEFAULT_FONTS_READED_MESSAGE		"-b&h-lucida-medium-r-normal-*-*-100-*-*-p-*-iso8859-1"
+#define DEFAULT_FONTS_UNREADED_MAILBOX	"-adobe-helvetica-bold-r-normal-*-12-*-*-*-p-*-iso8859-1"
+#define DEFAULT_FONTS_SOURCE			"0"
 
 #define DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_RED	"0"
 #define DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_GREEN	"0"
 #define DEFAULT_COLORS_REPLYING_ORIGINAL_MESSAGE_BLUE	"65535"
-#define DEFAULT_COLORS_MESSAGE_BG_RED			"65535"
-#define DEFAULT_COLORS_MESSAGE_BG_GREEN			"65535"
-#define DEFAULT_COLORS_MESSAGE_BG_BLUE			"65535"
-#define DEFAULT_COLORS_MESSAGE_FG_RED			"0"
-#define DEFAULT_COLORS_MESSAGE_FG_GREEN			"0"
-#define DEFAULT_COLORS_MESSAGE_FG_BLUE			"0"
-#define DEFAULT_COLORS_MESSAGE_SOURCE			"0"
+#define DEFAULT_COLORS_MESSAGE_BG_RED		"65535"
+#define DEFAULT_COLORS_MESSAGE_BG_GREEN		"65535"
+#define DEFAULT_COLORS_MESSAGE_BG_BLUE		"65535"
+#define DEFAULT_COLORS_MESSAGE_FG_RED		"0"
+#define DEFAULT_COLORS_MESSAGE_FG_GREEN		"0"
+#define DEFAULT_COLORS_MESSAGE_FG_BLUE		"0"
+#define DEFAULT_COLORS_MESSAGE_SOURCE		"0"
 
-#define DEFAULT_PATHS_SAVING					g_get_home_dir ()
-#define DEFAULT_PATHS_DOWNLOAD					g_get_home_dir ()
-#define DEFAULT_PATHS_GET						g_get_home_dir ()
-#define DEFAULT_PATHS_ALWAYS_USE				"1"
-	
-#define DEFAULT_ADVANCED_HTTP_PROXY_ADDR		""
-#define DEFAULT_ADVANCED_HTTP_PROXY_PORT		"80"
-#define DEFAULT_ADVANCED_HTTP_PROXY				"0"
-#define DEFAULT_ADVANCED_FTP_PROXY_ADDR			""
-#define DEFAULT_ADVANCED_FTP_PROXY_PORT			"80"
-#define DEFAULT_ADVANCED_FTP_PROXY				"0"
+#define DEFAULT_PATHS_SAVING			g_get_home_dir ()
+#define DEFAULT_PATHS_DOWNLOAD			g_get_home_dir ()
+#define DEFAULT_PATHS_GET			g_get_home_dir ()
+#define DEFAULT_PATHS_ALWAYS_USE		"1"
+
+#define DEFAULT_ADVANCED_HTTP_PROXY_ADDR	""
+#define DEFAULT_ADVANCED_HTTP_PROXY_PORT	"80"
+#define DEFAULT_ADVANCED_HTTP_PROXY		"0"
+#define DEFAULT_ADVANCED_FTP_PROXY_ADDR		""
+#define DEFAULT_ADVANCED_FTP_PROXY_PORT		"80"
+#define DEFAULT_ADVANCED_FTP_PROXY		"0"
 #define DEFAULT_ADVANCED_PERSISTENT_SMTP_ADDR	"localhost"
 #define DEFAULT_ADVANCED_PERSISTENT_SMTP_PORT	"25"
-#define DEFAULT_ADVANCED_PERSISTENT_SMTP		"0"
+#define DEFAULT_ADVANCED_PERSISTENT_SMTP	"0"
 #define DEFAULT_ADVANCED_USE_INTERNAL_BROWSER	"1"
+#define DEFAULT_ADVANCED_LOAD_MAILBOXES_AT_START "1"
 
-#define DEFAULT_RC_HPAN							"150"
-#define DEFAULT_RC_VPAN							"170"
-#define DEFAULT_RC_CLIST_0						"40"
-#define DEFAULT_RC_CLIST_1						"200"
-#define DEFAULT_RC_CLIST_2						"180"
-#define DEFAULT_RC_CLIST_3						"70"
-#define DEFAULT_RC_CLIST_4						"70"
-#define DEFAULT_RC_CLIST_5						"70"
-#define DEFAULT_RC_CLIST_6						"70"
-#define DEFAULT_RC_CLIST_7						"70"
-#define DEFAULT_RC_WIDTH						"800" /* XXX */
-#define DEFAULT_RC_HEIGHT						"600" /* XXX */
-#define DEFAULT_RC_SHOWABLE_HEADERS_PREVIEW		"9"
-#define DEFAULT_RC_SHOWABLE_HEADERS_MESSAGE		"63"
-#define DEFAULT_RC_SHOWABLE_HEADERS_COMPOSE		"61"
-#define DEFAULT_RC_SHOWABLE_HEADERS_SAVE		"61"
-#define DEFAULT_RC_SHOWABLE_HEADERS_PRINT		"61"
+#define DEFAULT_RC_HPAN				"150"
+#define DEFAULT_RC_VPAN				"170"
+#define DEFAULT_RC_CLIST_0			"40"
+#define DEFAULT_RC_CLIST_1			"200"
+#define DEFAULT_RC_CLIST_2			"180"
+#define DEFAULT_RC_CLIST_3			"70"
+#define DEFAULT_RC_CLIST_4			"70"
+#define DEFAULT_RC_CLIST_5			"70"
+#define DEFAULT_RC_CLIST_6			"70"
+#define DEFAULT_RC_CLIST_7			"70"
+#define DEFAULT_RC_WIDTH			"1024" /* XXX */
+#define DEFAULT_RC_HEIGHT			"768" /* XXX */
+#define DEFAULT_RC_SHOWABLE_HEADERS_PREVIEW	"9"
+#define DEFAULT_RC_SHOWABLE_HEADERS_MESSAGE	"63"
+#define DEFAULT_RC_SHOWABLE_HEADERS_COMPOSE	"61"
+#define DEFAULT_RC_SHOWABLE_HEADERS_SAVE	"61"
+#define DEFAULT_RC_SHOWABLE_HEADERS_PRINT	"61"
 
 typedef enum
 {
@@ -132,12 +134,12 @@ typedef enum
 
 typedef enum
 {
-	C2_SHOWABLE_HEADER_FIELD_TO			= 1 << 1,
+	C2_SHOWABLE_HEADER_FIELD_TO		= 1 << 1,
 	C2_SHOWABLE_HEADER_FIELD_DATE		= 1 << 2,
 	C2_SHOWABLE_HEADER_FIELD_FROM		= 1 << 3,
 	C2_SHOWABLE_HEADER_FIELD_SUBJECT	= 1 << 4,
 	C2_SHOWABLE_HEADER_FIELD_ACCOUNT	= 1 << 5,
-	C2_SHOWABLE_HEADER_FIELD_CC			= 1 << 6,
+	C2_SHOWABLE_HEADER_FIELD_CC		= 1 << 6,
 	C2_SHOWABLE_HEADER_FIELD_BCC		= 1 << 7,
 	C2_SHOWABLE_HEADER_FIELD_PRIORITY	= 1 << 8
 } C2ShowableHeaderField;
@@ -203,9 +205,11 @@ struct C2Application
 	gchar *fonts_message_body;
 	gchar *fonts_unreaded_message;
 	gchar *fonts_readed_message;
+	gchar *fonts_unreaded_mailbox;
 	GdkFont *fonts_gdk_message_body;
 	GdkFont *fonts_gdk_unreaded_message;
 	GdkFont *fonts_gdk_readed_message;
+	GdkFont *fonts_gdk_unreaded_mailbox;
 	C2FontSource fonts_source;
 
 	GdkColor colors_replying_original_message;
@@ -228,6 +232,7 @@ struct C2Application
 	gint advanced_persistent_smtp_port;
 	gint advanced_persistent_smtp : 1;
 	gint advanced_use_internal_browser : 1;
+	gint advanced_load_mailboxes_at_start : 1;
 	
 	gint rc_hpan;
 	gint rc_vpan;
@@ -238,36 +243,35 @@ struct C2Application
 } c2_app;
 
 gint
-c2_app_init										(void);
+c2_app_init					(void);
 
 void
-c2_app_register_window							(GtkWindow *window);
+c2_app_register_window				(GtkWindow *window);
 
 void
-c2_app_unregister_window						(GtkWindow *window);
+c2_app_unregister_window			(GtkWindow *window);
 
 void
-c2_app_report									(const gchar *msg, C2ReportSeverity severity);
+c2_app_report					(const gchar *msg, C2ReportSeverity severity);
 
 void
-c2_app_start_activity							(GtkWidget *progress);
+c2_app_start_activity				(GtkWidget *progress);
 
 void
-c2_app_stop_activity							(void);
+c2_app_stop_activity				(void);
 
 void
-c2_install_new									(void);
+c2_install_new					(void);
 
 gint
-c2_app_get_mailbox_configuration_id_by_name		(const gchar *name);
+c2_app_get_mailbox_configuration_id_by_name	(const gchar *name);
 
 void
-c2_mailbox_tree_fill							(C2Mailbox *head, GtkCTreeNode *node,
-												 GtkWidget *ctree, GtkWidget *window);
+c2_mailbox_tree_fill				(C2Mailbox *head, GtkCTreeNode *node, GtkWidget *ctree, GtkWidget *window);
 
 /* preferences.c */
 void
-c2_preferences_new								(void);
+c2_preferences_new				(void);
 
 #ifdef __cplusplus
 }

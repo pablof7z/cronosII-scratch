@@ -1,13 +1,12 @@
-2001-07 4 Peter Gossner <gossner@arcom.com.au>
+2001-06-29 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
-	* updated user interface messages througout the UI. This was done with Glade.
-	* added the C2 icon to the xml directory (well glade did) and the /images directory. (cronosii.png)
-	* wrote over this log but have now restored it. 
+	* Spòol Db: The loading function works!
+	* Time Utils: Fixes in all functions, new fmt3 function added
+			for reading format "Thu Jun 28 20:44:23 2001".
 
-2001-06 30 Yves Mettier <ymettier@libertysurf.fr>
+2001-06-28 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
-	* updated doc/C/Makefile.am to keep the right files and remove the temporary ones.
-	* updated cronosii.spec
+	* Spool Db: Coded the c2_db_spool_load function.
 
 2001-06-24 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 

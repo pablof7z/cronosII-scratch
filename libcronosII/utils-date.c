@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/utils-date.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,7 @@
 #include <fnmatch.h>
 
 #include "utils-date.h"
+#include "utils.h"
 #include "error.h"
 
 static gchar *
@@ -298,6 +299,120 @@ c2_date_parse_fmt2 (const gchar *strtime)
 			}
 		}
 	}
+	
+	return mktime (&tm);
+}
+
+static gchar *dates[] =
+{
+	"Mon",
+	"Tue",
+	"Wed",
+	"Thu",
+	"Fri",
+	"Sat",
+	"Sun"
+};
+
+/**
+ * c2_date_parse_fmt3
+ * strtime: A string describing the date in format "Thu Jun 28 20:44:23 2001".
+ *
+ * Will try to convert the date into a Unix time.
+ *
+ * Return Value:
+ * The Unix time or -1 if it couldn't get it.
+ **/
+time_t
+c2_date_parse_fmt3 (const gchar *strtime)
+{
+	struct tm tm = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	const gchar *ptr;
+	gchar *cpy;
+	gboolean do_date = TRUE, do_time = TRUE;
+	gint i, l, tmp;
+	
+	c2_return_val_if_fail (strtime, -1, C2EDATA);
+
+	cpy = g_strdup (strtime);
+	ptr = cpy;
+
+	for (i = 0; (ptr = strtok (ptr, " \t")) != NULL; i++)
+	{
+		switch (i)
+		{
+			case 0:
+				/* Weekday month day_of_month hour:minute:second year
+				 * ^^^^^^^
+				 */
+				for (l = 0; l < 7; l++)
+					if (c2_strneq (ptr, dates[l], 3))
+						break;
+
+				if (l == 7)
+				{
+					g_free (cpy);
+					return -1;
+				}
+				break;
+			case 1:
+				/* Weekday month day_of_month hour:minute:second year
+				 *         ^^^^^
+				 */
+				C2_DEBUG (ptr);
+				if ((tmp = c2_date_get_month (ptr)) < 0)
+				{
+					g_free (cpy);
+					return -1;
+				}
+				tm.tm_mon = tmp;
+				break;
+			case 2:
+				/* Weekday month day_of_month hour:minute:second year
+				 *               ^^^^^^^^^^^^
+				 */
+				if (!isdigit (*ptr))
+				{
+					g_free (cpy);
+					return -1;
+				}
+				tm.tm_mday = atoi (ptr);
+				if (tm.tm_mday > 31)
+				{
+					g_free (cpy);
+					return -1;
+				}
+				break;
+			case 3:
+				/* Weekday month day_of_month hour:minute:second year
+				 *                            ^^^^^^^^^^^^^^^^^^
+				 */
+				if (sscanf (ptr, "%d:%d:%d", &tm.tm_hour, &tm.tm_min, &tm.tm_sec) == 3)
+					;
+				else if (sscanf (ptr, "%d:%d", &tm.tm_hour, &tm.tm_min) == 2)
+					tm.tm_sec = 0;
+				else
+				{
+					g_free (cpy);
+					return -1;
+				}
+				break;
+			case 4:
+				/* Weekday month day_of_month hour:minute:second year
+				 *                                               ^^^^
+				 */
+				tm.tm_year = atoi (ptr);
+				if (tm.tm_year >= 1900)
+					tm.tm_year -= 1900;
+				else if(tm.tm_year <= 70)
+					tm.tm_year += 100;
+				break;
+			default:
+				break;
+		}
+		ptr = NULL;
+	}
+
 	
 	return mktime (&tm);
 }

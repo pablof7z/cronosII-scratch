@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/utils-date.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,13 +25,16 @@ extern "C" {
 #include <time.h>
 
 gint
-c2_date_get_month									(const gchar *strmnt);
+c2_date_get_month				(const gchar *strmnt);
 
 time_t
-c2_date_parse										(const gchar *strtime);
+c2_date_parse					(const gchar *strtime);
 
 time_t
-c2_date_parse_fmt2									(const gchar *strtime);
+c2_date_parse_fmt2				(const gchar *strtime);
+
+time_t
+c2_date_parse_fmt3				(const gchar *strtime);
 
 #ifdef __cplusplus
 }

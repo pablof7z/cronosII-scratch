@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/mailbox.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,12 +24,13 @@ extern "C" {
 
 #include <glib.h>
 #include <gtk/gtk.h>
+#include <string.h>
 
-#define C2_TYPE_MAILBOX							(c2_mailbox_get_type ())
-#define C2_MAILBOX(obj)							(GTK_CHECK_CAST (obj, C2_TYPE_MAILBOX, C2Mailbox))
-#define C2_MAILBOX_CLASS(klass)					(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_MAILBOX, C2MailboxClass))
-#define C2_IS_MAILBOX(obj)						(GTK_CHECK_TYPE (obj, C2_TYPE_MAILBOX))
-#define C2_IS_MAILBOX_CLASS(klass)				(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_MAILBOX))
+#define C2_TYPE_MAILBOX				(c2_mailbox_get_type ())
+#define C2_MAILBOX(obj)				(GTK_CHECK_CAST (obj, C2_TYPE_MAILBOX, C2Mailbox))
+#define C2_MAILBOX_CLASS(klass)			(GTK_CHECK_CLASS_CAST (klass, C2_TYPE_MAILBOX, C2MailboxClass))
+#define C2_IS_MAILBOX(obj)			(GTK_CHECK_TYPE (obj, C2_TYPE_MAILBOX))
+#define C2_IS_MAILBOX_CLASS(klass)		(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_MAILBOX))
 
 typedef struct _C2Mailbox C2Mailbox;
 typedef struct _C2MailboxClass C2MailboxClass;
@@ -43,7 +44,7 @@ typedef enum _C2MailboxIMAPEvent C2MailboxIMAPEvent;
 #	include <cronosII.h>
 #endif
 
-#define C2_MAILBOX_IS_TOPLEVEL(mbox)				(strstr (mbox->id, "-") ? 0 : 1)
+#define C2_MAILBOX_IS_TOPLEVEL(mbox)		(strstr (mbox->id, "-") ? 0 : 1)
 
 enum _C2MailboxSortBy
 {
@@ -122,9 +123,11 @@ struct _C2MailboxClass
 GtkType
 c2_mailbox_get_type								(void);
 
+#define c2_mailbox_new(a, b, c, d, e, args...)	_c2_mailbox_new (a, b, TRUE, c, d, e, ##args)
+
 C2Mailbox *
-c2_mailbox_new									(const gchar *name, const gchar *id, C2MailboxType type,
-												 C2MailboxSortBy sort_by, GtkSortType sort_type, ...);
+_c2_mailbox_new									(const gchar *name, const gchar *id, gboolean independent,
+												 C2MailboxType type, C2MailboxSortBy sort_by, GtkSortType sort_type, ...);
 
 C2Mailbox *
 c2_mailbox_new_with_parent						(const gchar *name, const gchar *parent_id, C2MailboxType type,

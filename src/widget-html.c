@@ -55,7 +55,7 @@ static gint c2_html_signals[LAST_SIGNAL] = { 0 };
 #elif defined (USE_GTKXMHTML)
 static GtkXmHTMLClass *parent_class = NULL;
 #else
-static GtkText *parent_class = NULL;
+static GtkTextClass *parent_class = NULL;
 #endif
 
 void
@@ -281,7 +281,7 @@ c2_html_new (void)
 #else
 	GtkWidget *html;
 	
-	html = gtk_widget_new (GTK_TYPE_TEXT, "hadjustment", NULL, "vadjustment", NULL,	 NULL);
+	html = gtk_widget_new (C2_TYPE_HTML, "hadjustment", NULL, "vadjustment", NULL,	 NULL);
 	return html;
 #endif
 }
