@@ -36,6 +36,10 @@ init											(C2Pop3 *pop3);
 static void
 destroy											(GtkObject *object);
 
+static void
+my_marshal_NONE__INT_INT_INT					(GtkObject *object, GtkSignalFunc func,
+												 gpointer func_data, GtkArg * args);
+
 static gint
 welcome											(C2Pop3 *pop3);
 
@@ -232,6 +236,8 @@ login (C2Pop3 *pop3)
 	/* Password */
 	do
 	{
+		/* FIXME This crashes when the password is wrong and
+		 * is executed for 2 time (probably for >1 time) */
 		g_free (string);
 		if (c2_net_object_send (C2_NET_OBJECT (pop3), "PASS %s\r\n", pop3->pass) < 0)
 			return -1;
@@ -293,7 +299,7 @@ retrieve (C2Pop3 *pop3, gint mails)
 {
 	gchar *string;
 	gint i;
-	gint32 length;
+	gint32 length = 0;
 	
 	for (i = 1; i <= mails; i++)
 	{
@@ -320,7 +326,8 @@ L			/* TODO */
 		}
 
 		sscanf (string, "+OK %d octets\r\n", &length);
-		
+
+		printf ("<%d> '%s'\n", length, string);
 		gtk_signal_emit (GTK_OBJECT (pop3), signals[RETRIEVE], i, 0, length);
 	}
 
@@ -373,7 +380,7 @@ class_init (C2Pop3Class *klass)
 					GTK_RUN_FIRST,
 					object_class->type,
 					GTK_SIGNAL_OFFSET (C2Pop3Class, retrieve),
-					gtk_marshal_NONE__INT, GTK_TYPE_NONE, 3,
+					my_marshal_NONE__INT_INT_INT, GTK_TYPE_NONE, 3,
 					GTK_TYPE_INT, GTK_TYPE_INT, GTK_TYPE_INT);
 	
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
@@ -408,4 +415,15 @@ destroy (GtkObject *object)
 	g_free (pop3->user);
 	g_free (pop3->pass);
 	pthread_mutex_destroy (&pop3->run_lock);
+}
+
+typedef void (*C2Signal_NONE__INT_INT_INT)		(GtkObject *object, gint arg1, gint arg2, gint arg3,
+													gpointer user_data);
+
+static void
+my_marshal_NONE__INT_INT_INT (GtkObject *object, GtkSignalFunc func, gpointer func_data, GtkArg * args)
+{
+	C2Signal_NONE__INT_INT_INT rfunc;
+	rfunc = (C2Signal_NONE__INT_INT_INT) func;
+	(*rfunc) (object, GTK_VALUE_INT (args[0]), GTK_VALUE_INT (args[1]), GTK_VALUE_INT (args[3]), func_data);
 }

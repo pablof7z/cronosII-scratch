@@ -451,8 +451,15 @@ check_disconnect (C2NetObject *object, gboolean success, C2Pthread2 *data)
 	gint *signal = (gint*) data->v2;
 	
 	if (success)
-		change_state_of_queue (mt, queue, row, STATE_OK, _("Messages downloaded successfully"));
-	else
+	{
+		gchar *string;
+
+		if (queue->subtasks[DONE])
+			string = g_strdup_printf (_("%d messages downloaded."), queue->subtasks[DONE]);
+		else
+			string = _("No messages in server.");
+		change_state_of_queue (mt, queue, row, STATE_OK, string);
+	} else
 		change_state_of_queue (mt, queue, row, STATE_ERR, c2_error_get (c2_errno));
 }
 
