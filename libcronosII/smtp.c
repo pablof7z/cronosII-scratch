@@ -153,9 +153,6 @@ class_init (C2SMTPClass *klass)
 static void
 init (C2SMTP *smtp)
 {
-	/* All the initialization is made in
-	 * here, bosko, including pthread_mutex_init
-	 */
 	smtp->host = NULL;
 	smtp->port = 25;
 	smtp->ssl = FALSE;
@@ -165,7 +162,6 @@ init (C2SMTP *smtp)
 	smtp->smtp_local_cmd = NULL;
 	smtp->flags = DEFAULT_FLAGS;
 	smtp->error = NULL;
-	smtp->sock = 0;
 
 	pthread_mutex_init (&smtp->lock, NULL);
 }
@@ -175,6 +171,8 @@ destroy (GtkObject *object)
 {
 	C2SMTP *smtp = C2_SMTP(object);
 
+	pthread_mutex_lock(&smtp->lock);
+	
 	/* [TODO] (Note by Pablo)
 	 * Hey, Bosko, this will give you troubles
 	 * with C2_SMTP_LOCAL since the C2NetObject
@@ -189,28 +187,31 @@ destroy (GtkObject *object)
 	 * will not be using its function but a external
 	 * cmnd.
 	 */
-	if(c2_net_object_is_offline(C2_NET_OBJECT(smtp)))
+	if(!c2_net_object_is_offline(C2_NET_OBJECT(smtp)))
 	{
 		c2_net_object_disconnect(C2_NET_OBJECT(smtp));
 #ifdef USE_DEBUG
 		g_warning ("Destroying a C2SMTP object which was not offline\n");
 #endif
 	}
-	
-	c2_smtp_free (smtp);
 
-	/* Just other note by Pablo,
-	 * in case you don't know it, bosko,
-	 * I don't know if is in your plans
-	 * or not, but when I started designing
-	 * objects like this I thought that the
-	 * destroy function should free the
-	 * actual object, well this shouldn't
-	 * be done.
-	 * Just thought it would be good if
-	 * you know this for sure and are not
-	 * doubting like I was at first...
-	 */
+	if (smtp->error)
+		g_free(smtp->error);
+	
+	if (smtp->host)
+		g_free(smtp->host);
+	
+	if(smtp->user)
+		g_free(smtp->user);
+	
+	if(smtp->pass)
+		g_free(smtp->pass);
+	
+	if(smtp->smtp_local_cmd)
+		g_free(smtp->smtp_local_cmd);
+	
+	pthread_mutex_unlock(&smtp->lock);
+	pthread_mutex_destroy(&smtp->lock);
 }
 
 C2SMTP *
@@ -222,7 +223,6 @@ c2_smtp_new (C2SMTPType type, ...)
 	smtp = gtk_type_new (C2_TYPE_SMTP);
 	
 	smtp->type = type;
-	smtp->sock = 0;
 	smtp->error = NULL;
 	
 	switch (type)
@@ -259,32 +259,20 @@ void
 c2_smtp_set_flags (C2SMTP *smtp, gint flags)
 {
 	c2_return_if_fail (smtp, C2EDATA);
-
+	
 	smtp->flags = flags;
 	
 	if (smtp->flags & C2_SMTP_DO_PERSIST)
-	{
-		/* Cache the object if it has been marked as persistent
-		 * and connect it
-		 */
 		c2_smtp_connect (smtp);
-	}
 }
 
 void
 c2_smtp_free (C2SMTP *smtp)
 {	
 	c2_return_if_fail (smtp, C2EDATA);
-
-	pthread_mutex_destroy (&smtp->lock);
 	
-	if(!c2_net_object_is_offline(C2_NET_OBJECT(smtp)))
-		c2_net_object_disconnect(C2_NET_OBJECT(smtp));
-
-	if (smtp->error)
-		g_free(smtp->error);
-	
-	g_free (smtp);
+	destroy(GTK_OBJECT(smtp));
+	g_free(smtp);
 }
 
 gint
@@ -393,9 +381,9 @@ c2_smtp_connect (C2SMTP *smtp)
 	gchar *hostname = NULL;
 	gchar *buffer = NULL;
 	
-	if(c2_net_object_is_offline(C2_NET_OBJECT(smtp)) && !(smtp->flags==C2_SMTP_DO_NOT_PERSIST))
+	if(!c2_net_object_is_offline(C2_NET_OBJECT(smtp)) && !(smtp->flags==C2_SMTP_DO_NOT_PERSIST))
 		smtp_disconnect(smtp);
-	else if(c2_net_object_is_offline(C2_NET_OBJECT(smtp)) && smtp->flags==C2_SMTP_DO_PERSIST)
+	else if(!c2_net_object_is_offline(C2_NET_OBJECT(smtp)) && smtp->flags==C2_SMTP_DO_PERSIST)
 		return 0;
 	
 	if(c2_net_object_run(C2_NET_OBJECT(smtp)) < 0)
@@ -620,7 +608,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 	gchar *mimeboundary = NULL;
 	guint len, sent = 0;	
 	
-	len = strlen(message->body) + strlen(message->header);
+	len = strlen(message->body) + 2 + strlen(message->header);
 	for(mime = message->mime; mime; mime = mime->next)
 		len += mime->length;
 	
@@ -633,7 +621,8 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 				/* if this is the BCC  and C2 internal headers, don't send them! */
 				if(c2_strneq(ptr, "BCC: ", 4) || c2_strneq(ptr, "X-C2", 4)) 
 				{
-					for( ; *ptr != '\n'; ptr++) ;
+					for( ; *ptr != '\n'; ptr++) sent++;
+					sent++;
 					start = ptr + 1;
 					continue;
 				}
@@ -674,7 +663,7 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 			if(mimeboundary) g_free(mimeboundary);
 			break;
 		}
-		if(c2_net_object_send(C2_NET_OBJECT(smtp), "\r\n") < 0)
+		if(c2_net_object_send(C2_NET_OBJECT(smtp), "\r\n\r\n") < 0)
 		{
 			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 			smtp_disconnect(smtp);
@@ -682,7 +671,6 @@ c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 			pthread_mutex_unlock(&smtp->lock);
 			return -1;
 		}
-
 	}
 	
 	return 0;
@@ -845,7 +833,7 @@ smtp_test_connection(C2SMTP *smtp)
 {
 	gchar *buffer;
 	
-	if(smtp->sock == 0)
+	if(c2_net_object_is_offline(C2_NET_OBJECT(smtp)))
 		return FALSE;
 	if(c2_net_object_send(C2_NET_OBJECT(smtp), "NOOP\r\n") < 0)
 		return FALSE;
@@ -861,8 +849,6 @@ smtp_disconnect(C2SMTP *smtp)
 {	
 	c2_net_object_send(C2_NET_OBJECT(smtp), "QUIT\r\n");
 	c2_net_object_disconnect(C2_NET_OBJECT(smtp));
-	
-	smtp->sock = 0;
 }
 static gint
 c2_smtp_local_write_msg(C2Message *message, gchar *file_name)

@@ -15,6 +15,26 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+
+/* C2SMTP -- Cronos II's Object for sending messages via SMTP */
+/*                                                            */
+/*                  -- Public Interface --                    */
+/*                                                            */
+/* Notes: This object inherits its network functionality from */
+/*       the Cronos II Net-Object (see net-object.h in the C2 */
+/*       source files). It also uses Gtk+ 1.2 for its signals */
+/*       and is, in turn, a GtkObject.                        */
+/*                                                            */
+/* c2_smtp_new(C2_SMTP_REMOTE, gchar *host, gint port,        */
+/*             gboolean ssl, gboolean auth, gchar *user,      */
+/*             gchar *pass) -- Returns a new C2SMTP object    */
+/*             that will send messages via SMTP server at host*/
+/*             on port number port, and use ssl or auth       */
+/*             optionally.                                    */
+/*                                                            */
+/* TODO: Finish me!                                           */
+/*                                                            */
+
 #ifndef __LIBCRONOSII_SMTP_H__
 #define __LIBCRONOSII_SMTP_H__
 
@@ -73,7 +93,6 @@ struct _C2SMTP
 	gint flags;
 	gchar *error;
 	
-	gint sock;
 	pthread_mutex_t lock;
 };
 	
