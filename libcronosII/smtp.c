@@ -31,7 +31,7 @@
 /* (in progress) TODO: implement local sendmail capability */
 /* TODO: upgrade this module to use the C2 Net-Object */
 /* (in progress) TODO: create a test-module */
-/* TODO: implement BCC */
+/* (in progress) TODO: implement BCC */
 /* TODO: implement sending of MIME attachments */
 /* TODO: implement authentication (posted by pablo) */
 
@@ -53,8 +53,8 @@ smtp_test_connection(C2SMTP *smtp);
 static void
 smtp_disconnect(C2SMTP *smtp);
 
-static GList *
-get_mail_addresses (const gchar *string);
+static gint
+c2_smtp_send_rcpt (C2SMTP *smtp, gchar *to);
 
 static void
 c2_smtp_set_error(C2SMTP *smtp, const gchar *error);
@@ -337,12 +337,12 @@ c2_smtp_connect (C2SMTP *smtp)
 static gint
 c2_smtp_send_headers(C2SMTP *smtp, C2Message *message)
 {
-	gchar *buffer;
+	gchar *buffer, *cc;
 	gchar *temp;
 	GList *to = NULL;
 	gint i;
 	
-	if(!(temp = c2_message_get_header_field(message, "From: ")))
+	if(!(temp = c2_message_get_header_field(message, "From:")))
 	{
 		c2_smtp_set_error(smtp, _("Internal C2 Error: Unable to fetch \"From:\" header in email message"));
 		smtp_disconnect(smtp);
@@ -358,10 +358,9 @@ c2_smtp_send_headers(C2SMTP *smtp, C2Message *message)
 		return -1;
 	}
 	g_free(temp);
-	if(!(temp = c2_message_get_header_field(message, "To: "))) 
+	if(!(temp = c2_message_get_header_field(message, "To:")))
 	{
 		c2_smtp_set_error(smtp, _("Internal C2 Error: Unable to fetch \"To:\" header in email message"));
-		smtp_disconnect(smtp);
 		pthread_mutex_unlock(&smtp->lock);
 		return -1;
 	}
@@ -381,46 +380,26 @@ c2_smtp_send_headers(C2SMTP *smtp, C2Message *message)
 		return -1;
 	}
 	g_free(buffer);
-	to = get_mail_addresses(temp);
-	for(i=0; i < g_list_length(to); i++)
+	if(cc  = c2_message_get_header_field(message, "CC:"))
 	{
-		if(c2_net_send(smtp->sock, "RCPT TO: %s\r\n", g_list_nth_data(to, i)) < 0)
-		{
-			c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
-			smtp_disconnect(smtp);
-			pthread_mutex_unlock(&smtp->lock);
-			for(i=0; i < g_list_length(to); i++)
-				g_free(g_list_nth_data(to, i));
-			g_list_free(to);
-			break;
-		}
-		if(c2_net_read(smtp->sock, &buffer) < 0)
-		{
-			c2_smtp_set_error(smtp, SOCK_READ_FAILED);
-			smtp_disconnect(smtp);
-			pthread_mutex_unlock(&smtp->lock);
-			for(i=0; i < g_list_length(to); i++)
-				g_free(g_list_nth_data(to, i));
-			g_list_free(to);
-			break;
-		}
-		if(!c2_strneq(buffer, "250", 3) && !c2_strneq(buffer, "251", 3))
-		{
-			c2_smtp_set_error(smtp, _("SMTP server did not reply to 'RCPT TO:' in a friendly way"));
-			g_free(buffer);
-			smtp_disconnect(smtp);
-			pthread_mutex_unlock(&smtp->lock);
-			for(i=0; i < g_list_length(to); i++)
-				g_free(g_list_nth_data(to, i));
-			g_list_free(to);
-			break;
-		}
-		g_free(buffer);
+		buffer = g_strconcat(temp, ",", cc, NULL);
+		g_free(temp);
+		g_free(cc);
 	}
-	for(i=0; i < g_list_length(to); i++)
-		g_free(g_list_nth_data(to, i));
-	g_list_free(to);
-	if(c2_net_send(smtp->sock, "DATA\r\n", temp) < 0) 
+	else buffer = temp;
+	temp = NULL;
+	if(cc  = c2_message_get_header_field(message, "BCC:"))
+	{
+		buffer = g_strconcat(buffer, ",", cc, NULL);
+		g_free(cc);
+	}
+	if(c2_smtp_send_rcpt(smtp, buffer) < 0)
+	{
+		smtp_disconnect(smtp);
+		pthread_mutex_unlock(&smtp->lock);
+	}
+	g_free(buffer);
+	if(c2_net_send(smtp->sock, "DATA\r\n") < 0) 
 	{
 		c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
 		smtp_disconnect(smtp);
@@ -450,12 +429,24 @@ c2_smtp_send_headers(C2SMTP *smtp, C2Message *message)
 static gint
 c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message)
 {
+	/* This function sends the message body so that there is no
+	 * bare 'LF' and that all '\n' are sent as '\r\n' */
 	gchar *ptr, *start, *buf, *contents = message->header;
 	
 	while(1) 
 	{
 		for(ptr = start = contents; *ptr != '\0'; ptr++)
 		{
+			if(start == ptr && contents == message->header)
+			{
+				/* if this is the BCC  and C2 internal headers, don't send them! */
+				if(c2_strneq(ptr, "BCC: ", 4) || c2_strneq(ptr, "X-C2", 4)) 
+				{
+					for( ; *ptr != '\n'; ptr++) ;
+					start = ptr + 1;
+					continue;
+				}
+			}
 			if(*ptr == '\n')
 			{
 				buf = g_strndup(start, ptr - start);
@@ -572,10 +563,23 @@ c2_smtp_local_get_recepients(C2Message *message)
 		to = temp;
 	}
 	
+	cc = c2_message_get_header_field(message, "BCC:");
+	if(cc)
+	{
+		temp = c2_smtp_local_divide_recepients(cc);
+		g_free(cc);
+		cc = temp;
+		
+		temp = g_strconcat(to, " ", cc, NULL);
+		g_free(to);
+		g_free(cc);
+		to = temp;
+	}
+	
 	return to;
 }
 
-/* divides a "name <addy@server.com>; name2 <add2@server2.com>;"...
+/* divides a "name <addy@server.com>, name2 <add2@server2.com>,"...
  * string into a string a command line program like sendmail can
  * understand: "name <addy@server.com" "<name2 <add2@server2.com>"*/
 static gchar *
@@ -606,30 +610,43 @@ c2_smtp_local_divide_recepients(gchar *to)
 }
 
 
-/* seperates @string into a GList of email addresses */
-static GList *
-get_mail_addresses (const gchar *string) 
+/* sends RCPT: commands */
+static gint
+c2_smtp_send_rcpt (C2SMTP *smtp, gchar *to)
 {
-	gint i;
-	GString *str = NULL;
-	GList *list = NULL;
+	gchar *ptr, *start, *buf;
 	
-	for(i=0; i < strlen(string); i++) {
-		if(((string[i] == ';' || string[i] == ',') && i > 0) || i+1 == strlen(string)) {
-			if(i+1 == strlen(string)) {
-				if(!str) str = g_string_new(NULL);
-				g_string_append_c(str, string[i]);
+	for(ptr = start = to; *ptr != '\0'; ptr++)
+	{
+		if(*ptr == ',' || *(ptr+1) == '\0')
+		{
+			if(*(ptr+1) == '\0') ptr++;
+			buf = g_strndup(start, ptr - start);
+			start += (ptr - start) + 1;
+			if(c2_net_send(smtp->sock, "RCPT TO: %s\r\n", buf) < 0)
+			{
+				c2_smtp_set_error(smtp, SOCK_WRITE_FAILED);
+				g_free(buf);
+				return -1;
 			}
-			list = g_list_append(list, str->str);
-			g_string_free(str, FALSE);
-			str = NULL;
-			continue;
+			g_free(buf);
+			if(c2_net_read(smtp->sock, &buf) < 0)
+			{
+				c2_smtp_set_error(smtp, SOCK_READ_FAILED);
+				return -1;
+			}
+			if(!c2_strneq(buf, "250", 3) && !c2_strneq(buf, "251", 3))
+			{
+				c2_smtp_set_error(smtp, _("SMTP server did not reply to 'RCPT TO:' in a friendly way"));
+				g_free(buf);
+				return -1;
+			}
+			g_free(buf);
+			if(*ptr == '\0') break;
 		}
-		if(!str) str = g_string_new(NULL);
-		g_string_append_c(str, string[i]);
 	}
 	
-	return list;
+	return 0;
 }
 
 static void
