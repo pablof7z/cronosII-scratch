@@ -2,7 +2,7 @@
 
 	* POP3 module: Initial retrieve.
 			New theory: while messages are being downloaded they
-			will be stored in a file in the HD, not in the RAM.
+			will be stored in a file in the Hard Drive, not in the RAM.
 			
 2001-06-20 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
@@ -10,7 +10,7 @@
 			We are now ready to code the c2_pop3_fetchmail
 			and this widget should already be prepared to
 			show what's going on (through signals).
-	* POP3 module: Welcome function, login, status request.
+	* POP3 module: Welcome function, log-in, status request.
 	* Preferences: Fixed the problem that made that when you edit an
 			account the username appear empty and the password with the
 			username on it (actually, the fix was in the Account module,
@@ -39,13 +39,18 @@
 
 	* Cronos II Db: The path has changed from ~/.Cronos II to ~/.c2 since
 			the new version has differences in the format of the index file.
-	* Mailbox management: Improves and added UI soport for the Spool mailbox.
+	* Mailbox management: Improves and added UI support for the Spool mailbox.
 	  
 
 2001-06-14 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
-	* Request module: Using gnome-download due to problems with http images downloading
+<<<<<<< Change-Log
+	* Request module: Using gnome-download due to problems with HTTP images downloading
+			  that took me off!
+=======
+	* Request module: Using gnome-download due to problems with HTTP images downloading
 			that took me off!
+>>>>>>> 1.10
 
 2001-06-13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
