@@ -1,3 +1,9 @@
+Fri Oct 18 Bosko Blagojevic
+	* added c2_imap_message_remove_states() to imap.c to help keep
+	  better track of message states on imap server.. still untested and
+	  changing states in imap still causes mysterious freeze up
+	  if I remember correctly. :(
+
 Wed Sep 11 Daniel Fairhead
 	* Changed c2_str_html_to_text to use BUFFER rather than gstring.
 	* Fixed bzero to memset for compatibility.
