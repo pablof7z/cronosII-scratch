@@ -516,71 +516,72 @@ not valid.", 372},
   {"_User Manual", 426},
   {"_Quick Tips", 427},
   {"_Getting in Touch", 428},
-  {"About _Plugins", 429},
-  {"Icon Menu Bar", 430},
-  {"View Message Pane", 431},
-  {"Show the Message Transfer dialog", 432},
+  {"_Release Information", 429},
+  {"About _Plugins", 430},
+  {"Icon Menu Bar", 431},
+  {"View Message Pane", 432},
+  {"Show the Message Transfer dialog", 433},
   {"\
 The mailbox name you\n\
-entered is invalid.", 433},
-  {"close this dialog", 434},
-  {"Mailbox properties", 435},
-  {"finished", 436},
-  {"Warning", 437},
+entered is invalid.", 434},
+  {"close this dialog", 435},
+  {"Mailbox properties", 436},
+  {"finished", 437},
+  {"Warning", 438},
   {"\
 Editing mailbox properties might\n\
-result in the lost of all mails in it.", 438},
-  {"Type here the name of the new mailbox", 439},
-  {"Type:", 440},
-  {"Select the type of access you want for this mailbox", 441},
-  {"Extra data", 442},
-  {"Type here the port where this mailbox is stored", 443},
-  {"Type here the hostname where this mailbox is stored", 444},
-  {"Password:", 445},
-  {"Path:", 446},
-  {"Select file", 447},
-  {"C2 Addressbook", 448},
-  {"Cronos II Addressbook", 449},
-  {"_New File", 450},
-  {"Open Addressbook file", 451},
-  {"close addressbook", 452},
-  {"New File", 453},
-  {"New", 454},
-  {"Open Address Book File", 455},
-  {"Open", 456},
-  {"Save Address Book File", 457},
-  {"Search:", 458},
-  {"Groups:", 459},
-  {"E-Mail", 460},
-  {"Comments", 461},
-  {"Address Book vCard", 462},
-  {"close card", 463},
-  {"_New Mailbox", 464},
-  {"Delete selected mailbox", 465},
-  {"_Delete Mailbox", 466},
+result in the lost of all mails in it.", 439},
+  {"Type here the name of the new mailbox", 440},
+  {"Type:", 441},
+  {"Select the type of access you want for this mailbox", 442},
+  {"Extra data", 443},
+  {"Type here the port where this mailbox is stored", 444},
+  {"Type here the hostname where this mailbox is stored", 445},
+  {"Password:", 446},
+  {"Path:", 447},
+  {"Select file", 448},
+  {"C2 Addressbook", 449},
+  {"Cronos II Addressbook", 450},
+  {"_New File", 451},
+  {"Open Addressbook file", 452},
+  {"close addressbook", 453},
+  {"New File", 454},
+  {"New", 455},
+  {"Open Address Book File", 456},
+  {"Open", 457},
+  {"Save Address Book File", 458},
+  {"Search:", 459},
+  {"Groups:", 460},
+  {"E-Mail", 461},
+  {"Comments", 462},
+  {"Address Book vCard", 463},
+  {"close card", 464},
+  {"_New Mailbox", 465},
+  {"Delete selected mailbox", 466},
+  {"_Delete Mailbox", 467},
   {"\
 Removal of a mailbox will permanently\n\
 delete all mail stored in it and any\n\
 mailbox depending of it.\n\
 \n\
 Are you sure you want to delete\n\
-this mailbox?", 467},
-  {"Remove this Mailbox", 468},
-  {"Don't do anything. Close this dialog.", 469},
-  {"Make a backup copy", 470},
-  {"Archive mails (recommended).", 471},
-  {"Incorrect Password", 472},
-  {"Try this new information", 473},
-  {"Account:", 474},
+this mailbox?", 468},
+  {"Remove this Mailbox", 469},
+  {"Don't do anything. Close this dialog.", 470},
+  {"Make a backup copy", 471},
+  {"Archive mails (recommended).", 472},
+  {"Incorrect Password", 473},
+  {"Try this new information", 474},
+  {"Account:", 475},
   {"\
 The server has rejected the username/password\n\
-combination: ", 475},
+combination: ", 476},
   {"\
 \n\
 Provide the correct information for logging in\n\
-in the following fields.", 476},
-  {"Getting in Touch", 477},
-  {"Close this dialog", 478},
+in the following fields.", 477},
+  {"Getting in Touch", 478},
+  {"Close this dialog", 479},
   {"\
 Getting in Touch:\n\
 \n\
@@ -607,45 +608,45 @@ _I_R_C:\n\
 \n\
 You can chat with both users and developers in the\n\
 OpenProjects network by connecting to the server\n\
-_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 and the channel _#_c_r_o_n_o_s_I_I.", 479},
+_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 and the channel _#_c_r_o_n_o_s_I_I.", 480},
   {"\
 There is no account configured yet.\n\
 You need to do this before being\n\
-able to compose mails.", 480},
+able to compose mails.", 481},
   {"\
 Not enough data was filled in,\n\
 complete the missing data\n\
-and try again.", 481},
-  {"Text _beside icons", 482},
-  {"Text _under icons", 483},
-  {"_Text only", 484},
-  {"_Icons only", 485},
-  {"_Tooltips", 486},
-  {"_Edit toolbar...", 487},
-  {"Toolbar configuration", 488},
-  {"Available elements", 489},
-  {"label73", 490},
-  {"label74", 491},
-  {"Current Toolbar", 492},
-  {"label75", 493},
-  {"label76", 494},
+and try again.", 482},
+  {"Text _beside icons", 483},
+  {"Text _under icons", 484},
+  {"_Text only", 485},
+  {"_Icons only", 486},
+  {"_Tooltips", 487},
+  {"_Edit toolbar...", 488},
+  {"Toolbar configuration", 489},
+  {"Available elements", 490},
+  {"label73", 491},
+  {"label74", 492},
+  {"Current Toolbar", 493},
+  {"label75", 494},
+  {"label76", 495},
   {"\
 There is a file by that name already.\n\
 \n\
-Do you want to overwrite it?", 495},
+Do you want to overwrite it?", 496},
   {"\
 Are you sure you want to\n\
-delete the selected mails?", 496},
-  {"Do not ask again.", 497},
+delete the selected mails?", 497},
+  {"Do not ask again.", 498},
   {"\
 Are you sure you want to\n\
-expunge the selected mails?", 498},
-  {"Release Information", 499},
-  {"Welcome", 500},
-  {"Known Bugs", 501},
-  {"Missing Features", 502},
-  {"Show this dialog at start.", 503},
-  {"Select Mailbox", 504},
+expunge the selected mails?", 499},
+  {"Release Information", 500},
+  {"Welcome", 501},
+  {"Known Bugs", 502},
+  {"Missing Features", 503},
+  {"Show this dialog at start.", 504},
+  {"Select Mailbox", 505},
 };
 
-int _msg_tbl_length = 504;
+int _msg_tbl_length = 505;

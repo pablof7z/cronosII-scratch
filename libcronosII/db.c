@@ -115,17 +115,52 @@ init (C2Db *db)
 static void
 destroy (GtkObject *object)
 {
-	C2Db *db;
+	C2Db *db, *prev, *next;
+	C2Mailbox *mailbox;
+	gint position;
 
 	c2_return_if_fail (C2_IS_DB (object), C2EDATA);
 
 	db = C2_DB (object);
+	prev = db->prev;
+	next = db->next;
+	position = db->position;
+
+	mailbox = db->mailbox;
 
 	if (db->message)
 		gtk_object_unref (GTK_OBJECT (db->message));
 	g_free (db->subject);
 	g_free (db->from);
 	g_free (db->account);
+
+	/* There's just one mail in the db */
+	if (db == prev)
+	{
+		mailbox->db = NULL;
+	} else
+	{
+		prev->next = next;
+		next->prev = prev;
+
+		/* Is the first mail of the db */
+		if (mailbox->db == db)
+			mailbox->db = next;
+
+		/* Is not the last mail of the db */
+		if (mailbox->db != next)
+		{
+			prev = next;
+			do
+			{
+				next = prev;
+				next = next->next->position > next->position ? next->next : NULL;
+				
+				prev->position = position++;
+				prev = next;
+			} while (prev);
+		}
+	}
 }
 
 static void
@@ -714,7 +749,6 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 	}
 
 	/* Remove from the db */
-	printf ("Calling with a list of %d length\n", g_list_length (list));
 	retval = func (mailbox, list);
 
 	/* Remove from the loaded db list */
@@ -724,38 +758,18 @@ c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 	{
 		C2Db *_next = db;
 	
-		if (i == GPOINTER_TO_INT (sorted_list->data))
+		c2_db_lineal_next (_next);
+		
+		if (i++ == GPOINTER_TO_INT (sorted_list->data))
 		{
-			C2Db *prev = db->prev;
-			C2Db *curr = db;
-			C2Db *next = db->next;
-
-			prev->next = next;
-			next->prev = prev;
-
-			/* If is the first mail */
-			if (c2_db_is_first (curr))
-				mailbox->db = next;
-
-			/* If is the only mail */
-			if (prev == curr)
-				mailbox->db = NULL;
+			gtk_object_destroy (GTK_OBJECT (db));
 
 			/* Remove the link */
-			sorted_list = g_list_remove_link (sorted_list, sorted_list);
-			if (!sorted_list)
+			if (!(sorted_list = g_list_remove_link (sorted_list, sorted_list)))
 				break;
-
-			gtk_object_unref (GTK_OBJECT (db));
-			c2_db_lineal_next (_next);
-			db = _next;
-		} else
-		{
-			db->position = ++pos;
-			c2_db_lineal_next (db);
 		}
-		
-		i++;
+
+		db = _next;
 	} while (db);
 
 	db = c2_db_get_node (mailbox, first ? first-1 : 0);

@@ -1401,7 +1401,7 @@ on_toolbar_copy_clicked (GtkWidget *widget, C2WindowMain *wmain)
 static void
 on_toolbar_delete_clicked (GtkWidget *widget, C2WindowMain *wmain)
 {
-L	C2_WINDOW_MAIN_CLASS_FW (wmain)->delete (wmain);
+	C2_WINDOW_MAIN_CLASS_FW (wmain)->delete (wmain);
 }
 
 static void
@@ -1476,10 +1476,9 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 	GladeXML *xml;
 	GtkWidget *widget;
 
-
 	if (g_list_length (GTK_CLIST (index)->selection) > 1)
 		return;
-	
+
 	if (!C2_IS_MESSAGE (node->message))
 	{
 		/* [TODO] This should be in a separated thread */
@@ -1502,6 +1501,7 @@ on_index_select_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
 		}
 	}
 
+	
 	
 	c2_mail_set_message (C2_MAIL (glade_xml_get_widget (C2_WINDOW (wmain)->xml, "mail")), node->message);
 

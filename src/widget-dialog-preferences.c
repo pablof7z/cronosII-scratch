@@ -1903,11 +1903,11 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 	gnome_config_set_int ("type", type);
 
 	widget = glade_xml_get_widget (xml, "options_account_name");
-	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	gnome_config_set_string ("account_name", buf);
 	
 	widget = glade_xml_get_widget (xml, "identity_email");
-	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	buf2 = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	gnome_config_set_string ("identity_email", buf);
 
 	account = c2_account_new (type, buf, buf2);
@@ -1915,17 +1915,17 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 			c2_account_append (C2_DIALOG (preferences)->application->account, account);
 
 	widget = glade_xml_get_widget (xml, "identity_name");
-	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_FULL_NAME, GTK_TYPE_STRING, buf);
 	gnome_config_set_string ("identity_name", buf);
 
 	widget = glade_xml_get_widget (xml, "identity_organization");
-	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_ORGANIZATION, GTK_TYPE_STRING, buf);
 	gnome_config_set_string ("identity_organization", buf);
 
 	widget = glade_xml_get_widget (xml, "identity_reply_to");
-	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_REPLY_TO, GTK_TYPE_STRING, buf);
 	gnome_config_set_string ("identity_reply_to", buf);
 
@@ -1935,7 +1935,7 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 		gint flags = 0;
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_hostname");
-		buf = gtk_entry_get_text (GTK_ENTRY (widget));
+		buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 		gnome_config_set_string ("incoming_server_hostname", buf);
 
 		widget = glade_xml_get_widget (xml, "incoming_server_port");
@@ -1943,7 +1943,7 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 		gnome_config_set_int ("incoming_server_port", integer);
 
 		widget = glade_xml_get_widget (xml, "incoming_server_username");
-		buf2 = gtk_entry_get_text (GTK_ENTRY (widget));
+		buf2 = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 		gnome_config_set_string ("incoming_server_username", buf2);
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_ssl");
@@ -2007,7 +2007,7 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 		C2IMAP *imap;
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_hostname");
-		buf = gtk_entry_get_text (GTK_ENTRY (widget));
+		buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 		gnome_config_set_string ("incoming_server_hostname", buf);
 
 		widget = glade_xml_get_widget (xml, "incoming_server_port");
@@ -2015,7 +2015,7 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 		gnome_config_set_int ("incoming_server_port", integer);
 
 		widget = glade_xml_get_widget (xml, "incoming_server_username");
-		buf2 = gtk_entry_get_text (GTK_ENTRY (widget));
+		buf2 = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 		gnome_config_set_string ("incoming_server_username", buf2);
 		
 		widget = glade_xml_get_widget (xml, "incoming_server_ssl");
@@ -2048,7 +2048,7 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 	}
 
 	widget = glade_xml_get_widget (xml, "outgoing_server_hostname");
-	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	gnome_config_set_string ("outgoing_server_hostname", buf);
 
 	widget = glade_xml_get_widget (xml, "outgoing_server_port");
@@ -2064,7 +2064,7 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 	gnome_config_set_bool ("outgoing_server_required", boolean2);
 
 	widget = glade_xml_get_widget (xml, "outgoing_server_username");
-	buf2 = gtk_entry_get_text (GTK_ENTRY (widget));
+	buf2 = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	gnome_config_set_string ("outgoing_server_username", buf2);
 
 	smtp = c2_smtp_new (outgoing_type, buf, integer, boolean, boolean2, buf2, NULL);
@@ -2080,13 +2080,13 @@ on_general_accounts_druid_page5_finish (GnomeDruidPage *druid_page, GtkWidget *d
 
 	widget = gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (
 							glade_xml_get_widget (xml, "options_signature_plain")));
-	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_SIGNATURE_PLAIN, GTK_TYPE_STRING, buf);
 	gnome_config_set_string ("options_signature_plain", buf);
 
 	widget = gnome_file_entry_gtk_entry (GNOME_FILE_ENTRY (
 							glade_xml_get_widget (xml, "options_signature_html")));
-	buf = gtk_entry_get_text (GTK_ENTRY (widget));
+	buf = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	c2_account_set_extra_data (account, C2_ACCOUNT_KEY_SIGNATURE_HTML, GTK_TYPE_STRING, buf);
 	gnome_config_set_string ("options_signature_html", buf);
 

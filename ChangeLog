@@ -1,3 +1,8 @@
+Tue Nov 08 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
+	* Work in the unfunctional Db module, should be working now.
+	* Fixed the problem when creating a new account (you had to restart
+	  Cronos II to be able to use the new account).
+
 Thu Nov 06 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 	* The Send button for Queued messages is now working.
 	* The Send Later capability of the composer is now functional.

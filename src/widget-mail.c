@@ -81,6 +81,7 @@ c2_mail_set_message (C2Mail *mail, C2Message *message)
 	if (C2_IS_MESSAGE (mail->message) && message != mail->message)
 		gtk_object_unref (GTK_OBJECT (mail->message));
 	mail->message = message;
+	gtk_object_ref (GTK_OBJECT (mail->message));
 
 	/* Get the part that should be displayed */
 	default_mime = c2_preferences_get_interface_misc_attachments_default ();

@@ -4,14 +4,14 @@ db.o: db.c /usr/include/stdio.h /usr/include/features.h \
  /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h \
  /usr/include/bits/types.h /usr/include/libio.h \
  /usr/include/_G_config.h /usr/include/bits/stdio_lim.h \
- /usr/include/bits/stdio.h /usr/include/glib-1.2/glib.h \
- /usr/lib/glib/include/glibconfig.h /usr/include/limits.h \
- /usr/include/bits/posix1_lim.h /usr/include/bits/local_lim.h \
- /usr/include/linux/limits.h /usr/include/bits/posix2_lim.h \
+ /usr/include/bits/stdio.h /usr/include/gtk-1.2/gtk/gtk.h \
+ /usr/include/gtk-1.2/gdk/gdk.h /usr/include/gtk-1.2/gdk/gdktypes.h \
+ /usr/include/glib-1.2/glib.h /usr/lib/glib/include/glibconfig.h \
+ /usr/include/limits.h /usr/include/bits/posix1_lim.h \
+ /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+ /usr/include/bits/posix2_lim.h \
  /usr/lib/gcc-lib/i386-linux/2.95.2/include/limits.h \
  /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h \
- ../libcronosII/db.h /usr/include/gtk-1.2/gtk/gtk.h \
- /usr/include/gtk-1.2/gdk/gdk.h /usr/include/gtk-1.2/gdk/gdktypes.h \
  /usr/include/gtk-1.2/gdk/gdkcursors.h \
  /usr/include/gtk-1.2/gdk/gdkrgb.h \
  /usr/include/gtk-1.2/gtk/gtkaccelgroup.h \
@@ -119,19 +119,33 @@ db.o: db.c /usr/include/stdio.h /usr/include/features.h \
  /usr/include/gtk-1.2/gtk/gtkvpaned.h \
  /usr/include/gtk-1.2/gtk/gtkvruler.h \
  /usr/include/gtk-1.2/gtk/gtkvscale.h \
- /usr/include/gtk-1.2/gtk/gtkvseparator.h /usr/include/time.h \
- /usr/include/bits/time.h ../libcronosII/db-cronosII.h \
- ../libcronosII/mailbox.h /usr/include/string.h \
- /usr/include/bits/string.h /usr/include/bits/string2.h \
- /usr/include/endian.h /usr/include/bits/endian.h \
- /usr/include/stdlib.h /usr/include/pthread.h /usr/include/sched.h \
- /usr/include/bits/sched.h /usr/include/signal.h \
- /usr/include/bits/sigset.h /usr/include/bits/pthreadtypes.h \
- /usr/include/bits/sigthread.h ../libcronosII/message.h \
+ /usr/include/gtk-1.2/gtk/gtkvseparator.h ../libcronosII/db.h \
+ /usr/include/time.h /usr/include/bits/time.h \
+ ../libcronosII/db-cronosII.h ../libcronosII/mailbox.h \
+ /usr/include/string.h /usr/include/bits/string.h \
+ /usr/include/bits/string2.h /usr/include/endian.h \
+ /usr/include/bits/endian.h /usr/include/stdlib.h \
+ /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
+ /usr/include/signal.h /usr/include/bits/sigset.h \
+ /usr/include/bits/pthreadtypes.h /usr/include/bits/sigthread.h \
+ ../libcronosII/imap.h ../libcronosII/net-object.h ../config.h \
+ ../libcronosII/utils-net.h /usr/include/sys/types.h \
+ /usr/include/sys/select.h /usr/include/bits/select.h \
+ /usr/include/sys/sysmacros.h /usr/include/sys/socket.h \
+ /usr/include/bits/socket.h /usr/include/bits/sockaddr.h \
+ /usr/include/asm/socket.h /usr/include/asm/sockios.h \
+ /usr/include/sys/time.h /usr/include/netinet/in.h \
+ /usr/include/stdint.h /usr/include/bits/wordsize.h \
+ /usr/include/bits/in.h /usr/include/bits/byteswap.h \
+ /usr/include/arpa/inet.h /usr/include/netdb.h \
+ /usr/include/rpc/netdb.h /usr/include/unistd.h \
+ /usr/include/bits/posix_opt.h /usr/include/bits/confname.h \
+ /usr/include/getopt.h ../libcronosII/utils.h \
+ ../libcronosII/utils-mutex.h ../libcronosII/message.h \
  ../libcronosII/mime.h ../libcronosII/db-imap.h \
  ../libcronosII/db-spool.h ../libcronosII/error.h /usr/include/errno.h \
  /usr/include/bits/errno.h /usr/include/linux/errno.h \
- /usr/include/asm/errno.h ../libcronosII/utils.h ../config.h
+ /usr/include/asm/errno.h
 db.c :
 /usr/include/stdio.h :
 /usr/include/features.h :
@@ -144,6 +158,9 @@ db.c :
 /usr/include/_G_config.h :
 /usr/include/bits/stdio_lim.h :
 /usr/include/bits/stdio.h :
+/usr/include/gtk-1.2/gtk/gtk.h :
+/usr/include/gtk-1.2/gdk/gdk.h :
+/usr/include/gtk-1.2/gdk/gdktypes.h :
 /usr/include/glib-1.2/glib.h :
 /usr/lib/glib/include/glibconfig.h :
 /usr/include/limits.h :
@@ -153,10 +170,6 @@ db.c :
 /usr/include/bits/posix2_lim.h :
 /usr/lib/gcc-lib/i386-linux/2.95.2/include/limits.h :
 /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h :
-../libcronosII/db.h :
-/usr/include/gtk-1.2/gtk/gtk.h :
-/usr/include/gtk-1.2/gdk/gdk.h :
-/usr/include/gtk-1.2/gdk/gdktypes.h :
 /usr/include/gtk-1.2/gdk/gdkcursors.h :
 /usr/include/gtk-1.2/gdk/gdkrgb.h :
 /usr/include/gtk-1.2/gtk/gtkaccelgroup.h :
@@ -268,6 +281,7 @@ db.c :
 /usr/include/gtk-1.2/gtk/gtkvruler.h :
 /usr/include/gtk-1.2/gtk/gtkvscale.h :
 /usr/include/gtk-1.2/gtk/gtkvseparator.h :
+../libcronosII/db.h :
 /usr/include/time.h :
 /usr/include/bits/time.h :
 ../libcronosII/db-cronosII.h :
@@ -285,6 +299,34 @@ db.c :
 /usr/include/bits/sigset.h :
 /usr/include/bits/pthreadtypes.h :
 /usr/include/bits/sigthread.h :
+../libcronosII/imap.h :
+../libcronosII/net-object.h :
+../config.h :
+../libcronosII/utils-net.h :
+/usr/include/sys/types.h :
+/usr/include/sys/select.h :
+/usr/include/bits/select.h :
+/usr/include/sys/sysmacros.h :
+/usr/include/sys/socket.h :
+/usr/include/bits/socket.h :
+/usr/include/bits/sockaddr.h :
+/usr/include/asm/socket.h :
+/usr/include/asm/sockios.h :
+/usr/include/sys/time.h :
+/usr/include/netinet/in.h :
+/usr/include/stdint.h :
+/usr/include/bits/wordsize.h :
+/usr/include/bits/in.h :
+/usr/include/bits/byteswap.h :
+/usr/include/arpa/inet.h :
+/usr/include/netdb.h :
+/usr/include/rpc/netdb.h :
+/usr/include/unistd.h :
+/usr/include/bits/posix_opt.h :
+/usr/include/bits/confname.h :
+/usr/include/getopt.h :
+../libcronosII/utils.h :
+../libcronosII/utils-mutex.h :
 ../libcronosII/message.h :
 ../libcronosII/mime.h :
 ../libcronosII/db-imap.h :
@@ -294,5 +336,3 @@ db.c :
 /usr/include/bits/errno.h :
 /usr/include/linux/errno.h :
 /usr/include/asm/errno.h :
-../libcronosII/utils.h :
-../config.h :
