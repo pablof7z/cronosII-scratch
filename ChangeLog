@@ -1,3 +1,6 @@
+Mon Nov 26 Bosko Blagojevic <falling@users.sourceforge.net>
+	* IMAP can now rename and delete folders.
+
 Sun Nov 25 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Fixed a small bug in the SMTP module that would indicate success
 	  on failure to send an email.
