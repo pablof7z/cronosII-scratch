@@ -36,8 +36,14 @@ extern "C" {
 #	include <gtk/gtktext.h>
 #endif
 
-#define C2_EDITOR(obj)						(GTK_CHECK_CAST (obj, c2_editor_get_type (), C2Editor))
-#define C2_EDITOR_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, c2_editor_get_type (), C2Editor))
+#ifdef USE_DEBUG
+#	define C2_EDITOR(obj)						(GTK_CHECK_CAST (obj, c2_editor_get_type (), C2Editor))
+#	define C2_EDITOR_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, c2_editor_get_type (), C2Editor))
+#else
+#	define C2_EDITOR(obj)						((C2Editor*)obj)
+#	define C2_EDITOR_CLASS(klass)				((C2EditorClass*)klass)
+#endif
+		
 #define C2_IS_EDITOR(obj)					(GTK_CHECK_TYPE (obj, c2_editor_get_type ()))
 #define C2_EDITOR_OPERATION(obj)			((C2EditorOperation*)obj)
 

@@ -140,7 +140,7 @@ c2_db_freeze								(C2Mailbox *mailbox);
 void
 c2_db_thaw									(C2Mailbox *mailbox);
 
-gboolean
+gint
 c2_db_load									(C2Mailbox *mailbox);
 
 gboolean

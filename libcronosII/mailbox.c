@@ -21,7 +21,7 @@
  * Code of this file by:
  * 		* Pablo Fernández López
  */
-#include <glib.h>
+#include <gnome.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -324,8 +324,8 @@ c2_mailbox_new_with_parent (C2Mailbox **head, const gchar *name, const gchar *pa
 			break;
 	}
 	g_free (id);
-	
-	if(!value) 
+
+	if (!value)
 		return NULL;
 
 	/* Create the structure */
@@ -512,14 +512,13 @@ c2_mailbox_remove (C2Mailbox **head, C2Mailbox *mailbox)
 		g_free (parent_id);
 	} else
 	{
-		my_id--;
 		/* This mailbox has a previous mailbox in the same level */
+		my_id--;
 		if (!C2_MAILBOX_IS_TOPLEVEL (mailbox))
 			previous_id = g_strdup_printf ("%s-%d", c2_mailbox_get_parent_id (mailbox->id), my_id);
 		else
-			previous_id = g_strdup_printf ("%d", my_id);
+			previous_id = g_strdup_printf ("%d", my_id-1);
 		my_id++;
-
 		if (!(previous = c2_mailbox_search_by_id (*head, previous_id)))
 		{
 			c2_mutex_unlock(&mailbox->lock);
@@ -746,12 +745,13 @@ c2_mailbox_get_id (const gchar *id, gint number)
 
 	if (number < 0)
 	{
-		/* quickie fix for 1st-level mailboxes */
+		 /* quickie fix for 1st-level mailboxes */
 		if(!strstr(id, "-"))
 			return atoi(id);
 		
 		for (ptr = id+strlen (id)-1; *ptr != '\0' && *ptr != '-'; ptr--)
 			;
+
 		if (!ptr)
 			return -1;
 	
@@ -845,10 +845,60 @@ c2_mailbox_load_db (C2Mailbox *mailbox)
 	/* We must load the db */
 	if (!c2_db_load (mailbox))
 	{
-		gtk_signal_emit (GTK_OBJECT (mailbox), signals[DB_LOADED], FALSE);
-		return FALSE;
+		gboolean success;
+
+		if (c2_error_object_get_id (GTK_OBJECT (mailbox)))
+			success = FALSE;
+		else
+			success = TRUE;
+		
+		gtk_signal_emit (GTK_OBJECT (mailbox), signals[DB_LOADED], success);
+		return success;
 	}
 
 	gtk_signal_emit (GTK_OBJECT (mailbox), signals[DB_LOADED], TRUE);
 	return TRUE;
+}
+
+/**
+ * c2_mailbox_get_configuration_id
+ * @mailbox: Mailbox to work with.
+ * 
+ * This function will return the ID
+ * of the mailbox that has assigned
+ * in the configuration file.
+ *
+ * Return Value:
+ * The configuration ID or -1.
+ **/
+gint
+c2_mailbox_get_configuration_id (C2Mailbox *mailbox)
+{
+	gint i;
+	gchar *buf, *path;
+	
+	c2_return_val_if_fail (C2_IS_MAILBOX (mailbox), C2EDATA, -1);
+
+	for (i = 1;; i++)
+	{
+		path = g_strdup_printf ("/" PACKAGE "/Mailbox %d/name", i);
+		if (!(buf = gnome_config_get_string (path)))
+		{
+			g_free (path);
+			return -1;
+		}
+
+		if (c2_streq (buf, mailbox->name))
+		{
+			g_free (buf);
+			g_free (path);
+
+			break;
+		}
+		
+		g_free (path);
+		g_free (buf);
+	}
+	
+	return i;
 }

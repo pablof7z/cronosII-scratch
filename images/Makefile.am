@@ -3,7 +3,6 @@ pixmap_DATA = \
 	advanced_misc.png	\
 	attachments24.png	\
 	attachments36.png	\
-	blue_arrow.png		\
 	check-off.png		\
 	check-on.png		\
 	close.png			\
@@ -22,7 +21,6 @@ pixmap_DATA = \
 	general_options.png	\
 	general_paths.png	\
 	general_plugins.png	\
-	green_arrow.png		\
 	inbox.png			\
 	interface_composer.png	\
 	interface_fonts.png	\
@@ -31,9 +29,14 @@ pixmap_DATA = \
 	loading-image.png	\
 	mailbox.png			\
 	mail-write.png		\
-	mails.png			\
-	mark-forward.png	\
-	mark-reply.png		\
+	mark-i-forwarded.png\
+	mark-i-replied.png	\
+	mark-i-readed.png	\
+	mark-i-unreaded.png	\
+	mark-forwarded.png	\
+	mark-replied.png	\
+	mark-readed.png		\
+	mark-unreaded.png	\
 	mark.png			\
 	mcard-edit.png		\
 	mcard-edit_menu.png	\
@@ -46,9 +49,7 @@ pixmap_DATA = \
 	print.png			\
 	outbox.png			\
 	queue_mbox.png		\
-	read.png			\
 	receive.png			\
-	red_arrow.png		\
 	save.png			\
 	send.png			\
 	send-receive.png	\
@@ -57,9 +58,7 @@ pixmap_DATA = \
 	reply-all.png		\
 	reply.png			\
 	unknown-file.png	\
-	unread.png			\
-	window.png			\
-	yellow_arrow.png
+	window.png
 
 emoticonsdir = $(pixmapdir)/emoticons
 emoticons_DATA = \

@@ -118,13 +118,13 @@ void
 c2_account_free_all							(C2Account *head);
 
 C2Account *
-c2_account_copy										(C2Account *account);
+c2_account_copy								(C2Account *account);
 
 C2Account *
-c2_account_append									(C2Account *head, C2Account *obj);
+c2_account_append							(C2Account *head, C2Account *obj);
 
 C2Account *
-c2_account_last										(C2Account *head);
+c2_account_last								(C2Account *head);
 
 C2Account *
 c2_account_get_by_name						(C2Account *head, const gchar *name);

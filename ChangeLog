@@ -1,8 +1,22 @@
+Tue Feb 19 Pablo Fernández López <pablo@pablossite.net>
+	* Work in the Spool module.
+
+Mon Feb 18 Pablo Fernández López <pablo@pablossite.net>
+	* Work in the Spool module.
+	* New debugging routines.
+
 Sun Feb 17 Bosko Blagojevic <falling@users.sourceforge.net>
 	* Small bug fix in libcronosII/db.c
 	* Bug fixes in imap
 	* Deleting messages in imap now works!
 	* Adding messages in imap now works!
+	
+Sat Feb 16 Pablo Fernández López <pablo@pablossite.net>
+	* Lots of work in the spool module.
+	* Fixed a bug in the message module.
+
+Thu Feb 15 Pablo Fernández López <pablo@pablossite.net>
+	* Work in the spool module.
 
 Thu Feb 14 Pablo Fernández López <pablo@pablossite.net>
 	* Work in the spool module.

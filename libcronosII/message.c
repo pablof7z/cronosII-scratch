@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández Navarro
+ * 		* Pablo Fernández López
  * Code of this file by:
- * 		* Pablo Fernández Navarro
+ * 		* Pablo Fernández López
  */
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -133,7 +133,33 @@ c2_message_set_message (C2Message *message, const gchar *string)
 	c2_return_if_fail (string, C2EDATA);
 
 	if (!(ptr = strstr (string, "\n\n")))
-		return;
+	{
+		/* This mail seems to be broken,
+		 * lets try to load it anyway
+		 * by seeing what looks like
+		 * a header line and what not */
+		const gchar *ptr2 = NULL;
+		gboolean dots_reached;
+		
+		for (ptr = string; *ptr != '\0'; ptr++)
+		{
+			if (*ptr == ':')
+					dots_reached = TRUE;
+			if (*ptr == '\n')
+			{
+				if (dots_reached)
+				{
+					ptr2 = ptr+1;
+					dots_reached = FALSE;
+				} else
+					break;
+			}
+		}
+
+		if (!ptr2)
+			return;
+		ptr = ptr2;
+	}
 
 	message->header = g_strndup (string, ptr-string);
 	for (; *ptr == '\n'; ptr++)
@@ -344,6 +370,7 @@ c2_message_fix_broken_message (C2Message *message)
 	if (!(fd = fopen (tmpfile, "w")))
 	{
 		c2_error_set (-errno);
+		g_free (tmpfile);
 		return NULL;
 	}
 
@@ -407,7 +434,7 @@ c2_message_fix_broken_message (C2Message *message)
 		{
 			gint len;
 			gboolean free_space = TRUE;
-		
+
 			if (mime->part)
 				free_space = FALSE;
 			else
@@ -480,6 +507,8 @@ encode_base64:
 		 */
 		fprintf (fd, "%s", message->body);
 	}
+
+	return message;
 	
 	/* Close the tmpfile */
 	fclose (fd);

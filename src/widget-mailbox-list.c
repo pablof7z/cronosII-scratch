@@ -176,9 +176,7 @@ c2_mailbox_list_new (C2Application *application)
 	GtkWidget *widget;
 	gchar *titles[] =
 	{
-		N_("Mailbox"),
-		NULL,
-		NULL
+		N_("Mailboxes")
 	};
 
 	mlist = gtk_type_new (c2_mailbox_list_get_type ());
@@ -204,6 +202,7 @@ c2_mailbox_list_new (C2Application *application)
 	
 	widget = GTK_WIDGET (mlist);
 	GTK_WIDGET_UNSET_FLAGS (widget, GTK_CAN_FOCUS);
+	gtk_clist_column_titles_passive (GTK_CLIST (mlist));
 	return widget;
 }
 

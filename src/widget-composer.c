@@ -36,6 +36,7 @@
 #include "widget-composer.h"
 #include "widget-dialog-preferences.h"
 #include "widget-editor.h"
+#include "widget-index.h"
 #include "widget-transfer-list.h"
 #include "widget-transfer-item.h"
 #include "widget-window.h"
@@ -86,7 +87,7 @@ static void
 find										(C2Composer *composer);
 
 static void
-open_										(C2Composer *composer, const gchar *file, C2Message *message);
+_open										(C2Composer *composer, C2Message *message, C2Db *db);
 
 static void
 open_draft									(C2Composer *composer);
@@ -138,6 +139,9 @@ static void
 on_save_as_clicked							(GtkWidget *widget, C2Composer *composer);
 
 static void
+on_open_clicked								(GtkWidget *widget, C2Composer *composer);
+
+static void
 on_send_now_clicked							(GtkWidget *widget, C2Composer *composer);
 
 static void
@@ -183,6 +187,33 @@ on_mnu_attachments_edit_activate			(GtkWidget *widget, C2Composer *composer);
 
 static C2Account *
 get_account									(C2Composer *composer);
+
+static C2Account *
+set_message_account							(C2Composer *composer, C2Message *message);
+
+static void
+set_message_to								(C2Composer *composer, C2Message *message);
+
+static void
+set_message_cc								(C2Composer *composer, C2Message *message);
+
+static void
+set_message_bcc								(C2Composer *composer, C2Message *message);
+
+static void
+set_message_subject							(C2Composer *composer, C2Message *message);
+
+static void
+set_message_in_reply_to						(C2Composer *composer, C2Message *message);
+
+static void
+set_message_references						(C2Composer *composer, C2Message *message);
+
+static void
+set_message_attachments						(C2Composer *composer, C2Message *message);
+
+static void
+set_message_body							(C2Composer *composer, C2Message *message);
 
 static C2Message *
 create_message								(C2Composer *composer);
@@ -340,13 +371,118 @@ find (C2Composer *composer)
 }
 
 static void
-open_ (C2Composer *composer, const gchar *file, C2Message *message)
+_open (C2Composer *composer, C2Message *message, C2Db *db)
 {
+	c2_return_if_fail (C2_IS_COMPOSER (composer), C2EDATA);
+	c2_return_if_fail (C2_IS_MESSAGE (message), C2EDATA);
+
+	if (C2_IS_DB (db))
+	{
+		composer->action = C2_COMPOSER_ACTION_DRAFT;
+		composer->db = db;
+	}
+
+	set_message_account (composer, message);
+	set_message_to (composer, message);
+	set_message_cc (composer, message);
+	set_message_bcc (composer, message);
+	set_message_subject (composer, message);
+	set_message_in_reply_to (composer, message);
+	set_message_references (composer, message);
+	set_message_attachments (composer, message);
+	set_message_body (composer, message);
+
+	gtk_widget_grab_focus (C2_EDITOR (composer->editor)->text);
+}
+
+static void
+on_open_draft_index_select_message (C2Index *index, C2Db *db, GtkWidget *dialog)
+{
+	if (!c2_db_load_message (db))
+	{
+		gnome_dialog_set_sensitive (GNOME_DIALOG (dialog), 0, FALSE);
+		return;
+	}
+	gtk_object_unref (GTK_OBJECT (db->message));
+
+	gnome_dialog_set_sensitive (GNOME_DIALOG (dialog), 0, TRUE);
+}
+
+static void
+on_open_draft_index_unselect_message (C2Index *index, C2Db *db, GtkWidget *dialog)
+{
+	gnome_dialog_set_sensitive (GNOME_DIALOG (dialog), 0, FALSE);
+}
+
+static void
+on_open_draft_index_open_message (C2Index *index, C2Db *db, GtkWidget *dialog)
+{
+	if (!c2_db_load_message (db))
+		return;
+	
+	gtk_object_set_data (GTK_OBJECT (dialog), "db", db);
+
+	gnome_dialog_close (GNOME_DIALOG (dialog));
 }
 
 static void
 open_draft (C2Composer *composer)
 {
+	C2Application *application = C2_WINDOW (composer)->application;
+	GtkWidget *dialog;
+	GtkWidget *scroll;
+	GtkWidget *index;
+	C2Mailbox *drafts;
+	C2Db *db;
+
+	drafts = c2_mailbox_get_by_name (application->mailbox, C2_MAILBOX_DRAFTS);
+	c2_return_if_fail (C2_IS_MAILBOX (drafts), C2EDATA);
+
+	dialog = c2_dialog_new (C2_WINDOW (composer)->application, _("Select a message"),
+							"select_message", NULL, GNOME_STOCK_BUTTON_OK,
+							GNOME_STOCK_BUTTON_CANCEL, NULL);
+	gtk_widget_set_usize (dialog, c2_preferences_get_window_main_width () -
+								c2_preferences_get_window_main_vpaned () + 15, 360);
+
+	scroll = gtk_scrolled_window_new (NULL, NULL);
+	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox), scroll, TRUE, TRUE, 0);
+	gtk_widget_show (scroll);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC,
+									GTK_POLICY_ALWAYS);
+
+	index = c2_index_new (C2_WINDOW (composer)->application, C2_INDEX_READ_ONLY);
+	gtk_container_add (GTK_CONTAINER (scroll), index);
+	gtk_widget_show (index);
+
+	gtk_signal_connect (GTK_OBJECT (index), "open_message",
+						GTK_SIGNAL_FUNC (on_open_draft_index_open_message), dialog);
+	gtk_signal_connect (GTK_OBJECT (index), "select_message",
+						GTK_SIGNAL_FUNC (on_open_draft_index_select_message), dialog);
+	gtk_signal_connect (GTK_OBJECT (index), "unselect_message",
+						GTK_SIGNAL_FUNC (on_open_draft_index_select_message), dialog);
+
+	c2_index_set_mailbox (C2_INDEX (index), drafts);
+
+	c2_application_window_add (application, GTK_WINDOW (dialog));
+	
+	switch (gnome_dialog_run (GNOME_DIALOG (dialog)))
+	{
+		case 0:
+			db = c2_index_selection_main (C2_INDEX (index));
+			c2_db_load_message (db);
+			_open (composer, db->message, db);
+			break;
+		case 1:
+			break;
+		default:
+			db = gtk_object_get_data (GTK_OBJECT (dialog), "db");
+			c2_db_load_message (db);
+			_open (composer, db->message, db);
+			break;
+	}
+
+	c2_application_window_remove (application, GTK_WINDOW (dialog));
+	gnome_dialog_close (GNOME_DIALOG (dialog));
 }
 
 static void
@@ -730,6 +866,9 @@ c2_composer_construct (C2Composer *composer, C2Application *application)
 	widget = glade_xml_get_widget (xml, "file_save_draft");
 	gtk_signal_connect (GTK_OBJECT (widget), "activate",
 						GTK_SIGNAL_FUNC (on_save_draft_clicked), composer);
+	widget = glade_xml_get_widget (xml, "file_open");
+	gtk_signal_connect (GTK_OBJECT (widget), "activate",
+						GTK_SIGNAL_FUNC (on_open_clicked), composer);
 	widget = glade_xml_get_widget (xml, "file_close");
 	gtk_signal_connect (GTK_OBJECT (widget), "activate",
 						GTK_SIGNAL_FUNC (on_close_clicked), composer);
@@ -986,6 +1125,12 @@ static void
 on_save_as_clicked (GtkWidget *widget, C2Composer *composer)
 {
 	C2_COMPOSER_CLASS_FW (composer)->save_file (composer, NULL);
+}
+
+static void
+on_open_clicked (GtkWidget *widget, C2Composer *composer)
+{
+	C2_COMPOSER_CLASS_FW (composer)->open_draft (composer);
 }
 
 static void
@@ -1372,9 +1517,41 @@ set_message_attachments (C2Composer *composer, C2Message *message)
 			/* Go throught the different MIME parts */
 			for (mime = message->mime; mime; mime = mime->next)
 			{
+				gchar *fname, *buf;
+				FILE *fd;
+				gboolean free_part = TRUE;
+
+				if (mime->part)
+					free_part = FALSE;
+				else
+					c2_mime_get_part (mime);
+				
+				if (c2_strnne (mime->disposition, "attachment", 10))
+					continue;
+				
 				/* Save the part to a file */
+				if (!(buf = c2_mime_get_parameter_value (mime->disposition, "filename")))
+					continue;
+				
+				fname = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s", g_get_tmp_dir (), buf);
+				g_free (buf);
+
+				if (!(fd = fopen (fname, "w")))
+				{
+					g_free (fname);
+					continue;
+				}
+				fwrite (mime->part, mime->length, sizeof (gchar), fd);
+				fclose (fd);
+
+				if (free_part)
+				{
+					g_free (mime->part);
+					mime->part = NULL;
+				}
 				
 				/* Attach the file */
+				add_attachment (composer, fname, mime->description, -1);
 			}
 
 			break;
@@ -1521,7 +1698,7 @@ set_message_body (C2Composer *composer, C2Message *message)
 	 * text/html or text/plain in the message), if we don't
 	 * have a part yet, we will just use an empty body.
 	 */
-	if (part)
+	if (composer->action != C2_COMPOSER_ACTION_DRAFT && part)
 	{
 		gchar cbuf;
 		gboolean newline;
@@ -1559,6 +1736,9 @@ set_message_body (C2Composer *composer, C2Message *message)
 			*(ptr+1) = cbuf;
 		}
 		g_free (partbody);
+	} else if (composer->action == C2_COMPOSER_ACTION_DRAFT && part)
+	{
+		append (composer, part->part, -1, -1, -1);
 	}
 
 	g_free (quote_char);
@@ -1586,6 +1766,7 @@ c2_composer_set_message_as_draft (C2Composer *composer, C2Db *db, C2Message *mes
 	set_message_subject (composer, message);
 	set_message_in_reply_to (composer, message);
 	set_message_references (composer, message);
+	set_message_attachments (composer, message);
 	set_message_body (composer, message);
 
 	if (composer->type == C2_COMPOSER_TYPE_INTERNAL)
@@ -1618,6 +1799,7 @@ c2_composer_set_message_as_reply (C2Composer *composer, C2Db *db, C2Message *mes
 	set_message_subject (composer, message);
 	set_message_in_reply_to (composer, message);
 	set_message_references (composer, message);
+	set_message_attachments (composer, message);
 	set_message_body (composer, message);
 
 	if (composer->type == C2_COMPOSER_TYPE_INTERNAL)
@@ -1650,6 +1832,7 @@ c2_composer_set_message_as_reply_all (C2Composer *composer, C2Db *db, C2Message 
 	set_message_subject (composer, message);
 	set_message_in_reply_to (composer, message);
 	set_message_references (composer, message);
+	set_message_attachments (composer, message);
 	set_message_body (composer, message);
 
 	gtk_widget_grab_focus (C2_EDITOR (composer->editor)->text);
@@ -1680,6 +1863,7 @@ c2_composer_set_message_as_forward (C2Composer *composer, C2Db *db, C2Message *m
 	set_message_subject (composer, message);
 	set_message_in_reply_to (composer, message);
 	set_message_references (composer, message);
+	set_message_attachments (composer, message);
 	set_message_body (composer, message);
 }
 
@@ -1830,8 +2014,7 @@ create_message (C2Composer *composer)
 	buf1 = g_strdup_printf ("X-CronosII-State: %d\n", C2_MESSAGE_UNREADED);
 	g_string_append (header, buf1);
 	g_free (buf1);
-
-
+	
 	/* Body */
 	if (composer->type == C2_COMPOSER_TYPE_INTERNAL)
 	{
@@ -1870,7 +2053,7 @@ create_message (C2Composer *composer)
 	buf = g_realloc (buf, i+1);
 	buf[i] = '\n';
 	buf[i+1] = '\0';
-	
+
 	/* The body is the first attachment */
 	mime = c2_mime_new (NULL);
 	mime->part = buf;

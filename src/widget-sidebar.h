@@ -25,8 +25,19 @@ extern "C" {
 #include <gtk/gtkvbox.h>
 #include <gtk/gtkwidget.h>
 
-#define C2_SIDEBAR(obj)						(GTK_CHECK_CAST (obj, c2_sidebar_get_type (), C2Sidebar))
-#define C2_SIDEBAR_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, c2_sidebar_get_type (), C2SidebarClass))
+#ifdef BUILDING_C2
+#	include <config.h>
+#else
+#	include <cronosII.h>
+#endif
+
+#ifdef USE_DEBUG
+#	define C2_SIDEBAR(obj)						(GTK_CHECK_CAST (obj, c2_sidebar_get_type (), C2Sidebar))
+#	define C2_SIDEBAR_CLASS(klass)				(GTK_CHECK_CLASS_CAST (klass, c2_sidebar_get_type (), C2SidebarClass))
+#else
+#	define C2_SIDEBAR(obj)						((C2Sidebar*)obj)
+#	define C2_SIDEBAR_CLASS(klass)				((C2SidebarClass*)klass)
+#endif
 
 typedef struct _C2Sidebar C2Sidebar;
 typedef struct _C2SidebarClass C2SidebarClass;

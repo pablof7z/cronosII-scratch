@@ -366,6 +366,17 @@ AC_ARG_ENABLE([ui_text_editor],
 AC_DEFINE(USE_UI_TEXT_EDITOR)
 AM_CONDITIONAL(USE_UI_TEXT_EDITOR, test "x$ui_text_editor" = "xyes")
 
+dnl #######################################################
+dnl   Unix Socket
+dnl #######################################################
+
+AC_ARG_ENABLE([unix_socket],
+[  --disable-unix-socket     Disable the creation of a Unix socket for
+                            multisession support.],
+[ unix_socket=$enableval ], [ unix_socket=yes ])
+AC_DEFINE(USE_UNIX_SOCKET)
+AM_CONDITIONAL(USE_UNIX_SOCKET, test "x$unix_socket" = "xyes")
+
 
 FEATURES="\"$FEATURES\""
 AC_DEFINE_UNQUOTED(C2_PLUGIN_VERSION_MAJOR, $C2_PLUGIN_VERSION_MAJOR)
@@ -402,6 +413,7 @@ libcronosII/Makefile
 xml/Makefile
 macros/Makefile
 man/Makefile
+utils/Makefile
 test-suite/Makefile
 pixmaps/Makefile
 plugins/Makefile
@@ -431,5 +443,6 @@ echo  Building with HTML support.......: $html
 echo  Building with GConf support......: $gconf
 echo  Building with Bonobo support.....: $bonobo_ver
 echo  Building with Editor type........: $editor
+echo  Building with multi-session......: $unix_socket
 echo
 echo  Run \'make\' to start compiling this software.

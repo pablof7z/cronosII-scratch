@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,9 @@
 #include "widget-transfer-list.h"
 
 #include <libcronosII/error.h>
+
+#define MOD		"[Widget] Transfer List"
+#define DMOD	FALSE
 
 static void
 class_init									(C2TransferListClass *klass);
@@ -174,6 +177,8 @@ void
 c2_transfer_list_add_item (C2TransferList *tl, C2TransferItem *ti)
 {
 	c2_return_if_fail (C2_IS_TRANSFER_ITEM (ti), C2EDATA);
+
+	C2_PRINTD (MOD, "Account = '%s'\n", ti->account->name);
 
 	tl->list = g_slist_append (tl->list, ti);
 

@@ -4233,8 +4233,8 @@ expunge the selected mails?</message>
 <widget>
   <class>GnomeDialog</class>
   <name>dlg_select_mailbox</name>
-  <width>215</width>
-  <height>270</height>
+  <width>265</width>
+  <height>365</height>
   <visible>False</visible>
   <title>Select Mailbox</title>
   <type>GTK_WINDOW_TOPLEVEL</type>

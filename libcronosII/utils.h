@@ -71,11 +71,16 @@ typedef struct
 #	define C2_DEBUG_(x)						{ x }
 #	define C2_TODO							g_print ("%s:%d:%s: TODO\n" __FILE__, __LINE__, \
 													__PRETTY_FUNCTION__)
+
+#	define C2_PRINTD(mod, args...)			if (DMOD) g_print (mod " -- " __PRETTY_FUNCTION__ "() -- " ##args)
+
 #else
 #	define L								;
+#	define C2_PRINTD(x)						;
 #	define C2_DEBUG(x)						;
 #	define C2_DEBUG_(x)						;
 #	define C2_TODO							;
+#	define C2_PRINTD(mod, args...)			
 #endif
 
 #define unless(x)							if (FAIL(x))

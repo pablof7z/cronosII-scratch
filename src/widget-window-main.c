@@ -281,6 +281,9 @@ static void
 on_toolbar_send_clicked						(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
+on_index_open_message						(GtkWidget *index, C2Db *node, C2WindowMain *wmain);
+
+static void
 on_index_select_message						(GtkWidget *index, C2Db *node, C2WindowMain *wmain);
 
 static void
@@ -315,9 +318,6 @@ on_mnu_toolbar_tooltips_toggled				(GtkWidget *widget, C2WindowMain *wmain);
 
 static void
 on_mnu_toolbar_edit_toolbar_activate		(GtkWidget *widget, C2WindowMain *wmain);
-
-static gint
-dlg_confirm_delete_message					(C2WindowMain *wmain);
 
 static gboolean
 dlg_confirm_expunge_message					(C2WindowMain *wmain);
@@ -602,32 +602,6 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	gtk_signal_connect (GTK_OBJECT (wmain), "size_allocate",
 							GTK_SIGNAL_FUNC (on_size_allocate), NULL);
 
-	style = gtk_widget_get_default_style ();
-	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mark-i-readed.png");
-	application->pixmap_i_read = GNOME_PIXMAP (pixmap)->pixmap;
-	application->mask_i_read = GNOME_PIXMAP (pixmap)->mask;
-	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mark-i-unreaded.png");
-	application->pixmap_i_unread = GNOME_PIXMAP (pixmap)->pixmap;
-	application->mask_i_unread = GNOME_PIXMAP (pixmap)->mask;
-	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mark-i-replied.png");
-	application->pixmap_i_reply = GNOME_PIXMAP (pixmap)->pixmap;
-	application->mask_i_reply = GNOME_PIXMAP (pixmap)->mask;
-	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mark-i-forwarded.png");
-	application->pixmap_i_forward = GNOME_PIXMAP (pixmap)->pixmap;
-	application->mask_i_forward = GNOME_PIXMAP (pixmap)->mask;
-	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mark-readed.png");
-	application->pixmap_read = GNOME_PIXMAP (pixmap)->pixmap;
-	application->mask_read = GNOME_PIXMAP (pixmap)->mask;
-	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mark-unreaded.png");
-	application->pixmap_unread = GNOME_PIXMAP (pixmap)->pixmap;
-	application->mask_unread = GNOME_PIXMAP (pixmap)->mask;
-	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mark-replied.png");
-	application->pixmap_reply = GNOME_PIXMAP (pixmap)->pixmap;
-	application->mask_reply = GNOME_PIXMAP (pixmap)->mask;
-	pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/mark-forwarded.png");
-	application->pixmap_forward = GNOME_PIXMAP (pixmap)->pixmap;
-	application->mask_forward = GNOME_PIXMAP (pixmap)->mask;
-
 	/* Hpaned */
 	hpaned = glade_xml_get_widget (xml, "hpaned");
 	gtk_paned_set_position (GTK_PANED (hpaned),
@@ -747,6 +721,8 @@ c2_window_main_construct (C2WindowMain *wmain, C2Application *application)
 	wmain->index = c2_index_new (application, C2_INDEX_READ_WRITE);
 	gtk_container_add (GTK_CONTAINER (index_scroll), wmain->index);
 	gtk_widget_show (wmain->index);
+	gtk_signal_connect (GTK_OBJECT (wmain->index), "open_message",
+							GTK_SIGNAL_FUNC (on_index_open_message), wmain);
 	gtk_signal_connect (GTK_OBJECT (wmain->index), "select_message",
 							GTK_SIGNAL_FUNC (on_index_select_message), wmain);
 	gtk_signal_connect (GTK_OBJECT (wmain->index), "unselect_message",
@@ -1040,43 +1016,12 @@ delete_thread (C2Pthread3 *data)
 static void
 delete (C2WindowMain *wmain)
 {
-	C2Mailbox *fmailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
-	C2Pthread3 *data;
-	pthread_t thread;
+	C2Application *application = C2_WINDOW (wmain)->application;
+	GList *list;
 
-	/* If there's nothing selected there's nothing to delete */
-	if (!GTK_CLIST (wmain->index)->selection)
-		return;
-
-	if (c2_preferences_get_general_options_delete_use_trash ())
-	{
-		/* We have to save in «Trash» */
-		if (c2_streq (fmailbox->name, C2_MAILBOX_TRASH))
-			/* This is already «Trash», we have to expunge */
-			goto expunge;
-		
-		/* Ask for confirmation (if we are supposed to) */
-		if (c2_preferences_get_general_options_delete_confirmation ())
-		{
-			if (!dlg_confirm_delete_message (wmain))
-			{
-				c2_window_report (C2_WINDOW (wmain), C2_WINDOW_REPORT_MESSAGE,
-									error_list[C2_CANCEL_USER]);
-				return;
-			}
-		}
-
-		/* Ok, we are ready to move everything to «Trash» */
-		data = g_new0 (C2Pthread3, 1);
-		data->v1 = wmain;
-		data->v2 = fmailbox;
-		data->v3 = c2_index_selection ((C2Index*)wmain->index);
-		pthread_create (&thread, NULL, C2_PTHREAD_FUNC (delete_thread), data);
-	} else
-	{ /* We have to expunge */
-expunge:
-		C2_WINDOW_MAIN_CLASS_FW (wmain)->expunge (wmain);
-	}
+	list = c2_index_selection (C2_INDEX (wmain->index));
+	C2_APPLICATION_CLASS_FW (application)->delete (application, list, C2_WINDOW (wmain));
+	g_list_free (list);
 }
 
 static void
@@ -1116,6 +1061,30 @@ expunge (C2WindowMain *wmain)
 static void
 forward (C2WindowMain *wmain)
 {
+	C2Application *application = C2_WINDOW (wmain)->application;
+	GList *list, *l;
+	C2Db *db;
+
+	list = c2_index_selection (C2_INDEX (wmain->index));
+	
+	for (l = list; l; l = g_list_next (l))
+	{
+		db = C2_DB (l->data);
+
+		gdk_threads_leave ();
+		if (!c2_db_load_message (db))
+		{
+			gdk_threads_enter ();
+			continue;
+		}
+		gdk_threads_enter ();
+		
+		gtk_object_ref (GTK_OBJECT (db));
+		C2_APPLICATION_CLASS_FW (application)->forward (application, db, db->message);
+		gtk_object_unref (GTK_OBJECT (db));
+	}
+	
+	g_list_free (list);
 }
 
 static void
@@ -1149,50 +1118,88 @@ print (C2WindowMain *wmain)
 static void
 reply (C2WindowMain *wmain)
 {
+	C2Application *application = C2_WINDOW (wmain)->application;
+	GList *list, *l;
 	C2Db *db;
+
+	list = c2_index_selection (C2_INDEX (wmain->index));
 	
-	if (!(db = c2_index_selection_main (C2_INDEX (wmain->index))))
-		return;
+	for (l = list; l; l = g_list_next (l))
+	{
+		db = C2_DB (l->data);
+
+		gdk_threads_leave ();
+		if (!c2_db_load_message (db))
+		{
+			gdk_threads_enter ();
+			continue;
+		}
+		gdk_threads_enter ();
+		
+		gtk_object_ref (GTK_OBJECT (db));
+		C2_APPLICATION_CLASS_FW (application)->reply (application, db, db->message);
+		gtk_object_unref (GTK_OBJECT (db));
+	}
 	
-	gdk_threads_leave ();
-	if (!db->message)
-		c2_db_load_message (db);
-	gdk_threads_enter ();
-	
-	C2_APPLICATION_CLASS_FW (C2_WINDOW (wmain)->application)->reply (application, db, db->message);
+	g_list_free (list);
 }
 
 static void
 reply_all (C2WindowMain *wmain)
 {
+	C2Application *application = C2_WINDOW (wmain)->application;
+	GList *list, *l;
 	C2Db *db;
+
+	list = c2_index_selection (C2_INDEX (wmain->index));
 	
-	if (!(db = c2_index_selection_main (C2_INDEX (wmain->index))))
-		return;
+	for (l = list; l; l = g_list_next (l))
+	{
+		db = C2_DB (l->data);
+
+		gdk_threads_leave ();
+		if (!c2_db_load_message (db))
+		{
+			gdk_threads_enter ();
+			continue;
+		}
+		gdk_threads_enter ();
+		
+		gtk_object_ref (GTK_OBJECT (db));
+		C2_APPLICATION_CLASS_FW (application)->reply_all (application, db, db->message);
+		gtk_object_unref (GTK_OBJECT (db));
+	}
 	
-	gdk_threads_leave ();
-	if (!db->message)
-		c2_db_load_message (db);
-	gdk_threads_enter ();
-	
-	C2_APPLICATION_CLASS_FW (C2_WINDOW (wmain)->application)->reply_all (application, db, db->message);
+	g_list_free (list);
 }
 
 static void
 save (C2WindowMain *wmain)
 {
+	C2Application *application = C2_WINDOW (wmain)->application;
+	GList *list, *l;
 	C2Db *db;
+
+	list = c2_index_selection (C2_INDEX (wmain->index));
 	
-	if (!(db = c2_index_selection_main (C2_INDEX (wmain->index))))
-		return;
+	for (l = list; l; l = g_list_next (l))
+	{
+		db = C2_DB (l->data);
+
+		gdk_threads_leave ();
+		if (!c2_db_load_message (db))
+		{
+			gdk_threads_enter ();
+			continue;
+		}
+		gdk_threads_enter ();
+		
+		gtk_object_ref (GTK_OBJECT (db));
+		C2_APPLICATION_CLASS_FW (application)->save (application, db, db->message);
+		gtk_object_unref (GTK_OBJECT (db));
+	}
 	
-	gdk_threads_leave ();
-	if (!db->message)
-		c2_db_load_message (db);
-	gdk_threads_enter ();
-	
-	C2_APPLICATION_CLASS_FW (C2_WINDOW (wmain)->application)->save (application, db->message,
-							(C2Window*) wmain);
+	g_list_free (list);
 }
 
 static void
@@ -1895,6 +1902,38 @@ static void
 on_toolbar_send_clicked (GtkWidget *widget, C2WindowMain *wmain)
 {
 	C2_WINDOW_MAIN_CLASS_FW (wmain)->send (wmain);
+}
+
+static void
+on_index_open_message (GtkWidget *index, C2Db *node, C2WindowMain *wmain)
+{
+	C2Mailbox *mailbox;
+
+	mailbox = c2_mailbox_list_get_selected_mailbox (C2_MAILBOX_LIST (wmain->mlist));
+	if (!C2_IS_MAILBOX (mailbox))
+		g_assert_not_reached ();
+
+	if (c2_streq (mailbox->name, C2_MAILBOX_DRAFTS))
+	{
+		GtkWidget *composer;
+
+		if ((composer = c2_composer_new (C2_WINDOW (wmain)->application)))
+		{
+			if (!c2_db_load_message (node))
+			{
+				gtk_widget_destroy (composer);
+				return;
+			}
+			
+			gtk_object_ref (GTK_OBJECT (node->message));
+			c2_composer_set_message_as_draft (C2_COMPOSER (composer), node, node->message);
+			gtk_widget_show (composer);
+			gtk_object_unref (GTK_OBJECT (node->message));
+		}
+	} else
+	{
+		/* Open a window message */
+	}
 }
 
 static void
@@ -2621,62 +2660,6 @@ re_run_add_mailbox_dialog:
 }
 #endif /* Add Mailbox Dialog */
 
-
-
-
-
-#if 1 /* Delete Mails Confirmation Dialog */
-static void
-dlg_confirm_delete_message_confirmation_btn_toggled (GtkWidget *widget)
-{
-	c2_preferences_set_general_options_delete_confirmation (
-						!GTK_TOGGLE_BUTTON (widget)->active);
-	c2_preferences_commit ();
-}
-
-static gboolean
-dlg_confirm_delete_message (C2WindowMain *wmain)
-{
-	C2Application *application;
-	GtkWidget *dialog;
-	GtkWidget *pixmap;
-	GtkWidget *toggle;
-	GladeXML *xml;
-	gboolean retval;
-	
-	c2_return_val_if_fail (C2_IS_WINDOW_MAIN (wmain), 0, C2EDATA);
-
-	application = C2_WINDOW (wmain)->application;
-
-	xml = glade_xml_new (C2_APPLICATION_GLADE_FILE ("cronosII"), "dlg_confirm_delete_message");
-
-	dialog = glade_xml_get_widget (xml, "dlg_confirm_delete_message");
-	c2_application_window_add (application, GTK_WINDOW (dialog));
-
-	pixmap = glade_xml_get_widget (xml, "pixmap");
-	gnome_pixmap_load_file (GNOME_PIXMAP (pixmap), gnome_pixmap_file ("gnome-question.png"));
-
-	toggle = glade_xml_get_widget (xml, "confirmation_btn");
-	gtk_signal_connect (GTK_OBJECT (toggle), "toggled",
-						GTK_SIGNAL_FUNC (dlg_confirm_delete_message_confirmation_btn_toggled), NULL);
-
-	gtk_window_set_position (GTK_WINDOW (dialog),
-					gnome_preferences_get_dialog_position ());
-	gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (wmain));
-	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
-	gnome_dialog_close_hides (GNOME_DIALOG (dialog), TRUE);
-	if (gnome_dialog_run (GNOME_DIALOG (dialog)) == 0)
-		retval = TRUE;
-	else
-		retval = FALSE;
-
-	c2_application_window_remove (application, GTK_WINDOW (dialog));
-	gtk_widget_destroy (dialog);
-	gtk_object_destroy (GTK_OBJECT (xml));
-
-	return retval;
-}
-#endif /* Delete Mails Confirmation Dialog */
 
 
 

@@ -207,6 +207,8 @@ c2_db_new (C2Mailbox *mailbox, gboolean mark, gchar *subject, gchar *from,
 	C2Db *db = NULL;
 	C2Db *last;
 
+	C2_DEBUG (subject);
+
 	c2_return_val_if_fail (mailbox, NULL, C2EDATA);
 	
 	db = gtk_type_new (C2_TYPE_DB);
@@ -219,19 +221,35 @@ c2_db_new (C2Mailbox *mailbox, gboolean mark, gchar *subject, gchar *from,
 	db->mid = mid;
 	db->position = position;
 
+	/* Take care of the appending of the node to the
+	 * mailbox.
+	 */
 	if (mailbox->db)
 	{
+		/* If the mailbox already has a first member just
+		 * move to the last node (using the circular list
+		 * feature) and append it there.
+		 */
 		last = mailbox->db->prev;
 		last->next = db;
 		mailbox->db->prev = db;
 	} else
 	{
+		/* If the mailbox doesn't has a first member just
+		 * set it as the first one AND as the last one.
+		 */
 		last = db;
 		mailbox->db = db;
 	}
 
+	/* Now connect the prev pointer of the node to what
+	 * we mark as the last element.
+	 */
 	db->prev = last;
+
+	/* And set the circular list feature on again. */
 	db->next = mailbox->db;
+	mailbox->db->prev = db;
 
 	gtk_signal_connect (GTK_OBJECT (db), "destroy",
 						GTK_SIGNAL_FUNC (destroy), NULL);
@@ -477,12 +495,12 @@ c2_db_freeze (C2Mailbox *mailbox)
 		case C2_MAILBOX_CRONOSII:
 			func = c2_db_cronosII_freeze;
 			break;
-		case C2_MAILBOX_IMAP:
+/*		case C2_MAILBOX_IMAP:
 			func = c2_db_imap_freeze;
-			break;
-/*		case C2_MAILBOX_SPOOL:
-			func = c2_db_spool_freeze;
 			break;*/
+		case C2_MAILBOX_SPOOL:
+			func = c2_db_spool_freeze;
+			break;
 		default:
 			g_assert_not_reached ();
 			return;
@@ -503,12 +521,12 @@ c2_db_thaw (C2Mailbox *mailbox)
 		case C2_MAILBOX_CRONOSII:
 			func = c2_db_cronosII_thaw;
 			break;
-		case C2_MAILBOX_IMAP:
+/*		case C2_MAILBOX_IMAP:
 			func = c2_db_imap_thaw;
-			break;
-/*		case C2_MAILBOX_SPOOL:
+			break; */
+		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_thaw;
-			break;*/
+			break;
 		default:
 			g_assert_not_reached ();
 			return;
@@ -532,12 +550,12 @@ c2_db_thaw (C2Mailbox *mailbox)
  * it does it.
  * 
  * Return Value:
- * %TRUE on success, %FALSE if there was an error.
+ * The number of loaded messages.
  **/
-gboolean
+gint
 c2_db_load (C2Mailbox *mailbox)
 {
-	gboolean (*func) (C2Mailbox *mailbox) = NULL;
+	gint (*func) (C2Mailbox *mailbox) = NULL;
 	gint retval;
 	
 	c2_return_val_if_fail (C2_IS_MAILBOX (mailbox), FALSE, C2EDATA);
@@ -672,7 +690,7 @@ c2_db_message_add_list (C2Mailbox *mailbox, GList *list)
 			func = c2_db_imap_message_add;
 			break;
 		case C2_MAILBOX_SPOOL:
-			func = NULL;
+			func = c2_db_spool_message_add;
 			break;
 	}
 
@@ -772,35 +790,35 @@ gboolean
 c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 {
 	gboolean (*func) (C2Mailbox *mailbox, GList *list) = NULL;
-	GList *l;
+	GList *sorted_list = NULL, *l;
 	
 	C2Db *db;
-	gint retval, first_position = -1;
+	gint i, retval, first_position = -1;
 	gboolean thaw = FALSE;
-
+L
 	if (!mailbox->freezed)
 	{
 		c2_db_freeze (mailbox);
 		thaw = TRUE;
 	}
-
+L
 	switch (mailbox->type)
 	{
 		case C2_MAILBOX_CRONOSII:
 			func = c2_db_cronosII_message_remove;
 			break;
 		case C2_MAILBOX_IMAP:
-			func = c2_db_imap_message_remove;
+			//func = c2_db_imap_message_remove;
 			break;
 		case C2_MAILBOX_SPOOL:
-			//func = c2_db_spool_message_remove;
+			func = c2_db_spool_message_remove;
 			break;
 	}
 
 	/* Remove from the db */
-	if((retval = func (mailbox, list)) < 0)
+L	if ((retval = func (mailbox, list)))
 		/*return FALSE*/;
-
+L
 	/* Remove from the loaded db list */
 	for (l = list; l; l = g_list_next (l))
 	{

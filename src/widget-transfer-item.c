@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,6 +26,9 @@
 /* [TODO]
  * 20011102 Make the width dynamically.
  */
+
+#define MOD		"[Widget] Transfer Item"
+#define DMOD	FALSE
 
 #define MAX_CHARS_IN_LABEL		33
 #define WIDGET_WIDTH			210
@@ -180,6 +183,8 @@ c2_transfer_item_new (C2Application *application, C2Account *account, C2Transfer
 	va_end (args);
 	gtk_signal_connect (GTK_OBJECT (ti), "destroy",
 						GTK_SIGNAL_FUNC (destroy), NULL);
+
+	C2_PRINTD (MOD, "Account = '%s' -- type = '%d'\n", account->name, type);
 
 	return ti;
 }
@@ -393,6 +398,8 @@ void
 c2_transfer_item_start (C2TransferItem *ti)
 {
 	pthread_t thread;
+
+	C2_PRINTD (MOD, "Account = '%s'\n", ti->account->name);
 
 	if (ti->type == C2_TRANSFER_ITEM_RECEIVE)
 	{

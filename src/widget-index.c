@@ -105,7 +105,34 @@ static void
 on_resize_column							(C2Index *index, gint column, gint width);
 
 static void
-on_index_click_column						(GtkCList *clist, gint column, gpointer data);
+on_mnu_mark_readed_activate					(GtkWidget *widget, C2Index *index);
+
+static void
+on_mnu_mark_replied_activate				(GtkWidget *widget, C2Index *index);
+
+static void
+on_mnu_mark_forwarded_activate				(GtkWidget *widget, C2Index *index);
+
+static void
+on_mnu_copy_activate						(GtkWidget *widget, C2Index *index);
+
+static void
+on_mnu_move_activate						(GtkWidget *widget, C2Index *index);
+
+static void
+on_mnu_previous_activate					(GtkWidget *widget, C2Index *index);
+
+static void
+on_mnu_next_activate						(GtkWidget *widget, C2Index *index);
+
+static void
+on_mnu_save_activate						(GtkWidget *widget, C2Index *index);
+
+static void
+on_mnu_print_activate						(GtkWidget *widget, C2Index *index);
+
+static void
+on_clist_click_column						(GtkCList *clist, gint column, gpointer data);
 
 static void
 on_mnu_open_message_activate				(GtkWidget *widget, C2Index *index);
@@ -291,6 +318,9 @@ reload (C2Index *index)
 		selected_mail = clist->rows-1;
 
 	gtk_clist_thaw (clist);
+
+	C2_INDEX_CLASS_FW (index)->sort (index, index->mailbox->sort_by,
+										index->mailbox->sort_type);
 	gtk_clist_select_row (clist, selected_mail, 1);
 }
 
@@ -554,14 +584,13 @@ c2_index_construct (C2Index *index, C2Application *application, C2IndexMode mode
 		gtk_widget_show (hbox);
 	}
 	
-    gtk_signal_connect (GTK_OBJECT (index), "click_column",
-		       GTK_SIGNAL_FUNC(on_index_click_column), NULL);
-
-	gtk_clist_columns_autosize (clist);
+   	gtk_clist_columns_autosize (clist);
 	gtk_clist_column_titles_show (clist);
     gtk_clist_set_row_height (clist, 16);
 	gtk_clist_set_selection_mode (clist, GTK_SELECTION_EXTENDED);
 
+	gtk_signal_connect (GTK_OBJECT (index), "click_column",
+		       GTK_SIGNAL_FUNC(on_clist_click_column), NULL);
     gtk_signal_connect (GTK_OBJECT (clist), "select-row",
 						GTK_SIGNAL_FUNC (on_clist_select_row), NULL);
 	gtk_signal_connect (GTK_OBJECT (clist), "unselect-row",
@@ -998,11 +1027,21 @@ on_clist_button_press_event (C2Index *index, GdkEvent *e)
 	
 	switch (button->button)
 	{
-		case 2:
-			/* Button 2 toggles the important mark */
-			if (index->mode == C2_INDEX_READ_ONLY)
+
+		case 1:
+			db = (C2Db*) gtk_clist_get_row_data ((GtkCList*) index, row);
+			if (!db)
 				return;
 
+			if ((e->type == GDK_2BUTTON_PRESS || e->type == GDK_3BUTTON_PRESS))
+			{
+				/* Double click or three clicks */
+				gtk_signal_emit (GTK_OBJECT (index), signals[OPEN_MESSAGE], db);
+			}
+			break;
+
+		case 2:
+			/* Button 2 toggles the important mark */
 			db = (C2Db*) gtk_clist_get_row_data ((GtkCList*) index, row);
 			if (!db)
 				return;
@@ -1021,7 +1060,7 @@ on_clist_button_press_event (C2Index *index, GdkEvent *e)
 
 			widget = glade_xml_get_widget (xml, "next");
 			gtk_widget_set_sensitive (widget, clist->rows-1 != row);
-			
+
 			gnome_popup_menu_do_popup (index->menu, NULL, NULL, button, NULL);
 			break;
 	}
@@ -1053,9 +1092,11 @@ on_resize_column (C2Index *index, gint column, gint width)
 }
 
 static void
-on_index_click_column (GtkCList *clist, gint column, gpointer data)
+on_clist_click_column (GtkCList *clist, gint column, gpointer data)
 {
 	C2Index *index = C2_INDEX (clist);
+	gchar *buf;
+	gint i;
 
 	if (!index->mailbox)
 		return;
@@ -1073,6 +1114,17 @@ on_index_click_column (GtkCList *clist, gint column, gpointer data)
 		case 4: index->mailbox->sort_by = C2_MAILBOX_SORT_ACCOUNT; break;
 	}
 	
+	if ((i = c2_mailbox_get_configuration_id (index->mailbox)) > 0)
+	{
+		buf = g_strdup_printf ("/" PACKAGE "/Mailbox %d/", i);
+		gnome_config_push_prefix (buf);
+		gnome_config_set_int ("sort_by", index->mailbox->sort_by);
+		gnome_config_set_int ("sort_type", index->mailbox->sort_type);
+		gnome_config_pop_prefix ();
+		g_free (buf);
+		gnome_config_sync ();
+	}
+
 	C2_INDEX_CLASS_FW (index)->sort (index, index->mailbox->sort_by, index->mailbox->sort_type);
 }
 

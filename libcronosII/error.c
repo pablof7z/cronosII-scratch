@@ -95,7 +95,7 @@ c2_error_set_custom (gchar *err)
 const gchar *
 c2_error_object_get (GtkObject *object)
 {
-	gint err = GPOINTER_TO_INT (gtk_object_get_data (object, "c2_errno"));
+	gint err = c2_error_object_get_id (object);
 	
 	if (c2_errno >= 0 && c2_errno != C2CUSTOM)
 		return err_list[c2_errno];
@@ -112,6 +112,21 @@ c2_error_object_get (GtkObject *object)
 		return g_strerror (err*(-1));
 
 	return NULL;
+}
+
+/**
+ * c2_error_object_get_id
+ * @object: GtkObject where to get the error from.
+ *
+ * This function will get the error ID assigned to a GtkObject.
+ *
+ * Return Value:
+ * The Error ID that was set in the object.
+ **/
+gint
+c2_error_object_get_id (GtkObject *object)
+{
+	return GPOINTER_TO_INT (gtk_object_get_data (object, "c2_errno"));
 }
 
 /**

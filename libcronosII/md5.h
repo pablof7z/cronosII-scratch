@@ -19,7 +19,7 @@
    Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 /**
  * Maintainer(s) of this file:
- * 		* Pablo Fernández Navarro
+ * 		* Pablo Fernández López
  * Code of this file by:
  * 		* Ulrich Drepper
  */

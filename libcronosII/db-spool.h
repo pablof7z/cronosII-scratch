@@ -34,8 +34,6 @@ extern "C" {
 #	include <cronosII.h>
 #endif
 
-#define QUEUE_TIMEOUT	60
-
 gboolean
 c2_db_spool_create_structure				(C2Mailbox *mailbox);
 
@@ -45,6 +43,12 @@ c2_db_spool_update_structure				(C2Mailbox *mailbox);
 gboolean
 c2_db_spool_remove_structure				(C2Mailbox *mailbox);
 
+void
+c2_db_spool_freeze							(C2Mailbox *mailbox);
+
+void
+c2_db_spool_thaw							(C2Mailbox *mailbox);
+
 gint
 c2_db_spool_load							(C2Mailbox *mailbox);
 
@@ -52,7 +56,7 @@ void
 c2_db_spool_message_add						(C2Mailbox *mailbox, C2Db *db);
 
 void
-c2_db_spool_message_remove					(C2Mailbox *mailbox, C2Db *db, gint n);
+c2_db_spool_message_remove					(C2Mailbox *mailbox, GList *list);
 
 void
 c2_db_spool_message_set_state				(C2Db *db, C2MessageState state);

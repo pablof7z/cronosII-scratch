@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -287,9 +287,13 @@ c2_editor_append (C2Editor *editor, const gchar *string, gint red, gint green, g
 #ifdef USE_ADVANCED_EDITOR
 #else
 	length = strlen (string);
-	gdk_color_alloc (gdk_colormap_get_system (), &fg_color);
+	if (red >= 0)
+	{
+		gdk_color_alloc (gdk_colormap_get_system (), &fg_color);
 
-	gtk_text_insert (GTK_TEXT (editor->text), editor->font, &fg_color, NULL, string, length);
+		gtk_text_insert (GTK_TEXT (editor->text), editor->font, &fg_color, NULL, string, length);
+	} else
+		gtk_text_insert (GTK_TEXT (editor->text), editor->font, NULL, NULL, string, length);
 #endif
 }
 

@@ -1,5 +1,5 @@
 /*  Cronos II - The GNOME mail client
- *  Copyright (C) 2000-2001 Pablo Fernández Navarro
+ *  Copyright (C) 2000-2001 Pablo Fernández López
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +14,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+/**
+ * Maintainer(s) of this file:
+ * 		* Pablo Fernández López
+ * Code of this file by:
+ * 		* Pablo Fernández López
  */
 #ifndef __LIBCRONOSII_VDB_H__
 #define __LIBCRONOSII_VDB_H__
