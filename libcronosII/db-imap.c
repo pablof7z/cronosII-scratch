@@ -68,7 +68,7 @@ c2_db_imap_remove_structure (C2Mailbox *mailbox)
 }
 
 /* NOTE: coded to either work on a locked 
- * function, or an unlocked one */
+ * IMAP object or an unlocked one */
 gint
 c2_db_imap_load (C2Mailbox *mailbox)
 {
@@ -136,85 +136,12 @@ c2_db_imap_message_set_mark (C2Db *db, gboolean mark)
 C2Message *
 c2_db_imap_load_message (C2Db *db)
 {
-	return NULL;
-}
-
-
-#if 0
-static gchar *
-imap_resolve (C2Mailbox *mailbox)
-{
-	gchar *ip;
-
-	if (c2_net_resolve (mailbox->protocol.imap.host, &ip))
-	{
-#ifdef USE_DEBUG
-		g_print ("Unable to resolve hostname: %s\n", c2_error_get (c2_errno));
-#endif
-		return NULL;
-	}
-
-	return ip;
-}
-
-static gint
-imap_connect (C2Mailbox *mailbox, const gchar *ip)
-{
-	if (c2_net_connect (ip, mailbox->protocol.imap.port, &mailbox->protocol.imap.sock) < 0)
-	{
-#ifdef USE_DEBUG
-		g_print ("Unable to connect: %s\n",	c2_error_get (c2_errno));
-#endif
-		return -1;
-	}
-
-	return 0;
-}
-
-static gint
-imap_login (C2Mailbox *mailbox)
-{
-L	if (c2_net_send (mailbox->protocol.imap.sock, "A%03d LOGIN \"%s\" \"%s\"\r\n",
-						mailbox->protocol.imap.cmnd_n, mailbox->protocol.imap.user,
-						mailbox->protocol.imap.pass) < 0)
-		return -1;
-}
-
-/**
- * c2_db_imap_load
- * @mailbox: C2Mailbox descriptor.
- *
- * This function will load an IMAP mailbox.
- *
- * Return Value:
- * 0 on success or -1.
- **/
-gint
-c2_db_imap_load (C2Mailbox *mailbox)
-{
-	gchar *ip;
+	C2IMAP *imap = C2_MAILBOX(db->mailbox)->protocol.IMAP.imap;
+	C2Message *message;
 	
-	c2_return_val_if_fail (mailbox, -1, C2EDATA);
-
-	/* If the mailbox is already connected */
-	if (mailbox->protocol.imap.sock >= 0)
-		return 0;
-
-	/* Resolve */
-	if (!(ip = imap_resolve (mailbox)))
-		return -1;
-
-	/* Connect */
-	if (imap_connect (mailbox, ip) < 0)
-	{
-		g_free (ip);
-		return -1;
-	}
-	g_free (ip);
-
-	/* Login */
-	imap_login (mailbox);
-
-	return 0;
+	c2_mutex_lock(&imap->lock);
+	message = c2_imap_load_message(imap, db);
+	c2_mutex_unlock(&imap->lock);
+	
+	return message;
 }
-#endif

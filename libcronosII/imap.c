@@ -36,8 +36,9 @@
 #define NET_WRITE_FAILED _("Internal socket write operation failed, connection is most likely broken")
 
 /* C2 IMAP Module in the process of being engineered by Bosko */
-/* TODO: Get messages */
+/* TODO: Re-Implement recursive folder listing (its too slow) */
 /* TODO: Function that handles untagged messages that come unwarranted */
+/* (in progress) TODO: Get messages */
 /* (in progress) TODO: Elegent network problem handling (reconnecting, etc) */
 /* (done!) TODO: Add messages */
 /* (done!) TODO: Delete messages */
@@ -320,7 +321,7 @@ destroy(GtkObject *object)
  * @imap: A locked imap object
  * @state: The state to set the imap object to
  * @mailbox: If @state == C2IMAPSelected, the
- *           mailbox to select
+ *           mailbox to select, otherwise NULL
  * 
  * This function attempts to reconnect and restore 
  * proper state of an imap object.
@@ -356,6 +357,7 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	{
 		if(c2_net_object_read(C2_NET_OBJECT(imap), &buf) < 0)
 		{
+DIE:
 			g_warning(_("Error reading from socket on IMAP host %s! Reader thread aborting!\n"),
 						C2_NET_OBJECT(imap)->host);
 			c2_imap_set_error(imap, NET_READ_FAILED);
@@ -363,7 +365,34 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 			c2_net_object_destroy_byte (C2_NET_OBJECT (imap));
 			imap->state = C2IMAPDisconnected;
 			gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+			if(final) g_free(final);
 			return;
+		}
+		if(!final && strstr(buf, "FETCH (RFC822 {")) /* get FETCH replies right */
+		{
+			gint n, bytes = atoi(strstr(buf, "{") + 1);
+			final = g_strdup(buf);
+			while(bytes > 0)
+			{
+				if((n = c2_net_object_read(C2_NET_OBJECT(imap), &buf)) < 0)
+					goto DIE;
+				buf2 = final;
+				final = g_strconcat(final, buf, NULL);
+				g_free(buf2);
+				g_free(buf);
+				bytes -= n;
+			}
+			while( 1 )
+			{
+				if(c2_net_object_read(C2_NET_OBJECT(imap), &buf) < 0)
+					goto DIE;
+        if(strstr(buf, "FETCH completed"))
+					break;
+				buf2 = final;
+				final = g_strconcat(final, buf, NULL);
+				g_free(buf2);
+				g_free(buf);
+			}
 		}
 		if(!final) final = g_strdup(buf);
 		else 
@@ -374,7 +403,8 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 		}
 		
 		/* The IMAP server returned our tag, end of response */
-		if(c2_strneq(buf, "CronosII-", 9)) 
+		if(c2_strneq(buf, "CronosII-", 9) && (strstr(buf, "OK") 
+			 || strstr(buf, "NO") || strstr(buf, "BAD")))
 			break;
 		g_free(buf);
 	}
@@ -860,28 +890,28 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 			for(i = 0; i < 3; i++)
 			{
 				gchar *ending;
-				if(c2_strneq(ptr, "F", 1))
+				if(c2_strneq(ptr, "From: ", 1))
 				{
 					ptr += 6; /* strlen("From: ") + 1; */
-					ending = strstr(ptr, "\n");
+					ending = strstr(ptr, "\r\n");
 					from = g_strndup(ptr, ending - ptr);
-					ptr += strlen(from) + 1;
+					ptr += strlen(from) + 2;
 					i++;
 				}
-				if(c2_strneq(ptr, "S", 1))
+				if(c2_strneq(ptr, "Subject: ", 1))
 				{
 					ptr += 9; /* strlen("Subject: ") + 1; */
-					ending = strstr(ptr, "\n");
+					ending = strstr(ptr, "\r\n");
 					subject = g_strndup(ptr, ending - ptr);
-					ptr += strlen(subject) + 1;
+					ptr += strlen(subject) + 2;
 					i++;
 				}
-				if(c2_strneq(ptr, "D", 1))
+				if(c2_strneq(ptr, "Date: ", 1))
 				{
 					ptr += 6; /* strlen("Date: ") + 1; */
-					ending = strstr(ptr, "\n");
+					ending = strstr(ptr, "\r\n");
 					date = g_strndup(ptr, ending - ptr);
-					ptr += strlen(date) + 1;
+					ptr += strlen(date) + 2;
 					i++;
 				}
 			}
@@ -892,7 +922,6 @@ c2_imap_load_mailbox (C2IMAP *imap, C2Mailbox *mailbox)
 				unixdate = 0;
 			/* FIX ME: the @account below should not be NULL */
 			db = c2_db_new(mailbox, !seen, subject, from, NULL, unixdate, uid, messages);
-			db->mailbox = mailbox;
 			messages++;
 			if(date) g_free(date);
 			date = NULL;
@@ -1276,8 +1305,7 @@ c2_imap_message_remove (C2IMAP *imap, GList *list)
 		
 		tag = c2_imap_get_tag(imap);
 		if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d STORE "
-			 "%i +FLAGS.SILENT (\\Deleted)\r\n", tag, db->position ? db->position 
-			 : 1) < 0)
+			 "%i +FLAGS.SILENT (\\Deleted)\r\n", tag, db->position+1) < 0)
 		{
 			c2_imap_set_error(imap, NET_WRITE_FAILED);
 			imap->state = C2IMAPDisconnected;
@@ -1368,7 +1396,8 @@ c2_imap_message_add (C2IMAP *imap, C2Mailbox *mailbox, C2Db *db)
 	g_free(reply);
 	
 	tag = c2_imap_get_tag(imap);
-	messages = c2_imap_select_mailbox(imap, mailbox);
+	if((messages = c2_imap_select_mailbox(imap, mailbox)) < 0)
+		return -1;
 	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d FETCH "
 		 "%i (UID)\r\n", tag, messages) < 0)
 	{
@@ -1377,6 +1406,8 @@ c2_imap_message_add (C2IMAP *imap, C2Mailbox *mailbox, C2Db *db)
 		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
 		return -1;
 	}
+	c2_imap_close_mailbox(imap);
+	
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
 		return -1;
 	
@@ -1390,4 +1421,69 @@ c2_imap_message_add (C2IMAP *imap, C2Mailbox *mailbox, C2Db *db)
 	g_free(reply);
 
 	return 0;
+}
+
+/** c2_imap_message_load
+ * 
+ * @imap: A locked IMAP object
+ * @db: C2Db of message to load
+ * 
+ * Loads and returns the requested email 
+ * message.
+ * 
+ * Return Value:
+ * The new C2Message or NULL on failure.
+ **/
+C2Message *
+c2_imap_load_message (C2IMAP *imap, C2Db *db)
+{
+	C2Message *message;
+	gchar *reply, *start, *end;
+	tag_t tag;
+	
+	if(c2_imap_select_mailbox(imap, db->mailbox) < 0)
+		return NULL;
+	
+	tag = c2_imap_get_tag(imap);
+	if(c2_net_object_send(C2_NET_OBJECT(imap), NULL, "CronosII-%04d FETCH %i "
+		 "(RFC822)\r\n", tag, db->position+1) < 0)
+	{
+		c2_imap_set_error(imap, NET_WRITE_FAILED);
+		imap->state = C2IMAPDisconnected;
+		gtk_signal_emit(GTK_OBJECT(imap), signals[NET_ERROR]);
+		return NULL;
+	}
+	
+	if(!(reply = c2_imap_get_server_reply(imap, tag)))
+		return NULL;
+	
+	if(!c2_imap_check_server_reply(reply, tag))
+	{
+		c2_imap_set_error(imap, reply + C2TagLen + 3);
+		g_free(reply);
+		return NULL;
+	}
+	
+	if(!(start = strstr(reply, "\r\n")))
+	{
+		g_free(reply);
+		return NULL;
+	}
+	start += 2;
+	if(!(end = strstr(start, "\r\n\r\n")))
+		if(!(end = strstr(start, ")\r\nCronosII-")))
+		{
+			g_free(reply);
+			return NULL;
+		}
+	
+	message = c2_message_new();
+	message->header = g_strndup(start, end - start);
+	start = end + 4;
+	end = strstr(start, "OK FETCH completed");
+	end -= (C2TagLen + 5); /* C2TagLen + '\r\n)\r\n' */
+	message->body = g_strndup(start, end - start);
+	
+	g_free(reply);
+	return message;
 }

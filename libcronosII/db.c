@@ -493,9 +493,9 @@ c2_db_freeze (C2Mailbox *mailbox)
 		case C2_MAILBOX_CRONOSII:
 			func = c2_db_cronosII_freeze;
 			break;
-/*		case C2_MAILBOX_IMAP:
+		case C2_MAILBOX_IMAP:
 			func = c2_db_imap_freeze;
-			break;*/
+			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_freeze;
 			break;
@@ -519,9 +519,9 @@ c2_db_thaw (C2Mailbox *mailbox)
 		case C2_MAILBOX_CRONOSII:
 			func = c2_db_cronosII_thaw;
 			break;
-/*		case C2_MAILBOX_IMAP:
+		case C2_MAILBOX_IMAP:
 			func = c2_db_imap_thaw;
-			break; */
+			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_thaw;
 			break;
@@ -788,10 +788,10 @@ gboolean
 c2_db_message_remove_list (C2Mailbox *mailbox, GList *list)
 {
 	gboolean (*func) (C2Mailbox *mailbox, GList *list) = NULL;
-	GList *sorted_list = NULL, *l;
+	GList *l;
 	
 	C2Db *db;
-	gint i, retval, first_position = -1;
+	gint retval, first_position = -1;
 	gboolean thaw = FALSE;
 L
 	if (!mailbox->freezed)
@@ -806,7 +806,7 @@ L
 			func = c2_db_cronosII_message_remove;
 			break;
 		case C2_MAILBOX_IMAP:
-			//func = c2_db_imap_message_remove;
+			func = c2_db_imap_message_remove;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_message_remove;
@@ -957,7 +957,7 @@ c2_db_load_message (C2Db *db)
 			func = c2_db_cronosII_load_message;
 			break;
 		case C2_MAILBOX_IMAP:
-			//func = c2_db_imap_load_message;
+			func = c2_db_imap_load_message;
 			break;
 		case C2_MAILBOX_SPOOL:
 			func = c2_db_spool_load_message;

@@ -53,6 +53,7 @@ typedef unsigned int C2IMAPState;
 #ifdef BUILDING_C2
 #	include "net-object.h"
 #	include "mailbox.h"
+# include "message.h"
 # include "utils-mutex.h"
 # include "account.h"
 #else
@@ -156,6 +157,12 @@ c2_imap_load_mailbox						(C2IMAP *imap, C2Mailbox *mailbox);
 gint
 c2_imap_message_remove (C2IMAP *imap, GList *list);
 	
+gint
+c2_imap_message_add (C2IMAP *imap, C2Mailbox *mailbox, C2Db *db);
+
+C2Message *
+c2_imap_load_message (C2IMAP *imap, C2Db *db);
+
 #ifdef __cplusplus
 }
 #endif
