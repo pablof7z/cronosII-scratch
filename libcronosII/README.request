@@ -1,0 +1,8 @@
+The request module will use, by now, the gnome-download
+program, distributed with gnome-core (>= 1.2, < 1.2?)
+since Http is giving me to much problems and I don't have so much
+time to waste with it.
+
+Future versions (probably before Cronos II Scratch becomes Cronos II)
+should recode it to use the internal functions and take care of
+everything on its own.
