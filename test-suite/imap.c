@@ -16,6 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <gtk/gtk.h>
 #include <pthread.h>
 
@@ -55,7 +56,6 @@ print_imap_tree(C2IMAP *imap, C2Mailbox *parent, gchar *tab)
 void
 run_imap(C2IMAP *imap)
 {	
-	GList *list = NULL;
 	C2Mailbox *mailbox;
 	
 	if(c2_imap_init(imap) < 0)
@@ -75,26 +75,51 @@ run_imap(C2IMAP *imap)
 
 	printf("\nCreating top-level folder CronosII...");
 
-	if(!(mailbox = c2_mailbox_new_with_parent(&imap->mailboxes, "CronosII", "3-2-0", C2_MAILBOX_IMAP,
+	if(!(mailbox = c2_mailbox_new_with_parent(&imap->mailboxes, "CronosII", NULL, C2_MAILBOX_IMAP,
 								 C2_MAILBOX_SORT_DATE, GTK_SORT_ASCENDING, imap, TRUE)))
 	{
 		printf("failure!\n");
 		printf("Error was: %s\n", gtk_object_get_data(GTK_OBJECT(imap), "error"));
 		exit(-1);
 	}
-	printf("success!\n\n");
+	printf("success!%s\n%s\n\n", mailbox->name, mailbox->id);
 	
 	printf("listing folders: \n");
 	print_imap_tree(imap, NULL, NULL);
 	
-	printf("Deleting top-level folder CronosII...");
-  if(c2_mailbox_remove(&imap->mailboxes, mailbox))
+	printf("Deleting top-level folder CronosII...\n");
+  if(!c2_mailbox_remove(&imap->mailboxes, mailbox))
 	{
 		printf("failure!\n");
 		printf("Error was: %s", gtk_object_get_data(GTK_OBJECT(imap), "error"));
 		exit(-1);
 	}
   printf("success!\n");
+
+  print_imap_tree(imap, NULL, NULL);
+	
+	mailbox = imap->mailboxes;
+	while(mailbox->next)
+		mailbox = mailbox->next;
+	
+	printf("\t\tMAILBOX == %s\n", mailbox->name);
+	
+	/*printf("Selecting mailbox Drafts...");*/
+	if(c2_db_load(mailbox) < 0)
+	{
+		printf("failure!\n");
+		exit(-1);
+	}
+	/*printf("success!\n");*/
+	
+	printf("deleting message #1 from INBOX...\n");
+	printf("its mailbox is %s\n", mailbox->db->mailbox->name);
+	if(c2_db_message_remove(mailbox, mailbox->db) < 0)
+	{
+		printf("failure!\n");
+    printf("Error was: %s", gtk_object_get_data(GTK_OBJECT(imap), "error"));
+		exit(-1);
+	}
 	
 	printf("\nCronosII IMAP capability testing completed successfully!\n");
 	exit(0);
@@ -125,7 +150,7 @@ main (gint argc, gchar **argv)
 		user = g_strdup ("falling");
 		pass = g_strdup ("password");
 	}
-	imap = c2_imap_new (host, port, user, pass, NULL, C2_IMAP_AUTHENTICATION_PLAINTEXT, FALSE);
+	imap = c2_imap_new (NULL, host, port, user, pass, NULL, C2_IMAP_AUTHENTICATION_PLAINTEXT, FALSE);
 	
 	pthread_create(&thread, NULL, (void*)run_imap, imap);
 	
