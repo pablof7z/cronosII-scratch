@@ -1,3 +1,8 @@
+2001-06 30 Yves Mettier <ymettier@libertysurf.fr>
+
+	* updated doc/C/Makefile.am to keep the right files and remove the temporary ones.
+	* updated cronosii.spec
+
 2001-06-24 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
 	* Spool Db: First draw. Theory stablished. First codes.

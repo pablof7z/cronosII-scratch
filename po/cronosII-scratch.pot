@@ -1,0 +1,1565 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2001-06-27 13:06+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: ENCODING\n"
+
+#. C2SUCCESS
+#: libcronosII/error.c:25
+msgid "Success"
+msgstr ""
+
+#. C2EDATA
+#: libcronosII/error.c:26
+msgid "Data exception"
+msgstr ""
+
+#. C2ENOMSG
+#: libcronosII/error.c:27
+msgid "No such message"
+msgstr ""
+
+#. C2EBUSY
+#: libcronosII/error.c:28
+msgid "Process is busy"
+msgstr ""
+
+#. C2ERSLV
+#: libcronosII/error.c:29
+msgid "Unknown hostname"
+msgstr ""
+
+#: libcronosII/utils.c:534
+msgid "Bad syntaxes, quotes aren't closed.\n"
+msgstr ""
+
+#: src/c2-main-window.c:512
+msgid "Unable to update the mailbox: Unable to find the configuration ID"
+msgstr ""
+
+#: src/c2-main-window.c:674
+msgid "Unable to delete the mailbox: Unable to find the configuration ID"
+msgstr ""
+
+#: src/install-wizard.c:105
+msgid "Old configuration found, importing it..."
+msgstr ""
+
+#: src/install-wizard.c:109
+msgid "Creating new configuration due to previous error..."
+msgstr ""
+
+#: src/install-wizard.c:115
+msgid "No previous configuration found, creating new..."
+msgstr ""
+
+#: src/install-wizard.c:131
+msgid "Detecting old configuration..."
+msgstr ""
+
+#: src/install-wizard.c:156
+msgid "Wrong upgrade_database parameters"
+msgstr ""
+
+#: src/install-wizard.c:169
+#, c-format
+msgid "Unable to open index file: %s"
+msgstr ""
+
+#: src/install-wizard.c:180 src/main-window.c:217
+#, c-format
+msgid "Unable to load db: %s"
+msgstr ""
+
+#: src/install-wizard.c:228
+#, c-format
+msgid "Unable to move the temporary file to the correct location: %s"
+msgstr ""
+
+#: src/install-wizard.c:402
+msgid "Loading old configuration"
+msgstr ""
+
+#: src/install-wizard.c:414
+msgid "Registering  the new configuration 'Version'"
+msgstr ""
+
+#: src/install-wizard.c:416 src/install-wizard.c:438 src/install-wizard.c:445
+#: src/install-wizard.c:451 src/install-wizard.c:457 src/install-wizard.c:463
+#: src/install-wizard.c:469 src/install-wizard.c:475 src/install-wizard.c:481
+#: src/install-wizard.c:487 src/install-wizard.c:493 src/install-wizard.c:499
+#: src/install-wizard.c:505 src/install-wizard.c:511 src/install-wizard.c:517
+#: src/install-wizard.c:523 src/install-wizard.c:529 src/install-wizard.c:538
+#: src/install-wizard.c:567 src/install-wizard.c:573 src/install-wizard.c:579
+#: src/install-wizard.c:585 src/install-wizard.c:591 src/install-wizard.c:599
+#: src/install-wizard.c:605 src/install-wizard.c:611 src/install-wizard.c:617
+#: src/install-wizard.c:623 src/install-wizard.c:629 src/install-wizard.c:635
+#: src/install-wizard.c:641 src/install-wizard.c:647 src/install-wizard.c:653
+#: src/install-wizard.c:659 src/install-wizard.c:666 src/install-wizard.c:710
+#: src/install-wizard.c:728 src/install-wizard.c:789
+msgid "Success."
+msgstr ""
+
+#: src/install-wizard.c:429
+msgid "Parsing a mailbox"
+msgstr ""
+
+#: src/install-wizard.c:433
+msgid "Failed."
+msgstr ""
+
+#: src/install-wizard.c:440
+msgid "Upgrading database"
+msgstr ""
+
+#: src/install-wizard.c:448
+msgid "Registering in the new configuration 'addrbook_init'"
+msgstr ""
+
+#: src/install-wizard.c:454
+msgid "Registering in the new configuration 'empty_garbage'"
+msgstr ""
+
+#: src/install-wizard.c:460
+msgid "Registering in the new configuration 'check_at_start'"
+msgstr ""
+
+#: src/install-wizard.c:466
+msgid "Registering in the new configuration 'use_outbox'"
+msgstr ""
+
+#: src/install-wizard.c:472
+msgid "Registering in the new configuration 'use_persistent_smtp_connection'"
+msgstr ""
+
+#: src/install-wizard.c:478
+msgid "Registering in the new configuration 'check_timeout'"
+msgstr ""
+
+#: src/install-wizard.c:484
+msgid "Registering in the new configuration 'message_size_limit'"
+msgstr ""
+
+#: src/install-wizard.c:490
+msgid "Registering in the new configuration 'net_timeout'"
+msgstr ""
+
+#: src/install-wizard.c:496
+msgid "Registering in the new configuration 'mark_as_read_timeout'"
+msgstr ""
+
+#: src/install-wizard.c:502
+msgid "Registering in the new configuration 'persistent_smtp_port'"
+msgstr ""
+
+#: src/install-wizard.c:508
+msgid "Registering in the new configuration 'prepend_character'"
+msgstr ""
+
+#: src/install-wizard.c:514
+msgid "Registering in the new configuration 'persistent_smtp_host'"
+msgstr ""
+
+#: src/install-wizard.c:520
+msgid "Registering in the new configuration 'color_reply_original_message'"
+msgstr ""
+
+#: src/install-wizard.c:526
+msgid "Registering in the new configuration 'color_misc_body'"
+msgstr ""
+
+#: src/install-wizard.c:534
+msgid "Upgrading mailboxes tree."
+msgstr ""
+
+#: src/install-wizard.c:544
+msgid "Loading old rc configuration"
+msgstr ""
+
+#: src/install-wizard.c:564
+msgid "Registering in the new configuration 'mime_window'"
+msgstr ""
+
+#: src/install-wizard.c:570
+msgid "Registering in the new configuration 'toolbar'"
+msgstr ""
+
+#: src/install-wizard.c:576
+msgid "Registering in the new configuration 'wm_hpan'"
+msgstr ""
+
+#: src/install-wizard.c:582
+msgid "Registering in the new configuration 'wm_vpan'"
+msgstr ""
+
+#: src/install-wizard.c:589
+msgid "Registering in the new configuration 'wm_clist'"
+msgstr ""
+
+#: src/install-wizard.c:596
+msgid "Registering in the new configuration 'wm_width'"
+msgstr ""
+
+#: src/install-wizard.c:602
+msgid "Registering in the new configuration 'wm_height'"
+msgstr ""
+
+#: src/install-wizard.c:608
+msgid "Registering in the new configuration 'showable_headers:preview'"
+msgstr ""
+
+#: src/install-wizard.c:614
+msgid "Registering in the new configuration 'showable_headers:message'"
+msgstr ""
+
+#: src/install-wizard.c:620
+msgid "Registering in the new configuration 'showable_headers:compose'"
+msgstr ""
+
+#: src/install-wizard.c:626
+msgid "Registering in the new configuration 'showable_headers:save'"
+msgstr ""
+
+#: src/install-wizard.c:632
+msgid "Registering in the new configuration 'showable_headers:print'"
+msgstr ""
+
+#: src/install-wizard.c:638
+msgid "Registering in the new configuration 'font_read'"
+msgstr ""
+
+#: src/install-wizard.c:644
+msgid "Registering in the new configuration 'font_unread'"
+msgstr ""
+
+#: src/install-wizard.c:650
+msgid "Registering in the new configuration 'font_body'"
+msgstr ""
+
+#: src/install-wizard.c:656
+msgid "Registering in the new configuration 'app_title'"
+msgstr ""
+
+#: src/install-wizard.c:664
+msgid "Saving the new configuration"
+msgstr ""
+
+#: src/install-wizard.c:696
+msgid "Creating internal directory structure"
+msgstr ""
+
+#: src/install-wizard.c:712
+msgid "Creating internal file structure"
+msgstr ""
+
+#: src/install-wizard.c:730
+msgid "Configuring Cronos II"
+msgstr ""
+
+#: src/install-wizard.c:806
+msgid "Cronos II Configuration Kit"
+msgstr ""
+
+#: src/install-wizard.c:834
+msgid "Welcome to Cronos II 0.3.0"
+msgstr ""
+
+#: src/install-wizard.c:836
+msgid ""
+"Since this is the first time you ever used Cronos II 0.3.0\n"
+"your configuration must be created, in order to be able\n"
+"to use all of the new functions Cronos II has.\n"
+"\n"
+"Through this simple wizard you will be able to finish the\n"
+"installation of Cronos II in your system.\n"
+"\n"
+"To start the process, press the 'Next' button."
+msgstr ""
+
+#: src/install-wizard.c:853
+msgid "Cronos II 0.3.0"
+msgstr ""
+
+#: src/install-wizard.c:880
+msgid "Installation complete"
+msgstr ""
+
+#: src/install-wizard.c:882
+msgid ""
+"The installation of Cronos II in your system is complete, you can\n"
+"now start it by clicking the 'Finish' button or by accessing your\n"
+"Gnome menu in the Net menu.\n"
+"\n"
+"Thanks for choosing Cronos II.\n"
+"The Cronos II Developers Team."
+msgstr ""
+
+#: src/install-wizard.c:902
+msgid ""
+"The configuration wasn't generated.\n"
+"Quit anyway?"
+msgstr ""
+
+#: src/main-window.c:244
+msgid "Internal error in CTree listing."
+msgstr ""
+
+#: src/main.c:36
+msgid "compose"
+msgstr ""
+
+#: src/main.c:38
+msgid "Compose a new email."
+msgstr ""
+
+#: src/main.c:41
+msgid "account"
+msgstr ""
+
+#: src/main.c:43
+msgid "Set the Account field."
+msgstr ""
+
+#: src/main.c:44 src/preferences-trans.h:42 src/trans.h:165
+#: src/widget-index.c:241
+msgid "Account"
+msgstr ""
+
+#: src/main.c:47
+msgid "to"
+msgstr ""
+
+#: src/main.c:49
+msgid "Set the To field."
+msgstr ""
+
+#: src/main.c:50 src/main.c:56 src/main.c:62
+msgid "Address"
+msgstr ""
+
+#: src/main.c:53
+msgid "cc"
+msgstr ""
+
+#: src/main.c:55
+msgid "Set the CC field."
+msgstr ""
+
+#: src/main.c:59
+msgid "bcc"
+msgstr ""
+
+#: src/main.c:61
+msgid "Set the BCC field."
+msgstr ""
+
+#: src/main.c:65
+msgid "subject"
+msgstr ""
+
+#: src/main.c:67
+msgid "Set the Subject field."
+msgstr ""
+
+#: src/main.c:68 src/widget-index.c:235
+msgid "Subject"
+msgstr ""
+
+#: src/main.c:71
+msgid "body"
+msgstr ""
+
+#: src/main.c:73
+msgid "Set the Body."
+msgstr ""
+
+#: src/main.c:74
+msgid "Text"
+msgstr ""
+
+#: src/main.c:79
+msgid "Compose a new email decoding the argument as a mailto: link"
+msgstr ""
+
+#: src/preferences-trans.h:21 src/preferences.c:201
+msgid "General"
+msgstr ""
+
+#: src/preferences-trans.h:41 src/preferences.c:205
+msgid "Options"
+msgstr ""
+
+#: src/preferences-trans.h:102 src/preferences.c:209
+msgid "Paths"
+msgstr ""
+
+#: src/preferences-trans.h:55 src/preferences.c:213
+msgid "Accounts"
+msgstr ""
+
+#: src/preferences-trans.h:73 src/preferences.c:217
+msgid "Interface"
+msgstr ""
+
+#: src/preferences-trans.h:83 src/preferences.c:221
+msgid "Fonts"
+msgstr ""
+
+#: src/preferences-trans.h:94 src/preferences.c:225
+msgid "Colors"
+msgstr ""
+
+#: src/widget-index.c:237
+msgid "From"
+msgstr ""
+
+#: src/widget-index.c:239
+msgid "Date"
+msgstr ""
+
+#.
+#. * Chaînes de caractères à traduire générées par
+#. * Glade. Ajouter ce fichier au fichier POTFILE.in
+#. * de votre projet. NE PAS compiler ce fichier
+#. * avec le reste de votre application.
+#.
+#: src/preferences-trans.h:8
+msgid "Preferences"
+msgstr ""
+
+#: src/preferences-trans.h:9
+msgid "label76"
+msgstr ""
+
+#: src/preferences-trans.h:10
+msgid ""
+"Through this dialog you will be able to configure Cronos II\n"
+"to behave the way you want it too.\n"
+"\n"
+"When you don't know what a field is for, you can get help by\n"
+"keeping your mouse for a couple of seconds over it, then a\n"
+"little help will pop-up describing what that field is all about.\n"
+"\n"
+"If you need extra help you should get in touch with other users\n"
+"or with the developers.\n"
+"To have the information of how to get in touch you should\n"
+"click on 'Getting in Touch' in the Help menu of the main window."
+msgstr ""
+
+#: src/preferences-trans.h:22
+msgid "Check for mail every"
+msgstr ""
+
+#: src/preferences-trans.h:23
+msgid "minutes."
+msgstr ""
+
+#: src/preferences-trans.h:24
+msgid "Wait"
+msgstr ""
+
+#: src/preferences-trans.h:25
+msgid "seconds before marking a mail as readed."
+msgstr ""
+
+#: src/preferences-trans.h:26
+msgid "Wrap outgoing text at"
+msgstr ""
+
+#: src/preferences-trans.h:27
+msgid "characters."
+msgstr ""
+
+#: src/preferences-trans.h:28
+msgid "Prepend"
+msgstr ""
+
+#: src/preferences-trans.h:29 src/preferences-trans.h:33
+msgid "> "
+msgstr ""
+
+#: src/preferences-trans.h:30
+msgid "::> "
+msgstr ""
+
+#: src/preferences-trans.h:31
+msgid "# "
+msgstr ""
+
+#: src/preferences-trans.h:32
+msgid "Quote# "
+msgstr ""
+
+#: src/preferences-trans.h:34
+msgid "to each line when replying a message."
+msgstr ""
+
+#: src/preferences-trans.h:35
+msgid "Empty the Garbage mailbox on exit."
+msgstr ""
+
+#: src/preferences-trans.h:36
+msgid "Store a copy of outgoing messages in the Outbox mailbox."
+msgstr ""
+
+#: src/preferences-trans.h:37
+msgid "Check for mail at start up."
+msgstr ""
+
+#: src/preferences-trans.h:38
+msgid "Message Transfer mode:"
+msgstr ""
+
+#: src/preferences-trans.h:39
+msgid ""
+"This is the mode that will be used when transfering messages. Multithread "
+"means that the transfering will start right when it is needed (all transfers "
+"at once). Monothread means that the transfering will be done one by one."
+msgstr ""
+
+#: src/preferences-trans.h:40
+msgid "Default MIME part to display:"
+msgstr ""
+
+#: src/preferences-trans.h:43 src/trans.h:127
+msgid "Name"
+msgstr ""
+
+#: src/preferences-trans.h:44 src/trans.h:128
+msgid "E-Mail"
+msgstr ""
+
+#: src/preferences-trans.h:45
+msgid "Click this button to create a new account"
+msgstr ""
+
+#: src/preferences-trans.h:46
+msgid "_Add"
+msgstr ""
+
+#: src/preferences-trans.h:47
+msgid ""
+"Click this button to edit the information of the current selected mailbox"
+msgstr ""
+
+#: src/preferences-trans.h:48
+msgid "_Modify"
+msgstr ""
+
+#: src/preferences-trans.h:49
+msgid "Click this button to remove the current selected account"
+msgstr ""
+
+#: src/preferences-trans.h:50
+msgid "_Remove"
+msgstr ""
+
+#: src/preferences-trans.h:51
+msgid ""
+"Click this button to move up the current selected account in the priority "
+"order"
+msgstr ""
+
+#: src/preferences-trans.h:52
+msgid "_Up"
+msgstr ""
+
+#: src/preferences-trans.h:53
+msgid ""
+"Click this button to move down the current selected account in the priority "
+"order"
+msgstr ""
+
+#: src/preferences-trans.h:54
+msgid "_Down"
+msgstr ""
+
+#: src/preferences-trans.h:56
+msgid "Application's Title"
+msgstr ""
+
+#: src/preferences-trans.h:57
+msgid ""
+"Conversion characters:\n"
+"%a: Application's name (Cronos II);\n"
+"%v: Application's version;\n"
+"%m: Number of mails in current mailbox;\n"
+"%n: Number of unreaded mails in current mailbox;\n"
+"%M: Name of selected mailbox."
+msgstr ""
+
+#: src/preferences-trans.h:63
+msgid "Show toolbar with"
+msgstr ""
+
+#: src/preferences-trans.h:64
+msgid "Icons only"
+msgstr ""
+
+#: src/preferences-trans.h:65
+msgid "Text only"
+msgstr ""
+
+#: src/preferences-trans.h:66
+msgid "Icons & Text"
+msgstr ""
+
+#: src/preferences-trans.h:67
+msgid "Date format:"
+msgstr ""
+
+#: src/preferences-trans.h:68 src/preferences-trans.h:72
+msgid "%d.%m.%Y %H:%M %z"
+msgstr ""
+
+#: src/preferences-trans.h:69
+msgid "%Y.%m.%d %H:%M %z"
+msgstr ""
+
+#: src/preferences-trans.h:70
+msgid "%A %d %B %Y %H:%M"
+msgstr ""
+
+#: src/preferences-trans.h:71
+msgid ""
+"Date format to be shown in strftime format. Check man:strfrim(3) for help."
+msgstr ""
+
+#: src/preferences-trans.h:74
+msgid "Message Body:"
+msgstr ""
+
+#: src/preferences-trans.h:75
+msgid "Unreaded Message:"
+msgstr ""
+
+#: src/preferences-trans.h:76
+msgid "Readed Message:"
+msgstr ""
+
+#: src/preferences-trans.h:77 src/preferences-trans.h:79
+#: src/preferences-trans.h:81
+msgid "Pick a Font"
+msgstr ""
+
+#: src/preferences-trans.h:78 src/preferences-trans.h:80
+#: src/preferences-trans.h:82
+msgid "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
+msgstr ""
+
+#: src/preferences-trans.h:84
+msgid "Replying and Forwarding"
+msgstr ""
+
+#: src/preferences-trans.h:85 src/preferences-trans.h:89
+#: src/preferences-trans.h:91
+msgid "Pick a color"
+msgstr ""
+
+#: src/preferences-trans.h:86
+msgid "Original message:"
+msgstr ""
+
+#: src/preferences-trans.h:87
+msgid "Message Displaying"
+msgstr ""
+
+#: src/preferences-trans.h:88
+msgid "Default background color:"
+msgstr ""
+
+#: src/preferences-trans.h:90
+msgid "Default foreground color:"
+msgstr ""
+
+#: src/preferences-trans.h:92
+msgid "Use document specified colors."
+msgstr ""
+
+#: src/preferences-trans.h:93
+msgid "Always use my colors."
+msgstr ""
+
+#: src/preferences-trans.h:95
+msgid "Default directory for saving files"
+msgstr ""
+
+#: src/preferences-trans.h:96 src/preferences-trans.h:98
+#: src/preferences-trans.h:100
+msgid "Browse..."
+msgstr ""
+
+#: src/preferences-trans.h:97
+msgid "Default directory for downloading files"
+msgstr ""
+
+#: src/preferences-trans.h:99
+msgid "Default directory for getting files"
+msgstr ""
+
+#: src/preferences-trans.h:101
+msgid "Always prompt for this directories."
+msgstr ""
+
+#: src/preferences-trans.h:103
+msgid "Proxy"
+msgstr ""
+
+#: src/preferences-trans.h:104
+msgid "HTTP Proxy:"
+msgstr ""
+
+#: src/preferences-trans.h:105 src/preferences-trans.h:107
+#: src/preferences-trans.h:109 src/preferences-trans.h:134
+#: src/preferences-trans.h:167 src/trans.h:100
+msgid "Port:"
+msgstr ""
+
+#: src/preferences-trans.h:106
+msgid "FTP Proxy:"
+msgstr ""
+
+#: src/preferences-trans.h:108
+msgid "Use persistent SMTP connection:"
+msgstr ""
+
+#: src/preferences-trans.h:110
+msgid "Use internal browser for following links."
+msgstr ""
+
+#: src/preferences-trans.h:111
+msgid "Advanced"
+msgstr ""
+
+#: src/preferences-trans.h:112
+msgid "Cronos II : Preferences : Accounts"
+msgstr ""
+
+#: src/preferences-trans.h:113 src/preferences-trans.h:147
+msgid "Account Options"
+msgstr ""
+
+#: src/preferences-trans.h:114
+msgid ""
+"This wizard will help you with the configuration of your\n"
+"accounts for use with Cronos II.\n"
+"\n"
+"Each account is a separated entity for Cronos II, this will\n"
+"let you define different persons or entities and manage\n"
+"all of your emails accounts as if it where with separated\n"
+"users."
+msgstr ""
+
+#: src/preferences-trans.h:121
+msgid "Basic Information"
+msgstr ""
+
+#: src/preferences-trans.h:122
+msgid ""
+"Write here the name which with you want to identify this account. Note that "
+"this is just for internal use."
+msgstr ""
+
+#: src/preferences-trans.h:123
+msgid ""
+"This is the name that will be sent in outgoing messages in the \"From:\" "
+"field."
+msgstr ""
+
+#: src/preferences-trans.h:124
+msgid "Account Name:"
+msgstr ""
+
+#: src/preferences-trans.h:125
+msgid "Person Name:"
+msgstr ""
+
+#: src/preferences-trans.h:126
+msgid "Include this account in general account checks."
+msgstr ""
+
+#: src/preferences-trans.h:127
+msgid "Organization:"
+msgstr ""
+
+#: src/preferences-trans.h:128
+msgid "E-Mail Address:"
+msgstr ""
+
+#: src/preferences-trans.h:129
+msgid "Reply-To Address:"
+msgstr ""
+
+#: src/preferences-trans.h:130
+msgid "Attach Address Book Card with outgoing mails"
+msgstr ""
+
+#: src/preferences-trans.h:131
+msgid "Select Card"
+msgstr ""
+
+#: src/preferences-trans.h:132
+msgid "Protocol Information"
+msgstr ""
+
+#: src/preferences-trans.h:133
+msgid "Protocol data"
+msgstr ""
+
+#: src/preferences-trans.h:135 src/preferences-trans.h:170 src/trans.h:104
+#: src/trans.h:175
+msgid "Username:"
+msgstr ""
+
+#: src/preferences-trans.h:136 src/preferences-trans.h:171 src/trans.h:105
+#: src/trans.h:174
+msgid "Password:"
+msgstr ""
+
+#: src/preferences-trans.h:137 src/preferences-trans.h:166 src/trans.h:103
+msgid "Hostname:"
+msgstr ""
+
+#: src/preferences-trans.h:138
+msgid "Leave downloaded messages in server."
+msgstr ""
+
+#: src/preferences-trans.h:139
+msgid "SMTP Options"
+msgstr ""
+
+#: src/preferences-trans.h:140
+msgid "Remote SMTP Server."
+msgstr ""
+
+#: src/preferences-trans.h:141
+msgid "Local sendmail program (MUA)."
+msgstr ""
+
+#: src/preferences-trans.h:142
+msgid "Set Information"
+msgstr ""
+
+#: src/preferences-trans.h:143 src/preferences-trans.h:145
+msgid "Signature"
+msgstr ""
+
+#: src/preferences-trans.h:144
+msgid "Type of signature:"
+msgstr ""
+
+#: src/preferences-trans.h:146
+msgid "Automatically append this signature to outgoing messages."
+msgstr ""
+
+#: src/preferences-trans.h:148
+msgid ""
+"Congratulations! You have successfully created an account to\n"
+"be use with Cronos II.\n"
+"\n"
+"Click the 'Finish' button to save this new account."
+msgstr ""
+
+#: src/preferences-trans.h:152
+msgid ""
+"The Account Name you choosed\n"
+"is already being used by other\n"
+"account.\n"
+"\n"
+"The account names can not be\n"
+"repited."
+msgstr ""
+
+#: src/preferences-trans.h:158 src/preferences-trans.h:161
+#: src/preferences-trans.h:174 src/preferences-trans.h:184
+#: src/preferences-trans.h:186 src/preferences-trans.h:188 src/trans.h:91
+msgid "Error"
+msgstr ""
+
+#: src/preferences-trans.h:159
+msgid ""
+"The E-Mail address you\n"
+"entered is not valid."
+msgstr ""
+
+#: src/preferences-trans.h:162
+msgid "SMTP Server Information"
+msgstr ""
+
+#: src/preferences-trans.h:163
+msgid ""
+"Provide here the information for the\n"
+"SMTP server for this account."
+msgstr ""
+
+#: src/preferences-trans.h:165
+msgid "localhost"
+msgstr ""
+
+#: src/preferences-trans.h:168
+msgid "This server requires authentication"
+msgstr ""
+
+#: src/preferences-trans.h:169
+msgid "Authentication Information"
+msgstr ""
+
+#: src/preferences-trans.h:172
+msgid ""
+"The Account name you\n"
+"entered is not valid."
+msgstr ""
+
+#: src/preferences-trans.h:175
+msgid ""
+"You selected that you want to\n"
+"use a remote SMTP server for\n"
+"outgoing mails of this account,\n"
+"but you didn't set the information\n"
+"to contact it.\n"
+"\n"
+"Click the button labeled\n"
+"'Set Information' to enter the\n"
+"needed data."
+msgstr ""
+
+#: src/preferences-trans.h:185
+msgid "You didn't entered a valid hostname."
+msgstr ""
+
+#: src/preferences-trans.h:187
+msgid "You didn't entered a valid username."
+msgstr ""
+
+#: src/preferences-trans.h:189
+msgid ""
+"This will permanently remove\n"
+"the account from your configuration.\n"
+"\n"
+"Are you sure you want this?"
+msgstr ""
+
+#: src/preferences-trans.h:193
+msgid "Confirmation"
+msgstr ""
+
+#.
+#. * Translatable strings file generated by Glade.
+#. * Add this file to your project's POTFILES.in.
+#. * DO NOT compile it as part of your application.
+#.
+#: src/trans.h:7 src/trans.h:117
+msgid "Cronos II"
+msgstr ""
+
+#: src/trans.h:8
+msgid "_E-Mail"
+msgstr ""
+
+#: src/trans.h:9
+msgid "M_ailbox"
+msgstr ""
+
+#: src/trans.h:10
+msgid "_Contact"
+msgstr ""
+
+#: src/trans.h:11
+msgid "_Check Mail"
+msgstr ""
+
+#: src/trans.h:12
+msgid "All Accounts"
+msgstr ""
+
+#: src/trans.h:13
+msgid "Persistent _SMTP"
+msgstr ""
+
+#: src/trans.h:14
+msgid "_Connect"
+msgstr ""
+
+#: src/trans.h:15
+msgid "_Disconnect"
+msgstr ""
+
+#: src/trans.h:16
+msgid "_Send Unsent Mails"
+msgstr ""
+
+#: src/trans.h:17
+msgid "_Address Book"
+msgstr ""
+
+#: src/trans.h:18
+msgid "_From"
+msgstr ""
+
+#: src/trans.h:19
+msgid "_Account"
+msgstr ""
+
+#: src/trans.h:20
+msgid "_To"
+msgstr ""
+
+#: src/trans.h:21
+msgid "_Carbon Copy"
+msgstr ""
+
+#: src/trans.h:22
+msgid "_Blind Carbon Copy"
+msgstr ""
+
+#: src/trans.h:23
+msgid "_Date"
+msgstr ""
+
+#: src/trans.h:24
+msgid "_Subject"
+msgstr ""
+
+#: src/trans.h:25
+msgid "_Priority"
+msgstr ""
+
+#: src/trans.h:26
+msgid "_Mailbox"
+msgstr ""
+
+#: src/trans.h:27
+msgid "_Speed Up"
+msgstr ""
+
+#: src/trans.h:28
+msgid "_Import"
+msgstr ""
+
+#: src/trans.h:29
+msgid "_Export"
+msgstr ""
+
+#: src/trans.h:30
+msgid "Empty _Garbage"
+msgstr ""
+
+#: src/trans.h:31
+msgid "Mess_age"
+msgstr ""
+
+#: src/trans.h:32
+msgid "_Reply"
+msgstr ""
+
+#: src/trans.h:33
+msgid "Reply _all"
+msgstr ""
+
+#: src/trans.h:34 src/trans.h:53
+msgid "_Forward"
+msgstr ""
+
+#: src/trans.h:35
+msgid "Copy selected messages"
+msgstr ""
+
+#: src/trans.h:36
+msgid "_Copy"
+msgstr ""
+
+#: src/trans.h:37
+msgid "Move selected messages"
+msgstr ""
+
+#: src/trans.h:38
+msgid "_Move"
+msgstr ""
+
+#: src/trans.h:39 src/trans.h:71
+msgid "Delete selected messages"
+msgstr ""
+
+#: src/trans.h:40
+msgid "_Delete"
+msgstr ""
+
+#: src/trans.h:41
+msgid "Expunge selected messages"
+msgstr ""
+
+#: src/trans.h:42
+msgid "_Expunge"
+msgstr ""
+
+#: src/trans.h:43
+msgid "Mar_k"
+msgstr ""
+
+#: src/trans.h:44
+msgid "Mark selected message"
+msgstr ""
+
+#: src/trans.h:45
+msgid "_Mark"
+msgstr ""
+
+#: src/trans.h:46
+msgid "Mark selected messages as unreaded"
+msgstr ""
+
+#: src/trans.h:47
+msgid "_Unread"
+msgstr ""
+
+#: src/trans.h:48
+msgid "Mark selected messages as readed"
+msgstr ""
+
+#: src/trans.h:49
+msgid "_Read"
+msgstr ""
+
+#: src/trans.h:50
+msgid "Mark selected messages as replied"
+msgstr ""
+
+#: src/trans.h:51
+msgid "Repl_ied"
+msgstr ""
+
+#: src/trans.h:52
+msgid "Mark selected messages as forwarded"
+msgstr ""
+
+#: src/trans.h:54 src/trans.h:81
+msgid "Select previous message"
+msgstr ""
+
+#: src/trans.h:55
+msgid "_Previous"
+msgstr ""
+
+#: src/trans.h:56 src/trans.h:83
+msgid "Select next message"
+msgstr ""
+
+#: src/trans.h:57
+msgid "_Next"
+msgstr ""
+
+#: src/trans.h:58
+msgid "Try to recover an expunged message"
+msgstr ""
+
+#: src/trans.h:59
+msgid "Reco_very"
+msgstr ""
+
+#: src/trans.h:60
+msgid "_User Manual"
+msgstr ""
+
+#: src/trans.h:61
+msgid "_Quick Tips"
+msgstr ""
+
+#: src/trans.h:62
+msgid "_Getting in Touch"
+msgstr ""
+
+#: src/trans.h:63
+msgid "Check all accounts for new mails"
+msgstr ""
+
+#: src/trans.h:64
+msgid "Check"
+msgstr ""
+
+#: src/trans.h:65
+msgid "Send unset messages"
+msgstr ""
+
+#: src/trans.h:66
+msgid "Send"
+msgstr ""
+
+#: src/trans.h:67
+msgid "Save current message"
+msgstr ""
+
+#: src/trans.h:68 src/trans.h:124 src/trans.h:162
+msgid "Save"
+msgstr ""
+
+#: src/trans.h:69
+msgid "Print current message"
+msgstr ""
+
+#: src/trans.h:70
+msgid "Print"
+msgstr ""
+
+#: src/trans.h:72
+msgid "Delete"
+msgstr ""
+
+#: src/trans.h:73
+msgid "Compose a new message"
+msgstr ""
+
+#: src/trans.h:74
+msgid "Compose"
+msgstr ""
+
+#: src/trans.h:75
+msgid "Reply selected message"
+msgstr ""
+
+#: src/trans.h:76
+msgid "Reply"
+msgstr ""
+
+#: src/trans.h:77
+msgid "Reply to all recipients of the selected message"
+msgstr ""
+
+#: src/trans.h:78
+msgid "Reply All"
+msgstr ""
+
+#: src/trans.h:79
+msgid "Forward selected message"
+msgstr ""
+
+#: src/trans.h:80
+msgid "Forward"
+msgstr ""
+
+#: src/trans.h:82
+msgid "Previous"
+msgstr ""
+
+#: src/trans.h:84
+msgid "Next"
+msgstr ""
+
+#: src/trans.h:85
+msgid "Contacts"
+msgstr ""
+
+#: src/trans.h:86
+msgid "Exit"
+msgstr ""
+
+#: src/trans.h:87
+msgid "label7"
+msgstr ""
+
+#: src/trans.h:88
+msgid "Show the Message Transfer dialog"
+msgstr ""
+
+#: src/trans.h:89
+msgid ""
+"That mailbox name\n"
+"is already taken."
+msgstr ""
+
+#: src/trans.h:92
+msgid "Mailbox properties"
+msgstr ""
+
+#: src/trans.h:93
+msgid "Warning"
+msgstr ""
+
+#: src/trans.h:94
+msgid ""
+"The edition of mailboxes is really dangerous and might result in the lost of "
+"all mails of the mailbox."
+msgstr ""
+
+#: src/trans.h:95
+msgid "Type here the name of the new mailbox"
+msgstr ""
+
+#: src/trans.h:96
+msgid "Type:"
+msgstr ""
+
+#: src/trans.h:97
+msgid "Name:"
+msgstr ""
+
+#: src/trans.h:98
+msgid "Select the type of access you want for this mailbox"
+msgstr ""
+
+#: src/trans.h:99
+msgid "Extra data"
+msgstr ""
+
+#: src/trans.h:101
+msgid "Type here the port where this mailbox is stored"
+msgstr ""
+
+#: src/trans.h:102
+msgid "Type here the hostname where this mailbox is stored"
+msgstr ""
+
+#: src/trans.h:106
+msgid "Path:"
+msgstr ""
+
+#: src/trans.h:107
+msgid "Select file"
+msgstr ""
+
+#: src/trans.h:108
+msgid "© 2000-2001 Pablo Fernández Navarro"
+msgstr ""
+
+#: src/trans.h:109
+msgid ""
+"Cronos II is a fast, light, user friendly and powerful mail client for the "
+"Gnome Desktop.\n"
+"It has an extended and intuitive interface which will make life for novice "
+"easier without taking out the power to the gurus.\n"
+" \n"
+"This program is distributed in the hope that it will be useful, but WITHOUT "
+"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+"FITNESS FOR A PARTICULAR PURPOSE.\n"
+"See the 'COPYING' file for the complete license or check it at "
+"http://www.gnu.org.\n"
+" \n"
+"You can find the website of Cronos II at:\n"
+"http://cronosII.sourceforge.net"
+msgstr ""
+
+#: src/trans.h:118
+msgid "_New File"
+msgstr ""
+
+#: src/trans.h:119 src/trans.h:157
+msgid "New File"
+msgstr ""
+
+#: src/trans.h:120 src/trans.h:158
+msgid "New"
+msgstr ""
+
+#: src/trans.h:121 src/trans.h:159
+msgid "Open File"
+msgstr ""
+
+#: src/trans.h:122 src/trans.h:160
+msgid "Open"
+msgstr ""
+
+#: src/trans.h:123 src/trans.h:161
+msgid "Save File"
+msgstr ""
+
+#: src/trans.h:125
+msgid "Search:"
+msgstr ""
+
+#: src/trans.h:126
+msgid "Groups:"
+msgstr ""
+
+#: src/trans.h:129
+msgid "Comments"
+msgstr ""
+
+#: src/trans.h:130
+msgid "Address Book vCard"
+msgstr ""
+
+#: src/trans.h:131
+msgid "Create a new mailbox"
+msgstr ""
+
+#: src/trans.h:132
+msgid "_New Mailbox"
+msgstr ""
+
+#: src/trans.h:133
+msgid "Delete selected mailbox"
+msgstr ""
+
+#: src/trans.h:134
+msgid "_Delete Mailbox"
+msgstr ""
+
+#: src/trans.h:135
+msgid ""
+"The deletion of a mailbox will\n"
+"permanently delete all mails stored\n"
+"in it and all mailboxes pending from it.\n"
+"\n"
+"Are you sure you want to delete it?"
+msgstr ""
+
+#: src/trans.h:140
+msgid "Question"
+msgstr ""
+
+#: src/trans.h:141
+msgid "Archive mails (recommended)."
+msgstr ""
+
+#: src/trans.h:142
+msgid "Cronos II : Composer"
+msgstr ""
+
+#: src/trans.h:143
+msgid "_Insert"
+msgstr ""
+
+#: src/trans.h:144
+msgid "Insert a file as in-line."
+msgstr ""
+
+#: src/trans.h:145
+msgid "_File"
+msgstr ""
+
+#: src/trans.h:146
+msgid "Insert a file as an attachment"
+msgstr ""
+
+#: src/trans.h:147
+msgid "_Attachment"
+msgstr ""
+
+#: src/trans.h:148
+msgid "_Spell Checker"
+msgstr ""
+
+#: src/trans.h:149
+msgid "_Options"
+msgstr ""
+
+#: src/trans.h:150
+msgid "Priority"
+msgstr ""
+
+#: src/trans.h:151
+msgid "Highest"
+msgstr ""
+
+#: src/trans.h:152
+msgid "High"
+msgstr ""
+
+#: src/trans.h:153
+msgid "Normal"
+msgstr ""
+
+#: src/trans.h:154
+msgid "Low"
+msgstr ""
+
+#: src/trans.h:155
+msgid "Lowest"
+msgstr ""
+
+#: src/trans.h:156
+msgid "Wrap"
+msgstr ""
+
+#: src/trans.h:163
+msgid "Message Tranfer"
+msgstr ""
+
+#: src/trans.h:164
+msgid "Tasks's list"
+msgstr ""
+
+#: src/trans.h:166
+msgid "Information"
+msgstr ""
+
+#: src/trans.h:167
+msgid "Subtasks"
+msgstr ""
+
+#: src/trans.h:168
+msgid "This bar shows how many subtasks there are for the current task"
+msgstr ""
+
+#: src/trans.h:169
+msgid "%v of %u [%P%%]"
+msgstr ""
+
+#: src/trans.h:170
+msgid "Progress of subtask"
+msgstr ""
+
+#: src/trans.h:171
+msgid "%u bytes [%P%%]"
+msgstr ""
+
+#: src/trans.h:172
+msgid "Automatically close when finished."
+msgstr ""
+
+#: src/trans.h:173
+msgid "Bad Password"
+msgstr ""
+
+#: src/trans.h:176
+msgid "Account:"
+msgstr ""
+
+#: src/trans.h:177
+msgid ""
+"The server has rejected the password\n"
+"you seted for this account."
+msgstr ""
+
+#: src/trans.h:179
+msgid "Getting in Touch"
+msgstr ""
+
+#: src/trans.h:180
+msgid ""
+"You can easily get in touch for help (or just for chating)\n"
+"with anyone of the Cronos II comunity (users or developers).\n"
+"\n"
+"There're several methods for getting in touch with us,\n"
+"you should select whatever is better for you.\n"
+"\n"
+"_E_-_M_a_i_l:\n"
+"\n"
+"To send a mail to de developers you should write to\n"
+"our mailing list: "
+"_c_r_o_n_o_s_I_I_-_d_e_v_e_l_o_p_e_r_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_"
+"e_t.\n"
+"\n"
+"To contact other users of Cronos II you better send it\n"
+"to the user's mailing list: "
+"_c_r_o_n_o_s_I_I_-_u_s_e_r_s_@_l_i_s_t_s_._s_o_u_r_c_e_f_o_r_g_e_._n_e_t.\n"
+"\n"
+"Note that if you want to contact a special developer for\n"
+"a special bug-report or for whatever reason you should\n"
+"check the Cronos II homepage for a list of contacts.\n"
+"\n"
+"_I_R_C:\n"
+"\n"
+"You can chat with both users and developers in the\n"
+"OpenProjects network by connecting to the server\n"
+"_i_r_c_._g_n_o_m_e_._o_r_g_:_6_6_6_7 to the channel _#_c_r_o_n_o_s_I_I."
+msgstr ""
