@@ -63,6 +63,8 @@ struct _C2IMAP
 
 	gint cmnd;
 
+	gint auth_remember :1;		/* %TRUE = Store password */
+
 	pthread_mutex_t lock;
 	
 	C2Mailbox *mailboxes;
