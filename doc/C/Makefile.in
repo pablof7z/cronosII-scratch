@@ -223,7 +223,7 @@ install-data: install-data-am
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am: uninstall-cronosII_helpDATA
+uninstall-am: uninstall-cronosII_helpDATA uninstall-local
 uninstall: uninstall-am
 all-am: Makefile $(DATA)
 all-redirect: all-am
@@ -264,21 +264,24 @@ maintainer-clean: maintainer-clean-am
 .PHONY: uninstall-cronosII_helpDATA install-cronosII_helpDATA tags \
 distdir info-am info dvi-am dvi check check-am installcheck-am \
 installcheck install-exec-am install-exec install-data-local \
-install-data-am install-data install-am install uninstall-am uninstall \
-all-redirect all-am all installdirs mostlyclean-generic \
-distclean-generic clean-generic maintainer-clean-generic clean \
-mostlyclean distclean maintainer-clean
+install-data-am install-data install-am install uninstall-local \
+uninstall-am uninstall all-redirect all-am all installdirs \
+mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
 all: cronosII/index.html
+
+distclean: distclean-am
+	-rm -rf cronosII
 
 cronosII/index.html: $(SGML_FILES)
 	-db2html cronosII.sgml
 
 dist-hook:
-	mkdir $(distdir)/cronosII
+	mkdir -p $(distdir)/cronosII
 	-cp cronosII/*.html cronosII/*.css $(distdir)/cronosII
-	mkdir $(distdir)/cronosII/stylesheet-images
+	mkdir -p $(distdir)/cronosII/stylesheet-images
 	-cp cronosII/stylesheet-images/* $(distdir)/cronosII/stylesheet-images/
 
 install-data-local: cronosII/index.html
@@ -287,6 +290,10 @@ install-data-local: cronosII/index.html
 	basefile=`basename $$file`; \
 	$(INSTALL_DATA) $(srcdir)/$$file $(cronosII_helpdir)/$$basefile; \
 	done
+	-ln -fs `basename $(cronosII_helpdir)/book1.html` $(DESTDIR)$(cronosII_helpdir)/index.html
+
+uninstall-local:
+	rm -rf $(DESTDIR)$(cronosII_helpdir)
 
 cronosII.ps: cronosII.sgml
 	-db2ps $<

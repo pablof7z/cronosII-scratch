@@ -18,15 +18,18 @@ EXTRA_DIST = \
 
 all: cronosII/index.html
 
+distclean: distclean-am
+	-rm -rf cronosII
+
 cronosII/index.html: $(SGML_FILES)
 	-db2html cronosII.sgml
 
 ## when we make dist, we include the generated HTML so people don't
 ## have to have the docbook tools
 dist-hook:
-	mkdir $(distdir)/cronosII
+	mkdir -p $(distdir)/cronosII
 	-cp cronosII/*.html cronosII/*.css $(distdir)/cronosII
-	mkdir $(distdir)/cronosII/stylesheet-images
+	mkdir -p $(distdir)/cronosII/stylesheet-images
 	-cp cronosII/stylesheet-images/* $(distdir)/cronosII/stylesheet-images/
 
 install-data-local: cronosII/index.html
@@ -35,6 +38,10 @@ install-data-local: cronosII/index.html
 	basefile=`basename $$file`; \
 	$(INSTALL_DATA) $(srcdir)/$$file $(cronosII_helpdir)/$$basefile; \
 	done
+	-ln -fs `basename $(cronosII_helpdir)/book1.html` $(DESTDIR)$(cronosII_helpdir)/index.html
+
+uninstall-local:
+	rm -rf $(DESTDIR)$(cronosII_helpdir)
 
 cronosII.ps: cronosII.sgml
 	-db2ps $<
