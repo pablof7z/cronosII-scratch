@@ -837,15 +837,14 @@ smtp_disconnect(C2SMTP *smtp)
 	
 	smtp->sock = 0;
 }
-
 static gint
 c2_smtp_local_write_msg(C2Message *message, gchar *file_name)
 {
 	FILE *file;
+	gchar *boundary = NULL;
 	
 	if(!(file = fopen(file_name, "w")) ||
-		!fwrite(message->header, strlen(message->header), 1, file) ||
-		!fwrite(message->body, strlen(message->body), 1, file)) 
+		!fwrite(message->header, strlen(message->header), 1, file)) 
 	{
 		if(file) 
 		{
@@ -854,8 +853,78 @@ c2_smtp_local_write_msg(C2Message *message, gchar *file_name)
 		}
 		return -1;
 	}
-	fclose(file);
 	
+	/* print the MIME header */
+	if(message->mime)
+	{
+		gchar *mimeinfo, *errmsg, *msgheader;
+		
+		mimeinfo = g_strdup("MIME-Version: 1.0\r\n"
+												"Content-Type: multipart/mixed; boundary=");
+	
+		boundary = c2_smtp_mime_make_message_boundary();
+		
+		errmsg = g_strdup("This is a multipart message in MIME format.\r\n"
+											"The fact that you can read this text means that your\r\n"
+											"mail client does not understand MIME messages and\r\nthe attachments"
+											"enclosed. You should consider moving to another mail client or\r\n"
+											"upgrading to a higher version.\r\nFor further information and help"
+											"please see http://sourceforge.net/projects/cronosii/ and\r\n"
+											"feel free to ask for help on our online forums or email lists");
+		
+		msgheader = g_strdup("Content-Type: text/plain\r\n"
+												 "Content-Transfer-Encoding: 8bit\r\n"
+												 "Content-Disposition: inline");
+	
+		if(!fprintf(file, "%s\"%s\"\n\n%s\n--%s\n%s\n", mimeinfo, boundary, errmsg,
+								boundary, msgheader))
+		{
+			fclose(file);
+			unlink(file_name);
+			g_free(mimeinfo);
+			g_free(boundary);
+			g_free(errmsg);
+			g_free(msgheader);
+			return -1;
+		}
+		
+    g_free(mimeinfo);
+		g_free(errmsg);
+		g_free(msgheader);
+		
+	}
+
+	if(!fprintf(file, "\n%s\n%s%s%s", message->body, (message->mime) ? "--" : "",
+							(message->mime) ? boundary : "", (message->mime) ? "\n" : ""))
+	{
+		if(boundary) g_free(boundary);
+		fclose(file);
+		unlink(file_name);
+		return -1;
+	}
+	
+	/* write the mime attachments */
+	if(message->mime)
+	{
+		C2Mime *mime;
+		
+		for(mime = message->mime; mime; mime = mime->next)
+		{
+			if(!fprintf(file, "Content-Type: %s\nContent-Transfer-Encoding: %s\n"
+						"Content-Disposition: %s; filename=\"%s\"\n\n%s--%s%s\n",
+						mime->type, mime->encoding, mime->disposition, mime->id,
+						mime->start, boundary, (mime->next) ? "" : "--"))
+			{
+				g_free(boundary);
+				fclose(file);
+				unlink(file_name);
+				return -1;
+			}
+		}
+	}
+ 
+	
+	fclose(file);
 	return 0;
 }
 
