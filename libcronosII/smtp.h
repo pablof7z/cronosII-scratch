@@ -25,20 +25,18 @@ extern "C" {
 #include <glib.h>
 #include <pthread.h>
 
-#if HAVE_CONFIG_H
+#ifdef BUILDING_C2
 #	include "db.h"
+#	include "net-object.h"
 #else
 #	include <cronosII.h>
 #endif
-#ifdef BUILDING_C2
-# include "net-object.h"
-#endif
 
-#define C2_TYPE_SMTP            (c2_smtp_get_type ())
-#define C2_SMTP(obj)            (GTK_CHECK_CAST (obj, C2_TYPE_SMTP, C2SMTP))
-#define C2_SMTP_CLASS(klass)        (GTK_CHECK_CLASS (klass, C2_TYPE_SMTP, C2SMTP))
-#define C2_IS_SMTP(obj)           (GTK_CHECK_TYPE (obj, C2_TYPE_SMTP))
-#define C2_IS_SMTP_CLASS(klass)       (GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_SMTP))
+#define C2_TYPE_SMTP						(c2_smtp_get_type ())
+#define C2_SMTP(obj)						(GTK_CHECK_CAST (obj, C2_TYPE_SMTP, C2SMTP))
+#define C2_SMTP_CLASS(klass)				(GTK_CHECK_CLASS (klass, C2_TYPE_SMTP, C2SMTP))
+#define C2_IS_SMTP(obj)						(GTK_CHECK_TYPE (obj, C2_TYPE_SMTP))
+#define C2_IS_SMTP_CLASS(klass)				(GTK_CHECK_CLASS_TYPE (klass, C2_TYPE_SMTP))
 	
 typedef enum _C2SMTPType C2SMTPType;
 
@@ -61,7 +59,7 @@ typedef struct _C2SMTPClass C2SMTPClass;
 	
 struct _C2SMTP
 {
-	C2NetObject *object;
+	C2NetObject object;
 	
 	C2SMTPType type;
 
@@ -86,19 +84,21 @@ struct _C2SMTPClass
 	void (*smtp_update) (C2SMTP *smtp, C2Message *message, guint length, guint bytes);
 	/*gboolean (*login_failed) (C2SMTP *smtp, const gchar *error, gchar **user, gchar **pass);*/
 };
-	
+
+GtkType
+c2_smtp_get_type							(void);
 
 C2SMTP *
-c2_smtp_new (C2SMTPType type, ...);
+c2_smtp_new									(C2SMTPType type, ...);
 
 void
-c2_smtp_set_flags (C2SMTP *smtp, gint flags);
+c2_smtp_set_flags							(C2SMTP *smtp, gint flags);
 
 gint
-c2_smtp_send_message (C2SMTP *smtp, C2Message *message);
+c2_smtp_send_message						(C2SMTP *smtp, C2Message *message);
 
 void
-c2_smtp_free (C2SMTP *smtp);
+c2_smtp_free								(C2SMTP *smtp);
 
 #ifdef __cplusplus
 }

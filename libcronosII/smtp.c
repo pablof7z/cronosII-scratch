@@ -45,56 +45,56 @@ enum
 static guint signals[LAST_SIGNAL] = { 0 };
 
 static void
-class_init (C2SMTPClass *klass);
+class_init									(C2SMTPClass *klass);
 
 static void
-init (C2SMTP *smtp);
+init										(C2SMTP *smtp);
 
 static void
-destroy (GtkObject *object);
+destroy										(GtkObject *object);
 
 static gint
-c2_smtp_connect (C2SMTP *smtp);
+c2_smtp_connect								(C2SMTP *smtp);
 
 static gint
-c2_smtp_send_helo (C2SMTP *smtp, gboolean esmtp);
+c2_smtp_send_helo							(C2SMTP *smtp, gboolean esmtp);
 
 static gint
-c2_smtp_send_headers (C2SMTP *smtp, C2Message *message);
+c2_smtp_send_headers						(C2SMTP *smtp, C2Message *message);
 
 static gint
-c2_smtp_send_rcpt (C2SMTP *smtp, gchar *to);
+c2_smtp_send_rcpt							(C2SMTP *smtp, gchar *to);
 
 static gint
-c2_smtp_send_message_contents(C2SMTP *smtp, C2Message *message);
+c2_smtp_send_message_contents				(C2SMTP *smtp, C2Message *message);
 
 static gint
-c2_smtp_send_message_mime_headers(C2SMTP *smtp, C2Message *message, gchar **boundary);
+c2_smtp_send_message_mime_headers			(C2SMTP *smtp, C2Message *message, gchar **boundary);
 
 static gchar *
-c2_smtp_mime_make_message_boundary (void);
+c2_smtp_mime_make_message_boundary			(void);
 
 static gint
-c2_smtp_send_message_mime(C2SMTP *smtp, C2Message *message, gchar *boundary, 
-	const guint len, guint *sent);
+c2_smtp_send_message_mime					(C2SMTP *smtp, C2Message *message, gchar *boundary, 
+											 const guint len, guint *sent);
 
 static gboolean
-smtp_test_connection(C2SMTP *smtp);
+smtp_test_connection						(C2SMTP *smtp);
 
 static void
-smtp_disconnect(C2SMTP *smtp);
+smtp_disconnect								(C2SMTP *smtp);
 
 static void
-c2_smtp_set_error(C2SMTP *smtp, const gchar *error);
+c2_smtp_set_error							(C2SMTP *smtp, const gchar *error);
 
 static gint
-c2_smtp_local_write_msg(C2Message *message, gchar *file_name);
+c2_smtp_local_write_msg						(C2Message *message, gchar *file_name);
 
 static gchar *
-c2_smtp_local_get_recepients(C2Message *message);
+c2_smtp_local_get_recepients				(C2Message *message);
 
 static gchar *
-c2_smtp_local_divide_recepients(gchar *to);
+c2_smtp_local_divide_recepients				(gchar *to);
 
 #define DEFAULT_FLAGS C2_SMTP_DO_NOT_PERSIST | C2_SMTP_DO_NOT_LOSE_PASSWORD
 
@@ -138,21 +138,24 @@ class_init (C2SMTPClass *klass)
 	
 	signals[SMTP_UPDATE] =
 		gtk_signal_new ("smtp_update",
-										GTK_RUN_LAST,
-										object_class->type,
-										GTK_SIGNAL_OFFSET (C2SMTPClass, smtp_update),
-										gtk_marshal_NONE__POINTER_INT_INT, GTK_TYPE_NONE, 3,
-										GTK_TYPE_POINTER, GTK_TYPE_INT, GTK_TYPE_INT);
-
-	  gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
+						GTK_RUN_FIRST,
+						object_class->type,
+						GTK_SIGNAL_OFFSET (C2SMTPClass, smtp_update),
+						gtk_marshal_NONE__POINTER_INT_INT, GTK_TYPE_NONE, 3,
+						GTK_TYPE_POINTER, GTK_TYPE_INT, GTK_TYPE_INT);
 	
-	  klass->smtp_update = NULL;
-	  object_class->destroy = destroy;
+	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
+	
+	klass->smtp_update = NULL;
+	object_class->destroy = destroy;
 }
 
 static void
 init (C2SMTP *smtp)
 {
+	/* All the initialization is made in
+	 * here, bosko, including pthread_mutex_init
+	 */
 	smtp->host = NULL;
 	smtp->port = 25;
 	smtp->ssl = FALSE;
@@ -163,20 +166,51 @@ init (C2SMTP *smtp)
 	smtp->flags = DEFAULT_FLAGS;
 	smtp->error = NULL;
 	smtp->sock = 0;
-	
-	/* all the work is done in c2_smtp_new */
+
+	pthread_mutex_init (&smtp->lock, NULL);
 }
 
 static void
 destroy (GtkObject *object)
 {
 	C2SMTP *smtp = C2_SMTP(object);
+
+	/* [TODO] (Note by Pablo)
+	 * Hey, Bosko, this will give you troubles
+	 * with C2_SMTP_LOCAL since the C2NetObject
+	 * it uses is not using specified states
+	 * like offline, maybe you should put
+	 * in the c2_smtp_new, if type == C2_SMTP_LOCAL
+	 * that the net object must start with the
+	 * offline state, and it would be nice that
+	 * even thogh you are using a C2_SMTP_LOCAL the
+	 * other states are handled by this module
+	 * (not by the C2NetObject since you
+	 * will not be using its function but a external
+	 * cmnd.
+	 */
 	if(c2_net_object_is_offline(C2_NET_OBJECT(smtp)))
 	{
 		c2_net_object_disconnect(C2_NET_OBJECT(smtp));
+#ifdef USE_DEBUG
+		g_warning ("Destroying a C2SMTP object which was not offline\n");
+#endif
 	}
 	
-	c2_smtp_free(smtp);
+	c2_smtp_free (smtp);
+
+	/* Just other note by Pablo,
+	 * in case you don't know it, bosko,
+	 * I don't know if is in your plans
+	 * or not, but when I started designing
+	 * objects like this I thought that the
+	 * destroy function should free the
+	 * actual object, well this shouldn't
+	 * be done.
+	 * Just thought it would be good if
+	 * you know this for sure and are not
+	 * doubting like I was at first...
+	 */
 }
 
 C2SMTP *
@@ -185,11 +219,12 @@ c2_smtp_new (C2SMTPType type, ...)
 	C2SMTP *smtp;
 	va_list args;
 
-	smtp = gtk_type_new(C2_TYPE_SMTP);
+	smtp = gtk_type_new (C2_TYPE_SMTP);
 	
 	smtp->type = type;
 	smtp->sock = 0;
 	smtp->error = NULL;
+	
 	switch (type)
 	{
 		case C2_SMTP_REMOTE:
@@ -202,7 +237,7 @@ c2_smtp_new (C2SMTPType type, ...)
 			smtp->user = g_strdup (va_arg (args, const gchar *));
 			smtp->pass = g_strdup (va_arg (args, const gchar *));
 			va_end (args);
-		c2_net_object_construct(C2_NET_OBJECT(smtp), smtp->host, smtp->port, smtp->ssl);
+			c2_net_object_construct(C2_NET_OBJECT(smtp), smtp->host, smtp->port, smtp->ssl);
 			break;
 		case C2_SMTP_LOCAL:
 			va_start (args, type);
@@ -216,9 +251,6 @@ c2_smtp_new (C2SMTPType type, ...)
 			smtp->pass = NULL;
 			break;
 	}
-
-	/* Initialize the Mutex */
-	pthread_mutex_init (&smtp->lock, NULL);
 
 	return smtp;
 }
