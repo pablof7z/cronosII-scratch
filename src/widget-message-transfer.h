@@ -87,12 +87,12 @@ struct _C2MessageTransfer
 {
 	GnomeDialog dialog;
 
-	guint16 tasks[LAST_CATEGORY];
-
 	C2MessageTransferQueue *queue;
 	pthread_mutex_t queue_lock;
 
 	GladeXML *xml;
+
+	gint selected_task;
 
 	gint close	: 1; /* Automatically close when finished. */
 	gint cancel	: 1; /* Button 'Cancel' has been pressed. */

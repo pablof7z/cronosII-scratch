@@ -24,6 +24,16 @@
 #include "c2-app.h"
 #include "widget-message-transfer.h"
 
+typedef enum _C2MessageTransferState C2MessageTransferState;
+
+enum _C2MessageTransferState
+{
+	STATE_PENDENT,				/* It hasn't started */
+	STATE_PROC,					/* It has started but it hasn't finished */
+	STATE_OK,					/* It has finished with OK status */
+	STATE_ERR,					/* It has finished with ERR status */
+};
+
 static void
 class_init										(C2MessageTransferClass *klass);
 
@@ -49,8 +59,25 @@ run												(C2MessageTransfer *mt);
 static void
 reset											(C2MessageTransfer *mt);
 
+static void
+change_state_of_queue							(C2MessageTransfer *mt, C2MessageTransferQueue *queue,
+												 gint row, C2MessageTransferState state, const gchar *string);
+
 static gint
 check											(C2Pthread3 *data);
+
+static void
+check_connect									(C2NetObject *nobj, C2Pthread3 *data);
+
+static void
+check_status									(C2Pop3 *pop3, gint mails, C2Pthread3 *data);
+
+static void
+check_retrieve									(C2Pop3 *pop3, gint16 nth, gint32 received,
+												 gint32 total, C2Pthread3 *data);
+
+static void
+check_disconnect								(C2NetObject *object, gboolean success, C2Pthread2 *data);
 
 static void
 clist_select_row								(GtkCList *clist, gint row, gint column,
@@ -119,9 +146,6 @@ c2_message_transfer_thaw (C2MessageTransfer *mt)
 {
 	pthread_mutex_unlock (&mt->queue_lock);
 
-	gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "task_progress")),
-							mt->tasks[DONE], 0, mt->tasks[TOTAL]);
-	
 	/* If it is not already running, make it run */
 	if (!mt->active)
 	{
@@ -135,14 +159,11 @@ void
 c2_message_transfer_append (C2MessageTransfer *mt, const C2Account *account, C2MessageTransferType type,
 							C2MessageTransferAction action, ...)
 {
-	GtkWidget *tasks = glade_xml_get_widget (mt->xml, "task_progress");
 	C2MessageTransferQueue *queue;
 	va_list args;
 	
 	queue = queue_new (account, type, action);
 	mt->queue = queue_append (mt->queue, queue);
-
-	mt->tasks[TOTAL]++;
 }
 
 static C2MessageTransferQueue *
@@ -218,7 +239,7 @@ run (C2MessageTransfer *mt)
 		else
 			line[2] = _("Waiting to deliver a message.");
 		
-		gtk_clist_append (clist, line);
+		gtk_clist_append (clist, (const gchar **) line);
 		gtk_clist_set_pixmap (clist, row, 0, pixmap->pixmap, pixmap->mask);
 		gtk_clist_set_row_data (clist, row, s);
 	}
@@ -279,7 +300,6 @@ reset (C2MessageTransfer *mt)
 {
 	static C2MessageTransferQueue *queue = NULL;
 
-	gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "task_progress")), 0, 0, 0);
 	gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "subtasks_progress")), 0, 0, 0);
 	gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "subtask_progress")), 0, 0, 0);
 	gtk_widget_hide (glade_xml_get_widget (mt->xml, "subtask_progress"));
@@ -291,21 +311,154 @@ reset (C2MessageTransfer *mt)
 	queue = mt->queue;
 }
 
+static void
+change_state_of_queue (C2MessageTransfer *mt, C2MessageTransferQueue *queue, gint row,
+						C2MessageTransferState state, const gchar *string)
+{
+	GtkCList *clist = GTK_CLIST (glade_xml_get_widget (mt->xml, "task_clist"));
+	GnomePixmap *pixmap;
+
+	gdk_threads_enter ();
+	switch (state)
+	{
+		case STATE_PENDENT:
+			pixmap = GNOME_PIXMAP (gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/blue_arrow.png"));
+			break;
+		case STATE_PROC:
+			pixmap = GNOME_PIXMAP (gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/yellow_arrow.png"));
+			break;
+		case STATE_OK:
+			pixmap = GNOME_PIXMAP (gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/green_arrow.png"));
+			break;
+		case STATE_ERR:
+			pixmap = GNOME_PIXMAP (gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/red_arrow.png"));
+			break;
+	}
+
+	gtk_clist_freeze (clist);
+	gtk_clist_set_pixmap (clist, row, 0, pixmap->pixmap, pixmap->mask);
+	gtk_clist_set_text (clist, row, 2, string);
+	gtk_clist_thaw (clist);
+	gdk_threads_leave ();
+}
+
+static void
+change_mails_of_queue (C2MessageTransfer *mt, C2MessageTransferQueue *queue, gint row,
+						gint16 done_messages, gint16 total_messages)
+{
+	queue->subtasks[DONE] = done_messages;
+	queue->subtasks[TOTAL] = total_messages;
+
+	if (mt->selected_task == row)
+	{
+		gdk_threads_enter ();
+		gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "subtasks_progress")),
+								done_messages, 0, total_messages);
+		gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "subtask_progress")), 0, 0, 0);
+		gdk_threads_leave ();
+	}
+}
+
+static void
+change_mail_of_queue (C2MessageTransfer *mt, C2MessageTransferQueue *queue, gint row,
+						gint32 done, gint32 total)
+{
+	queue->subtask[DONE] = done;
+	queue->subtask[TOTAL] = total;
+
+	if (mt->selected_task == row)
+	{
+		gdk_threads_enter ();
+		gtk_progress_configure (GTK_PROGRESS (glade_xml_get_widget (mt->xml, "subtask_progress")),
+				done, 0, total);
+		gdk_threads_leave ();
+	}
+}
+
 static gint
 check (C2Pthread3 *data)
 {
 	C2MessageTransfer *mt = data->v1;
 	C2MessageTransferQueue *queue = data->v2;
 	gint row = GPOINTER_TO_INT (data->v3);
+	gint signal[4];
+
+	if (queue->account->type == C2_ACCOUNT_POP3)
+	{
+		C2Pthread2 *data2 = g_new0 (C2Pthread2, 1);
+
+		data2->v1 = data;
+		data2->v2 = signal;
+		
+		signal[0] = gtk_signal_connect (GTK_OBJECT (queue->account->protocol.pop3), "connect",
+							GTK_SIGNAL_FUNC (check_connect), data);
+		signal[1] = gtk_signal_connect (GTK_OBJECT (queue->account->protocol.pop3), "status",
+							GTK_SIGNAL_FUNC (check_status), data);
+		signal[2] = gtk_signal_connect (GTK_OBJECT (queue->account->protocol.pop3), "retrieve",
+							GTK_SIGNAL_FUNC (check_retrieve), data);
+		signal[3] = gtk_signal_connect (GTK_OBJECT (queue->account->protocol.pop3), "disconnect",
+							GTK_SIGNAL_FUNC (check_disconnect), data2);
+	}
 
 	c2_account_check (queue->account);
+}
+
+static void
+check_connect (C2NetObject *nobj, C2Pthread3 *data)
+{
+	C2MessageTransfer *mt = data->v1;
+	C2MessageTransferQueue *queue = data->v2;
+	gint row = GPOINTER_TO_INT (data->v3);
+
+	change_state_of_queue (mt, queue, row, STATE_PROC, _("Connection established."));
+}
+
+static void
+check_status (C2Pop3 *pop3, gint mails, C2Pthread3 *data)
+{
+	C2MessageTransfer *mt = data->v1;
+	C2MessageTransferQueue *queue = data->v2;
+	gint row = GPOINTER_TO_INT (data->v3);
+
+	change_mails_of_queue (mt, queue, row, 0, mails);
+	
+	if (mails)
+		change_state_of_queue (mt, queue, row, STATE_PROC, _("Retrieving messages..."));
+	else
+		change_state_of_queue (mt, queue, row, STATE_PROC, _("No messages in server."));
+}
+
+static void
+check_retrieve (C2Pop3 *pop3, gint16 nth, gint32 received, gint32 total, C2Pthread3 *data)
+{
+	C2MessageTransfer *mt = data->v1;
+	C2MessageTransferQueue *queue = data->v2;
+	gint row = GPOINTER_TO_INT (data->v3);
+
+	if (!received)
+		change_mails_of_queue (mt, queue, row, nth, queue->subtasks[TOTAL]);
+	else
+		change_mail_of_queue (mt, queue, row, received, total);
+}
+
+static void
+check_disconnect (C2NetObject *object, gboolean success, C2Pthread2 *data)
+{
+	C2MessageTransfer *mt = ((C2Pthread3*)data->v1)->v1;
+	C2MessageTransferQueue *queue = ((C2Pthread3*)data->v1)->v2;
+	gint row = GPOINTER_TO_INT (((C2Pthread3*)data->v1)->v3);
+	gint *signal = (gint*) data->v2;
+	
+	if (success)
+		change_state_of_queue (mt, queue, row, STATE_OK, _("Messages downloaded successfully"));
+	else
+		change_state_of_queue (mt, queue, row, STATE_ERR, c2_error_get (c2_errno));
 }
 
 static void
 clist_select_row (GtkCList *clist, gint row, gint column, GdkEvent *event, C2MessageTransfer *mt)
 {
 	GtkWidget *info_box = glade_xml_get_widget (mt->xml, "info_box");
-	GtkWidget *tasks_frame = glade_xml_get_widget (mt->xml, "tasks_frame");
 	GtkWidget *subtasks_frame = glade_xml_get_widget (mt->xml, "subtasks_frame");
 	GtkWidget *subtasks_progress = glade_xml_get_widget (mt->xml, "subtasks_progress");
 	GtkWidget *subtask_frame = glade_xml_get_widget (mt->xml, "subtask_frame");
@@ -320,7 +473,6 @@ clist_select_row (GtkCList *clist, gint row, gint column, GdkEvent *event, C2Mes
 							queue->subtask[TOTAL]);
 
 	gtk_widget_show (info_box);
-	gtk_widget_hide (tasks_frame);
 	gtk_widget_show (subtasks_frame);
 	gtk_widget_show (subtasks_progress);
 	gtk_widget_show (subtask_frame);
@@ -415,7 +567,7 @@ init (C2MessageTransfer *obj)
 		NULL
 	};
 	
-	obj->tasks[DONE] = obj->tasks[TOTAL] = 0;
+	obj->selected_task = -1;
 
 	obj->queue = NULL;
 	obj->xml = NULL;

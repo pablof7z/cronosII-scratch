@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/net-object.c
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -235,6 +235,28 @@ c2_net_object_disconnect (C2NetObject *nobj)
 }
 
 void
+c2_net_object_disconnect_with_error (C2NetObject *nobj)
+{
+	if (nobj->state & C2_NET_OBJECT_OFF)
+		return;
+
+	close (nobj->sock);
+	nobj->state |= C2_NET_OBJECT_OFF | C2_NET_OBJECT_ERROR;
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE);
+}
+
+void
+c2_net_object_cancel (C2NetObject *nobj)
+{
+	if (nobj->state & C2_NET_OBJECT_OFF)
+		return;
+
+	close (nobj->sock);
+	nobj->state |= C2_NET_OBJECT_OFF | C2_NET_OBJECT_CANCEL;
+	gtk_signal_emit (GTK_OBJECT (nobj), signals[DISCONNECT], TRUE);
+}
+
+void
 c2_net_object_set_flags (C2NetObject *nobj, gint8 flags)
 {
 	nobj->state = flags;
@@ -346,10 +368,20 @@ c2_net_object_new (const gchar *host, guint port)
 	c2_return_val_if_fail (port > 0, NULL, C2EDATA);
 
 	nobj = gtk_type_new (C2_TYPE_NET_OBJECT);
-	nobj->host = g_strdup (host);
-	nobj->port = port;
+
+	c2_net_object_construct (nobj, host, port);
 
 	return nobj;
+}
+
+void
+c2_net_object_construct (C2NetObject *nobj, const gchar *host, guint port)
+{
+	c2_return_if_fail (host, C2EDATA);
+	c2_return_if_fail (port > 0, C2EDATA);
+
+	nobj->host = g_strdup (host);
+	nobj->port = port;
 }
 
 static void

@@ -26,7 +26,7 @@ static const gchar *err_list[] =
 	/* C2EDATA */		N_("Data exception"),
 	/* C2ENOMSG */		N_("No such message"),
 	/* C2EBUSY */		N_("Process is busy"),
-	/* C2ERSLV */		N_("Unknown hostname")
+	/* C2ERSLV */		N_("Unknown hostname"),
 };
 
 /**
@@ -53,11 +53,26 @@ c2_error_set (gint err)
 const gchar *
 c2_error_get (gint err)
 {
-	if (err >= 0) return err_list[err];
-	else return g_strerror (err*(-1));
+	if (err >= 0 && err != C2CUSTOM)
+		return err_list[err];
+	else if (err >= 0)
+		return c2_errstr;
+	else
+		return g_strerror (err*(-1));
 }
 
-
+/**
+ * c2_error_set_custom
+ * @err: Error string.
+ *
+ * Sets a custom error string.
+ **/
+void
+c2_error_set_custom (const gchar *err)
+{
+	c2_errno = C2CUSTOM;
+	c2_errstr = err;
+}
 
 
 

@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/error.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -42,18 +42,23 @@ enum
 	C2ENOMSG,
 	C2EBUSY,
 	C2ERSLV,
-
+	
+	C2CUSTOM,
 	C2ELAST
 };
 
 /* Own errno variable to keep track of our errors */
 gint c2_errno;
+const gchar *c2_errstr;
 
 const gchar *
 c2_error_get									(gint err);
 
 void
 c2_error_set									(gint err);
+
+void
+c2_error_set_custom								(const gchar *err);
 
 #ifdef __cplusplus
 }

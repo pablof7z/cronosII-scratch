@@ -47,10 +47,10 @@ typedef gchar* (*C2Pop3GetPass) 				(C2Pop3 *pop3, const gchar *error);
 
 enum _C2Pop3Flags
 {
-	C2_POP3_DO_KEEP_COPY			= 1 << 0,	/* Will get a mail and leave a copy on server */
-	C2_POP3_DONT_KEEP_COPY			= 1 << 1,	/* Will get a mail and delete it on server */
+	C2_POP3_DO_KEEP_COPY			= 1 << 1,	/* Will get a mail and leave a copy on server */
+	C2_POP3_DONT_KEEP_COPY			= 0 << 1,	/* Will get a mail and delete it on server */
 	C2_POP3_DO_LOSE_PASSWORD		= 1 << 2,	/* Will delete the password once it sended it correctly */
-	C2_POP3_DONT_LOSE_PASSWORD		= 1 << 3	/* Will keep the password unless its wrong */
+	C2_POP3_DONT_LOSE_PASSWORD		= 0 << 2	/* Will keep the password unless its wrong */
 };
 
 struct _C2Pop3
@@ -59,14 +59,11 @@ struct _C2Pop3
 	
 	gchar *user;
 	gchar *pass;
-	gchar *host;
 	gint port;
 
 	gint flags;
 
 	C2Pop3GetPass wrong_pass_cb;
-
-	guint sock;
 
 	pthread_mutex_t run_lock;
 };

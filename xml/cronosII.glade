@@ -1710,7 +1710,9 @@ See the 'AUTHORS' file for more...
 </authors>
   <comments>Cronos II is a fast, light, user friendly and powerful mail client for the Gnome Desktop.
 It has an extended and intuitive interface which will make life for novice easier without taking out the power to the gurus.
-
+ 
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the 'COPYING' file for the complete license or check it at http://www.gnu.org.
  
 You can find the website of Cronos II at:
 http://cronosII.sourceforge.net</comments>
@@ -2855,6 +2857,7 @@ Are you sure you want to delete it?</message>
 <widget>
   <class>GnomeDialog</class>
   <name>dlg_message_transfer</name>
+  <height>400</height>
   <title>Message Tranfer</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_CENTER</position>
@@ -2927,132 +2930,8 @@ Are you sure you want to delete it?</message>
 
       <widget>
 	<class>GtkFrame</class>
-	<name>frame2</name>
-	<label>Tasks</label>
-	<label_xalign>0</label_xalign>
-	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
-	<child>
-	  <padding>0</padding>
-	  <expand>False</expand>
-	  <fill>True</fill>
-	</child>
-
-	<widget>
-	  <class>GtkVBox</class>
-	  <name>vbox13</name>
-	  <border_width>3</border_width>
-	  <homogeneous>False</homogeneous>
-	  <spacing>0</spacing>
-
-	  <widget>
-	    <class>GtkProgressBar</class>
-	    <name>task_progress</name>
-	    <tooltip>This bar shows how many task Cronos II has to process related to the transfer of messages</tooltip>
-	    <value>0</value>
-	    <lower>0</lower>
-	    <upper>100</upper>
-	    <bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
-	    <orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
-	    <activity_mode>False</activity_mode>
-	    <show_text>False</show_text>
-	    <format>%P %%</format>
-	    <text_xalign>0.5</text_xalign>
-	    <text_yalign>0.5</text_yalign>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>False</fill>
-	    </child>
-	  </widget>
-	</widget>
-      </widget>
-
-      <widget>
-	<class>GtkFrame</class>
-	<name>subtasks_frame</name>
-	<label>Subtasks</label>
-	<label_xalign>0</label_xalign>
-	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
-	<child>
-	  <padding>0</padding>
-	  <expand>False</expand>
-	  <fill>True</fill>
-	</child>
-
-	<widget>
-	  <class>GtkVBox</class>
-	  <name>vbox14</name>
-	  <border_width>3</border_width>
-	  <homogeneous>False</homogeneous>
-	  <spacing>0</spacing>
-
-	  <widget>
-	    <class>GtkProgressBar</class>
-	    <name>subtasks_progress</name>
-	    <tooltip>This bar shows how many subtasks there are for the current task</tooltip>
-	    <value>0</value>
-	    <lower>0</lower>
-	    <upper>100</upper>
-	    <bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
-	    <orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
-	    <activity_mode>False</activity_mode>
-	    <show_text>False</show_text>
-	    <format>%P %%</format>
-	    <text_xalign>0.5</text_xalign>
-	    <text_yalign>0.5</text_yalign>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>False</fill>
-	    </child>
-	  </widget>
-	</widget>
-      </widget>
-
-      <widget>
-	<class>GtkFrame</class>
-	<name>subtask_frame</name>
-	<label>Progress of subtask</label>
-	<label_xalign>0</label_xalign>
-	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
-	<child>
-	  <padding>0</padding>
-	  <expand>False</expand>
-	  <fill>True</fill>
-	</child>
-
-	<widget>
-	  <class>GtkVBox</class>
-	  <name>vbox15</name>
-	  <border_width>3</border_width>
-	  <homogeneous>False</homogeneous>
-	  <spacing>0</spacing>
-
-	  <widget>
-	    <class>GtkProgressBar</class>
-	    <name>subtask_progress</name>
-	    <value>0</value>
-	    <lower>0</lower>
-	    <upper>100</upper>
-	    <bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
-	    <orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
-	    <activity_mode>False</activity_mode>
-	    <show_text>False</show_text>
-	    <format>%P %%</format>
-	    <text_xalign>0.5</text_xalign>
-	    <text_yalign>0.5</text_yalign>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>False</fill>
-	    </child>
-	  </widget>
-	</widget>
-      </widget>
-
-      <widget>
-	<class>GtkFrame</class>
 	<name>frame1</name>
+	<height>135</height>
 	<label>Tasks's list</label>
 	<label_xalign>0</label_xalign>
 	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
@@ -3065,6 +2944,7 @@ Are you sure you want to delete it?</message>
 	<widget>
 	  <class>GtkScrolledWindow</class>
 	  <name>scrolledwindow11</name>
+	  <border_width>4</border_width>
 	  <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
 	  <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
 	  <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
@@ -3074,22 +2954,17 @@ Are you sure you want to delete it?</message>
 	    <class>GtkCList</class>
 	    <name>task_clist</name>
 	    <can_focus>True</can_focus>
-	    <columns>4</columns>
-	    <column_widths>23,52,88,80</column_widths>
+	    <columns>3</columns>
+	    <column_widths>12,65,80</column_widths>
 	    <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
 	    <show_titles>True</show_titles>
 	    <shadow_type>GTK_SHADOW_IN</shadow_type>
 
 	    <widget>
-	      <class>Placeholder</class>
-	      <child_name>CList:title</child_name>
-	    </widget>
-
-	    <widget>
 	      <class>GtkLabel</class>
 	      <child_name>CList:title</child_name>
-	      <name>label59</name>
-	      <label>Type</label>
+	      <name>label69</name>
+	      <label></label>
 	      <justify>GTK_JUSTIFY_CENTER</justify>
 	      <wrap>False</wrap>
 	      <xalign>0.5</xalign>
@@ -3101,7 +2976,7 @@ Are you sure you want to delete it?</message>
 	    <widget>
 	      <class>GtkLabel</class>
 	      <child_name>CList:title</child_name>
-	      <name>label60</name>
+	      <name>label67</name>
 	      <label>Account</label>
 	      <justify>GTK_JUSTIFY_CENTER</justify>
 	      <wrap>False</wrap>
@@ -3112,8 +2987,112 @@ Are you sure you want to delete it?</message>
 	    </widget>
 
 	    <widget>
-	      <class>Placeholder</class>
+	      <class>GtkLabel</class>
 	      <child_name>CList:title</child_name>
+	      <name>label68</name>
+	      <label>Information</label>
+	      <justify>GTK_JUSTIFY_CENTER</justify>
+	      <wrap>False</wrap>
+	      <xalign>0.5</xalign>
+	      <yalign>0.5</yalign>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	    </widget>
+	  </widget>
+	</widget>
+      </widget>
+
+      <widget>
+	<class>GtkVBox</class>
+	<name>info_box</name>
+	<visible>False</visible>
+	<homogeneous>False</homogeneous>
+	<spacing>3</spacing>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GtkFrame</class>
+	  <name>subtasks_frame</name>
+	  <label>Subtasks</label>
+	  <label_xalign>0</label_xalign>
+	  <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	  <child>
+	    <padding>0</padding>
+	    <expand>True</expand>
+	    <fill>True</fill>
+	  </child>
+
+	  <widget>
+	    <class>GtkVBox</class>
+	    <name>vbox14</name>
+	    <border_width>3</border_width>
+	    <homogeneous>False</homogeneous>
+	    <spacing>0</spacing>
+
+	    <widget>
+	      <class>GtkProgressBar</class>
+	      <name>subtasks_progress</name>
+	      <tooltip>This bar shows how many subtasks there are for the current task</tooltip>
+	      <value>0</value>
+	      <lower>0</lower>
+	      <upper>100</upper>
+	      <bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
+	      <orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
+	      <activity_mode>False</activity_mode>
+	      <show_text>False</show_text>
+	      <format>%P %%</format>
+	      <text_xalign>0.5</text_xalign>
+	      <text_yalign>0.5</text_yalign>
+	      <child>
+		<padding>0</padding>
+		<expand>False</expand>
+		<fill>False</fill>
+	      </child>
+	    </widget>
+	  </widget>
+	</widget>
+
+	<widget>
+	  <class>GtkFrame</class>
+	  <name>subtask_frame</name>
+	  <label>Progress of subtask</label>
+	  <label_xalign>0</label_xalign>
+	  <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	  <child>
+	    <padding>0</padding>
+	    <expand>True</expand>
+	    <fill>True</fill>
+	  </child>
+
+	  <widget>
+	    <class>GtkVBox</class>
+	    <name>vbox15</name>
+	    <border_width>3</border_width>
+	    <homogeneous>False</homogeneous>
+	    <spacing>0</spacing>
+
+	    <widget>
+	      <class>GtkProgressBar</class>
+	      <name>subtask_progress</name>
+	      <value>0</value>
+	      <lower>0</lower>
+	      <upper>100</upper>
+	      <bar_style>GTK_PROGRESS_CONTINUOUS</bar_style>
+	      <orientation>GTK_PROGRESS_LEFT_TO_RIGHT</orientation>
+	      <activity_mode>False</activity_mode>
+	      <show_text>False</show_text>
+	      <format>%P %%</format>
+	      <text_xalign>0.5</text_xalign>
+	      <text_yalign>0.5</text_yalign>
+	      <child>
+		<padding>0</padding>
+		<expand>False</expand>
+		<fill>False</fill>
+	      </child>
 	    </widget>
 	  </widget>
 	</widget>

@@ -241,9 +241,10 @@ c2_account_copy (C2Account *account)
 										account->signature.type,
 										account->signature.string,
 										account->signature.automatic,
-										account->protocol.pop3->host, account->protocol.pop3->port,
-										account->protocol.pop3->flags,
+										C2_NET_OBJECT (account->protocol.pop3)->host,
+										C2_NET_OBJECT (account->protocol.pop3)->port,
 										account->protocol.pop3->user, account->protocol.pop3->pass,
+										account->protocol.pop3->flags,
 										account->smtp->host, account->smtp->port,
 										account->smtp->authentication, account->smtp->user,
 										account->smtp->pass);
@@ -255,9 +256,10 @@ c2_account_copy (C2Account *account)
 										account->signature.type,
 										account->signature.string,
 										account->signature.automatic,
-										account->protocol.pop3->host, account->protocol.pop3->port,
-										account->protocol.pop3->flags,
-										account->protocol.pop3->user, account->protocol.pop3->pass);
+										C2_NET_OBJECT (account->protocol.pop3)->host,
+										C2_NET_OBJECT (account->protocol.pop3)->port,
+										account->protocol.pop3->user, account->protocol.pop3->pass,
+										account->protocol.pop3->flags);
 		}
 		
 		c2_smtp_set_flags (copy->smtp, account->smtp->flags);

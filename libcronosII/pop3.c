@@ -17,10 +17,13 @@
  */
 #include <glib.h>
 #include <unistd.h>
+#include <string.h>
 #include <config.h>
 
 #include "error.h"
+#include "net-object.h"
 #include "pop3.h"
+#include "utils.h"
 
 #define DEFAULT_FLAGS C2_POP3_DONT_KEEP_COPY | C2_POP3_DONT_LOSE_PASSWORD
 
@@ -32,6 +35,12 @@ init											(C2Pop3 *pop3);
 
 static void
 destroy											(GtkObject *object);
+
+static gint
+welcome											(C2Pop3 *pop3);
+
+static gint
+login											(C2Pop3 *pop3);
 
 enum
 {
@@ -68,8 +77,8 @@ c2_pop3_new (const gchar *user, const gchar *pass, const gchar *host, gint port)
 
 	pop3->user = g_strdup (user);
 	pop3->pass = g_strdup (pass);
-	pop3->host = g_strdup (host);
-	pop3->port = port;
+
+	c2_net_object_construct (C2_NET_OBJECT (pop3), host, port);
 
 	return pop3;
 }
@@ -122,8 +131,114 @@ c2_pop3_fetchmail (C2Pop3 *pop3)
 {
 	c2_return_val_if_fail (pop3, -1, C2EDATA);
 
-	printf ("Ok, I'm supposed to connect to %s:%d, with user %s and password %s"
-			" and get all mails!\n", pop3->host, pop3->port, pop3->user, pop3->pass);
+	/* Lock the mutex */
+	pthread_mutex_lock (&pop3->run_lock);
+
+	if (c2_net_object_run (C2_NET_OBJECT (pop3)) < 0)
+	{
+		pthread_mutex_unlock (&pop3->run_lock);
+		return -1;
+	}
+
+	if (welcome (pop3) < 0)
+	{
+		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
+		pthread_mutex_unlock (&pop3->run_lock);
+		return -1;
+	}
+
+	if (login (pop3) < 0)
+	{
+		c2_net_object_disconnect_with_error (C2_NET_OBJECT (pop3));
+		pthread_mutex_unlock (&pop3->run_lock);
+		return -1;
+	}
+
+	c2_net_object_disconnect (C2_NET_OBJECT (pop3));
+
+	/* Unlock the mutex */
+	pthread_mutex_unlock (&pop3->run_lock);
+
+	return 0;
+}
+
+static gint
+welcome (C2Pop3 *pop3)
+{
+	gchar *string;
+
+	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+		return -1;
+
+	if (c2_strnne (string, "+OK", 3))
+	{
+		string = strstr (string, " ");
+		if (string)
+			string++;
+
+		c2_error_set_custom (string);
+		return -1;
+	}
+	
+	return 0;
+}
+
+static gint
+login (C2Pop3 *pop3)
+{
+	gchar *string;
+	gint i = 0;
+	gboolean logged_in = FALSE;
+
+	/* Username */
+	if (c2_net_object_send (C2_NET_OBJECT (pop3), "USER %s\r\n", pop3->user) < 0)
+		return -1;
+
+	if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+		return -1;
+
+	C2_DEBUG (string);
+
+	if (c2_strnne (string, "+OK", 3))
+	{
+		string = strstr (string, " ");
+		if (string)
+			string++;
+
+		c2_error_set_custom (string);
+		return -1;
+	}
+
+	/* Password */
+	do
+	{
+		g_free (string);
+		if (c2_net_object_send (C2_NET_OBJECT (pop3), "PASS %s\r\n", pop3->pass) < 0)
+			return -1;
+		
+		if (c2_net_object_read (C2_NET_OBJECT (pop3), &string) < 0)
+			return -1;
+
+		if (c2_strnne (string, "+OK", 3))
+		{
+			string = strstr (string, " ");
+			if (string)
+				string++;
+			
+			g_free (pop3->pass);
+
+			if (pop3->wrong_pass_cb)
+				pop3->pass = pop3->wrong_pass_cb (pop3, string);
+		} else
+			logged_in = TRUE;
+	} while (i++ < 3 && !logged_in && pop3->pass);
+	
+	if (!logged_in)
+	{
+L		return -1;
+	}
+
+L	return 0;
 }
 
 GtkType
@@ -183,11 +298,9 @@ class_init (C2Pop3Class *klass)
 static void
 init (C2Pop3 *pop3)
 {
-	pop3->user = pop3->pass = pop3->host = NULL;
-	pop3->port = 0;
+	pop3->user = pop3->pass = NULL;
 	pop3->flags = DEFAULT_FLAGS;
 	pop3->wrong_pass_cb = NULL;
-	pop3->sock = 0;
 	pthread_mutex_init (&pop3->run_lock, NULL);
 }
 
@@ -196,18 +309,17 @@ destroy (GtkObject *object)
 {
 	C2Pop3 *pop3 = C2_POP3 (object);
 
-	if (pop3->sock > 0)
+	if (c2_net_object_is_offline (C2_NET_OBJECT (pop3)))
 #ifdef USE_DEBUG
 	{
 		g_print ("A C2Pop3 object is being freed while a connection is "
 				 "being used (%s)!\n", pop3->user);
 #endif
-		close (pop3->sock);
+		c2_net_object_disconnect (C2_NET_OBJECT (pop3));
 #ifdef USE_DEBUG
 	}
 #endif
 	g_free (pop3->user);
 	g_free (pop3->pass);
-	g_free (pop3->host);
 	pthread_mutex_destroy (&pop3->run_lock);
 }

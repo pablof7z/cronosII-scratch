@@ -539,6 +539,58 @@ Quote#
 
 	      <widget>
 		<class>GtkFrame</class>
+		<name>frame16</name>
+		<label_xalign>0</label_xalign>
+		<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+		<child>
+		  <padding>0</padding>
+		  <expand>True</expand>
+		  <fill>True</fill>
+		</child>
+
+		<widget>
+		  <class>GtkHBox</class>
+		  <name>hbox44</name>
+		  <border_width>2</border_width>
+		  <homogeneous>False</homogeneous>
+		  <spacing>5</spacing>
+
+		  <widget>
+		    <class>GtkLabel</class>
+		    <name>label92</name>
+		    <label>Message Transfer mode:</label>
+		    <justify>GTK_JUSTIFY_CENTER</justify>
+		    <wrap>False</wrap>
+		    <xalign>0.5</xalign>
+		    <yalign>0.5</yalign>
+		    <xpad>0</xpad>
+		    <ypad>0</ypad>
+		    <child>
+		      <padding>0</padding>
+		      <expand>False</expand>
+		      <fill>False</fill>
+		    </child>
+		  </widget>
+
+		  <widget>
+		    <class>GtkOptionMenu</class>
+		    <name>options_mt_mode</name>
+		    <height>23</height>
+		    <tooltip>This is the mode that will be used when transfering messages. Multithread means that the transfering will start right when it is needed (all transfers at once). Monothread means that the transfering will be done one by one.</tooltip>
+		    <can_focus>True</can_focus>
+		    <items></items>
+		    <initial_choice>0</initial_choice>
+		    <child>
+		      <padding>0</padding>
+		      <expand>True</expand>
+		      <fill>True</fill>
+		    </child>
+		  </widget>
+		</widget>
+	      </widget>
+
+	      <widget>
+		<class>GtkFrame</class>
 		<name>frame15</name>
 		<label_xalign>0</label_xalign>
 		<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>

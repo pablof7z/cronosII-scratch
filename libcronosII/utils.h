@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/utils.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -47,6 +47,11 @@ typedef struct
 {
 	gpointer v1, v2, v3;
 } C2Pthread3;
+
+typedef struct
+{
+	gpointer v1, v2, v3, v4;
+} C2Pthread4;
 
 #ifdef USE_DEBUG
 #	define L									g_print ("%s:%d:%s\n", __FILE__, __LINE__, \

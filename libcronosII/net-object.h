@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/net-object.h
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -82,6 +82,8 @@ struct _C2NetObjectClass
 	void (*cancel) (C2NetObject *object);
 };
 
+#define c2_net_object_is_offline(x)				((x->state & C2_NET_OBJECT_OFF) ? TRUE : FALSE)
+
 GtkType
 c2_net_object_get_type							(void);
 
@@ -89,7 +91,13 @@ C2NetObject *
 c2_net_object_new								(const gchar *host, guint port);
 
 void
+c2_net_object_construct							(C2NetObject *nobj, const gchar *host, guint port);
+
+void
 c2_net_object_disconnect						(C2NetObject *nobj);
+
+void
+c2_net_object_disconnect_with_error				(C2NetObject *nobj);
 
 void
 c2_net_object_set_flags							(C2NetObject *nobj, gint8 flags);

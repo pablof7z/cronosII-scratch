@@ -630,8 +630,10 @@ on_apply_btn_clicked (void)
 			switch (account->type)
 			{
 				case C2_ACCOUNT_POP3:
-					gnome_config_set_string ("pop3_hostname", account->protocol.pop3->host);
-					gnome_config_set_int ("pop3_port", account->protocol.pop3->port);
+					gnome_config_set_string ("pop3_hostname",
+							C2_NET_OBJECT (account->protocol.pop3)->host);
+					gnome_config_set_int ("pop3_port",
+							C2_NET_OBJECT (account->protocol.pop3)->port);
 					gnome_config_set_string ("pop3_username", account->protocol.pop3->user);
 					gnome_config_set_string ("pop3_password", account->protocol.pop3->pass);
 					break;
@@ -1548,8 +1550,9 @@ on_accounts_edit_btn_clicked (void)
 	switch (account->type)
 	{
 		case C2_ACCOUNT_POP3:
-			gtk_entry_set_text (GTK_ENTRY (pop3_server_addr), account->protocol.pop3->host);
-			gtk_spin_button_set_value (GTK_SPIN_BUTTON (pop3_server_port), account->protocol.pop3->port);
+			gtk_entry_set_text (GTK_ENTRY (pop3_server_addr), C2_NET_OBJECT (account->protocol.pop3)->host);
+			gtk_spin_button_set_value (GTK_SPIN_BUTTON (pop3_server_port),
+								C2_NET_OBJECT (account->protocol.pop3)->port);
 			gtk_entry_set_text (GTK_ENTRY (pop3_username), account->protocol.pop3->user);
 			gtk_entry_set_text (GTK_ENTRY (pop3_password), account->protocol.pop3->pass);
 			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (leave_messages), account->protocol.pop3->flags &
