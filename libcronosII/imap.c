@@ -17,6 +17,7 @@
  */
 #include <stdio.h>
 #include <glib.h>
+#include "net-object.h"
 #include "utils.h"
 #include "imap.h"
 #include "i18n.h"
@@ -24,50 +25,15 @@
 #define NET_READ_FAILED  _("Internal socket read operation failed, connection is most likely broken")
 #define NET_WRITE_FAILED _("Internal socket write operation failed, connection is most likely broken")
 
-C2IMAP *
-c2_imap_new									(gchar *host, gint port, gchar *user, gchar *pass, 
-														C2IMAPAuthenticationType auth, gboolean ssl)
-{ return NULL; }
-
-GtkType
-c2_imap_get_type (void)
-{
-	static GtkType type = 0;
-
-	if (!type)
-	{
-		static GtkTypeInfo info =
-		{
-			"C2IMAP",
-			sizeof (C2IMAP),
-			sizeof (C2IMAPClass),
-			(GtkClassInitFunc) NULL,
-			(GtkObjectInitFunc) NULL,
-			(GtkArgSetFunc) NULL,
-			(GtkArgGetFunc) NULL
-		};
-
-		type = gtk_type_unique (c2_net_object_get_type (), &info);
-	}
-
-	return type;
-}
-
-void
-c2_imap_init								(C2IMAP *imap)
-{}
-
-
-#if 0
 /* C2 IMAP Module in the process of being engineered by Bosko (mainly) and Pablo =) */
 /* TODO: Implement a hash table in IMAP object for handing server replies */
 /* (in progress) TODO: Function for reading server replies */
 /* (in progress) TODO: Login (at least plain-text for now) */
+/* (in progress) TODO: Create a test module */
 /* TODO: Get list of folders */
 /* TODO: Get list of messages */
 /* TODO: Get and delete messages */
 /* TODO: Create, rename, and remove folders */
-/* TODO: Create a test module */
 
 /* Private GtkObject functions */
 static void
@@ -149,6 +115,8 @@ class_init (C2IMAPClass *klass)
 {
 	GtkObjectClass *object_class = (GtkObjectClass*) klass;
 
+	parent_class = gtk_type_class(c2_net_object_get_type() );
+	
 	signals[LOGIN] =
 		gtk_signal_new ("login",
 						GTK_RUN_FIRST,
@@ -182,12 +150,14 @@ class_init (C2IMAPClass *klass)
 						gtk_marshal_NONE__NONE, GTK_TYPE_NONE, 0);
 	
 	gtk_object_class_add_signals (object_class, signals, LAST_SIGNAL);
-
+	
 	klass->login = NULL;
 	klass->login_failed = NULL;
 	klass->mailbox_list = NULL;
 	klass->incoming_mail = NULL;
 	klass->logout = NULL;
+	
+	object_class->destroy = destroy;
 }
 
 static void
@@ -213,7 +183,7 @@ c2_imap_new (gchar *host, gint port, gchar *user, gchar *pass,
 {
 	C2IMAP *imap;
 
-	imap = gtk_type_new (c2_imap_get_type ());
+	imap = gtk_type_new (C2_TYPE_IMAP);
 	imap->user = g_strdup(user);
 	imap->pass = g_strdup(pass);
 	imap->host = g_strdup(host);
@@ -226,11 +196,7 @@ c2_imap_new (gchar *host, gint port, gchar *user, gchar *pass,
 			break;
 	}
 
-	c2_net_object_construct (C2_NET_OBJECT (imap), host, port, ssl);
-
-	gdk_input_add(C2_NET_OBJECT(imap)->sock, GDK_INPUT_READ,
-								(GdkInputFunction)c2_imap_on_net_traffic, imap);
-	
+	c2_net_object_construct (C2_NET_OBJECT (imap), imap->host, port, ssl);	
 	return imap;
 }
 
@@ -244,15 +210,18 @@ c2_imap_new (gchar *host, gint port, gchar *user, gchar *pass,
 void
 c2_imap_init (C2IMAP *imap)
 {
+	C2NetObjectByte *byte;
 	pthread_mutex_lock(&imap->lock);
 	
-	if(c2_net_object_run(C2_NET_OBJECT(imap)) < 0)
+	if(!(byte = c2_net_object_run(C2_NET_OBJECT(imap))))
 	{
 		gtk_signal_emit(GTK_OBJECT(imap), NET_ERROR);
 		c2_imap_set_error(imap, _("Error connecting to IMAP server."));
 		pthread_mutex_unlock(&imap->lock);
 		return;
 	}
+	gdk_input_add(byte->sock, GDK_INPUT_READ, (GdkInputFunction)c2_imap_on_net_traffic, imap);
+	
 	if(imap->login(imap) < 0)
 	{
 		gtk_signal_emit(GTK_OBJECT(imap), LOGIN_FAILED);
@@ -267,9 +236,10 @@ c2_imap_init (C2IMAP *imap)
 static void
 destroy(GtkObject *object)
 {
-	g_free(C2_IMAP(object)->user);
+	/*g_free(C2_IMAP(object)->user);
 	g_free(C2_IMAP(object)->pass);
-	pthread_mutex_destroy(&C2_IMAP(object)->lock);
+	g_free(C2_IMAP(object)->host);
+	pthread_mutex_destroy(&C2_IMAP(object)->lock);*/
 }
 
 static void
@@ -312,6 +282,7 @@ c2_imap_on_net_traffic (gpointer *data, gint source, GdkInputCondition condition
 	/* now insert 'final' into the hash...*/
 	printf("Now inserting data: %s in hash table for tag #%i\n", final, tag);
 	g_hash_table_insert(imap->hash, &tag, final);
+	c2_imap_unlock_pending(imap);
 	
 	pthread_mutex_unlock(&imap->lock);
 }
@@ -412,6 +383,9 @@ c2_imap_get_server_reply (C2IMAP *imap, tag_t tag)
 	C2IMAPPending *pending;
 	gchar *data;
 	
+	/* just in case we got more server data */
+	c2_imap_unlock_pending(imap); 
+	
 	pending = c2_imap_new_pending(imap, tag);
 	
 	/* be careful to unlock the mutex before waiting on replies */	
@@ -431,6 +405,33 @@ c2_imap_get_server_reply (C2IMAP *imap, tag_t tag)
 	return data;
 }
 
+static gboolean
+c2_imap_check_server_reply(gchar *reply, tag_t tag)
+{
+	gchar *ptr;
+	
+	for(ptr = reply; ptr = strstr(ptr, "\n"); )
+	{
+		if(c2_strneq(ptr+1, "CronosII-", 9))
+		{
+			ptr += 15; /* skip '\nCronosII-XXXX ' */
+			if(c2_strneq(ptr, "OK ", 3))
+				return TRUE;
+			else if(c2_strneq(ptr, "NO ", 3))
+				return FALSE;
+			else
+			{
+				g_warning(_("IMAP Server responded with 'BAD': %s\n"), reply);
+				return FALSE;
+			}
+		}
+	}
+	
+	g_warning(_("A server reply with no tagged ending sent to "
+							"c2_imap_check_server_reply(): %s\n"), reply);
+	return FALSE;
+}
+
 static gint
 c2_imap_plaintext_login (C2IMAP *imap)
 {
@@ -447,16 +448,22 @@ c2_imap_plaintext_login (C2IMAP *imap)
 		pthread_mutex_unlock(&imap->lock);
 		return -1;
 	}
-		
+	
 	if(!(reply = c2_imap_get_server_reply(imap, tag)))
 	{
 		pthread_mutex_unlock(&imap->lock);
 		return -1;
 	}
 	
-	/* TODO: finish me! */
+	printf("WE GOT BACK: %s\n", reply);
+	if(c2_imap_check_server_reply(reply, tag))
+	{
+		printf("logged in ok!\n\n");
+	}
+	else
+		return -1;
 	
 	pthread_mutex_unlock(&imap->lock);
 	return 0;
 }
-#endif
+
