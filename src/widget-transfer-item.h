@@ -27,17 +27,21 @@ extern "C" {
 #ifdef BUILDING_C2
 #	include "widget-dialog.h"
 #	include <libcronosII/account.h>
+#	include <libcronosII/message.h>
+#	include <libcronosII/smtp.h>
 #else
 #	include <cronosII.h>
 #endif
 
 #define C2_TYPE_TRANSFER_ITEM				(c2_transfer_item_get_type ())
-#define C2_TRANSFER_ITEM(OBJ)				(GTK_CHECK_CAST (obj, C2_TYPE_TRANSFER_ITEM, C2TransferItem))
+#define C2_TRANSFER_ITEM(obj)				(GTK_CHECK_CAST (obj, C2_TYPE_TRANSFER_ITEM, C2TransferItem))
 #define C2_TRANSFER_ITEM_CLASS(klass)		(GTK_CHECK_CAST (klass, C2_TYPE_TRANSFER_ITEM, C2TransferItemClass))
+#define C2_IS_TRANSFER_ITEM(obj)			(GTK_CHECK_TYPE (obj, C2_TYPE_TRANSFER_ITEM))
 
 typedef struct _C2TransferItem C2TransferItem;
 typedef struct _C2TransferItemClass C2TransferItemClass;
 typedef enum _C2TransferItemState C2TransferItemState;
+typedef enum _C2TransferItemType C2TransferItemType;
 
 enum _C2TransferItemState
 {
@@ -48,23 +52,43 @@ enum _C2TransferItemState
 	C2_TRANSFER_ITEM_DONE_SUCCESS
 };
 
+enum _C2TransferItemType
+{
+	C2_TRANSFER_ITEM_RECEIVE,
+	C2_TRANSFER_ITEM_SEND
+};
+
 struct _C2TransferItem
 {
-	GtkContainer container;
+	GtkObject object;
 
+	C2TransferItemType type;
 	C2TransferItemState state;
 	gchar *tooltip;
 
 	C2Account *account;
 
+	union
+	{
+		struct
+		{
+		} receive;
+		struct
+		{
+			C2SMTP *smtp;
+			C2Message *message;
+		} send;
+	} type_info;
+
+	GtkWidget *c1, *c2, *c3, *c4;
+
 	GtkWidget *progress_mail;
 	GtkWidget *progress_byte;
-	GtkWidget *animator;
 };
 
 struct _C2TransferItemClass
 {
-	GtkContainerClass parent_class;
+	GtkObjectClass parent_class;
 
 	void (*state_changed) (C2TransferItem *ti, C2TransferItemState state);
 	
@@ -75,8 +99,12 @@ struct _C2TransferItemClass
 GtkType
 c2_transfer_item_get_type					(void);
 
-GtkWidget *
-c2_transfer_item_new						(C2Account *account);
+C2TransferItem *
+c2_transfer_item_new						(C2Account *account, C2TransferItemType type, ...);
+
+void
+c2_transfer_item_construct					(C2TransferItem *ti, C2Account *account,
+											 C2TransferItemType type, va_list args);
 
 void
 c2_transfer_item_start						(C2TransferItem *ti);

@@ -166,9 +166,9 @@ HEADERS =  $(cronosinclude_HEADERS)
 
 DIST_COMMON =  README ./stamp-h.in ABOUT-NLS AUTHORS COPYING ChangeLog \
 INSTALL Makefile.am Makefile.in NEWS THANKS TODO about.html.in \
-acconfig.h acinclude.m4 aclocal.m4 config.h.in config.sub configure \
-configure.in cronosII-config.in cronosII.spec.in install-sh ltconfig \
-ltmain.sh missing mkinstalldirs
+acconfig.h acinclude.m4 aclocal.m4 config.guess config.h.in config.sub \
+configure configure.in cronosII-config.in cronosII.spec.in install-sh \
+ltconfig ltmain.sh missing mkinstalldirs
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)

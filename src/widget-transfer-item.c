@@ -17,6 +17,8 @@
  */
 #include "widget-transfer-item.h"
 
+#define MAX_CHARS_IN_LABEL		25
+
 static void
 class_init									(C2TransferItemClass *klass);
 
@@ -36,7 +38,7 @@ enum
 
 static guint signals[LAST_SIGNAL] = { 0 };
 
-static GtkContainerClass *parent_class = NULL;
+static GtkObjectClass *parent_class = NULL;
 
 GtkType
 c2_transfer_item_get_type (void)
@@ -56,7 +58,7 @@ c2_transfer_item_get_type (void)
 			(GtkArgGetFunc) NULL
 		};
 
-		type = gtk_type_unique (gtk_container_get_type (), &info);
+		type = gtk_type_unique (gtk_object_get_type (), &info);
 	}
 
 	return type;
@@ -67,7 +69,7 @@ class_init (C2TransferItemClass *klass)
 {
 	GtkObjectClass *object_class = (GtkObjectClass *) klass;
 
-	parent_class = gtk_type_class (gtk_container_get_type ());
+	parent_class = gtk_type_class (gtk_object_get_type ());
 
 	signals[STATE_CHANGED] =
 		gtk_signal_new ("state_changed",
@@ -104,40 +106,109 @@ init (C2TransferItem *ti)
 	ti->account = NULL;
 }
 
-GtkWidget *
-c2_transfer_item_new (C2Account *account)
+C2TransferItem *
+c2_transfer_item_new (C2Account *account, C2TransferItemType type, ...)
 {
 	C2TransferItem *ti;
-	GtkWidget *table, *label, *button, *pixmap;
+	va_list args;
 
 	ti = gtk_type_new (c2_transfer_item_get_type ());
 
-	table = gtk_table_new (2, 3, FALSE);
-	gtk_table_set_col_spacings (GTK_TABLE (table), 4);
-	gtk_table_set_row_spacings (GTK_TABLE (table), 4);
-	gtk_container_add (GTK_CONTAINER (ti), table);
-	gtk_widget_show (table);
+	va_start (args, type);
+	c2_transfer_item_construct (ti, account, type, args);
+	va_end (args);
 
-	label = gtk_label_new (account->name);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 1, 0, 1);
+	return ti;
+}
+
+void
+c2_transfer_item_construct (C2TransferItem *ti, C2Account *account, C2TransferItemType type, va_list args)
+{
+	GtkTooltips *tooltips;
+	GtkWidget *label, *button, *pixmap, *box;
+	gchar *buffer, *subject;
+	
+	ti->type = type;
+
+	/* Store the extra-information */
+	if (type == C2_TRANSFER_ITEM_RECEIVE)
+	{
+	} else if (type == C2_TRANSFER_ITEM_SEND)
+	{
+		ti->type_info.send.smtp = va_arg (args, C2SMTP *);
+		ti->type_info.send.message = va_arg (args, C2Message *);
+	} else
+		g_assert_not_reached ();
+
+	tooltips = gtk_tooltips_new ();
+
+	if (type == C2_TRANSFER_ITEM_RECEIVE)
+	{
+		pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/receive.png");
+		buffer = g_strdup_printf (_("Receive «%s»"), account->name);
+	} else
+	{
+		pixmap = gnome_pixmap_new_from_file (PKGDATADIR "/pixmaps/send.png");
+
+		if (ti->type_info.send.message)
+			subject = c2_message_get_header_field (ti->type_info.send.message, "Subject:");
+		else
+			subject = NULL;
+		if (!subject)
+			subject = g_strdup (_("This is a mail with a really long subject"));
+		buffer = g_strdup_printf (_("Send «%s»"), subject);
+		g_free (subject);
+	}
+	
+	gtk_widget_show (pixmap);
+	ti->c1 = pixmap;
+	
+	if (strlen (buffer) > MAX_CHARS_IN_LABEL)
+	{
+		gchar *short_buffer = g_new0 (gchar, MAX_CHARS_IN_LABEL);
+		strncpy (short_buffer, buffer, MAX_CHARS_IN_LABEL-3);
+		strcat (short_buffer, "...");
+		g_free (buffer);
+		buffer = short_buffer;
+	}
+	
+	label = gtk_label_new (buffer);
+	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 	gtk_widget_show (label);
+	ti->c2 = label;
+
+	box = gtk_vbox_new (FALSE, 0);
+	gtk_widget_show (box);
+	ti->c3 = box;
 
 	ti->progress_mail = gtk_progress_bar_new ();
-	gtk_table_attach_defaults (GTK_TABLE (table), ti->progress_mail, 1, 2, 0, 1);
+	gtk_box_pack_start (GTK_BOX (box), ti->progress_mail, FALSE, TRUE, 0);
 	gtk_widget_show (ti->progress_mail);
 
 	ti->progress_byte = gtk_progress_bar_new ();
-	gtk_table_attach_defaults (GTK_TABLE (table), ti->progress_byte, 1, 2, 1, 2);
+	gtk_box_pack_start (GTK_BOX (box), ti->progress_byte, FALSE, TRUE, 0);
 	gtk_widget_show (ti->progress_byte);
+	gtk_widget_set_usize (ti->progress_byte, -1, 5);
 
 	button = gtk_button_new ();
 
-	pixmap = gnome_pixmap_new_from_file (GNOME_STOCK_PIXMAP_STOP);
+	pixmap = gnome_stock_pixmap_widget_new (GTK_WIDGET (ti), GNOME_STOCK_PIXMAP_STOP);
 	gtk_container_add (GTK_CONTAINER (button), pixmap);
 	gtk_widget_show (pixmap);
 
-	gtk_table_attach_defaults (GTK_TABLE (table), button, 2, 3, 0, 1);
+	gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
+	gtk_tooltips_set_tip (tooltips, button, _("Cancel the transfer"), NULL);
 	gtk_widget_show (button);
 
-	return GTK_WIDGET (ti);
+	ti->c4 = button;
 }
+
+#if 0
+void
+c2_transfer_item_start (C2TransferItem *ti)
+{
+	if (ti->type == C2_TRANSFER_ITEM_RECEIVE)
+	{
+		c2_account_
+}
+#endif

@@ -24,10 +24,14 @@
 
 #include "main.h"
 
+#include "widget-transfer-list.h"
 #include "widget-window-main.h"
 
 static void
 on_flag_compose								(void);
+
+static void
+on_flag_check								(void);
 
 static struct {
 	gboolean open_composer;
@@ -41,6 +45,7 @@ static struct {
 
 	gchar *mailto;
 
+	gboolean check;
 	gboolean open_main_window;
 } flags =
 {
@@ -56,6 +61,7 @@ static struct {
 	NULL,
 
 	TRUE,
+	TRUE
 };
 
 static void
@@ -110,6 +116,11 @@ c2_init (gint argc, gchar **argv)
 			"mailto:email@somewhere."
 		},
 		{
+			"check", 'f', POPT_ARG_NONE,
+			on_flag_check, 0,
+			N_("Check account for mail."), NULL
+		},
+		{
 			"wmain", 'w', POPT_ARG_NONE,
 			NULL, 0,
 			N_("Open the main window (default)"), NULL
@@ -124,6 +135,8 @@ gint
 main (gint argc, gchar **argv)
 {
 	GtkWidget *main_window;
+	GtkWidget *transfer_list;
+	C2TransferItem *transfer_item;
 
 	g_thread_init (NULL);
 	
@@ -147,6 +160,26 @@ main (gint argc, gchar **argv)
 		main_window = c2_window_main_new (application);
 		gtk_widget_show (main_window);
 	}
+	if (flags.check)
+	{
+		C2Account *account =
+			c2_account_new ("Cronos II", "Pablo Fernández Navarro",
+							"Cronos II", "cronosII@users.sourceforge.net",
+							NULL, TRUE, NULL, NULL,
+							C2_ACCOUNT_POP3, C2_SMTP_REMOTE,
+							"pop3.yahoo.com.ar", 110, "pablo_viajando",
+							getenv ("POP_PASS"), 0, "smtp.arnet.com.ar", 25,
+							FALSE, NULL, NULL);
+		
+		transfer_list = c2_transfer_list_new (application);
+		gtk_widget_show (transfer_list);
+
+		transfer_item = c2_transfer_item_new (account, C2_TRANSFER_ITEM_RECEIVE);
+		c2_transfer_list_add_item (C2_TRANSFER_LIST (transfer_list), transfer_item);
+
+		transfer_item = c2_transfer_item_new (account, C2_TRANSFER_ITEM_SEND, NULL, NULL);
+		c2_transfer_list_add_item (C2_TRANSFER_LIST (transfer_list), transfer_item);
+	}
 	
 	gdk_threads_enter ();
 	gtk_main ();
@@ -162,4 +195,10 @@ static void
 on_flag_compose (void)
 {
 	L
+}
+
+static void
+on_flag_check (void)
+{
+L	flags.check = TRUE;
 }

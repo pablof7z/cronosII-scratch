@@ -29,7 +29,9 @@ pixmap_DATA = \
 	outbox.png			\
 	queue_mbox.png		\
 	read.png			\
+	receive.png			\
 	red_arrow.png		\
+	send.png			\
 	splash.png			\
 	reply.png			\
 	unknown-file.png	\

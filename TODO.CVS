@@ -1,0 +1,12 @@
+This is a list of the modules that need to be coded
+completly:
+
+o Spool
+o Plugins
+
+This is a list of the modules that need some work:
+
+o IMAP ([Bosko] & [Pablo] (and you?))
+o Net-Obect (SSL)
+o SMTP ([Bosko])
+o Request (Using our own HTTP/FTP code instead of third-party programs)

@@ -33,7 +33,7 @@ extern "C" {
 
 /* I am a little drunk while coding this, understand if I'm coding non sense */
 #define C2_TYPE_TRANSFER_LIST				(c2_transfer_list_get_type ())
-#define C2_TRANSFER_LIST(OBJ)				(GTK_CHECK_CAST (obj, C2_TYPE_TRANSFER_LIST, C2TransferList))
+#define C2_TRANSFER_LIST(obj)				(GTK_CHECK_CAST (obj, C2_TYPE_TRANSFER_LIST, C2TransferList))
 #define C2_TRANSFER_LIST_CLASS(klass)		(GTK_CHECK_CAST (klass, C2_TYPE_TRANSFER_LIST, C2TransferListClass))
 
 typedef struct _C2TransferList C2TransferList;
@@ -43,7 +43,11 @@ struct _C2TransferList
 {
 	C2Dialog dialog;
 
-	GSList *list;
+	GtkTable *receive_table;
+	GtkTable *send_table;
+
+	GSList *receive_list;
+	GSList *send_list;
 };
 
 struct _C2TransferListClass

@@ -17,6 +17,8 @@
  */
 #include "widget-transfer-list.h"
 
+#include <libcronosII/error.h>
+
 static void
 class_init									(C2TransferListClass *klass);
 
@@ -89,13 +91,15 @@ class_init (C2TransferListClass *klass)
 static void
 init (C2TransferList *tl)
 {
-	tl->list = NULL; 
+	tl->receive_list = NULL;
+	tl->send_list = NULL;
 }
 
 GtkWidget *
 c2_transfer_list_new (C2Application *application)
 {
 	C2TransferList *tl;
+	GtkWidget *table, *button, *vbox;
 	const gchar *buttons[] =
 	{
 		N_("Stop all"),
@@ -105,7 +109,73 @@ c2_transfer_list_new (C2Application *application)
 
 	tl = gtk_type_new (c2_transfer_list_get_type ());
 
-	c2_dialog_construct (C2_DIALOG (tl), application, _("Message Transfer"), buttons);
+	GTK_BOX (GNOME_DIALOG (tl)->vbox)->spacing = 0;
+
+	vbox = gtk_vbox_new (FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (tl)->vbox), vbox, TRUE, TRUE, 0);
+	gtk_widget_show (vbox);
+
+	table = gtk_table_new (1, 4, FALSE);
+	gtk_box_pack_start (GTK_BOX (vbox), table, TRUE, TRUE, 0);
+	gtk_widget_show (table);
+	gtk_table_set_col_spacings (GTK_TABLE (table), 2);
+	gtk_table_set_row_spacings (GTK_TABLE (table), 2);
+	tl->receive_table = GTK_TABLE (table);
+
+	button = gtk_hseparator_new ();
+	gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+	gtk_widget_show (button);
+
+	table = gtk_table_new (1, 4, FALSE);
+	gtk_box_pack_start (GTK_BOX (vbox), table, TRUE, TRUE, 4);
+	gtk_widget_show (table);
+	gtk_table_set_col_spacings (GTK_TABLE (table), 4);
+	gtk_table_set_row_spacings (GTK_TABLE (table), 4);
+	tl->send_table = GTK_TABLE (table);
+
+	button = gtk_hseparator_new ();
+	gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 4);
+	gtk_widget_show (button);
+	
+	button = gtk_check_button_new_with_label (_("Close when finished."));
+	gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, TRUE, 0);
+	gtk_widget_show (button);
+
+	c2_dialog_construct (C2_DIALOG (tl), application, _("Send & Receive"), buttons);
 
 	return GTK_WIDGET (tl);
+}
+
+void
+c2_transfer_list_add_item (C2TransferList *tl, C2TransferItem *ti)
+{
+	GtkWidget *c1, *c2, *c3, *c4, *hsep;
+	GtkTable *table;
+	gint rows, cols;
+	
+	c2_return_if_fail (C2_IS_TRANSFER_ITEM (ti), C2EDATA);
+	
+	if (ti->type == C2_TRANSFER_ITEM_RECEIVE)
+	{
+		tl->receive_list = g_slist_append (tl->receive_list, ti);
+		table = GTK_TABLE (tl->receive_list);
+	} else
+	{
+		tl->send_list = g_slist_append (tl->send_list, ti);
+		table = GTK_TABLE (tl->send_list);
+	}
+
+	c1 = ti->c1;
+	c2 = ti->c2;
+	c3 = ti->c3;
+	c4 = ti->c4;
+
+	rows = table->nrows;
+	cols = table->ncols;
+	gtk_table_resize (table, rows+2, cols);
+
+	gtk_table_attach (table, c1, 0, 1, rows, rows+1, 0, 0, 0, 0);
+	gtk_table_attach (table, c2, 1, 2, rows, rows+1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach (table, c3, 2, 3, rows, rows+1, 0, 0, 0, 0);
+	gtk_table_attach (table, c4, 3, 4, rows, rows+1, 0, 0, 0, 0);
 }
