@@ -1,4 +1,4 @@
-/*  Cronos II Mail Client
+/*  Cronos II Mail Client /libcronosII/utils.c    
  *  Copyright (C) 2000-2001 Pablo Fernández Navarro
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,14 +29,14 @@
  * @fst: A pointer to a string.
  * @snd: A pointer to a string.
  *
- * Comparates both string case-sensitive.
+ * Compares both string case-sensitive.
  * Use this function family instead of strcmp
- * when posible since this function will terminate
- * immeditely when it founds something different,
+ * when possible since this function will terminate
+ * immediately when it founds something different,
  * thus why is faster.
  *
  * Return Value:
- * A boolean indicating wheter the string where
+ * A boolean indicating whether the string where
  * equal.
  **/
 gboolean
@@ -62,17 +62,17 @@ c2_strcaseeq (const gchar *fst, const gchar *snd)
  * @fst: A pointer to a string.
  * @snd: A pointer to a string.
  * @length: A number indicating how many of the first characters
- * 	    to comparate.
+ * 	    to compare.
  *
- * Comparates both string case-sensitive in the first
+ * Compares both string case-sensitive in the first
  * @length characters.
  * Use this function family instead of strcmp
- * when posible since this function will terminate
- * immeditely when it founds something different,
+ * when possible since this function will terminate
+ * immediately when it founds something different,
  * thus why is faster.
  *
  * Return Value:
- * A boolean indicating wheter the string where
+ * A boolean indicating whether the string where
  * equal.
  **/
 gboolean
@@ -99,14 +99,14 @@ c2_strncaseeq (const gchar *fst, const gchar *snd, gint length)
  * @fst: A pointer to a string.
  * @snd: A pointer to a string.
  *
- * Comparates both string case-insensitive.
+ * Compares both string case-insensitive.
  * Use this function family instead of strcmp
- * when posible since this function will terminate
- * immeditely when it founds something different,
+ * when possible since this function will terminate
+ * immediately when it founds something different,
  * thus why is faster.
  *
  * Return Value:
- * A boolean indicating wheter the string where
+ * A boolean indicating whether the string where
  * equal.
  **/
 gboolean
@@ -144,17 +144,17 @@ c2_streq (const gchar *fst, const gchar *snd)
  * @fst: A pointer to a string.
  * @snd: A pointer to a string.
  * @length: A number indicating how many of the first characters
- * 	    to comparate.
+ * 	    to compare.
  *
- * Comparates both string case-insensitive in the first
+ * Compares both string case-insensitive in the first
  * @length characters.
  * Use this function family instead of strcmp
- * when posible since this function will terminate
- * immeditely when it founds something different,
+ * when possible since this function will terminate
+ * immediately when it founds something different,
  * thus why is faster.
  *
  * Return Value:
- * A boolean indicating wheter the string where
+ * A boolean indicating whether the string where
  * equal.
  **/
 gboolean
@@ -232,7 +232,7 @@ c2_strstr_case_insensitive (const gchar *haystack, const gchar *needle)
  * @re_string: The string to replace @se_string with
  *
  * Search @or_string and finds all instances of se_string, and replaces
- * them with re_string in a new freeble string that is returned.
+ * them with re_string in a new freeable string that is returned.
  *
  * Return Value:
  * A new string with the replacements that should be freed when no 
@@ -320,7 +320,7 @@ c2_str_strip_enclosed (const gchar *str, gchar open, gchar close)
  * c2_str_get_line
  * @str: A pointer to an string object where the next line should be searched.
  *
- * Searchs for the next line.
+ * Searches for the next line.
  * Note that this function should be used with a pointer
  * to the original string in a loop by moving the pointer
  * ptr += strlen (return value).
@@ -445,7 +445,7 @@ c2_get_tmp_file (void)
  * @fd.
  *
  * Return Value:
- * The line readed or NULL in case of error.
+ * The line read or NULL in case of error.
  **/
 gchar *
 c2_fd_get_line (FILE *fd)
@@ -528,7 +528,7 @@ c2_fd_get_word (FILE *fd)
 		if ((buf = fgetc (fd)) == EOF)
 		{
 			if (inside_quotes)
-				g_warning (_("Bad syntaxis, quotes aren't closed.\n"));
+				g_warning (_("Bad syntaxes, quotes aren't closed.\n"));
 			break;
 		}
 		
@@ -670,10 +670,10 @@ c2_file_is_directory (const gchar *file)
  *
  * This function will search for a character and move the file carrier
  * all over the file descriptor searching for it with the previously
- * descripted modificators.
+ * described modifiers.
  *
  * Return Value:
- * TRUE if the search was succesfully or FALSE.
+ * TRUE if the search was successfully or FALSE.
  **/
 gboolean
 c2_fd_move_to (FILE *fp, gchar c, guint8 cant, gboolean forward, gboolean next)
