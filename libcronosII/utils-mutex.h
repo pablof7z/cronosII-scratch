@@ -34,6 +34,7 @@ extern "C" {
 
 struct _C2Mutex
 {
+	gboolean dead;
 	gboolean lock;
 	GList *queue;
 };

@@ -27,6 +27,9 @@
 #include <unistd.h>
 
 #include "utils-mutex.h"
+#include "i18n.h"
+
+#define MUTEX_DESTROYED _("Attempting to lock/unlock a mutex which has already been destroyed")
 
 /**
  * c2_mutex_init
@@ -45,6 +48,7 @@
 gint 
 c2_mutex_init (C2Mutex *mutex)
 {	
+	mutex->dead = 0;
 	mutex->lock = 0;
 	mutex->queue = NULL;
 	
@@ -69,6 +73,12 @@ c2_mutex_init (C2Mutex *mutex)
 gint
 c2_mutex_lock (C2Mutex *mutex)
 {	
+	if(mutex->dead)
+	{
+		g_warning(MUTEX_DESTROYED);
+		return -1;
+	}
+	
 	if(!mutex->lock)
 	{
 		mutex->lock = 1;
@@ -83,13 +93,13 @@ c2_mutex_lock (C2Mutex *mutex)
 		
 		if(pipe(pipes) < 0)
 		{
-			g_warning("Critical Internal Error: Creating Mutex Pipe\n");
+			g_warning(_("Critical Internal Error: Creating Mutex Pipe\n"));
 			return -1;
 		}
 		mutex->queue = g_list_prepend(mutex->queue, GINT_TO_POINTER(pipes[1]));
 		if(read(pipes[0], c, 5) < 0)
 		{
-			g_warning("Critical Internal Error: Using Mutex Pipe\n");
+			g_warning(_("Critical Internal Error: Using Mutex Pipe\n"));
 			mutex->queue = g_list_remove(mutex->queue, GINT_TO_POINTER(pipes[1]));
 			close(pipes[0]);
 			close(pipes[1]);
@@ -122,9 +132,15 @@ c2_mutex_lock (C2Mutex *mutex)
 gint
 c2_mutex_unlock (C2Mutex *mutex)
 {
+	if(mutex->dead)
+	{
+		g_warning(MUTEX_DESTROYED);
+		return -1;
+	}
+	
 	if(!mutex->lock)
 	{
-		g_warning("Attempting to unlock an already unlocked mutex\n");
+		g_warning(_("Attempting to unlock an already unlocked mutex\n"));
 		return -1;
 	}
 	
@@ -143,7 +159,7 @@ c2_mutex_unlock (C2Mutex *mutex)
 		
 		if(write(pipe, c, 1) < 0)
 		{
-			g_warning("Critical Internal Error: Writing to Mutex Pipe\n");
+			g_warning(_("Critical Internal Error: Writing to Mutex Pipe\n"));
 			return -1;
 		}
 		return 0;
@@ -165,6 +181,12 @@ c2_mutex_unlock (C2Mutex *mutex)
 gint
 c2_mutex_trylock (C2Mutex *mutex)
 {
+	if(mutex->dead)
+	{
+		g_warning(MUTEX_DESTROYED);
+		return -1;
+	}
+	
 	if(mutex->lock)
 		return -1;
 	
@@ -182,12 +204,17 @@ c2_mutex_trylock (C2Mutex *mutex)
  * Return Value:
  * 0 on success on lock,
  * -1 if mutex has lock requests queued behind the 
- *    final c2_mutex_destroy() lock request.
+ *    final c2_mutex_destroy() lock request or if
+ *    Mutex was already "destroyed".
  **/
 gint
 c2_mutex_destroy (C2Mutex *mutex)
 {
+	if(mutex->dead)
+		return -1;
+	
 	c2_mutex_lock(mutex);
+	mutex->dead = 1;
 	
 	if(g_list_length(mutex->queue) != 0)
 		return -1;
