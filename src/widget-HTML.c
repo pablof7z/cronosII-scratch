@@ -288,6 +288,7 @@ c2_html_set_content_from_url (C2HTML *html, const gchar *url)
 void
 c2_html_set_content_from_string (C2HTML *html, const gchar *string)
 {
+	gchar * newstring;
 	c2_return_if_fail (string, C2EDATA);
 
 	c2_html_freeze (html);
@@ -296,7 +297,9 @@ c2_html_set_content_from_string (C2HTML *html, const gchar *string)
 	gtk_html_load_from_string (GTK_HTML (html), string, strlen (string));
 #elif defined (USE_GTKXMHTML)
 #else
-	gtk_text_insert (GTK_TEXT (html), html->font, html->fore, NULL, string, -1);
+	/* DAN */
+	newstring = c2_strip_html(string,C2_STRIP_HTML_DO_SYMBOLS);
+	gtk_text_insert (GTK_TEXT (html), html->font, html->fore, NULL, newstring, -1);
 #endif
 	c2_html_thaw (html);
 }
