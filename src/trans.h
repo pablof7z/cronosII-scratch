@@ -77,7 +77,7 @@ gchar *s = N_("Date");
 gchar *s = N_("Account");
 gchar *s = N_("Subject");
 gchar *s = N_("Body");
-gchar *s = N_("contains");
+gchar *s = N_("contains or");
 gchar *s = N_("is equal to");
 gchar *s = N_("Cas_e sensitive");
 gchar *s = N_("Show the Message Transfer dialog");
@@ -88,12 +88,15 @@ gchar *s = N_("close this dialog");
 gchar *s = N_("Mailbox properties");
 gchar *s = N_("finished");
 gchar *s = N_("Warning");
-gchar *s = N_("Editing mailbox properties might\n"
-              "result in the lost of all mails in it.");
-gchar *s = N_("Type here the name of the new mailbox");
+gchar *s = N_("Editing mailbox properties may\n"
+              "result in the loss of mail.");
+gchar *s = N_("Enter the New Mailbox name.");
 gchar *s = N_("Type:");
 gchar *s = N_("Name:");
 gchar *s = N_("Select the type of access you want for this mailbox");
+gchar *s = N_("Cronos II");
+gchar *s = N_("Sendmail");
+gchar *s = N_("IMAP");
 gchar *s = N_("Extra data");
 gchar *s = N_("Port:");
 gchar *s = N_("Type here the port where this mailbox is stored");
@@ -150,8 +153,9 @@ gchar *s = N_("\n"
 gchar *s = N_("Getting in Touch");
 gchar *s = N_("Close this dialog");
 gchar *s = N_("There is no account configured yet.\n"
-              "You need to do this before being\n"
-              "able to compose mails.");
+              "You need to configure at least one account before being able to compose mails.\n"
+              "\n"
+              "Open the preferences dialog.");
 gchar *s = N_("Error");
 gchar *s = N_("Preferences");
 gchar *s = N_("You found the Eastern Egg!");
@@ -199,8 +203,7 @@ gchar *s = N_("Save selected attachments to disk");
 gchar *s = N_("Mail Source");
 gchar *s = N_("Add features");
 gchar *s = N_("Add Features");
-gchar *s = N_("Cronos II is prepared to add new cool features in any time you want.\n"
-              "\n"
-              "What follow is a list of all available features of Cronos II that you can download from the Internet and install in a quick and easy way.");
+gchar *s = N_("Cronos II is able to add new cool features  any time you want.\n"
+              "Following is a list of  available features  that you can download from the Internet and install in a quick and easy way.");
 gchar *s = N_("New Features available");
 gchar *s = N_("Downloading...");

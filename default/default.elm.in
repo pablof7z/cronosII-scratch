@@ -5,13 +5,12 @@ Subject: Welcome to the new Cronos II @VERSION@
 [TODO: Write something nice here.]
 
 Welcome and Thankyou for using the new Cronos II.
-
-You have succesfully configured and installed the application up to this point.
+Congratulations, you have succesfully configured and installed the application.
 
  To use Cronos II you now need to configure your Email account(s).
 	Select:  preferences => settings => accounts.
 
-The User Manual is available from the help menu, the Cronos II web site;
+The User Manual is available from the Help Menu, the Cronos II web site;
 
 	< http://cronosII.sourceforge.net/Active_Site/manuals.php >
 
@@ -20,7 +19,7 @@ or the source package you have just installed.
 	//doc/C/cronosII/index.html.
 
 
-We are always keen to hear about your install / configure and daily use experiences.
+We are eager to hear about your install,configure and daily use experiences.
 Let us know how to make a great Email application even better.
 
 [users contact here]
