@@ -401,7 +401,12 @@ Cronos II is a fast, light, user friendly and powerful mail client for the \
 Gnome Desktop.\n\
 It has an extended and intuitive interface which will make life for novice \
 easier without taking out the power to the gurus.\n\
-\n\
+ \n\
+This program is distributed in the hope that it will be useful, but WITHOUT \
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or \
+FITNESS FOR A PARTICULAR PURPOSE.\n\
+See the 'COPYING' file for the complete license or check it at \
+http://www.gnu.org.\n\
  \n\
 You can find the website of Cronos II at:\n\
 http://cronosII.sourceforge.net", 290},
@@ -443,12 +448,12 @@ Are you sure you want to delete it?", 305},
   {"Lowest", 321},
   {"Wrap", 322},
   {"Message Tranfer", 323},
-  {"Subtasks", 324},
-  {"This bar shows how many subtasks there are for the current task", 325},
-  {"%P %%", 326},
-  {"Progress of subtask", 327},
-  {"Tasks's list", 328},
-  {"Type", 329},
+  {"Tasks's list", 324},
+  {"Subtasks", 325},
+  {"This bar shows how many subtasks there are for the current task", 326},
+  {"%v of %u [%P%%]", 327},
+  {"Progress of subtask", 328},
+  {"%u bytes [%P%%]", 329},
   {"Automatically close when finished.", 330},
   {"Bad Password", 331},
   {"Account:", 332},

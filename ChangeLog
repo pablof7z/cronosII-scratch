@@ -3,6 +3,7 @@
 	* POP3 module: Initial retrieve.
 			New theory: while messages are being downloaded they
 			will be stored in a file in the Hard Drive, not in the RAM.
+	* Message Transfer Widget: Auto close btn does it job.
 			
 2001-06-20 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
@@ -44,13 +45,8 @@
 
 2001-06-14 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
-<<<<<<< Change-Log
-	* Request module: Using gnome-download due to problems with HTTP images downloading
-			  that took me off!
-=======
 	* Request module: Using gnome-download due to problems with HTTP images downloading
 			that took me off!
->>>>>>> 1.10
 
 2001-06-13 Pablo Fernández Navarro <cronosII@users.sourceforge.net>
 
